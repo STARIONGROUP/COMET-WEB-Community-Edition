@@ -30,8 +30,6 @@ namespace COMETwebapp.Components.SiteDirectory
     using COMETwebapp.ViewModels.Components.SiteDirectory.Organizations;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -56,27 +54,25 @@ namespace COMETwebapp.Components.SiteDirectory
         }
 
         /// <summary>
-        /// Method invoked when creating a new thing
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
-        {
-            base.CustomizeEditThing(e);
-
-            var dataItem = (OrganizationRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
-            this.ViewModel.Thing = dataItem == null ? new Organization() : dataItem.Thing.Clone(true);
-            e.EditModel = this.ViewModel.Thing;
-        }
-
-        /// <summary>
         /// Method invoked every time a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
         protected override void OnSelectedDataItemChanged(OrganizationRowViewModel row)
         {
             base.OnSelectedDataItemChanged(row);
+            this.ShouldCreateThing = false;
             this.ViewModel.Thing = row.Thing.Clone(true);
+        }
+
+        /// <summary>
+        /// Method invoked before creating a new thing
+        /// </summary>
+        private void OnAddThingClick()
+        {
+            this.ShouldCreateThing = true;
+            this.IsOnEditMode = true;
+            this.ViewModel.Thing = new Organization();
+            this.InvokeAsync(this.StateHasChanged);
         }
     }
 }

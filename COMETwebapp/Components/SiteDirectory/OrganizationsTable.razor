@@ -22,48 +22,31 @@ Copyright (c) 2023-2024 Starion Group S.A.
                 Data="this.ViewModel.Rows.Items"
                 ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
                 ShowSearchBox="true"
-                SearchBoxNullText="Search for an organization..."
+                SearchBoxNullText="Search for an Organization..."
                 AllowSelectRowByClick="true"
                 SelectionMode="GridSelectionMode.Single"
                 SelectedDataItemChanged="@((row) => this.OnSelectedDataItemChanged((OrganizationRowViewModel)row))"
-                PopupEditFormCssClass="pw-800"
-                PopupEditFormHeaderText="Organization"
-                CustomizeElement="DisableDeprecatedThing"
-                CustomizeEditModel="this.CustomizeEditThing"
-                EditMode="GridEditMode.PopupEditForm"
-                EditModelSaving="@(this.OnEditThingSaving)"
                 EditFormButtonsVisible="false"
+                CustomizeEditModel="this.CustomizeEditThing"
                 PageSize="20"
                 PagerNavigationMode="PagerNavigationMode.Auto"
                 PageSizeSelectorVisible="true"
                 PageSizeSelectorItems="@(new int[] { 20, 35, 50 })"
-                PageSizeSelectorAllRowsItemVisible="true">
+                PageSizeSelectorAllRowsItemVisible="true"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                CssClass="height-fit-content">
             <Columns>
                 <DxGridDataColumn FieldName="@nameof(OrganizationRowViewModel.Name)" MinWidth="150"/>
-                <DxGridDataColumn FieldName="@nameof(OrganizationRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
+                <DxGridDataColumn FieldName="@nameof(OrganizationRowViewModel.ShortName)" MinWidth="80" />
                 <DxGridDataColumn FieldName="@nameof(OrganizationRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
-                <DxGridCommandColumn Width="200px" EditButtonVisible="false">
-                    <HeaderTemplate>
-                        <DxButton Id="addOrganizationButton" Text="Add Organization" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
-                    </HeaderTemplate>
-                    <CellDisplayTemplate>
-                    </CellDisplayTemplate>
-                </DxGridCommandColumn>
             </Columns>
-
-            <EditFormTemplate Context="EditFormContext">
-                <OrganizationsForm ViewModel="@this.ViewModel"
-                                   IsVisible="true"
-                                   ShouldCreate="true"
-                                   OnSaved="@(() => this.Grid.CancelEditAsync())"
-                                   OnCanceled="@(() => this.Grid.CancelEditAsync())"/>
-            </EditFormTemplate>
-
         </DxGrid>
-        <DataItemDetailsComponent IsSelected="@this.IsOnEditMode">
+        <DataItemDetailsComponent IsSelected="@this.IsOnEditMode"
+                                  OnButtonClick="@(this.OnAddThingClick)">
             <OrganizationsForm ViewModel="@this.ViewModel"
                                @bind-IsVisible="@this.IsOnEditMode"
-                               ShouldCreate="false"/>
+                               ShouldCreate="@(this.ShouldCreateThing)"
+                               OnSaved="@(this.OnSaved)" />
         </DataItemDetailsComponent>
     </div>
 </LoadingComponent>

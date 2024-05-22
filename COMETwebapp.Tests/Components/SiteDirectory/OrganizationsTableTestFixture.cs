@@ -123,12 +123,12 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         {
             var renderer = this.context.RenderComponent<OrganizationsTable>();
 
-            var addOrganizationButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addOrganizationButton");
+            var addOrganizationButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "dataItemDetailsButton");
             await renderer.InvokeAsync(addOrganizationButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(false));
+                Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(true));
                 Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(Organization)));
             });
 
@@ -136,7 +136,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             await renderer.InvokeAsync(() => organizationsGrid.Instance.SelectedDataItemChanged.InvokeAsync(new OrganizationRowViewModel(this.organization1)));
             Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(true));
 
-            var organizationsForm = renderer.FindComponents<OrganizationsForm>()[1];
+            var organizationsForm = renderer.FindComponent<OrganizationsForm>();
             var organizationsEditForm = organizationsForm.FindComponent<EditForm>();
             await organizationsForm.InvokeAsync(organizationsEditForm.Instance.OnValidSubmit.InvokeAsync);
 
