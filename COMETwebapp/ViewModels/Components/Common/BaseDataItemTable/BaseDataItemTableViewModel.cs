@@ -5,7 +5,7 @@
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
 //     This file is part of COMET WEB Community Edition
-//     The COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
 //     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
@@ -24,12 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
 {
-    using System.Data;
-    using System.Linq;
-    using System.Text;
-    using System.Text.RegularExpressions;
-
     using AntDesign;
+
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
@@ -37,7 +33,6 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
-    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
@@ -45,10 +40,6 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using DynamicData;
-
-    using FluentResults;
-
-    using Microsoft.AspNetCore.Components;
 
     using Result = FluentResults.Result;
 
@@ -68,28 +59,28 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         };
 
         /// <summary>
-        /// Injected property to get access to <see cref="IPermissionService" />
-        /// </summary>
-        protected readonly IPermissionService PermissionService;
-
-        /// <summary>
         /// The <see cref="ILogger{TCategoryName}" />
         /// </summary>
         protected readonly ILogger<BaseDataItemTableViewModel<T, TRow>> Logger;
 
         /// <summary>
-        /// Gets the <see cref="INotificationService"/>
+        /// Gets the <see cref="INotificationService" />
         /// </summary>
         protected readonly INotificationService NotificationService;
 
         /// <summary>
-        /// Creates a new instance of the <see cref="BaseDataItemTableViewModel{T,TRow}"/>
+        /// Injected property to get access to <see cref="IPermissionService" />
         /// </summary>
-        /// <param name="sessionService">The <see cref="ISessionService"/></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        /// <param name="notificationService">The <see cref="INotificationService"/></param>
-        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger, INotificationService notificationService = null) 
+        protected readonly IPermissionService PermissionService;
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="BaseDataItemTableViewModel{T,TRow}" />
+        /// </summary>
+        /// <param name="sessionService">The <see cref="ISessionService" /></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
+        /// <param name="notificationService">The <see cref="INotificationService" /></param>
+        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger, INotificationService notificationService = null)
             : base(sessionService, messageBus)
         {
             this.PermissionService = sessionService.Session.PermissionService;
@@ -242,13 +233,16 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// Displays a toast notification in the screen from a given result
         /// </summary>
         /// <param name="result">The result of an operation</param>
-        /// <exception cref="ArgumentNullException">Throws a <see cref="ArgumentNullException"/> if the <see cref="NotificationService"/> property is null</exception>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <exception cref="ArgumentNullException">
+        /// Throws a <see cref="ArgumentNullException" /> if the
+        /// <see cref="NotificationService" /> property is null
+        /// </exception>
+        /// <returns>A <see cref="Task" /></returns>
         protected void DisplayToastNotificationFromResult(Result result)
         {
             if (this.NotificationService is null)
             {
-                throw new NoNullAllowedException($"The {nameof(this.NotificationService)} property cannot be null");
+                throw new NullReferenceException($"The {nameof(this.NotificationService)} property cannot be null");
             }
 
             var key = $"open{DateTime.Now}";

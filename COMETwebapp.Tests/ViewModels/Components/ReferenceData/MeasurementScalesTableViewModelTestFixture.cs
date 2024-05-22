@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 {
+    using AntDesign;
+
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
@@ -35,16 +37,21 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
     using CDP4Web.Enumerations;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
     using COMETwebapp.Wrappers;
+
+    using FluentResults;
 
     using Microsoft.Extensions.Logging;
 
     using Moq;
 
     using NUnit.Framework;
+
+    using Result = FluentResults.Result;
 
     [TestFixture]
     public class MeasurementScalesTableViewModelTestFixture
@@ -56,6 +63,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         private Mock<ILogger<MeasurementScalesTableViewModel>> loggerMock;
         private CDPMessageBus messageBus;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
+        private Mock<INotificationService> notificationService;
         private MeasurementScale measurementScale;
         private SiteDirectory siteDirectory;
 
@@ -65,6 +73,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService = new Mock<ISessionService>();
             this.permissionService = new Mock<IPermissionService>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
+            this.notificationService = new Mock<INotificationService>();
             this.messageBus = new CDPMessageBus();
             this.loggerMock = new Mock<ILogger<MeasurementScalesTableViewModel>>();
 
@@ -109,8 +118,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(this.siteDirectory);
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Returns(Task.FromResult(new Result()));
 
-            this.viewModel = new MeasurementScalesTableViewModel(this.sessionService.Object, this.showHideService.Object, this.messageBus, this.loggerMock.Object);
+            this.viewModel = new MeasurementScalesTableViewModel(this.sessionService.Object, this.showHideService.Object, this.messageBus, this.loggerMock.Object, this.notificationService.Object);
         }
 
         [TearDown]
@@ -172,7 +182,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(1));
             });
 
+            var exceptionalError = new ExceptionalError(new InvalidDataException("Invalid data"));
+            var regularError = new Error("Failure");
             this.viewModel.SelectedReferenceQuantityValue.Value = string.Empty;
+
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()))
+                .Returns(Task.FromResult(new Result { Reasons = { regularError, exceptionalError } }));
+           
             await this.viewModel.CreateOrEditMeasurementScale(true);
 
             Assert.Multiple(() =>
@@ -191,6 +207,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(3));
                 Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(1));
             });
+
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
+            await this.viewModel.CreateOrEditMeasurementScale(false);
+            this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }
 
         [Test]
