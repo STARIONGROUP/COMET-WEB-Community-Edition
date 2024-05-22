@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.Pages
 {
-    using COMETwebapp.Utilities;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -39,26 +37,5 @@ namespace COMETwebapp.Pages
         [Parameter]
         [SupplyParameterFromQuery]
         public string Redirect { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="IConfiguration" />
-        /// </summary>
-        [Inject]
-        public IConfiguration Configuration { get; set; }
-
-        /// <summary>
-        /// Gets the condition to check if the full trust checkbox should be visible
-        /// </summary>
-        public bool FullTrustCheckboxVisible { get; private set; }
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            this.FullTrustCheckboxVisible = bool.Parse(this.Configuration.GetSection(Constants.FullTrustSelectionEnabledKey).Value!);
-        }
     }
 }

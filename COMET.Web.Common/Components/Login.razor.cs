@@ -25,6 +25,7 @@
 
 namespace COMET.Web.Common.Components
 {
+    using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components;
@@ -64,13 +65,7 @@ namespace COMET.Web.Common.Components
         /// The label for the full trust checkbox field
         /// </summary>
         [Parameter]
-        public string FullTrustLabel { get; set; } = "FullTrust:";
-
-        /// <summary>
-        /// The condition to check if the full trust checkbox should be visible or not
-        /// </summary>
-        [Parameter]
-        public bool FullTrustCheckboxVisible { get; set; } = false;
+        public string FullTrustLabel { get; set; } = "Full Trust:";
 
         /// <summary>
         /// The text of the login button
@@ -91,6 +86,11 @@ namespace COMET.Web.Common.Components
         /// The dictionary of focus status from the form fields
         /// </summary>
         public Dictionary<string, bool> FieldsFocusedStatus { get; private set; }
+
+        /// <summary>
+        /// Gets the server configuration
+        /// </summary>
+        private ServerConfiguration ServerConfiguration => this.ViewModel.ServerConnectionService.ServerConfiguration;
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its

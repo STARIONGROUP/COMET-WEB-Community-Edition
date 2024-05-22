@@ -40,6 +40,11 @@ namespace COMET.Web.Common.Model.Configuration
         public BookInputConfiguration BookInputConfiguration { get; set; }
 
         /// <summary>
+        /// The configuration values for the FullTrust feature
+        /// </summary>
+        public FullTrustConfiguration FullTrustConfiguration { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="EngineeringModelRdlFilter"/>. If not filters are specified all the available models are shown
         /// </summary>
         public EngineeringModelRdlFilter RdlFilter { get; set; }

@@ -57,7 +57,6 @@ namespace COMETwebapp.Tests.Pages
         private Mock<IIndexViewModel> viewModel;
         private TestContext context;
         private Mock<ISessionService> sessionService;
-        private readonly bool fullTrustValue = true;
 
         [SetUp]
         public void Setup()
@@ -72,9 +71,6 @@ namespace COMETwebapp.Tests.Pages
             this.viewModel = new Mock<IIndexViewModel>();
             this.viewModel.Setup(x => x.SessionService).Returns(this.sessionService.Object);
 
-            var configuration = new Mock<IConfiguration>();
-            configuration.Setup(x => x.GetSection(Constants.FullTrustSelectionEnabledKey).Value).Returns(this.fullTrustValue.ToString());
-
             var loginViewModel = new Mock<ILoginViewModel>();
             loginViewModel.Setup(x => x.ServerConnectionService.ServerConfiguration).Returns(new ServerConfiguration());
             loginViewModel.Setup(x => x.AuthenticationResult).Returns(new Result());
@@ -83,7 +79,6 @@ namespace COMETwebapp.Tests.Pages
             this.context.Services.AddSingleton(loginViewModel.Object);
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(this.sessionService.Object);
-            this.context.Services.AddSingleton(configuration.Object);
         }
 
         [TearDown]
@@ -97,12 +92,7 @@ namespace COMETwebapp.Tests.Pages
         public void VerifyIndexPageNotAuthorized()
         {
             var renderer = this.context.RenderComponent<Index>();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(() => renderer.FindComponent<Login>(), Throws.Nothing);
-                Assert.That(renderer.Instance.FullTrustCheckboxVisible, Is.EqualTo(this.fullTrustValue));
-            });
+            Assert.That(() => renderer.FindComponent<Login>(), Throws.Nothing);
         }
     }
 }
