@@ -323,7 +323,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 4)), Times.Once);
+                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 4)), Times.Once);
                 Assert.Multiple(() => { Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2)); });
             });
         }
@@ -352,13 +352,13 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
                 Assert.That(this.viewModel.Thing, Is.InstanceOf(typeof(Person)));
             });
 
             var form = renderer.FindComponent<DxGrid>();
             await renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
 
         [Test]

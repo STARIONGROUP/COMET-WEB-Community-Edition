@@ -5,7 +5,7 @@
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
 //     This file is part of COMET WEB Community Edition
-//     The COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
 //     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
 {
+    using AntDesign;
+
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
@@ -54,26 +56,33 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         };
 
         /// <summary>
-        /// Injected property to get access to <see cref="IPermissionService" />
-        /// </summary>
-        protected readonly IPermissionService PermissionService;
-
-        /// <summary>
         /// The <see cref="ILogger{TCategoryName}" />
         /// </summary>
         protected readonly ILogger<BaseDataItemTableViewModel<T, TRow>> Logger;
 
         /// <summary>
-        /// Creates a new instance of the <see cref="BaseDataItemTableViewModel{T,TRow}"/>
+        /// Gets the <see cref="INotificationService" />
         /// </summary>
-        /// <param name="sessionService">The <see cref="ISessionService"/></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger) 
+        protected readonly INotificationService NotificationService;
+
+        /// <summary>
+        /// Injected property to get access to <see cref="IPermissionService" />
+        /// </summary>
+        protected readonly IPermissionService PermissionService;
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="BaseDataItemTableViewModel{T,TRow}" />
+        /// </summary>
+        /// <param name="sessionService">The <see cref="ISessionService" /></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
+        /// <param name="notificationService">The <see cref="INotificationService" /></param>
+        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger, INotificationService notificationService = null)
             : base(sessionService, messageBus)
         {
             this.PermissionService = sessionService.Session.PermissionService;
             this.Logger = logger;
+            this.NotificationService = notificationService;
 
             this.InitializeSubscriptions(ObjectChangedTypesOfInterest);
             this.RegisterViewModelWithReusableRows(this);

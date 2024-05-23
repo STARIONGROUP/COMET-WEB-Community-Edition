@@ -77,7 +77,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
                 }
 
                 thingsToUpdateOrCreate.Add(this.Thing);
-                await this.SessionService.CreateOrUpdateThings(siteDirectoryClone, thingsToUpdateOrCreate);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToUpdateOrCreate);
             }
             catch (Exception ex)
             {

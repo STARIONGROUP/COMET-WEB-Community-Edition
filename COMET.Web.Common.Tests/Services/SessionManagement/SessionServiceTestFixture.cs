@@ -30,6 +30,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
 
     using DynamicData;
@@ -46,13 +47,15 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         private SessionService sessionService;
         private readonly Uri uri = new("http://test.com/");
         private CDPMessageBus messageBus;
+        private Mock<INotificationService> notificationService;
 
         [SetUp]
         public void Setup()
         {
             var logger = new Mock<ILogger<SessionService>>();
             this.messageBus = new CDPMessageBus();
-            this.sessionService = new SessionService(logger.Object, this.messageBus);
+            this.notificationService = new Mock<INotificationService>();
+            this.sessionService = new SessionService(logger.Object, this.messageBus, this.notificationService.Object);
 
             var engineeringModel = new EngineeringModel();
             this.sessionService.OpenIterations.Add(new Iteration(){ Container = engineeringModel});
@@ -78,7 +81,12 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             var domain = new DomainOfExpertise();
             siteDirectory.Domain.Add(domain);
 
-            Assert.That(async () => await this.sessionService.CreateOrUpdateThings(siteDirectory, [domain], ["file A"]), Throws.InvalidOperationException);
+            Assert.Multiple(() =>
+            {
+                Assert.That(async () => await this.sessionService.CreateOrUpdateThings(siteDirectory, [domain], ["file A"]), Throws.InvalidOperationException);
+                Assert.That(async () => await this.sessionService.CreateOrUpdateThingsWithNotification(siteDirectory, [domain], ["file A"]), Throws.InvalidOperationException);
+                Assert.That(async () => await this.sessionService.CreateOrUpdateThingsWithNotification(siteDirectory, [domain]), Throws.InvalidOperationException);
+            });
         }
 
         [Test]

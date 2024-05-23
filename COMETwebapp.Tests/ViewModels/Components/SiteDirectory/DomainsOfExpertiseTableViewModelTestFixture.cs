@@ -177,10 +177,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
             this.viewModel.InitializeViewModel();
 
             await this.viewModel.CreateOrEditDomainOfExpertise(false);
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 1)), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 1)), Times.Once);
 
             await this.viewModel.CreateOrEditDomainOfExpertise(true);
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 2)), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 2)), Times.Once);
         }
     }
 }

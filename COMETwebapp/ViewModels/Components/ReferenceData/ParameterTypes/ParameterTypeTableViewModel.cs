@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 {
+    using AntDesign;
+
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
@@ -73,8 +75,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
-        public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<ParameterTypeTableViewModel> logger)
-            : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
+        /// <param name="notificationService">The <see cref="INotificationService"/></param>
+        public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<ParameterTypeTableViewModel> logger,
+            INotificationService notificationService) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger, notificationService)
         {
             this.Thing = new BooleanParameterType();
         }
@@ -155,45 +158,54 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// <returns>A <see cref="Task" /></returns>
         public async Task CreateOrEditParameterType(bool shouldCreate)
         {
-            this.IsLoading = true;
-
-            var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
-            var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
-            var thingsToCreate = new List<Thing>();
-
-            if (shouldCreate || hasRdlChanged)
+            try
             {
-                rdlClone.ParameterType.Add(this.Thing);
-                thingsToCreate.Add(rdlClone);
-            }
+                this.IsLoading = true;
 
-            switch (this.Thing)
+                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
+                var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
+                var thingsToCreate = new List<Thing>();
+
+                if (shouldCreate || hasRdlChanged)
+                {
+                    rdlClone.ParameterType.Add(this.Thing);
+                    thingsToCreate.Add(rdlClone);
+                }
+
+                switch (this.Thing)
+                {
+                    case EnumerationParameterType enumerationParameterType:
+                        thingsToCreate.AddRange(enumerationParameterType.ValueDefinition);
+                        break;
+                    case CompoundParameterType compoundParameterType:
+                        thingsToCreate.AddRange(compoundParameterType.Component);
+                        break;
+                    case DerivedQuantityKind derivedQuantityKindParameterType:
+                        thingsToCreate.AddRange(derivedQuantityKindParameterType.QuantityKindFactor);
+                        break;
+                    case SampledFunctionParameterType sampledFunctionParameterType:
+                        thingsToCreate.AddRange(sampledFunctionParameterType.IndependentParameterType);
+                        thingsToCreate.AddRange(sampledFunctionParameterType.DependentParameterType);
+                        break;
+                }
+
+                thingsToCreate.Add(this.Thing);
+
+                await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate);
+
+                if (this.Thing.Original is not null)
+                {
+                    this.Thing = (ParameterType)this.Thing.Original.Clone(true);
+                }
+            }
+            catch (Exception ex)
             {
-                case EnumerationParameterType enumerationParameterType:
-                    thingsToCreate.AddRange(enumerationParameterType.ValueDefinition);
-                    break;
-                case CompoundParameterType compoundParameterType:
-                    thingsToCreate.AddRange(compoundParameterType.Component);
-                    break;
-                case DerivedQuantityKind derivedQuantityKindParameterType:
-                    thingsToCreate.AddRange(derivedQuantityKindParameterType.QuantityKindFactor);
-                    break;
-                case SampledFunctionParameterType sampledFunctionParameterType:
-                    thingsToCreate.AddRange(sampledFunctionParameterType.IndependentParameterType);
-                    thingsToCreate.AddRange(sampledFunctionParameterType.DependentParameterType);
-                    break;
+                this.Logger.LogError(ex, "Create or Update ParameterType failed");
             }
-
-            thingsToCreate.Add(this.Thing);
-
-            await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
-
-            if (this.Thing.Original is not null)
+            finally
             {
-                this.Thing = (ParameterType)this.Thing.Original.Clone(true);
+                this.IsLoading = false;
             }
-
-            this.IsLoading = false;
         }
 
         /// <summary>

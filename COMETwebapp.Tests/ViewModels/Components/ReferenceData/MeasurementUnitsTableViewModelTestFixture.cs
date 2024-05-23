@@ -211,7 +211,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             ((DerivedUnit)this.viewModel.Thing).UnitFactor.Add(unitFactor);
             await this.viewModel.CreateOrEditMeasurementUnit(true);
 
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(
                 It.IsAny<ReferenceDataLibrary>(), 
                 It.Is<List<Thing>>(c => c.Count == 3)), 
                 Times.Once);

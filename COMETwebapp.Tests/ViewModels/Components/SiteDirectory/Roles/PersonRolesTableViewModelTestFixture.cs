@@ -177,7 +177,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.Roles
             this.viewModel.InitializeViewModel();
             await this.viewModel.CreateOrEditPersonRole(true);
 
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
     }
 }
