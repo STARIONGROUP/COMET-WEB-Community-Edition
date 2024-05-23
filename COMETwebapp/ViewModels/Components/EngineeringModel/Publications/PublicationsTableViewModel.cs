@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Publications
     using CDP4Dal;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
@@ -120,7 +121,13 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Publications
 
             try
             {
-                await this.SessionService.CreateOrUpdateThingsWithNotification(iterationClone, thingsToCreate);
+                var notificationDescription = new NotificationDescription()
+                {
+                    OnSuccess = $"The {nameof(Publication)} was created",
+                    OnError = $"Error while creating a {nameof(Publication)}"
+                };
+
+                await this.SessionService.CreateOrUpdateThingsWithNotification(iterationClone, thingsToCreate, notificationDescription);
                 this.SelectedParameterRowsToPublish = [];
             }
             catch (Exception ex)

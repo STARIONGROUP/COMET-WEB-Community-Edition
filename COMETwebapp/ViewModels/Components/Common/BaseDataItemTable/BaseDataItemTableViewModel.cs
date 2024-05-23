@@ -33,6 +33,8 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
@@ -179,6 +181,22 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// </summary>
         /// <returns>A list of things</returns>
         protected abstract List<T> QueryListOfThings();
+
+        /// <summary>
+        /// Gets the message for the success notification
+        /// </summary>
+        /// <param name="created">The value to check if the thing was created</param>
+        /// <returns>The message</returns>
+        protected NotificationDescription GetNotificationDescription(bool created)
+        {
+            var notificationDescription = new NotificationDescription()
+            {
+                OnSuccess = $"The {typeof(T).Name} {this.Thing.GetShortNameOrName()} was {(created ? "added" : "updated")}",
+                OnError = $"Error while {(created ? "adding" : "updating")} the {typeof(T).Name} {this.Thing.GetShortNameOrName()}"
+            };
+
+            return notificationDescription;
+        }
 
         /// <summary>
         /// Handles the <see cref="SessionStatus.EndUpdate" /> message received

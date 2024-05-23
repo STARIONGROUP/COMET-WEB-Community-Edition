@@ -35,6 +35,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.Roles
     using CDP4Web.Enumerations;
 
     using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
@@ -177,7 +178,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.Roles
             this.viewModel.InitializeViewModel();
             await this.viewModel.CreateOrEditPersonRole(true);
 
-            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
         }
     }
 }

@@ -24,6 +24,7 @@
 
 namespace COMET.Web.Common.Tests.Services.NotificationService
 {
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.NotificationService;
 
     using DynamicData;
@@ -73,7 +74,7 @@ namespace COMET.Web.Common.Tests.Services.NotificationService
                 Assert.That(this.notificationService.Results, Has.Count.EqualTo(0));
             });
 
-            this.notificationService.Results.Add(new Result());
+            this.notificationService.Results.Add(new ResultNotification(new Result(), new NotificationDescription()));
             Assert.That(this.notificationService.Results, Has.Count.EqualTo(1));
         }
     }

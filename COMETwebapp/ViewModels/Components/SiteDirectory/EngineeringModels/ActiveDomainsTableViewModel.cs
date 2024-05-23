@@ -24,10 +24,12 @@
 
 namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
@@ -109,7 +111,14 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
             {
                 var modelClone = this.CurrentModel.Clone(false);
                 modelClone.ActiveDomain = this.SelectedDomainsOfExpertise.ToList();
-                await this.SessionService.CreateOrUpdateThingsWithNotification(modelClone.Container.Clone(false), [modelClone]);
+
+                var notificationDescription = new NotificationDescription()
+                {
+                    OnSuccess = $"The ActiveDomains from {nameof(EngineeringModel)} {this.CurrentModel.ShortName} were updated",
+                    OnError = $"Error while updating the ActiveDomains from {nameof(EngineeringModel)}"
+                };
+
+                await this.SessionService.CreateOrUpdateThingsWithNotification(modelClone.Container.Clone(false), [modelClone], notificationDescription);
             }
             catch (Exception ex)
             {

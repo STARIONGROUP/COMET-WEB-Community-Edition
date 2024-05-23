@@ -24,9 +24,9 @@
 
 namespace COMET.Web.Common.Services.NotificationService
 {
-    using DynamicData;
+    using COMET.Web.Common.Model;
 
-    using FluentResults;
+    using DynamicData;
 
     using ReactiveUI;
 
@@ -41,9 +41,9 @@ namespace COMET.Web.Common.Services.NotificationService
         private int notificationCount;
 
         /// <summary>
-        /// A sourcelist with <see cref="Result" />s
+        /// A sourcelist with <see cref="ResultNotification" />s
         /// </summary>
-        public SourceList<Result> Results { get; } = new();
+        public SourceList<ResultNotification> Results { get; } = new();
 
         /// <summary>
         /// Gets the number of notification(s)

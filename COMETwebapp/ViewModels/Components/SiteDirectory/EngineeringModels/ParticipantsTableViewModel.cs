@@ -143,7 +143,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
                 }
 
                 thingsToCreate.Add(this.Thing);
-                await this.SessionService.CreateOrUpdateThingsWithNotification(modelClone, thingsToCreate);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(modelClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
             }
             catch (Exception ex)
             {

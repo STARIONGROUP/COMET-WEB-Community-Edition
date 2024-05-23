@@ -32,6 +32,7 @@ namespace COMET.Web.Common.Services.SessionManagement
     using CDP4Dal;
     using CDP4Dal.Operations;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.NotificationService;
 
     using DynamicData;
@@ -125,8 +126,9 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
         /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
+        /// <param name="notificationDescription">The notification description to be displayed</param>
         /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
-        Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate);
+        Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, NotificationDescription notificationDescription = null);
 
         /// <summary>
         /// Creates or updates things, add new notifications to the <see cref="INotificationService"/>
@@ -134,8 +136,19 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
         /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
         /// <param name="files">A <see cref="IReadOnlyCollection{T}"/> of the file paths as <see cref="string"/> to create or update</param>
+        /// <param name="notificationDescription">The notification description to be displayed</param>
         /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
         /// <remarks>The <paramref name="topContainer" /> have to be a cloned <see cref="Thing" /></remarks>
-        Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, IReadOnlyCollection<string> files);
+        Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, IReadOnlyCollection<string> files, NotificationDescription notificationDescription = null);
+
+        /// <summary>
+        /// Deletes <see cref="Thing" />s
+        /// </summary>
+        /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
+        /// <param name="toDelete">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
+        /// <param name="notificationDescription">The notification description to be displayed</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        /// <remarks>The <paramref name="topContainer" /> have to be a cloned <see cref="Thing" /></remarks>
+        Task<Result> DeleteThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toDelete, NotificationDescription notificationDescription = null);
     }
 }

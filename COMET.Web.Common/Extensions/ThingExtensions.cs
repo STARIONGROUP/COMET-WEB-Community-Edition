@@ -553,5 +553,22 @@ namespace COMET.Web.Common.Extensions
 
             return name;
         }
+
+        /// <summary>
+        /// Gets the <see cref="Thing"/> shortname if it has one, otherwise gets its name
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing"/></param>
+        /// <returns>The <see cref="Thing"/> designation</returns>
+        public static string GetShortNameOrName(this Thing thing)
+        {
+            var thingDesignation = thing switch
+            {
+                IShortNamedThing shortNamedThing => shortNamedThing.ShortName,
+                INamedThing namedThing => namedThing.Name,
+                _ => thing.UserFriendlyShortName
+            };
+
+            return thingDesignation;
+        }
     }
 }

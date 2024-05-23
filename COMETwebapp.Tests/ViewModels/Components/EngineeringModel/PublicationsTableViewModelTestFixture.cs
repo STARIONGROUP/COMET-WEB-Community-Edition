@@ -32,6 +32,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
     using CDP4Dal;
     using CDP4Dal.Permission;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
@@ -154,18 +155,18 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.viewModel.InitializeViewModel();
             this.viewModel.SetCurrentIteration(this.iteration);
             await this.viewModel.CreatePublication();
-            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Never);
 
             this.viewModel.SelectedParameterRowsToPublish = listOfSelectedRowsToPublish;
             await this.viewModel.CreatePublication();
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
                 Assert.That(this.viewModel.SelectedParameterRowsToPublish, Is.Empty);
             });
 
-            this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
+            this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Iteration>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>())).Throws(new Exception());
             this.viewModel.SelectedParameterRowsToPublish = listOfSelectedRowsToPublish;
             await this.viewModel.CreatePublication();
             this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());

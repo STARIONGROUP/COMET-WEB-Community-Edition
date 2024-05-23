@@ -30,6 +30,8 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
@@ -112,12 +114,27 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
 
             try
             {
-                await this.SessionService.DeleteThings(clonedContainer, [this.Thing.Clone(false)]);
+                await this.SessionService.DeleteThingsWithNotification(clonedContainer, [this.Thing.Clone(false)], this.GetDeletionNotificationDescription());
             }
             catch (Exception exception)
             {
                 this.Logger.LogError(exception, "An error has occurred while trying to delete the {thingType} with iid {thingIid}", typeof(T), this.Thing.Iid);
             }
+        }
+
+        /// <summary>
+        /// Gets the message for the success notification
+        /// </summary>
+        /// <returns>The message</returns>
+        protected NotificationDescription GetDeletionNotificationDescription()
+        {
+            var notificationDescription = new NotificationDescription()
+            {
+                OnSuccess = $"The {typeof(T).Name} {this.Thing.GetShortNameOrName()} was deleted!",
+                OnError = $"Error while deleting The {typeof(T).Name} {this.Thing.GetShortNameOrName()}"
+            };
+
+            return notificationDescription;
         }
     }
 }

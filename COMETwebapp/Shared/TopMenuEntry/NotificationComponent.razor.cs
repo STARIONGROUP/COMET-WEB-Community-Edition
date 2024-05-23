@@ -26,13 +26,12 @@ namespace COMETwebapp.Shared.TopMenuEntry
 {
     using AntDesign;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Shared.TopMenuEntry;
 
     using COMETwebapp.Extensions;
 
     using DynamicData;
-
-    using FluentResults;
 
     using Microsoft.AspNetCore.Components;
 
@@ -78,29 +77,29 @@ namespace COMETwebapp.Shared.TopMenuEntry
         /// <summary>
         /// Displays a toast notification in the screen from a given result
         /// </summary>
-        /// <param name="result">The result of an operation</param>
+        /// <param name="resultNotification">The result notification of an operation</param>
         /// <exception cref="InvalidDataException">
         /// Throws an <see cref="InvalidDataException" /> if the
         /// <see cref="NotificationService" /> property is null
         /// </exception>
         /// <returns>A <see cref="Task" /></returns>
-        private void DisplayToastNotificationFromResult(IResultBase result)
+        private void DisplayToastNotificationFromResult(ResultNotification resultNotification)
         {
             var key = $"open{DateTime.Now}";
 
             var notificationConfig = new NotificationConfig { Key = key };
 
-            if (result.IsSuccess)
+            if (resultNotification.Result.IsSuccess)
             {
                 notificationConfig.Message = "Success!";
-                notificationConfig.Description = "The operation was successful!";
+                notificationConfig.Description = resultNotification.NotificationDescription.OnSuccess;
                 notificationConfig.NotificationType = NotificationType.Success;
                 notificationConfig.Duration = 4.5;
             }
             else
             {
-                notificationConfig.Message = "Operation Failed";
-                notificationConfig.Description = result.GetHtmlErrorsDescription();
+                notificationConfig.Message = "Operation Failed!";
+                notificationConfig.Description = $"{resultNotification.NotificationDescription.OnError}<br>{resultNotification.Result.GetHtmlErrorsDescription()}";
                 notificationConfig.NotificationType = NotificationType.Error;
                 notificationConfig.Duration = 12.5;
             }

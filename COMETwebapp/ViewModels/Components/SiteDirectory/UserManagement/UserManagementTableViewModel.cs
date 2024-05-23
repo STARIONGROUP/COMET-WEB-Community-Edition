@@ -39,6 +39,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Http.HttpResults;
 
     /// <summary>
     /// View model used to manage <see cref="Person" />
@@ -180,7 +181,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
                 }
 
                 thingsToCreate.Add(this.Thing);
-                await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
                 this.ResetFields();
             }
             catch (Exception ex)

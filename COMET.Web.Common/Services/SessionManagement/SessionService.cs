@@ -1,25 +1,24 @@
 // --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SessionService.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25
-//    Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//    Licensed under the Apache License, Version 2.0 (the "License");
-//    you may not use this file except in compliance with the License.
-//    You may obtain a copy of the License at
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
 // 
-//        http://www.apache.org/licenses/LICENSE-2.0
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//    Affero General Public License for more details.
 // 
-//    Unless required by applicable law or agreed to in writing, software
-//    distributed under the License is distributed on an "AS IS" BASIS,
-//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//    See the License for the specific language governing permissions and
-//    limitations under the License.
-// 
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
@@ -37,9 +36,9 @@ namespace COMET.Web.Common.Services.SessionManagement
     using CDP4Dal.Operations;
     using CDP4Dal.Utilities;
 
-    using CDP4Web.Enumerations;
     using CDP4Web.Extensions;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.NotificationService;
 
     using DynamicData;
@@ -62,7 +61,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         private readonly ILogger<SessionService> logger;
 
         /// <summary>
-        /// The <see cref="INotificationService"/>
+        /// The <see cref="INotificationService" />
         /// </summary>
         private readonly INotificationService notificationService;
 
@@ -71,7 +70,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="logger">the <see cref="ILogger{TCategoryName}" /></param>
         /// <param name="messageBus">The <see cref="IMessageBus" /></param>
-        /// <param name="notificationService">The <see cref="INotificationService"/></param>
+        /// <param name="notificationService">The <see cref="INotificationService" /></param>
         public SessionService(ILogger<SessionService> logger, ICDPMessageBus messageBus, INotificationService notificationService) : base(logger, messageBus)
         {
             this.logger = logger;
@@ -137,7 +136,10 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
         /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
-        /// <param name="files">A <see cref="IReadOnlyCollection{T}"/> of the file paths as <see cref="string"/> to create or update</param>
+        /// <param name="files">
+        /// A <see cref="IReadOnlyCollection{T}" /> of the file paths as <see cref="string" /> to create or
+        /// update
+        /// </param>
         /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
         /// <remarks>The <paramref name="topContainer" /> have to be a cloned <see cref="Thing" /></remarks>
         public Task<Result> CreateOrUpdateThings(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, IReadOnlyCollection<string> files)
@@ -164,30 +166,50 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
-        /// Creates or updates things, add new notifications to the <see cref="INotificationService"/>
+        /// Creates or updates things, add new notifications to the <see cref="INotificationService" />
         /// </summary>
         /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
         /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
+        /// <param name="notificationDescription">The notification description to be displayed</param>
         /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
-        public async Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate)
+        public async Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, NotificationDescription notificationDescription = null)
         {
             var result = await this.CreateOrUpdateThings(topContainer, toUpdateOrCreate);
-            this.notificationService.Results.Add(result);
+            this.notificationService.Results.Add(new ResultNotification(result, notificationDescription));
             return result;
         }
 
         /// <summary>
-        /// Creates or updates things, add new notifications to the <see cref="INotificationService"/>
+        /// Creates or updates things, add new notifications to the <see cref="INotificationService" />
         /// </summary>
         /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
         /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
-        /// <param name="files">A <see cref="IReadOnlyCollection{T}"/> of the file paths as <see cref="string"/> to create or update</param>
+        /// <param name="files">
+        /// A <see cref="IReadOnlyCollection{T}" /> of the file paths as <see cref="string" /> to create or
+        /// update
+        /// </param>
+        /// <param name="notificationDescription">The notification description to be displayed</param>
         /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
         /// <remarks>The <paramref name="topContainer" /> have to be a cloned <see cref="Thing" /></remarks>
-        public async Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, IReadOnlyCollection<string> files)
+        public async Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, IReadOnlyCollection<string> files, NotificationDescription notificationDescription = null)
         {
             var result = await this.CreateOrUpdateThings(topContainer, toUpdateOrCreate, files);
-            this.notificationService.Results.Add(result);
+            this.notificationService.Results.Add(new ResultNotification(result, notificationDescription));
+            return result;
+        }
+
+        /// <summary>
+        /// Deletes <see cref="Thing" />s
+        /// </summary>
+        /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
+        /// <param name="toDelete">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
+        /// <param name="notificationDescription">The notification description to be displayed</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        /// <remarks>The <paramref name="topContainer" /> have to be a cloned <see cref="Thing" /></remarks>
+        public async Task<Result> DeleteThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toDelete, NotificationDescription notificationDescription = null)
+        {
+            var result = await this.DeleteThings(topContainer, toDelete);
+            this.notificationService.Results.Add(new ResultNotification(result, notificationDescription));
             return result;
         }
 
@@ -195,7 +217,8 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// Reads the <see cref="EngineeringModel" /> instances from the data-source
         /// </summary>
         /// <param name="engineeringModelIds">
-        /// The unique identifiers of the <see cref="EngineeringModel" />s that needs to be read from the data-source, in case the list is empty
+        /// The unique identifiers of the <see cref="EngineeringModel" />s that needs to be read from the data-source, in case the
+        /// list is empty
         /// all the <see cref="EngineeringModel" />s will be read
         /// </param>
         /// <returns>
@@ -244,7 +267,10 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// Writes an <see cref="OperationContainer" /> to the <see cref="ISession" />
         /// </summary>
         /// <param name="operationContainer">The <see cref="OperationContainer" /> to write</param>
-        /// <param name="files">A <see cref="IReadOnlyCollection{T}"/> of the file paths as <see cref="string"/> to create or update</param>
+        /// <param name="files">
+        /// A <see cref="IReadOnlyCollection{T}" /> of the file paths as <see cref="string" /> to create or
+        /// update
+        /// </param>
         /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
         public async Task<Result> WriteTransaction(OperationContainer operationContainer, IReadOnlyCollection<string> files)
         {
