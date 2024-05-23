@@ -112,7 +112,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
             this.notificationService.Object.Results.Add(new Result());
             this.antDesignNotificationService.Verify(x => x.Open(It.IsAny<NotificationConfig>()), Times.Once);
 
-            this.notificationService.Object.Results.Add(new Result { Reasons = { new Error("err") } });
+            this.notificationService.Object.Results.Add(new Result { Reasons = { new Error("err"), new ExceptionalError(new Exception("exception")) } });
             this.antDesignNotificationService.Verify(x => x.Open(It.IsAny<NotificationConfig>()), Times.Exactly(2));
         }
     }
