@@ -67,7 +67,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
-        /// <param name="notificationService">The <see cref="INotificationService"/></param>
+        /// <param name="notificationService">The <see cref="INotificationService" /></param>
         public MeasurementScalesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus,
             ILogger<MeasurementScalesTableViewModel> logger, INotificationService notificationService) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger, notificationService)
         {
@@ -180,8 +180,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         {
             try
             {
-                this.IsLoading = true;
-
                 var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
                 var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
                 var thingsToCreate = new List<Thing>();
@@ -220,10 +218,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
             {
                 this.Logger.LogError(ex, "Create or Update MeasurementScale failed");
             }
-            finally
-            {
-                this.IsLoading = false;
-            }
+        }
+
+        /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<MeasurementScale> QueryListOfThings()
+        {
+            return this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.Scale).ToList();
         }
 
         /// <summary>

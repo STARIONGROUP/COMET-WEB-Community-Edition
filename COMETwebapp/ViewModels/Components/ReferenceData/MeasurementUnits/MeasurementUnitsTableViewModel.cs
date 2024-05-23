@@ -132,6 +132,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
         }
 
         /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<MeasurementUnit> QueryListOfThings()
+        {
+            return this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.Unit).ToList();
+        }
+
+        /// <summary>
         /// Creates or edits a <see cref="MeasurementUnit" />
         /// </summary>
         /// <param name="shouldCreate">The value to check if a new <see cref="MeasurementUnit" /> should be created</param>

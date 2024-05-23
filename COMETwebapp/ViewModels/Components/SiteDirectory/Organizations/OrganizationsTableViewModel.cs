@@ -76,5 +76,14 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Organizations
 
             this.IsLoading = false;
         }
+
+        /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<Organization> QueryListOfThings()
+        {
+            return this.SessionService.GetSiteDirectory().Organization;
+        }
     }
 }

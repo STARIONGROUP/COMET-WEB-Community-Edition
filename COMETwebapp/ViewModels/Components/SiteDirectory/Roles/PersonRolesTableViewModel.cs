@@ -86,5 +86,14 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
             await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate);
             this.IsLoading = false;
         }
+
+        /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<PersonRole> QueryListOfThings()
+        {
+            return this.SessionService.GetSiteDirectory().PersonRole;
+        }
     }
 }

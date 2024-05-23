@@ -83,5 +83,14 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
 
             this.IsLoading = false;
         }
+
+        /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<ParticipantRole> QueryListOfThings()
+        {
+            return this.SessionService.GetSiteDirectory().ParticipantRole;
+        }
     }
 }

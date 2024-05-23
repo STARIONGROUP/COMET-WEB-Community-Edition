@@ -26,6 +26,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
@@ -34,12 +35,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     /// </summary>
     public interface IParticipantsTableViewModel : IDeletableDataItemTableViewModel<Participant, ParticipantRowViewModel>
     {
-        /// <summary>
-        /// Filters the current Rows, keeping only the participants associated with the given engineering model
-        /// </summary>
-        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
-        void SetEngineeringModel(EngineeringModelSetup model);
-
         /// <summary>
         /// Gets a collection of all the available <see cref="Person"/>s
         /// </summary>
@@ -77,5 +72,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// Updates the current participant domains with the <see cref="ParticipantsTableViewModel.SelectedDomains"/>
         /// </summary>
         void UpdateSelectedDomains();
+
+        /// <summary>
+        /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
+        /// </summary>
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
+        void InitializeViewModel(EngineeringModelSetup model);
     }
 }

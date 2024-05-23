@@ -119,6 +119,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
 
             this.viewModel = new PublicationsTableViewModel(this.sessionService.Object, this.messageBus, this.loggerMock.Object);
+            this.viewModel.SetCurrentIteration(this.iteration);
         }
 
         [TearDown]

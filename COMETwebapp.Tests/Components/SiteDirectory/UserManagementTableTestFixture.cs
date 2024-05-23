@@ -273,7 +273,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.person.Name));
                 Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
             });
@@ -302,7 +301,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.person.Name));
                 Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
             });
@@ -368,7 +366,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.person.Name));
                 Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
             });

@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IterationsTableViewModelTestFixture.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -24,10 +24,8 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModels
 {
-    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Events;
@@ -35,11 +33,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
 
     using CDP4Web.Enumerations;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
+
+    using DynamicData;
 
     using Microsoft.Extensions.Logging;
 
@@ -53,7 +52,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         private IterationsTableViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private Mock<IPermissionService> permissionService;
-        private Assembler assembler;
         private Mock<ILogger<IterationsTableViewModel>> loggerMock;
         private CDPMessageBus messageBus;
         private Iteration iteration;
@@ -67,34 +65,33 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.messageBus = new CDPMessageBus();
             this.loggerMock = new Mock<ILogger<IterationsTableViewModel>>();
 
-            this.model = new EngineeringModelSetup()
+            this.model = new EngineeringModelSetup
             {
                 Iid = Guid.NewGuid(),
                 Name = "model",
                 ShortName = "model"
             };
 
-            this.iteration = new Iteration()
+            this.iteration = new Iteration
             {
-                Container = new EngineeringModel()
+                Container = new EngineeringModel
                 {
-                    EngineeringModelSetup = this.model,
+                    EngineeringModelSetup = this.model
                 },
-                IterationSetup = new IterationSetup()
+                IterationSetup = new IterationSetup
                 {
                     Container = this.model
                 }
             };
 
-            this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
-            var lazyIteration = new Lazy<Thing>(this.iteration);
-            this.assembler.Cache.TryAdd(new CacheKey(), lazyIteration);
-
             this.permissionService.Setup(x => x.CanWrite(this.iteration.ClassKind, this.iteration.Container)).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
-            session.Setup(x => x.Assembler).Returns(this.assembler);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
+
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(this.iteration);
+            this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
 
             this.viewModel = new IterationsTableViewModel(this.sessionService.Object, this.messageBus, this.loggerMock.Object);
         }
@@ -109,7 +106,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         [Test]
         public void VerifyInitializeViewModel()
         {
-            this.viewModel.InitializeViewModel();
+            this.viewModel.InitializeViewModel(this.model);
 
             Assert.Multiple(() =>
             {
@@ -121,7 +118,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         [Test]
         public void VerifyIterationRowProperties()
         {
-            this.viewModel.InitializeViewModel();
+            this.viewModel.InitializeViewModel(this.model);
             var participantRow = this.viewModel.Rows.Items.First();
 
             Assert.Multiple(() =>
@@ -135,19 +132,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         [Test]
         public void VerifySessionRefresh()
         {
-            this.viewModel.InitializeViewModel();
+            this.viewModel.InitializeViewModel(this.model);
 
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
-            var iterationTest = new Iteration()
+            var iterationTest = new Iteration
             {
                 Iid = Guid.NewGuid(),
-                Container = new EngineeringModel()
+                Container = new EngineeringModel
                 {
-                    EngineeringModelSetup = this.model,
+                    EngineeringModelSetup = this.model
                 },
-                IterationSetup = new IterationSetup()
+                IterationSetup = new IterationSetup
                 {
                     Container = this.model
                 }
@@ -168,8 +165,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         [Test]
         public void VerifySetEngineeringModel()
         {
-            this.viewModel.InitializeViewModel();
-            this.viewModel.SetEngineeringModel(this.model);
+            this.viewModel.InitializeViewModel(this.model);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
         }

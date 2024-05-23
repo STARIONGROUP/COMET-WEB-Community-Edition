@@ -152,6 +152,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         }
 
         /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<ParameterType> QueryListOfThings()
+        {
+            return this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.ParameterType).ToList();
+        }
+
+        /// <summary>
         /// Creates or edits a <see cref="ParameterType" />
         /// </summary>
         /// <param name="shouldCreate">The value to check if a new <see cref="ParameterType" /> should be created</param>

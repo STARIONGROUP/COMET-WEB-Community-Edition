@@ -209,6 +209,15 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         }
 
         /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<Person> QueryListOfThings()
+        {
+            return this.SessionService.GetSiteDirectory().Person;
+        }
+
+        /// <summary>
         /// Updates the active user access rights
         /// </summary>
         protected override void RefreshAccessRight()

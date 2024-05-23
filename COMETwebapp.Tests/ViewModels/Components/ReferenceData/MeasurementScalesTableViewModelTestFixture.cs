@@ -28,7 +28,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Events;
@@ -59,7 +58,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         private MeasurementScalesTableViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private Mock<IPermissionService> permissionService;
-        private Assembler assembler;
         private Mock<ILogger<MeasurementScalesTableViewModel>> loggerMock;
         private CDPMessageBus messageBus;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
@@ -92,9 +90,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 ParameterType = { new SimpleQuantityKind() },
                 Scale =
                 {
+                    this.measurementScale,
                     new OrdinalScale
                     {
-                        ValueDefinition = { new ScaleValueDefinition { Iid = Guid.NewGuid() } }
+                        ValueDefinition = { new ScaleValueDefinition { Iid = Guid.NewGuid() } },
+                        Name = "zname"
                     }
                 }
             };
@@ -104,17 +104,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 ShortName = "siteDirectory"
             };
 
-            siteReferenceDataLibrary.Scale.Add(this.measurementScale);
             this.siteDirectory.SiteReferenceDataLibrary.Add(siteReferenceDataLibrary);
-
-            this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
-            var lazyMeasurementScale = new Lazy<Thing>(this.measurementScale);
-            this.assembler.Cache.TryAdd(new CacheKey(), lazyMeasurementScale);
-
             this.permissionService.Setup(x => x.CanWrite(this.measurementScale.ClassKind, this.measurementScale.Container)).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
-            session.Setup(x => x.Assembler).Returns(this.assembler);
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(this.siteDirectory);
@@ -138,9 +131,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.measurementScale));
-                Assert.That(this.viewModel.ReferenceDataLibraries, Is.EqualTo(this.siteDirectory.SiteReferenceDataLibrary));
+                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
+                Assert.That(this.viewModel.Rows.Items.First().Thing.Iid, Is.EqualTo(this.measurementScale.Iid));
                 Assert.That(this.viewModel.ReferenceQuantityKinds.Count(), Is.EqualTo(1));
                 Assert.That(this.viewModel.ReferenceScaleValueDefinitions.Count(), Is.EqualTo(1));
                 Assert.That(this.viewModel.MeasurementScales.Count(), Is.EqualTo(2));
@@ -188,7 +180,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()))
                 .Returns(Task.FromResult(new Result { Reasons = { regularError, exceptionalError } }));
-           
+
             await this.viewModel.CreateOrEditMeasurementScale(true);
 
             Assert.Multiple(() =>
@@ -274,7 +266,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.viewModel.InitializeViewModel();
 
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));
 
             var siteReferenceDataLibrary = new SiteReferenceDataLibrary
             {

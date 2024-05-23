@@ -26,6 +26,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
@@ -35,12 +36,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     public interface IOrganizationalParticipantsTableViewModel : IDeletableDataItemTableViewModel<OrganizationalParticipant, OrganizationalParticipantRowViewModel>
     {
         /// <summary>
-        /// Filters the current Rows, keeping only the organizational participants associated with the given engineering model
-        /// </summary>
-        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
-        void SetEngineeringModel(EngineeringModelSetup model);
-
-        /// <summary>
         /// Gets a collection of all the available <see cref="Organization"/>s
         /// </summary>
         IEnumerable<Organization> Organizations { get; }
@@ -49,5 +44,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// Gets or sets a collection of all the participating <see cref="Organization"/>s for the organizational participant creation
         /// </summary>
         IEnumerable<Organization> ParticipatingOrganizations { get; set; }
+
+        /// <summary>
+        /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
+        /// </summary>
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its active domains</param>
+        void InitializeViewModel(EngineeringModelSetup model);
     }
 }

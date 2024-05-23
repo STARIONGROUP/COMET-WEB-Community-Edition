@@ -119,7 +119,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
                 Assert.That(this.renderer.Instance.EngineeringModelSetup, Is.EqualTo(this.model));
                 Assert.That(this.renderer.Markup, Does.Contain(this.organizationalParticipant1.Organization.Name));
                 Assert.That(this.renderer.Markup, Does.Contain(this.organizationParticipant2.Organization.ShortName));
-                this.viewModel.Verify(x => x.InitializeViewModel(), Times.Once);
+                this.viewModel.Verify(x => x.InitializeViewModel(It.IsAny<EngineeringModelSetup>()), Times.Once);
             });
         }
 

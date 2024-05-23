@@ -130,5 +130,14 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Publications
             
             this.IsLoading = false;
         }
+
+        /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<Publication> QueryListOfThings()
+        {
+            return this.CurrentIteration.Publication;
+        }
     }
 }

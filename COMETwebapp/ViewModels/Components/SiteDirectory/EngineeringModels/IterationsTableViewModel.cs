@@ -40,6 +40,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     public class IterationsTableViewModel : BaseDataItemTableViewModel<Iteration, IterationRowViewModel>, IIterationsTableViewModel
     {
         /// <summary>
+        /// Gets or sets the current <see cref="EngineeringModelSetup"/>
+        /// </summary>
+        private EngineeringModelSetup CurrentModel { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ParticipantsTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -51,18 +56,22 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         }
 
         /// <summary>
-        /// Sets the model and filters the current Rows, keeping only the iterations associated with the given engineering model
+        /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
         /// </summary>
-        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its iterations</param>
-        public void SetEngineeringModel(EngineeringModelSetup model)
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
+        public void InitializeViewModel(EngineeringModelSetup model)
         {
-            var iterationsAssociatedWithModel = this.DataSource.Items.Where(x => ((EngineeringModel)x.Container).EngineeringModelSetup.Iid == model.Iid);
+            this.CurrentModel = model;
+            base.InitializeViewModel();
+        }
 
-            this.Rows.Edit(action =>
-            {
-                action.Clear();
-                action.AddRange(iterationsAssociatedWithModel.Select(x => new IterationRowViewModel(x)));
-            });
+        /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<Iteration> QueryListOfThings()
+        {
+            return this.SessionService.OpenIterations.Items.Where(x => ((EngineeringModel)x.Container).EngineeringModelSetup.Iid == this.CurrentModel?.Iid).ToList();
         }
     }
 }

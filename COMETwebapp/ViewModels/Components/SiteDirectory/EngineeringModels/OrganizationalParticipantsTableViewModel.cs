@@ -40,6 +40,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     public class OrganizationalParticipantsTableViewModel : DeletableDataItemTableViewModel<OrganizationalParticipant, OrganizationalParticipantRowViewModel>, IOrganizationalParticipantsTableViewModel
     {
         /// <summary>
+        /// Gets or sets the current <see cref="EngineeringModelSetup"/>
+        /// </summary>
+        private EngineeringModelSetup CurrentModel { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="OrganizationalParticipantsTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -63,29 +68,23 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <summary>
         /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
         /// </summary>
-        public override void InitializeViewModel()
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its active domains</param>
+        public void InitializeViewModel(EngineeringModelSetup model)
         {
-            base.InitializeViewModel();
-
+            this.CurrentModel = model;
+            this.ParticipatingOrganizations = model.OrganizationalParticipant.Select(x => x.Organization);
             this.Organizations = this.SessionService.GetSiteDirectory().Organization;
+
+            base.InitializeViewModel();
         }
 
         /// <summary>
-        /// Sets the model and filters the current Rows, keeping only the organizational participants associated with the given engineering model
+        /// Queries a list of things of the current type
         /// </summary>
-        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
-        public void SetEngineeringModel(EngineeringModelSetup model)
+        /// <returns>A list of things</returns>
+        protected override List<OrganizationalParticipant> QueryListOfThings()
         {
-            var participantsAssociatedWithModel = this.DataSource.Items.Where(x => x.Container.Iid == model.Iid);
-
-            this.Rows.Edit(action =>
-            {
-                action.Clear();
-                action.AddRange(participantsAssociatedWithModel.Select(x => new OrganizationalParticipantRowViewModel(x)));
-            });
-
-            this.RefreshAccessRight();
-            this.ParticipatingOrganizations = model.OrganizationalParticipant.Select(x => x.Organization);
+            return this.CurrentModel?.OrganizationalParticipant;
         }
     }
 }
