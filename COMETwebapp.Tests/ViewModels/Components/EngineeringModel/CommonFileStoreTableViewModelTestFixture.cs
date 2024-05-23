@@ -84,13 +84,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
                 Owner = siteDirectory.Domain.First()
             };
 
-            var engineeringModel = new EngineeringModel();
+            this.iteration = new Iteration();
+            var engineeringModel = new EngineeringModel { EngineeringModelSetup = new EngineeringModelSetup() };
             engineeringModel.CommonFileStore.Add(this.commonFileStore);
-
-            this.iteration = new Iteration()
-            {
-                Container = engineeringModel
-            };
+            engineeringModel.Iteration.Add(this.iteration);
 
             this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
             var lazyCommonFileStore = new Lazy<Thing>(this.commonFileStore);
@@ -104,6 +101,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
 
             this.viewModel = new CommonFileStoreTableViewModel(this.sessionService.Object, this.messageBus, this.loggerMock.Object, this.folderFileStructureViewModel.Object);
+            this.viewModel.SetCurrentIteration(this.iteration);
         }
 
         [TearDown]
@@ -133,7 +131,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
         public async Task VerifyCommonFileStoreCreateOrEdit()
         {
             this.viewModel.InitializeViewModel();
-            this.viewModel.SetCurrentIteration(this.iteration);
             this.viewModel.Thing = this.commonFileStore;
 
             await this.viewModel.CreateOrEditCommonFileStore(true);

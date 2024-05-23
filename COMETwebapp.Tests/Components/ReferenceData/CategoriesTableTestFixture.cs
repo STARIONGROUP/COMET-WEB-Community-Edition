@@ -320,7 +320,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
                 Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
             });
@@ -389,7 +388,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.DataSource.Count, Is.EqualTo(2));
                 Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
                 Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
             });

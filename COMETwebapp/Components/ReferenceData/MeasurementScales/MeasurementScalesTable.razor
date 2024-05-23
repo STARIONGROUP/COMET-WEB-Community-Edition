@@ -22,43 +22,41 @@ Copyright (c) 2024 Starion Group S.A.
 
 @inherits SelectedDeprecatableDataItemBase<MeasurementScale, MeasurementScaleRowViewModel>
 
-<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <div class="d-flex justify-content-between">
-        <DxGrid @ref="this.Grid"
-                Data="this.ViewModel.Rows.Items"
-                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                ShowSearchBox="true"
-                SearchBoxNullText="Search for a measurement scale ..."
-                AllowSelectRowByClick="true"
-                SelectionMode="GridSelectionMode.Single"
-                SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((MeasurementScaleRowViewModel)row))"
-                EditFormButtonsVisible="false"
-                CustomizeElement="DisableDeprecatedThing"
-                PageSize="20"
-                PagerNavigationMode="PagerNavigationMode.Auto"
-                PageSizeSelectorVisible="true"
-                PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
-                PageSizeSelectorAllRowsItemVisible="true"
-                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                CssClass="height-fit-content">
-            <Columns>
-                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="150"/>
-                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
-                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Type)" Caption="Type" MinWidth="80" SearchEnabled="false"/>
-                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)" Caption="Number Set" MinWidth="80" SearchEnabled="false"/>
-                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)" Caption="Unit" MinWidth="80" SearchEnabled="false"/>
-                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false"/>
-                <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
-            </Columns>
-        </DxGrid>
+<div class="d-flex justify-content-between">
+    <DxGrid @ref="this.Grid"
+            Data="this.ViewModel.Rows.Items"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            ShowSearchBox="true"
+            SearchBoxNullText="Search for a measurement scale ..."
+            AllowSelectRowByClick="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((MeasurementScaleRowViewModel)row))"
+            EditFormButtonsVisible="false"
+            CustomizeElement="DisableDeprecatedThing"
+            PageSize="20"
+            PagerNavigationMode="PagerNavigationMode.Auto"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
+            PageSizeSelectorAllRowsItemVisible="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            CssClass="height-fit-content">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Name)" MinWidth="150"/>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Type)" Caption="Type" MinWidth="80" SearchEnabled="false"/>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.NumberSet)" Caption="Number Set" MinWidth="80" SearchEnabled="false"/>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.Unit)" Caption="Unit" MinWidth="80" SearchEnabled="false"/>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.ContainerName)" Caption="Container RDL" MinWidth="80" SearchEnabled="false"/>
+            <DxGridDataColumn FieldName="@nameof(MeasurementScaleRowViewModel.IsDeprecated)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Deprecated" MinWidth="80" SearchEnabled="false"/>
+        </Columns>
+    </DxGrid>
 
-        <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
-                                  OnButtonClick="@(this.OnAddThingClick)">
+    <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
+                              OnButtonClick="@(this.OnAddThingClick)">
 
-            <MeasurementScalesForm ViewModel="@(this.ViewModel)"
-                                   @bind-IsVisible="@(this.IsOnEditMode)"
-                                   ShouldCreate="@(this.ShouldCreateThing)"
-                                   OnSaved="@(this.OnSaved)"/>
-        </DataItemDetailsComponent>
-    </div>
-</LoadingComponent>
+        <MeasurementScalesForm ViewModel="@(this.ViewModel)"
+                               @bind-IsVisible="@(this.IsOnEditMode)"
+                               ShouldCreate="@(this.ShouldCreateThing)"
+                               OnSaved="@(this.OnSaved)"/>
+    </DataItemDetailsComponent>
+</div>

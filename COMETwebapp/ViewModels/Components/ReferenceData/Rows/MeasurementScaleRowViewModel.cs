@@ -58,7 +58,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         {
             this.Type = measurementScale.ClassKind.ToString();
             this.NumberSet = measurementScale.NumberSet.ToString();
-            this.Unit = measurementScale.Unit.ShortName;
+            this.Unit = measurementScale.Unit?.ShortName;
         }
 
         /// <summary>

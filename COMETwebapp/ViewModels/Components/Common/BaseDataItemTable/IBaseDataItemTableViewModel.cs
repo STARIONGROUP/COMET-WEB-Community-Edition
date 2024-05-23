@@ -39,11 +39,6 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         SourceList<TRow> Rows { get; }
 
         /// <summary>
-        /// Gets or sets the data source for the grid control.
-        /// </summary>
-        SourceList<T> DataSource { get; }
-
-        /// <summary>
         /// The thing to create or edit
         /// </summary>
         T Thing { get; set; }

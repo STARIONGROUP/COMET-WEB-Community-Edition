@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ActiveDomainsTableViewModelTestFixture.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -26,7 +26,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
 {
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Events;
@@ -34,7 +33,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
 
     using CDP4Web.Enumerations;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
@@ -52,7 +50,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         private ActiveDomainsTableViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private Mock<IPermissionService> permissionService;
-        private Assembler assembler;
         private Mock<ILogger<ActiveDomainsTableViewModel>> loggerMock;
         private CDPMessageBus messageBus;
         private DomainOfExpertise domain;
@@ -66,20 +63,20 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.messageBus = new CDPMessageBus();
             this.loggerMock = new Mock<ILogger<ActiveDomainsTableViewModel>>();
 
-            this.domain = new DomainOfExpertise()
+            this.domain = new DomainOfExpertise
             {
                 Name = "domain A",
                 ShortName = "domainA"
             };
 
-            this.model = new EngineeringModelSetup()
+            this.model = new EngineeringModelSetup
             {
                 Name = "model",
                 ShortName = "model",
                 ActiveDomain = { this.domain }
             };
 
-            var siteDirectory = new SiteDirectory()
+            var siteDirectory = new SiteDirectory
             {
                 ShortName = "siteDirectory",
                 Domain = { new DomainOfExpertise() }
@@ -88,14 +85,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             siteDirectory.Domain.Add(this.domain);
             siteDirectory.Model.Add(this.model);
 
-            this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
-            var lazyActiveDomain = new Lazy<Thing>(this.domain);
-            this.assembler.Cache.TryAdd(new CacheKey(), lazyActiveDomain);
-
             this.permissionService.Setup(x => x.CanWrite(this.domain.ClassKind, this.domain.Container)).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
-            session.Setup(x => x.Assembler).Returns(this.assembler);
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
@@ -111,23 +103,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         }
 
         [Test]
-        public void VerifyInitializeViewModel()
-        {
-            this.viewModel.InitializeViewModel();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.domain));
-                Assert.That(this.viewModel.DomainsOfExpertise, Has.Count.EqualTo(2));
-                Assert.That(this.viewModel.SelectedDomainsOfExpertise, Is.Null);
-            });
-        }
-
-        [Test]
         public void VerifyActiveDomainRowProperties()
         {
-            this.viewModel.InitializeViewModel();
+            this.viewModel.InitializeViewModel(this.model);
             var activeDomainRow = this.viewModel.Rows.Items.First();
 
             Assert.Multiple(() =>
@@ -141,19 +119,51 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         }
 
         [Test]
+        public async Task VerifyActiveDomainsEdit()
+        {
+            this.viewModel.InitializeViewModel(this.model);
+
+            await this.viewModel.EditActiveDomains();
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
+
+            this.viewModel.SelectedDomainsOfExpertise = [this.domain, this.domain.Clone(true)];
+            await this.viewModel.EditActiveDomains();
+
+            Assert.Multiple(() => { this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once); });
+
+            this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
+            await this.viewModel.EditActiveDomains();
+            this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
+        }
+
+        [Test]
+        public void VerifyInitializeViewModel()
+        {
+            this.viewModel.InitializeViewModel(this.model);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
+                Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.domain));
+                Assert.That(this.viewModel.DomainsOfExpertise, Has.Count.EqualTo(2));
+                Assert.That(this.viewModel.SelectedDomainsOfExpertise, Is.Not.Null);
+            });
+        }
+
+        [Test]
         public void VerifySessionRefresh()
         {
-            this.viewModel.InitializeViewModel();
+            this.viewModel.InitializeViewModel(this.model);
 
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
-            var domainTest = new DomainOfExpertise()
+            var domainTest = new DomainOfExpertise
             {
                 Iid = Guid.NewGuid(),
                 Name = "domain A",
                 ShortName = "domainA",
-                Container = new SiteDirectory(){ Name = "newSite" },
+                Container = new SiteDirectory { Name = "newSite" }
             };
 
             this.messageBus.SendObjectChangeEvent(domainTest, EventKind.Added);
@@ -171,36 +181,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         [Test]
         public void VerifySetEngineeringModel()
         {
-            this.viewModel.InitializeViewModel();
-            this.viewModel.SetEngineeringModel(this.model);
+            this.viewModel.InitializeViewModel(this.model);
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
                 Assert.That(this.viewModel.SelectedDomainsOfExpertise.ToList(), Has.Count.EqualTo(1));
             });
-        }
-
-        [Test]
-        public async Task VerifyActiveDomainsEdit()
-        {
-            this.viewModel.InitializeViewModel();
-            this.viewModel.SetEngineeringModel(this.model);
-
-            await this.viewModel.EditActiveDomains();
-            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
-
-            this.viewModel.SelectedDomainsOfExpertise = [this.domain, this.domain.Clone(true)];
-            await this.viewModel.EditActiveDomains();
-
-            Assert.Multiple(() =>
-            {
-                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
-            });
-
-            this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
-            await this.viewModel.EditActiveDomains();
-            this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }
     }
 }

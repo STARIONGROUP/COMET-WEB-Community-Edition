@@ -65,7 +65,7 @@ Copyright (c) 2024 Starion Group S.A.
                 <DxFormLayoutItem Caption="Super Categories:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
                     <DxListBox TData="Category"
                                TValue="Category" 
-                               Data="@(this.ViewModel.DataSource.Items)"
+                               Data="@(this.ViewModel.Rows.Items.Select(x => x.Thing))"
                                Values="@(this.ViewModel.Thing.SuperCategory)"
                                ValuesChanged="@(superCategories => this.ViewModel.Thing.SuperCategory = superCategories.ToList())"
                                ValuesExpression="@(() => this.ViewModel.Thing.SuperCategory)"

@@ -28,7 +28,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Permission;
@@ -54,7 +53,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         private ParameterTypeTableViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private Mock<IPermissionService> permissionService;
-        private Assembler assembler;
         private Mock<ILogger<ParameterTypeTableViewModel>> loggerMock;
         private CDPMessageBus messageBus;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
@@ -74,6 +72,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             this.parameterType = new BooleanParameterType
             {
+                Iid = Guid.NewGuid(),
                 ShortName = "parameterType",
                 Name = "parameter type"
             };
@@ -82,7 +81,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             {
                 ShortName = "rdl",
                 Unit = { new SimpleUnit() },
-                ParameterType = { new SimpleQuantityKind() },
+                ParameterType =
+                {
+                    this.parameterType,
+                    new SimpleQuantityKind
+                    {
+                        Name = "zname"
+                    }
+                },
                 Scale =
                 {
                     new OrdinalScale
@@ -97,17 +103,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 ShortName = "siteDirectory"
             };
 
-            siteReferenceDataLibrary.ParameterType.Add(this.parameterType);
             this.siteDirectory.SiteReferenceDataLibrary.Add(siteReferenceDataLibrary);
-
-            this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
-            var lazyParameterType = new Lazy<Thing>(this.parameterType);
-            this.assembler.Cache.TryAdd(new CacheKey(), lazyParameterType);
 
             this.permissionService.Setup(x => x.CanWrite(this.parameterType.ClassKind, this.parameterType.Container)).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
-            session.Setup(x => x.Assembler).Returns(this.assembler);
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(this.siteDirectory);
@@ -130,7 +130,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
+                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
                 Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.parameterType));
                 Assert.That(this.viewModel.ReferenceDataLibraries, Is.EqualTo(this.siteDirectory.SiteReferenceDataLibrary));
                 Assert.That(this.viewModel.MeasurementScales.Count(), Is.EqualTo(1));
