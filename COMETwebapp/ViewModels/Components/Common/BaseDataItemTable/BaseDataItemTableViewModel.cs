@@ -111,11 +111,13 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
             this.IsLoading = true;
 
             this.Rows.Clear();
-            this.DataSource.Clear();
 
-            var listOfThings = this.SessionService.Session.Assembler.Cache.Values.Where(x => x.IsValueCreated).Select(x => x.Value).OfType<T>().ToList();
-            this.DataSource.AddRange(listOfThings);
-            this.Rows.AddRange(this.DataSource.Items.Select(CreateNewRow).OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase));
+            // this.DataSource.Clear();
+            // var listOfThings = this.SessionService.Session.Assembler.Cache.Values.Where(x => x.IsValueCreated).Select(x => x.Value).OfType<T>().ToList();
+            // this.DataSource.AddRange(listOfThings);
+            //this.Rows.AddRange(this.DataSource.Items.Select(CreateNewRow).OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase));
+            var listOfThings = this.QueryListOfThings() ?? Enumerable.Empty<T>();
+            this.Rows.AddRange(listOfThings.Select(CreateNewRow).OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase));
             this.RefreshAccessRight();
 
             this.IsLoading = false;
@@ -181,6 +183,12 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
 
             this.Rows.RemoveMany(rowsToDelete);
         }
+
+        /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected abstract List<T> QueryListOfThings();
 
         /// <summary>
         /// Handles the <see cref="SessionStatus.EndUpdate" /> message received

@@ -125,6 +125,15 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         }
 
         /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<EngineeringModelSetup> QueryListOfThings()
+        {
+            return this.SessionService.GetSiteDirectory().Model;
+        }
+
+        /// <summary>
         /// Resets the selected values
         /// </summary>
         public void ResetSelectedValues()

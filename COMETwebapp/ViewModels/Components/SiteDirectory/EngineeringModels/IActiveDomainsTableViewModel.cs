@@ -35,12 +35,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     public interface IActiveDomainsTableViewModel : IBaseDataItemTableViewModel<DomainOfExpertise, DomainOfExpertiseRowViewModel>
     {
         /// <summary>
-        /// Filters the current Rows, keeping only the Domains of Expertise associated with the given engineering model
-        /// </summary>
-        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
-        void SetEngineeringModel(EngineeringModelSetup model);
-
-        /// <summary>
         /// Gets a collection of all the available <see cref="DomainOfExpertise"/>s
         /// </summary>
         IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; }
@@ -60,5 +54,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// Resets the <see cref="ActiveDomainsTableViewModel.SelectedDomainsOfExpertise"/> value based on the <see cref="ActiveDomainsTableViewModel.CurrentModel"/>
         /// </summary>
         void ResetSelectedDomainsOfExpertise();
+
+        /// <summary>
+        /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
+        /// </summary>
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its active domains</param>
+        void InitializeViewModel(EngineeringModelSetup model);
     }
 }

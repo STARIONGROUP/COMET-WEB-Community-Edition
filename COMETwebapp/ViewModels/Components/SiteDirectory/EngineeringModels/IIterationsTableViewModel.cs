@@ -36,9 +36,9 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     public interface IIterationsTableViewModel : IBaseDataItemTableViewModel<Iteration, IterationRowViewModel>
     {
         /// <summary>
-        /// Sets the model and filters the current Rows, keeping only the iterations associated with the given engineering model
+        /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
         /// </summary>
-        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its iterations</param>
-        void SetEngineeringModel(EngineeringModelSetup model);
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
+        void InitializeViewModel(EngineeringModelSetup model);
     }
 }

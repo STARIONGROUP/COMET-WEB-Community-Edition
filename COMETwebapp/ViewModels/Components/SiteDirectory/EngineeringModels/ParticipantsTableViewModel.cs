@@ -80,32 +80,25 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <summary>
         /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
         /// </summary>
-        public override void InitializeViewModel()
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
+        public void InitializeViewModel(EngineeringModelSetup model)
         {
-            base.InitializeViewModel();
-
             var siteDirectory = this.SessionService.GetSiteDirectory();
             this.Persons = siteDirectory.Person;
             this.ParticipantRoles = siteDirectory.ParticipantRole;
+            this.CurrentModel = model;
+            this.DomainsOfExpertise = this.CurrentModel.ActiveDomain;
+
+            base.InitializeViewModel();
         }
 
         /// <summary>
-        /// Sets the model and filters the current Rows, keeping only the participants associated with the given engineering model
+        /// Queries a list of things of the current type
         /// </summary>
-        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its participants</param>
-        public void SetEngineeringModel(EngineeringModelSetup model)
+        /// <returns>A list of things</returns>
+        protected override List<Participant> QueryListOfThings()
         {
-            this.CurrentModel = model;
-            var participantsAssociatedWithModel = this.DataSource.Items.Where(x => x.Container.Iid == this.CurrentModel.Iid);
-
-            this.Rows.Edit(action =>
-            {
-                action.Clear();
-                action.AddRange(participantsAssociatedWithModel.Select(x => new ParticipantRowViewModel(x)));
-            });
-
-            this.DomainsOfExpertise = this.CurrentModel.ActiveDomain;
-            this.RefreshAccessRight();
+            return this.CurrentModel?.Participant;
         }
 
         /// <summary>

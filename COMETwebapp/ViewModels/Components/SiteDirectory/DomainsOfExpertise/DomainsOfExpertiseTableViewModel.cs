@@ -88,5 +88,14 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
                 this.IsLoading = false;
             }
         }
+
+        /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<DomainOfExpertise> QueryListOfThings()
+        {
+            return this.SessionService.GetSiteDirectory().Domain;
+        }
     }
 }

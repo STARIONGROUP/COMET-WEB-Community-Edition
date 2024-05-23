@@ -212,8 +212,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         [Test]
         public void VerifySetEngineeringModel()
         {
-            this.viewModel.InitializeViewModel();
-            this.viewModel.SetEngineeringModel(this.model);
+            this.viewModel.InitializeViewModel(this.model);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
             this.viewModel.SelectThing(this.participant);
@@ -230,7 +229,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         public async Task VerifyParticipantsActions()
         {
             this.viewModel.InitializeViewModel();
-            this.viewModel.SetEngineeringModel(this.model);
 
             await this.viewModel.CreateOrEditParticipant(false);
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);

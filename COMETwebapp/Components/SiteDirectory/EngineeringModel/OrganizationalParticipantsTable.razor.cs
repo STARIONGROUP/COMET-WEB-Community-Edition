@@ -52,23 +52,13 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         public EngineeringModelSetup EngineeringModelSetup { get; set; }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            this.Initialize(this.ViewModel);
-        }
-
-        /// <summary>
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            this.ViewModel.SetEngineeringModel(this.EngineeringModelSetup);
+            this.ViewModel.InitializeViewModel(this.EngineeringModelSetup);
         }
 
         /// <summary>

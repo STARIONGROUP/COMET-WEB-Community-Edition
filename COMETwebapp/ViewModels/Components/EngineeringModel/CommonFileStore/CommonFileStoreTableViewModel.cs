@@ -142,5 +142,14 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
 
             this.IsLoading = false;
         }
+
+        /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<CommonFileStore> QueryListOfThings()
+        {
+            return ((EngineeringModel)this.CurrentIteration.Container).CommonFileStore;
+        }
     }
 }

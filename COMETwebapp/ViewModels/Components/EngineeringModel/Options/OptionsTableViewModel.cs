@@ -132,6 +132,15 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
         }
 
         /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<Option> QueryListOfThings()
+        {
+            return this.CurrentIteration.Option.ToList();
+        }
+
+        /// <summary>
         /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>

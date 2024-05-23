@@ -168,8 +168,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         [Test]
         public void VerifySetEngineeringModel()
         {
-            this.viewModel.InitializeViewModel();
-            this.viewModel.SetEngineeringModel(this.model);
+            this.viewModel.InitializeViewModel(this.model);
 
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
         }

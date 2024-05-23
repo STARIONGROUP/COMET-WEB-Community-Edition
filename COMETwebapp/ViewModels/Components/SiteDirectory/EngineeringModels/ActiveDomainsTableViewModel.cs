@@ -57,7 +57,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <summary>
         /// Gets a collection of all the available <see cref="DomainOfExpertise"/>s
         /// </summary>
-        public IEnumerable<DomainOfExpertise> DomainsOfExpertise { get; private set; }
+        public IEnumerable<DomainOfExpertise> DomainsOfExpertise => this.SessionService.GetSiteDirectory().Domain;
 
         /// <summary>
         /// Gets or sets a collection of all the selected active <see cref="DomainOfExpertise"/>s for the engineering model
@@ -67,30 +67,21 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <summary>
         /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
         /// </summary>
-        public override void InitializeViewModel()
+        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its active domains</param>
+        public void InitializeViewModel(EngineeringModelSetup model)
         {
+            this.CurrentModel = model;
+            this.ResetSelectedDomainsOfExpertise();
             base.InitializeViewModel();
-
-            this.DomainsOfExpertise = this.SessionService.GetSiteDirectory().Domain;
         }
 
         /// <summary>
-        /// Sets the model and filters the current Rows, keeping only the active domains associated with the given engineering model
+        /// Queries a list of things of the current type
         /// </summary>
-        /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its active domains</param>
-        public void SetEngineeringModel(EngineeringModelSetup model)
+        /// <returns>A list of things</returns>
+        protected override List<DomainOfExpertise> QueryListOfThings()
         {
-            this.CurrentModel = model;
-            var domainsAssociatedWithModel = this.DataSource.Items.Where(x => this.CurrentModel.ActiveDomain.Contains(x));
-
-            this.Rows.Edit(action =>
-            {
-                action.Clear();
-                action.AddRange(domainsAssociatedWithModel.Select(x => new DomainOfExpertiseRowViewModel(x)));
-            });
-
-            this.RefreshAccessRight();
-            this.ResetSelectedDomainsOfExpertise();
+            return this.CurrentModel?.ActiveDomain;
         }
 
         /// <summary>
