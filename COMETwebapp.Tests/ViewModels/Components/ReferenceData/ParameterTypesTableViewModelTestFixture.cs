@@ -152,23 +152,23 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.SampledFunctionParameterType);
             await this.viewModel.CreateOrEditParameterType(true);
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Once);
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.EnumerationParameterType);
             await this.viewModel.CreateOrEditParameterType(true);
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(2));
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(2));
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.CompoundParameterType);
             this.viewModel.Thing = this.viewModel.Thing.Clone(false);
             await this.viewModel.CreateOrEditParameterType(true);
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(3));
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(3));
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.DerivedQuantityKind);
             this.viewModel.Thing = this.viewModel.Thing.Clone(true);
             await this.viewModel.CreateOrEditParameterType(false);
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(4));
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(4));
 
-            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>())).Throws(new Exception("Error"));
+            this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>())).Throws(new Exception("Error"));
             await this.viewModel.CreateOrEditParameterType(false);
             this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }

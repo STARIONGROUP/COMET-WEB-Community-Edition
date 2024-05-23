@@ -120,7 +120,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Publications
 
             try
             {
-                await this.SessionService.CreateOrUpdateThings(iterationClone, thingsToCreate);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(iterationClone, thingsToCreate);
                 this.SelectedParameterRowsToPublish = [];
             }
             catch (Exception ex)

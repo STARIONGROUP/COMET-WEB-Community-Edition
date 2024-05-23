@@ -180,7 +180,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
                 }
 
                 thingsToCreate.Add(this.Thing);
-                await this.SessionService.CreateOrUpdateThings(siteDirectoryClone, thingsToCreate);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate);
                 this.ResetFields();
             }
             catch (Exception ex)

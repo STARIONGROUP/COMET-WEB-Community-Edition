@@ -152,9 +152,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
 
             Assert.That(this.viewModel.Thing.Original, Is.Not.Null);
             await this.viewModel.CreateOrEditOption(true);
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<EngineeringModel>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModel>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
-            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
+            this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
             this.viewModel.SetCurrentOption(new Option());
             this.viewModel.SelectedIsDefaultValue = true;
 

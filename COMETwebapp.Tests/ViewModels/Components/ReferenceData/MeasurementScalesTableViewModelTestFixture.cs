@@ -178,7 +178,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Once);
+                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Once);
                 Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(1));
             });
 
@@ -186,14 +186,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             var regularError = new Error("Failure");
             this.viewModel.SelectedReferenceQuantityValue.Value = string.Empty;
 
-            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()))
+            this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()))
                 .Returns(Task.FromResult(new Result { Reasons = { regularError, exceptionalError } }));
            
             await this.viewModel.CreateOrEditMeasurementScale(true);
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(2));
+                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(2));
                 Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(0));
             });
 
@@ -204,11 +204,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(3));
+                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>()), Times.Exactly(3));
                 Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(1));
             });
 
-            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
+            this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
             await this.viewModel.CreateOrEditMeasurementScale(false);
             this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }

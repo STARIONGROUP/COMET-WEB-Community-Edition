@@ -109,7 +109,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
                 }
 
                 thingsToCreate.Add(this.Thing);
-                await this.SessionService.CreateOrUpdateThings(rdlClone, thingsToCreate);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate);
                 
                 if (this.Thing.Original is not null)
                 {

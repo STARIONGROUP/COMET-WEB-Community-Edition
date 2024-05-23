@@ -233,14 +233,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.viewModel.SetEngineeringModel(this.model);
 
             await this.viewModel.CreateOrEditParticipant(false);
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
 
             this.viewModel.SelectedDomains = [this.participant.Domain.First(), this.participant.Domain.First().Clone(true)];
             await this.viewModel.CreateOrEditParticipant(false);
 
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 1)), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 1)), Times.Once);
             await this.viewModel.CreateOrEditParticipant(true);
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 2)), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 2)), Times.Once);
         }
     }
 }

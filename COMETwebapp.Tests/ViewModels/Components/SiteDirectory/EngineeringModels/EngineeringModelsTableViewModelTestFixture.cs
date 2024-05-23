@@ -219,7 +219,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.viewModel.SetupEngineeringModelWithSelectedValues();
             await this.viewModel.CreateEngineeringModel();
 
-            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 4)), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 4)), Times.Once);
 
             this.viewModel.ResetSelectedValues();
 
