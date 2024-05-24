@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
 {
-    using AntDesign;
-
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
@@ -38,6 +36,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.Services.RowViewModelFactoryService;
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using DynamicData;
@@ -63,11 +62,6 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         protected readonly ILogger<BaseDataItemTableViewModel<T, TRow>> Logger;
 
         /// <summary>
-        /// Gets the <see cref="INotificationService" />
-        /// </summary>
-        protected readonly INotificationService NotificationService;
-
-        /// <summary>
         /// Injected property to get access to <see cref="IPermissionService" />
         /// </summary>
         protected readonly IPermissionService PermissionService;
@@ -78,13 +72,11 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
-        /// <param name="notificationService">The <see cref="INotificationService" /></param>
-        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger, INotificationService notificationService = null)
+        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger) 
             : base(sessionService, messageBus)
         {
             this.PermissionService = sessionService.Session.PermissionService;
             this.Logger = logger;
-            this.NotificationService = notificationService;
 
             this.InitializeSubscriptions(ObjectChangedTypesOfInterest);
             this.RegisterViewModelWithReusableRows(this);
@@ -259,7 +251,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// <returns>The created row</returns>
         private static TRow CreateNewRow(T thing)
         {
-            return (TRow)Activator.CreateInstance(typeof(TRow), thing);
+            return (TRow)RowViewModelFactory.CreateRow(thing);
         }
     }
 }

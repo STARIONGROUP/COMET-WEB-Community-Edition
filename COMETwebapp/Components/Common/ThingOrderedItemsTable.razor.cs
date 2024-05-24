@@ -29,6 +29,7 @@ namespace COMETwebapp.Components.Common
 
     using COMET.Web.Common.Components;
 
+    using COMETwebapp.Services.RowViewModelFactoryService;
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using DevExpress.Blazor;
@@ -131,7 +132,7 @@ namespace COMETwebapp.Components.Common
         protected List<TItemRow> GetRows()
         {
             return this.OrderedItemsList?
-                .Select(x => (TItemRow)Activator.CreateInstance(typeof(TItemRow), x))
+                .Select(x => (TItemRow)RowViewModelFactory.CreateRow(x))
                 .OrderBy(x => x?.Name, StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
         }
