@@ -44,7 +44,7 @@ namespace COMETwebapp.Validators.ReferenceData.MeasurementScales
         {
             this.RuleFor(x => x.ShortName).Validate(validationService, nameof(MeasurementScale.ShortName));
             this.RuleFor(x => x.Name).Validate(validationService, nameof(MeasurementScale.Name));
-            this.RuleFor(x => x.Unit).Validate(validationService, nameof(MeasurementScale.Unit));
+            this.RuleFor(x => x.Unit).NotEmpty().Validate(validationService, nameof(MeasurementScale.Unit));
             this.RuleFor(x => x.NumberSet).Validate(validationService, nameof(MeasurementScale.NumberSet));
             this.RuleFor(x => x.MaximumPermissibleValue).Validate(validationService, nameof(MeasurementScale.MaximumPermissibleValue));
             this.RuleFor(x => x.MinimumPermissibleValue).Validate(validationService, nameof(MeasurementScale.MinimumPermissibleValue));

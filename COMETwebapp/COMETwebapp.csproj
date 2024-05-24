@@ -18,8 +18,20 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Components\Common\FormButtons.razor.css" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Components\Common\FormButtons.razor.css">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="AntDesign" Version="0.19.0" />
         <PackageReference Include="BlazorStrap" Version="5.1.102.51923" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Forms" Version="8.0.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
         <PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
         <PackageReference Include="System.Drawing.Common" Version="8.0.5" />
