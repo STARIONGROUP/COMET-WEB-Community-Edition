@@ -58,7 +58,8 @@ namespace COMETwebapp.Tests.Validators.ReferenceData
             cyclicRatio = new CyclicRatioScale
             {
                 Name = "updated scale",
-                ShortName = "updated scale"
+                ShortName = "updated scale",
+                Unit = new SimpleUnit()
             };
 
             Assert.That(this.cyclicRatioScaleValidator.Validate(cyclicRatio).IsValid, Is.EqualTo(false));
@@ -77,7 +78,8 @@ namespace COMETwebapp.Tests.Validators.ReferenceData
             logarithmicScale = new LogarithmicScale
             {
                 Name = "updated scale",
-                ShortName = "updated scale"
+                ShortName = "updated scale",
+                Unit = new SimpleUnit()
             };
 
             Assert.That(this.logarithmicScaleValidator.Validate(logarithmicScale).IsValid, Is.EqualTo(false));
@@ -98,7 +100,8 @@ namespace COMETwebapp.Tests.Validators.ReferenceData
             intervalScale = new IntervalScale
             {
                 Name = "updated scale",
-                ShortName = "updated scale"
+                ShortName = "updated scale",
+                Unit = new SimpleUnit()
             };
 
             Assert.That(this.measurementScaleValidator.Validate(intervalScale).IsValid, Is.EqualTo(false));
@@ -115,7 +118,8 @@ namespace COMETwebapp.Tests.Validators.ReferenceData
             ordinalScale = new OrdinalScale
             {
                 Name = "updated scale",
-                ShortName = "updated scale"
+                ShortName = "updated scale",
+                Unit = new SimpleUnit()
             };
 
             Assert.That(this.ordinalScaleValidator.Validate(ordinalScale).IsValid, Is.EqualTo(false));

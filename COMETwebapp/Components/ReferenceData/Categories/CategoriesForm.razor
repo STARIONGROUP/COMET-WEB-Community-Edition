@@ -87,19 +87,7 @@ Copyright (c) 2024 Starion Group S.A.
             }
         </DxFormLayoutTabPages>
     </DxFormLayout>
-    <div class="pt-3"></div>
-    <ValidationSummary/>
-    <div class="dxbl-grid-edit-form-buttons">
-        <DxButton Id="saveMeasurementScaleButton"
-                  SubmitFormOnClick="true"
-                  Enabled="@(this.IsSaveButtonEnabled(editFormContext))">
-            Save
-        </DxButton>
-
-        <DxButton Id="cancelMeasurementScaleButton"
-                  Click="@(() => this.OnCancel())"
-                  RenderStyle="ButtonRenderStyle.Secondary">
-            Cancel
-        </DxButton>
-    </div>
+    <FormButtons SaveButtonEnabled="@(this.IsSaveButtonEnabled(editFormContext))"
+                 OnCancel="@(this.OnCancel)"
+                 ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))"/>
 </EditForm>

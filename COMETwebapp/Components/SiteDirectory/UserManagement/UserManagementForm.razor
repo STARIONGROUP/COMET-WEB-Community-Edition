@@ -86,19 +86,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
             </DxFormLayoutTabPage>
         </DxFormLayoutTabPages>
     </DxFormLayout>
-    <div class="pt-3"></div>
-    <ValidationSummary />
-    <div class="dxbl-grid-edit-form-buttons">
-        <DxButton Id="savePersonButton"
-                  SubmitFormOnClick="true"
-                  Enabled="@(this.IsSaveButtonEnabled(editFormContext))">
-            Save
-        </DxButton>
-
-        <DxButton Id="cancelPersonButton"
-                  Click="@(() => this.OnCancel())"
-                  RenderStyle="ButtonRenderStyle.Secondary">
-            Cancel
-        </DxButton>
-    </div>
+    <FormButtons SaveButtonEnabled="@(this.IsSaveButtonEnabled(editFormContext))"
+                 OnCancel="@(this.OnCancel)"
+                 ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))"/>
 </EditForm>

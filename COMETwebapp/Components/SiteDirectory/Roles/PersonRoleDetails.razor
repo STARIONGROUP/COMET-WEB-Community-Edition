@@ -47,21 +47,6 @@ Copyright (c) 2023-2024 Starion Group S.A.
         </DxFormLayoutGroup>
 
     </DxFormLayout>
-    <div class="pt-3"></div>
-    <ValidationSummary/>
-    <div class="dxbl-grid-edit-form-buttons">
-        <DxButton Id="saveParticipantRoleButton" 
-                  SubmitFormOnClick="true">
-            Save
-        </DxButton>
-        @if (this.OnCancel.HasDelegate)
-        {
-            <DxButton Id="cancelPersonRoleButton"  
-                      Click="@(() => this.OnCancel.InvokeAsync())"
-                      RenderStyle="ButtonRenderStyle.Secondary">
-                Cancel
-            </DxButton>
-        }
-    </div>
-
+    <FormButtons SaveButtonEnabled="@(true)"
+                 OnCancel="@(() => this.OnCancel.InvokeAsync())" />
 </EditForm>

@@ -14,23 +14,34 @@ Copyright (c) 2023-2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@inherits DisposableComponent
 
-@inherits SelectedDataItemForm
+<div class="dxbl-grid-edit-form-buttons">
+    <DxButton Id="saveItemButton"
+              SubmitFormOnClick="true"
+              Enabled="@(this.SaveButtonEnabled && !this.IsLoading)">
+        @(this.IsLoading ? "Loading" : "Save")
+    </DxButton>
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
-    <FluentValidationValidator />
-    <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName"/>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@this.ViewModel.Thing.Name"/>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-            <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated"/>
-        </DxFormLayoutItem>
-    </DxFormLayout>
-    <FormButtons SaveButtonEnabled="@(this.IsSaveButtonEnabled(editFormContext))"
-                 OnCancel="@(this.OnCancel)"
-                 ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))"/>
-</EditForm>
+    <DxButton Id="cancelItemButton"
+              Click="@(() => this.OnCancel.InvokeAsync())"
+              RenderStyle="ButtonRenderStyle.Secondary">
+        Cancel
+    </DxButton>
+</div>
+
+<div class="validation-container mt-3">
+    @if (this.ValidationMessages is null)
+    {
+        <ValidationSummary />
+    }
+    else
+    {
+        <ul class="validation-errors">
+            @foreach (var err in this.ValidationMessages)
+            {
+                <li class="validation-message">@err</li>
+            }
+        </ul>
+    }
+</div>

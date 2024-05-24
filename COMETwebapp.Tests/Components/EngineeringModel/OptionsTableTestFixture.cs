@@ -162,7 +162,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             await form.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
             this.viewModel.Verify(x => x.CreateOrEditOption(false), Times.Once);
 
-            var cancelButton = editForm.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelOptionsButton");
+            var cancelButton = editForm.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelItemButton");
             await editForm.InvokeAsync(cancelButton.Instance.Click.InvokeAsync);
             Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(false));
         }

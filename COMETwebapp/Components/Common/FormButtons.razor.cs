@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="CyclicRatioScaleValidator.cs" company="Starion Group S.A.">
+//  <copyright file="SelectedDataItemFormButtons.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,28 +22,41 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Validators.ReferenceData.MeasurementScales
+namespace COMETwebapp.Components.Common
 {
-    using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Validation;
+    using COMET.Web.Common.Components;
 
-    using COMET.Web.Common.Extensions;
-
-    using FluentValidation;
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Forms;
 
     /// <summary>
-    /// A class to validate the <see cref="CyclicRatioScale" />
+    /// Support class for the <see cref="FormButtons" />
     /// </summary>
-    public class CyclicRatioScaleValidator : AbstractValidator<CyclicRatioScale>
+    public partial class FormButtons : DisposableComponent
     {
         /// <summary>
-        /// Instantiates a new <see cref="CyclicRatioScaleValidator" />
+        /// Gets or sets the condition to check if the save button is enabled
         /// </summary>
-        /// <param name="validationService">The <see cref="IValidationService" /></param>
-        public CyclicRatioScaleValidator(IValidationService validationService)
-        {
-            this.Include(new MeasurementScaleValidator(validationService));
-            this.RuleFor(x => x.Modulus).Validate(validationService, nameof(CyclicRatioScale.Modulus));
-        }
+        [Parameter]
+        public bool SaveButtonEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets the callback for when the cancel button is selected
+        /// </summary>
+        [Parameter]
+        public EventCallback<Task> OnCancel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the validation messages. If not set, the <see cref="ValidationSummary" /> will be used to display the
+        /// validation messages
+        /// </summary>
+        [Parameter]
+        public IEnumerable<string> ValidationMessages { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value to check if the save button should be set to loading state
+        /// </summary>
+        [Parameter]
+        public bool IsLoading { get; set; }
     }
 }
