@@ -19,8 +19,8 @@ Copyright (c) 2023-2024 Starion Group S.A.
 <div class="dxbl-grid-edit-form-buttons">
     <DxButton Id="saveItemButton"
               SubmitFormOnClick="true"
-              Enabled="@(this.SaveButtonEnabled)">
-        Save
+              Enabled="@(this.SaveButtonEnabled && !this.IsLoading)">
+        @(this.IsLoading ? "Loading" : "Save")
     </DxButton>
 
     <DxButton Id="cancelItemButton"

@@ -200,11 +200,9 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
                 return Task.CompletedTask;
             }
 
-            this.IsLoading = true;
             this.UpdateInnerComponents();
             this.RefreshAccessRight();
             this.ClearRecordedChanges();
-            this.IsLoading = false;
 
             return Task.CompletedTask;
         }
@@ -214,14 +212,10 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// </summary>
         protected virtual void RefreshAccessRight()
         {
-            this.IsLoading = true;
-
             foreach (var row in this.Rows.Items)
             {
                 row.IsAllowedToWrite = this.PermissionService.CanWrite(row.Thing.ClassKind, row.Thing.Container);
             }
-
-            this.IsLoading = false;
         }
 
         /// <summary>
@@ -232,15 +226,12 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// </param>
         private void RefreshContainerName(ReferenceDataLibrary rdl)
         {
-            this.IsLoading = true;
             var rowsContainedByUpdatedRdl = this.Rows.Items.Where(x => x.Thing.Container.Iid == rdl.Iid);
 
             foreach (var thingRow in rowsContainedByUpdatedRdl)
             {
                 thingRow.ContainerName = rdl.ShortName;
             }
-
-            this.IsLoading = false;
         }
 
         /// <summary>

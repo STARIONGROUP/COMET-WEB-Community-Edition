@@ -52,5 +52,11 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         [Parameter]
         public IEnumerable<string> ValidationMessages { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value to check if the save button should be set to loading state
+        /// </summary>
+        [Parameter]
+        public bool IsLoading { get; set; }
     }
 }

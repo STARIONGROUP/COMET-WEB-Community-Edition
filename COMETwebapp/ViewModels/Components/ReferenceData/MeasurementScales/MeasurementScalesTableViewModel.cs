@@ -180,6 +180,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         {
             try
             {
+                this.IsLoading = true;
                 var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
                 var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
                 var thingsToCreate = new List<Thing>();
@@ -217,6 +218,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
             catch (Exception ex)
             {
                 this.Logger.LogError(ex, "Create or Update MeasurementScale failed");
+            }
+            finally
+            {
+                this.IsLoading = false;
             }
         }
 
