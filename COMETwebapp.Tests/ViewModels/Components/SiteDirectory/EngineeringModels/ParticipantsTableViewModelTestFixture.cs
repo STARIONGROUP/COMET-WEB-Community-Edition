@@ -33,6 +33,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
 
     using CDP4Web.Enumerations;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
@@ -150,14 +151,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.viewModel.InitializeViewModel(this.model);
 
             await this.viewModel.CreateOrEditParticipant(false);
-            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Never);
 
             this.viewModel.SelectedDomains = [this.participant.Domain.First(), this.participant.Domain.First().Clone(true)];
             await this.viewModel.CreateOrEditParticipant(false);
 
-            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 1)), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 1), It.IsAny<NotificationDescription>()), Times.Once);
             await this.viewModel.CreateOrEditParticipant(true);
-            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 2)), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 2), It.IsAny<NotificationDescription>()), Times.Once);
         }
 
         [Test]
@@ -180,7 +181,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             Assert.That(this.viewModel.IsOnDeletionMode, Is.EqualTo(false));
 
             await this.viewModel.OnConfirmPopupButtonClick();
-            this.sessionService.Verify(x => x.DeleteThings(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.DeleteThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
         }
 
         [Test]

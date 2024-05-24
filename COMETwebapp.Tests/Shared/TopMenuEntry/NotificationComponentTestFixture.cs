@@ -49,6 +49,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
     using IAntDesignNotificationService = AntDesign.INotificationService;
     using INotificationService = COMET.Web.Common.Services.NotificationService.INotificationService;
     using Result = FluentResults.Result;
+    using COMET.Web.Common.Model;
 
     [TestFixture]
     public class NotificationComponentTestFixture
@@ -64,7 +65,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
             this.context = new TestContext();
             this.antDesignNotificationService = new Mock<IAntDesignNotificationService>();
             this.notificationService = new Mock<INotificationService>();
-            this.notificationService.Setup(x => x.Results).Returns(new SourceList<Result>());
+            this.notificationService.Setup(x => x.Results).Returns(new SourceList<ResultNotification>());
             this.versionService = new Mock<IVersionService>();
             this.versionService.Setup(x => x.GetVersion()).Returns("1.1.2");
             this.context.Services.AddSingleton(this.versionService.Object);
@@ -109,10 +110,15 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
                 Assert.That(notificationComponent.Instance.NotificationService, Is.Not.Null);
             });
 
-            this.notificationService.Object.Results.Add(new Result());
+            this.notificationService.Object.Results.Add(new ResultNotification(new Result(), new NotificationDescription()));
             this.antDesignNotificationService.Verify(x => x.Open(It.IsAny<NotificationConfig>()), Times.Once);
 
-            this.notificationService.Object.Results.Add(new Result { Reasons = { new Error("err"), new ExceptionalError(new Exception("exception")) } });
+            var resultNotification = new ResultNotification(new Result
+            {
+                Reasons = { new Error("err"), new ExceptionalError(new Exception("exception")) }
+            }, new NotificationDescription());
+
+            this.notificationService.Object.Results.Add(resultNotification);
             this.antDesignNotificationService.Verify(x => x.Open(It.IsAny<NotificationConfig>()), Times.Exactly(2));
         }
     }

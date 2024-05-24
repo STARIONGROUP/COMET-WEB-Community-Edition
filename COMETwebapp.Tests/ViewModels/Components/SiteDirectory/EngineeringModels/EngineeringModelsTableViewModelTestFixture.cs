@@ -47,6 +47,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
     using System.Collections.Generic;
 
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Model;
 
     [TestFixture]
     public class EngineeringModelsTableViewModelTestFixture
@@ -196,9 +197,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             Assert.That(this.viewModel.IsOnDeletionMode, Is.EqualTo(false));
 
             await this.viewModel.OnConfirmPopupButtonClick();
-            this.sessionService.Verify(x => x.DeleteThings(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.DeleteThingsWithNotification(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
 
-            this.sessionService.Setup(x => x.DeleteThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Throws(new Exception());
+            this.sessionService.Setup(x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>())).Throws(new Exception());
             await this.viewModel.DeleteThing();
             this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }
@@ -219,7 +220,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.viewModel.SetupEngineeringModelWithSelectedValues();
             await this.viewModel.CreateEngineeringModel();
 
-            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 4)), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 4), It.IsAny<NotificationDescription>()), Times.Once);
 
             this.viewModel.ResetSelectedValues();
 

@@ -121,7 +121,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
 
             try
             {
-                await this.SessionService.CreateOrUpdateThingsWithNotification(this.CurrentIteration.Container.Clone(true), thingsToCreate);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(this.CurrentIteration.Container.Clone(true), thingsToCreate, this.GetNotificationDescription(shouldCreate));
             }
             catch (Exception ex)
             {

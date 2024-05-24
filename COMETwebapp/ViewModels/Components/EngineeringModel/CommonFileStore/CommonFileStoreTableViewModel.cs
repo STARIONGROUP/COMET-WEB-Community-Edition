@@ -133,7 +133,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
 
             try
             {
-                await this.SessionService.CreateOrUpdateThingsWithNotification(engineeringModelClone, thingsToCreate);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(engineeringModelClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
             }
             catch (Exception ex)
             {

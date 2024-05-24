@@ -34,6 +34,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
 
     using CDP4Web.Enumerations;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
@@ -176,10 +177,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
             this.viewModel.InitializeViewModel();
 
             await this.viewModel.CreateOrEditOrganization(false);
-            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 1)), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 1), It.IsAny<NotificationDescription>()), Times.Once);
 
             await this.viewModel.CreateOrEditOrganization(true);
-            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 2)), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 2), It.IsAny<NotificationDescription>()), Times.Once);
         }
     }
 }

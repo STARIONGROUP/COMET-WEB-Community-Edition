@@ -34,6 +34,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
     using CDP4Web.Enumerations;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
@@ -213,7 +214,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(
                 It.IsAny<ReferenceDataLibrary>(), 
-                It.Is<List<Thing>>(c => c.Count == 3)), 
+                It.Is<List<Thing>>(c => c.Count == 3),
+                It.IsAny<NotificationDescription>()), 
                 Times.Once);
         }
     }

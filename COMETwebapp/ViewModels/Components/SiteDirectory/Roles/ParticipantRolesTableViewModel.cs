@@ -79,7 +79,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
             }
 
             thingsToCreate.Add(this.Thing);
-            await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate);
+            await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
 
             this.IsLoading = false;
         }

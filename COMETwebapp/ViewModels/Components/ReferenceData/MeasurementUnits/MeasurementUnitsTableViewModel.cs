@@ -168,7 +168,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
                     thingsToCreate.AddRange(derivedUnit.UnitFactor);
                 }
 
-                await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
             }
             catch (Exception ex)
             {
