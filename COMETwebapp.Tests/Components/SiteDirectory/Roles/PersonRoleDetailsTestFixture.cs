@@ -113,7 +113,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
                 Assert.That(wasOnSubmitCallbackInvoked, Is.EqualTo(true));
             });
 
-            var cancelParticipantRoleButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelPersonRoleButton");
+            var cancelParticipantRoleButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelItemButton");
             await renderer.InvokeAsync(cancelParticipantRoleButton.Instance.Click.InvokeAsync);
             Assert.That(wasOnCancelCallbackInvoked, Is.EqualTo(true));
         }
