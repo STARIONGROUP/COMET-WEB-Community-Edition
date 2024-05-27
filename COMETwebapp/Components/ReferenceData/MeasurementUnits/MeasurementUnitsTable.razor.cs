@@ -62,7 +62,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementUnits
         {
             base.OnSelectedDataItemChanged(row);
             this.ShouldCreateThing = false;
-            this.ViewModel.SelectMeasurementUnit(row.Thing.Clone(true));
+            this.ViewModel.CurrentThing = row.Thing.Clone(true);
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementUnits
             this.ShouldCreateThing = true;
             this.IsOnEditMode = true;
             this.ViewModel.SelectedMeasurementUnitType = this.ViewModel.MeasurementUnitTypes.First(x => x.ClassKind == ClassKind.SimpleUnit);
-            this.ViewModel.SelectMeasurementUnit(new SimpleUnit());
+            this.ViewModel.CurrentThing = new SimpleUnit();
             this.InvokeAsync(this.StateHasChanged);
         }
     }

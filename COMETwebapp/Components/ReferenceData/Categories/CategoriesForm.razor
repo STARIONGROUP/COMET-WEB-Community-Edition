@@ -23,22 +23,22 @@ Copyright (c) 2024 Starion Group S.A.
 @using CDP4Common.CommonData
 @inherits SelectedDataItemForm
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+<EditForm Context="editFormContext" Model="@(this.ViewModel.CurrentThing)" OnValidSubmit="@(this.OnValidSubmit)">
     <FluentValidationValidator/>
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutTabPages>
             <DxFormLayoutTabPage Caption="Basic">
                 <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.ShortName)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.Name)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Abstract:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsAbstract)"/>
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.CurrentThing.IsAbstract)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="10">
-                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)"/>
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.CurrentThing.IsDeprecated)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
                     <DxComboBox Data="@(this.ViewModel.ReferenceDataLibraries)"
@@ -52,9 +52,9 @@ Copyright (c) 2024 Starion Group S.A.
                     <DxListBox Data="@(this.ViewModel.PermissibleClasses)"
                                TData="ClassKindWrapper"
                                TValue="ClassKind"
-                               Values="@(this.ViewModel.Thing.PermissibleClass)"
-                               ValuesChanged="@(permissibleClasses => this.ViewModel.Thing.PermissibleClass = permissibleClasses.ToList())"
-                               ValuesExpression="@(() => this.ViewModel.Thing.PermissibleClass)"
+                               Values="@(this.ViewModel.CurrentThing.PermissibleClass)"
+                               ValuesChanged="@(permissibleClasses => this.ViewModel.CurrentThing.PermissibleClass = permissibleClasses.ToList())"
+                               ValuesExpression="@(() => this.ViewModel.CurrentThing.PermissibleClass)"
                                SelectionMode="ListBoxSelectionMode.Multiple"
                                TextFieldName="@nameof(ClassKindWrapper.ClassKindName)"
                                ValueFieldName="@nameof(ClassKindWrapper.ClassKind)"
@@ -66,9 +66,9 @@ Copyright (c) 2024 Starion Group S.A.
                     <DxListBox TData="Category"
                                TValue="Category" 
                                Data="@(this.ViewModel.Rows.Items.Select(x => x.Thing))"
-                               Values="@(this.ViewModel.Thing.SuperCategory)"
-                               ValuesChanged="@(superCategories => this.ViewModel.Thing.SuperCategory = superCategories.ToList())"
-                               ValuesExpression="@(() => this.ViewModel.Thing.SuperCategory)"
+                               Values="@(this.ViewModel.CurrentThing.SuperCategory)"
+                               ValuesChanged="@(superCategories => this.ViewModel.CurrentThing.SuperCategory = superCategories.ToList())"
+                               ValuesExpression="@(() => this.ViewModel.CurrentThing.SuperCategory)"
                                SelectionMode="ListBoxSelectionMode.Multiple"
                                TextFieldName="@nameof(Category.Name)"
                                ShowCheckboxes="true"/>

@@ -133,7 +133,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 Assert.That(this.viewModel.MeasurementScales.Count(), Is.EqualTo(1));
             });
 
-            this.viewModel.Thing = new SpecializedQuantityKind
+            this.viewModel.CurrentThing = new SpecializedQuantityKind
             {
                 General = new SimpleQuantityKind()
             };
@@ -156,12 +156,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>()), Times.Exactly(2));
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.CompoundParameterType);
-            this.viewModel.Thing = this.viewModel.Thing.Clone(false);
+            this.viewModel.CurrentThing = this.viewModel.CurrentThing.Clone(false);
             await this.viewModel.CreateOrEditParameterType(true);
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>()), Times.Exactly(3));
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.DerivedQuantityKind);
-            this.viewModel.Thing = this.viewModel.Thing.Clone(true);
+            this.viewModel.CurrentThing = this.viewModel.CurrentThing.Clone(true);
             await this.viewModel.CreateOrEditParameterType(false);
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>()), Times.Exactly(4));
 
@@ -195,53 +195,53 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Thing, Is.TypeOf<BooleanParameterType>());
+                Assert.That(this.viewModel.CurrentThing, Is.TypeOf<BooleanParameterType>());
                 Assert.That(this.viewModel.SelectedParameterType.ClassKind, Is.EqualTo(ClassKind.BooleanParameterType));
             });
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.CompoundParameterType);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<CompoundParameterType>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<CompoundParameterType>());
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.DateParameterType);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<DateParameterType>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<DateParameterType>());
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.DateTimeParameterType);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<DateTimeParameterType>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<DateTimeParameterType>());
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.DerivedQuantityKind);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<DerivedQuantityKind>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<DerivedQuantityKind>());
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.EnumerationParameterType);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<EnumerationParameterType>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<EnumerationParameterType>());
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.SampledFunctionParameterType);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<SampledFunctionParameterType>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<SampledFunctionParameterType>());
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.SimpleQuantityKind);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<SimpleQuantityKind>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<SimpleQuantityKind>());
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.SpecializedQuantityKind);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<SpecializedQuantityKind>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<SpecializedQuantityKind>());
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.TextParameterType);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<TextParameterType>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<TextParameterType>());
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.TimeOfDayParameterType);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<TimeOfDayParameterType>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<TimeOfDayParameterType>());
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.DomainOfExpertise);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<TimeOfDayParameterType>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<TimeOfDayParameterType>());
 
             var parameterTypeToSet = new BooleanParameterType
             {
                 Container = new SiteReferenceDataLibrary()
             };
 
-            this.viewModel.SelectParameterType(parameterTypeToSet);
+            this.viewModel.CurrentThing = parameterTypeToSet;
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Thing, Is.EqualTo(parameterTypeToSet));
+                Assert.That(this.viewModel.CurrentThing, Is.EqualTo(parameterTypeToSet));
                 Assert.That(this.viewModel.SelectedReferenceDataLibrary, Is.EqualTo(parameterTypeToSet.Container));
             });
         }

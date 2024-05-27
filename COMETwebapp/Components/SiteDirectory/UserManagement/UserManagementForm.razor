@@ -17,33 +17,33 @@ Copyright (c) 2023-2024 Starion Group S.A.
 
 @inherits SelectedDataItemForm
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+<EditForm Context="editFormContext" Model="@(this.ViewModel.CurrentThing)" OnValidSubmit="@(this.OnValidSubmit)">
     <FluentValidationValidator/>
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutTabPages>
             <DxFormLayoutTabPage Caption="Basic">
                 <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.ShortName)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Given Name:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.GivenName)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.GivenName)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Surname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.Surname)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.Surname)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Organizational Unit:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.OrganizationalUnit)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.OrganizationalUnit)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Organization:" ColSpanMd="10">
                     <DxComboBox Data="@(this.ViewModel.AvailableOrganizations)"
                                 TextFieldName="@nameof(Organization.Name)"
-                                @bind-Value="@(this.ViewModel.Thing.Organization)"
+                                @bind-Value="@(this.ViewModel.CurrentThing.Organization)"
                                 CssClass="cw-480"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Person Role:" ColSpanMd="10">
                     <DxComboBox Data="@(this.ViewModel.AvailablePersonRoles)"
                                 TextFieldName="@nameof(PersonRole.Name)"
-                                @bind-Value="@(this.ViewModel.Thing.Role)"
+                                @bind-Value="@(this.ViewModel.CurrentThing.Role)"
                                 CssClass="cw-480"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Default Domain:" ColSpanMd="10">
@@ -52,10 +52,10 @@ Copyright (c) 2023-2024 Starion Group S.A.
                                                CssClass="cw-480"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Active:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsActive)"/>
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.CurrentThing.IsActive)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)"/>
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.CurrentThing.IsDeprecated)"/>
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
             <DxFormLayoutTabPage Caption="E-Mail">

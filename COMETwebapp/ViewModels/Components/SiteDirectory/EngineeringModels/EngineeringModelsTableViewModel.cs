@@ -36,8 +36,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
-    using ReactiveUI;
-
     /// <summary>
     /// View model used to manage <see cref="DomainOfExpertise" />
     /// </summary>
@@ -52,7 +50,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         public EngineeringModelsTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<EngineeringModelsTableViewModel> logger) 
             : base(sessionService, messageBus, logger)
         {
-            this.Thing = new EngineeringModelSetup();
+            this.CurrentThing = new EngineeringModelSetup();
         }
 
         /// <summary>
@@ -150,28 +148,28 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// </summary>
         public void SetupEngineeringModelWithSelectedValues()
         {
-            this.Thing.ActiveDomain = this.SelectedActiveDomains?.ToList();
-            this.Thing.SourceEngineeringModelSetupIid = this.SelectedSourceModel?.Iid;
-            this.Thing.OrganizationalParticipant.Clear();
-            this.Thing.RequiredRdl.Clear();
+            this.CurrentThing.ActiveDomain = this.SelectedActiveDomains?.ToList();
+            this.CurrentThing.SourceEngineeringModelSetupIid = this.SelectedSourceModel?.Iid;
+            this.CurrentThing.OrganizationalParticipant.Clear();
+            this.CurrentThing.RequiredRdl.Clear();
 
             if (this.SelectedOrganizations != null)
             {
-                this.Thing.OrganizationalParticipant.AddRange(this.SelectedOrganizations.Select(org => new OrganizationalParticipant()
+                this.CurrentThing.OrganizationalParticipant.AddRange(this.SelectedOrganizations.Select(org => new OrganizationalParticipant()
                 {
                     Organization = org
                 }));
 
-                this.Thing.DefaultOrganizationalParticipant = this.Thing.OrganizationalParticipant.FirstOrDefault(x => x.Organization == this.SelectedModelAdminOrganization);
+                this.CurrentThing.DefaultOrganizationalParticipant = this.CurrentThing.OrganizationalParticipant.FirstOrDefault(x => x.Organization == this.SelectedModelAdminOrganization);
             }
 
             if (this.SelectedSiteRdl != null)
             {
-                this.Thing.RequiredRdl.Add(new ModelReferenceDataLibrary()
+                this.CurrentThing.RequiredRdl.Add(new ModelReferenceDataLibrary()
                 {
                     RequiredRdl = this.SelectedSiteRdl,
-                    Name = $"{this.Thing.Name} Model RDL",
-                    ShortName = $"{this.Thing.ShortName}MRDL"
+                    Name = $"{this.CurrentThing.Name} Model RDL",
+                    ShortName = $"{this.CurrentThing.ShortName}MRDL"
                 });
             }
         }
@@ -186,21 +184,21 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 
             var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
             var thingsToCreate = new List<Thing>();
-            this.Thing.EngineeringModelIid = Guid.NewGuid();
+            this.CurrentThing.EngineeringModelIid = Guid.NewGuid();
 
-            if (this.Thing.OrganizationalParticipant.Count > 0)
+            if (this.CurrentThing.OrganizationalParticipant.Count > 0)
             {
-                thingsToCreate.AddRange(this.Thing.OrganizationalParticipant);
+                thingsToCreate.AddRange(this.CurrentThing.OrganizationalParticipant);
             }
 
-            if (this.Thing.RequiredRdl.Count > 0)
+            if (this.CurrentThing.RequiredRdl.Count > 0)
             {
-                thingsToCreate.AddRange(this.Thing.RequiredRdl);
+                thingsToCreate.AddRange(this.CurrentThing.RequiredRdl);
             }
             
-            siteDirectoryClone.Model.Add(this.Thing);
+            siteDirectoryClone.Model.Add(this.CurrentThing);
             thingsToCreate.Add(siteDirectoryClone);
-            thingsToCreate.Add(this.Thing);
+            thingsToCreate.Add(this.CurrentThing);
 
             await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(true));
 

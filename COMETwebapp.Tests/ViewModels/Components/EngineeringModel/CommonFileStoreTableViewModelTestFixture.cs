@@ -132,13 +132,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
         public async Task VerifyCommonFileStoreCreateOrEdit()
         {
             this.viewModel.InitializeViewModel();
-            this.viewModel.Thing = this.commonFileStore;
+            this.viewModel.CurrentThing = this.commonFileStore;
 
             await this.viewModel.CreateOrEditCommonFileStore(true);
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModel>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
 
             this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>())).Throws(new Exception());
-            this.viewModel.Thing = new CommonFileStore();
+            this.viewModel.CurrentThing = new CommonFileStore();
             await this.viewModel.CreateOrEditCommonFileStore(false);
             this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }

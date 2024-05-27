@@ -91,7 +91,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             rows.Add(new OrganizationalParticipantRowViewModel(this.organizationParticipant2));
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
-            this.viewModel.Setup(x => x.Thing).Returns(new OrganizationalParticipant());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new OrganizationalParticipant());
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
@@ -140,7 +140,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(OrganizationalParticipant)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(OrganizationalParticipant)));
             });
 
             var form = this.renderer.FindComponent<DxGrid>();

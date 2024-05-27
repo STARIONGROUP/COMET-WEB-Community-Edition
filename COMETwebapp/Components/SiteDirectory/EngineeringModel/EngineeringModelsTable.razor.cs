@@ -99,9 +99,9 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         {
             base.CustomizeEditThing(e);
 
-            this.ViewModel.Thing = new EngineeringModelSetup();
+            this.ViewModel.CurrentThing = new EngineeringModelSetup();
             this.ViewModel.ResetSelectedValues();
-            e.EditModel = this.ViewModel.Thing;
+            e.EditModel = this.ViewModel.CurrentThing;
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         protected override void OnSelectedDataItemChanged(EngineeringModelRowViewModel row)
         {
             base.OnSelectedDataItemChanged(row);
-            this.ViewModel.Thing = row.Thing;
+            this.ViewModel.CurrentThing = row.Thing;
             this.parameters[nameof(EngineeringModelSetup)] = row.Thing;
         }
 

@@ -51,11 +51,5 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
         /// Gets or sets the value to check if the option to create is the default option for the <see cref="OptionsTableViewModel.CurrentIteration"/>
         /// </summary>
         bool SelectedIsDefaultValue { get; set; }
-
-        /// <summary>
-        /// Sets the current option value
-        /// </summary>
-        /// <param name="option">The option to be set</param>
-        void SetCurrentOption(Option option);
     }
 }

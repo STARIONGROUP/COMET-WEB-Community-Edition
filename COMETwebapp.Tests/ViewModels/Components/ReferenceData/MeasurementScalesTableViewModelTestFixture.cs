@@ -124,7 +124,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         public void VerifyInitializeViewModel()
         {
             this.viewModel.InitializeViewModel();
-            this.viewModel.Thing.ValueDefinition.Add(new ScaleValueDefinition());
+            this.viewModel.CurrentThing.ValueDefinition.Add(new ScaleValueDefinition());
 
             Assert.Multiple(() =>
             {
@@ -157,18 +157,18 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 ReferenceScaleValue = new ScaleValueDefinition()
             };
 
-            this.viewModel.Thing.ValueDefinition.Add(scaleValueDefinition);
-            this.viewModel.Thing.MappingToReferenceScale.Add(mappingToReferenceScale);
+            this.viewModel.CurrentThing.ValueDefinition.Add(scaleValueDefinition);
+            this.viewModel.CurrentThing.MappingToReferenceScale.Add(mappingToReferenceScale);
             this.viewModel.SelectedReferenceQuantityValue.Value = "value";
             this.viewModel.SelectedReferenceQuantityValue.Scale = new OrdinalScale();
-            Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(0));
+            Assert.That(((LogarithmicScale)this.viewModel.CurrentThing).ReferenceQuantityValue, Has.Count.EqualTo(0));
 
             await this.viewModel.CreateOrEditMeasurementScale(true);
 
             Assert.Multiple(() =>
             {
                 this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
-                Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(1));
+                Assert.That(((LogarithmicScale)this.viewModel.CurrentThing).ReferenceQuantityValue, Has.Count.EqualTo(1));
             });
 
             var exceptionalError = new ExceptionalError(new InvalidDataException("Invalid data"));
@@ -183,10 +183,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>()), Times.Exactly(2));
-                Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(0));
+                Assert.That(((LogarithmicScale)this.viewModel.CurrentThing).ReferenceQuantityValue, Has.Count.EqualTo(0));
             });
 
-            ((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue.Add(new ScaleReferenceQuantityValue { Value = "val" });
+            ((LogarithmicScale)this.viewModel.CurrentThing).ReferenceQuantityValue.Add(new ScaleReferenceQuantityValue { Value = "val" });
             this.viewModel.SelectedReferenceQuantityValue.Value = "value";
             this.viewModel.SelectedReferenceQuantityValue.Scale = new OrdinalScale();
             await this.viewModel.CreateOrEditMeasurementScale(true);
@@ -194,7 +194,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>()), Times.Exactly(3));
-                Assert.That(((LogarithmicScale)this.viewModel.Thing).ReferenceQuantityValue, Has.Count.EqualTo(1));
+                Assert.That(((LogarithmicScale)this.viewModel.CurrentThing).ReferenceQuantityValue, Has.Count.EqualTo(1));
             });
 
             this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>())).Throws(new Exception());
@@ -227,33 +227,33 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Thing, Is.TypeOf<OrdinalScale>());
+                Assert.That(this.viewModel.CurrentThing, Is.TypeOf<OrdinalScale>());
                 Assert.That(this.viewModel.SelectedMeasurementScaleType.ClassKind, Is.EqualTo(ClassKind.OrdinalScale));
             });
 
             this.viewModel.SelectedMeasurementScaleType = new ClassKindWrapper(ClassKind.CyclicRatioScale);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<CyclicRatioScale>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<CyclicRatioScale>());
 
             this.viewModel.SelectedMeasurementScaleType = new ClassKindWrapper(ClassKind.IntervalScale);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<IntervalScale>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<IntervalScale>());
 
             this.viewModel.SelectedMeasurementScaleType = new ClassKindWrapper(ClassKind.RatioScale);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<RatioScale>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<RatioScale>());
 
             this.viewModel.SelectedMeasurementScaleType = new ClassKindWrapper(ClassKind.LogarithmicScale);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<LogarithmicScale>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<LogarithmicScale>());
 
             this.viewModel.SelectedMeasurementScaleType = new ClassKindWrapper(ClassKind.SimpleUnit);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<LogarithmicScale>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<LogarithmicScale>());
 
             var measurementScaleToSet = new LogarithmicScale();
-            this.viewModel.SelectMeasurementScale(measurementScaleToSet);
+            this.viewModel.CurrentThing = measurementScaleToSet;
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Thing, Is.EqualTo(measurementScaleToSet));
-                Assert.That(this.viewModel.Thing.ValueDefinition, Is.EqualTo(measurementScaleToSet.ValueDefinition));
-                Assert.That(this.viewModel.Thing.MappingToReferenceScale, Is.EqualTo(measurementScaleToSet.MappingToReferenceScale));
+                Assert.That(this.viewModel.CurrentThing, Is.EqualTo(measurementScaleToSet));
+                Assert.That(this.viewModel.CurrentThing.ValueDefinition, Is.EqualTo(measurementScaleToSet.ValueDefinition));
+                Assert.That(this.viewModel.CurrentThing.MappingToReferenceScale, Is.EqualTo(measurementScaleToSet.MappingToReferenceScale));
             });
         }
 

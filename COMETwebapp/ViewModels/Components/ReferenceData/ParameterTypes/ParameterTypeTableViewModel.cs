@@ -32,6 +32,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
@@ -78,13 +79,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<ParameterTypeTableViewModel> logger) 
             : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
-            this.Thing = new BooleanParameterType();
+            this.CurrentThing = new BooleanParameterType();
         }
 
         /// <summary>
         /// Gets the available <see cref="ReferenceDataLibrary" />s
         /// </summary>
-        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
+        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; } = [];
 
         /// <summary>
         /// Gets the possible available <see cref="MeasurementScale" />s
@@ -120,16 +121,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         }
 
         /// <summary>
-        /// Selects the current <see cref="ParameterType" />
-        /// </summary>
-        /// <param name="parameterType">The parameter type to be set</param>
-        public void SelectParameterType(ParameterType parameterType)
-        {
-            this.Thing = parameterType;
-            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)parameterType.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
-        }
-
-        /// <summary>
         /// Initializes the current view model
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -148,6 +139,16 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                 .SelectMany(x => x.ParameterType)
                 .Distinct()
                 .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
+        {
+            await base.OnThingChanged();
+            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)this.CurrentThing.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
         }
 
         /// <summary>
@@ -170,17 +171,17 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
             {
                 this.IsLoading = true;
 
-                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
+                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.CurrentThing.Container;
                 var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
                 var thingsToCreate = new List<Thing>();
 
                 if (shouldCreate || hasRdlChanged)
                 {
-                    rdlClone.ParameterType.Add(this.Thing);
+                    rdlClone.ParameterType.Add(this.CurrentThing);
                     thingsToCreate.Add(rdlClone);
                 }
 
-                switch (this.Thing)
+                switch (this.CurrentThing)
                 {
                     case EnumerationParameterType enumerationParameterType:
                         thingsToCreate.AddRange(enumerationParameterType.ValueDefinition);
@@ -197,13 +198,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                         break;
                 }
 
-                thingsToCreate.Add(this.Thing);
+                thingsToCreate.Add(this.CurrentThing);
 
                 await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
 
-                if (this.Thing.Original is not null)
+                if (this.CurrentThing.Original is not null)
                 {
-                    this.Thing = (ParameterType)this.Thing.Original.Clone(true);
+                    this.CurrentThing = (ParameterType)this.CurrentThing.Original.Clone(true);
                 }
             }
             catch (Exception ex)
@@ -222,7 +223,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// <param name="newKind">The new kind to which the <see cref="SelectedParameterType" /> will be set</param>
         private void SelectParameterType(ClassKindWrapper newKind)
         {
-            this.Thing = newKind.ClassKind switch
+            this.CurrentThing = newKind.ClassKind switch
             {
                 ClassKind.BooleanParameterType => new BooleanParameterType(),
                 ClassKind.CompoundParameterType => new CompoundParameterType(),
@@ -235,10 +236,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                 ClassKind.SpecializedQuantityKind => new SpecializedQuantityKind(),
                 ClassKind.TextParameterType => new TextParameterType(),
                 ClassKind.TimeOfDayParameterType => new TimeOfDayParameterType(),
-                _ => this.Thing
+                _ => this.CurrentThing
             };
 
-            if (this.Thing is SpecializedQuantityKind specializedQuantityKindParameterType)
+            if (this.CurrentThing is SpecializedQuantityKind specializedQuantityKindParameterType)
             {
                 specializedQuantityKindParameterType.General = this.ExistingParameterTypes.OfType<QuantityKind>().FirstOrDefault();
             }
@@ -254,7 +255,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                 .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)
                 .Select(x => new MeasurementScaleRowViewModel(x)) ?? Enumerable.Empty<MeasurementScaleRowViewModel>();
 
-            if (this.Thing is not SpecializedQuantityKind specializedQuantity || specializedQuantity.General is null)
+            if (this.CurrentThing is not SpecializedQuantityKind specializedQuantity || specializedQuantity.General is null)
             {
                 return allMeasurementScales;
             }

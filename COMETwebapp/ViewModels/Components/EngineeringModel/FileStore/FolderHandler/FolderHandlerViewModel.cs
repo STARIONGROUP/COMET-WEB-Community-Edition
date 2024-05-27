@@ -39,7 +39,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
     /// <summary>
     /// View model used to manage the folders in Filestores
     /// </summary>
-    public class FolderHandlerViewModel : ApplicationBaseViewModel, IFolderHandlerViewModel
+    public class FolderHandlerViewModel : SingleThingApplicationBaseViewModel<Folder>, IFolderHandlerViewModel
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="FolderHandlerViewModel" /> class.
@@ -48,11 +48,13 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         public FolderHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
+            this.CurrentThing = new Folder();
+
             this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
             {
                 OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner =>
                 {
-                    this.Folder.Owner = selectedOwner;
+                    this.CurrentThing.Owner = selectedOwner;
                 })
             };
         }
@@ -73,11 +75,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         public IEnumerable<Folder> Folders { get; private set; }
 
         /// <summary>
-        /// Gets or sets the folder to be created/edited
-        /// </summary>
-        public Folder Folder { get; set; } = new();
-
-        /// <summary>
         /// Initializes the current <see cref="FolderHandlerViewModel" />
         /// </summary>
         /// <param name="fileStore">The <see cref="FileStore" /> to be set</param>
@@ -90,16 +87,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
             var folders = this.CurrentFileStore.Folder.ToList();
             folders.Add(null);
             this.Folders = folders;
-        }
-
-        /// <summary>
-        /// Selects the current <see cref="Folder" />
-        /// </summary>
-        /// <param name="folder">The folder to be set</param>
-        public void SelectFolder(Folder folder)
-        {
-            this.Folder = folder.Clone(true);
-            this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(folder.Iid == Guid.Empty, folder.Owner);
         }
 
         /// <summary>
@@ -134,13 +121,13 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
             if (shouldCreate)
             {
                 var engineeringModel = this.CurrentFileStore.GetContainerOfType<EngineeringModel>();
-                this.Folder.Creator = engineeringModel.GetActiveParticipant(this.SessionService.Session.ActivePerson);
+                this.CurrentThing.Creator = engineeringModel.GetActiveParticipant(this.SessionService.Session.ActivePerson);
 
-                fileStoreClone.Folder.Add(this.Folder);
+                fileStoreClone.Folder.Add(this.CurrentThing);
                 thingsToCreate.Add(fileStoreClone);
             }
 
-            thingsToCreate.Add(this.Folder);
+            thingsToCreate.Add(this.CurrentThing);
 
             await this.SessionService.CreateOrUpdateThings(fileStoreClone, thingsToCreate);
             this.IsLoading = false;
@@ -152,8 +139,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// <returns>A <see cref="Task" /></returns>
         public async Task DeleteFolder()
         {
-            var clonedContainer = this.Folder.Container.Clone(false);
-            await this.SessionService.DeleteThings(clonedContainer, [this.Folder]);
+            var clonedContainer = this.CurrentThing.Container.Clone(false);
+            await this.SessionService.DeleteThings(clonedContainer, [this.CurrentThing]);
         }
 
         /// <summary>
@@ -161,5 +148,17 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed() => Task.CompletedTask;
+
+        /// <summary>
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
+        {
+            if (this.DomainOfExpertiseSelectorViewModel is not null)
+            {
+                await this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(this.CurrentThing.Iid == Guid.Empty, this.CurrentThing.Owner);
+            }
+        }
     }
 }

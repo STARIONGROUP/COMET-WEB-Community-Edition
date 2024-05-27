@@ -22,7 +22,7 @@ Copyright (c) 2024 Starion Group S.A.
 @using COMETwebapp.Wrappers
 @inherits SelectedDataItemForm
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+<EditForm Context="editFormContext" Model="@(this.ViewModel.CurrentThing)" OnValidSubmit="@(this.OnValidSubmit)">
     <FluentValidationValidator/>
 
     <DxFormLayout CssClass="w-100">
@@ -38,11 +38,11 @@ Copyright (c) 2024 Starion Group S.A.
         }
 
         <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"
+            <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.ShortName)"
                        ReadOnly="@(this.ShouldNameAndShortNameBeReadOnly)"/>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"
+            <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.Name)"
                        ReadOnly="@(this.ShouldNameAndShortNameBeReadOnly)"/>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
@@ -53,7 +53,7 @@ Copyright (c) 2024 Starion Group S.A.
         </DxFormLayoutItem>
 
 
-        @if (this.ViewModel.Thing is ConversionBasedUnit conversionBasedUnit)
+        @if (this.ViewModel.CurrentThing is ConversionBasedUnit conversionBasedUnit)
         {
             <DxFormLayoutItem Caption="Reference Unit:" ColSpanMd="10">
                 <DxComboBox Data="@(this.ViewModel.ReferenceUnits)"
@@ -63,14 +63,14 @@ Copyright (c) 2024 Starion Group S.A.
             </DxFormLayoutItem>
         }
 
-        @if (this.ViewModel.Thing is LinearConversionUnit linearConvertionUnit)
+        @if (this.ViewModel.CurrentThing is LinearConversionUnit linearConvertionUnit)
         {
             <DxFormLayoutItem Caption="Conversion Factor:" ColSpanMd="10">
                 <DxTextBox @bind-Text="@(linearConvertionUnit.ConversionFactor)"/>
             </DxFormLayoutItem>
         }
 
-        @if (this.ViewModel.Thing is PrefixedUnit prefixedUnit)
+        @if (this.ViewModel.CurrentThing is PrefixedUnit prefixedUnit)
         {
             <DxFormLayoutItem Caption="Prefix:" ColSpanMd="10">
                 <DxComboBox Data="@(this.ViewModel.Prefixes)"
@@ -81,10 +81,10 @@ Copyright (c) 2024 Starion Group S.A.
         }
 
         <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-            <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)"/>
+            <DxCheckBox @bind-Checked="@(this.ViewModel.CurrentThing.IsDeprecated)"/>
         </DxFormLayoutItem>
 
-        @if (this.ViewModel.Thing is DerivedUnit derivedUnit)
+        @if (this.ViewModel.CurrentThing is DerivedUnit derivedUnit)
         {
             <DxFormLayoutItem Caption="Unit Factors:"
                               ColSpanMd="12"

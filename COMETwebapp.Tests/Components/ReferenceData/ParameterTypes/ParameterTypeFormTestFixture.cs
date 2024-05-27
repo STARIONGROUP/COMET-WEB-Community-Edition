@@ -54,7 +54,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
         private void SetupParameterTypeAndRender(ParameterType parameterType)
         {
-            this.viewModel.Setup(x => x.Thing).Returns(parameterType);
+            this.viewModel.Setup(x => x.CurrentThing).Returns(parameterType);
             this.renderer.Render();
         }
 
@@ -66,7 +66,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
             this.viewModel = new Mock<IParameterTypeTableViewModel>();
             this.viewModel.Setup(x => x.ParameterTypes).Returns([new ClassKindWrapper(ClassKind.BooleanParameterType)]);
-            this.viewModel.Setup(x => x.Thing).Returns(new BooleanParameterType());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new BooleanParameterType());
 
             this.renderer = this.context.RenderComponent<ParameterTypeForm>(parameters =>
             {

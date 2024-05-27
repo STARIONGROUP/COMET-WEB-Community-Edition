@@ -34,7 +34,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Organizations
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
-    using Microsoft.AspNetCore.Http.HttpResults;
 
     /// <summary>
     /// View model used to manage <see cref="Organization" />
@@ -51,7 +50,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Organizations
         public OrganizationsTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<OrganizationsTableViewModel> logger)
             : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
-            this.Thing = new Organization();
+            this.CurrentThing = new Organization();
         }
 
         /// <summary>
@@ -68,11 +67,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Organizations
 
             if (shouldCreate)
             {
-                siteDirectoryClone.Organization.Add(this.Thing);
+                siteDirectoryClone.Organization.Add(this.CurrentThing);
                 thingsToCreate.Add(siteDirectoryClone);
             }
 
-            thingsToCreate.Add(this.Thing);
+            thingsToCreate.Add(this.CurrentThing);
             await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
 
             this.IsLoading = false;

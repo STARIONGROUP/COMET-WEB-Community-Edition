@@ -58,7 +58,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
          {
              this.context = new TestContext();
              this.viewModel = new Mock<IFolderHandlerViewModel>();
-             this.viewModel.Setup(x => x.Folder).Returns(new Folder());
+             this.viewModel.Setup(x => x.CurrentThing).Returns(new Folder());
 
              var domainSelectorViewModel = new Mock<IDomainOfExpertiseSelectorViewModel>();
              this.viewModel.Setup(x => x.DomainOfExpertiseSelectorViewModel).Returns(domainSelectorViewModel.Object);

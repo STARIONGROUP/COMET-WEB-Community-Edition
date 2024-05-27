@@ -306,7 +306,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
                 Assert.That(renderer.Markup, Does.Contain(this.person1.Name));
             });
 
-            this.viewModel.Thing = new Person
+            this.viewModel.CurrentThing = new Person
             {
                 GivenName = "Test",
                 Surname = "Test",
@@ -318,7 +318,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             };
 
             await this.viewModel.CreateOrEditPerson(true);
-            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.Thing, EventKind.Added));
+            this.messageBus.SendMessage(new ObjectChangedEvent(this.viewModel.CurrentThing, EventKind.Added));
 
             Assert.Multiple(() =>
             {
@@ -338,7 +338,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
-                Assert.That(this.viewModel.Thing, Is.InstanceOf(typeof(Person)));
+                Assert.That(this.viewModel.CurrentThing, Is.InstanceOf(typeof(Person)));
             });
 
             var domainsGrid = renderer.FindComponent<DxGrid>();
@@ -352,7 +352,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             Assert.Multiple(() =>
             {
                 this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
-                Assert.That(this.viewModel.Thing, Is.InstanceOf(typeof(Person)));
+                Assert.That(this.viewModel.CurrentThing, Is.InstanceOf(typeof(Person)));
             });
 
             var form = renderer.FindComponent<DxGrid>();

@@ -73,7 +73,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             var rows = new SourceList<OptionRowViewModel>();
             rows.Add(new OptionRowViewModel(this.option){ IsDefault = true});
             this.viewModel.Setup(x => x.Rows).Returns(rows);
-            this.viewModel.Setup(x => x.Thing).Returns(new Option());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new Option());
             
             this.context.ConfigureDevExpressBlazor();
 
@@ -143,12 +143,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             var grid = this.renderer.FindComponent<DxGrid>();
             await this.renderer.InvokeAsync(() => grid.Instance.SelectedDataItemChanged.InvokeAsync(this.viewModel.Object.Rows.Items.First()));
 
-            Assert.Multiple(() =>
-            {
-                this.viewModel.Verify(x => x.SetCurrentOption(It.IsAny<Option>()));
-                Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(true));
-            });
-
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(true));
             var form = this.renderer.FindComponent<OptionsForm>();
 
             Assert.Multiple(() =>

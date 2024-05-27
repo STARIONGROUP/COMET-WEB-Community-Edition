@@ -92,7 +92,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.ShowHideDeprecatedThingsService).Returns(this.showHideService.Object);
-            this.viewModel.Setup(x => x.Thing).Returns(new SimpleUnit());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new SimpleUnit());
             this.viewModel.Setup(x => x.MeasurementUnitTypes).Returns([new ClassKindWrapper(ClassKind.SimpleUnit)]);
 
             this.context.Services.AddSingleton(this.viewModel.Object);
@@ -117,7 +117,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(SimpleUnit)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(SimpleUnit)));
             });
 
             var unitsGrid = renderer.FindComponent<DxGrid>();
@@ -131,7 +131,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 this.viewModel.Verify(x => x.CreateOrEditMeasurementUnit(false), Times.Once);
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(SimpleUnit)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(SimpleUnit)));
             });
 
             var form = renderer.FindComponent<DxGrid>();

@@ -25,7 +25,6 @@
 namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -45,10 +44,10 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// <summary>
         /// Gets or sets the folder to be created/edited
         /// </summary>
-        Folder Folder { get; set; }
+        Folder CurrentThing { get; set; }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="Folder"/>s
+        /// Gets a collection of the available <see cref="CurrentThing"/>s
         /// </summary>
         IEnumerable<Folder> Folders { get; }
 
@@ -58,15 +57,9 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; }
 
         /// <summary>
-        /// Selects the current <see cref="Folder"/>
-        /// </summary>
-        /// <param name="folder">The folder to be set</param>
-        public void SelectFolder(Folder folder);
-
-        /// <summary>
         /// Creates or edits a folder
         /// </summary>
-        /// <param name="shouldCreate">the value to check if the <see cref="FolderHandlerViewModel.Folder"/> should be created or edited</param>
+        /// <param name="shouldCreate">the value to check if the <see cref="CurrentThing"/> should be created or edited</param>
         /// <returns>A <see cref="Task"/></returns>
         Task CreateOrEditFolder(bool shouldCreate);
 

@@ -62,7 +62,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         {
             base.OnSelectedDataItemChanged(row);
             this.ShouldCreateThing = false;
-            this.ViewModel.SelectParameterType(row.Thing.Clone(true));
+            this.ViewModel.CurrentThing = row.Thing.Clone(true);
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             this.ShouldCreateThing = true;
             this.IsOnEditMode = true;
             this.ViewModel.SelectedParameterType = this.ViewModel.ParameterTypes.First(x => x.ClassKind == ClassKind.BooleanParameterType);
-            this.ViewModel.SelectParameterType(new BooleanParameterType());
+            this.ViewModel.CurrentThing = new BooleanParameterType();
             this.InvokeAsync(this.StateHasChanged);
         }
     }

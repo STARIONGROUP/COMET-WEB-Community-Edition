@@ -28,6 +28,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
     using CDP4Common.EngineeringModelData;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
@@ -89,6 +90,15 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
         }
 
         /// <summary>
+        /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnEndUpdate()
+        {
+            await this.OnSessionRefreshed();
+        }
+
+        /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -114,7 +124,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
                 parentNode.Content.Add(nodeToUpdate);
             }
 
-            foreach (var nodeToDelete in this.DeletedThings.Select(deletedThing => flatListOfNodes.First(x => x.Thing?.Iid == deletedThing?.Iid)))
+            foreach (var nodeToDelete in this.DeletedThings.Select(deletedThing => flatListOfNodes.FirstOrDefault(x => x.Thing?.Iid == deletedThing?.Iid)))
             {
                 rootNode.RemoveChildNode(nodeToDelete);
             }

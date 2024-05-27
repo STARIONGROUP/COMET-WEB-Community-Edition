@@ -69,11 +69,5 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
         /// Loads the file structure handled by the <see cref="CommonFileStoreTableViewModel.FolderFileStructureViewModel" />
         /// </summary>
         void LoadFileStructure();
-
-        /// <summary>
-        /// Selects the current <see cref="CommonFileStore" />
-        /// </summary>
-        /// <param name="commonFileStore">The common file store to be set</param>
-        void SelectCommonFileStore(CommonFileStore commonFileStore);
     }
 }

@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
@@ -54,7 +55,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         public ParticipantsTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<ParticipantsTableViewModel> logger) 
             : base(sessionService, messageBus, logger)
         {
-            this.Thing = new Participant();
+            this.CurrentThing = new Participant();
         }
 
         /// <summary>
@@ -102,13 +103,13 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         }
 
         /// <summary>
-        /// Selects the current participant
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
         /// </summary>
-        /// <param name="participant">The <see cref="Participant"/> to select</param>
-        public void SelectThing(Participant participant)
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
         {
-            this.Thing = participant.Clone(false);
-            this.SelectedDomains = this.Thing.Domain;
+            await base.OnThingChanged();
+            this.SelectedDomains = this.CurrentThing.Domain;
         }
 
         /// <summary>
@@ -116,7 +117,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// </summary>
         public void UpdateSelectedDomains()
         {
-            this.Thing.Domain = this.SelectedDomains.ToList();
+            this.CurrentThing.Domain = this.SelectedDomains.ToList();
         }
 
         /// <summary>
@@ -134,15 +135,15 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
                 var thingsToCreate = new List<Thing>();
 
                 this.UpdateSelectedDomains();
-                this.Thing.SelectedDomain = this.SelectedDomains.FirstOrDefault();
+                this.CurrentThing.SelectedDomain = this.SelectedDomains.FirstOrDefault();
 
                 if (shouldCreate)
                 {
-                    modelClone.Participant.Add(this.Thing);
+                    modelClone.Participant.Add(this.CurrentThing);
                     thingsToCreate.Add(modelClone);
                 }
 
-                thingsToCreate.Add(this.Thing);
+                thingsToCreate.Add(this.CurrentThing);
                 await this.SessionService.CreateOrUpdateThingsWithNotification(modelClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
             }
             catch (Exception ex)

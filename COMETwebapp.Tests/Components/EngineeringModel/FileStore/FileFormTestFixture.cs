@@ -56,7 +56,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         {
             this.context = new TestContext();
             this.viewModel = new Mock<IFileHandlerViewModel>();
-            this.viewModel.Setup(x => x.File).Returns(new File());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new File());
             var domainSelectorViewModel = new Mock<IDomainOfExpertiseSelectorViewModel>();
             this.viewModel.Setup(x => x.DomainOfExpertiseSelectorViewModel).Returns(domainSelectorViewModel.Object);
             this.context.ConfigureDevExpressBlazor();

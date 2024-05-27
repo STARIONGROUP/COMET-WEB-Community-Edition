@@ -68,14 +68,14 @@ Copyright (c) 2023-2024 Starion Group S.A.
                 <DxFormLayoutItem Caption="Person:" ColSpanMd="10">
                     <DxComboBox Data="@this.Persons"
                                 TextFieldName="@nameof(Person.Name)"
-                                @bind-Value="@this.ViewModel.Thing.Person"
+                                @bind-Value="@this.ViewModel.CurrentThing.Person"
                                 CssClass="cw-480"/>
                 </DxFormLayoutItem>
                 
                 <DxFormLayoutItem Caption="Participant Role:" ColSpanMd="10">
                     <DxComboBox Data="@this.ViewModel.ParticipantRoles"
                                 TextFieldName="@nameof(ParticipantRole.Name)"
-                                @bind-Value="@this.ViewModel.Thing.Role"
+                                @bind-Value="@this.ViewModel.CurrentThing.Role"
                                 CssClass="cw-480"/>
                 </DxFormLayoutItem>
                 
@@ -91,7 +91,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
                 </DxFormLayoutItem>
 
                 <DxFormLayoutItem Caption="Active:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsActive" />
+                    <DxCheckBox @bind-Checked="@this.ViewModel.CurrentThing.IsActive" />
                 </DxFormLayoutItem>
 
             </DxFormLayout>

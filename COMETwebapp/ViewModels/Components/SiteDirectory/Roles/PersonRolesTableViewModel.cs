@@ -50,7 +50,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
         public PersonRolesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<PersonRolesTableViewModel> logger)
             : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
-            this.Thing = new PersonRole();
+            this.CurrentThing = new PersonRole();
         }
 
         /// <summary>
@@ -74,15 +74,15 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
             var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
             var thingsToCreate = new List<Thing>();
 
-            thingsToCreate.AddRange(this.Thing.PersonPermission);
+            thingsToCreate.AddRange(this.CurrentThing.PersonPermission);
 
             if (shouldCreate)
             {
-                siteDirectoryClone.PersonRole.Add(this.Thing);
+                siteDirectoryClone.PersonRole.Add(this.CurrentThing);
                 thingsToCreate.Add(siteDirectoryClone);
             }
 
-            thingsToCreate.Add(this.Thing);
+            thingsToCreate.Add(this.CurrentThing);
             await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
             this.IsLoading = false;
         }

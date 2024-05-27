@@ -74,7 +74,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             var rows = new SourceList<CommonFileStoreRowViewModel>();
             rows.Add(new CommonFileStoreRowViewModel(this.commonFileStore));
             this.viewModel.Setup(x => x.Rows).Returns(rows);
-            this.viewModel.Setup(x => x.Thing).Returns(new CommonFileStore());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new CommonFileStore());
             
             this.context.ConfigureDevExpressBlazor();
 

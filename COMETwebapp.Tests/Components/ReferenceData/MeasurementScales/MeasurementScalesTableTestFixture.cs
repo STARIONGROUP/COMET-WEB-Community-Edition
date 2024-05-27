@@ -100,7 +100,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             this.viewModel.Setup(x => x.ReferenceDataLibraries).Returns([]);
             this.viewModel.Setup(x => x.ShowHideDeprecatedThingsService).Returns(this.showHideService.Object);
             this.viewModel.Setup(x => x.MeasurementScaleTypes).Returns(availableMeasurementScaleTypes.Select(x => new ClassKindWrapper(x)));
-            this.viewModel.Setup(x => x.Thing).Returns(new LogarithmicScale());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new LogarithmicScale());
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
@@ -124,7 +124,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(MeasurementScale)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(MeasurementScale)));
             });
 
             var measurementScalesGrid = renderer.FindComponent<DxGrid>();
@@ -138,7 +138,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             Assert.Multiple(() =>
             {
                 this.viewModel.Verify(x => x.CreateOrEditMeasurementScale(false), Times.Once);
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(LogarithmicScale)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(LogarithmicScale)));
             });
 
             var form = renderer.FindComponent<DxGrid>();

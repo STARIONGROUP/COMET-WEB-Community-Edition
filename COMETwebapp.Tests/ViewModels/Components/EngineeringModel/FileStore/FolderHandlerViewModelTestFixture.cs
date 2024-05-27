@@ -131,10 +131,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         public async Task VerifyMoveAndDeleteFolder()
         {
             this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
+            this.viewModel.CurrentThing = this.commonFileStore.Folder[0];
             await this.viewModel.MoveFolder(this.commonFileStore.Folder[0], this.commonFileStore.Folder[1]);
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
-            this.viewModel.SelectFolder(this.commonFileStore.Folder[0]);
             await this.viewModel.DeleteFolder();
             this.sessionService.Verify(x => x.DeleteThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
@@ -146,9 +146,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
 
             var domain = new DomainOfExpertise();
             this.viewModel.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise = domain;
-            Assert.That(this.viewModel.Folder.Owner, Is.EqualTo(domain));
+            Assert.That(this.viewModel.CurrentThing.Owner, Is.EqualTo(domain));
 
-            this.viewModel.SelectFolder(this.commonFileStore.Folder[0]);
             await this.viewModel.CreateOrEditFolder(false);
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.Is<IReadOnlyCollection<Thing>>(c => !c.OfType<FileStore>().Any())), Times.Once);
 

@@ -61,7 +61,7 @@ namespace COMETwebapp.Components.ReferenceData.Categories
         {
             base.OnSelectedDataItemChanged(row);
             this.ShouldCreateThing = false;
-            this.ViewModel.SelectCategory(row.Thing.Clone(true));
+            this.ViewModel.CurrentThing = row.Thing.Clone(true);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace COMETwebapp.Components.ReferenceData.Categories
         {
             this.ShouldCreateThing = true;
             this.IsOnEditMode = true;
-            this.ViewModel.SelectCategory(new Category());
+            this.ViewModel.CurrentThing = new Category();
             this.InvokeAsync(this.StateHasChanged);
         }
     }

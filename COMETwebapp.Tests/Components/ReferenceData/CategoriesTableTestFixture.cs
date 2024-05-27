@@ -325,7 +325,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
             });
 
-            this.viewModel.Thing = new Category
+            this.viewModel.CurrentThing = new Category
             {
                 Name = "Cat1",
                 ShortName = "TT",
@@ -334,12 +334,12 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             };
 
             this.viewModel.SelectedReferenceDataLibrary = this.siteReferenceDataLibrary;
-            this.viewModel.Thing.PermissibleClass = [ClassKind.ElementDefinition];
+            this.viewModel.CurrentThing.PermissibleClass = [ClassKind.ElementDefinition];
 
             await this.viewModel.CreateCategory(true);
             Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
 
-            this.viewModel.Thing = this.viewModel.Thing.Clone(false);
+            this.viewModel.CurrentThing = this.viewModel.CurrentThing.Clone(false);
             await this.viewModel.CreateCategory(false);
 
             Assert.Multiple(() =>
@@ -357,7 +357,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 this.logger.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
             });
 
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Thing, EventKind.Updated);
+            this.messageBus.SendObjectChangeEvent(this.viewModel.CurrentThing, EventKind.Updated);
             this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate));
         }
 
@@ -365,7 +365,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         public async Task VerifyDisplayCategoryDiagram()
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
-            await renderer.InvokeAsync(() => this.viewModel.SelectCategory(this.elementDefinitionCategory3));
+            await renderer.InvokeAsync(() => this.viewModel.CurrentThing = this.elementDefinitionCategory3);
 
             this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory3;
             this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory3.SuperCategory;
@@ -407,7 +407,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
-                Assert.That(this.viewModel.Thing, Is.InstanceOf(typeof(Category)));
+                Assert.That(this.viewModel.CurrentThing, Is.InstanceOf(typeof(Category)));
             });
 
             await renderer.InvokeAsync(() => grid.Instance.SelectedDataItemChanged.InvokeAsync(firstRow));
@@ -415,7 +415,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
-                Assert.That(this.viewModel.Thing.Original, Is.EqualTo(firstRow.Thing));
+                Assert.That(this.viewModel.CurrentThing.Original, Is.EqualTo(firstRow.Thing));
             });
 
             var editForm = renderer.FindComponent<EditForm>();

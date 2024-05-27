@@ -31,6 +31,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
     using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
@@ -62,7 +63,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         /// <summary>
         /// Available <see cref="ReferenceDataLibrary" />s
         /// </summary>
-        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; }
+        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; } = [];
 
         /// <summary>
         /// Available <see cref="ClassKind" />s
@@ -98,22 +99,22 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
             {
                 this.IsLoading = true;
 
-                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
+                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.CurrentThing.Container;
                 var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
                 var thingsToCreate = new List<Thing>();
 
                 if (shouldCreate || hasRdlChanged)
                 {
-                    rdlClone.DefinedCategory.Add(this.Thing);
+                    rdlClone.DefinedCategory.Add(this.CurrentThing);
                     thingsToCreate.Add(rdlClone);
                 }
 
-                thingsToCreate.Add(this.Thing);
+                thingsToCreate.Add(this.CurrentThing);
                 await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
                 
-                if (this.Thing.Original is not null)
+                if (this.CurrentThing.Original is not null)
                 {
-                    this.Thing = (Category)this.Thing.Original.Clone(true);
+                    this.CurrentThing = (Category)this.CurrentThing.Original.Clone(true);
                 }
             }
             catch (Exception ex)
@@ -127,22 +128,22 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         }
 
         /// <summary>
-        /// Sets the selected <see cref="Category" />
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
         /// </summary>
-        /// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
-        public void SelectCategory(Category selectedCategory)
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
         {
-            this.Thing = selectedCategory;
-            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)selectedCategory.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
+            await base.OnThingChanged();
+            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)this.CurrentThing.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
 
-            if (selectedCategory.Iid == Guid.Empty)
+            if (this.CurrentThing.Iid == Guid.Empty)
             {
                 return;
             }
 
-            this.CategoryHierarchyDiagramViewModel.SelectedCategory = selectedCategory;
-            this.CategoryHierarchyDiagramViewModel.Rows = selectedCategory.SuperCategory;
-            this.CategoryHierarchyDiagramViewModel.SubCategories = ((Category)selectedCategory.Original).AllDerivedCategories();
+            this.CategoryHierarchyDiagramViewModel.SelectedCategory = this.CurrentThing;
+            this.CategoryHierarchyDiagramViewModel.Rows = this.CurrentThing.SuperCategory;
+            this.CategoryHierarchyDiagramViewModel.SubCategories = ((Category)this.CurrentThing.Original).AllDerivedCategories();
             this.CategoryHierarchyDiagramViewModel.SetupDiagram();
         }
 

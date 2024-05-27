@@ -84,7 +84,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             rows.Add(new EngineeringModelRowViewModel(this.engineeringModel2));
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
-            this.viewModel.Setup(x => x.Thing).Returns(new EngineeringModelSetup());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new EngineeringModelSetup());
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
