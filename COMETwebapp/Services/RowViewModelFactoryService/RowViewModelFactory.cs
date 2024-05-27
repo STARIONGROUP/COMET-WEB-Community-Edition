@@ -34,7 +34,7 @@ namespace COMETwebapp.Services.RowViewModelFactoryService
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     /// <summary>
-    /// The factory used to create new rows that inherit from <see cref="BaseDataItemRowViewModel{T}"/>
+    /// The factory used to create new rows that inherit from <see cref="BaseDataItemRowViewModel{T}" />
     /// </summary>
     public static class RowViewModelFactory
     {
