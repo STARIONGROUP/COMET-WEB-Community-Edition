@@ -330,7 +330,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 Name = "Cat1",
                 ShortName = "TT",
                 IsAbstract = true,
-                IsDeprecated = false
+                IsDeprecated = false,
+                SuperCategory = [new Category()]
             };
 
             this.viewModel.SelectedReferenceDataLibrary = this.siteReferenceDataLibrary;

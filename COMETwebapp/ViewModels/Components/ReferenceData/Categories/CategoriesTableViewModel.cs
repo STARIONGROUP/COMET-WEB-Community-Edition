@@ -51,9 +51,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
         public CategoriesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<CategoriesTableViewModel> logger)
-            : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
+            : base(sessionService, messageBus, showHideDeprecatedThingsService, logger, [typeof(ReferenceDataLibrary)])
         {
-            this.InitializeSubscriptions([typeof(ReferenceDataLibrary)]);
         }
 
         /// <summary>
@@ -174,10 +173,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         protected override async Task OnSessionRefreshed()
         {
             var updatedRdls = this.UpdatedThings.OfType<ReferenceDataLibrary>().ToList();
-            var updatedCategories = this.UpdatedThings.OfType<Category>().ToList();
             await base.OnSessionRefreshed();
 
-            if (updatedCategories.Count != 0)
+            if (this.UpdatedThings.OfType<Category>().Any())
             {
                 this.CategoryHierarchyDiagramViewModel.SetupDiagram();
             }

@@ -62,13 +62,20 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
-        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger)
+        /// <param name="extraTypesOfInterest">The collection of extra types of interest to subscribe</param>
+        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger, IEnumerable<Type> extraTypesOfInterest = null)
             : base(sessionService, messageBus)
         {
             this.PermissionService = sessionService.Session.PermissionService;
             this.Logger = logger;
+            var objectChangedTypesOfInterest = new List<Type>() { typeof(T) };
 
-            this.InitializeSubscriptions([typeof(T)]);
+            if (extraTypesOfInterest != null)
+            {
+                objectChangedTypesOfInterest.AddRange(extraTypesOfInterest);
+            }
+
+            this.InitializeSubscriptions(objectChangedTypesOfInterest);
             this.RegisterViewModelWithReusableRows(this);
         }
 

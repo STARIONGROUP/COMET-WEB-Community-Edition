@@ -48,8 +48,9 @@ namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
+        /// <param name="extraTypesOfInterest">The collection of extra types of interest to subscribe</param>
         protected DeprecatableDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IShowHideDeprecatedThingsService showHideDeprecatedThingsService,
-            ILogger<DeprecatableDataItemTableViewModel<T, TRow>> logger) : base(sessionService, messageBus, logger)
+            ILogger<DeprecatableDataItemTableViewModel<T, TRow>> logger, IEnumerable<Type> extraTypesOfInterest = null) : base(sessionService, messageBus, logger, extraTypesOfInterest)
         {
             this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
         }
