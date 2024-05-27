@@ -17,13 +17,13 @@ Copyright (c) 2023-2024 Starion Group S.A.
 @using COMETwebapp.Extensions
 @inherits SelectedDataItemForm
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.File)" OnValidSubmit="@(async () => await this.OnValidSubmit())">
+<EditForm Context="editFormContext" Model="@(this.ViewModel.CurrentThing)" OnValidSubmit="@(async () => await this.OnValidSubmit())">
     <FluentValidationValidator />
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutItem Caption="Is Locked:" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@this.ViewModel.IsLocked" />
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="@($"Locked By: {this.ViewModel.File.LockedBy?.Name}")" ColSpanMd="6"/>
+        <DxFormLayoutItem Caption="@($"Locked By: {this.ViewModel.CurrentThing.LockedBy?.Name}")" ColSpanMd="6"/>
         <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
             <DomainOfExpertiseSelector ViewModel="@(this.ViewModel.DomainOfExpertiseSelectorViewModel)"
                                        DisplayText="@(string.Empty)"
@@ -75,7 +75,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
 </EditForm>
 
 <DxPopup @bind-Visible="@this.IsDeletePopupVisible" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-    You are about to delete the File: @(this.ViewModel.File.CurrentFileRevision?.Name)
+    You are about to delete the File: @(this.ViewModel.CurrentThing.CurrentFileRevision?.Name)
     <div class="dxbl-grid-confirm-dialog-buttons">
         <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(() => this.IsDeletePopupVisible = false)" />
         <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(() => this.OnDelete())" Id="deleteFilePopupButton" />

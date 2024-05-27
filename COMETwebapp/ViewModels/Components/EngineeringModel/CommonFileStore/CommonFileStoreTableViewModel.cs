@@ -31,6 +31,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
@@ -94,16 +95,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
         }
 
         /// <summary>
-        /// Selects the current <see cref="CommonFileStore" />
-        /// </summary>
-        /// <param name="commonFileStore">The common file store to be set</param>
-        public void SelectCommonFileStore(CommonFileStore commonFileStore)
-        {
-            this.CurrentThing = commonFileStore.Clone(true);
-            this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(commonFileStore.Iid == Guid.Empty, commonFileStore.Owner);
-        }
-
-        /// <summary>
         /// Loads the file structure handled by the <see cref="FolderFileStructureViewModel" />
         /// </summary>
         public void LoadFileStructure()
@@ -141,6 +132,21 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
             }
 
             this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has
+        /// changed
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
+        {
+            await base.OnThingChanged();
+
+            if (this.DomainOfExpertiseSelectorViewModel is not null)
+            {
+                await this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(this.CurrentThing.Iid == Guid.Empty, this.CurrentThing.Owner);
+            }
         }
 
         /// <summary>

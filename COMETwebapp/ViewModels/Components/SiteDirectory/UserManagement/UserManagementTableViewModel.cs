@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
@@ -39,7 +40,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
-    using Microsoft.AspNetCore.Http.HttpResults;
 
     /// <summary>
     /// View model used to manage <see cref="Person" />
@@ -128,13 +128,17 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         }
 
         /// <summary>
-        /// Selects the current <see cref="Person" />
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
         /// </summary>
-        /// <param name="person">The person to be set</param>
-        public void SelectPerson(Person person)
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
         {
-            this.CurrentThing = person;
-            this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(person.Iid == Guid.Empty, person.DefaultDomain);
+            await base.OnThingChanged();
+
+            if (this.DomainOfExpertiseSelectorViewModel is not null)
+            {
+                await this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(this.CurrentThing.Iid == Guid.Empty, this.CurrentThing.DefaultDomain);
+            }
         }
 
         /// <summary>

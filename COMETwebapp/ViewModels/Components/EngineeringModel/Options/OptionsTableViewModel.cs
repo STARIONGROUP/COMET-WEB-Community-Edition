@@ -31,6 +31,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
     using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
@@ -82,13 +83,13 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
         }
 
         /// <summary>
-        /// Sets the current option value
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
         /// </summary>
-        /// <param name="option">The option to be set</param>
-        public void SetCurrentOption(Option option)
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
         {
-            this.SelectedIsDefaultValue = option.IsDefault;
-            this.CurrentThing = option.Clone(true);
+            await base.OnThingChanged();
+            this.SelectedIsDefaultValue = this.CurrentThing.IsDefault;
         }
 
         /// <summary>

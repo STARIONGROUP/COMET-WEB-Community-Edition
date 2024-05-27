@@ -88,8 +88,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
                 }
             ];
 
-            this.fileHandlerViewModel.Setup(x => x.File).Returns(new File());
-            this.folderHandlerViewModel.Setup(x => x.Folder).Returns(new Folder());
+            this.fileHandlerViewModel.Setup(x => x.CurrentThing).Returns(new File());
+            this.folderHandlerViewModel.Setup(x => x.CurrentThing).Returns(new Folder());
 
             this.viewModel.Setup(x => x.Structure).Returns(this.structure);
             this.viewModel.Setup(x => x.FileHandlerViewModel).Returns(this.fileHandlerViewModel.Object);

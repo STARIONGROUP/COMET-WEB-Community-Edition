@@ -71,7 +71,7 @@ namespace COMETwebapp.Components.EngineeringModel
             base.CustomizeEditThing(e);
 
             var dataItem = (CommonFileStoreRowViewModel)e.DataItem;
-            this.ViewModel.SelectCommonFileStore(dataItem == null ? new CommonFileStore() : dataItem.Thing.Clone(true));
+            this.ViewModel.CurrentThing = dataItem == null ? new CommonFileStore() : dataItem.Thing.Clone(true);
             e.EditModel = this.ViewModel.CurrentThing;
             this.IsOnEditMode = false;
         }
@@ -83,7 +83,7 @@ namespace COMETwebapp.Components.EngineeringModel
         protected override void OnSelectedDataItemChanged(CommonFileStoreRowViewModel row)
         {
             base.OnSelectedDataItemChanged(row);
-            this.ViewModel.SelectCommonFileStore(row.Thing);
+            this.ViewModel.CurrentThing = row.Thing.Clone(true);
         }
 
         /// <summary>

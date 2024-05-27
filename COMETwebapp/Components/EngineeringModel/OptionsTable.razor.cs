@@ -66,7 +66,7 @@ namespace COMETwebapp.Components.EngineeringModel
             base.CustomizeEditThing(e);
 
             var dataItem = (OptionRowViewModel)e.DataItem;
-            this.ViewModel.SetCurrentOption(dataItem == null ? new Option() : dataItem.Thing);
+            this.ViewModel.CurrentThing = dataItem == null ? new Option() : dataItem.Thing.Clone(true);
             e.EditModel = this.ViewModel.CurrentThing;
             this.IsOnEditMode = false;
         }
@@ -78,7 +78,7 @@ namespace COMETwebapp.Components.EngineeringModel
         protected override void OnSelectedDataItemChanged(OptionRowViewModel row)
         {
             base.OnSelectedDataItemChanged(row);
-            this.ViewModel.SetCurrentOption(row.Thing);
+            this.ViewModel.CurrentThing = row.Thing.Clone(true);
         }
 
         /// <summary>

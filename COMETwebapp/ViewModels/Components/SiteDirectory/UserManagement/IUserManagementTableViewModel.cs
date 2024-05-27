@@ -96,11 +96,5 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         /// <param name="shouldCreate">Value to check if the current Person should be created</param>
         /// <returns>A <see cref="Task" /></returns>
         Task CreateOrEditPerson(bool shouldCreate);
-
-        /// <summary>
-        /// Selects the current <see cref="Person" />
-        /// </summary>
-        /// <param name="person">The person to be set</param>
-        void SelectPerson(Person person);
     }
 }

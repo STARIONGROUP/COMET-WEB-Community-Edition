@@ -100,7 +100,7 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
                 return;
             }
 
-            this.ViewModel.FolderHandlerViewModel.SelectFolder(row == null ? new Folder() : (Folder)row.Thing);
+            this.ViewModel.FolderHandlerViewModel.CurrentThing = row == null ? new Folder() : (Folder)row.Thing.Clone(true);
             this.ShouldCreateFolder = row == null;
             this.IsFolderFormVisibile = true;
         }
@@ -116,7 +116,7 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
                 return;
             }
 
-            this.ViewModel.FileHandlerViewModel.SelectFile(row == null ? new File() : (File)row.Thing);
+            this.ViewModel.FileHandlerViewModel.CurrentThing = row == null ? new File() : (File)row.Thing.Clone(true);
             this.ShouldCreateFile = row == null;
             this.IsFileFormVisibile = true;
         }

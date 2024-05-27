@@ -141,7 +141,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             await this.viewModel.MoveFile(this.commonFileStore.File[0], this.commonFileStore.Folder[0]);
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 
-            this.viewModel.SelectFile(this.commonFileStore.File[0]);
             await this.viewModel.DeleteFile();
             this.sessionService.Verify(x => x.DeleteThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
@@ -153,9 +152,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
 
             var domain = new DomainOfExpertise();
             this.viewModel.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise = domain;
-            Assert.That(this.viewModel.File.Owner, Is.EqualTo(domain));
-
-            this.viewModel.SelectFile(this.commonFileStore.File[0]);
+            Assert.That(this.viewModel.CurrentThing.Owner, Is.EqualTo(domain));
 
             await this.viewModel.CreateOrEditFile(false);
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.Is<IReadOnlyCollection<Thing>>(c => !c.OfType<FileStore>().Any()), It.IsAny<IReadOnlyCollection<string>>()), Times.Once);
@@ -172,7 +169,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
                     It.Is<IReadOnlyCollection<string>>(c => c.Contains("/localpath")))
                 , Times.Once);
 
-                Assert.That(this.viewModel.File.LockedBy, Is.Not.Null);
+                Assert.That(this.viewModel.CurrentThing.LockedBy, Is.Not.Null);
             });
         }
     }

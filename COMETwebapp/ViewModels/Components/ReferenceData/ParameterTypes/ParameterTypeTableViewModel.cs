@@ -32,6 +32,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
@@ -84,7 +85,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// <summary>
         /// Gets the available <see cref="ReferenceDataLibrary" />s
         /// </summary>
-        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
+        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; } = [];
 
         /// <summary>
         /// Gets the possible available <see cref="MeasurementScale" />s
@@ -120,16 +121,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         }
 
         /// <summary>
-        /// Selects the current <see cref="ParameterType" />
-        /// </summary>
-        /// <param name="parameterType">The parameter type to be set</param>
-        public void SelectParameterType(ParameterType parameterType)
-        {
-            this.CurrentThing = parameterType;
-            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)parameterType.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
-        }
-
-        /// <summary>
         /// Initializes the current view model
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -148,6 +139,16 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                 .SelectMany(x => x.ParameterType)
                 .Distinct()
                 .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
+        {
+            await base.OnThingChanged();
+            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)this.CurrentThing.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
         }
 
         /// <summary>

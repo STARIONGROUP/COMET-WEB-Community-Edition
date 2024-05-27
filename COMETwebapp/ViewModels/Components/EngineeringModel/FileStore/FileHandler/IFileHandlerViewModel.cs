@@ -47,7 +47,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// <summary>
         /// Gets or sets the file to be created/edited
         /// </summary>
-        File File { get; set; }
+        File CurrentThing { get; set; }
 
         /// <summary>
         /// Gets or sets the condition to check if the file or folder to be created is locked
@@ -98,12 +98,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// <param name="shouldCreate"></param>
         /// <returns>A <see cref="Task"/></returns>
         Task CreateOrEditFile(bool shouldCreate);
-
-        /// <summary>
-        /// Selects the current <see cref="FileHandlerViewModel.File"/>
-        /// </summary>
-        /// <param name="file">The file to be set</param>
-        void SelectFile(File file);
 
         /// <summary>
         /// Deletes the current file

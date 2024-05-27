@@ -71,11 +71,5 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// <param name="shouldCreate">The value to check if a new <see cref="ParameterType" /> should be created</param>
         /// <returns>A <see cref="Task" /></returns>
         Task CreateOrEditParameterType(bool shouldCreate);
-
-        /// <summary>
-        /// Selects the current <see cref="ParameterType" />
-        /// </summary>
-        /// <param name="parameterType">The parameter type to be set</param>
-        void SelectParameterType(ParameterType parameterType);
     }
 }

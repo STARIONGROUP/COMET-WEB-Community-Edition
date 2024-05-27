@@ -93,12 +93,12 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
 
             if (dataItem == null)
             {
-                this.ViewModel.SelectThing(new Participant());
+                this.ViewModel.CurrentThing = new Participant();
                 e.EditModel = this.ViewModel.CurrentThing;
                 return;
             }
 
-            this.ViewModel.SelectThing(dataItem.Thing);
+            this.ViewModel.CurrentThing = dataItem.Thing;
             e.EditModel = this.ViewModel.CurrentThing;
         }
 

@@ -36,8 +36,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
-    using ReactiveUI;
-
     /// <summary>
     /// View model used to manage <see cref="DomainOfExpertise" />
     /// </summary>

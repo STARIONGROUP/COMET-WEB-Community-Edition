@@ -56,12 +56,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         IEnumerable<DomainOfExpertise> SelectedDomains { get; set; }
 
         /// <summary>
-        /// Selects the current participant
-        /// </summary>
-        /// <param name="participant">The <see cref="Participant"/> to select</param>
-        void SelectThing(Participant participant);
-
-        /// <summary>
         /// Creates or edits the current participant
         /// </summary>
         /// <param name="shouldCreate">The value to check if a new <see cref="Participant"/> should be created</param>

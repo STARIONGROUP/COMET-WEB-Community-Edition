@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
@@ -70,7 +71,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
         /// <summary>
         /// Gets the available <see cref="ReferenceDataLibrary" />s
         /// </summary>
-        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
+        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; } = [];
 
         /// <summary>
         /// Gets the available <see cref="MeasurementUnit" />s from the same rdl as the <see cref="SelectedReferenceDataLibrary" />
@@ -106,16 +107,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
         }
 
         /// <summary>
-        /// Sets the current <see cref="MeasurementUnit" />
-        /// </summary>
-        /// <param name="measurementUnit">The <see cref="MeasurementUnit" /> to be set</param>
-        public void SelectMeasurementUnit(MeasurementUnit measurementUnit)
-        {
-            this.CurrentThing = measurementUnit;
-            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)measurementUnit.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
-        }
-
-        /// <summary>
         /// Initializes the <see cref="MeasurementUnitsTableViewModel" />
         /// </summary>
         public override void InitializeViewModel()
@@ -129,6 +120,16 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
             this.SelectedMeasurementUnitType = this.MeasurementUnitTypes.First();
 
             this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
+        {
+            await base.OnThingChanged();
+            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)this.CurrentThing.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
         }
 
         /// <summary>

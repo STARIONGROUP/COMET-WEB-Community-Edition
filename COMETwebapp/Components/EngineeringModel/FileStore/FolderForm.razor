@@ -17,11 +17,11 @@ Copyright (c) 2023-2024 Starion Group S.A.
 @using COMETwebapp.Extensions
 @inherits SelectedDataItemForm
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.Folder)" OnValidSubmit="@(this.OnValidSubmit)">
+<EditForm Context="editFormContext" Model="@(this.ViewModel.CurrentThing)" OnValidSubmit="@(this.OnValidSubmit)">
     <FluentValidationValidator />
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@this.ViewModel.Folder.Name" />
+            <DxTextBox @bind-Text="@this.ViewModel.CurrentThing.Name" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
             <DomainOfExpertiseSelector ViewModel="@(this.ViewModel.DomainOfExpertiseSelectorViewModel)"
@@ -35,7 +35,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
                 <DxComboBox Data="@this.ViewModel.Folders"
                             TextFieldName="@nameof(Folder.Name)"
                             NullText="root"
-                            @bind-Value="@this.ViewModel.Folder.ContainingFolder"
+                            @bind-Value="@this.ViewModel.CurrentThing.ContainingFolder"
                             CssClass="cw-480">
                     <ItemTemplate Context="itemTemplateContext">
                         @itemTemplateContext.GetFolderPath()
@@ -67,7 +67,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
 </EditForm>
 
 <DxPopup @bind-Visible="@this.IsDeletePopupVisible" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-    You are about to delete the Folder: @(this.ViewModel.Folder.Name)
+    You are about to delete the Folder: @(this.ViewModel.CurrentThing.Name)
     <div class="dxbl-grid-confirm-dialog-buttons">
         <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(() => this.IsDeletePopupVisible = false)" />
         <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(() => this.OnDelete())" Id="deleteFolderPopupButton" />

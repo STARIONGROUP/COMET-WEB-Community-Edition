@@ -34,7 +34,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Organizations
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
-    using Microsoft.AspNetCore.Http.HttpResults;
 
     /// <summary>
     /// View model used to manage <see cref="Organization" />

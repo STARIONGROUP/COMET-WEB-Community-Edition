@@ -41,7 +41,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
     /// <summary>
     /// View model used to manage the files in Filestores
     /// </summary>
-    public class FileHandlerViewModel : ApplicationBaseViewModel, IFileHandlerViewModel
+    public class FileHandlerViewModel : SingleThingApplicationBaseViewModel<File>, IFileHandlerViewModel
     {
         /// <summary>
         /// Gets the <see cref="ILogger{TCategoryName}" />
@@ -65,7 +65,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
             {
                 OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner =>
                 {
-                    this.File.Owner = selectedOwner;
+                    this.CurrentThing.Owner = selectedOwner;
                 })
             };
         }
@@ -96,11 +96,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         public IEnumerable<Folder> Folders { get; private set; }
 
         /// <summary>
-        /// Gets or sets the file to be created/edited
-        /// </summary>
-        public File File { get; set; } = new();
-
-        /// <summary>
         /// Gets or sets a collection of the file revisions to be created/edited
         /// </summary>
         public IEnumerable<FileRevision> SelectedFileRevisions { get; set; }
@@ -129,20 +124,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
             var folders = this.CurrentFileStore.Folder.ToList();
             folders.Add(null);
             this.Folders = folders;
-        }
-
-        /// <summary>
-        /// Selects the current <see cref="File" />
-        /// </summary>
-        /// <param name="file">The file to be set</param>
-        public void SelectFile(File file)
-        {
-            this.File = file.Iid != Guid.Empty ? file.Clone(true) : file;
-            this.IsLocked = this.File.LockedBy is not null;
-            this.SelectedFileRevisions = this.File.FileRevision;
-            this.FileRevisionHandlerViewModel.InitializeViewModel(this.File, this.CurrentFileStore);
-            this.SelectedFolder = null;
-            this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(file.Iid == Guid.Empty, file.Owner);
         }
 
         /// <summary>
@@ -181,14 +162,14 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
             var thingsToUpdate = new List<Thing>();
             var fileStoreClone = this.CurrentFileStore.Clone(true);
 
-            this.File.LockedBy = this.IsLocked switch
+            this.CurrentThing.LockedBy = this.IsLocked switch
             {
-                true when this.File.LockedBy == null => this.SessionService.Session.ActivePerson,
-                false when this.File.LockedBy != null => null,
-                _ => this.File.LockedBy
+                true when this.CurrentThing.LockedBy == null => this.SessionService.Session.ActivePerson,
+                false when this.CurrentThing.LockedBy != null => null,
+                _ => this.CurrentThing.LockedBy
             };
 
-            var newFileRevisions = this.SelectedFileRevisions.Where(x => !this.File.FileRevision.Contains(x)).ToList();
+            var newFileRevisions = this.SelectedFileRevisions.Where(x => !this.CurrentThing.FileRevision.Contains(x)).ToList();
 
             foreach (var fileRevision in newFileRevisions)
             {
@@ -197,29 +178,29 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
                     fileRevision.ContainingFolder = this.SelectedFolder;
                 }
 
-                this.File.FileRevision.Add(fileRevision);
+                this.CurrentThing.FileRevision.Add(fileRevision);
                 thingsToUpdate.Add(fileRevision);
             }
 
-            var fileRevisionsToRemove = this.File.FileRevision.Where(x => !this.SelectedFileRevisions.Contains(x)).ToList();
+            var fileRevisionsToRemove = this.CurrentThing.FileRevision.Where(x => !this.SelectedFileRevisions.Contains(x)).ToList();
 
             foreach (var fileRevisionToRemove in fileRevisionsToRemove)
             {
-                this.File.FileRevision.Remove(fileRevisionToRemove);
+                this.CurrentThing.FileRevision.Remove(fileRevisionToRemove);
                 thingsToUpdate.Add(fileRevisionToRemove);
             }
 
             if (shouldCreate)
             {
-                fileStoreClone.File.Add(this.File);
+                fileStoreClone.File.Add(this.CurrentThing);
                 thingsToUpdate.Add(fileStoreClone);
             }
 
-            thingsToUpdate.Add(this.File);
+            thingsToUpdate.Add(this.CurrentThing);
 
             await this.SessionService.CreateOrUpdateThings(fileStoreClone, thingsToUpdate, newFileRevisions.Select(x => x.LocalPath).ToList());
 
-            this.logger.LogInformation("File with iid {iid} updated successfully", this.File.Iid);
+            this.logger.LogInformation("File with iid {iid} updated successfully", this.CurrentThing.Iid);
             this.IsLoading = false;
         }
 
@@ -229,8 +210,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// <returns>A <see cref="Task" /></returns>
         public async Task DeleteFile()
         {
-            var clonedContainer = this.File.Container.Clone(false);
-            await this.SessionService.DeleteThings(clonedContainer, [this.File]);
+            var clonedContainer = this.CurrentThing.Container.Clone(false);
+            await this.SessionService.DeleteThings(clonedContainer, [this.CurrentThing]);
         }
 
         /// <summary>
@@ -238,5 +219,18 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed() => Task.CompletedTask;
+
+        /// <summary>
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
+        {
+            this.IsLocked = this.CurrentThing.LockedBy is not null;
+            this.SelectedFileRevisions = this.CurrentThing.FileRevision;
+            this.FileRevisionHandlerViewModel.InitializeViewModel(this.CurrentThing, this.CurrentFileStore);
+            this.SelectedFolder = null;
+            await this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(this.CurrentThing.Iid == Guid.Empty, this.CurrentThing.Owner);
+        }
     }
 }

@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
@@ -102,12 +103,12 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         }
 
         /// <summary>
-        /// Selects the current participant
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
         /// </summary>
-        /// <param name="participant">The <see cref="Participant"/> to select</param>
-        public void SelectThing(Participant participant)
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
         {
-            this.CurrentThing = participant.Clone(false);
+            await base.OnThingChanged();
             this.SelectedDomains = this.CurrentThing.Domain;
         }
 

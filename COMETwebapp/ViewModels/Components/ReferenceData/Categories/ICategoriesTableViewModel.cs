@@ -62,11 +62,5 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         /// <param name="shouldCreate">The value to check if a new <see cref="Category" /> should be created</param>
         /// <returns>A <see cref="Task" /></returns>
         Task CreateCategory(bool shouldCreate);
-
-        /// <summary>
-        /// set the selected <see cref="CategoryRowViewModel" />
-        /// </summary>
-        /// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
-        void SelectCategory(Category selectedCategory);
     }
 }

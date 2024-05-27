@@ -224,8 +224,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.viewModel.InitializeViewModel(this.model);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
-            this.viewModel.SelectThing(this.participant);
-
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.CurrentThing.Iid, Is.EqualTo(this.participant.Iid));
