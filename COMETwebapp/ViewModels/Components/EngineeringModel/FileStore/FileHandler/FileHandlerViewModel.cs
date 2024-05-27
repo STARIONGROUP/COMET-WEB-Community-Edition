@@ -58,6 +58,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         public FileHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<FileHandlerViewModel> logger, IFileRevisionHandlerViewModel fileRevisionHandlerViewModel)
             : base(sessionService, messageBus)
         {
+            this.CurrentThing = new File();
             this.logger = logger;
             this.FileRevisionHandlerViewModel = fileRevisionHandlerViewModel;
 
@@ -228,9 +229,13 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         {
             this.IsLocked = this.CurrentThing.LockedBy is not null;
             this.SelectedFileRevisions = this.CurrentThing.FileRevision;
-            this.FileRevisionHandlerViewModel.InitializeViewModel(this.CurrentThing, this.CurrentFileStore);
             this.SelectedFolder = null;
-            await this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(this.CurrentThing.Iid == Guid.Empty, this.CurrentThing.Owner);
+            this.FileRevisionHandlerViewModel?.InitializeViewModel(this.CurrentThing, this.CurrentFileStore);
+
+            if (this.DomainOfExpertiseSelectorViewModel is not null)
+            {
+                await this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(this.CurrentThing.Iid == Guid.Empty, this.CurrentThing.Owner);
+            }
         }
     }
 }

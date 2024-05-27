@@ -66,7 +66,7 @@ namespace COMETwebapp.Components.EngineeringModel
             base.CustomizeEditThing(e);
 
             var dataItem = (OptionRowViewModel)e.DataItem;
-            this.ViewModel.CurrentThing = dataItem == null ? new Option() : dataItem.Thing.Clone(true);
+            this.ViewModel.CurrentThing = dataItem == null ? new Option().Clone(true) : dataItem.Thing.Clone(true);
             e.EditModel = this.ViewModel.CurrentThing;
             this.IsOnEditMode = false;
         }

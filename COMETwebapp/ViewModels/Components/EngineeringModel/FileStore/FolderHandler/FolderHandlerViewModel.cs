@@ -48,6 +48,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         public FolderHandlerViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
+            this.CurrentThing = new Folder();
+
             this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
             {
                 OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner =>
