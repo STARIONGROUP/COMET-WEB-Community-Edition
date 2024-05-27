@@ -25,7 +25,6 @@
 namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -60,7 +59,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// <summary>
         /// Creates or edits a folder
         /// </summary>
-        /// <param name="shouldCreate">the value to check if the <see cref="FolderHandlerViewModel.CurrentThing"/> should be created or edited</param>
+        /// <param name="shouldCreate">the value to check if the <see cref="CurrentThing"/> should be created or edited</param>
         /// <returns>A <see cref="Task"/></returns>
         Task CreateOrEditFolder(bool shouldCreate);
 
