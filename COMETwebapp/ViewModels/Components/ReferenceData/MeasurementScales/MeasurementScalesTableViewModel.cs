@@ -70,6 +70,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         {
             this.CurrentThing = new OrdinalScale();
             this.SelectedReferenceQuantityValue = new ScaleReferenceQuantityValue();
+
+            this.InitializeSubscriptions([typeof(ReferenceDataLibrary)]);
         }
 
         /// <summary>
@@ -229,6 +231,21 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         protected override List<MeasurementScale> QueryListOfThings()
         {
             return this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.Scale).ToList();
+        }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnSessionRefreshed()
+        {
+            var updatedRdls = this.UpdatedThings.OfType<ReferenceDataLibrary>().ToList();
+            await base.OnSessionRefreshed();
+
+            foreach (var rdl in updatedRdls)
+            {
+                this.RefreshContainerName(rdl);
+            }
         }
 
         /// <summary>

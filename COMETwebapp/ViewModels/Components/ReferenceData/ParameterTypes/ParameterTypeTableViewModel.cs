@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 {
-    using AntDesign;
-
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
@@ -76,10 +74,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
-        public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<ParameterTypeTableViewModel> logger) 
+        public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<ParameterTypeTableViewModel> logger)
             : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
             this.CurrentThing = new BooleanParameterType();
+            this.InitializeSubscriptions([typeof(ReferenceDataLibrary)]);
         }
 
         /// <summary>
@@ -142,25 +141,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         }
 
         /// <summary>
-        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnThingChanged()
-        {
-            await base.OnThingChanged();
-            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)this.CurrentThing.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
-        }
-
-        /// <summary>
-        /// Queries a list of things of the current type
-        /// </summary>
-        /// <returns>A list of things</returns>
-        protected override List<ParameterType> QueryListOfThings()
-        {
-            return this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.ParameterType).ToList();
-        }
-
-        /// <summary>
         /// Creates or edits a <see cref="ParameterType" />
         /// </summary>
         /// <param name="shouldCreate">The value to check if a new <see cref="ParameterType" /> should be created</param>
@@ -218,6 +198,41 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         }
 
         /// <summary>
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has
+        /// changed
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
+        {
+            await base.OnThingChanged();
+            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)this.CurrentThing.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<ParameterType> QueryListOfThings()
+        {
+            return this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.ParameterType).ToList();
+        }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnSessionRefreshed()
+        {
+            var updatedRdls = this.UpdatedThings.OfType<ReferenceDataLibrary>().ToList();
+            await base.OnSessionRefreshed();
+
+            foreach (var rdl in updatedRdls)
+            {
+                this.RefreshContainerName(rdl);
+            }
+        }
+
+        /// <summary>
         /// Selects a new parameter type for the attribute <see cref="SelectedParameterType" />
         /// </summary>
         /// <param name="newKind">The new kind to which the <see cref="SelectedParameterType" /> will be set</param>
@@ -248,7 +263,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// <summary>
         /// Gets the possible available <see cref="MeasurementScale" />s
         /// </summary>
-        /// <returns>A collection of <see cref="MeasurementScaleRowViewModel"/>s</returns>
+        /// <returns>A collection of <see cref="MeasurementScaleRowViewModel" />s</returns>
         private IEnumerable<MeasurementScaleRowViewModel> GetPossibleMeasurementScales()
         {
             var allMeasurementScales = this.SelectedReferenceDataLibrary?.QueryMeasurementScalesFromChainOfRdls()

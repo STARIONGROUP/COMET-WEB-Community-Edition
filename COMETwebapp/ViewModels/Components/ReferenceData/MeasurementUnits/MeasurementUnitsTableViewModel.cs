@@ -66,6 +66,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
         public MeasurementUnitsTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus,
             ILogger<MeasurementUnitsTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
+            this.InitializeSubscriptions([typeof(ReferenceDataLibrary)]);
         }
 
         /// <summary>
@@ -123,25 +124,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
         }
 
         /// <summary>
-        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnThingChanged()
-        {
-            await base.OnThingChanged();
-            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)this.CurrentThing.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
-        }
-
-        /// <summary>
-        /// Queries a list of things of the current type
-        /// </summary>
-        /// <returns>A list of things</returns>
-        protected override List<MeasurementUnit> QueryListOfThings()
-        {
-            return this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.Unit).ToList();
-        }
-
-        /// <summary>
         /// Creates or edits a <see cref="MeasurementUnit" />
         /// </summary>
         /// <param name="shouldCreate">The value to check if a new <see cref="MeasurementUnit" /> should be created</param>
@@ -179,6 +161,41 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
             {
                 this.IsLoading = false;
             }
+        }
+
+        /// <summary>
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has
+        /// changed
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
+        {
+            await base.OnThingChanged();
+            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)this.CurrentThing.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnSessionRefreshed()
+        {
+            var updatedRdls = this.UpdatedThings.OfType<ReferenceDataLibrary>().ToList();
+            await base.OnSessionRefreshed();
+
+            foreach (var rdl in updatedRdls)
+            {
+                this.RefreshContainerName(rdl);
+            }
+        }
+
+        /// <summary>
+        /// Queries a list of things of the current type
+        /// </summary>
+        /// <returns>A list of things</returns>
+        protected override List<MeasurementUnit> QueryListOfThings()
+        {
+            return this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.Unit).ToList();
         }
 
         /// <summary>

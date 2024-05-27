@@ -47,16 +47,6 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
     public abstract class BaseDataItemTableViewModel<T, TRow> : SingleThingApplicationBaseViewModel<T>, IBaseDataItemTableViewModel<T, TRow> where T : Thing where TRow : BaseDataItemRowViewModel<T>
     {
         /// <summary>
-        /// A collection of <see cref="Type" /> used to create <see cref="ObjectChangedEvent" /> subscriptions
-        /// </summary>
-        private static readonly IEnumerable<Type> ObjectChangedTypesOfInterest = new List<Type>
-        {
-            typeof(T),
-            typeof(PersonRole),
-            typeof(ReferenceDataLibrary)
-        };
-
-        /// <summary>
         /// The <see cref="ILogger{TCategoryName}" />
         /// </summary>
         protected readonly ILogger<BaseDataItemTableViewModel<T, TRow>> Logger;
@@ -72,13 +62,13 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
-        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger) 
+        protected BaseDataItemTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<BaseDataItemTableViewModel<T, TRow>> logger)
             : base(sessionService, messageBus)
         {
             this.PermissionService = sessionService.Session.PermissionService;
             this.Logger = logger;
 
-            this.InitializeSubscriptions(ObjectChangedTypesOfInterest);
+            this.InitializeSubscriptions([typeof(T)]);
             this.RegisterViewModelWithReusableRows(this);
         }
 
@@ -119,10 +109,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         public void UpdateRows(IEnumerable<Thing> updatedThings)
         {
             var updatedThingsList = updatedThings.ToList();
-
             var updatedThingOfTypeT = updatedThingsList.OfType<T>();
-            var updatedPersonRoles = updatedThingsList.OfType<PersonRole>();
-            var updatedRdls = updatedThingsList.OfType<ReferenceDataLibrary>();
 
             this.Rows.Edit(action =>
             {
@@ -139,16 +126,6 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
                     action.Replace(rowToUpdate, updatedRow);
                 }
             });
-
-            foreach (var rdl in updatedRdls)
-            {
-                this.RefreshContainerName(rdl);
-            }
-
-            if (updatedPersonRoles.Any())
-            {
-                this.RefreshAccessRight();
-            }
         }
 
         /// <summary>
@@ -170,10 +147,14 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         protected abstract List<T> QueryListOfThings();
 
         /// <summary>
-        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has
+        /// changed
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override Task OnThingChanged() => Task.CompletedTask;
+        protected override Task OnThingChanged()
+        {
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         /// Gets the message for the success notification
@@ -182,7 +163,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// <returns>The message</returns>
         protected NotificationDescription GetNotificationDescription(bool created)
         {
-            var notificationDescription = new NotificationDescription()
+            var notificationDescription = new NotificationDescription
             {
                 OnSuccess = $"The {typeof(T).Name} {this.CurrentThing.GetShortNameOrName()} was {(created ? "added" : "updated")}",
                 OnError = $"Error while {(created ? "adding" : "updating")} the {typeof(T).Name} {this.CurrentThing.GetShortNameOrName()}"
@@ -232,16 +213,16 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// <summary>
         /// Refresh the displayed container name for the things rows
         /// </summary>
-        /// <param name="rdl">
-        /// The updated <see cref="ReferenceDataLibrary" />.
+        /// <param name="container">
+        /// The updated container, which is a <see cref="DefinedThing" />
         /// </param>
-        private void RefreshContainerName(ReferenceDataLibrary rdl)
+        protected void RefreshContainerName(DefinedThing container)
         {
-            var rowsContainedByUpdatedRdl = this.Rows.Items.Where(x => x.Thing.Container.Iid == rdl.Iid);
+            var containedRows= this.Rows.Items.Where(x => x.Thing.Container.Iid == container.Iid);
 
-            foreach (var thingRow in rowsContainedByUpdatedRdl)
+            foreach (var thingRow in containedRows)
             {
-                thingRow.ContainerName = rdl.ShortName;
+                thingRow.ContainerName = container.ShortName;
             }
         }
 
