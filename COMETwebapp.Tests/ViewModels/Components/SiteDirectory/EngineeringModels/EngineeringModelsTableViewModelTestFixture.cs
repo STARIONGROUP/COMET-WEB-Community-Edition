@@ -190,7 +190,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.IsOnDeletionMode, Is.EqualTo(true));
-                Assert.That(this.viewModel.Thing, Is.EqualTo(modelRow.Thing));
+                Assert.That(this.viewModel.CurrentThing, Is.EqualTo(modelRow.Thing));
             });
 
             this.viewModel.OnCancelPopupButtonClick();

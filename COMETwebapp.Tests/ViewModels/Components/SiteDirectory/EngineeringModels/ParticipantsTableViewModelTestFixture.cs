@@ -174,7 +174,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.IsOnDeletionMode, Is.EqualTo(true));
-                Assert.That(this.viewModel.Thing, Is.EqualTo(participantRow.Thing));
+                Assert.That(this.viewModel.CurrentThing, Is.EqualTo(participantRow.Thing));
             });
 
             this.viewModel.OnCancelPopupButtonClick();
@@ -228,7 +228,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Thing.Iid, Is.EqualTo(this.participant.Iid));
+                Assert.That(this.viewModel.CurrentThing.Iid, Is.EqualTo(this.participant.Iid));
                 Assert.That(this.viewModel.SelectedDomains, Is.EqualTo(this.participant.Domain));
                 Assert.That(this.viewModel.DomainsOfExpertise, Has.Count.EqualTo(1));
             });

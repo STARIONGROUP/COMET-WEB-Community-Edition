@@ -68,7 +68,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
                 Container = new SiteDirectory(){ ShortName = "siteDir" },
             };
 
-            this.viewModel.Setup(x => x.Thing).Returns(this.personRole);
+            this.viewModel.Setup(x => x.CurrentThing).Returns(this.personRole);
             this.context.ConfigureDevExpressBlazor();
         }
 

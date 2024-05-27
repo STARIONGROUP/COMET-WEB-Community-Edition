@@ -44,7 +44,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
     /// <summary>
     /// View model that provides the basic functionalities for a base data item
     /// </summary>
-    public abstract class BaseDataItemTableViewModel<T, TRow> : ApplicationBaseViewModel, IBaseDataItemTableViewModel<T, TRow> where T : Thing where TRow : BaseDataItemRowViewModel<T>
+    public abstract class BaseDataItemTableViewModel<T, TRow> : SingleThingApplicationBaseViewModel<T>, IBaseDataItemTableViewModel<T, TRow> where T : Thing where TRow : BaseDataItemRowViewModel<T>
     {
         /// <summary>
         /// A collection of <see cref="Type" /> used to create <see cref="ObjectChangedEvent" /> subscriptions
@@ -81,11 +81,6 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
             this.InitializeSubscriptions(ObjectChangedTypesOfInterest);
             this.RegisterViewModelWithReusableRows(this);
         }
-
-        /// <summary>
-        /// The thing to create or edit
-        /// </summary>
-        public T Thing { get; set; }
 
         /// <summary>
         /// A reactive collection of things
@@ -175,6 +170,12 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         protected abstract List<T> QueryListOfThings();
 
         /// <summary>
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override Task OnThingChanged() => Task.CompletedTask;
+
+        /// <summary>
         /// Gets the message for the success notification
         /// </summary>
         /// <param name="created">The value to check if the thing was created</param>
@@ -183,8 +184,8 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         {
             var notificationDescription = new NotificationDescription()
             {
-                OnSuccess = $"The {typeof(T).Name} {this.Thing.GetShortNameOrName()} was {(created ? "added" : "updated")}",
-                OnError = $"Error while {(created ? "adding" : "updating")} the {typeof(T).Name} {this.Thing.GetShortNameOrName()}"
+                OnSuccess = $"The {typeof(T).Name} {this.CurrentThing.GetShortNameOrName()} was {(created ? "added" : "updated")}",
+                OnError = $"Error while {(created ? "adding" : "updating")} the {typeof(T).Name} {this.CurrentThing.GetShortNameOrName()}"
             };
 
             return notificationDescription;

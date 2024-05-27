@@ -73,7 +73,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             var rows = new SourceList<OptionRowViewModel>();
             rows.Add(new OptionRowViewModel(this.option){ IsDefault = true});
             this.viewModel.Setup(x => x.Rows).Returns(rows);
-            this.viewModel.Setup(x => x.Thing).Returns(new Option());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new Option());
             
             this.context.ConfigureDevExpressBlazor();
 

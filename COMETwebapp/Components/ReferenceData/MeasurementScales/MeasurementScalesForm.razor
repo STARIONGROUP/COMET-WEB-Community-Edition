@@ -22,7 +22,7 @@ Copyright (c) 2024 Starion Group S.A.
 @using COMETwebapp.Wrappers
 @inherits SelectedDataItemForm
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+<EditForm Context="editFormContext" Model="@(this.ViewModel.CurrentThing)" OnValidSubmit="@(this.OnValidSubmit)">
     <FluentValidationValidator/>
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutTabPages>
@@ -38,10 +38,10 @@ Copyright (c) 2024 Starion Group S.A.
                 }
 
                 <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.ShortName)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.Name)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Library:" ColSpanMd="10">
                     <DxComboBox Data="@(this.ViewModel.ReferenceDataLibraries)"
@@ -53,41 +53,41 @@ Copyright (c) 2024 Starion Group S.A.
                 <DxFormLayoutItem Caption="Unit:" ColSpanMd="10">
                     <DxComboBox Data="@(this.ViewModel.MeasurementUnits)"
                                 TextFieldName="@nameof(MeasurementUnit.ShortName)"
-                                @bind-Value="@(this.ViewModel.Thing.Unit)"
+                                @bind-Value="@(this.ViewModel.CurrentThing.Unit)"
                                 CssClass="cw-480"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Number set:" ColSpanMd="10">
                     <DxComboBox Data="@(this.ViewModel.NumberSetKinds)"
-                                @bind-Value="@(this.ViewModel.Thing.NumberSet)"
+                                @bind-Value="@(this.ViewModel.CurrentThing.NumberSet)"
                                 CssClass="cw-480"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Maximum Permissible Value:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.MaximumPermissibleValue)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.MaximumPermissibleValue)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Minimum Permissible Value:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.MinimumPermissibleValue)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.MinimumPermissibleValue)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Positive Value Connotation:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.PositiveValueConnotation)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.PositiveValueConnotation)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Negative Value Connotation:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.NegativeValueConnotation)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.NegativeValueConnotation)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Minimum Inclusive:" ColSpanMd="10">
-                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsMinimumInclusive)"/>
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.CurrentThing.IsMinimumInclusive)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Maximum Inclusive:" ColSpanMd="10">
-                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsMaximumInclusive)"/>
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.CurrentThing.IsMaximumInclusive)"/>
                 </DxFormLayoutItem>
 
-                @if (this.ViewModel.Thing is CyclicRatioScale ciclicRatioScale)
+                @if (this.ViewModel.CurrentThing is CyclicRatioScale ciclicRatioScale)
                 {
                     <DxFormLayoutItem Caption="Modulus:" ColSpanMd="10">
                         <DxTextBox @bind-Text="@(ciclicRatioScale.Modulus)"/>
                     </DxFormLayoutItem>
                 }
 
-                @if (this.ViewModel.Thing is OrdinalScale ordinalScale)
+                @if (this.ViewModel.CurrentThing is OrdinalScale ordinalScale)
                 {
                     <DxFormLayoutItem Caption="Use Shortname Values:" ColSpanMd="10">
                         <DxCheckBox @bind-Checked="@(ordinalScale.UseShortNameValues)"/>
@@ -95,11 +95,11 @@ Copyright (c) 2024 Starion Group S.A.
                 }
 
                 <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="10">
-                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)"/>
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.CurrentThing.IsDeprecated)"/>
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
 
-            @if (this.ViewModel.Thing is LogarithmicScale logarithmicScale)
+            @if (this.ViewModel.CurrentThing is LogarithmicScale logarithmicScale)
             {
                 <DxFormLayoutTabPage Id="LogarithmTab" Caption="Logarithm">
                     <DxFormLayoutItem Caption="Logarithmic Base:" ColSpanMd="10">
@@ -138,11 +138,11 @@ Copyright (c) 2024 Starion Group S.A.
             }
 
             <DxFormLayoutTabPage Caption="Value Definition">
-                <ScaleValueDefinitionsTable @bind-MeasurementScale="@(this.ViewModel.Thing)"/>
+                <ScaleValueDefinitionsTable @bind-MeasurementScale="@(this.ViewModel.CurrentThing)"/>
             </DxFormLayoutTabPage>
             <DxFormLayoutTabPage Caption="Mappings">
-                <MappingToReferenceScalesTable @bind-MeasurementScale="@(this.ViewModel.Thing)"
-                                               DependentScaleValueDefinitions="@(this.ViewModel.Thing.ValueDefinition)"
+                <MappingToReferenceScalesTable @bind-MeasurementScale="@(this.ViewModel.CurrentThing)"
+                                               DependentScaleValueDefinitions="@(this.ViewModel.CurrentThing.ValueDefinition)"
                                                ReferenceScaleValueDefinitions="@(this.ViewModel.ReferenceScaleValueDefinitions)"/>
             </DxFormLayoutTabPage>
         </DxFormLayoutTabPages>

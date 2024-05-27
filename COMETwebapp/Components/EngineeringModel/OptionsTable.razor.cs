@@ -67,7 +67,7 @@ namespace COMETwebapp.Components.EngineeringModel
 
             var dataItem = (OptionRowViewModel)e.DataItem;
             this.ViewModel.SetCurrentOption(dataItem == null ? new Option() : dataItem.Thing);
-            e.EditModel = this.ViewModel.Thing;
+            e.EditModel = this.ViewModel.CurrentThing;
             this.IsOnEditMode = false;
         }
 

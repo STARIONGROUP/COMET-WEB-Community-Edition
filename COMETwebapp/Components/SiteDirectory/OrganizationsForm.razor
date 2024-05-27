@@ -16,17 +16,17 @@ Copyright (c) 2023-2024 Starion Group S.A.
 ------------------------------------------------------------------------------->
 @inherits SelectedDataItemForm
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+<EditForm Context="editFormContext" Model="@(this.ViewModel.CurrentThing)" OnValidSubmit="@(this.OnValidSubmit)">
     <FluentValidationValidator />
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@this.ViewModel.Thing.ShortName"/>
+            <DxTextBox @bind-Text="@this.ViewModel.CurrentThing.ShortName"/>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@this.ViewModel.Thing.Name"/>
+            <DxTextBox @bind-Text="@this.ViewModel.CurrentThing.Name"/>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-            <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated"/>
+            <DxCheckBox @bind-Checked="@this.ViewModel.CurrentThing.IsDeprecated"/>
         </DxFormLayoutItem>
     </DxFormLayout>
     <FormButtons SaveButtonEnabled="@(this.IsSaveButtonEnabled(editFormContext))"

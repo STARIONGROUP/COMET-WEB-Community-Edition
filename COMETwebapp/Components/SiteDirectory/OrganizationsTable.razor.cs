@@ -61,7 +61,7 @@ namespace COMETwebapp.Components.SiteDirectory
         {
             base.OnSelectedDataItemChanged(row);
             this.ShouldCreateThing = false;
-            this.ViewModel.Thing = row.Thing.Clone(true);
+            this.ViewModel.CurrentThing = row.Thing.Clone(true);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace COMETwebapp.Components.SiteDirectory
         {
             this.ShouldCreateThing = true;
             this.IsOnEditMode = true;
-            this.ViewModel.Thing = new Organization();
+            this.ViewModel.CurrentThing = new Organization();
             this.InvokeAsync(this.StateHasChanged);
         }
     }

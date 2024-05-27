@@ -59,7 +59,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         /// <summary>
         /// Gets the available persons. If the user is editing an existing participant, only the selected person should be retrieved
         /// </summary>
-        private IEnumerable<Person> Persons => this.ShouldCreateThing ? this.ViewModel.Persons : [this.ViewModel.Thing.Person];
+        private IEnumerable<Person> Persons => this.ShouldCreateThing ? this.ViewModel.Persons : [this.ViewModel.CurrentThing.Person];
 
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in
@@ -94,12 +94,12 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
             if (dataItem == null)
             {
                 this.ViewModel.SelectThing(new Participant());
-                e.EditModel = this.ViewModel.Thing;
+                e.EditModel = this.ViewModel.CurrentThing;
                 return;
             }
 
             this.ViewModel.SelectThing(dataItem.Thing);
-            e.EditModel = this.ViewModel.Thing;
+            e.EditModel = this.ViewModel.CurrentThing;
         }
 
         /// <summary>

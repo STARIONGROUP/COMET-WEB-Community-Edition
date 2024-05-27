@@ -152,7 +152,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.viewModel.SetCurrentIteration(this.iteration);
             this.viewModel.SetCurrentOption(this.option);
 
-            Assert.That(this.viewModel.Thing.Original, Is.Not.Null);
+            Assert.That(this.viewModel.CurrentThing.Original, Is.Not.Null);
             await this.viewModel.CreateOrEditOption(true);
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModel>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
 

@@ -41,7 +41,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// <summary>
         /// The thing to create or edit
         /// </summary>
-        T Thing { get; set; }
+        T CurrentThing { get; set; }
 
         /// <summary>
         /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />

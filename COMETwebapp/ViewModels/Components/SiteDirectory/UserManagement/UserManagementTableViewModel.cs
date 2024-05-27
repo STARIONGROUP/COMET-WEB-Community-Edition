@@ -56,13 +56,13 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         public UserManagementTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, 
             ILogger<UserManagementTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
-            this.Thing = new Person();
+            this.CurrentThing = new Person();
 
             this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
             {
                 OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner =>
                 {
-                    this.Thing.DefaultDomain = selectedOwner;
+                    this.CurrentThing.DefaultDomain = selectedOwner;
                 })
             };
         }
@@ -133,7 +133,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         /// <param name="person">The person to be set</param>
         public void SelectPerson(Person person)
         {
-            this.Thing = person;
+            this.CurrentThing = person;
             this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(person.Iid == Guid.Empty, person.DefaultDomain);
         }
 
@@ -152,35 +152,35 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
 
                 if (!string.IsNullOrWhiteSpace(this.EmailAddress.Value))
                 {
-                    this.Thing.EmailAddress.Add(this.EmailAddress);
+                    this.CurrentThing.EmailAddress.Add(this.EmailAddress);
                     thingsToCreate.Add(this.EmailAddress);
                 }
 
                 if (!string.IsNullOrWhiteSpace(this.TelephoneNumber.Value))
                 {
-                    this.Thing.TelephoneNumber.Add(this.TelephoneNumber);
+                    this.CurrentThing.TelephoneNumber.Add(this.TelephoneNumber);
                     thingsToCreate.Add(this.TelephoneNumber);
                 }
 
                 if (this.IsDefaultEmail)
                 {
-                    this.Thing.DefaultEmailAddress = this.EmailAddress;
+                    this.CurrentThing.DefaultEmailAddress = this.EmailAddress;
                 }
 
                 if (this.IsDefaultTelephoneNumber)
                 {
-                    this.Thing.DefaultTelephoneNumber = this.TelephoneNumber;
+                    this.CurrentThing.DefaultTelephoneNumber = this.TelephoneNumber;
                 }
 
                 var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
 
                 if (shouldCreate)
                 {
-                    siteDirectoryClone.Person.Add(this.Thing);
+                    siteDirectoryClone.Person.Add(this.CurrentThing);
                     thingsToCreate.Add(siteDirectoryClone);
                 }
 
-                thingsToCreate.Add(this.Thing);
+                thingsToCreate.Add(this.CurrentThing);
                 await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
                 this.ResetFields();
             }

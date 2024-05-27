@@ -91,12 +91,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         ScaleReferenceQuantityValue SelectedReferenceQuantityValue { get; set; }
 
         /// <summary>
-        /// Selects the current <see cref="MeasurementScale" />
-        /// </summary>
-        /// <param name="measurementScale">The measurement scale to be set</param>
-        void SelectMeasurementScale(MeasurementScale measurementScale);
-
-        /// <summary>
         /// Creates or edits a <see cref="MeasurementScale" />
         /// </summary>
         /// <param name="shouldCreate">The value to check if a new <see cref="MeasurementScale" /> should be created</param>

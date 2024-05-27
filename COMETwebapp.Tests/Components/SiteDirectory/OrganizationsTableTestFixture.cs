@@ -90,7 +90,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.ShowHideDeprecatedThingsService).Returns(this.showHideService.Object);
-            this.viewModel.Setup(x => x.Thing).Returns(new Organization());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new Organization());
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
@@ -129,7 +129,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Instance.IsOnEditMode, Is.EqualTo(true));
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(Organization)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(Organization)));
             });
 
             var organizationsGrid = renderer.FindComponent<DxGrid>();
@@ -143,7 +143,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             Assert.Multiple(() =>
             {
                 this.viewModel.Verify(x => x.CreateOrEditOrganization(false), Times.Once);
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(Organization)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(Organization)));
             });
 
             var form = renderer.FindComponent<DxGrid>();

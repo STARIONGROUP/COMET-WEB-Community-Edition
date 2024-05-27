@@ -62,7 +62,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         {
             base.OnSelectedDataItemChanged(row);
             this.ShouldCreateThing = false;
-            this.ViewModel.SelectMeasurementScale(row.Thing.Clone(true));
+            this.ViewModel.CurrentThing = row.Thing.Clone(true);
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
             this.ShouldCreateThing = true;
             this.IsOnEditMode = true;
             this.ViewModel.SelectedMeasurementScaleType = this.ViewModel.MeasurementScaleTypes.First(x => x.ClassKind == ClassKind.CyclicRatioScale);
-            this.ViewModel.SelectMeasurementScale(new CyclicRatioScale());
+            this.ViewModel.CurrentThing = new CyclicRatioScale();
             this.InvokeAsync(this.StateHasChanged);
         }
     }

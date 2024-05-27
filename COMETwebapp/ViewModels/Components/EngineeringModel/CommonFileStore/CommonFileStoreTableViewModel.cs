@@ -55,11 +55,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
             : base(sessionService, messageBus, logger)
         {
             this.FolderFileStructureViewModel = folderFileStructureViewModel;
-            this.Thing = new CommonFileStore();
+            this.CurrentThing = new CommonFileStore();
 
             this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
             {
-                OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner => { this.Thing.Owner = selectedOwner; })
+                OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner => { this.CurrentThing.Owner = selectedOwner; })
             };
         }
 
@@ -99,7 +99,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
         /// <param name="commonFileStore">The common file store to be set</param>
         public void SelectCommonFileStore(CommonFileStore commonFileStore)
         {
-            this.Thing = commonFileStore.Clone(true);
+            this.CurrentThing = commonFileStore.Clone(true);
             this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(commonFileStore.Iid == Guid.Empty, commonFileStore.Owner);
         }
 
@@ -108,7 +108,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
         /// </summary>
         public void LoadFileStructure()
         {
-            this.FolderFileStructureViewModel.InitializeViewModel(this.Thing, this.CurrentIteration);
+            this.FolderFileStructureViewModel.InitializeViewModel(this.CurrentThing, this.CurrentIteration);
         }
 
         /// <summary>
@@ -125,11 +125,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
 
             if (shouldCreate)
             {
-                engineeringModelClone.CommonFileStore.Add(this.Thing);
+                engineeringModelClone.CommonFileStore.Add(this.CurrentThing);
                 thingsToCreate.Add(engineeringModelClone);
             }
 
-            thingsToCreate.Add(this.Thing);
+            thingsToCreate.Add(this.CurrentThing);
 
             try
             {

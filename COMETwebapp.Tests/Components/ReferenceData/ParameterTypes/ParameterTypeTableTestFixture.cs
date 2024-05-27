@@ -74,7 +74,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.ParameterTypes).Returns([new ClassKindWrapper(ClassKind.BooleanParameterType)]);
-            this.viewModel.Setup(x => x.Thing).Returns(new BooleanParameterType());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new BooleanParameterType());
             this.context.Services.AddSingleton(this.viewModel.Object);
         }
 
@@ -108,7 +108,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(ParameterType)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(ParameterType)));
             });
 
             var parameterTypesForm = renderer.FindComponent<ParameterTypeForm>();
@@ -125,7 +125,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             Assert.Multiple(() =>
             {
                 this.viewModel.Verify(x => x.CreateOrEditParameterType(false), Times.Once);
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(BooleanParameterType)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(BooleanParameterType)));
             });
         }
     }

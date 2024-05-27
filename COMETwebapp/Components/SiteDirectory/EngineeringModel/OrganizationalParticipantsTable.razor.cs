@@ -74,13 +74,13 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
 
             if (dataItem == null)
             {
-                this.ViewModel.Thing = new OrganizationalParticipant();
-                e.EditModel = this.ViewModel.Thing;
+                this.ViewModel.CurrentThing = new OrganizationalParticipant();
+                e.EditModel = this.ViewModel.CurrentThing;
                 return;
             }
 
             e.EditModel = dataItem;
-            this.ViewModel.Thing = dataItem.Thing.Clone(true);
+            this.ViewModel.CurrentThing = dataItem.Thing.Clone(true);
         }
     }
 }

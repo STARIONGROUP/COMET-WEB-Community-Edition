@@ -53,7 +53,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
         public DomainsOfExpertiseTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<DomainsOfExpertiseTableViewModel> logger)
             : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
-            this.Thing = new DomainOfExpertise();
+            this.CurrentThing = new DomainOfExpertise();
         }
 
         /// <summary>
@@ -72,11 +72,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
 
                 if (shouldCreate)
                 {
-                    siteDirectoryClone.Domain.Add(this.Thing);
+                    siteDirectoryClone.Domain.Add(this.CurrentThing);
                     thingsToUpdateOrCreate.Add(siteDirectoryClone);
                 }
 
-                thingsToUpdateOrCreate.Add(this.Thing);
+                thingsToUpdateOrCreate.Add(this.CurrentThing);
                 await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToUpdateOrCreate, this.GetNotificationDescription(shouldCreate));
             }
             catch (Exception ex)

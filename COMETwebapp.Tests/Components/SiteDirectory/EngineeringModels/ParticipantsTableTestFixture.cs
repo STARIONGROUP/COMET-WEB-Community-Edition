@@ -99,7 +99,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             rows.Add(new ParticipantRowViewModel(this.participant2));
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
-            this.viewModel.Setup(x => x.Thing).Returns(new Participant());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new Participant());
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
@@ -153,7 +153,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(Participant)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(Participant)));
             });
 
             var editParticipantButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editParticipantButton");
@@ -162,7 +162,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(Participant)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(Participant)));
             });
 
             var saveParticipantsButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "saveParticipantsButton");

@@ -187,21 +187,21 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Thing, Is.TypeOf<SimpleUnit>());
+                Assert.That(this.viewModel.CurrentThing, Is.TypeOf<SimpleUnit>());
                 Assert.That(this.viewModel.SelectedMeasurementUnitType.ClassKind, Is.EqualTo(ClassKind.SimpleUnit));
             });
 
             this.viewModel.SelectedMeasurementUnitType = new ClassKindWrapper(ClassKind.LinearConversionUnit);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<LinearConversionUnit>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<LinearConversionUnit>());
 
             this.viewModel.SelectedMeasurementUnitType = new ClassKindWrapper(ClassKind.PrefixedUnit);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<PrefixedUnit>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<PrefixedUnit>());
 
             this.viewModel.SelectedMeasurementUnitType = new ClassKindWrapper(ClassKind.Person);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<PrefixedUnit>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<PrefixedUnit>());
 
             this.viewModel.SelectedMeasurementUnitType = new ClassKindWrapper(ClassKind.DerivedUnit);
-            Assert.That(this.viewModel.Thing, Is.TypeOf<DerivedUnit>());
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<DerivedUnit>());
 
             var unitFactor = new UnitFactor()
             {
@@ -209,7 +209,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 Exponent = "exp"
             };
 
-            ((DerivedUnit)this.viewModel.Thing).UnitFactor.Add(unitFactor);
+            ((DerivedUnit)this.viewModel.CurrentThing).UnitFactor.Add(unitFactor);
             await this.viewModel.CreateOrEditMeasurementUnit(true);
 
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(

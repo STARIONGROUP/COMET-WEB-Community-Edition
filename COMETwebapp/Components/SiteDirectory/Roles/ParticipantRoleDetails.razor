@@ -16,23 +16,23 @@ Copyright (c) 2023-2024 Starion Group S.A.
 ------------------------------------------------------------------------------->
 @inherits DisposableComponent
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+<EditForm Context="editFormContext" Model="@(this.ViewModel.CurrentThing)" OnValidSubmit="@(this.OnValidSubmit)">
     <FluentValidationValidator />
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutItem Caption="Shortname:" ColSpanMd="12">
-            <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
+            <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.ShortName)"/>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Name:" ColSpanMd="12">
-            <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
+            <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.Name)"/>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="6">
-            <DxCheckBox @bind-Checked="@this.ViewModel.Thing.IsDeprecated"/>
+            <DxCheckBox @bind-Checked="@this.ViewModel.CurrentThing.IsDeprecated"/>
         </DxFormLayoutItem>
 
         <DxFormLayoutGroup Caption="Permissions"
                            CssClass="overflow-auto max-height-50vh pb-3">
 
-            @foreach (var permission in this.ViewModel.Thing.ParticipantPermission.OrderBy(x => x.ObjectClass.ToString()))
+            @foreach (var permission in this.ViewModel.CurrentThing.ParticipantPermission.OrderBy(x => x.ObjectClass.ToString()))
             {
                 <DxFormLayoutItem @key="permission.ObjectClass.ToString()" 
                                   Caption="@(permission.ObjectClass.ToString())"

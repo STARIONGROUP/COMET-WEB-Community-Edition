@@ -98,22 +98,22 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
             {
                 this.IsLoading = true;
 
-                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
+                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.CurrentThing.Container;
                 var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
                 var thingsToCreate = new List<Thing>();
 
                 if (shouldCreate || hasRdlChanged)
                 {
-                    rdlClone.DefinedCategory.Add(this.Thing);
+                    rdlClone.DefinedCategory.Add(this.CurrentThing);
                     thingsToCreate.Add(rdlClone);
                 }
 
-                thingsToCreate.Add(this.Thing);
+                thingsToCreate.Add(this.CurrentThing);
                 await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
                 
-                if (this.Thing.Original is not null)
+                if (this.CurrentThing.Original is not null)
                 {
-                    this.Thing = (Category)this.Thing.Original.Clone(true);
+                    this.CurrentThing = (Category)this.CurrentThing.Original.Clone(true);
                 }
             }
             catch (Exception ex)
@@ -132,7 +132,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         /// <param name="selectedCategory">The selected <see cref="CategoryRowViewModel" /></param>
         public void SelectCategory(Category selectedCategory)
         {
-            this.Thing = selectedCategory;
+            this.CurrentThing = selectedCategory;
             this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)selectedCategory.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
 
             if (selectedCategory.Iid == Guid.Empty)

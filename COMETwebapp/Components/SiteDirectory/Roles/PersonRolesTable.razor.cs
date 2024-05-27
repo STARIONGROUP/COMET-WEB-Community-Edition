@@ -72,8 +72,8 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         {
             base.CustomizeEditThing(e);
 
-            this.ViewModel.Thing = new PersonRole();
-            e.EditModel = this.ViewModel.Thing;
+            this.ViewModel.CurrentThing = new PersonRole();
+            e.EditModel = this.ViewModel.CurrentThing;
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         protected override void OnSelectedDataItemChanged(PersonRoleRowViewModel row)
         {
             base.OnSelectedDataItemChanged(row);
-            this.ViewModel.Thing = row.Thing.Clone(true);
+            this.ViewModel.CurrentThing = row.Thing.Clone(true);
         }
     }
 }

@@ -74,7 +74,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
             rows.Add(new PersonRoleRowViewModel(this.personRole));
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
-            this.viewModel.Setup(x => x.Thing).Returns(this.personRole);
+            this.viewModel.Setup(x => x.CurrentThing).Returns(this.personRole);
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();

@@ -63,7 +63,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
         public OptionsTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<OptionsTableViewModel> logger)
             : base(sessionService, messageBus, logger)
         {
-            this.Thing = new Option();
+            this.CurrentThing = new Option();
             this.InitializeSubscriptions(ObjectChangedTypesOfInterest);
         }
 
@@ -88,7 +88,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
         public void SetCurrentOption(Option option)
         {
             this.SelectedIsDefaultValue = option.IsDefault;
-            this.Thing = option.Clone(true);
+            this.CurrentThing = option.Clone(true);
         }
 
         /// <summary>
@@ -102,22 +102,22 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
 
             var iterationClone = this.CurrentIteration.Clone(false);
             var thingsToCreate = new List<Thing>();
-            var originalOption = (Option)this.Thing.Original;
+            var originalOption = (Option)this.CurrentThing.Original;
 
             iterationClone.DefaultOption = this.SelectedIsDefaultValue switch
             {
-                true when !originalOption.IsDefault => this.Thing,
+                true when !originalOption.IsDefault => this.CurrentThing,
                 false when originalOption.IsDefault => null,
                 _ => iterationClone.DefaultOption
             };
 
             if (shouldCreate)
             {
-                iterationClone.Option.Add(this.Thing);
+                iterationClone.Option.Add(this.CurrentThing);
             }
 
             thingsToCreate.Add(iterationClone);
-            thingsToCreate.Add(this.Thing);
+            thingsToCreate.Add(this.CurrentThing);
 
             try
             {

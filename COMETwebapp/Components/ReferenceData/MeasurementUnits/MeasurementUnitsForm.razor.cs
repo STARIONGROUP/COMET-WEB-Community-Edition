@@ -48,7 +48,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementUnits
         /// <summary>
         /// Condition to check if the shortname and name fields should be readonly
         /// </summary>
-        private bool ShouldNameAndShortNameBeReadOnly => this.ViewModel.Thing is PrefixedUnit;
+        private bool ShouldNameAndShortNameBeReadOnly => this.ViewModel.CurrentThing is PrefixedUnit;
 
         /// <summary>
         /// Method that is executed when there is a valid submit

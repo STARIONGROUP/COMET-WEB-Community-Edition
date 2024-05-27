@@ -72,7 +72,7 @@ namespace COMETwebapp.Components.EngineeringModel
 
             var dataItem = (CommonFileStoreRowViewModel)e.DataItem;
             this.ViewModel.SelectCommonFileStore(dataItem == null ? new CommonFileStore() : dataItem.Thing.Clone(true));
-            e.EditModel = this.ViewModel.Thing;
+            e.EditModel = this.ViewModel.CurrentThing;
             this.IsOnEditMode = false;
         }
 

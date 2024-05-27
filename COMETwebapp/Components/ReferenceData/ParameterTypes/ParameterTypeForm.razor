@@ -22,7 +22,7 @@ Copyright (c) 2024 Starion Group S.A.
 @using COMETwebapp.Wrappers
 @inherits SelectedDataItemForm
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.Thing)" OnValidSubmit="@(this.OnValidSubmit)">
+<EditForm Context="editFormContext" Model="@(this.ViewModel.CurrentThing)" OnValidSubmit="@(this.OnValidSubmit)">
     <FluentValidationValidator/>
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutTabPages>
@@ -38,13 +38,13 @@ Copyright (c) 2024 Starion Group S.A.
                 }
 
                 <DxFormLayoutItem Caption="Shortname:" ColSpanMd="12">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.ShortName)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Name:" ColSpanMd="12">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.Name)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Symbol:" ColSpanMd="12">
-                    <DxTextBox @bind-Text="@(this.ViewModel.Thing.Symbol)"/>
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.Symbol)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Library:" ColSpanMd="12">
                     <DxComboBox Data="@(this.ViewModel.ReferenceDataLibraries)"
@@ -54,14 +54,14 @@ Copyright (c) 2024 Starion Group S.A.
                                 CssClass="cw-480"/>
                 </DxFormLayoutItem>
 
-                @if (this.ViewModel.Thing is EnumerationParameterType enumerationParameterType)
+                @if (this.ViewModel.CurrentThing is EnumerationParameterType enumerationParameterType)
                 {
                     <DxFormLayoutItem Caption="Multi select:" ColSpanMd="12" Id="multiSelect">
                         <DxCheckBox @bind-Checked="@enumerationParameterType.AllowMultiSelect"/>
                     </DxFormLayoutItem>
                 }
 
-                @if (this.ViewModel.Thing is CompoundParameterType compoundParameterType)
+                @if (this.ViewModel.CurrentThing is CompoundParameterType compoundParameterType)
                 {
                     <DxFormLayoutItem Caption="Components:" ColSpanMd="12" CaptionPosition="CaptionPosition.Vertical">
                         <ComponentsTable @bind-Thing="compoundParameterType"
@@ -73,14 +73,14 @@ Copyright (c) 2024 Starion Group S.A.
                     </DxFormLayoutItem>
                 }
 
-                @if (this.ViewModel.Thing is ArrayParameterType arrayParameterType)
+                @if (this.ViewModel.CurrentThing is ArrayParameterType arrayParameterType)
                 {
                     <DxFormLayoutItem Caption="Is a Tensor:" ColSpanMd="12" Id="isTensor">
                         <DxCheckBox @bind-Checked="@arrayParameterType.IsTensor"/>
                     </DxFormLayoutItem>
                 }
 
-                @if (this.ViewModel.Thing is SpecializedQuantityKind specializedQuantityKindParameterType)
+                @if (this.ViewModel.CurrentThing is SpecializedQuantityKind specializedQuantityKindParameterType)
                 {
                     <DxFormLayoutItem Caption="General:" ColSpanMd="12">
                         <DxComboBox Data="@(this.ViewModel.ExistingParameterTypes.OfType<QuantityKind>())"
@@ -105,7 +105,7 @@ Copyright (c) 2024 Starion Group S.A.
                     }
                 }
 
-                @if (this.ViewModel.Thing is QuantityKind quantityKindParameterType)
+                @if (this.ViewModel.CurrentThing is QuantityKind quantityKindParameterType)
                 {
                     @if (quantityKindParameterType is SpecializedQuantityKind { General: not null } or not SpecializedQuantityKind)
                     {
@@ -143,7 +143,7 @@ Copyright (c) 2024 Starion Group S.A.
                     </DxFormLayoutItem>
                 }
 
-                @if (this.ViewModel.Thing is SampledFunctionParameterType sampledFunctionParameterType)
+                @if (this.ViewModel.CurrentThing is SampledFunctionParameterType sampledFunctionParameterType)
                 {
                     <DxFormLayoutItem Caption="Degree of Interpolation:" ColSpanMd="12">
                         <DxSpinEdit @bind-Value="@(sampledFunctionParameterType.DegreeOfInterpolation)"/>
@@ -163,18 +163,18 @@ Copyright (c) 2024 Starion Group S.A.
                 }
 
                 <DxFormLayoutItem Caption="Deprecated:" ColSpanMd="12">
-                    <DxCheckBox @bind-Checked="@(this.ViewModel.Thing.IsDeprecated)"/>
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.CurrentThing.IsDeprecated)"/>
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
 
-            @if (this.ViewModel.Thing is EnumerationParameterType enumerationParameter)
+            @if (this.ViewModel.CurrentThing is EnumerationParameterType enumerationParameter)
             {
                 <DxFormLayoutTabPage Caption="Values">
                     <EnumerationValueDefinitionsTable @bind-Thing="enumerationParameter" />
                 </DxFormLayoutTabPage>
             }
 
-            @if (this.ViewModel.Thing is DerivedQuantityKind derivedQuantityKindParameterType)
+            @if (this.ViewModel.CurrentThing is DerivedQuantityKind derivedQuantityKindParameterType)
             {
                 <DxFormLayoutTabPage Caption="Factors">
                     <QuantityKindFactorsTable @bind-Thing="@(derivedQuantityKindParameterType)"

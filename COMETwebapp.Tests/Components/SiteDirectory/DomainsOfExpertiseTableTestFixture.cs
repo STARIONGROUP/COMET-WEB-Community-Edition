@@ -87,7 +87,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.ShowHideDeprecatedThingsService).Returns(this.showHideService.Object);
-            this.viewModel.Setup(x => x.Thing).Returns(new DomainOfExpertise());
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new DomainOfExpertise());
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
@@ -111,7 +111,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(DomainOfExpertise)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(DomainOfExpertise)));
             });
 
             var domainsGrid = renderer.FindComponent<DxGrid>();
@@ -125,7 +125,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             Assert.Multiple(() =>
             {
                 this.viewModel.Verify(x => x.CreateOrEditDomainOfExpertise(false), Times.Once);
-                Assert.That(this.viewModel.Object.Thing, Is.InstanceOf(typeof(DomainOfExpertise)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(DomainOfExpertise)));
             });
 
             var form = renderer.FindComponent<DxGrid>();

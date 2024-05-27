@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
 {
-    using AntDesign;
-
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
@@ -70,14 +68,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         public MeasurementScalesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus,
             ILogger<MeasurementScalesTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
-            this.Thing = new OrdinalScale();
+            this.CurrentThing = new OrdinalScale();
             this.SelectedReferenceQuantityValue = new ScaleReferenceQuantityValue();
         }
 
         /// <summary>
         /// Gets the available <see cref="ReferenceDataLibrary" />s
         /// </summary>
-        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; }
+        public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; } = [];
 
         /// <summary>
         /// Gets the available reference <see cref="QuantityKind" />s
@@ -89,7 +87,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         /// </summary>
         public IEnumerable<ScaleValueDefinition> ReferenceScaleValueDefinitions => this.SelectedReferenceDataLibrary?.Scale
             .SelectMany(x => x.ValueDefinition)
-            .Where(x => this.Thing.ValueDefinition.All(selected => selected.Iid != x.Iid));
+            .Where(x => this.CurrentThing.ValueDefinition.All(selected => selected.Iid != x.Iid));
 
         /// <summary>
         /// Gets the available <see cref="MeasurementUnit" />s
@@ -140,21 +138,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         }
 
         /// <summary>
-        /// Selects the current <see cref="MeasurementScale" />
-        /// </summary>
-        /// <param name="measurementScale">The measurement scale to be set</param>
-        public void SelectMeasurementScale(MeasurementScale measurementScale)
-        {
-            this.Thing = measurementScale;
-            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)measurementScale.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
-
-            if (measurementScale is LogarithmicScale logarithmicScale)
-            {
-                this.SelectedReferenceQuantityValue = logarithmicScale.ReferenceQuantityValue.FirstOrDefault() ?? new ScaleReferenceQuantityValue();
-            }
-        }
-
-        /// <summary>
         /// Initializes the <see cref="MeasurementScalesTableViewModel" />
         /// </summary>
         public override void InitializeViewModel()
@@ -180,17 +163,17 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
             try
             {
                 this.IsLoading = true;
-                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.Thing.Container;
+                var hasRdlChanged = this.SelectedReferenceDataLibrary != this.CurrentThing.Container;
                 var rdlClone = this.SelectedReferenceDataLibrary.Clone(false);
                 var thingsToCreate = new List<Thing>();
 
                 if (shouldCreate || hasRdlChanged)
                 {
-                    rdlClone.Scale.Add(this.Thing);
+                    rdlClone.Scale.Add(this.CurrentThing);
                     thingsToCreate.Add(rdlClone);
                 }
 
-                if (this.Thing is LogarithmicScale logarithmicScale)
+                if (this.CurrentThing is LogarithmicScale logarithmicScale)
                 {
                     switch (logarithmicScale.ReferenceQuantityValue.Count)
                     {
@@ -208,9 +191,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
                     }
                 }
 
-                thingsToCreate.AddRange(this.Thing.ValueDefinition);
-                thingsToCreate.AddRange(this.Thing.MappingToReferenceScale);
-                thingsToCreate.Add(this.Thing);
+                thingsToCreate.AddRange(this.CurrentThing.ValueDefinition);
+                thingsToCreate.AddRange(this.CurrentThing.MappingToReferenceScale);
+                thingsToCreate.Add(this.CurrentThing);
 
                 await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
             }
@@ -221,6 +204,21 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
             finally
             {
                 this.IsLoading = false;
+            }
+        }
+
+        /// <summary>
+        /// Update the view model properties when the thing has changed
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnThingChanged()
+        {
+            await base.OnThingChanged();
+            this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)this.CurrentThing.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
+
+            if (this.CurrentThing is LogarithmicScale logarithmicScale)
+            {
+                this.SelectedReferenceQuantityValue = logarithmicScale.ReferenceQuantityValue.FirstOrDefault() ?? new ScaleReferenceQuantityValue();
             }
         }
 
@@ -239,14 +237,14 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         /// <param name="newKind">The new kind to which the <see cref="SelectedMeasurementScaleType" /> will be set</param>
         private void SelectMeasurementScaleType(ClassKindWrapper newKind)
         {
-            this.Thing = newKind.ClassKind switch
+            this.CurrentThing = newKind.ClassKind switch
             {
                 ClassKind.CyclicRatioScale => new CyclicRatioScale(),
                 ClassKind.IntervalScale => new IntervalScale(),
                 ClassKind.LogarithmicScale => new LogarithmicScale(),
                 ClassKind.OrdinalScale => new OrdinalScale(),
                 ClassKind.RatioScale => new RatioScale(),
-                _ => this.Thing
+                _ => this.CurrentThing
             };
 
             if (newKind.ClassKind == ClassKind.LogarithmicScale)

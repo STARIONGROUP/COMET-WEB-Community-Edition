@@ -50,7 +50,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
         public ParticipantRolesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<ParticipantRolesTableViewModel> logger)
             : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
-            this.Thing = new ParticipantRole();
+            this.CurrentThing = new ParticipantRole();
         }
 
         /// <summary>
@@ -70,15 +70,15 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
             var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
             var thingsToCreate = new List<Thing>();
 
-            thingsToCreate.AddRange(this.Thing.ParticipantPermission);
+            thingsToCreate.AddRange(this.CurrentThing.ParticipantPermission);
 
             if (shouldCreate)
             {
-                siteDirectoryClone.ParticipantRole.Add(this.Thing);
+                siteDirectoryClone.ParticipantRole.Add(this.CurrentThing);
                 thingsToCreate.Add(siteDirectoryClone);
             }
 
-            thingsToCreate.Add(this.Thing);
+            thingsToCreate.Add(this.CurrentThing);
             await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
 
             this.IsLoading = false;

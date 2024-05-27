@@ -89,7 +89,7 @@ namespace COMETwebapp.Components.SiteDirectory.UserManagement
             base.OnSelectedDataItemChanged(row);
             this.ShouldCreateThing = false;
             this.ViewModel.SelectPerson(row.Thing.Clone(true));
-            this.ViewModel.Thing = row.Thing.Clone(true);
+            this.ViewModel.CurrentThing = row.Thing.Clone(true);
         }
 
         /// <summary>

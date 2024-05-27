@@ -98,7 +98,7 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
         /// <param name="thingRow"> The row to delete </param>
         public void OnDeleteButtonClick(TRow thingRow)
         {
-            this.Thing = thingRow.Thing;
+            this.CurrentThing = thingRow.Thing;
             this.PopupDialog = $"You are about to delete the {typeof(T).Name}: {thingRow.Name}";
             this.IsOnDeletionMode = true;
         }
@@ -109,15 +109,15 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
         /// <returns>A <see cref="Task" /></returns>
         public async Task DeleteThing()
         {
-            var clonedContainer = this.Thing.Container.Clone(false);
+            var clonedContainer = this.CurrentThing.Container.Clone(false);
 
             try
             {
-                await this.SessionService.DeleteThingsWithNotification(clonedContainer, [this.Thing.Clone(false)], this.GetDeletionNotificationDescription());
+                await this.SessionService.DeleteThingsWithNotification(clonedContainer, [this.CurrentThing.Clone(false)], this.GetDeletionNotificationDescription());
             }
             catch (Exception exception)
             {
-                this.Logger.LogError(exception, "An error has occurred while trying to delete the {thingType} with iid {thingIid}", typeof(T), this.Thing.Iid);
+                this.Logger.LogError(exception, "An error has occurred while trying to delete the {thingType} with iid {thingIid}", typeof(T), this.CurrentThing.Iid);
             }
         }
 
@@ -129,8 +129,8 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
         {
             var notificationDescription = new NotificationDescription()
             {
-                OnSuccess = $"The {typeof(T).Name} {this.Thing.GetShortNameOrName()} was deleted!",
-                OnError = $"Error while deleting The {typeof(T).Name} {this.Thing.GetShortNameOrName()}"
+                OnSuccess = $"The {typeof(T).Name} {this.CurrentThing.GetShortNameOrName()} was deleted!",
+                OnError = $"Error while deleting The {typeof(T).Name} {this.CurrentThing.GetShortNameOrName()}"
             };
 
             return notificationDescription;

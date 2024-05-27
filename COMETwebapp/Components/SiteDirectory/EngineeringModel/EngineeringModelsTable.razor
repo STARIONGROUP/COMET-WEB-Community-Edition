@@ -65,10 +65,10 @@ Copyright (c) 2023-2024 Starion Group S.A.
 
                         <DxFormLayoutTabPage Caption="Basic">
                             <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                                <DxTextBox @bind-Text="@(this.ViewModel.Thing.ShortName)"/>
+                                <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.ShortName)"/>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                                <DxTextBox @bind-Text="@(this.ViewModel.Thing.Name)"/>
+                                <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.Name)"/>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Source Model:" ColSpanMd="10">
                                 <DxComboBox Data="@this.ViewModel.EngineeringModels"
@@ -79,12 +79,12 @@ Copyright (c) 2023-2024 Starion Group S.A.
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Model Kind:" ColSpanMd="10">
                                 <DxComboBox Data="@this.ViewModel.ModelKinds"
-                                            @bind-Value="@this.ViewModel.Thing.Kind"
+                                            @bind-Value="@this.ViewModel.CurrentThing.Kind"
                                             CssClass="cw-480"/>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Study Phase:" ColSpanMd="10">
                                 <DxComboBox Data="@this.ViewModel.StudyPhases"
-                                            @bind-Value="@this.ViewModel.Thing.StudyPhase"
+                                            @bind-Value="@this.ViewModel.CurrentThing.StudyPhase"
                                             CssClass="cw-480"/>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Site RDL:" ColSpanMd="10">
