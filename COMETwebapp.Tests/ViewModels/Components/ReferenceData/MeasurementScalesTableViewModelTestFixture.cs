@@ -247,6 +247,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.That(this.viewModel.CurrentThing, Is.TypeOf<LogarithmicScale>());
 
             var measurementScaleToSet = new LogarithmicScale();
+            this.viewModel.CurrentThing = measurementScaleToSet;
 
             Assert.Multiple(() =>
             {

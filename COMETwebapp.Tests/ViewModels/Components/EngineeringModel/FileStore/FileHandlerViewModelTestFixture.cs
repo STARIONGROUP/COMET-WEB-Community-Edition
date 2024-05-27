@@ -138,6 +138,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         public async Task VerifyMoveAndDeleteFile()
         {
             this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
+            this.viewModel.CurrentThing = this.commonFileStore.File[0];
+
             await this.viewModel.MoveFile(this.commonFileStore.File[0], this.commonFileStore.Folder[0]);
             this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
 

@@ -35,6 +35,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
 
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
@@ -123,7 +124,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
                 Assert.That(this.viewModel.Persons, Has.Count.EqualTo(1));
                 Assert.That(this.viewModel.ParticipantRoles, Has.Count.EqualTo(1));
                 Assert.That(this.viewModel.DomainsOfExpertise, Is.Not.Null);
-                Assert.That(this.viewModel.SelectedDomains, Is.Null);
+                Assert.That(this.viewModel.SelectedDomains, Is.Empty);
             });
         }
 
@@ -150,15 +151,16 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         {
             this.viewModel.InitializeViewModel(this.model);
 
-            await this.viewModel.CreateOrEditParticipant(false);
-            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Never);
-
             this.viewModel.SelectedDomains = [this.participant.Domain.First(), this.participant.Domain.First().Clone(true)];
             await this.viewModel.CreateOrEditParticipant(false);
-
-            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 1), It.IsAny<NotificationDescription>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count == 1), It.IsAny<NotificationDescription>()), Times.Once);
+            
             await this.viewModel.CreateOrEditParticipant(true);
-            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count() == 2), It.IsAny<NotificationDescription>()), Times.Once);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count == 2), It.IsAny<NotificationDescription>()), Times.Once);
+
+            this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>())).Throws(new Exception());
+            await this.viewModel.CreateOrEditParticipant(false);
+            this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }
 
         [Test]
@@ -222,6 +224,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         public void VerifySetEngineeringModel()
         {
             this.viewModel.InitializeViewModel(this.model);
+            this.viewModel.CurrentThing = this.participant;
+
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
             Assert.Multiple(() =>

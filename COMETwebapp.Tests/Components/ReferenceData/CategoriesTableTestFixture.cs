@@ -365,7 +365,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         public async Task VerifyDisplayCategoryDiagram()
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
-            await renderer.InvokeAsync(() => this.viewModel.SelectCategory(this.elementDefinitionCategory3));
+            await renderer.InvokeAsync(() => this.viewModel.CurrentThing = this.elementDefinitionCategory3);
 
             this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory3;
             this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory3.SuperCategory;

@@ -237,6 +237,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 Container = new SiteReferenceDataLibrary()
             };
 
+            this.viewModel.CurrentThing = parameterTypeToSet;
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.CurrentThing, Is.EqualTo(parameterTypeToSet));

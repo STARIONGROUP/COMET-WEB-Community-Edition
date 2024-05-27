@@ -150,6 +150,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
         {
             this.viewModel.InitializeViewModel();
             this.viewModel.SetCurrentIteration(this.iteration);
+            this.viewModel.CurrentThing = this.option.Clone(true);
 
             Assert.That(this.viewModel.CurrentThing.Original, Is.Not.Null);
             await this.viewModel.CreateOrEditOption(true);
