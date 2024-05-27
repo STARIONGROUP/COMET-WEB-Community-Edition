@@ -67,9 +67,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
-        /// <param name="notificationService">The <see cref="INotificationService" /></param>
         public MeasurementScalesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus,
-            ILogger<MeasurementScalesTableViewModel> logger, INotificationService notificationService) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger, notificationService)
+            ILogger<MeasurementScalesTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
             this.Thing = new OrdinalScale();
             this.SelectedReferenceQuantityValue = new ScaleReferenceQuantityValue();

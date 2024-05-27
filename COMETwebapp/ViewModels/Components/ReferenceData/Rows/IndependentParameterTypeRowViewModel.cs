@@ -57,7 +57,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         /// The associated <see cref="IndependentParameterTypeAssignment" />
         /// </param>
         /// <param name="interpolationPeriod">The interpolation period</param>
-        public IndependentParameterTypeRowViewModel(IndependentParameterTypeAssignment índependentParameterTypeAssignment, string interpolationPeriod) : base(índependentParameterTypeAssignment)
+        public IndependentParameterTypeRowViewModel(IndependentParameterTypeAssignment índependentParameterTypeAssignment, string interpolationPeriod = null) : base(índependentParameterTypeAssignment)
         {
             this.Scale = índependentParameterTypeAssignment.MeasurementScale?.ShortName;
             this.ParameterType = índependentParameterTypeAssignment.ParameterType?.Name;

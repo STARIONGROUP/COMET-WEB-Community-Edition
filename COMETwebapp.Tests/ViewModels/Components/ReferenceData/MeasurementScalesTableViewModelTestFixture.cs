@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 {
-    using AntDesign;
-
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
@@ -62,7 +60,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         private Mock<ILogger<MeasurementScalesTableViewModel>> loggerMock;
         private CDPMessageBus messageBus;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
-        private Mock<INotificationService> notificationService;
         private MeasurementScale measurementScale;
         private SiteDirectory siteDirectory;
 
@@ -72,7 +69,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService = new Mock<ISessionService>();
             this.permissionService = new Mock<IPermissionService>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
-            this.notificationService = new Mock<INotificationService>();
             this.messageBus = new CDPMessageBus();
             this.loggerMock = new Mock<ILogger<MeasurementScalesTableViewModel>>();
 
@@ -114,7 +110,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(this.siteDirectory);
             this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>())).Returns(Task.FromResult(new Result()));
 
-            this.viewModel = new MeasurementScalesTableViewModel(this.sessionService.Object, this.showHideService.Object, this.messageBus, this.loggerMock.Object, this.notificationService.Object);
+            this.viewModel = new MeasurementScalesTableViewModel(this.sessionService.Object, this.showHideService.Object, this.messageBus, this.loggerMock.Object);
         }
 
         [TearDown]

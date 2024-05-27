@@ -75,9 +75,8 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
-        /// <param name="notificationService">The <see cref="INotificationService"/></param>
-        public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<ParameterTypeTableViewModel> logger,
-            INotificationService notificationService) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger, notificationService)
+        public ParameterTypeTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<ParameterTypeTableViewModel> logger) 
+            : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
             this.Thing = new BooleanParameterType();
         }
