@@ -78,7 +78,7 @@ namespace COMETwebapp.Services.RowViewModelFactoryService
                 FileType castThing => new FileTypeRowViewModel(castThing),
                 Option castThing => new OptionRowViewModel(castThing),
                 Publication castThing => new PublicationRowViewModel(castThing),
-                _ => null
+                _ => throw new NotSupportedException()
             };
 
             return (BaseDataItemRowViewModel<T>)row;
