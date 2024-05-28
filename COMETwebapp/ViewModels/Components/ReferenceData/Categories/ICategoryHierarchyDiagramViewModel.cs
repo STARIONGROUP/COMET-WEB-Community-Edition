@@ -23,7 +23,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
 {
-    using Blazor.Diagrams.Core;
+    using Blazor.Diagrams;
 
     using CDP4Common.SiteDirectoryData;
 
@@ -50,7 +50,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         /// <summary>
         /// The categories hierarchy <see cref="Diagram" /> to display
         /// </summary>
-        Diagram Diagram { get; set; }
+        BlazorDiagram Diagram { get; set; }
 
         /// <summary>
         /// Gets or sets the diagram dimensions
@@ -61,5 +61,10 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         /// Create diagram nodes and links
         /// </summary>
         void SetupDiagram();
+
+        /// <summary>
+        /// Clears the current <see cref="CategoryHierarchyDiagramViewModel.Diagram"/> nodes
+        /// </summary>
+        void ClearDiagram();
     }
 }

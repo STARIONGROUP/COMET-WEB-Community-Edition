@@ -24,7 +24,9 @@
 
 namespace COMETwebapp.Tests.Components.ReferenceData
 {
-    using Blazor.Diagrams.Core;
+    using Blazor.Diagrams;
+    using Blazor.Diagrams.Components;
+    using Blazor.Diagrams.Core.Geometry;
 
     using Bunit;
 
@@ -60,16 +62,22 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
             this.viewModel = new Mock<ICategoryHierarchyDiagramViewModel>();
-            this.viewModel.Setup(x => x.Diagram).Returns(new Diagram());
+            this.viewModel.Setup(x => x.Diagram).Returns(new BlazorDiagram());
             this.viewModel.Setup(x => x.SelectedCategory).Returns(new Category());
             this.viewModel.Setup(x => x.Rows).Returns([new Category()]);
             this.viewModel.Setup(x => x.DiagramDimensions).Returns([1, 2]);
 
             this.jsUtilities = new Mock<IJsUtilitiesService>();
             this.jsUtilities.Setup(x => x.GetItemDimensions(It.IsAny<string>())).ReturnsAsync([1, 2]);
+
+            this.context.JSInterop.Setup<DiagramCanvas>("ZBlazorDiagrams.observe", _ => true).SetResult(new DiagramCanvas());
+            this.context.JSInterop.Setup<Rectangle>("ZBlazorDiagrams.getBoundingClientRect", _ => true).SetResult(new Rectangle(1.0, 1.1, 1.1, 1.1));
             this.context.Services.AddSingleton(this.jsUtilities.Object);
 
-            this.renderer = this.context.RenderComponent<CategoryHierarchyDiagram>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
+            this.renderer = this.context.RenderComponent<CategoryHierarchyDiagram>(parameters =>
+            {
+                parameters.Add(p => p.ViewModel, this.viewModel.Object);
+            });
         }
 
         [TearDown]

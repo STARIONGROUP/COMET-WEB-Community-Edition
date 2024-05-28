@@ -24,9 +24,11 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
 {
-    using Blazor.Diagrams.Core;
+    using Blazor.Diagrams;
     using Blazor.Diagrams.Core.Geometry;
     using Blazor.Diagrams.Core.Models;
+    using Blazor.Diagrams.Core.PathGenerators;
+    using Blazor.Diagrams.Options;
 
     using CDP4Common.SiteDirectoryData;
 
@@ -54,26 +56,17 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         /// </summary>
         public CategoryHierarchyDiagramViewModel()
         {
-            var options = new DiagramOptions
+            var options = new BlazorDiagramOptions
             {
-                DefaultNodeComponent = null,
                 AllowMultiSelection = false,
-                Links = new DiagramLinkOptions
-                {
-                    Factory = (_, sourcePort) => new LinkModel(sourcePort)
-                    {
-                        Router = Routers.Orthogonal,
-                        PathGenerator = PathGenerators.Straight
-                    }
-                },
-                Zoom = new DiagramZoomOptions
+                Zoom =
                 {
                     Enabled = false
                 }
             };
 
-            this.Diagram = new Diagram(options);
-            this.Diagram.RegisterModelComponent<CategoryNode, CategoryNodeComponent>();
+            this.Diagram = new BlazorDiagram(options);
+            this.Diagram.RegisterComponent<CategoryNode, CategoryNodeComponent>();
         }
 
         /// <summary>
@@ -98,12 +91,20 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         /// <summary>
         /// The categories hierarchy <see cref="Diagram" /> to display
         /// </summary>
-        public Diagram Diagram { get; set; }
+        public BlazorDiagram Diagram { get; set; }
 
         /// <summary>
         /// Gets or sets the diagram dimensions
         /// </summary>
         public List<int> DiagramDimensions { get; set; } = [300, 350];
+
+        /// <summary>
+        /// Clears the current <see cref="Diagram" /> nodes
+        /// </summary>
+        public void ClearDiagram()
+        {
+            this.Diagram.Nodes.Clear();
+        }
 
         /// <summary>
         /// Create diagram nodes and links
@@ -140,10 +141,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
                 node.AddPort();
                 this.Diagram.Nodes.Add(node);
 
-                this.Diagram.Links.Add(new LinkModel(node12.GetPort(PortAlignment.Top), node.GetPort(PortAlignment.Bottom))
+                this.Diagram.Links.Add(new LinkModel(node12, node)
                 {
-                    Router = Routers.Orthogonal,
-                    PathGenerator = PathGenerators.Straight,
+                    PathGenerator = new StraightPathGenerator(),
                     TargetMarker = new LinkMarker(SvgArrowPath, 30)
                 });
             }
@@ -165,10 +165,9 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
                 node2.AddPort(PortAlignment.Top);
                 this.Diagram.Nodes.Add(node2);
 
-                this.Diagram.Links.Add(new LinkModel(node2.GetPort(PortAlignment.Top), node12.GetPort(PortAlignment.Bottom))
+                this.Diagram.Links.Add(new LinkModel(node2, node12)
                 {
-                    Router = Routers.Orthogonal,
-                    PathGenerator = PathGenerators.Straight,
+                    PathGenerator = new StraightPathGenerator(),
                     TargetMarker = new LinkMarker(SvgArrowPath, 60)
                 });
             }
