@@ -25,6 +25,7 @@
 namespace COMETwebapp.Components.ReferenceData.Categories
 {
     using COMETwebapp.Components.ReferenceData.ParameterTypes;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
 
     using Microsoft.AspNetCore.Components;
@@ -39,5 +40,53 @@ namespace COMETwebapp.Components.ReferenceData.Categories
         /// </summary>
         [Parameter]
         public ICategoryHierarchyDiagramViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IJsUtilitiesService"/>
+        /// </summary>
+        [Inject]
+        public IJsUtilitiesService JsUtilitiesService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the condition to check if the diagram is on details mode
+        /// </summary>
+        private bool IsOnDetailsMode { get; set; }
+
+        /// <summary>
+        /// Method invoked after each time the component has been rendered interactively and the UI has finished
+        /// updating (for example, after elements have been added to the browser DOM). Any <see cref="T:Microsoft.AspNetCore.Components.ElementReference" />
+        /// fields will be populated by the time this runs.
+        /// This method is not invoked during prerendering or server-side rendering, because those processes
+        /// are not attached to any live browser DOM and are already complete before the DOM is updated.
+        /// Note that the component does not automatically re-render after the completion of any returned <see cref="T:System.Threading.Tasks.Task" />,
+        /// because that would cause an infinite render loop.
+        /// </summary>
+        /// <param name="firstRender">
+        /// Set to <c>true</c> if this is the first time <see cref="M:Microsoft.AspNetCore.Components.ComponentBase.OnAfterRender(System.Boolean)" /> has been invoked
+        /// on this component instance; otherwise <c>false</c>.
+        /// </param>
+        /// <returns>A <see cref="T:System.Threading.Tasks.Task" /> representing any asynchronous operation.</returns>
+        /// <remarks>
+        /// The <see cref="M:Microsoft.AspNetCore.Components.ComponentBase.OnAfterRender(System.Boolean)" /> and <see cref="M:Microsoft.AspNetCore.Components.ComponentBase.OnAfterRenderAsync(System.Boolean)" /> lifecycle methods
+        /// are useful for performing interop, or interacting with values received from <c>@ref</c>.
+        /// Use the <paramref name="firstRender" /> parameter to ensure that initialization work is only performed
+        /// once.
+        /// </remarks>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
+            {
+                var dimensions = await this.JsUtilitiesService.GetItemDimensions(".diagram-canvas");
+
+                if (dimensions.Length == 2)
+                {
+                    this.ViewModel.DiagramDimensions = [.. dimensions];
+                }
+
+                this.ViewModel.SetupDiagram();
+            }
+        }
     }
 }

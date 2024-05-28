@@ -53,6 +53,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         Diagram Diagram { get; set; }
 
         /// <summary>
+        /// Gets or sets the diagram dimensions
+        /// </summary>
+        List<int> DiagramDimensions { get; set; }
+
+        /// <summary>
         /// Create diagram nodes and links
         /// </summary>
         void SetupDiagram();

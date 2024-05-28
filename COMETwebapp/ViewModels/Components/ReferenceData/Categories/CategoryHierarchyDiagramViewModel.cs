@@ -1,26 +1,26 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CategoryHierarchyDiagramViewModel.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Nabil Abbar
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="CategoryHierarchyDiagramViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
 {
@@ -50,7 +50,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         private Category selectedCategory;
 
         /// <summary>
-        /// Creates a new instance of the class <see cref="CategoryHierarchyDiagramViewModel"/>
+        /// Creates a new instance of the class <see cref="CategoryHierarchyDiagramViewModel" />
         /// </summary>
         public CategoryHierarchyDiagramViewModel()
         {
@@ -68,7 +68,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
                 },
                 Zoom = new DiagramZoomOptions
                 {
-                    Enabled = false,
+                    Enabled = false
                 }
             };
 
@@ -101,17 +101,27 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         public Diagram Diagram { get; set; }
 
         /// <summary>
+        /// Gets or sets the diagram dimensions
+        /// </summary>
+        public List<int> DiagramDimensions { get; set; } = [300, 350];
+
+        /// <summary>
         /// Create diagram nodes and links
         /// </summary>
         public void SetupDiagram()
         {
             this.Diagram.Nodes.Clear();
             this.Diagram.SetZoom(0.7);
-            var position = new Point(50, 50);
-            var node12 = new CategoryNode(this.SelectedCategory, position);
+            var centerPosition = new Point(this.DiagramDimensions[0] / 2d, this.DiagramDimensions[1] / 2d);
+
+            var node12 = new CategoryNode(this.SelectedCategory, centerPosition)
+            {
+                Title = this.SelectedCategory.Name,
+                Highlighted = true
+            };
+
             node12.AddPort();
             node12.AddPort(PortAlignment.Top);
-            node12.Title = this.SelectedCategory.Name;
             this.Diagram.Nodes.Add(node12);
             var numberOfNodes = this.Rows.Count();
             const int distanceBetweenNodes = 200;
@@ -120,17 +130,17 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
             {
                 var currentIndex = this.Rows.ToList().IndexOf(row);
                 var xOffset = (currentIndex - (numberOfNodes - 1) / 2) * distanceBetweenNodes;
-                position = new Point(node12.Position.X - xOffset, -200);
+                var position = new Point(node12.Position.X - xOffset, node12.Position.Y - distanceBetweenNodes);
 
                 var node = new CategoryNode(row, position)
                 {
                     Title = row.Name
                 };
 
-                node.AddPort(PortAlignment.Top);
+                node.AddPort();
                 this.Diagram.Nodes.Add(node);
 
-                this.Diagram.Links.Add(new LinkModel(node12.GetPort(PortAlignment.Bottom), node.GetPort(PortAlignment.Top))
+                this.Diagram.Links.Add(new LinkModel(node12.GetPort(PortAlignment.Top), node.GetPort(PortAlignment.Bottom))
                 {
                     Router = Routers.Orthogonal,
                     PathGenerator = PathGenerators.Straight,
@@ -145,17 +155,17 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
             {
                 var currentIndex = this.SubCategories.ToList().IndexOf(subCategory);
                 var xOffset = (currentIndex - (numberOfSubNodes - 1) / 2) * distanceBetweenNodes;
-                var position2 = new Point(node12.Position.X + xOffset, 300);
+                var position2 = new Point(node12.Position.X + xOffset, node12.Position.Y + distanceBetweenNodes);
 
                 var node2 = new CategoryNode(subCategory, position2)
                 {
                     Title = subCategory.Name
                 };
 
-                node2.AddPort();
+                node2.AddPort(PortAlignment.Top);
                 this.Diagram.Nodes.Add(node2);
 
-                this.Diagram.Links.Add(new LinkModel(node2.GetPort(PortAlignment.Bottom), node12.GetPort(PortAlignment.Top))
+                this.Diagram.Links.Add(new LinkModel(node2.GetPort(PortAlignment.Top), node12.GetPort(PortAlignment.Bottom))
                 {
                     Router = Routers.Orthogonal,
                     PathGenerator = PathGenerators.Straight,

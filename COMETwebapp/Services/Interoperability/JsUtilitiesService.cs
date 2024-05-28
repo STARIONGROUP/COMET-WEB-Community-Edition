@@ -54,6 +54,16 @@ namespace COMETwebapp.Services.Interoperability
         }
 
         /// <summary>
+        /// Gets the dimensions [width, height] of an item
+        /// </summary>
+        /// <param name="cssSelector">the css selector used to find the element</param>
+        /// <returns>The dimensions if the element is found. An empty array otherwise</returns>
+        public async Task<int[]> GetItemDimensions(string cssSelector)
+        {
+            return await this.JsRuntime.InvokeAsync<int[]>("GetItemDimensions", cssSelector);
+        }
+
+        /// <summary>
         /// Validates the download file parameters
         /// </summary>
         /// <param name="stream">the stream</param>

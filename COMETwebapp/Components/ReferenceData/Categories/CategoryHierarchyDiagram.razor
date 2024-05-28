@@ -21,5 +21,19 @@ Copyright (c) 2023-2024 Starion Group S.A.
 ------------------------------------------------------------------------------->
 
 <CascadingValue Value="this.ViewModel.Diagram">
-        <DiagramCanvas></DiagramCanvas>
+    <DiagramCanvas @key="@("accc")"/>
+    <DxButton Text="Open Details"
+              Click="@(() => this.IsOnDetailsMode = true)"/>
+
+    <DxPopup @bind-Visible="this.IsOnDetailsMode"
+             HeaderText="@($"Hierarchy Diagram of Category: {this.ViewModel.SelectedCategory.Name}")"
+             Width="@($"{this.ViewModel.DiagramDimensions[0] + 400}px")"
+             AllowResize="true"
+             CloseOnOutsideClick="false"
+             Showing="@(() => this.ViewModel.Diagram.SetPan(200, 0))"
+             Closing="@(() => this.ViewModel.Diagram.SetPan(0, 0))">
+        <div style="width: 100%; height: 60vh;">
+            <DiagramCanvas @key="@("a")"/>
+        </div>
+    </DxPopup>
 </CascadingValue>
