@@ -25,7 +25,7 @@ async function DownloadFileFromStream(fileName, contentStreamReference) {
  * @returns An array containing two integer elements if the element is found, otherwise an empty array
  */
 function GetItemDimensions(cssSelector) {
-    var element = document.querySelector(cssSelector);
+    let element = document.querySelector(cssSelector);
     if (element != null) {
         return [element.clientWidth, element.clientHeight];
     }

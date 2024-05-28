@@ -50,7 +50,7 @@ namespace COMETwebapp.Components.ReferenceData.Categories
         /// <summary>
         /// Gets or sets the condition to check if the diagram is on details mode
         /// </summary>
-        private bool IsOnDetailsMode { get; set; }
+        public bool IsOnDetailsMode { get; private set; }
 
         /// <summary>
         /// Method invoked after each time the component has been rendered interactively and the UI has finished
