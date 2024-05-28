@@ -28,6 +28,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
     using Blazor.Diagrams.Core.Geometry;
     using Blazor.Diagrams.Core.Models;
     using Blazor.Diagrams.Core.PathGenerators;
+    using Blazor.Diagrams.Core.Routers;
     using Blazor.Diagrams.Options;
 
     using CDP4Common.SiteDirectoryData;
@@ -121,8 +122,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
                 Highlighted = true
             };
 
-            node12.AddPort();
-            node12.AddPort(PortAlignment.Top);
             this.Diagram.Nodes.Add(node12);
             var numberOfNodes = this.Rows.Count();
             const int distanceBetweenNodes = 200;
@@ -138,11 +137,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
                     Title = row.Name
                 };
 
-                node.AddPort();
                 this.Diagram.Nodes.Add(node);
 
                 this.Diagram.Links.Add(new LinkModel(node12, node)
                 {
+                    Router = new OrthogonalRouter(),
                     PathGenerator = new StraightPathGenerator(),
                     TargetMarker = new LinkMarker(SvgArrowPath, 30)
                 });
@@ -162,13 +161,13 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
                     Title = subCategory.Name
                 };
 
-                node2.AddPort(PortAlignment.Top);
                 this.Diagram.Nodes.Add(node2);
 
                 this.Diagram.Links.Add(new LinkModel(node2, node12)
                 {
+                    Router = new OrthogonalRouter(),
                     PathGenerator = new StraightPathGenerator(),
-                    TargetMarker = new LinkMarker(SvgArrowPath, 60)
+                    TargetMarker = new LinkMarker(SvgArrowPath, 30)
                 });
             }
         }
