@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023-2024 Starion Group S.A.
 
-    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Nabil Abbar
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 
     This file is part of CDP4-COMET WEB Community Edition
      The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -20,18 +20,18 @@ Copyright (c) 2023-2024 Starion Group S.A.
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
-<CascadingValue Value="this.ViewModel.Diagram">
+<CascadingValue Value="this.Diagram">
     <DiagramCanvas @key="@("accc")"/>
     <DxButton Text="Open Details"
               Click="@(() => this.IsOnDetailsMode = true)"/>
 
     <DxPopup @bind-Visible="this.IsOnDetailsMode"
-             HeaderText="@($"Hierarchy Diagram of Category: {this.ViewModel.SelectedCategory.Name}")"
-             Width="@($"{this.ViewModel.DiagramDimensions[0] + 400}px")"
+             HeaderText="@($"Hierarchy Diagram of Category: {this.Category.Name}")"
+             Width="@($"{this.DiagramDimensions[0] + 400}px")"
              AllowResize="true"
              CloseOnOutsideClick="false"
-             Showing="@(() => this.ViewModel.Diagram.SetPan(200, 0))"
-             Closing="@(() => this.ViewModel.Diagram.SetPan(0, 0))">
+             Showing="@(() => this.Diagram.SetPan(200, 0))"
+             Closing="@(() => this.Diagram.SetPan(0, 0))">
         <div style="width: 100%; height: 60vh;">
             <DiagramCanvas @key="@("a")"/>
         </div>

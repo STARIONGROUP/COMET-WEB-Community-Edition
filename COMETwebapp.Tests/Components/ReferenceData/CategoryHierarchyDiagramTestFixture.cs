@@ -53,19 +53,21 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     {
         private TestContext context;
         private IRenderedComponent<CategoryHierarchyDiagram> renderer;
-        private Mock<ICategoryHierarchyDiagramViewModel> viewModel;
         private Mock<IJsUtilitiesService> jsUtilities;
+        private Category category;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new TestContext();
             this.context.ConfigureDevExpressBlazor();
-            this.viewModel = new Mock<ICategoryHierarchyDiagramViewModel>();
-            this.viewModel.Setup(x => x.Diagram).Returns(new BlazorDiagram());
-            this.viewModel.Setup(x => x.SelectedCategory).Returns(new Category());
-            this.viewModel.Setup(x => x.Rows).Returns([new Category()]);
-            this.viewModel.Setup(x => x.DiagramDimensions).Returns([1, 2]);
+
+            this.category = new Category()
+            {
+                Name = "name",
+                ShortName = "shortname",
+                SuperCategory = [new Category()]
+            };
 
             this.jsUtilities = new Mock<IJsUtilitiesService>();
             this.jsUtilities.Setup(x => x.GetItemDimensions(It.IsAny<string>())).ReturnsAsync([1, 2]);
@@ -76,7 +78,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.renderer = this.context.RenderComponent<CategoryHierarchyDiagram>(parameters =>
             {
-                parameters.Add(p => p.ViewModel, this.viewModel.Object);
+                parameters.Add(p => p.Category, this.category);
             });
         }
 
@@ -93,8 +95,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             {
                 Assert.That(this.renderer.Instance, Is.Not.Null);
                 Assert.That(this.renderer.Instance.IsOnDetailsMode, Is.EqualTo(false));
+                Assert.That(this.category.SuperCategory, Has.Count.EqualTo(1));
+                Assert.That(this.renderer.Instance.Diagram.Nodes, Has.Count.EqualTo(2));
                 this.jsUtilities.Verify(x => x.GetItemDimensions(It.IsAny<string>()), Times.Once);
-                this.viewModel.Verify(x => x.SetupDiagram(), Times.Once);
             });
 
             var detailsButton = this.renderer.FindComponent<DxButton>();

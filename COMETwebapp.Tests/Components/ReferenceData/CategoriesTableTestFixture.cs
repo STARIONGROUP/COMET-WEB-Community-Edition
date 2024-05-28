@@ -363,25 +363,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         }
 
         [Test]
-        public async Task VerifyDisplayCategoryDiagram()
-        {
-            var renderer = this.context.RenderComponent<CategoriesTable>();
-            await renderer.InvokeAsync(() => this.viewModel.CurrentThing = this.elementDefinitionCategory3);
-
-            this.viewModel.CategoryHierarchyDiagramViewModel.SelectedCategory = this.elementDefinitionCategory3;
-            this.viewModel.CategoryHierarchyDiagramViewModel.Rows = this.elementDefinitionCategory3.SuperCategory;
-            this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories = this.elementDefinitionCategory3.SuperCategory;
-
-            await renderer.InvokeAsync(() => this.viewModel.CategoryHierarchyDiagramViewModel.SetupDiagram());
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.CategoryHierarchyDiagramViewModel.SubCategories.Count, Is.EqualTo(1));
-            });
-        }
-
-        [Test]
         public async Task VerifyOnInitialized()
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();

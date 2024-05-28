@@ -52,11 +52,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
 
         /// <summary>
-        /// The <see cref="ICategoryHierarchyDiagramViewModel" />
-        /// </summary>
-        ICategoryHierarchyDiagramViewModel CategoryHierarchyDiagramViewModel { get; }
-
-        /// <summary>
         /// Tries to create a new <see cref="Category" />
         /// </summary>
         /// <param name="shouldCreate">The value to check if a new <see cref="Category" /> should be created</param>

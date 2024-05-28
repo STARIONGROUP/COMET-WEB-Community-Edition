@@ -56,11 +56,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         }
 
         /// <summary>
-        /// The <see cref="ICategoryHierarchyDiagramViewModel" />
-        /// </summary>
-        public ICategoryHierarchyDiagramViewModel CategoryHierarchyDiagramViewModel { get; } = new CategoryHierarchyDiagramViewModel();
-
-        /// <summary>
         /// Available <see cref="ReferenceDataLibrary" />s
         /// </summary>
         public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; set; } = [];
@@ -136,16 +131,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         {
             await base.OnThingChanged();
             this.SelectedReferenceDataLibrary = (ReferenceDataLibrary)this.CurrentThing.Container ?? this.ReferenceDataLibraries.FirstOrDefault();
-
-            if (this.CurrentThing.Iid == Guid.Empty)
-            {
-                return;
-            }
-
-            this.CategoryHierarchyDiagramViewModel.ClearDiagram();
-            this.CategoryHierarchyDiagramViewModel.SelectedCategory = this.CurrentThing;
-            this.CategoryHierarchyDiagramViewModel.Rows = this.CurrentThing.SuperCategory;
-            this.CategoryHierarchyDiagramViewModel.SubCategories = ((Category)this.CurrentThing.Original).AllDerivedCategories().Distinct();
         }
 
         /// <summary>
@@ -174,11 +159,6 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         {
             var updatedRdls = this.UpdatedThings.OfType<ReferenceDataLibrary>().ToList();
             await base.OnSessionRefreshed();
-
-            if (this.UpdatedThings.OfType<Category>().Any())
-            {
-                this.CategoryHierarchyDiagramViewModel.SetupDiagram();
-            }
 
             foreach (var rdl in updatedRdls)
             {
