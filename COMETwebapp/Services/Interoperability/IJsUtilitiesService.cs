@@ -36,5 +36,12 @@ namespace COMETwebapp.Services.Interoperability
         /// <param name="fileName">the file name</param>
         /// <returns>an asynchronous operation</returns>
         Task DownloadFileFromStreamAsync(Stream stream, string fileName);
+
+        /// <summary>
+        /// Gets the dimensions [width, height] of an item
+        /// </summary>
+        /// <param name="cssSelector">the css selector used to find the element</param>
+        /// <returns>The dimensions if the element is found. An empty array otherwise</returns>
+        Task<int[]> GetItemDimensions(string cssSelector);
     }
 }

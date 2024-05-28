@@ -21,10 +21,11 @@ Copyright (c) 2023-2024 Starion Group S.A.
 ------------------------------------------------------------------------------->
 @using Blazor.Diagrams.Components.Renderers;
 
-<div class="card @(this.Node.Category.IsDeprecated ? "dotted" : "")" style="width: auto; text-align:center;">
+<div class="card @(this.Node.Category.IsDeprecated ? "dotted" : "") @(this.Node.Highlighted ? "bg-secondary" : "")" style="width: auto; text-align:center;">
     <div class="card-body">
         @if (this.Node.Category.IsAbstract)
         {
+            @("<Abstract>")
             <h5 class="card-title">
                 <i>@(this.Node.Category.Name)</i>
             </h5>
@@ -39,6 +40,6 @@ Copyright (c) 2023-2024 Starion Group S.A.
 
     @foreach (var port in this.Node.Ports)
     {
-        <PortRenderer Port="port" />
+        <PortRenderer Port="port"/>
     }
 </div>

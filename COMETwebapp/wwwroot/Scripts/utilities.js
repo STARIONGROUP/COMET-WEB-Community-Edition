@@ -18,3 +18,16 @@ async function DownloadFileFromStream(fileName, contentStreamReference) {
     anchorElement.remove();
     URL.revokeObjectURL(url);
 }
+
+/**
+ * Gets an item dimensions
+ * @param {any} cssSelector
+ * @returns An array containing two integer elements if the element is found, otherwise an empty array
+ */
+function GetItemDimensions(cssSelector) {
+    let element = document.querySelector(cssSelector);
+    if (element != null) {
+        return [element.clientWidth, element.clientHeight];
+    }
+    return [];
+}
