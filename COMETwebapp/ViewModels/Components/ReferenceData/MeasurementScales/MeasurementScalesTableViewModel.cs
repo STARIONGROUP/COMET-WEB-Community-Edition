@@ -66,7 +66,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
         public MeasurementScalesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus,
-            ILogger<MeasurementScalesTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
+            ILogger<MeasurementScalesTableViewModel> logger) : base(sessionService, messageBus, showHideDeprecatedThingsService, logger, [typeof(ReferenceDataLibrary)])
         {
             this.CurrentThing = new OrdinalScale();
             this.SelectedReferenceQuantityValue = new ScaleReferenceQuantityValue();
@@ -229,6 +229,21 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         protected override List<MeasurementScale> QueryListOfThings()
         {
             return this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.Scale).ToList();
+        }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnSessionRefreshed()
+        {
+            var updatedRdls = this.UpdatedThings.OfType<ReferenceDataLibrary>().ToList();
+            await base.OnSessionRefreshed();
+
+            foreach (var rdl in updatedRdls)
+            {
+                this.RefreshContainerName(rdl);
+            }
         }
 
         /// <summary>
