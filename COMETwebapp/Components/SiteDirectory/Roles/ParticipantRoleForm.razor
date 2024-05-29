@@ -50,9 +50,9 @@ Copyright (c) 2024 Starion Group S.A.
             }
 
         </DxFormLayoutGroup>
-
     </DxFormLayout>
     <FormButtons SaveButtonEnabled="@(this.IsSaveButtonEnabled(editFormContext))"
                  OnCancel="@(this.OnCancel)"
-                 ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))"/>
+                 ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))"
+                 IsLoading="@(this.ViewModel.IsLoading)"/>
 </EditForm>
