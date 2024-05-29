@@ -26,11 +26,7 @@ namespace COMET.Web.Common.Components.Selectors
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.Model.Selectors;
-
     using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
 
     /// <summary>
     /// Component used to select a <see cref="ParameterType" />
@@ -48,37 +44,5 @@ namespace COMET.Web.Common.Components.Selectors
         /// </summary>
         [Parameter]
         public bool DisplayNameAndShortname { get; set; }
-
-        /// <summary>
-        /// The <see cref="ParameterType"/> wrapper to handle the selection
-        /// </summary>
-        private ParameterTypeSelectorWrapper ParameterTypeSelectorWrapper { get; set; }
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedParameterType).Subscribe(parameterType =>
-            {
-                if (this.ParameterTypeSelectorWrapper != null || parameterType != null)
-                {
-                    this.ParameterTypeSelectorWrapper = new ParameterTypeSelectorWrapper(parameterType);
-                }
-            }));
-        }
-
-        /// <summary>
-        /// Method executed every time the selected parameter type has changed
-        /// </summary>
-        /// <param name="parameterTypeSelectorWrapper">The new selected parameter type</param>
-        private void OnSelectedParameterTypeChanged(ParameterTypeSelectorWrapper parameterTypeSelectorWrapper)
-        {
-            this.ViewModel.SelectedParameterType = parameterTypeSelectorWrapper?.ParameterType;
-            this.ParameterTypeSelectorWrapper = parameterTypeSelectorWrapper;
-        }
     }
 }

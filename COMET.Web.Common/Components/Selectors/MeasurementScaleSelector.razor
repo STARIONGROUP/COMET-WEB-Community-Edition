@@ -21,15 +21,15 @@
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components.Selectors
 @using COMET.Web.Common.Model.Selectors
+@using CDP4Common.SiteDirectoryData
 @inherits DisposableComponent
 
-<DxComboBox Data="@(this.ViewModel.AvailableMeasurementScales.Select(x => new MeasurementScaleSelectorWrapper(x)))"
-            TData="MeasurementScaleSelectorWrapper"
-            TValue="MeasurementScaleSelectorWrapper"
-            Value="@(this.MeasurementScaleSelectorWrapper)"
-            ValueChanged="@((newValue) => this.OnSelectedMeasurementScaleChanged(newValue))"
-            ValueExpression="@(() => this.MeasurementScaleSelectorWrapper)"
+<DxComboBox Data="@(this.ViewModel.AvailableMeasurementScales.Select(x => new SelectorModelBaseWrapper<MeasurementScale>(x)))"
+            TData="SelectorModelBaseWrapper<MeasurementScale>"
+            TValue="MeasurementScale"
+            @bind-Value="@(this.ViewModel.SelectedMeasurementScale)"
             FilteringMode="DataGridFilteringMode.Contains"
             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-            TextFieldName="@(nameof(Model.Selectors.MeasurementScaleSelectorWrapper.DisplayText))"
+            TextFieldName="@(nameof(SelectorModelBaseWrapper<ParameterType>.DisplayText))"
+            ValueFieldName="@(nameof(SelectorModelBaseWrapper<ParameterType>.WrappedThing))"
             NullText="Select a Parameter Type"/>

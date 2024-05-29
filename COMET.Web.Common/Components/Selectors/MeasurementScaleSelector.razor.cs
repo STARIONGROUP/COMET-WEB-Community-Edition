@@ -26,12 +26,9 @@ namespace COMET.Web.Common.Components.Selectors
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.Model.Selectors;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
 
     /// <summary>
     /// Component used to select a <see cref="MeasurementScale" />
@@ -49,37 +46,5 @@ namespace COMET.Web.Common.Components.Selectors
         /// </summary>
         [Parameter]
         public string DisplayText { get; set; } = "Filter on Parameter Type:";
-
-        /// <summary>
-        /// The <see cref="MeasurementScale" /> wrapper to handle the selection
-        /// </summary>
-        private MeasurementScaleSelectorWrapper MeasurementScaleSelectorWrapper { get; set; }
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedMeasurementScale).Subscribe(measurementScale =>
-            {
-                if (this.MeasurementScaleSelectorWrapper != null || measurementScale != null)
-                {
-                    this.MeasurementScaleSelectorWrapper = new MeasurementScaleSelectorWrapper(measurementScale);
-                }
-            }));
-        }
-
-        /// <summary>
-        /// Method executed every time the selected measurement scale has changed
-        /// </summary>
-        /// <param name="measurementScaleSelectorWrapper">The new selected measurement scale</param>
-        private void OnSelectedMeasurementScaleChanged(MeasurementScaleSelectorWrapper measurementScaleSelectorWrapper)
-        {
-            this.ViewModel.SelectedMeasurementScale = measurementScaleSelectorWrapper?.MeasurementScale;
-            this.MeasurementScaleSelectorWrapper = measurementScaleSelectorWrapper;
-        }
     }
 }

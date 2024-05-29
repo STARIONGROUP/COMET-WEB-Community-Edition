@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterTypeSelectorWrapper.cs" company="Starion Group S.A.">
+//  <copyright file="SelectorsBaseWrapper.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -24,33 +24,32 @@
 
 namespace COMET.Web.Common.Model.Selectors
 {
-    using CDP4Common.SiteDirectoryData;
+    using CDP4Common.CommonData;
 
-    using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
 
     /// <summary>
-    /// The wrapper to be used to display and select data in the <see cref="ParameterTypeSelector" />
+    /// The wrapper to be used to display and select data in the <see cref="DefinedThing" />
     /// </summary>
-    public class ParameterTypeSelectorWrapper
+    public class SelectorModelBaseWrapper<T> where T : DefinedThing
     {
         /// <summary>
-        /// Creates a new instance of the <see cref="ParameterTypeSelectorWrapper" />
+        /// Creates a new instance of the <see cref="SelectorModelBaseWrapper{T}" />
         /// </summary>
-        /// <param name="parameterType">The <see cref="ParameterType" /> to be wrapped</param>
-        public ParameterTypeSelectorWrapper(ParameterType parameterType)
+        /// <param name="thing">The thing to be wrapped</param>
+        public SelectorModelBaseWrapper(T thing)
         {
-            this.ParameterType = parameterType;
+            this.WrappedThing = thing;
         }
 
         /// <summary>
-        /// The text to display for <see cref="ParameterType" /> selection
+        /// The thing to be selected
         /// </summary>
-        public string DisplayText => this.ParameterType?.GetSelectorNameAndShortname();
+        public T WrappedThing { get; set; }
 
         /// <summary>
-        /// The <see cref="ParameterType" /> to be selected
+        /// The text to display for thing selection
         /// </summary>
-        public ParameterType ParameterType { get; set; }
+        public string DisplayText => this.WrappedThing?.GetSelectorNameAndShortname();
     }
 }
