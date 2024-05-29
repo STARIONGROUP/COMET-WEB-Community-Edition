@@ -40,11 +40,5 @@ namespace COMET.Web.Common.Components.Selectors
         /// </summary>
         [Parameter]
         public IMeasurementScaleSelectorViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Text to be displayed when the selector is shown
-        /// </summary>
-        [Parameter]
-        public string DisplayText { get; set; } = "Filter on Parameter Type:";
     }
 }
