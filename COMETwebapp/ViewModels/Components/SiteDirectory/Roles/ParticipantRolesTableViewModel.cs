@@ -1,26 +1,26 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParticipantRolesTableViewModel.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="ParticipantRolesTableViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
 {
@@ -45,8 +45,8 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
         public ParticipantRolesTableViewModel(ISessionService sessionService, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ICDPMessageBus messageBus, ILogger<ParticipantRolesTableViewModel> logger)
             : base(sessionService, messageBus, showHideDeprecatedThingsService, logger)
         {
@@ -59,29 +59,38 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
         public IEnumerable<ParticipantAccessRightKind> ParticipantAccessKinds { get; private set; } = [ParticipantAccessRightKind.NONE, ParticipantAccessRightKind.MODIFY, ParticipantAccessRightKind.MODIFY_IF_OWNER, ParticipantAccessRightKind.READ];
 
         /// <summary>
-        /// Creates or edits a <see cref="ParticipantRole"/>
+        /// Creates or edits a <see cref="ParticipantRole" />
         /// </summary>
-        /// <param name="shouldCreate">The value to check if a new <see cref="ParticipantRole"/> should be created</param>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <param name="shouldCreate">The value to check if a new <see cref="ParticipantRole" /> should be created</param>
+        /// <returns>A <see cref="Task" /></returns>
         public async Task CreateOrEditParticipantRole(bool shouldCreate)
         {
-            this.IsLoading = true;
-
-            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
-            var thingsToCreate = new List<Thing>();
-
-            thingsToCreate.AddRange(this.CurrentThing.ParticipantPermission);
-
-            if (shouldCreate)
+            try
             {
-                siteDirectoryClone.ParticipantRole.Add(this.CurrentThing);
-                thingsToCreate.Add(siteDirectoryClone);
+                this.IsLoading = true;
+
+                var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
+                var thingsToCreate = new List<Thing>();
+
+                thingsToCreate.AddRange(this.CurrentThing.ParticipantPermission);
+
+                if (shouldCreate)
+                {
+                    siteDirectoryClone.ParticipantRole.Add(this.CurrentThing);
+                    thingsToCreate.Add(siteDirectoryClone);
+                }
+
+                thingsToCreate.Add(this.CurrentThing);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
             }
-
-            thingsToCreate.Add(this.CurrentThing);
-            await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
-
-            this.IsLoading = false;
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Create or Update ParticipantRole failed");
+            }
+            finally
+            {
+                this.IsLoading = false;
+            }
         }
 
         /// <summary>
