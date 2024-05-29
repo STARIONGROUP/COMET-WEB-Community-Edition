@@ -52,15 +52,5 @@ namespace COMET.Web.Common.Components.Selectors
         /// </summary>
         [Parameter]
         public string CssClass { get; set; }
-
-        /// <summary>
-        /// Gets the domain and shortname to display, in the following format: name [shortname]
-        /// </summary>
-        /// <param name="domainOfExpertise">The domain of expertise to get the name and shortname</param>
-        /// <returns>A string that contains name and shortname</returns>
-        private static string GetDomainNameAndShortnameToDisplay(DomainOfExpertise domainOfExpertise)
-        {
-            return $"{domainOfExpertise.Name} [{domainOfExpertise.ShortName}]";
-        }
     }
 }

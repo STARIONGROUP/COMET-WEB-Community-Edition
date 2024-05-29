@@ -20,25 +20,16 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components.Selectors
-@using COMET.Web.Common.Extensions
-@using CDP4Common.SiteDirectoryData
 @using COMET.Web.Common.Model.Selectors
-@inherits BelongsToIterationSelector<COMET.Web.Common.ViewModels.Components.Selectors.IParameterTypeSelectorViewModel>
+@using CDP4Common.SiteDirectoryData
+@inherits DisposableComponent
 
-@if (this.ViewModel.CurrentIteration != null)
-{
-    if (!string.IsNullOrWhiteSpace(this.DisplayText))
-    {
-        <h6>@(this.DisplayText)</h6>
-    }
-
-    <DxComboBox Data="@(this.ViewModel.AvailableParameterTypes.Select(x => new SelectorModelBaseWrapper<ParameterType>(x)))"
-                TData="SelectorModelBaseWrapper<ParameterType>"
-                TValue="ParameterType"
-                @bind-Value="@(this.ViewModel.SelectedParameterType)"
-                FilteringMode="DataGridFilteringMode.Contains"
-                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                TextFieldName="@(nameof(SelectorModelBaseWrapper<ParameterType>.DisplayText))"
-                ValueFieldName="@(nameof(SelectorModelBaseWrapper<ParameterType>.WrappedThing))"
-                NullText="Select a Parameter Type"/>
-}
+<DxComboBox Data="@(this.ViewModel.AvailableMeasurementScales.Select(x => new SelectorModelBaseWrapper<MeasurementScale>(x)))"
+            TData="SelectorModelBaseWrapper<MeasurementScale>"
+            TValue="MeasurementScale"
+            @bind-Value="@(this.ViewModel.SelectedMeasurementScale)"
+            FilteringMode="DataGridFilteringMode.Contains"
+            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+            TextFieldName="@(nameof(SelectorModelBaseWrapper<ParameterType>.DisplayText))"
+            ValueFieldName="@(nameof(SelectorModelBaseWrapper<ParameterType>.WrappedThing))"
+            NullText="Select a Measurement Scale"/>

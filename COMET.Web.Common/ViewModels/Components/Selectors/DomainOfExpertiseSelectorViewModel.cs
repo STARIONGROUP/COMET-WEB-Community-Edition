@@ -55,7 +55,7 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         public DomainOfExpertiseSelectorViewModel(ISessionService sessionService, ICDPMessageBus messageBus)
         {
             this.SessionService = sessionService;
-            this.AvailableDomainsOfExpertise = sessionService.GetSiteDirectory().Domain.OrderBy(x => x.Name);
+            this.AvailableDomainsOfExpertise = sessionService.GetSiteDirectory().Domain.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
 
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedDomainOfExpertise).SubscribeAsync(async domain => await this.OnSelectedDomainOfExpertiseChange.InvokeAsync(domain)));
             this.Disposables.Add(messageBus.Listen<DomainChangedEvent>().Subscribe(this.OnDomainChanged));

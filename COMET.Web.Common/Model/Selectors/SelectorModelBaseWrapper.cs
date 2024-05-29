@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterTypeSelector.razor.cs" company="Starion Group S.A.">
+//  <copyright file="SelectorsBaseWrapper.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,27 +22,34 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Components.Selectors
+namespace COMET.Web.Common.Model.Selectors
 {
-    using CDP4Common.SiteDirectoryData;
+    using CDP4Common.CommonData;
 
-    using Microsoft.AspNetCore.Components;
+    using COMET.Web.Common.Extensions;
 
     /// <summary>
-    /// Component used to select a <see cref="ParameterType" />
+    /// The wrapper to be used to display and select data in the <see cref="DefinedThing" />
     /// </summary>
-    public partial class ParameterTypeSelector
+    public class SelectorModelBaseWrapper<T> where T : DefinedThing
     {
         /// <summary>
-        /// Text to be displayed when the selector is shown
+        /// Creates a new instance of the <see cref="SelectorModelBaseWrapper{T}" />
         /// </summary>
-        [Parameter]
-        public string DisplayText { get; set; } = "Filter on Parameter Type:";
+        /// <param name="thing">The thing to be wrapped</param>
+        public SelectorModelBaseWrapper(T thing)
+        {
+            this.WrappedThing = thing;
+        }
 
         /// <summary>
-        /// Condition to check if name and shortname shall be displayed in the selector. If false, only the name is displayed
+        /// The thing to be selected
         /// </summary>
-        [Parameter]
-        public bool DisplayNameAndShortname { get; set; }
+        public T WrappedThing { get; set; }
+
+        /// <summary>
+        /// The text to display for thing selection
+        /// </summary>
+        public string DisplayText => this.WrappedThing?.GetSelectorNameAndShortname();
     }
 }

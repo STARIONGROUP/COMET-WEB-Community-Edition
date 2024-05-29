@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterTypeSelector.razor.cs" company="Starion Group S.A.">
+//  <copyright file="IMeasurementScaleSelectorViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,27 +22,30 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Components.Selectors
+namespace COMET.Web.Common.ViewModels.Components.Selectors
 {
     using CDP4Common.SiteDirectoryData;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Component used to select a <see cref="ParameterType" />
+    /// View Model that enables the user to select a <see cref="MeasurementScale" />
     /// </summary>
-    public partial class ParameterTypeSelector
+    public interface IMeasurementScaleSelectorViewModel
     {
         /// <summary>
-        /// Text to be displayed when the selector is shown
+        /// Gets or sets the callback that is executed when the <see cref="SelectedMeasurementScale" /> property has changed
         /// </summary>
-        [Parameter]
-        public string DisplayText { get; set; } = "Filter on Parameter Type:";
+        EventCallback<MeasurementScale> OnSelectedMeasurementScaleChange { get; set; }
 
         /// <summary>
-        /// Condition to check if name and shortname shall be displayed in the selector. If false, only the name is displayed
+        /// A collection of available <see cref="DomainOfExpertise" />
         /// </summary>
-        [Parameter]
-        public bool DisplayNameAndShortname { get; set; }
+        IEnumerable<MeasurementScale> AvailableMeasurementScales { get; set; }
+
+        /// <summary>
+        /// The currently selected <see cref="MeasurementScale" />
+        /// </summary>
+        MeasurementScale SelectedMeasurementScale { get; set; }
     }
 }

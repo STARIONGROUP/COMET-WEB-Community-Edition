@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterTypeSelector.razor.cs" company="Starion Group S.A.">
+//  <copyright file="MeasurementScaleSelector.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -26,23 +26,19 @@ namespace COMET.Web.Common.Components.Selectors
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Component used to select a <see cref="ParameterType" />
+    /// Component used to select a <see cref="MeasurementScale" />
     /// </summary>
-    public partial class ParameterTypeSelector
+    public partial class MeasurementScaleSelector : DisposableComponent
     {
         /// <summary>
-        /// Text to be displayed when the selector is shown
+        /// Gets or sets the <see cref="IMeasurementScaleSelectorViewModel" />
         /// </summary>
         [Parameter]
-        public string DisplayText { get; set; } = "Filter on Parameter Type:";
-
-        /// <summary>
-        /// Condition to check if name and shortname shall be displayed in the selector. If false, only the name is displayed
-        /// </summary>
-        [Parameter]
-        public bool DisplayNameAndShortname { get; set; }
+        public IMeasurementScaleSelectorViewModel ViewModel { get; set; }
     }
 }

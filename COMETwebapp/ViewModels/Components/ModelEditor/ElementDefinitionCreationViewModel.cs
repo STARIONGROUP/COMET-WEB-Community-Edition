@@ -102,6 +102,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         public void InitializeViewModel(Iteration iteration)
         {
             this.DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
+            this.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise = ((EngineeringModel)iteration.Container).EngineeringModelSetup.ActiveDomain.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
         }
 
         /// <summary>
@@ -112,6 +113,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// </summary>
         public void OnInitialized()
         {
+            this.AvailableCategories = [];
+
             foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
             {
                 this.AvailableCategories = this.AvailableCategories.Concat(referenceDataLibrary.DefinedCategory).Where(category => category.PermissibleClass.Contains(ClassKind.ElementDefinition)).ToList();

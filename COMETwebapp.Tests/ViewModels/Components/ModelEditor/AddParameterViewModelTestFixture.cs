@@ -99,6 +99,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                     {
                         ActiveDomain = { this.domain }
                     }
+                },
+                IterationSetup = new IterationSetup()
+                {
+                    Container = new SiteDirectory()
                 }
             };
 
@@ -120,7 +124,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             Assert.Multiple(() =>
             {
                 this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<ElementDefinition>(), It.Is<IReadOnlyCollection<Thing>>(c => c.Count == 2)), Times.Once);
-                Assert.That(this.viewModel.MeasurementScales, Is.Empty);
+                Assert.That(this.viewModel.MeasurementScaleSelectorViewModel.AvailableMeasurementScales, Is.Empty);
             });
 
             this.viewModel.ParameterTypeSelectorViewModel.SelectedParameterType = new SimpleQuantityKind
@@ -128,7 +132,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 PossibleScale = { new OrdinalScale() }
             };
 
-            Assert.That(this.viewModel.MeasurementScales, Is.Not.Empty);
+            Assert.That(this.viewModel.MeasurementScaleSelectorViewModel.AvailableMeasurementScales, Is.Not.Empty);
         }
 
         [Test]
