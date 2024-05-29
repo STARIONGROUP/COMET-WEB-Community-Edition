@@ -102,6 +102,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 Container = new EngineeringModel
                 {
                     EngineeringModelSetup = new EngineeringModelSetup()
+                },
+                IterationSetup = new IterationSetup()
+                {
+                    Container = new SiteDirectory()
                 }
             };
 
