@@ -190,7 +190,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
                 return;
             }
 
-            this.MeasurementScaleSelectorViewModel.AvailableMeasurementScales = quantityKind.AllPossibleScale;
+            this.Parameter.Scale = quantityKind.DefaultScale;
+            this.MeasurementScaleSelectorViewModel.AvailableMeasurementScales = quantityKind.AllPossibleScale.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
             this.MeasurementScaleSelectorViewModel.SelectedMeasurementScale = quantityKind.DefaultScale;
         }
     }

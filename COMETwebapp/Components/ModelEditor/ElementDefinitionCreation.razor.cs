@@ -27,8 +27,6 @@ namespace COMETwebapp.Components.ModelEditor
 
 	using Microsoft.AspNetCore.Components;
 
-	using ReactiveUI;
-
 	/// <summary>
 	///     Partial class for the component <see cref="ElementDefinitionCreation"/>
 	/// </summary>

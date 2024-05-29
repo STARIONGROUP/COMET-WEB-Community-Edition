@@ -41,11 +41,13 @@
             </DxFormLayoutTabPage>
 
             <DxFormLayoutTabPage Caption="Category">
-                <DxListBox Data="@this.ViewModel.AvailableCategories.OrderBy(x => x.Name)"
-                @bind-Values="@this.ViewModel.SelectedCategories"
-                           SelectionMode="ListBoxSelectionMode.Multiple"
-                           TextFieldName="@nameof(Category.Name)"
-                           ShowCheckboxes="true" />
+                <DxFormLayoutItem Caption="Select the Categories:" ColSpanMd="10" CaptionPosition="CaptionPosition.Vertical">
+                    <DxListBox Data="@this.ViewModel.AvailableCategories.OrderBy(x => x.Name)"
+                               @bind-Values="@this.ViewModel.SelectedCategories"
+                               SelectionMode="ListBoxSelectionMode.Multiple"
+                               TextFieldName="@nameof(Category.Name)"
+                               ShowCheckboxes="true"/>
+                </DxFormLayoutItem>
             </DxFormLayoutTabPage>
         </DxFormLayoutTabPages>
     </DxFormLayout>
