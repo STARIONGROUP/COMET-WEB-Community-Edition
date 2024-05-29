@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="DomainOfExpertiseSelector.razor.cs" company="Starion Group S.A.">
+//  <copyright file="ParameterTypeSelectorWrapper.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,35 +22,35 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Components.Selectors
+namespace COMET.Web.Common.Model.Selectors
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.ViewModels.Components.Selectors;
-
-    using Microsoft.AspNetCore.Components;
+    using COMET.Web.Common.Components.Selectors;
+    using COMET.Web.Common.Extensions;
 
     /// <summary>
-    /// Component used to select a <see cref="DomainOfExpertise" />
+    /// The wrapper to be used to display and select data in the <see cref="ParameterTypeSelector" />
     /// </summary>
-    public partial class DomainOfExpertiseSelector
+    public class ParameterTypeSelectorWrapper
     {
         /// <summary>
-        /// Gets or sets the <see cref="IDomainOfExpertiseSelectorViewModel" />
+        /// Creates a new instance of the <see cref="ParameterTypeSelectorWrapper" />
         /// </summary>
-        [Parameter]
-        public IDomainOfExpertiseSelectorViewModel ViewModel { get; set; }
+        /// <param name="parameterType">The <see cref="ParameterType" /> to be wrapped</param>
+        public ParameterTypeSelectorWrapper(ParameterType parameterType)
+        {
+            this.ParameterType = parameterType;
+        }
 
         /// <summary>
-        /// Text to be displayed when the selector is shown
+        /// The text to display for <see cref="ParameterType" /> selection
         /// </summary>
-        [Parameter]
-        public string DisplayText { get; set; } = "Select a Domain:";
+        public string DisplayText => this.ParameterType?.GetSelectorNameAndShortname();
 
         /// <summary>
-        /// The css class used to apply custom styles to the selector
+        /// The <see cref="ParameterType" /> to be selected
         /// </summary>
-        [Parameter]
-        public string CssClass { get; set; }
+        public ParameterType ParameterType { get; set; }
     }
 }

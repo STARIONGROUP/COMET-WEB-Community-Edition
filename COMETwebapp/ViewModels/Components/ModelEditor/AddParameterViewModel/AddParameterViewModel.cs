@@ -48,28 +48,36 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         private readonly ISessionService sessionService;
 
         /// <summary>
-        /// Gets or sets the current <see cref="Iteration"/>
-        /// </summary>
-        private Iteration CurrentIteration { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="AddParameterViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         public AddParameterViewModel(ISessionService sessionService, ICDPMessageBus messageBus)
         {
             this.sessionService = sessionService;
             this.Disposables.Add(this.WhenAnyValue(x => x.ParameterTypeSelectorViewModel.SelectedParameterType).Subscribe(this.OnParameterTypeChange));
+            var callbackFactory = new EventCallbackFactory();
 
             this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
             {
-                OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner =>
-                {
-                    this.Parameter.Owner = selectedOwner;
-                })
+                OnSelectedDomainOfExpertiseChange = callbackFactory.Create<DomainOfExpertise>(this, selectedOwner => { this.Parameter.Owner = selectedOwner; })
+            };
+
+            this.MeasurementScaleSelectorViewModel = new MeasurementScaleSelectorViewModel(sessionService)
+            {
+                OnSelectedMeasurementScaleChange = callbackFactory.Create<MeasurementScale>(this, selectedScale => { this.Parameter.Scale = selectedScale; })
             };
         }
+
+        /// <summary>
+        /// Gets or sets the current <see cref="Iteration" />
+        /// </summary>
+        private Iteration CurrentIteration { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="IMeasurementScaleSelectorViewModel" />
+        /// </summary>
+        public IMeasurementScaleSelectorViewModel MeasurementScaleSelectorViewModel { get; private set; }
 
         /// <summary>
         /// The callback executed when the method <see cref="AddParameterToElementDefinition" /> was executed
@@ -79,7 +87,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         /// <summary>
         /// Gets the <see cref="IParameterTypeSelectorViewModel" />
         /// </summary>
-        public IParameterTypeSelectorViewModel ParameterTypeSelectorViewModel { get; private set; } = new ParameterTypeSelectorViewModel();
+        public IParameterTypeSelectorViewModel ParameterTypeSelectorViewModel { get; private set; } = new ParameterTypeSelectorViewModel { QueryOnlyUsedParameterTypes = false };
 
         /// <summary>
         /// The <see cref="ElementDefinition" /> to create or edit
@@ -107,11 +115,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         public IEnumerable<ParameterGroup> ParameterGroups => this.SelectedElementDefinition.ParameterGroup;
 
         /// <summary>
-        /// The collection of <see cref="MeasurementScale" /> to list for selection, if the parameter type is quantity kind
-        /// </summary>
-        public IEnumerable<MeasurementScale> MeasurementScales { get; set; } = Enumerable.Empty<MeasurementScale>();
-
-        /// <summary>
         /// Sets the <see cref="SelectedElementDefinition" />
         /// </summary>
         /// <param name="selectedElementDefinition"></param>
@@ -123,13 +126,14 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
             }
 
             this.SelectedElementDefinition = selectedElementDefinition;
-
-            var allParameterTypes = this.CurrentIteration.QueryUsedParameterTypes();
             var elementDefinitionParameterTypes = this.SelectedElementDefinition.Parameter.Select(x => x.ParameterType);
-            var filteredParameterTypes = allParameterTypes.Where(x => !elementDefinitionParameterTypes.Contains(x)).Select(x => x.Iid);
-            this.ParameterTypeSelectorViewModel.FilterAvailableParameterTypes(filteredParameterTypes);
-            
-            this.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise = selectedElementDefinition.GetContainerOfType<EngineeringModel>().EngineeringModelSetup.ActiveDomain;
+            this.ParameterTypeSelectorViewModel.ExcludeAvailableParameterTypes(elementDefinitionParameterTypes.Select(x => x.Iid));
+
+            this.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise = selectedElementDefinition
+                .GetContainerOfType<EngineeringModel>()
+                .EngineeringModelSetup.ActiveDomain
+                .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+
             this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(true);
         }
 
@@ -181,10 +185,13 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         {
             this.Parameter.ParameterType = parameterType;
 
-            if (this.Parameter.ParameterType is QuantityKind quantityKind)
+            if (this.Parameter.ParameterType is not QuantityKind quantityKind)
             {
-                this.MeasurementScales = quantityKind.AllPossibleScale;
+                return;
             }
+
+            this.MeasurementScaleSelectorViewModel.AvailableMeasurementScales = quantityKind.AllPossibleScale;
+            this.MeasurementScaleSelectorViewModel.SelectedMeasurementScale = quantityKind.DefaultScale;
         }
     }
 }

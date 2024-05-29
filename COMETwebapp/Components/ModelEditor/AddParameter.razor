@@ -24,22 +24,21 @@
 
 <EditForm Context="EditFormContext" Model="@this.ViewModel.Parameter" OnValidSubmit="@this.ViewModel.AddParameterToElementDefinition">
     <FluentValidationValidator />
-    <DxFormLayout CssClass="w-100">
+    <DxFormLayout>
         <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
             <DomainOfExpertiseSelector ViewModel="@(this.ViewModel.DomainOfExpertiseSelectorViewModel)"
                                        DisplayText="@(string.Empty)"/>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="10">
             <ParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelectorViewModel"
-                                   DisplayText="@(string.Empty)"/>
+                                   DisplayText="@(string.Empty)" 
+                                   DisplayNameAndShortname="true"/>
         </DxFormLayoutItem>
 
         @if (this.ViewModel.Parameter.ParameterType is QuantityKind)
         {
             <DxFormLayoutItem Caption="Scale:" ColSpanMd="10">
-                <DxComboBox Data="@this.ViewModel.MeasurementScales"
-                            TextFieldName="@nameof(MeasurementScale.Name)"
-                            @bind-Value="@this.ViewModel.Parameter.Scale"/>
+                <MeasurementScaleSelector ViewModel="@(this.ViewModel.MeasurementScaleSelectorViewModel)"/>
             </DxFormLayoutItem>
         }
         <DxFormLayoutItem Caption="State Dependence:" ColSpanMd="10">
@@ -60,7 +59,7 @@
         <DxFormLayoutItem Caption="Expects Override:" ColSpanMd="10">
             <DxCheckBox @bind-Checked="@this.ViewModel.Parameter.ExpectsOverride"/>
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Different Owner on Override:" ColSpanMd="10">
+        <DxFormLayoutItem Caption="Different Owner on Override:" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@this.ViewModel.Parameter.AllowDifferentOwnerOfOverride"/>
         </DxFormLayoutItem>
     </DxFormLayout>

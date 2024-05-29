@@ -20,26 +20,16 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components.Selectors
-@using COMET.Web.Common.Extensions
-@using CDP4Common.SiteDirectoryData
 @using COMET.Web.Common.Model.Selectors
-@inherits BelongsToIterationSelector<COMET.Web.Common.ViewModels.Components.Selectors.IParameterTypeSelectorViewModel>
+@inherits DisposableComponent
 
-@if (this.ViewModel.CurrentIteration != null)
-{
-    if (!string.IsNullOrWhiteSpace(this.DisplayText))
-    {
-        <h6>@(this.DisplayText)</h6>
-    }
-
-    <DxComboBox Data="@(this.ViewModel.AvailableParameterTypes.Select(x => new ParameterTypeSelectorWrapper(x)))"
-                TData="ParameterTypeSelectorWrapper"
-                TValue="ParameterTypeSelectorWrapper"
-                Value="@(this.ParameterTypeSelectorWrapper)"
-                ValueChanged="@((newValue) => this.OnSelectedParameterTypeChanged(newValue))"
-                ValueExpression="@(() => this.ParameterTypeSelectorWrapper)"
-                FilteringMode="DataGridFilteringMode.Contains"
-                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                TextFieldName="@(nameof(Model.Selectors.ParameterTypeSelectorWrapper.DisplayText))"
-                NullText="Select a Parameter Type"/>
-}
+<DxComboBox Data="@(this.ViewModel.AvailableMeasurementScales.Select(x => new MeasurementScaleSelectorWrapper(x)))"
+            TData="MeasurementScaleSelectorWrapper"
+            TValue="MeasurementScaleSelectorWrapper"
+            Value="@(this.MeasurementScaleSelectorWrapper)"
+            ValueChanged="@((newValue) => this.OnSelectedMeasurementScaleChanged(newValue))"
+            ValueExpression="@(() => this.MeasurementScaleSelectorWrapper)"
+            FilteringMode="DataGridFilteringMode.Contains"
+            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+            TextFieldName="@(nameof(Model.Selectors.MeasurementScaleSelectorWrapper.DisplayText))"
+            NullText="Select a Parameter Type"/>

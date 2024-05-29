@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="DomainOfExpertiseSelector.razor.cs" company="Starion Group S.A.">
+//  <copyright file="MeasurementScaleSelectorWrapper.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,35 +22,35 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Components.Selectors
+namespace COMET.Web.Common.Model.Selectors
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.ViewModels.Components.Selectors;
-
-    using Microsoft.AspNetCore.Components;
+    using COMET.Web.Common.Components.Selectors;
+    using COMET.Web.Common.Extensions;
 
     /// <summary>
-    /// Component used to select a <see cref="DomainOfExpertise" />
+    /// The wrapper to be used to display and select data in the <see cref="MeasurementScaleSelector" />
     /// </summary>
-    public partial class DomainOfExpertiseSelector
+    public class MeasurementScaleSelectorWrapper
     {
         /// <summary>
-        /// Gets or sets the <see cref="IDomainOfExpertiseSelectorViewModel" />
+        /// Creates a new instance of the <see cref="MeasurementScaleSelectorWrapper" />
         /// </summary>
-        [Parameter]
-        public IDomainOfExpertiseSelectorViewModel ViewModel { get; set; }
+        /// <param name="measurementScale">The <see cref="MeasurementScale" /> to be wrapped</param>
+        public MeasurementScaleSelectorWrapper(MeasurementScale measurementScale)
+        {
+            this.MeasurementScale = measurementScale;
+        }
 
         /// <summary>
-        /// Text to be displayed when the selector is shown
+        /// The text to display for <see cref="MeasurementScale" /> selection
         /// </summary>
-        [Parameter]
-        public string DisplayText { get; set; } = "Select a Domain:";
+        public string DisplayText => this.MeasurementScale?.GetSelectorNameAndShortname();
 
         /// <summary>
-        /// The css class used to apply custom styles to the selector
+        /// The <see cref="MeasurementScale" /> to be selected
         /// </summary>
-        [Parameter]
-        public string CssClass { get; set; }
+        public MeasurementScale MeasurementScale { get; set; }
     }
 }

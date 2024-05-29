@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterTypeSelector.razor.cs" company="Starion Group S.A.">
+//  <copyright file="MeasurementScaleSelector.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -27,16 +27,23 @@ namespace COMET.Web.Common.Components.Selectors
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Model.Selectors;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
     /// <summary>
-    /// Component used to select a <see cref="ParameterType" />
+    /// Component used to select a <see cref="MeasurementScale" />
     /// </summary>
-    public partial class ParameterTypeSelector
+    public partial class MeasurementScaleSelector : DisposableComponent
     {
+        /// <summary>
+        /// Gets or sets the <see cref="IMeasurementScaleSelectorViewModel" />
+        /// </summary>
+        [Parameter]
+        public IMeasurementScaleSelectorViewModel ViewModel { get; set; }
+
         /// <summary>
         /// Text to be displayed when the selector is shown
         /// </summary>
@@ -44,15 +51,9 @@ namespace COMET.Web.Common.Components.Selectors
         public string DisplayText { get; set; } = "Filter on Parameter Type:";
 
         /// <summary>
-        /// Condition to check if name and shortname shall be displayed in the selector. If false, only the name is displayed
+        /// The <see cref="MeasurementScale" /> wrapper to handle the selection
         /// </summary>
-        [Parameter]
-        public bool DisplayNameAndShortname { get; set; }
-
-        /// <summary>
-        /// The <see cref="ParameterType"/> wrapper to handle the selection
-        /// </summary>
-        private ParameterTypeSelectorWrapper ParameterTypeSelectorWrapper { get; set; }
+        private MeasurementScaleSelectorWrapper MeasurementScaleSelectorWrapper { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -62,23 +63,23 @@ namespace COMET.Web.Common.Components.Selectors
         {
             base.OnInitialized();
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedParameterType).Subscribe(parameterType =>
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedMeasurementScale).Subscribe(measurementScale =>
             {
-                if (this.ParameterTypeSelectorWrapper != null || parameterType != null)
+                if (this.MeasurementScaleSelectorWrapper != null || measurementScale != null)
                 {
-                    this.ParameterTypeSelectorWrapper = new ParameterTypeSelectorWrapper(parameterType);
+                    this.MeasurementScaleSelectorWrapper = new MeasurementScaleSelectorWrapper(measurementScale);
                 }
             }));
         }
 
         /// <summary>
-        /// Method executed every time the selected parameter type has changed
+        /// Method executed every time the selected measurement scale has changed
         /// </summary>
-        /// <param name="parameterTypeSelectorWrapper">The new selected parameter type</param>
-        private void OnSelectedParameterTypeChanged(ParameterTypeSelectorWrapper parameterTypeSelectorWrapper)
+        /// <param name="measurementScaleSelectorWrapper">The new selected measurement scale</param>
+        private void OnSelectedMeasurementScaleChanged(MeasurementScaleSelectorWrapper measurementScaleSelectorWrapper)
         {
-            this.ViewModel.SelectedParameterType = parameterTypeSelectorWrapper?.ParameterType;
-            this.ParameterTypeSelectorWrapper = parameterTypeSelectorWrapper;
+            this.ViewModel.SelectedMeasurementScale = measurementScaleSelectorWrapper?.MeasurementScale;
+            this.MeasurementScaleSelectorWrapper = measurementScaleSelectorWrapper;
         }
     }
 }

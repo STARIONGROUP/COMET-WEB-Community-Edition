@@ -570,5 +570,15 @@ namespace COMET.Web.Common.Extensions
 
             return thingDesignation;
         }
+
+        /// <summary>
+        /// Gets the thing and shortname to display, in the following format: name [shortname]
+        /// </summary>
+        /// <param name="thing">The thing to get the name and shortname</param>
+        /// <returns>A string that contains name and shortname</returns>
+        internal static string GetSelectorNameAndShortname(this DefinedThing thing)
+        {
+            return $"{thing.Name} [{thing.ShortName}]";
+        }
     }
 }

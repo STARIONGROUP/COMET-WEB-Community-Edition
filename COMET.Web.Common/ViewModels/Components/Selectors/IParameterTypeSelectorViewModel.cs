@@ -47,5 +47,11 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         /// </summary>
         /// <param name="parameterTypesId">A collection of <see cref="Guid" /> for <see cref="ParameterType" /></param>
         void FilterAvailableParameterTypes(IEnumerable<Guid> parameterTypesId);
+
+        /// <summary>
+        /// Excludes a collection of <see cref="ParameterType" />s from the <see cref="ParameterTypeSelectorViewModel.AvailableParameterTypes" />
+        /// </summary>
+        /// <param name="parameterTypesId">A collection of <see cref="Guid" /> for <see cref="ParameterType" /></param>
+        void ExcludeAvailableParameterTypes(IEnumerable<Guid> parameterTypesId);
     }
 }

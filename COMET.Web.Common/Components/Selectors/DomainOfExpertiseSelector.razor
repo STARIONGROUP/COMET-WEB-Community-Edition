@@ -20,6 +20,7 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components.Selectors
+@using COMET.Web.Common.Extensions
 
 @if (this.ViewModel.SessionService != null)
 {
@@ -33,17 +34,18 @@
                 FilteringMode="DataGridFilteringMode.Contains"
                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
                 NullText="Select a Domain Of Expertise"
+                AllowUserInput="true"
                 CssClass="@(this.CssClass)">
         <ItemTemplate Context="domainOfExpertise">
             <div class="@(this.ViewModel.CurrentIterationDomain == domainOfExpertise ? "fw-bold" : string.Empty)">
-                @GetDomainNameAndShortnameToDisplay(domainOfExpertise)
+                @(domainOfExpertise.GetSelectorNameAndShortname())
             </div>
         </ItemTemplate>
         <EditBoxTemplate Context="domainOfExpertise">
             @if (domainOfExpertise != null)
             {
                 <div class="@(this.ViewModel.CurrentIterationDomain == domainOfExpertise ? "fw-bold" : string.Empty)">
-                    @GetDomainNameAndShortnameToDisplay(domainOfExpertise)
+                    @(domainOfExpertise.GetSelectorNameAndShortname())
                 </div>
             }
         </EditBoxTemplate>

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="DomainOfExpertiseSelector.razor.cs" company="Starion Group S.A.">
+//  <copyright file="IMeasurementScaleSelectorViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,35 +22,30 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Components.Selectors
+namespace COMET.Web.Common.ViewModels.Components.Selectors
 {
     using CDP4Common.SiteDirectoryData;
-
-    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Component used to select a <see cref="DomainOfExpertise" />
+    /// View Model that enables the user to select a <see cref="MeasurementScale" />
     /// </summary>
-    public partial class DomainOfExpertiseSelector
+    public interface IMeasurementScaleSelectorViewModel
     {
         /// <summary>
-        /// Gets or sets the <see cref="IDomainOfExpertiseSelectorViewModel" />
+        /// Gets or sets the callback that is executed when the <see cref="SelectedMeasurementScale" /> property has changed
         /// </summary>
-        [Parameter]
-        public IDomainOfExpertiseSelectorViewModel ViewModel { get; set; }
+        EventCallback<MeasurementScale> OnSelectedMeasurementScaleChange { get; set; }
 
         /// <summary>
-        /// Text to be displayed when the selector is shown
+        /// A collection of available <see cref="DomainOfExpertise" />
         /// </summary>
-        [Parameter]
-        public string DisplayText { get; set; } = "Select a Domain:";
+        IEnumerable<MeasurementScale> AvailableMeasurementScales { get; set; }
 
         /// <summary>
-        /// The css class used to apply custom styles to the selector
+        /// The currently selected <see cref="MeasurementScale" />
         /// </summary>
-        [Parameter]
-        public string CssClass { get; set; }
+        MeasurementScale SelectedMeasurementScale { get; set; }
     }
 }

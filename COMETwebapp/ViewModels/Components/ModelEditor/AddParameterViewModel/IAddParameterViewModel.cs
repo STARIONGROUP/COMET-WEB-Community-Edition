@@ -25,7 +25,6 @@
 namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
@@ -52,11 +51,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         IParameterTypeSelectorViewModel ParameterTypeSelectorViewModel { get; }
 
         /// <summary>
-        /// The collection of <see cref="MeasurementScale" /> to list for selection, if the parameter type is quantity kind
-        /// </summary>
-        IEnumerable<MeasurementScale> MeasurementScales { get; set; }
-
-        /// <summary>
         /// The collection of <see cref="ParameterGroup" /> to list for selection
         /// </summary>
         IEnumerable<ParameterGroup> ParameterGroups { get; }
@@ -75,6 +69,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
         /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
         /// </summary>
         IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IMeasurementScaleSelectorViewModel" />
+        /// </summary>
+        IMeasurementScaleSelectorViewModel MeasurementScaleSelectorViewModel { get; }
 
         /// <summary>
         /// Adds a parameter of type selected from <see cref="AddParameterViewModel.ParameterTypeSelectorViewModel"/> to the <see cref="AddParameterViewModel.SelectedElementDefinition"/>
