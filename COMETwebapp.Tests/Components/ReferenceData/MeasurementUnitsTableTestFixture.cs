@@ -32,11 +32,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.ReferenceData.MeasurementUnits;
-    using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
     using COMETwebapp.Wrappers;
 
     using DevExpress.Blazor;

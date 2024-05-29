@@ -26,16 +26,15 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
 {
     using System.ComponentModel.DataAnnotations;
 
-    using COMET.Web.Common.Components;
-
+    using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Roles;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="ParticipantRoleDetails"/>
+    /// Support class for the <see cref="ParticipantRoleForm"/>
     /// </summary>
-    public partial class ParticipantRoleDetails : DisposableComponent
+    public partial class ParticipantRoleForm : SelectedDataItemForm
     {
         /// <summary>
         /// The <see cref="IParticipantRolesTableViewModel" /> for this component
@@ -44,29 +43,13 @@ namespace COMETwebapp.Components.SiteDirectory.Roles
         public IParticipantRolesTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Method that is executed when the current edit form is submitted
+        /// Method that is executed when there is a valid submit
         /// </summary>
-        [Parameter]
-        public EventCallback OnSubmit { get; set; }
-
-        /// <summary>
-        /// Method that is executed when the current edit form is canceled
-        /// </summary>
-        [Parameter]
-        public EventCallback OnCancel { get; set; }
-
-        /// <summary>
-        /// Method that executes the default creation method in case the property <see cref="OnSubmit"/> is not set
-        /// </summary>
-        private async Task OnValidSubmit()
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnValidSubmit()
         {
-            if (this.OnSubmit.HasDelegate)
-            {
-                await this.OnSubmit.InvokeAsync();
-                return;
-            }
-
-            await this.ViewModel.CreateOrEditParticipantRole(false);
+            await this.ViewModel.CreateOrEditParticipantRole(this.ShouldCreate);
+            await base.OnValidSubmit();
         }
     }
 }

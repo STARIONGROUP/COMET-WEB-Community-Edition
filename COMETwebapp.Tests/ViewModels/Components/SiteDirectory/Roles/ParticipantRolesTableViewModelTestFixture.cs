@@ -37,6 +37,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.Roles
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Roles;
@@ -177,8 +178,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.Roles
         {
             this.viewModel.InitializeViewModel();
             await this.viewModel.CreateOrEditParticipantRole(true);
-
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
+
+            this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>())).Throws(new Exception());
+            await this.viewModel.CreateOrEditParticipantRole(false);
+            this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
         }
     }
 }
