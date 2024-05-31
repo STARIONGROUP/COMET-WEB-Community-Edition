@@ -69,22 +69,32 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Roles
         /// <returns>A <see cref="Task"/></returns>
         public async Task CreateOrEditPersonRole(bool shouldCreate)
         {
-            this.IsLoading = true;
-
-            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
-            var thingsToCreate = new List<Thing>();
-
-            thingsToCreate.AddRange(this.CurrentThing.PersonPermission);
-
-            if (shouldCreate)
+            try
             {
-                siteDirectoryClone.PersonRole.Add(this.CurrentThing);
-                thingsToCreate.Add(siteDirectoryClone);
-            }
+                this.IsLoading = true;
 
-            thingsToCreate.Add(this.CurrentThing);
-            await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
-            this.IsLoading = false;
+                var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
+                var thingsToCreate = new List<Thing>();
+
+                thingsToCreate.AddRange(this.CurrentThing.PersonPermission);
+
+                if (shouldCreate)
+                {
+                    siteDirectoryClone.PersonRole.Add(this.CurrentThing);
+                    thingsToCreate.Add(siteDirectoryClone);
+                }
+
+                thingsToCreate.Add(this.CurrentThing);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Create or Update PersonRole failed");
+            }
+            finally
+            {
+                this.IsLoading = false;
+            }
         }
 
         /// <summary>
