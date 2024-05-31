@@ -90,9 +90,14 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         IEnumerable<IterationRowViewModel> IterationRows { get; }
 
         /// <summary>
-        /// Updates the current thing with the selected properties
+        /// Gets the <see cref="IOrganizationalParticipantsTableViewModel"/>
         /// </summary>
-        void SetupEngineeringModelWithSelectedValues();
+        IOrganizationalParticipantsTableViewModel OrganizationalParticipantsTableViewModel { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IOrganizationalParticipantsTableViewModel"/>
+        /// </summary>
+        IParticipantsTableViewModel ParticipantsTableViewModel { get; }
 
         /// <summary>
         /// Creates a new <see cref="EngineeringModelSetup"/>
@@ -100,10 +105,5 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <param name="shouldCreate">The value to check if a new <see cref="EngineeringModelSetup"/> should be created</param>
         /// <returns>A <see cref="Task"/></returns>
         Task CreateOrEditEngineeringModel(bool shouldCreate);
-
-        /// <summary>
-        /// Resets the current <see cref="EngineeringModelSetup"/> values
-        /// </summary>
-        void ResetSelectedValues();
     }
 }

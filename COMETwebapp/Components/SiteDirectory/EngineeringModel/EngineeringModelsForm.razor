@@ -19,7 +19,6 @@ Copyright (c) 2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.Wrappers
 @inherits SelectedDataItemForm
 
 <EditForm Context="editFormContext" Model="@(this.ViewModel.CurrentThing)" OnValidSubmit="@(this.OnValidSubmit)">
@@ -29,53 +28,54 @@ Copyright (c) 2024 Starion Group S.A.
         <DxFormLayoutTabPages>
             <DxFormLayoutTabPage Caption="Basic">
                 <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.ShortName)" />
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.ShortName)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.Name)" />
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.Name)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Source Model:" ColSpanMd="10">
-                    <DxComboBox Data="@this.ViewModel.EngineeringModels"
+                    <DxComboBox Data="@(this.ViewModel.EngineeringModels)"
                                 TextFieldName="@nameof(EngineeringModelSetup.Name)"
                                 @bind-Value="@(this.ViewModel.SelectedSourceModel)"
                                 CssClass="cw-480"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                Enabled="@(this.ShouldCreate)" />
+                                Enabled="@(this.ShouldCreate)"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Model Kind:" ColSpanMd="10">
-                    <DxComboBox Data="@this.ViewModel.ModelKinds"
-                                @bind-Value="@this.ViewModel.CurrentThing.Kind"
-                                CssClass="cw-480" />
+                    <DxComboBox Data="@(this.ViewModel.ModelKinds)"
+                                @bind-Value="@(this.ViewModel.CurrentThing.Kind)"
+                                CssClass="cw-480"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Study Phase:" ColSpanMd="10">
-                    <DxComboBox Data="@this.ViewModel.StudyPhases"
-                                @bind-Value="@this.ViewModel.CurrentThing.StudyPhase"
-                                CssClass="cw-480" />
+                    <DxComboBox Data="@(this.ViewModel.StudyPhases)"
+                                @bind-Value="@(this.ViewModel.CurrentThing.StudyPhase)"
+                                CssClass="cw-480"/>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Site RDL:" ColSpanMd="10">
-                    <DxComboBox Data="@this.ViewModel.SiteRdls"
+                    <DxComboBox Data="@(this.ViewModel.SiteRdls)"
                                 TextFieldName="@nameof(ModelReferenceDataLibrary.Name)"
-                                @bind-Value="@this.ViewModel.SelectedSiteRdl"
+                                @bind-Value="@(this.ViewModel.SelectedSiteRdl)"
                                 CssClass="cw-480"
-                                Enabled="@(!this.IsSourceModelSelected && this.ShouldCreate)" />
+                                Enabled="@(!this.IsSourceModelSelected && this.ShouldCreate)"/>
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
             @if (!this.ShouldCreate)
             {
                 <DxFormLayoutTabPage Caption="Participants">
-                    <ParticipantsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)" />
+                    <ParticipantsTable ViewModel="@(this.ViewModel.ParticipantsTableViewModel)"/>
                 </DxFormLayoutTabPage>
+
                 <DxFormLayoutTabPage Caption="Iterations">
-                    <IterationsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)" 
-                                     IterationRows="@(this.ViewModel.IterationRows)" />
+                    <IterationsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)"
+                                     IterationRows="@(this.ViewModel.IterationRows)"/>
                 </DxFormLayoutTabPage>
             }
             <DxFormLayoutTabPage Caption="Active Domains">
-                <ActiveDomainsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)" 
-                                    DomainsOfExpertise="@(this.ViewModel.DomainsOfExpertise)" />
+                <ActiveDomainsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)"
+                                    DomainsOfExpertise="@(this.ViewModel.DomainsOfExpertise)"/>
             </DxFormLayoutTabPage>
             <DxFormLayoutTabPage Caption="Organizations">
-                <OrganizationalParticipantsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)" />
+                <OrganizationalParticipantsTable ViewModel="@(this.ViewModel.OrganizationalParticipantsTableViewModel)"/>
             </DxFormLayoutTabPage>
         </DxFormLayoutTabPages>
     </DxFormLayout>
@@ -83,6 +83,6 @@ Copyright (c) 2024 Starion Group S.A.
                  OnCancel="@(this.OnCancel)"
                  OnDelete="@(() => this.ViewModel.IsOnDeletionMode = true)"
                  DeleteButtonVisible="@(!this.ShouldCreate)"
-                 ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))" />
-    
+                 ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))"/>
+
 </EditForm>

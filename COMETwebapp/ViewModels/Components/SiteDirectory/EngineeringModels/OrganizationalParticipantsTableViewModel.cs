@@ -57,25 +57,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         public OrganizationalParticipantsTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<OrganizationalParticipantsTableViewModel> logger)
             : base(sessionService, messageBus, logger)
         {
-            this.Disposables.Add(this.WhenAnyValue(x => x.ParticipatingOrganizations).Subscribe(orgs =>
-            {
-                if (this.CurrentModel is null)
-                {
-                    return;
-                }
-
-                var organizationsToRemove = this.CurrentModel.OrganizationalParticipant.Where(x => !orgs.Contains(x.Organization));
-
-                var organizationsToAdd = orgs
-                    .Where(x => !this.CurrentModel.OrganizationalParticipant.Select(y => y.Organization).Contains(x))
-                    .Select(org => new OrganizationalParticipant
-                    {
-                        Organization = org
-                    });
-
-                this.CurrentModel.OrganizationalParticipant.RemoveMany(organizationsToRemove);
-                this.CurrentModel.OrganizationalParticipant.AddRange(organizationsToAdd);
-            }));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ParticipatingOrganizations).Subscribe(this.OnSelectedParticipantOrganizationsChanged));
         }
 
         /// <summary>
@@ -106,13 +88,40 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         {
             this.CurrentModel = model;
             this.ParticipatingOrganizations = model.OrganizationalParticipant.Select(x => x.Organization);
-            this.Organizations = this.SessionService.GetSiteDirectory().Organization;
+            this.Organizations = this.SessionService.GetSiteDirectory().Organization.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
         }
 
         /// <summary>
         /// Queries a list of things of the current type
         /// </summary>
         /// <returns>A list of things</returns>
-        protected override List<OrganizationalParticipant> QueryListOfThings() => [];
+        protected override List<OrganizationalParticipant> QueryListOfThings()
+        {
+            return [];
+        }
+
+        /// <summary>
+        /// Method executed everytime the <see cref="ParticipatingOrganizations" /> has changed
+        /// </summary>
+        /// <param name="organizations">The new participating organizations</param>
+        private void OnSelectedParticipantOrganizationsChanged(IEnumerable<Organization> organizations)
+        {
+            if (this.CurrentModel is null)
+            {
+                return;
+            }
+
+            var organizationsToRemove = this.CurrentModel.OrganizationalParticipant.Where(x => !organizations.Contains(x.Organization));
+
+            var organizationsToAdd = organizations
+                .Where(x => !this.CurrentModel.OrganizationalParticipant.Select(y => y.Organization).Contains(x))
+                .Select(org => new OrganizationalParticipant
+                {
+                    Organization = org
+                });
+
+            this.CurrentModel.OrganizationalParticipant.RemoveMany(organizationsToRemove);
+            this.CurrentModel.OrganizationalParticipant.AddRange(organizationsToAdd);
+        }
     }
 }

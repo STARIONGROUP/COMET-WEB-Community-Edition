@@ -61,14 +61,28 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
-        public EngineeringModelsTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<EngineeringModelsTableViewModel> logger) 
-            : base(sessionService, messageBus, logger)
+        /// <param name="organizationalParticipantsTableViewModel">The <see cref="IOrganizationalParticipantsTableViewModel"/></param>
+        /// <param name="participantsTableViewModel">The <see cref="IParticipantsTableViewModel"/></param>
+        public EngineeringModelsTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<EngineeringModelsTableViewModel> logger, IOrganizationalParticipantsTableViewModel organizationalParticipantsTableViewModel,
+            IParticipantsTableViewModel participantsTableViewModel) : base(sessionService, messageBus, logger)
         {
+            this.OrganizationalParticipantsTableViewModel = organizationalParticipantsTableViewModel;
+            this.ParticipantsTableViewModel = participantsTableViewModel;
             this.CurrentThing = new EngineeringModelSetup();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedSiteRdl).Subscribe(this.OnSelectedSiteRdlChanged));
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedSourceModel).Subscribe(this.OnSelectedSourceModelChanged));
         }
+
+        /// <summary>
+        /// Gets the <see cref="IOrganizationalParticipantsTableViewModel"/>
+        /// </summary>
+        public IOrganizationalParticipantsTableViewModel OrganizationalParticipantsTableViewModel { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IOrganizationalParticipantsTableViewModel"/>
+        /// </summary>
+        public IParticipantsTableViewModel ParticipantsTableViewModel { get; }
 
         /// <summary>
         /// Gets a collection of the available engineering models
@@ -161,35 +175,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         }
 
         /// <summary>
-        /// Resets the selected values
-        /// </summary>
-        public void ResetSelectedValues()
-        {
-            this.SelectedOrganizations = Enumerable.Empty<Organization>();
-            this.SelectedModelAdminOrganization = null;
-            this.SelectedSiteRdl = null;
-            this.SelectedSourceModel = null;
-        }
-
-        /// <summary>
-        /// Updates the current thing with the selected properties
-        /// </summary>
-        public void SetupEngineeringModelWithSelectedValues()
-        {
-            this.CurrentThing.OrganizationalParticipant.Clear();
-
-            if (this.SelectedOrganizations != null)
-            {
-                this.CurrentThing.OrganizationalParticipant.AddRange(this.SelectedOrganizations.Select(org => new OrganizationalParticipant()
-                {
-                    Organization = org
-                }));
-
-                this.CurrentThing.DefaultOrganizationalParticipant = this.CurrentThing.OrganizationalParticipant.FirstOrDefault(x => x.Organization == this.SelectedModelAdminOrganization);
-            }
-        }
-
-        /// <summary>
         /// Creates a new <see cref="EngineeringModelSetup"/>
         /// </summary>
         /// <param name="shouldCreate">The value to check if a new <see cref="EngineeringModelSetup"/> should be created</param>
@@ -211,16 +196,15 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
                 {
                     this.CurrentThing.RequiredRdl.Clear();
                 }
+                else
+                {
+                    thingsToCreate.AddRange(this.CurrentThing.RequiredRdl);
+                }
             }
 
             if (this.CurrentThing.OrganizationalParticipant.Count > 0)
             {
                 thingsToCreate.AddRange(this.CurrentThing.OrganizationalParticipant);
-            }
-
-            if (this.CurrentThing.RequiredRdl.Count > 0)
-            {
-                thingsToCreate.AddRange(this.CurrentThing.RequiredRdl);
             }
             
             thingsToCreate.Add(this.CurrentThing);
@@ -243,6 +227,9 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         {
             this.SelectedSiteRdl = this.CurrentThing.RequiredRdl.FirstOrDefault()?.RequiredRdl;
             this.SelectedSourceModel = this.Rows.Items.FirstOrDefault(x => x.Thing.Iid == this.CurrentThing.SourceEngineeringModelSetupIid)?.Thing;
+            this.OrganizationalParticipantsTableViewModel.InitializeViewModel(this.CurrentThing);
+            this.ParticipantsTableViewModel.InitializeViewModel(this.CurrentThing);
+
             return Task.CompletedTask;
         }
 
