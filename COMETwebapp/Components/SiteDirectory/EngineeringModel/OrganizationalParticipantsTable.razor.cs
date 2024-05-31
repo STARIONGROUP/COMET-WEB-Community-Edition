@@ -27,8 +27,11 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
+
+    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
@@ -42,5 +45,24 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         /// </summary>
         [Parameter]
         public IOrganizationalParticipantsTableViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Method invoked to "Show/Hide Deprecated Items"
+        /// </summary>
+        /// <param name="e">The <see cref="GridCustomizeElementEventArgs"/></param>
+        private void HighlightDefaultOrganizationRow(GridCustomizeElementEventArgs e)
+        {
+            if (e.ElementType != GridElementType.DataRow)
+            {
+                return;
+            }
+
+            var row = (OrganizationalParticipantRowViewModel)e.Grid.GetDataItem(e.VisibleIndex);
+
+            if (row.Thing.Organization == this.ViewModel.CurrentModel.DefaultOrganizationalParticipant?.Organization)
+            {
+                e.CssClass = "fw-bold";
+            }
+        }
     }
 }

@@ -21,7 +21,8 @@ Copyright (c) 2023-2024 Starion Group S.A.
         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
         ShowSearchBox="true"
         ShowAllRows="true"
-        SearchBoxNullText="Search for an organizational participant...">
+        SearchBoxNullText="Search for an organizational participant..."
+        CustomizeElement="@(this.HighlightDefaultOrganizationRow)">
     <ToolbarTemplate>
         <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
             <DxToolbarItem Text="Edit Organizational Participants"
