@@ -72,6 +72,6 @@ Copyright (c) 2023-2024 Starion Group S.A.
     @(this.ViewModel.PopupDialog)
     <div class="dxbl-grid-confirm-dialog-buttons">
         <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
-        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.ViewModel.OnConfirmPopupButtonClick)"/>
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.OnDeletionConfirmed)"/>
     </div>
 </DxPopup>

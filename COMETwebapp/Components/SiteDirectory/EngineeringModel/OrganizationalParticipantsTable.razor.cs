@@ -71,16 +71,8 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
 
             var dataItem = (OrganizationalParticipantRowViewModel)e.DataItem;
             this.ShouldCreateThing = e.IsNew;
-
-            if (dataItem == null)
-            {
-                this.ViewModel.CurrentThing = new OrganizationalParticipant();
-                e.EditModel = this.ViewModel.CurrentThing;
-                return;
-            }
-
-            e.EditModel = dataItem;
-            this.ViewModel.CurrentThing = dataItem.Thing.Clone(true);
+            this.ViewModel.CurrentThing = dataItem == null ? new OrganizationalParticipant() : dataItem.Thing.Clone(true);
+            e.EditModel = this.ViewModel.CurrentThing;
         }
     }
 }

@@ -26,11 +26,15 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Extensions;
+
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Support class for the <see cref="EngineeringModelsTable"/>
@@ -51,6 +55,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         {
             base.OnInitialized();
             this.Initialize(this.ViewModel);
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnDeletionMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -73,6 +78,16 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
             this.IsOnEditMode = true;
             this.ViewModel.CurrentThing = new EngineeringModelSetup();
             this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Method invoked when the deletion of a thing is confirmed
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task OnDeletionConfirmed()
+        {
+            await this.ViewModel.OnConfirmPopupButtonClick();
+            this.IsOnEditMode = false;
         }
     }
 }

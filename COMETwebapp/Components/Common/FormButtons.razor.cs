@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SelectedDataItemFormButtons.razor.cs" company="Starion Group S.A.">
+//  <copyright file="FormButtons.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -58,5 +58,17 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         [Parameter]
         public bool IsLoading { get; set; }
+
+        /// <summary>
+        /// Gets or sets the callback for when the delete button is clicked
+        /// </summary>
+        [Parameter]
+        public EventCallback<Task> OnDelete { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value to check if the delete button should be displayed
+        /// </summary>
+        [Parameter]
+        public bool DeleteButtonVisible { get; set; }
     }
 }

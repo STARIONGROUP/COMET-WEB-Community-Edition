@@ -14,72 +14,64 @@ Copyright (c) 2023-2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
-@using CDP4Common.SiteDirectoryData
-@inherits COMETwebapp.Components.Common.SelectedDataItemBase<CDP4Common.SiteDirectoryData.OrganizationalParticipant, OrganizationalParticipantRowViewModel>
+@inherits SelectedDataItemBase<OrganizationalParticipant, OrganizationalParticipantRowViewModel>
 
-<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <DxGrid @ref="this.Grid"
-            Data="this.ViewModel.Rows.Items"
-            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-            ShowSearchBox="true"
-            ShowAllRows="true"
-            SearchBoxNullText="Search for an organizational participant..."
-            PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Organizational Participant (UNDER DEV)"
-            CustomizeEditModel="this.CustomizeEditThing"
-            EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(() => this.OnEditThingSaving())">
-        <Columns>
-            <DxGridDataColumn FieldName="@nameof(OrganizationalParticipantRowViewModel.Name)" MinWidth="150" />
-            <DxGridDataColumn FieldName="@nameof(OrganizationalParticipantRowViewModel.ShortName)" MinWidth="150" />
-            <DxGridCommandColumn Width="200px" EditButtonVisible="false">
-                <HeaderTemplate>
-                    <DxButton Id="editOrganizationalParticipantsButton" Text="Edit Organizational Participants" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
-                </HeaderTemplate>
-                <CellDisplayTemplate>
-                    @{
-                        var row = (OrganizationalParticipantRowViewModel)context.DataItem;
+<DxGrid @ref="this.Grid"
+        Data="this.ViewModel.CurrentModel.OrganizationalParticipant.OrderBy(x => x.Organization.Name).Select(x => new OrganizationalParticipantRowViewModel(x))"
+        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+        ShowSearchBox="true"
+        ShowAllRows="true"
+        SearchBoxNullText="Search for an organizational participant...">
+    <ToolbarTemplate>
+        <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
+            <DxToolbarItem Text="Edit Organizational Participants"
+                           Click="(() => this.IsOnEditMode = true)"
+                           RenderStyle="ButtonRenderStyle.Info"
+                           Enabled="true"/>
+        </DxToolbar>
+    </ToolbarTemplate>
+    <Columns>
+        <DxGridDataColumn FieldName="@nameof(OrganizationalParticipantRowViewModel.Name)" MinWidth="150" />
+        <DxGridDataColumn FieldName="@nameof(OrganizationalParticipantRowViewModel.ShortName)" MinWidth="150" />
+    </Columns>
+</DxGrid>
 
-                        <DxButton Id="deleteOrganizationalParticipantButton"
-                                  Text="Delete"
-                                  Click="() => this.ViewModel.OnDeleteButtonClick(row)"
-                                  Enabled="@(row.IsAllowedToWrite)"/>
-                    }
-                </CellDisplayTemplate>
-            </DxGridCommandColumn>
-        </Columns>
+<DxPopup @bind-Visible="@(this.IsOnEditMode)"
+         HeaderText="Organizational Participants">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutItem Caption="Participating Organizations:"
+                          CaptionPosition="CaptionPosition.Vertical"
+                          ColSpanMd="12">
+            <DxListBox TValue="Organization"
+                       TData="Organization"
+                       Data="@(this.ViewModel.Organizations)"
+                       TextFieldName="@nameof(Organization.Name)"
+                       SelectionMode="ListBoxSelectionMode.Multiple"
+                       ShowCheckboxes="true"
+                       @bind-Values="@(this.ViewModel.ParticipatingOrganizations)"
+                       CssClass="cw-480"/>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Default Organization"
+                          CaptionPosition="CaptionPosition.Vertical"
+                          ColSpanMd="12">
+            <DxComboBox Data="this.ViewModel.CurrentModel.OrganizationalParticipant"
+                        @bind-Value="@(this.ViewModel.CurrentModel.DefaultOrganizationalParticipant)"
+                        CssClass="cw-480">
+                <EditBoxTemplate Context="organizationalParticipant">@organizationalParticipant?.Organization.Name</EditBoxTemplate>
+                <ItemTemplate Context="organizationalParticipant">@organizationalParticipant.Organization.Name</ItemTemplate>
+            </DxComboBox>
+        </DxFormLayoutItem>
+    </DxFormLayout>
 
-        <EditFormTemplate Context="EditFormContext">
-            <DxFormLayout CssClass="w-100">
-                
-                <DxFormLayoutItem Caption="Participating Organizations:" 
-                                  CaptionPosition="CaptionPosition.Vertical"
-                                  ColSpanMd="12">
-                    <DxListBox TValue="Organization"
-                               TData="Organization"
-                               Data="@this.ViewModel.Organizations"
-                               TextFieldName="@nameof(Organization.Name)"
-                               SelectionMode="ListBoxSelectionMode.Multiple"
-                               ShowCheckboxes="true"
-                               @bind-Values="@this.ViewModel.ParticipatingOrganizations"
-                               CssClass="cw-480"/>
-                </DxFormLayoutItem>
-            </DxFormLayout>
-            <ValidationSummary/>
-        </EditFormTemplate>
-        
-        <CustomValidators>
-            <FluentValidationValidator />
-        </CustomValidators>
-
-    </DxGrid>
-</LoadingComponent>
-
-<DxPopup @bind-Visible="@this.ViewModel.IsOnDeletionMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-    @this.ViewModel.PopupDialog
-    <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
-        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
+    <div class="dxbl-grid-edit-form-buttons">
+        <DxButton Id="saveOrganizationalParticipantsButton"
+                  Click="@(() => this.IsOnEditMode = false)">
+            Save
+        </DxButton>
+        <DxButton Id="cancelOrganizationalParticipantsButton"
+                  Click="@(() => this.IsOnEditMode = false)"
+                  RenderStyle="ButtonRenderStyle.Secondary">
+            Cancel
+        </DxButton>
     </div>
 </DxPopup>

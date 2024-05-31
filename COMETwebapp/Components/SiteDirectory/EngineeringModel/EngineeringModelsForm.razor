@@ -66,11 +66,13 @@ Copyright (c) 2024 Starion Group S.A.
                     <ParticipantsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)" />
                 </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="Iterations">
-                    <IterationsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)" IterationRows="@(this.ViewModel.IterationRows)" />
+                    <IterationsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)" 
+                                     IterationRows="@(this.ViewModel.IterationRows)" />
                 </DxFormLayoutTabPage>
             }
             <DxFormLayoutTabPage Caption="Active Domains">
-                <ActiveDomainsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)" DomainsOfExpertise="@(this.ViewModel.DomainsOfExpertise)" />
+                <ActiveDomainsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)" 
+                                    DomainsOfExpertise="@(this.ViewModel.DomainsOfExpertise)" />
             </DxFormLayoutTabPage>
             <DxFormLayoutTabPage Caption="Organizations">
                 <OrganizationalParticipantsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)" />
@@ -78,6 +80,9 @@ Copyright (c) 2024 Starion Group S.A.
         </DxFormLayoutTabPages>
     </DxFormLayout>
     <FormButtons SaveButtonEnabled="@(this.IsSaveButtonEnabled(editFormContext))"
-                 OnCancel="@(this.OnCancel)"/>
-    @* ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))" *@
+                 OnCancel="@(this.OnCancel)"
+                 OnDelete="@(() => this.ViewModel.IsOnDeletionMode = true)"
+                 DeleteButtonVisible="@(!this.ShouldCreate)"
+                 ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))" />
+    
 </EditForm>

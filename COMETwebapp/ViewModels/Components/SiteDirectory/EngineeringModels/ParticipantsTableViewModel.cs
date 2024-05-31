@@ -44,6 +44,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
     public class ParticipantsTableViewModel : DeletableDataItemTableViewModel<Participant, ParticipantRowViewModel>, IParticipantsTableViewModel
     {
         /// <summary>
+        /// Gets or sets the current <see cref="EngineeringModelSetup" />
+        /// </summary>
+        private EngineeringModelSetup CurrentModel { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ParticipantsTableViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -54,11 +59,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         {
             this.CurrentThing = new Participant();
         }
-
-        /// <summary>
-        /// Gets or sets the current <see cref="EngineeringModelSetup" />
-        /// </summary>
-        private EngineeringModelSetup CurrentModel { get; set; }
 
         /// <summary>
         /// Gets a collection of all the available <see cref="Person" />s
@@ -168,6 +168,21 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
             {
                 OnSuccess = $"The {nameof(Participant)} {this.CurrentThing.Person.GetShortNameOrName()} was {(created ? "added" : "updated")}",
                 OnError = $"Error while {(created ? "adding" : "updating")} the {nameof(Participant)} {this.CurrentThing.Person.GetShortNameOrName()}"
+            };
+
+            return notificationDescription;
+        }
+
+        /// <summary>
+        /// Gets the message for the success notification
+        /// </summary>
+        /// <returns>The message</returns>
+        protected override NotificationDescription GetDeletionNotificationDescription()
+        {
+            var notificationDescription = new NotificationDescription
+            {
+                OnSuccess = $"The {nameof(Participant)} {this.CurrentThing.Person.GetShortNameOrName()} was deleted!",
+                OnError = $"Error while deleting The {nameof(Participant)} {this.CurrentThing.Person.GetShortNameOrName()}"
             };
 
             return notificationDescription;
