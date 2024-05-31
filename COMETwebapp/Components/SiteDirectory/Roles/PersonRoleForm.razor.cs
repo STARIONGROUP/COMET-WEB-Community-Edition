@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="PersonRolesTable.razor.cs" company="Starion Group S.A.">
+//  <copyright file="PersonRoleForm.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -24,55 +24,33 @@
 
 namespace COMETwebapp.Components.SiteDirectory.Roles
 {
-    using CDP4Common.SiteDirectoryData;
+    using System.ComponentModel.DataAnnotations;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Roles;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="PersonRolesTable" />
+    /// Support class for the <see cref="PersonRoleForm" />
     /// </summary>
-    public partial class PersonRolesTable : SelectedDeprecatableDataItemBase<PersonRole, PersonRoleRowViewModel>
+    public partial class PersonRoleForm : SelectedDataItemForm
     {
         /// <summary>
         /// The <see cref="IPersonRolesTableViewModel" /> for this component
         /// </summary>
-        [Inject]
+        [Parameter]
+        [Required]
         public IPersonRolesTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
+        /// Method that is executed when there is a valid submit
         /// </summary>
-        protected override void OnInitialized()
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnValidSubmit()
         {
-            base.OnInitialized();
-            this.Initialize(this.ViewModel);
-        }
-
-        /// <summary>
-        /// Method invoked every time a row is selected
-        /// </summary>
-        /// <param name="row">The selected row</param>
-        protected override void OnSelectedDataItemChanged(PersonRoleRowViewModel row)
-        {
-            base.OnSelectedDataItemChanged(row);
-            this.ShouldCreateThing = false;
-            this.ViewModel.CurrentThing = row.Thing.Clone(true);
-        }
-
-        /// <summary>
-        /// Method invoked before creating a new thing
-        /// </summary>
-        private void OnAddThingClick()
-        {
-            this.ShouldCreateThing = true;
-            this.IsOnEditMode = true;
-            this.ViewModel.CurrentThing = new PersonRole();
-            this.InvokeAsync(this.StateHasChanged);
+            await this.ViewModel.CreateOrEditPersonRole(this.ShouldCreate);
+            await base.OnValidSubmit();
         }
     }
 }

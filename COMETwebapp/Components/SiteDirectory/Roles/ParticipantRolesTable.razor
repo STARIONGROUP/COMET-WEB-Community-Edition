@@ -21,39 +21,37 @@ Copyright (c) 2024 Starion Group S.A.
 ------------------------------------------------------------------------------->
 @inherits SelectedDeprecatableDataItemBase<ParticipantRole, ParticipantRoleRowViewModel>
 
-<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <div class="d-flex justify-content-between">
-        <DxGrid @ref="this.Grid"
-                Data="this.ViewModel.Rows.Items"
-                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                ShowSearchBox="true"
-                SearchBoxNullText="Search for a participant role ..."
-                AllowSelectRowByClick="true"
-                SelectionMode="GridSelectionMode.Single"
-                SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((ParticipantRoleRowViewModel)row))"
-                EditFormButtonsVisible="false"
-                CustomizeElement="DisableDeprecatedThing"
-                PageSize="20"
-                PagerNavigationMode="PagerNavigationMode.Auto"
-                PageSizeSelectorVisible="true"
-                PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
-                PageSizeSelectorAllRowsItemVisible="true"
-                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                CssClass="height-fit-content">
-            <Columns>
-                <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.Name)" MinWidth="150"/>
-                <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.ShortName)" MinWidth="80"/>
-                <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.IsDeprecated)" MinWidth="80" Visible="false"/>
-            </Columns>
-        </DxGrid>
+<div class="d-flex justify-content-between">
+    <DxGrid @ref="this.Grid"
+            Data="this.ViewModel.Rows.Items"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            ShowSearchBox="true"
+            SearchBoxNullText="Search for a participant role ..."
+            AllowSelectRowByClick="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((ParticipantRoleRowViewModel)row))"
+            EditFormButtonsVisible="false"
+            CustomizeElement="DisableDeprecatedThing"
+            PageSize="20"
+            PagerNavigationMode="PagerNavigationMode.Auto"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
+            PageSizeSelectorAllRowsItemVisible="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            CssClass="height-fit-content">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.Name)" MinWidth="150"/>
+            <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.ShortName)" MinWidth="80"/>
+            <DxGridDataColumn FieldName="@nameof(ParticipantRoleRowViewModel.IsDeprecated)" MinWidth="80" Visible="false"/>
+        </Columns>
+    </DxGrid>
 
-        <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
-                                  OnButtonClick="@(this.OnAddThingClick)">
+    <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
+                              OnButtonClick="@(this.OnAddThingClick)">
 
-            <ParticipantRoleForm ViewModel="@(this.ViewModel)"
-                                 @bind-IsVisible="@(this.IsOnEditMode)"
-                                 ShouldCreate="@(this.ShouldCreateThing)"
-                                 OnSaved="@(this.OnSaved)"/>
-        </DataItemDetailsComponent>
-    </div>
-</LoadingComponent>
+        <ParticipantRoleForm ViewModel="@(this.ViewModel)"
+                             @bind-IsVisible="@(this.IsOnEditMode)"
+                             ShouldCreate="@(this.ShouldCreateThing)"
+                             OnSaved="@(this.OnSaved)"/>
+    </DataItemDetailsComponent>
+</div>
