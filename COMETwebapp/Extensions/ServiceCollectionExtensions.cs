@@ -107,8 +107,6 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IEngineeringModelsTableViewModel, EngineeringModelsTableViewModel>();
             serviceCollection.AddTransient<IParticipantsTableViewModel, ParticipantsTableViewModel>();
             serviceCollection.AddTransient<IOrganizationalParticipantsTableViewModel, OrganizationalParticipantsTableViewModel>();
-            serviceCollection.AddTransient<IIterationsTableViewModel, IterationsTableViewModel>();
-            serviceCollection.AddTransient<IActiveDomainsTableViewModel, ActiveDomainsTableViewModel>();
             serviceCollection.AddTransient<IParticipantRolesTableViewModel, ParticipantRolesTableViewModel>();
             serviceCollection.AddTransient<IPersonRolesTableViewModel, PersonRolesTableViewModel>();
             serviceCollection.AddTransient<IEngineeringModelBodyViewModel, EngineeringModelBodyViewModel>();

@@ -75,11 +75,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         Organization SelectedModelAdminOrganization { get; set; }
 
         /// <summary>
-        /// Gets or sets the collection of selected active domains
-        /// </summary>
-        IEnumerable<DomainOfExpertise> SelectedActiveDomains { get; set; }
-
-        /// <summary>
         /// Gets or sets the selected site reference data library
         /// </summary>
         SiteReferenceDataLibrary SelectedSiteRdl { get; set; }
@@ -90,6 +85,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         EngineeringModelSetup SelectedSourceModel { get; set; }
 
         /// <summary>
+        /// Gets a collection of the available <see cref="IterationRowViewModel"/>s
+        /// </summary>
+        IEnumerable<IterationRowViewModel> IterationRows { get; }
+
+        /// <summary>
         /// Updates the current thing with the selected properties
         /// </summary>
         void SetupEngineeringModelWithSelectedValues();
@@ -97,8 +97,9 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <summary>
         /// Creates a new <see cref="EngineeringModelSetup"/>
         /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="EngineeringModelSetup"/> should be created</param>
         /// <returns>A <see cref="Task"/></returns>
-        Task CreateEngineeringModel();
+        Task CreateOrEditEngineeringModel(bool shouldCreate);
 
         /// <summary>
         /// Resets the current <see cref="EngineeringModelSetup"/> values

@@ -25,22 +25,36 @@
 namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 {
     using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
+    using ReactiveUI;
+
     /// <summary>
     /// View model used to manage <see cref="DomainOfExpertise" />
     /// </summary>
     public class EngineeringModelsTableViewModel : DeletableDataItemTableViewModel<EngineeringModelSetup, EngineeringModelRowViewModel>, IEngineeringModelsTableViewModel
     {
+        /// <summary>
+        /// Backing field for the property <see cref="SelectedSiteRdl"/>
+        /// </summary>
+        private SiteReferenceDataLibrary selectedSiteRdl;
+
+        /// <summary>
+        /// Backing field for the property <see cref="SelectedSourceModel"/>
+        /// </summary>
+        private EngineeringModelSetup selectedSourceModel;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ParameterTypeTableViewModel" /> class.
         /// </summary>
@@ -51,12 +65,20 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
             : base(sessionService, messageBus, logger)
         {
             this.CurrentThing = new EngineeringModelSetup();
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedSiteRdl).Subscribe(this.OnSelectedSiteRdlChanged));
+            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedSourceModel).Subscribe(this.OnSelectedSourceModelChanged));
         }
 
         /// <summary>
         /// Gets a collection of the available engineering models
         /// </summary>
         public IEnumerable<EngineeringModelSetup> EngineeringModels { get; private set; }
+
+        /// <summary>
+        /// Gets a collection of the available <see cref="IterationRowViewModel"/>s
+        /// </summary>
+        public IEnumerable<IterationRowViewModel> IterationRows { get; private set; }
 
         /// <summary>
         /// Gets a collection of all the possible model kinds
@@ -86,12 +108,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <summary>
         /// Gets or sets the selected site reference data library
         /// </summary>
-        public SiteReferenceDataLibrary SelectedSiteRdl { get; set; }
-
-        /// <summary>
-        /// Gets or sets the collection of selected active domains
-        /// </summary>
-        public IEnumerable<DomainOfExpertise> SelectedActiveDomains { get; set; } = Enumerable.Empty<DomainOfExpertise>();
+        public SiteReferenceDataLibrary SelectedSiteRdl
+        {
+            get => this.selectedSiteRdl;
+            set => this.RaiseAndSetIfChanged(ref this.selectedSiteRdl, value);
+        }
 
         /// <summary>
         /// Gets or sets the collection of selected organizations
@@ -106,7 +127,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <summary>
         /// Gets or sets the selected source <see cref="EngineeringModelSetup"/>
         /// </summary>
-        public EngineeringModelSetup SelectedSourceModel { get; set; }
+        public EngineeringModelSetup SelectedSourceModel
+        {
+            get => this.selectedSourceModel;
+            set => this.RaiseAndSetIfChanged(ref this.selectedSourceModel, value);
+        }
 
         /// <summary>
         /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
@@ -116,10 +141,14 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
             base.InitializeViewModel();
 
             var siteDirectory = this.SessionService.GetSiteDirectory();
-            this.EngineeringModels = siteDirectory.Model.OrderBy(x => x.Name);
-            this.SiteRdls = siteDirectory.SiteReferenceDataLibrary.OrderBy(x => x.Name);
-            this.DomainsOfExpertise = siteDirectory.Domain.OrderBy(x => x.Name);
-            this.Organizations = siteDirectory.Organization.OrderBy(x => x.Name);
+            this.EngineeringModels = siteDirectory.Model.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+            this.SiteRdls = siteDirectory.SiteReferenceDataLibrary.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+            this.DomainsOfExpertise = siteDirectory.Domain.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+            this.Organizations = siteDirectory.Organization.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+
+            this.IterationRows = this.SessionService.OpenIterations.Items
+                .Where(x => ((EngineeringModel)x.Container).EngineeringModelSetup.Iid == this.CurrentThing?.Iid)
+                .Select(x => new IterationRowViewModel(x));
         }
 
         /// <summary>
@@ -136,7 +165,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// </summary>
         public void ResetSelectedValues()
         {
-            this.SelectedActiveDomains = Enumerable.Empty<DomainOfExpertise>();
             this.SelectedOrganizations = Enumerable.Empty<Organization>();
             this.SelectedModelAdminOrganization = null;
             this.SelectedSiteRdl = null;
@@ -148,10 +176,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// </summary>
         public void SetupEngineeringModelWithSelectedValues()
         {
-            this.CurrentThing.ActiveDomain = this.SelectedActiveDomains?.ToList();
-            this.CurrentThing.SourceEngineeringModelSetupIid = this.SelectedSourceModel?.Iid;
             this.CurrentThing.OrganizationalParticipant.Clear();
-            this.CurrentThing.RequiredRdl.Clear();
 
             if (this.SelectedOrganizations != null)
             {
@@ -162,29 +187,31 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 
                 this.CurrentThing.DefaultOrganizationalParticipant = this.CurrentThing.OrganizationalParticipant.FirstOrDefault(x => x.Organization == this.SelectedModelAdminOrganization);
             }
-
-            if (this.SelectedSiteRdl != null)
-            {
-                this.CurrentThing.RequiredRdl.Add(new ModelReferenceDataLibrary()
-                {
-                    RequiredRdl = this.SelectedSiteRdl,
-                    Name = $"{this.CurrentThing.Name} Model RDL",
-                    ShortName = $"{this.CurrentThing.ShortName}MRDL"
-                });
-            }
         }
 
         /// <summary>
         /// Creates a new <see cref="EngineeringModelSetup"/>
         /// </summary>
+        /// <param name="shouldCreate">The value to check if a new <see cref="EngineeringModelSetup"/> should be created</param>
         /// <returns>A <see cref="Task"/></returns>
-        public async Task CreateEngineeringModel()
+        public async Task CreateOrEditEngineeringModel(bool shouldCreate)
         {
             this.IsLoading = true;
 
             var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
             var thingsToCreate = new List<Thing>();
             this.CurrentThing.EngineeringModelIid = Guid.NewGuid();
+
+            if (shouldCreate)
+            {
+                siteDirectoryClone.Model.Add(this.CurrentThing);
+                thingsToCreate.Add(siteDirectoryClone);
+
+                if (this.CurrentThing.SourceEngineeringModelSetupIid != null)
+                {
+                    this.CurrentThing.RequiredRdl.Clear();
+                }
+            }
 
             if (this.CurrentThing.OrganizationalParticipant.Count > 0)
             {
@@ -196,13 +223,55 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
                 thingsToCreate.AddRange(this.CurrentThing.RequiredRdl);
             }
             
-            siteDirectoryClone.Model.Add(this.CurrentThing);
-            thingsToCreate.Add(siteDirectoryClone);
             thingsToCreate.Add(this.CurrentThing);
+            await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
 
-            await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(true));
+            if (this.CurrentThing.Original is EngineeringModelSetup originalModel)
+            { 
+                this.CurrentThing = originalModel.Clone(true);
+            }
 
             this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has
+        /// changed
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override Task OnThingChanged()
+        {
+            this.SelectedSiteRdl = this.CurrentThing.RequiredRdl.FirstOrDefault()?.RequiredRdl;
+            this.SelectedSourceModel = this.Rows.Items.FirstOrDefault(x => x.Thing.Iid == this.CurrentThing.SourceEngineeringModelSetupIid)?.Thing;
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Method invoked every time the <see cref="SelectedSiteRdl"/> property has changed, synchronizing with the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing"/>
+        /// </summary>
+        /// <param name="siteRdl">The updated <see cref="SiteReferenceDataLibrary"/></param>
+        private void OnSelectedSiteRdlChanged(SiteReferenceDataLibrary siteRdl)
+        {
+            this.CurrentThing.RequiredRdl.Clear();
+
+            if (siteRdl != null)
+            {
+                this.CurrentThing.RequiredRdl.Add(new ModelReferenceDataLibrary()
+                {
+                    RequiredRdl = siteRdl,
+                    Name = $"{this.CurrentThing.Name} Model RDL",
+                    ShortName = $"{this.CurrentThing.ShortName}MRDL"
+                });
+            }
+        }
+
+        /// <summary>
+        /// Method invoked every time the <see cref="SelectedSourceModel"/> property has changed, synchronizing with the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing"/>
+        /// </summary>
+        /// <param name="sourceModel">The updated <see cref="EngineeringModelSetup"/></param>
+        private void OnSelectedSourceModelChanged(EngineeringModelSetup sourceModel)
+        {
+            this.CurrentThing.SourceEngineeringModelSetupIid = sourceModel?.Iid;
         }
     }
 }

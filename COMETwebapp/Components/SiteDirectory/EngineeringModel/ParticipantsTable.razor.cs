@@ -98,7 +98,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
                 return;
             }
 
-            this.ViewModel.CurrentThing = dataItem.Thing;
+            this.ViewModel.CurrentThing = dataItem.Thing.Clone(true);
             e.EditModel = this.ViewModel.CurrentThing;
         }
 

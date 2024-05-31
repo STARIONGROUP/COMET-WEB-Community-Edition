@@ -127,7 +127,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             await this.viewModel.EditActiveDomains();
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Never);
 
-            this.viewModel.SelectedDomainsOfExpertise = [this.domain, this.domain.Clone(true)];
             await this.viewModel.EditActiveDomains();
 
             Assert.Multiple(() => { this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once); });

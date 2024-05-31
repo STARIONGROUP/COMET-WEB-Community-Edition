@@ -213,12 +213,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             this.viewModel.SelectedOrganizations = [testOrganization];
             this.viewModel.SelectedModelAdminOrganization = testOrganization;
 
-            this.viewModel.SelectedActiveDomains = [this.siteDirectory.Domain.First()];
             this.viewModel.SelectedSiteRdl = this.siteDirectory.SiteReferenceDataLibrary.First();
             this.viewModel.SelectedSourceModel = this.siteDirectory.Model.First();
 
             this.viewModel.SetupEngineeringModelWithSelectedValues();
-            await this.viewModel.CreateEngineeringModel();
+            await this.viewModel.CreateOrEditEngineeringModel();
 
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 4), It.IsAny<NotificationDescription>()), Times.Once);
 

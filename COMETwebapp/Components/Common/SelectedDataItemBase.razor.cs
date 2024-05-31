@@ -105,5 +105,26 @@ namespace COMETwebapp.Components.Common
         {
             this.IsOnEditMode = true;
         }
+
+        /// <summary>
+        /// Method invoked whenever a form is saved
+        /// </summary>
+        protected void OnSaved()
+        {
+            if (!this.ShouldCreateThing)
+            {
+                return;
+            }
+
+            this.ShouldCreateThing = false;
+            var createdRow = this.ViewModel.Rows.Items.FirstOrDefault(x => x.Thing.Iid == this.ViewModel.CurrentThing.Iid);
+
+            if (createdRow is null)
+            {
+                return;
+            }
+
+            this.OnSelectedDataItemChanged(createdRow);
+        }
     }
 }

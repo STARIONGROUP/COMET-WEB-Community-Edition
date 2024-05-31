@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IterationsTable.razor.cs" company="Starion Group S.A.">
+//  <copyright file="EngineeringModelsForm.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -24,29 +24,38 @@
 
 namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
 {
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
+    using System.ComponentModel.DataAnnotations;
 
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="IterationsTable" />
+    /// Support class for the <see cref="EngineeringModelsForm" />
     /// </summary>
-    public partial class IterationsTable : SelectedDataItemBase<Iteration, IterationRowViewModel>
+    public partial class EngineeringModelsForm : SelectedDataItemForm
     {
         /// <summary>
-        /// The collection of <see cref="IterationRowViewModel" />s
+        /// The <see cref="IEngineeringModelsTableViewModel" /> for this component
         /// </summary>
         [Parameter]
-        public IEnumerable<IterationRowViewModel> IterationRows { get; set; }
+        [Required]
+        public IEngineeringModelsTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="EngineeringModelSetup" />
+        /// Gets the condition to check if the source model was selected in creation form
         /// </summary>
-        [Parameter]
-        public EngineeringModelSetup EngineeringModelSetup { get; set; }
+        private bool IsSourceModelSelected => this.ViewModel.CurrentThing.SourceEngineeringModelSetupIid != null && this.ViewModel.CurrentThing.SourceEngineeringModelSetupIid != Guid.Empty;
+
+        /// <summary>
+        /// Method that is executed when there is a valid submit
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnValidSubmit()
+        {
+            await this.ViewModel.CreateOrEditEngineeringModel(this.ShouldCreate);
+            await base.OnValidSubmit();
+        }
     }
 }

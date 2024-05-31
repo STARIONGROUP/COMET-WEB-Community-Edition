@@ -135,7 +135,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             await this.renderer.InvokeAsync(addEngineeringModelButton.Instance.Click.InvokeAsync);
             var saveEngineeringModelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "saveEngineeringModelButton");
             await this.renderer.InvokeAsync(saveEngineeringModelButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.CreateEngineeringModel(), Times.Once);
+            this.viewModel.Verify(x => x.CreateOrEditEngineeringModel(), Times.Once);
         }
 
         [Test]

@@ -14,62 +14,52 @@ Copyright (c) 2023-2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using CDP4Common.SiteDirectoryData
-@using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
-@inherits COMETwebapp.Components.Common.SelectedDataItemBase<DomainOfExpertise, DomainOfExpertiseRowViewModel>
+@inherits SelectedDataItemBase<DomainOfExpertise, DomainOfExpertiseRowViewModel>
 
-<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <DxGrid @ref="this.Grid"
-            Data="this.ViewModel.Rows.Items"
-            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-            ShowSearchBox="true"
-            ShowAllRows="true"
-            SearchBoxNullText="Search for an active domain...">
-        
-        <ToolbarTemplate>
-            <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
-                <DxToolbarItem Text="Edit Active Domains" 
-                               Click="(() => this.SetEditPopupVisibility(true))" 
-                               RenderStyle="ButtonRenderStyle.Info"
-                               Enabled="true" />
-            </DxToolbar>
-        </ToolbarTemplate>
+<DxGrid @ref="this.Grid"
+        Data="this.EngineeringModelSetup.ActiveDomain.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)"
+        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+        ShowSearchBox="true"
+        ShowAllRows="true"
+        SearchBoxNullText="Search for an active domain...">
+    <ToolbarTemplate>
+        <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
+            <DxToolbarItem Text="Edit Active Domains"
+                           Click="() => this.SetEditPopupVisibility(true)"
+                           RenderStyle="ButtonRenderStyle.Info"
+                           Enabled="true"/>
+        </DxToolbar>
+    </ToolbarTemplate>
+    <Columns>
+        <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.Name)" MinWidth="150"/>
+        <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.ShortName)" MinWidth="80"/>
+    </Columns>
+</DxGrid>
 
-        <Columns>
-            <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.Name)" MinWidth="150"/>
-            <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.ShortName)" MinWidth="80"/>
-        </Columns>
+<DxPopup @bind-Visible="@(this.IsOnEditMode)"
+         HeaderText="Active Domains">
 
-        <CustomValidators>
-            <FluentValidationValidator/>
-        </CustomValidators>
+    <DxListBox TValue="DomainOfExpertise"
+               TData="DomainOfExpertise"
+               Data="@(this.DomainsOfExpertise)"
+               TextFieldName="@nameof(DomainOfExpertise.Name)"
+               SelectionMode="ListBoxSelectionMode.Multiple"
+               ShowCheckboxes="true"
+               Values="@(this.EngineeringModelSetup.ActiveDomain)"
+               ValuesChanged="@(activeDomains => this.EngineeringModelSetup.ActiveDomain = activeDomains.ToList())"
+               ValuesExpression="@(() => this.EngineeringModelSetup.ActiveDomain)"
+               CssClass="cw-480"
+               style="height: 40vh;"/>
 
-    </DxGrid>
-    
-    <DxPopup @bind-Visible="@this.IsOnEditMode"
-             HeaderText="Active Domains">
-
-        <DxListBox TValue="DomainOfExpertise"
-                   TData="DomainOfExpertise"
-                   Data="@this.ViewModel.DomainsOfExpertise"
-                   TextFieldName="@nameof(DomainOfExpertise.Name)"
-                   SelectionMode="ListBoxSelectionMode.Multiple"
-                   ShowCheckboxes="true"
-                   @bind-Values="@this.ViewModel.SelectedDomainsOfExpertise"
-                   CssClass="cw-480"
-                   style="height: 40vh;"/>
-
-        <div class="dxbl-grid-edit-form-buttons">
-            <DxButton Id="saveActiveDomainsButton"
-                      Click="@(this.SaveChanges)">
-                Save
-            </DxButton>
-            <DxButton Id="cancelActiveDomainsButton" 
-                      Click="@(this.CancelChanges)"
-                      RenderStyle="ButtonRenderStyle.Secondary">
-                Cancel
-            </DxButton>
-        </div>
-    </DxPopup>
-
-</LoadingComponent>
+    <div class="dxbl-grid-edit-form-buttons">
+        <DxButton Id="saveActiveDomainsButton"
+                  Click="@(() => this.SetEditPopupVisibility(false))">
+            Save
+        </DxButton>
+        <DxButton Id="cancelActiveDomainsButton"
+                  Click="@(() => this.SetEditPopupVisibility(false))"
+                  RenderStyle="ButtonRenderStyle.Secondary">
+            Cancel
+        </DxButton>
+    </div>
+</DxPopup>
