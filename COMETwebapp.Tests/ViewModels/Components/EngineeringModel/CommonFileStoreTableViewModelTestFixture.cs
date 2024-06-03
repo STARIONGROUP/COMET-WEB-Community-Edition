@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="CommonFileStoreTableViewModelTestFixture.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -27,7 +27,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Permission;
@@ -52,7 +51,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
         private Mock<ISessionService> sessionService;
         private Mock<IFolderFileStructureViewModel> folderFileStructureViewModel;
         private Mock<IPermissionService> permissionService;
-        private Assembler assembler;
         private Mock<ILogger<CommonFileStoreTableViewModel>> loggerMock;
         private CDPMessageBus messageBus;
         private Iteration iteration;
@@ -67,11 +65,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.messageBus = new CDPMessageBus();
             this.loggerMock = new Mock<ILogger<CommonFileStoreTableViewModel>>();
 
-            var siteDirectory = new SiteDirectory()
+            var siteDirectory = new SiteDirectory
             {
                 Domain =
                 {
-                    new DomainOfExpertise()
+                    new DomainOfExpertise
                     {
                         ShortName = "doe",
                         Name = "Domain Of Expertise"
@@ -79,7 +77,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
                 }
             };
 
-            this.commonFileStore = new CommonFileStore()
+            this.commonFileStore = new CommonFileStore
             {
                 Name = "CFS",
                 Owner = siteDirectory.Domain.First()
@@ -90,14 +88,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             engineeringModel.CommonFileStore.Add(this.commonFileStore);
             engineeringModel.Iteration.Add(this.iteration);
 
-            this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
-            var lazyCommonFileStore = new Lazy<Thing>(this.commonFileStore);
-            this.assembler.Cache.TryAdd(new CacheKey(), lazyCommonFileStore);
-
             this.permissionService.Setup(x => x.CanWrite(this.commonFileStore.ClassKind, this.commonFileStore.Container)).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
-            session.Setup(x => x.Assembler).Returns(this.assembler);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
 
@@ -113,22 +106,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
         }
 
         [Test]
-        public void VerifyInitializeViewModel()
-        {
-            this.viewModel.InitializeViewModel();
-            var firstRow = this.viewModel.Rows.Items.First();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise.Count(), Is.EqualTo(1));
-                Assert.That(this.viewModel.IsPrivate, Is.EqualTo(false));
-                Assert.That(firstRow.Thing, Is.EqualTo(this.commonFileStore));
-                Assert.That(firstRow.CreatedOn, Is.EqualTo(this.commonFileStore.CreatedOn.ToString("dd/MM/yyyy HH:mm:ss")));
-            });
-        }
-
-        [Test]
         public async Task VerifyCommonFileStoreCreateOrEdit()
         {
             this.viewModel.InitializeViewModel();
@@ -141,6 +118,22 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.viewModel.CurrentThing = new CommonFileStore();
             await this.viewModel.CreateOrEditCommonFileStore(false);
             this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
+        }
+
+        [Test]
+        public void VerifyInitializeViewModel()
+        {
+            this.viewModel.InitializeViewModel();
+            var firstRow = this.viewModel.Rows.Items.First();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
+                Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise.Count(), Is.EqualTo(1));
+                Assert.That(this.viewModel.IsPrivate, Is.EqualTo(false));
+                Assert.That(firstRow.Thing, Is.EqualTo(this.commonFileStore));
+                Assert.That(firstRow.CreatedOn, Is.EqualTo(this.commonFileStore.CreatedOn));
+            });
         }
     }
 }

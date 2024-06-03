@@ -35,7 +35,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
             CssClass="height-fit-content">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(CommonFileStoreRowViewModel.Name)" MinWidth="150"/>
-            <DxGridDataColumn FieldName="@nameof(CommonFileStoreRowViewModel.CreatedOn)" MinWidth="80" SearchEnabled="false"/>
+            <DxGridDataColumn FieldName="@nameof(CommonFileStoreRowViewModel.CreatedOn)" MinWidth="80" DisplayFormat="{0:dd/MM/yyyy HH:mm:ss}" SearchEnabled="false"/>
         </Columns>
     </DxGrid>
 

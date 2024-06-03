@@ -33,6 +33,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Components.EngineeringModel;
     using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
@@ -75,6 +76,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             rows.Add(new CommonFileStoreRowViewModel(this.commonFileStore));
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.CurrentThing).Returns(new CommonFileStore());
+            this.viewModel.Setup(x => x.DomainOfExpertiseSelectorViewModel).Returns(new Mock<IDomainOfExpertiseSelectorViewModel>().Object);
             
             this.context.ConfigureDevExpressBlazor();
 
@@ -105,14 +107,17 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         [Test]
         public async Task VerifyDeleteCommonFileStore()
         {
-            var deleteButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deleteButton");
+            var grid = this.renderer.FindComponent<DxGrid>();
+            await this.renderer.InvokeAsync(() => grid.Instance.SelectedDataItemChanged.InvokeAsync(this.viewModel.Object.Rows.Items.First()));
+
+            var deleteButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deleteItemButton");
             await this.renderer.InvokeAsync(deleteButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeleteButtonClick(It.IsAny<CommonFileStoreRowViewModel>()), Times.Once);
+            this.viewModel.VerifySet(x => x.IsOnDeletionMode = true, Times.Once);
             this.viewModel.Setup(x => x.IsOnDeletionMode).Returns(true);
 
             this.renderer.Render();
 
-            var deletionPopup = this.renderer.FindComponent<DxPopup>();
+            var deletionPopup = this.renderer.FindComponents<DxPopup>().First(x => x.Instance.Visible);
             var confirmDeletionButton = deletionPopup.FindComponents<DxButton>().ElementAt(1);
             await deletionPopup.InvokeAsync(confirmDeletionButton.Instance.Click.InvokeAsync);
             this.viewModel.Verify(x => x.OnConfirmPopupButtonClick(), Times.Once);
@@ -121,7 +126,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         [Test]
         public async Task VerifyCreateCommonFileStore()
         {
-            var addOptionButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addCommonFileStoreButton");
+            var addOptionButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "dataItemDetailsButton");
             await this.renderer.InvokeAsync(addOptionButton.Instance.Click.InvokeAsync);
             var form = this.renderer.FindComponent<CommonFileStoresForm>();
 
