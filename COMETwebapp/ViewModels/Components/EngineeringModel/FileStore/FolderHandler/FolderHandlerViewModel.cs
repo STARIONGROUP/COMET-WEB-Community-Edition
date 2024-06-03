@@ -29,6 +29,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
@@ -52,11 +53,10 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
 
             this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
             {
-                OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner =>
-                {
-                    this.CurrentThing.Owner = selectedOwner;
-                })
+                OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner => { this.CurrentThing.Owner = selectedOwner; })
             };
+
+            this.InitializeSubscriptions([typeof(FileStore)]);
         }
 
         /// <summary>
@@ -83,10 +83,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         {
             this.CurrentFileStore = fileStore;
             this.DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
-
-            var folders = this.CurrentFileStore.Folder.ToList();
-            folders.Add(null);
-            this.Folders = folders;
+            this.SetFolders(this.CurrentFileStore.Folder);
         }
 
         /// <summary>
@@ -121,6 +118,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
             if (shouldCreate)
             {
                 var engineeringModel = this.CurrentFileStore.GetContainerOfType<EngineeringModel>();
+                this.CurrentThing.CreatedOn = DateTime.UtcNow;
                 this.CurrentThing.Creator = engineeringModel.GetActiveParticipant(this.SessionService.Session.ActivePerson);
 
                 fileStoreClone.Folder.Add(this.CurrentThing);
@@ -147,10 +145,36 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override Task OnSessionRefreshed() => Task.CompletedTask;
+        protected override Task OnSessionRefreshed()
+        {
+            if (this.UpdatedThings.Count == 0)
+            {
+                return Task.CompletedTask;
+            }
+
+            var updatedFileStore = this.UpdatedThings.OfType<FileStore>().FirstOrDefault(x => x.Iid == this.CurrentFileStore?.Iid);
+
+            if (updatedFileStore != null)
+            {
+                this.SetFolders(updatedFileStore.Folder);
+            }
+
+            this.ClearRecordedChanges();
+            return Task.CompletedTask;
+        }
 
         /// <summary>
-        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
+        /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnEndUpdate()
+        {
+            await this.OnSessionRefreshed();
+        }
+
+        /// <summary>
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has
+        /// changed
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnThingChanged()
@@ -159,6 +183,17 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
             {
                 await this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(this.CurrentThing.Iid == Guid.Empty, this.CurrentThing.Owner);
             }
+        }
+
+        /// <summary>
+        /// Sets the current <see cref="Folders"/> property
+        /// </summary>
+        /// <param name="folders">The collection of folders to set</param>
+        private void SetFolders(IEnumerable<Folder> folders)
+        {
+            var resultingFolders = folders.ToList();
+            resultingFolders.Add(null);
+            this.Folders = resultingFolders;
         }
     }
 }

@@ -27,37 +27,36 @@ Copyright (c) 2023-2024 Starion Group S.A.
     Create File
 </DxButton>
 
-<DxTreeView @ref="@this.TreeView"
-            Data="@this.ViewModel.Structure"
+<DxTreeView @ref="@(this.TreeView)"
+            Data="@(this.ViewModel.Structure)"
             AnimationType="LayoutAnimationType.Slide"
-            style="height: 40vh;"
-            NodeClick="(e) => this.OnNodeClick(e.NodeInfo)">
+            style="height: 40vh; width: 100%; padding-top: 5px;"
+            NodeClick="e => this.OnNodeClick(e.NodeInfo)">
     <DataMappings>
         <DxTreeViewDataMapping Children="Content"
                                Text="@nameof(FileFolderNodeViewModel.Name)"
-                               IconCssClass="@nameof(FileFolderNodeViewModel.IconCssClass)" />
+                               IconCssClass="@nameof(FileFolderNodeViewModel.IconCssClass)"/>
     </DataMappings>
     <NodeTextTemplate Context="nodeContext">
         @{
             var row = (FileFolderNodeViewModel)nodeContext.DataItem;
-            <div draggable="true"
-                 dropzone="move"
-                 ondragover="event.preventDefault();"
-                 @ondragstart="@(() => this.OnDragNode(row))"
-                 @ondrop="@(() => this.OnDropNode(row))">
+        <div draggable="true"
+             dropzone="move"
+             ondragover="event.preventDefault();"
+             @ondragstart="@(() => this.OnDragNode(row))"
+             @ondrop="@(() => this.OnDropNode(row))">
 
-                @nodeContext.Text
+            @nodeContext.Text
 
-                @if (row.Thing is Folder)
-                {
-                    <DxButton Id="editFolderButton"
-                              IconCssClass="oi oi-pencil"
-                              Click="@(() => this.OnEditFolderClick(row))"
-                              SizeMode="SizeMode.Small"
-                              CssClass="float-end"/>
-                }
-            </div>
-        }
+            @if (row.Thing is Folder)
+            {
+                <DxButton Id="editFolderButton"
+                          IconCssClass="oi oi-pencil"
+                          Click="@(() => this.OnEditFolderClick(row))"
+                          SizeMode="SizeMode.Small"
+                          CssClass="float-end"/>
+            }
+        </div>}
     </NodeTextTemplate>
 </DxTreeView>
 
@@ -66,10 +65,10 @@ Copyright (c) 2023-2024 Starion Group S.A.
          CloseOnOutsideClick="false"
          Closed="@(this.OnClosedFormPopup)"
          Width="40%">
-    <FileForm ViewModel="@(this.ViewModel.FileHandlerViewModel)" 
+    <FileForm ViewModel="@(this.ViewModel.FileHandlerViewModel)"
               OnCanceled="@(this.OnClosedFormPopup)"
               OnSaved="@(this.OnClosedFormPopup)"
-              ShouldCreate="@(this.ShouldCreateFile)" />
+              ShouldCreate="@(this.ShouldCreateFile)"/>
 </DxPopup>
 
 <DxPopup @bind-Visible="@(this.IsFolderFormVisibile)"

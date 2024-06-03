@@ -14,78 +14,45 @@ Copyright (c) 2023-2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.Components.EngineeringModel.FileStore
 @inherits SelectedDataItemBase<CommonFileStore, CommonFileStoreRowViewModel>
 
-<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <div class="d-flex justify-content-between">
-        <DxGrid @ref="this.Grid"
-                Data="this.ViewModel.Rows.Items"
-                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                ShowSearchBox="true"
-                SearchBoxNullText="Search for a common file store..."
-                AllowSelectRowByClick="true"
-                SelectionMode="GridSelectionMode.Single"
-                SelectedDataItemChanged="@((row) => this.OnSelectedDataItemChanged((CommonFileStoreRowViewModel)row))"
-                PopupEditFormCssClass="pw-800"
-                PopupEditFormHeaderText="Common File Store"
-                CustomizeEditModel="this.CustomizeEditThing"
-                EditMode="GridEditMode.PopupEditForm"
-                EditFormButtonsVisible="false"
-                PageSize="20"
-                PagerNavigationMode="PagerNavigationMode.Auto"
-                PageSizeSelectorVisible="true"
-                PageSizeSelectorItems="@(new int[] { 20, 35, 50 })"
-                PageSizeSelectorAllRowsItemVisible="true"
-                CssClass="height-fit-content">
-            <Columns>
-                <DxGridDataColumn FieldName="@nameof(CommonFileStoreRowViewModel.Name)" MinWidth="150" />
-                <DxGridDataColumn FieldName="@nameof(CommonFileStoreRowViewModel.CreatedOn)" MinWidth="80" SearchEnabled="false" />
-                <DxGridCommandColumn Width="200px" EditButtonVisible="false">
-                    <HeaderTemplate>
-                        <DxButton Id="addCommonFileStoreButton" Text="Add Common File Store" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
-                    </HeaderTemplate>
-                    <CellDisplayTemplate>
-                        @{
-                            var row = (CommonFileStoreRowViewModel)context.DataItem;
+<div class="d-flex justify-content-between">
+    <DxGrid @ref="this.Grid"
+            Data="this.ViewModel.Rows.Items"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            ShowSearchBox="true"
+            SearchBoxNullText="Search for a common file store ..."
+            AllowSelectRowByClick="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((CommonFileStoreRowViewModel)row))"
+            EditFormButtonsVisible="false"
+            PageSize="20"
+            PagerNavigationMode="PagerNavigationMode.Auto"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
+            PageSizeSelectorAllRowsItemVisible="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            CssClass="height-fit-content">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(CommonFileStoreRowViewModel.Name)" MinWidth="150"/>
+            <DxGridDataColumn FieldName="@nameof(CommonFileStoreRowViewModel.CreatedOn)" MinWidth="80" SearchEnabled="false"/>
+        </Columns>
+    </DxGrid>
 
-                            <DxButton Id="deleteButton"
-                                      Text="Delete"
-                                      Click="@(() => this.ViewModel.OnDeleteButtonClick(row))"
-                                      Enabled="@(row.IsAllowedToWrite)"/>
-                        }
-                    </CellDisplayTemplate>
-                </DxGridCommandColumn>
-            </Columns>
+    <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
+                              OnButtonClick="@(this.OnAddThingClick)">
 
-            <EditFormTemplate Context="editFormTemplateContext">
-                <CommonFileStoresForm ViewModel="@this.ViewModel"
-                                      IsVisible="true"
-                                      ShouldCreate="true"
-                                      OnSaved="@(() => this.Grid.CancelEditAsync())"
-                                      OnCanceled="@(() => this.Grid.CancelEditAsync())"/>
-            </EditFormTemplate>
-        </DxGrid>
-        
-        <DataItemDetailsComponent IsSelected="@this.IsOnEditMode">
-            <CommonFileStoresForm ViewModel="@this.ViewModel"
-                                  @bind-IsVisible="@this.IsOnEditMode"
-                                  ShouldCreate="false"/>
-            <DxButton Click="this.OnSeeFolderFileStructureClick">
-                See Folder-File Structure
-            </DxButton>
-        </DataItemDetailsComponent>
-    </div>
-</LoadingComponent>
+        <CommonFileStoresForm ViewModel="@(this.ViewModel)"
+                              @bind-IsVisible="@(this.IsOnEditMode)"
+                              ShouldCreate="@(this.ShouldCreateThing)"
+                              OnSaved="@(this.OnSaved)"/>
+    </DataItemDetailsComponent>
+</div>
 
-<DxPopup @bind-Visible="@this.ViewModel.IsOnDeletionMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-    @this.ViewModel.PopupDialog
+<DxPopup @bind-Visible="@(this.ViewModel.IsOnDeletionMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @(this.ViewModel.PopupDialog)
     <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
-        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.OnConfirmDelete" />
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.OnDeletionConfirmed)"/>
     </div>
-</DxPopup>
-
-<DxPopup @bind-Visible="@this.IsFolderFileStructureVisible" HeaderText="Folder-File Structure" Width="50%" CloseOnOutsideClick="false">
-    <FolderFileStructure ViewModel="@this.ViewModel.FolderFileStructureViewModel"/>
 </DxPopup>

@@ -95,43 +95,37 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
         }
 
         /// <summary>
-        /// Loads the file structure handled by the <see cref="FolderFileStructureViewModel" />
-        /// </summary>
-        public void LoadFileStructure()
-        {
-            this.FolderFileStructureViewModel.InitializeViewModel(this.CurrentThing, this.CurrentIteration);
-        }
-
-        /// <summary>
         /// Creates or edits a <see cref="CommonFileStore" />
         /// </summary>
         /// <param name="shouldCreate">The value to check if a new <see cref="CommonFileStore" /> should be created</param>
         /// <returns>A <see cref="Task" /></returns>
         public async Task CreateOrEditCommonFileStore(bool shouldCreate)
         {
-            this.IsLoading = true;
-
-            var engineeringModelClone = ((EngineeringModel)this.CurrentIteration.Container).Clone(true);
-            var thingsToCreate = new List<Thing>();
-
-            if (shouldCreate)
-            {
-                engineeringModelClone.CommonFileStore.Add(this.CurrentThing);
-                thingsToCreate.Add(engineeringModelClone);
-            }
-
-            thingsToCreate.Add(this.CurrentThing);
-
             try
             {
+                this.IsLoading = true;
+
+                var engineeringModelClone = ((EngineeringModel)this.CurrentIteration.Container).Clone(true);
+                var thingsToCreate = new List<Thing>();
+
+                if (shouldCreate)
+                {
+                    this.CurrentThing.CreatedOn = DateTime.UtcNow;
+                    engineeringModelClone.CommonFileStore.Add(this.CurrentThing);
+                    thingsToCreate.Add(engineeringModelClone);
+                }
+
+                thingsToCreate.Add(this.CurrentThing);
                 await this.SessionService.CreateOrUpdateThingsWithNotification(engineeringModelClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
             }
             catch (Exception ex)
             {
                 this.Logger.LogError(ex, "An error has occurred while creating or editing a Common File Store");
             }
-
-            this.IsLoading = false;
+            finally
+            {
+                this.IsLoading = false;
+            }
         }
 
         /// <summary>
@@ -146,6 +140,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
             if (this.DomainOfExpertiseSelectorViewModel is not null)
             {
                 await this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(this.CurrentThing.Iid == Guid.Empty, this.CurrentThing.Owner);
+                this.FolderFileStructureViewModel.InitializeViewModel(this.CurrentThing, this.CurrentIteration);
             }
         }
 

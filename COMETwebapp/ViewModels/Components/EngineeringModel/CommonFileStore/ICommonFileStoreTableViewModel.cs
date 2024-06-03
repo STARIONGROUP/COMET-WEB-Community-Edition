@@ -64,10 +64,5 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
         /// </summary>
         /// <param name="iteration">The iteration to be set</param>
         void SetCurrentIteration(Iteration iteration);
-
-        /// <summary>
-        /// Loads the file structure handled by the <see cref="CommonFileStoreTableViewModel.FolderFileStructureViewModel" />
-        /// </summary>
-        void LoadFileStructure();
     }
 }

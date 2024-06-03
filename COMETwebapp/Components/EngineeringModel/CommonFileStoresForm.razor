@@ -14,24 +14,50 @@ Copyright (c) 2023-2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.Components.EngineeringModel.FileStore
 @inherits SelectedDataItemForm
 
 <EditForm Context="editFormContext" Model="@(this.ViewModel.CurrentThing)" OnValidSubmit="@(this.OnValidSubmit)">
-    <FluentValidationValidator />
+    <FluentValidationValidator/>
     <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-            <DxTextBox @bind-Text="@this.ViewModel.CurrentThing.Name"/>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
-            <DomainOfExpertiseSelector ViewModel="@(this.ViewModel.DomainOfExpertiseSelectorViewModel)"
-                                       DisplayText="@(string.Empty)"
-                                       CssClass="cw-480" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Is Default:" ColSpanMd="6">
-            <DxCheckBox @bind-Checked="@this.ViewModel.IsPrivate"/>
-        </DxFormLayoutItem>
+        <DxFormLayoutTabPages>
+            <DxFormLayoutTabPage Caption="Basic">
+                <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.Name)"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Owner:" ColSpanMd="10">
+                    <DomainOfExpertiseSelector ViewModel="@(this.ViewModel.DomainOfExpertiseSelectorViewModel)"
+                                               DisplayText="@(string.Empty)"
+                                               CssClass="cw-480"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Default:" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.IsPrivate)"/>
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
+            @if (!this.ShouldCreate)
+            {
+                <DxFormLayoutTabPage Caption="FolderFile Structure">
+                    <DxFormLayoutItem CssClass="w-100">
+                        <FolderFileStructure ViewModel="@(this.ViewModel.FolderFileStructureViewModel)"/>
+                        <DxButton Click="@(() => this.IsFolderFileStructureVisible = true)" Text="Open Details"/>
+                    </DxFormLayoutItem>
+                </DxFormLayoutTabPage>
+            }
+        </DxFormLayoutTabPages>
     </DxFormLayout>
+
     <FormButtons SaveButtonEnabled="@(this.IsSaveButtonEnabled(editFormContext))"
                  OnCancel="@(this.OnCancel)"
-                 ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))"/>
+                 OnDelete="@(() => this.ViewModel.IsOnDeletionMode = true)"
+                 DeleteButtonVisible="@(!this.ShouldCreate)"
+                 ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))"
+                 IsLoading="@(this.ViewModel.IsLoading)" />
 </EditForm>
+
+<DxPopup @bind-Visible="@(this.IsFolderFileStructureVisible)" 
+         HeaderText="@($"Folder-File Structure ${this.ViewModel.CurrentThing.Name}")" 
+         Width="60%" 
+         CloseOnOutsideClick="false" 
+         Height="60vh">
+    <FolderFileStructure ViewModel="@(this.ViewModel.FolderFileStructureViewModel)"/>
+</DxPopup>

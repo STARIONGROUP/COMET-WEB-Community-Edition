@@ -164,11 +164,13 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
             var nestedFiles = this.CurrentFileStore.File
                 .Where(x => x.CurrentContainingFolder?.Iid == folderNode.Thing?.Iid)
                 .Select(x => new FileFolderNodeViewModel(x))
+                .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
 
             var nestedFolders = this.CurrentFileStore.Folder
                 .Where(x => x.ContainingFolder?.Iid == folderNode.Thing?.Iid)
                 .Select(x => new FileFolderNodeViewModel(x))
+                .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
 
             folderNode.Content.AddRange(nestedFolders);

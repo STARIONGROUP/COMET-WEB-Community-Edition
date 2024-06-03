@@ -43,6 +43,11 @@ namespace COMETwebapp.Components.EngineeringModel
         public ICommonFileStoreTableViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// Gets the value to check if the folder file structure component is visible
+        /// </summary>
+        public bool IsFolderFileStructureVisible { get; private set; }
+
+        /// <summary>
         /// Method that is executed when there is a valid submit
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
