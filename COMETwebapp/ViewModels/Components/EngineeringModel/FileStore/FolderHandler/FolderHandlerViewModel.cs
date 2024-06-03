@@ -29,7 +29,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
-    using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
@@ -70,9 +69,9 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         public IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; private set; }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="Folder" />s
+        /// Gets or sets a collection of the available <see cref="Folder" />s
         /// </summary>
-        public IEnumerable<Folder> Folders { get; private set; }
+        public IEnumerable<Folder> Folders { get; set; }
 
         /// <summary>
         /// Initializes the current <see cref="FolderHandlerViewModel" />
@@ -83,7 +82,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         {
             this.CurrentFileStore = fileStore;
             this.DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
-            this.SetFolders(this.CurrentFileStore.Folder);
         }
 
         /// <summary>
@@ -147,29 +145,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed()
         {
-            if (this.UpdatedThings.Count == 0)
-            {
-                return Task.CompletedTask;
-            }
-
-            var updatedFileStore = this.UpdatedThings.OfType<FileStore>().FirstOrDefault(x => x.Iid == this.CurrentFileStore?.Iid);
-
-            if (updatedFileStore != null)
-            {
-                this.SetFolders(updatedFileStore.Folder);
-            }
-
-            this.ClearRecordedChanges();
             return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnEndUpdate()
-        {
-            await this.OnSessionRefreshed();
         }
 
         /// <summary>
@@ -183,17 +159,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
             {
                 await this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(this.CurrentThing.Iid == Guid.Empty, this.CurrentThing.Owner);
             }
-        }
-
-        /// <summary>
-        /// Sets the current <see cref="Folders"/> property
-        /// </summary>
-        /// <param name="folders">The collection of folders to set</param>
-        private void SetFolders(IEnumerable<Folder> folders)
-        {
-            var resultingFolders = folders.ToList();
-            resultingFolders.Add(null);
-            this.Folders = resultingFolders;
         }
     }
 }

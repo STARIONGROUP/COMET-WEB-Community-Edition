@@ -118,13 +118,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         public void VerifyInitializeViewModel()
         {
             this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.Folders, Has.Count.EqualTo(this.commonFileStore.Folder.Count + 1));
-                Assert.That(this.viewModel.Folders, Contains.Item(null));
-                Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise.Count(), Is.EqualTo(1));
-            });
+            Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise.Count(), Is.EqualTo(1));
         }
 
         [Test]

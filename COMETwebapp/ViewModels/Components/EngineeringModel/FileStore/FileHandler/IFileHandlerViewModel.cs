@@ -55,9 +55,9 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         bool IsLocked { get; set; }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="Folder"/>s
+        /// Gets or sets a collection of the available <see cref="Folder" />s
         /// </summary>
-        IEnumerable<Folder> Folders { get; }
+        IEnumerable<Folder> Folders { get; set; }
 
         /// <summary>
         /// Gets or sets the selected folder to create a file revision
