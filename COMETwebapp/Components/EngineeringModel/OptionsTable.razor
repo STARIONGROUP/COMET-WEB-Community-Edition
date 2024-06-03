@@ -16,70 +16,45 @@ Copyright (c) 2023-2024 Starion Group S.A.
 ------------------------------------------------------------------------------->
 @inherits SelectedDataItemBase<Option, OptionRowViewModel>
 
-<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <div class="d-flex justify-content-between">
-        <DxGrid @ref="this.Grid"
-                Data="this.ViewModel.Rows.Items"
-                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                ShowSearchBox="true"
-                SearchBoxNullText="Search for an option..."
-                AllowSelectRowByClick="true"
-                SelectionMode="GridSelectionMode.Single"
-                SelectedDataItemChanged="@((row) => this.OnSelectedDataItemChanged((OptionRowViewModel)row))"
-                PopupEditFormCssClass="pw-800"
-                PopupEditFormHeaderText="Option"
-                CustomizeElement="@(HighlightDefaultOptionRow)"
-                CustomizeEditModel="this.CustomizeEditThing"
-                EditMode="GridEditMode.PopupEditForm"
-                EditFormButtonsVisible="false"
-                PageSize="20"
-                PagerNavigationMode="PagerNavigationMode.Auto"
-                PageSizeSelectorVisible="true"
-                PageSizeSelectorItems="@(new int[] { 20, 35, 50 })"
-                PageSizeSelectorAllRowsItemVisible="true"
-                CssClass="height-fit-content">
-            <Columns>
-                <DxGridDataColumn FieldName="@nameof(OptionRowViewModel.Name)" MinWidth="150"/>
-                <DxGridDataColumn FieldName="@nameof(OptionRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
-                <DxGridDataColumn FieldName="@nameof(OptionRowViewModel.IsDefault)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Default" MinWidth="80" SearchEnabled="false"/>
-                <DxGridCommandColumn Width="200px" EditButtonVisible="false">
-                    <HeaderTemplate>
-                        <DxButton Id="addOptionButton" Text="Add Option" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
-                    </HeaderTemplate>
-                    <CellDisplayTemplate>
-                        @{
-                            var row = (OptionRowViewModel)context.DataItem;
+<div class="d-flex justify-content-between">
+    <DxGrid @ref="this.Grid"
+            Data="this.ViewModel.Rows.Items"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            ShowSearchBox="true"
+            SearchBoxNullText="Search for a measurement scale ..."
+            AllowSelectRowByClick="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((OptionRowViewModel)row))"
+            EditFormButtonsVisible="false"
+            CustomizeElement="@(HighlightDefaultOptionRow)"
+            PageSize="20"
+            PagerNavigationMode="PagerNavigationMode.Auto"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
+            PageSizeSelectorAllRowsItemVisible="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            CssClass="height-fit-content">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(OptionRowViewModel.Name)" MinWidth="150"/>
+            <DxGridDataColumn FieldName="@nameof(OptionRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
+            <DxGridDataColumn FieldName="@nameof(OptionRowViewModel.IsDefault)" UnboundType="GridUnboundColumnType.Boolean" Visible="false" Caption="Is Default" MinWidth="80" SearchEnabled="false"/>
+        </Columns>
+    </DxGrid>
 
-                            <DxButton Id="deleteButton"
-                                      Text="Delete"
-                                      Click="@(() => this.ViewModel.OnDeleteButtonClick(row))"
-                                      Enabled="@(row.IsAllowedToWrite)"/>
-                        }
-                    </CellDisplayTemplate>
-                </DxGridCommandColumn>
-            </Columns>
+    <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
+                              OnButtonClick="@(this.OnAddThingClick)">
 
-            <EditFormTemplate Context="editFormTemplateContext">
-                <OptionsForm ViewModel="@this.ViewModel"
-                             IsVisible="true"
-                             ShouldCreate="true"
-                             OnSaved="@(() => this.Grid.CancelEditAsync())"
-                             OnCanceled="@(() => this.Grid.CancelEditAsync())"/>
-            </EditFormTemplate>
-        </DxGrid>
-        
-        <DataItemDetailsComponent IsSelected="@this.IsOnEditMode">
-            <OptionsForm ViewModel="@this.ViewModel"
-                         @bind-IsVisible="@this.IsOnEditMode"
-                         ShouldCreate="false"/>
-        </DataItemDetailsComponent>
-    </div>
-</LoadingComponent>
+        <OptionsForm ViewModel="@(this.ViewModel)"
+                     @bind-IsVisible="@(this.IsOnEditMode)"
+                     ShouldCreate="@(this.ShouldCreateThing)"
+                     OnSaved="@(this.OnSaved)"/>
+    </DataItemDetailsComponent>
+</div>
 
-<DxPopup @bind-Visible="@this.ViewModel.IsOnDeletionMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
-    @this.ViewModel.PopupDialog
+<DxPopup @bind-Visible="@(this.ViewModel.IsOnDeletionMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @(this.ViewModel.PopupDialog)
     <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
-        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.OnConfirmDelete" />
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.OnDeletionConfirmed)"/>
     </div>
 </DxPopup>

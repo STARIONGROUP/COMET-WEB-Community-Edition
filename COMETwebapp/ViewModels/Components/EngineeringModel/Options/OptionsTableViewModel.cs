@@ -89,37 +89,38 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
         /// <returns>A <see cref="Task" /></returns>
         public async Task CreateOrEditOption(bool shouldCreate)
         {
-            this.IsLoading = true;
-
-            var iterationClone = this.CurrentIteration.Clone(false);
-            var thingsToCreate = new List<Thing>();
-            var originalOption = (Option)this.CurrentThing.Original;
-
-            iterationClone.DefaultOption = this.SelectedIsDefaultValue switch
-            {
-                true when !originalOption.IsDefault => this.CurrentThing,
-                false when originalOption.IsDefault => null,
-                _ => iterationClone.DefaultOption
-            };
-
-            if (shouldCreate)
-            {
-                iterationClone.Option.Add(this.CurrentThing);
-            }
-
-            thingsToCreate.Add(iterationClone);
-            thingsToCreate.Add(this.CurrentThing);
-
             try
             {
+                this.IsLoading = true;
+
+                var iterationClone = this.CurrentIteration.Clone(false);
+                var thingsToCreate = new List<Thing>();
+                var originalOption = (Option)this.CurrentThing.Original ?? this.CurrentThing;
+
+                iterationClone.DefaultOption = this.SelectedIsDefaultValue switch
+                {
+                    true when !originalOption.IsDefault => this.CurrentThing,
+                    false when originalOption.IsDefault => null,
+                    _ => iterationClone.DefaultOption
+                };
+
+                if (shouldCreate)
+                {
+                    iterationClone.Option.Add(this.CurrentThing);
+                }
+
+                thingsToCreate.Add(iterationClone);
+                thingsToCreate.Add(this.CurrentThing);
                 await this.SessionService.CreateOrUpdateThingsWithNotification(this.CurrentIteration.Container.Clone(true), thingsToCreate, this.GetNotificationDescription(shouldCreate));
             }
             catch (Exception ex)
             {
-                this.Logger.LogError(ex, "An error has occurred while creating or editing an Option");
+                this.Logger.LogError(ex, "Create or Update Option failed");
             }
-
-            this.IsLoading = false;
+            finally
+            {
+                this.IsLoading = false;
+            }
         }
 
         /// <summary>

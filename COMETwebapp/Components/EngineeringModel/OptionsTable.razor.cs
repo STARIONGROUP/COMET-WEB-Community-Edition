@@ -1,32 +1,34 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="OptionsTable.razor.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="OptionsTable.razor.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Components.EngineeringModel
 {
     using System.ComponentModel.DataAnnotations;
 
     using CDP4Common.EngineeringModelData;
+
+    using COMET.Web.Common.Extensions;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
@@ -36,15 +38,18 @@ namespace COMETwebapp.Components.EngineeringModel
 
     using Microsoft.AspNetCore.Components;
 
+    using ReactiveUI;
+
     /// <summary>
-    /// Support class for the <see cref="OptionsTable"/>
+    /// Support class for the <see cref="OptionsTable" />
     /// </summary>
     public partial class OptionsTable : SelectedDataItemBase<Option, OptionRowViewModel>
     {
         /// <summary>
         /// The <see cref="IOptionsTableViewModel" /> for this component
         /// </summary>
-        [Parameter, Required]
+        [Parameter]
+        [Required]
         public IOptionsTableViewModel ViewModel { get; set; }
 
         /// <summary>
@@ -55,20 +60,7 @@ namespace COMETwebapp.Components.EngineeringModel
         {
             base.OnInitialized();
             this.Initialize(this.ViewModel);
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new thing
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
-        {
-            base.CustomizeEditThing(e);
-
-            var dataItem = (OptionRowViewModel)e.DataItem;
-            this.ViewModel.CurrentThing = dataItem == null ? new Option().Clone(true) : dataItem.Thing.Clone(true);
-            e.EditModel = this.ViewModel.CurrentThing;
-            this.IsOnEditMode = false;
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnDeletionMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -78,14 +70,26 @@ namespace COMETwebapp.Components.EngineeringModel
         protected override void OnSelectedDataItemChanged(OptionRowViewModel row)
         {
             base.OnSelectedDataItemChanged(row);
+            this.ShouldCreateThing = false;
             this.ViewModel.CurrentThing = row.Thing.Clone(true);
         }
 
         /// <summary>
-        /// Method invoked when the deletion popup is confirmed
+        /// Method invoked before creating a new thing
         /// </summary>
-        /// <returns></returns>
-        private async Task OnConfirmDelete()
+        private void OnAddThingClick()
+        {
+            this.ShouldCreateThing = true;
+            this.IsOnEditMode = true;
+            this.ViewModel.CurrentThing = new Option();
+            this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Method invoked when the deletion of a thing is confirmed
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task OnDeletionConfirmed()
         {
             await this.ViewModel.OnConfirmPopupButtonClick();
             this.IsOnEditMode = false;
@@ -94,7 +98,7 @@ namespace COMETwebapp.Components.EngineeringModel
         /// <summary>
         /// Method invoked to "Show/Hide Deprecated Items"
         /// </summary>
-        /// <param name="e">The <see cref="GridCustomizeElementEventArgs"/></param>
+        /// <param name="e">The <see cref="GridCustomizeElementEventArgs" /></param>
         private static void HighlightDefaultOptionRow(GridCustomizeElementEventArgs e)
         {
             if (e.ElementType == GridElementType.DataRow && (bool)e.Grid.GetRowValue(e.VisibleIndex, nameof(OptionRowViewModel.IsDefault)))
