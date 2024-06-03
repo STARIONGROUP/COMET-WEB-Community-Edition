@@ -191,7 +191,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
         }
 
         /// <summary>
-        /// Sets the <see cref="folders" /> with a null value appended for the contained view models that need it
+        /// Sets the collection of <see cref="Folder" />s with a null value appended for the contained view models that need it
         /// </summary>
         /// <param name="folders">The collection of folders to set</param>
         private void SetFolders(IEnumerable<Folder> folders)
