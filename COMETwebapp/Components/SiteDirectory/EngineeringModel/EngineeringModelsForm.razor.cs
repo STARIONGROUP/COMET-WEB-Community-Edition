@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="FormButtons.razor.cs" company="Starion Group S.A.">
+//  <copyright file="EngineeringModelsForm.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,53 +22,40 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Common
+namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
 {
-    using COMET.Web.Common.Components;
+    using System.ComponentModel.DataAnnotations;
+
+    using COMETwebapp.Components.Common;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
 
     using Microsoft.AspNetCore.Components;
-    using Microsoft.AspNetCore.Components.Forms;
 
     /// <summary>
-    /// Support class for the <see cref="FormButtons" />
+    /// Support class for the <see cref="EngineeringModelsForm" />
     /// </summary>
-    public partial class FormButtons : DisposableComponent
+    public partial class EngineeringModelsForm : SelectedDataItemForm
     {
         /// <summary>
-        /// Gets or sets the condition to check if the save button is enabled
+        /// The <see cref="IEngineeringModelsTableViewModel" /> for this component
         /// </summary>
         [Parameter]
-        public bool SaveButtonEnabled { get; set; }
+        [Required]
+        public IEngineeringModelsTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets the callback for when the cancel button is selected
+        /// Gets the condition to check if the source model was selected in creation form
         /// </summary>
-        [Parameter]
-        public EventCallback<Task> OnCancel { get; set; }
+        private bool IsSourceModelSelected => this.ViewModel.CurrentThing.SourceEngineeringModelSetupIid != null && this.ViewModel.CurrentThing.SourceEngineeringModelSetupIid != Guid.Empty;
 
         /// <summary>
-        /// Gets or sets the validation messages. If not set, the <see cref="ValidationSummary" /> will be used to display the
-        /// validation messages
+        /// Method that is executed when there is a valid submit
         /// </summary>
-        [Parameter]
-        public IEnumerable<string> ValidationMessages { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value to check if the save button should be set to loading state
-        /// </summary>
-        [Parameter]
-        public bool IsLoading { get; set; }
-
-        /// <summary>
-        /// Gets or sets the callback for when the delete button is clicked
-        /// </summary>
-        [Parameter]
-        public EventCallback<Task> OnDelete { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value to check if the delete button should be displayed
-        /// </summary>
-        [Parameter]
-        public bool DeleteButtonVisible { get; set; }
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnValidSubmit()
+        {
+            await this.ViewModel.CreateOrEditEngineeringModel(this.ShouldCreate);
+            await base.OnValidSubmit();
+        }
     }
 }

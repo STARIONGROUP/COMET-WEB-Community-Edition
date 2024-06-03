@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
 {
-    using AntDesign;
-
     using CDP4Common.CommonData;
 
     using CDP4Dal;
@@ -72,7 +70,7 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
         /// <summary>
         /// Gets or sets the popup message dialog
         /// </summary>
-        public string PopupDialog { get; set; }
+        public string PopupDialog => $"You are about to delete the {typeof(T).Name}: {this.CurrentThing.GetShortNameOrName()}";
 
         /// <summary>
         /// Method invoked when confirming the deletion of the current thing
@@ -99,7 +97,6 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
         public void OnDeleteButtonClick(TRow thingRow)
         {
             this.CurrentThing = thingRow.Thing;
-            this.PopupDialog = $"You are about to delete the {typeof(T).Name}: {thingRow.Name}";
             this.IsOnDeletionMode = true;
         }
 
@@ -109,15 +106,19 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
         /// <returns>A <see cref="Task" /></returns>
         public async Task DeleteThing()
         {
-            var clonedContainer = this.CurrentThing.Container.Clone(false);
-
             try
             {
+                this.IsLoading = true;
+                var clonedContainer = this.CurrentThing.Container.Clone(false);
                 await this.SessionService.DeleteThingsWithNotification(clonedContainer, [this.CurrentThing.Clone(false)], this.GetDeletionNotificationDescription());
             }
             catch (Exception exception)
             {
                 this.Logger.LogError(exception, "An error has occurred while trying to delete the {thingType} with iid {thingIid}", typeof(T), this.CurrentThing.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
             }
         }
 
@@ -125,7 +126,7 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
         /// Gets the message for the success notification
         /// </summary>
         /// <returns>The message</returns>
-        protected NotificationDescription GetDeletionNotificationDescription()
+        protected virtual NotificationDescription GetDeletionNotificationDescription()
         {
             var notificationDescription = new NotificationDescription()
             {

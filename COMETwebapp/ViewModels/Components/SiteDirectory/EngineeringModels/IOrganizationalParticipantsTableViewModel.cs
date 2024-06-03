@@ -46,6 +46,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         IEnumerable<Organization> ParticipatingOrganizations { get; set; }
 
         /// <summary>
+        /// Gets the current <see cref="EngineeringModelSetup" />
+        /// </summary>
+        EngineeringModelSetup CurrentModel { get; }
+
+        /// <summary>
         /// Initializes the <see cref="BaseDataItemTableViewModel{T,TRow}" />
         /// </summary>
         /// <param name="model">The <see cref="EngineeringModelSetup"/> to get its active domains</param>

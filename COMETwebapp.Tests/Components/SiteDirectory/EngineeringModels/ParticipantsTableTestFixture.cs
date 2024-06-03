@@ -106,7 +106,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
             this.renderer = this.context.RenderComponent<ParticipantsTable>(p =>
             {
-                p.Add(parameter => parameter.EngineeringModelSetup, this.model);
+                p.Add(parameter => parameter.ViewModel, this.viewModel.Object);
             });
         }
 
@@ -124,10 +124,8 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
                 Assert.That(this.renderer.Instance.ViewModel, Is.Not.Null);
-                Assert.That(this.renderer.Instance.EngineeringModelSetup, Is.EqualTo(this.model));
                 Assert.That(this.renderer.Markup, Does.Contain(this.participant1.Person.Name));
                 Assert.That(this.renderer.Markup, Does.Contain(this.participant2.Person.Name));
-                this.viewModel.Verify(x => x.InitializeViewModel(It.IsAny<EngineeringModelSetup>()), Times.Once);
             });
 
             var details = this.renderer.Find("a");

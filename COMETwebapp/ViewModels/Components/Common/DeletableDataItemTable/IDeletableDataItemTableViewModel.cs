@@ -39,7 +39,7 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
         /// <summary>
         /// Gets or sets the popup message dialog
         /// </summary>
-        string PopupDialog { get; set; }
+        string PopupDialog { get; }
 
         /// <summary>
         /// Method invoked when confirming the deletion of the <see cref="DeletableDataItemTableViewModel{T,TRow}"/>

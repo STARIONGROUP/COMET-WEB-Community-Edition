@@ -168,7 +168,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// </summary>
         /// <param name="created">The value to check if the thing was created</param>
         /// <returns>The message</returns>
-        protected NotificationDescription GetNotificationDescription(bool created)
+        protected virtual NotificationDescription GetNotificationDescription(bool created)
         {
             var notificationDescription = new NotificationDescription
             {

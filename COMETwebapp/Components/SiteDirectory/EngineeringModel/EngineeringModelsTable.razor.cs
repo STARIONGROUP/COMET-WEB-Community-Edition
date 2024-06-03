@@ -26,13 +26,15 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Extensions;
+
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Support class for the <see cref="EngineeringModelsTable"/>
@@ -46,32 +48,6 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         public IEngineeringModelsTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets the condition to check if the source model was selected in creation form
-        /// </summary>
-        private bool IsSourceModelSelected => this.ViewModel.SelectedSourceModel is not null;
-
-        /// <summary>
-        /// The selected component type
-        /// </summary>
-        private Type SelectedComponent { get; set; }
-
-        /// <summary>
-        /// A <see cref="Dictionary{TKey,TValue}" /> for the <see cref="DynamicComponent.Parameters" />
-        /// </summary>
-        private readonly Dictionary<string, object> parameters = [];
-
-        /// <summary>
-        /// A map with all the available components and their names
-        /// </summary>
-        private readonly Dictionary<Type, string> mapOfComponentsAndNames = new()
-        {
-            {typeof(ParticipantsTable), "Participants"},
-            {typeof(OrganizationalParticipantsTable), "Organizations"},
-            {typeof(IterationsTable), "Iterations"},
-            {typeof(ActiveDomainsTable), "Active Domains"},
-        };
-
-        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -79,59 +55,39 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         {
             base.OnInitialized();
             this.Initialize(this.ViewModel);
-            this.SelectedComponent = this.mapOfComponentsAndNames.First().Key;
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnDeletionMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
-        /// Method that is invoked when the edit/add thing form is being saved
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnEditThingSaving()
-        {
-            await this.ViewModel.CreateEngineeringModel();
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new thing
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
-        {
-            base.CustomizeEditThing(e);
-
-            this.ViewModel.CurrentThing = new EngineeringModelSetup();
-            this.ViewModel.ResetSelectedValues();
-            e.EditModel = this.ViewModel.CurrentThing;
-        }
-
-        /// <summary>
-        /// Metgid invoked everytime a row is selected
+        /// Method invoked every time a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>
         protected override void OnSelectedDataItemChanged(EngineeringModelRowViewModel row)
         {
             base.OnSelectedDataItemChanged(row);
-            this.ViewModel.CurrentThing = row.Thing;
-            this.parameters[nameof(EngineeringModelSetup)] = row.Thing;
+            this.ShouldCreateThing = false;
+            this.ViewModel.CurrentThing = row.Thing.Clone(true);
         }
 
         /// <summary>
-        /// Method invoked to set the selected component from toolbar
+        /// Method invoked before creating a new thing
         /// </summary>
-        /// <param name="e">The <see cref="ToolbarItemClickEventArgs"/></param>
-        private void OnDetailsItemClick(ToolbarItemClickEventArgs e)
+        private void OnAddThingClick()
         {
-            this.SelectedComponent = this.mapOfComponentsAndNames.First(x => x.Value == e.ItemName).Key;
+            this.ShouldCreateThing = true;
+            this.IsOnEditMode = true;
+            this.ViewModel.CurrentThing = new EngineeringModelSetup();
+            this.InvokeAsync(this.StateHasChanged);
         }
 
         /// <summary>
-        /// Sets the selected values for the <see cref="Participant"/> creation and submits the form
+        /// Method invoked when the deletion of a thing is confirmed
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
-        private async Task SetSelectedValuesAndSubmit()
+        private async Task OnDeletionConfirmed()
         {
-            this.ViewModel.SetupEngineeringModelWithSelectedValues();
-            await this.Grid.SaveChangesAsync();
+            await this.ViewModel.OnConfirmPopupButtonClick();
+            this.IsOnEditMode = false;
         }
     }
 }

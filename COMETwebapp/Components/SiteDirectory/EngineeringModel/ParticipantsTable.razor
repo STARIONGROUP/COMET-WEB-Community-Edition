@@ -41,21 +41,21 @@ Copyright (c) 2023-2024 Starion Group S.A.
                     </a>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridCommandColumn Width="200px" EditButtonVisible="false">
+            <DxGridCommandColumn Width="100px" EditButtonVisible="false">
                 <HeaderTemplate>
-                    <DxButton Id="addParticipantButton" Text="Add Participant" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
+                    <DxButton Id="addParticipantButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
                 </HeaderTemplate>
                 <CellDisplayTemplate>
                     @{
                         var row = (ParticipantRowViewModel)context.DataItem;
 
                         <DxButton Id="editParticipantButton"
-                                  Text="Edit"
+                                  IconCssClass="oi oi-pencil"
                                   Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"
                                   Enabled="@(row.IsAllowedToWrite)"/>
 
                         <DxButton Id="deleteParticipantButton"
-                                  Text="Delete"
+                                  IconCssClass="oi oi-trash"
                                   Click="() => this.ViewModel.OnDeleteButtonClick(row)"
                                   Enabled="@(row.IsAllowedToWrite)"/>
                     }
