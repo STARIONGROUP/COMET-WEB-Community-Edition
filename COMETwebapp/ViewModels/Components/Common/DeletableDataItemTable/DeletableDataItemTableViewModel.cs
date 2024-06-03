@@ -106,15 +106,19 @@ namespace COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable
         /// <returns>A <see cref="Task" /></returns>
         public async Task DeleteThing()
         {
-            var clonedContainer = this.CurrentThing.Container.Clone(false);
-
             try
             {
+                this.IsLoading = true;
+                var clonedContainer = this.CurrentThing.Container.Clone(false);
                 await this.SessionService.DeleteThingsWithNotification(clonedContainer, [this.CurrentThing.Clone(false)], this.GetDeletionNotificationDescription());
             }
             catch (Exception exception)
             {
                 this.Logger.LogError(exception, "An error has occurred while trying to delete the {thingType} with iid {thingIid}", typeof(T), this.CurrentThing.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
             }
         }
 

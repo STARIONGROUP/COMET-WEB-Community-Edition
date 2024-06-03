@@ -1,32 +1,29 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="EngineeringModelsTableTestFixture.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="EngineeringModelsTableTestFixture.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 {
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using Bunit;
 
     using CDP4Common.SiteDirectoryData;
@@ -41,6 +38,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -65,18 +63,18 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
             this.viewModel = new Mock<IEngineeringModelsTableViewModel>();
 
-            this.engineeringModel1 = new EngineeringModelSetup()
+            this.engineeringModel1 = new EngineeringModelSetup
             {
                 Name = "A name",
                 ShortName = "AName",
-                Container = new SiteDirectory(){ ShortName = "siteDir" },
+                Container = new SiteDirectory { ShortName = "siteDir" }
             };
 
-            this.engineeringModel2 = new EngineeringModelSetup()
+            this.engineeringModel2 = new EngineeringModelSetup
             {
                 Name = "B name",
                 ShortName = "BName",
-                Container = new SiteDirectory() { ShortName = "siteDir" },
+                Container = new SiteDirectory { ShortName = "siteDir" }
             };
 
             var rows = new SourceList<EngineeringModelRowViewModel>();
@@ -100,6 +98,48 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         }
 
         [Test]
+        public async Task VerifyAddOrEditEngineeringModel()
+        {
+            var addEngineeringModelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "dataItemDetailsButton");
+            await this.renderer.InvokeAsync(addEngineeringModelButton.Instance.Click.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(EngineeringModelSetup)));
+            });
+
+            var engineeringModelsGrid = this.renderer.FindComponent<DxGrid>();
+            await this.renderer.InvokeAsync(() => engineeringModelsGrid.Instance.SelectedDataItemChanged.InvokeAsync(new EngineeringModelRowViewModel(this.engineeringModel1)));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(true));
+
+            var engineeringModelsForm = this.renderer.FindComponent<EngineeringModelsForm>();
+            var engineeringModelsEditForm = engineeringModelsForm.FindComponent<EditForm>();
+            await engineeringModelsForm.InvokeAsync(engineeringModelsEditForm.Instance.OnValidSubmit.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                this.viewModel.Verify(x => x.CreateOrEditEngineeringModel(false), Times.Once);
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(EngineeringModelSetup)));
+            });
+
+            var form = this.renderer.FindComponent<DxGrid>();
+            await this.renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
+            this.viewModel.Verify(x => x.CreateOrEditEngineeringModel(false), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyDeleteEngineeringModel()
+        {
+            var engineeringModelsGrid = this.renderer.FindComponent<DxGrid>();
+            await this.renderer.InvokeAsync(() => engineeringModelsGrid.Instance.SelectedDataItemChanged.InvokeAsync(new EngineeringModelRowViewModel(this.engineeringModel1)));
+            
+            var deleteButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deleteItemButton");
+            await this.renderer.InvokeAsync(deleteButton.Instance.Click.InvokeAsync);
+            this.viewModel.VerifySet(x => x.IsOnDeletionMode = true, Times.Once);
+        }
+
+        [Test]
         public void VerifyOnInitialized()
         {
             Assert.Multiple(() =>
@@ -110,32 +150,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
                 Assert.That(this.renderer.Markup, Does.Contain(this.engineeringModel2.Name));
                 this.viewModel.Verify(x => x.InitializeViewModel(), Times.Once);
             });
-        }
-
-        [Test]
-        public async Task VerifyDeleteEngineeringModel()
-        {
-            var deleteButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deleteEngineeringModelButton");
-            await this.renderer.InvokeAsync(deleteButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OnDeleteButtonClick(It.IsAny<EngineeringModelRowViewModel>()), Times.Once);
-        }
-
-        [Test]
-        public async Task VerifyAddEngineeringModel()
-        {
-            var addEngineeringModelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addEngineeringModelButton");
-            await this.renderer.InvokeAsync(addEngineeringModelButton.Instance.Click.InvokeAsync);
-            var grid = this.renderer.FindComponent<DxGrid>();
-            Assert.That(grid.Instance.IsEditing(), Is.EqualTo(true));
-
-            var cancelEngineeringModelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelEngineeringModelButton");
-            await this.renderer.InvokeAsync(cancelEngineeringModelButton.Instance.Click.InvokeAsync);
-            Assert.That(grid.Instance.IsEditing(), Is.EqualTo(false));
-
-            await this.renderer.InvokeAsync(addEngineeringModelButton.Instance.Click.InvokeAsync);
-            var saveEngineeringModelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "saveEngineeringModelButton");
-            await this.renderer.InvokeAsync(saveEngineeringModelButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.CreateOrEditEngineeringModel(), Times.Once);
         }
 
         [Test]

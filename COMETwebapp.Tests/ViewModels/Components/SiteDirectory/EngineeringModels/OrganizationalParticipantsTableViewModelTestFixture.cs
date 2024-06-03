@@ -28,15 +28,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
-    using CDP4Dal.Events;
     using CDP4Dal.Permission;
-
-    using CDP4Web.Enumerations;
 
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
     using Microsoft.Extensions.Logging;
 
@@ -112,9 +110,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.organizationalParticipant));
-                Assert.That(this.viewModel.Organizations, Has.Count.EqualTo(1));
+                Assert.That(this.viewModel.CurrentModel.OrganizationalParticipant, Has.Count.EqualTo(1));
+                Assert.That(this.viewModel.CurrentModel.OrganizationalParticipant.First(), Is.EqualTo(this.organizationalParticipant));
+                Assert.That(this.viewModel.Organizations.Count(), Is.EqualTo(1));
                 Assert.That(this.viewModel.ParticipatingOrganizations, Is.Not.Null);
             });
         }
@@ -123,7 +121,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         public void VerifyOrganizationalParticipantRowProperties()
         {
             this.viewModel.InitializeViewModel(this.model);
-            var participantRow = this.viewModel.Rows.Items.First();
+            var participantRow = new OrganizationalParticipantRowViewModel(this.viewModel.CurrentModel.OrganizationalParticipant.First());
 
             Assert.Multiple(() =>
             {
@@ -131,7 +129,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
                 Assert.That(participantRow.Name, Is.EqualTo(this.organizationalParticipant.Organization.Name));
                 Assert.That(participantRow.ShortName, Is.EqualTo(this.organizationalParticipant.Organization.ShortName));
                 Assert.That(participantRow.Thing, Is.EqualTo(this.organizationalParticipant));
-                Assert.That(participantRow.IsAllowedToWrite, Is.EqualTo(true));
             });
         }
 
@@ -139,7 +136,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         public async Task VerifyRowOperations()
         {
             this.viewModel.InitializeViewModel(this.model);
-            var organizationalParticipantRow = this.viewModel.Rows.Items.First();
+            var organizationalParticipantRow = new OrganizationalParticipantRowViewModel(this.viewModel.CurrentModel.OrganizationalParticipant.First());
 
             Assert.That(organizationalParticipantRow, Is.Not.Null);
 
@@ -156,49 +153,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
 
             await this.viewModel.OnConfirmPopupButtonClick();
             this.sessionService.Verify(x => x.DeleteThingsWithNotification(It.IsAny<EngineeringModelSetup>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
-        }
-
-        [Test]
-        public void VerifySessionRefresh()
-        {
-            this.viewModel.InitializeViewModel(this.model);
-
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
-
-            var organizationalParticipantTest = new OrganizationalParticipant
-            {
-                Iid = Guid.NewGuid(),
-                Organization = new Organization
-                {
-                    Name = "org B",
-                    ShortName = "orgB"
-                },
-                Container = this.model
-            };
-
-            this.messageBus.SendObjectChangeEvent(organizationalParticipantTest, EventKind.Added);
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Removed);
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-
-            this.messageBus.SendObjectChangeEvent(this.viewModel.Rows.Items.First().Thing, EventKind.Updated);
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-
-            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
-        }
-
-        [Test]
-        public void VerifySetEngineeringModel()
-        {
-            this.viewModel.InitializeViewModel(this.model);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
-                Assert.That(this.viewModel.ParticipatingOrganizations.ToList(), Has.Count.EqualTo(1));
-            });
         }
     }
 }

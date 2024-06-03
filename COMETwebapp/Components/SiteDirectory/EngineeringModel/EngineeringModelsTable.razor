@@ -39,33 +39,17 @@ Copyright (c) 2023-2024 Starion Group S.A.
                 <DxGridDataColumn FieldName="@nameof(EngineeringModelRowViewModel.ShortName)" MinWidth="80"/>
                 <DxGridDataColumn FieldName="@nameof(EngineeringModelRowViewModel.Phase)" MinWidth="80" SearchEnabled="false"/>
                 <DxGridDataColumn FieldName="@nameof(EngineeringModelRowViewModel.Kind)" MinWidth="80" SearchEnabled="false"/>
-                <DxGridCommandColumn Width="150px" EditButtonVisible="false">
-                    <HeaderTemplate>
-                        Remove column
-                    </HeaderTemplate>
-                    <CellDisplayTemplate>
-                        @{
-                            var row = (EngineeringModelRowViewModel)context.DataItem;
-
-                            <DxButton Id="deleteEngineeringModelButton"
-                                      Text="Delete"
-                                      Click="() => this.ViewModel.OnDeleteButtonClick(row)"
-                                      Enabled="@(row.IsAllowedToWrite)"/>
-                        }
-                    </CellDisplayTemplate>
-                </DxGridCommandColumn>
             </Columns>
         </DxGrid>
-        
-        <DataItemDetailsComponent IsSelected="@this.IsOnEditMode"
+
+        <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
                                   OnButtonClick="@(this.OnAddThingClick)">
             <EngineeringModelsForm ViewModel="@(this.ViewModel)"
-                                  @bind-IsVisible="@(this.IsOnEditMode)"
-                                  ShouldCreate="@(this.ShouldCreateThing)"
-                                  OnSaved="@(this.OnSaved)"/>
+                                   @bind-IsVisible="@(this.IsOnEditMode)"
+                                   ShouldCreate="@(this.ShouldCreateThing)"
+                                   OnSaved="@(this.OnSaved)"/>
         </DataItemDetailsComponent>
     </div>
-    <div class="pb-3"></div>
 </LoadingComponent>
 
 <DxPopup @bind-Visible="@(this.ViewModel.IsOnDeletionMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">

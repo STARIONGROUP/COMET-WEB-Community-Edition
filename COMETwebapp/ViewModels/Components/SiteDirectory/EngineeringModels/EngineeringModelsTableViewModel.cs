@@ -181,41 +181,50 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <returns>A <see cref="Task"/></returns>
         public async Task CreateOrEditEngineeringModel(bool shouldCreate)
         {
-            this.IsLoading = true;
-
-            var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
-            var thingsToCreate = new List<Thing>();
-            this.CurrentThing.EngineeringModelIid = Guid.NewGuid();
-
-            if (shouldCreate)
+            try
             {
-                siteDirectoryClone.Model.Add(this.CurrentThing);
-                thingsToCreate.Add(siteDirectoryClone);
+                this.IsLoading = true;
 
-                if (this.CurrentThing.SourceEngineeringModelSetupIid != null)
+                var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
+                var thingsToCreate = new List<Thing>();
+                this.CurrentThing.EngineeringModelIid = Guid.NewGuid();
+
+                if (shouldCreate)
                 {
-                    this.CurrentThing.RequiredRdl.Clear();
+                    siteDirectoryClone.Model.Add(this.CurrentThing);
+                    thingsToCreate.Add(siteDirectoryClone);
+
+                    if (this.CurrentThing.SourceEngineeringModelSetupIid != null)
+                    {
+                        this.CurrentThing.RequiredRdl.Clear();
+                    }
+                    else
+                    {
+                        thingsToCreate.AddRange(this.CurrentThing.RequiredRdl);
+                    }
                 }
-                else
+
+                if (this.CurrentThing.OrganizationalParticipant.Count > 0)
                 {
-                    thingsToCreate.AddRange(this.CurrentThing.RequiredRdl);
+                    thingsToCreate.AddRange(this.CurrentThing.OrganizationalParticipant);
+                }
+
+                thingsToCreate.Add(this.CurrentThing);
+                await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
+
+                if (this.CurrentThing.Original is EngineeringModelSetup originalModel)
+                {
+                    this.CurrentThing = originalModel.Clone(true);
                 }
             }
-
-            if (this.CurrentThing.OrganizationalParticipant.Count > 0)
+            catch (Exception ex)
             {
-                thingsToCreate.AddRange(this.CurrentThing.OrganizationalParticipant);
+                this.Logger.LogError(ex, "Create or Update EngineeringModelSetup failed");
             }
-            
-            thingsToCreate.Add(this.CurrentThing);
-            await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectoryClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
-
-            if (this.CurrentThing.Original is EngineeringModelSetup originalModel)
-            { 
-                this.CurrentThing = originalModel.Clone(true);
+            finally
+            {
+                this.IsLoading = false;
             }
-
-            this.IsLoading = false;
         }
 
         /// <summary>
