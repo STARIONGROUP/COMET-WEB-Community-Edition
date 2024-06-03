@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="CommonFileStoresForm.razor.cs" company="Starion Group S.A.">
+//  <copyright file="DomainFileStoresForm.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,26 +22,27 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.EngineeringModel
+namespace COMETwebapp.Components.EngineeringModel.DomainFileStore
 {
     using System.ComponentModel.DataAnnotations;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.DomainFileStore;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="CommonFileStoresForm" />
+    /// Support class for the <see cref="DomainFileStoresForm" />
     /// </summary>
-    public partial class CommonFileStoresForm : SelectedDataItemForm
+    public partial class DomainFileStoresForm : SelectedDataItemForm
     {
         /// <summary>
         /// The <see cref="ICommonFileStoreTableViewModel" /> for this component
         /// </summary>
         [Parameter]
         [Required]
-        public ICommonFileStoreTableViewModel ViewModel { get; set; }
+        public IDomainFileStoreTableViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Gets the value to check if the folder file structure component is visible
@@ -54,7 +55,7 @@ namespace COMETwebapp.Components.EngineeringModel
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnValidSubmit()
         {
-            await this.ViewModel.CreateOrEditCommonFileStore(this.ShouldCreate);
+            await this.ViewModel.CreateOrEditDomainFileStore(this.ShouldCreate);
             await base.OnValidSubmit();
         }
     }

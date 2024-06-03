@@ -1,0 +1,58 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2024 Starion Group S.A.
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+    This file is part of CDP4-COMET WEB Community Edition
+     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@inherits SelectedDataItemBase<DomainFileStore, DomainFileStoreRowViewModel>
+
+<div class="d-flex justify-content-between">
+    <DxGrid @ref="this.Grid"
+            Data="this.ViewModel.Rows.Items"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            ShowSearchBox="true"
+            SearchBoxNullText="Search for a domain file store ..."
+            AllowSelectRowByClick="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((DomainFileStoreRowViewModel)row))"
+            EditFormButtonsVisible="false"
+            PageSize="20"
+            PagerNavigationMode="PagerNavigationMode.Auto"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
+            PageSizeSelectorAllRowsItemVisible="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            CssClass="height-fit-content">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(DomainFileStoreRowViewModel.Name)" MinWidth="150"/>
+            <DxGridDataColumn FieldName="@nameof(DomainFileStoreRowViewModel.CreatedOn)" MinWidth="80" DisplayFormat="{0:dd/MM/yyyy HH:mm:ss}" SearchEnabled="false"/>
+        </Columns>
+    </DxGrid>
+
+    <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
+                              OnButtonClick="@(this.OnAddThingClick)">
+
+        <DomainFileStoresForm ViewModel="@(this.ViewModel)"
+                              @bind-IsVisible="@(this.IsOnEditMode)"
+                              ShouldCreate="@(this.ShouldCreateThing)"
+                              OnSaved="@(this.OnSaved)"/>
+    </DataItemDetailsComponent>
+</div>
+
+<DxPopup @bind-Visible="@(this.ViewModel.IsOnDeletionMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @(this.ViewModel.PopupDialog)
+    <div class="dxbl-grid-confirm-dialog-buttons">
+        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.OnDeletionConfirmed)"/>
+    </div>
+</DxPopup>

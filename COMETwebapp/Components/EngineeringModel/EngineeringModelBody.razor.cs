@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="EngineeringModelBody.razor.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -26,6 +26,8 @@ namespace COMETwebapp.Components.EngineeringModel
 {
     using COMET.Web.Common.Extensions;
 
+    using COMETwebapp.Components.EngineeringModel.DomainFileStore;
+
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
@@ -38,23 +40,24 @@ namespace COMETwebapp.Components.EngineeringModel
     public partial class EngineeringModelBody
     {
         /// <summary>
-        /// Gets the selected component type
-        /// </summary>
-        public Type SelectedComponent { get; private set; }
-
-        /// <summary>
         /// A <see cref="Dictionary{TKey,TValue}" /> for the <see cref="DynamicComponent.Parameters" />
         /// </summary>
         private readonly Dictionary<string, object> dynamicComponentParameters = [];
+
+        /// <summary>
+        /// Gets the selected component type
+        /// </summary>
+        public Type SelectedComponent { get; private set; }
 
         /// <summary>
         /// A map with all the available components and their parameters => view model and name
         /// </summary>
         private Dictionary<Type, (object, string)> MapOfComponentsAndParameters => new()
         {
-            {typeof(OptionsTable), (this.ViewModel.OptionsTableViewModel, "Options")},
-            {typeof(PublicationsTable), (this.ViewModel.PublicationsTableViewModel, "Publications")},
-            {typeof(CommonFileStoresTable), (this.ViewModel.CommonFileStoreTableViewModel, "Common File Store")},
+            { typeof(OptionsTable), (this.ViewModel.OptionsTableViewModel, "Options") },
+            { typeof(PublicationsTable), (this.ViewModel.PublicationsTableViewModel, "Publications") },
+            { typeof(CommonFileStoresTable), (this.ViewModel.CommonFileStoreTableViewModel, "Common File Store") },
+            { typeof(DomainFileStoresTable), (this.ViewModel.DomainFileStoreTableViewModel, "Domain File Store") }
         };
 
         /// <summary>
@@ -80,7 +83,7 @@ namespace COMETwebapp.Components.EngineeringModel
         /// <summary>
         /// Method invoked to set the selected component from toolbar
         /// </summary>
-        /// <param name="e">The <see cref="ToolbarItemClickEventArgs"/></param>
+        /// <param name="e">The <see cref="ToolbarItemClickEventArgs" /></param>
         private void OnItemClick(ToolbarItemClickEventArgs e)
         {
             var selectedComponentAndParametersKvp = this.MapOfComponentsAndParameters.FirstOrDefault(x => x.Value.Item2 == e.ItemName);

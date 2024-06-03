@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="CommonFileStoresForm.razor.cs" company="Starion Group S.A.">
+//  <copyright file="DomainFileStoreValidator.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,40 +22,28 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.EngineeringModel
+namespace COMETwebapp.Validators.EngineeringModel
 {
-    using System.ComponentModel.DataAnnotations;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.Validation;
 
-    using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
+    using COMET.Web.Common.Extensions;
 
-    using Microsoft.AspNetCore.Components;
+    using FluentValidation;
 
     /// <summary>
-    /// Support class for the <see cref="CommonFileStoresForm" />
+    /// A class to validate the <see cref="DomainFileStore" />
     /// </summary>
-    public partial class CommonFileStoresForm : SelectedDataItemForm
+    public class DomainFileStoreValidator : AbstractValidator<DomainFileStore>
     {
         /// <summary>
-        /// The <see cref="ICommonFileStoreTableViewModel" /> for this component
+        /// Instantiates a new <see cref="DomainFileStoreValidator" />
         /// </summary>
-        [Parameter]
-        [Required]
-        public ICommonFileStoreTableViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Gets the value to check if the folder file structure component is visible
-        /// </summary>
-        public bool IsFolderFileStructureVisible { get; private set; }
-
-        /// <summary>
-        /// Method that is executed when there is a valid submit
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnValidSubmit()
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
+        public DomainFileStoreValidator(IValidationService validationService)
         {
-            await this.ViewModel.CreateOrEditCommonFileStore(this.ShouldCreate);
-            await base.OnValidSubmit();
+            this.RuleFor(x => x.Name).Validate(validationService, nameof(DomainFileStore.Name));
+            this.RuleFor(x => x.Owner).Validate(validationService, nameof(DomainFileStore.Owner));
         }
     }
 }

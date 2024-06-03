@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="CommonFileStoresForm.razor.cs" company="Starion Group S.A.">
+//  <copyright file="DomainFileStoreRowViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,40 +22,40 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.EngineeringModel
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.Rows
 {
-    using System.ComponentModel.DataAnnotations;
+    using CDP4Common.EngineeringModelData;
 
-    using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
+    using COMETwebapp.ViewModels.Components.Common.Rows;
 
-    using Microsoft.AspNetCore.Components;
+    using ReactiveUI;
 
     /// <summary>
-    /// Support class for the <see cref="CommonFileStoresForm" />
+    /// Row View Model for  <see cref="DomainFileStore" />
     /// </summary>
-    public partial class CommonFileStoresForm : SelectedDataItemForm
+    public class DomainFileStoreRowViewModel : BaseDataItemRowViewModel<DomainFileStore>
     {
         /// <summary>
-        /// The <see cref="ICommonFileStoreTableViewModel" /> for this component
+        /// The backing field for <see cref="CreatedOn" />
         /// </summary>
-        [Parameter]
-        [Required]
-        public ICommonFileStoreTableViewModel ViewModel { get; set; }
+        private DateTime createdOn;
 
         /// <summary>
-        /// Gets the value to check if the folder file structure component is visible
+        /// Initializes a new instance of the <see cref="DomainFileStoreRowViewModel" /> class.
         /// </summary>
-        public bool IsFolderFileStructureVisible { get; private set; }
-
-        /// <summary>
-        /// Method that is executed when there is a valid submit
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnValidSubmit()
+        /// <param name="domainFileStore">The associated <see cref="DomainFileStore" /></param>
+        public DomainFileStoreRowViewModel(DomainFileStore domainFileStore) : base(domainFileStore)
         {
-            await this.ViewModel.CreateOrEditCommonFileStore(this.ShouldCreate);
-            await base.OnValidSubmit();
+            this.CreatedOn = domainFileStore.CreatedOn;
+        }
+
+        /// <summary>
+        /// The date and time when the <see cref="DomainFileStore" /> was created
+        /// </summary>
+        public DateTime CreatedOn
+        {
+            get => this.createdOn;
+            set => this.RaiseAndSetIfChanged(ref this.createdOn, value);
         }
     }
 }

@@ -74,6 +74,7 @@ namespace COMETwebapp.Services.RowViewModelFactoryService
 
                 // Engineering model rows
                 CommonFileStore castThing => new CommonFileStoreRowViewModel(castThing),
+                DomainFileStore castThing => new DomainFileStoreRowViewModel(castThing),
                 FileRevision castThing => new FileRevisionRowViewModel(castThing),
                 FileType castThing => new FileTypeRowViewModel(castThing),
                 Option castThing => new OptionRowViewModel(castThing),
