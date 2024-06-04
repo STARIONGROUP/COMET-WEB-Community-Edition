@@ -190,7 +190,7 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
 
             var targetFolder = (Folder)targetNode.Thing;
 
-            switch (this.DraggedNode.Thing)
+            switch (this.DraggedNode?.Thing)
             {
                 case File file:
                     await this.ViewModel.FileHandlerViewModel.MoveFile(file, targetFolder);

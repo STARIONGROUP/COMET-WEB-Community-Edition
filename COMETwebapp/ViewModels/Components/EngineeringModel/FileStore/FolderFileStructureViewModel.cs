@@ -54,6 +54,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
             this.FileHandlerViewModel = fileHandlerViewModel;
             this.FolderHandlerViewModel = folderHandlerViewModel;
             this.InitializeSubscriptions([typeof(File), typeof(Folder), typeof(FileStore)]);
+            this.RegisterViewModelWithReusableRows(this);
         }
 
         /// <summary>
@@ -91,6 +92,70 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
         }
 
         /// <summary>
+        /// Add rows related to <see cref="Thing" /> that has been added
+        /// </summary>
+        /// <param name="addedThings">A collection of added <see cref="Thing" /></param>
+        public void AddRows(IEnumerable<Thing> addedThings)
+        {
+            var addedThingsList = addedThings.Where(x => x is File or Folder && x.Container?.Iid == this.CurrentFileStore.Iid).ToList();
+            var flatListOfNodes = this.Structure[0].GetFlatListOfChildrenNodes(true).ToList();
+
+            foreach (var addedThing in addedThingsList)
+            {
+                var parentNode = GetContainingFolderNodeFromList(flatListOfNodes, addedThing);
+                var nodeToAdd = new FileFolderNodeViewModel(addedThing);
+                parentNode.Content.Add(nodeToAdd);
+            }
+        }
+
+        /// <summary>
+        /// Updates rows related to <see cref="Thing" /> that have been updated
+        /// </summary>
+        /// <param name="updatedThings">A collection of updated <see cref="Thing" /></param>
+        public void UpdateRows(IEnumerable<Thing> updatedThings)
+        {
+            var updatedThingsList = updatedThings.Where(x => x is File or Folder && x.Container?.Iid == this.CurrentFileStore.Iid).ToList();
+            var rootNode = this.Structure[0];
+            var flatListOfNodes = rootNode.GetFlatListOfChildrenNodes(true).ToList();
+
+            foreach (var updatedThing in updatedThingsList)
+            {
+                var nodeToUpdate = flatListOfNodes.First(x => x.Thing?.Iid == updatedThing?.Iid);
+                var parentNode = GetContainingFolderNodeFromList(flatListOfNodes, updatedThing);
+
+                rootNode.RemoveChildNode(nodeToUpdate);
+                nodeToUpdate.UpdateThing(updatedThing);
+                parentNode.Content.Add(nodeToUpdate);
+            }
+
+            var updatedFileStore = this.UpdatedThings.OfType<FileStore>().FirstOrDefault(x => x.Iid == this.CurrentFileStore?.Iid);
+
+            if (updatedFileStore != null)
+            {
+                this.SetFolders(updatedFileStore.Folder);
+            }
+        }
+
+        /// <summary>
+        /// Remove rows related to a <see cref="Thing" /> that has been deleted
+        /// </summary>
+        /// <param name="deletedThings">A collection of deleted <see cref="Thing" /></param>
+        public void RemoveRows(IEnumerable<Thing> deletedThings)
+        {
+            var rootNode = this.Structure[0];
+            var flatListOfNodes = rootNode.GetFlatListOfChildrenNodes(true).ToList();
+
+            var deletedThingsList = this.DeletedThings.Where(x => x is File or Folder && x.Container?.Iid == this.CurrentFileStore.Iid)
+                .Select(deletedThing => flatListOfNodes.FirstOrDefault(x => x.Thing?.Iid == deletedThing?.Iid))
+                .ToList();
+
+            foreach (var nodeToDelete in deletedThingsList)
+            {
+                rootNode.RemoveChildNode(nodeToDelete);
+            }
+        }
+
+        /// <summary>
         /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -105,46 +170,16 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed()
         {
-            if (this.AddedThings.Count == 0 && this.UpdatedThings.Count == 0 && this.DeletedThings.Count == 0)
+            if ((this.AddedThings.Count == 0 && this.UpdatedThings.Count == 0 && this.DeletedThings.Count == 0) || this.CurrentFileStore is null)
             {
                 return Task.CompletedTask;
             }
 
             this.IsLoading = true;
 
-            var rootNode = this.Structure.First();
-            var flatListOfNodes = rootNode.GetFlatListOfChildrenNodes(true).ToList();
-
-            foreach (var updatedThing in this.UpdatedThings.Where(x => x is File or Folder))
-            {
-                var nodeToUpdate = flatListOfNodes.First(x => x.Thing?.Iid == updatedThing?.Iid);
-                var parentNode = GetContainingFolderNodeFromList(flatListOfNodes, updatedThing);
-
-                rootNode.RemoveChildNode(nodeToUpdate);
-                nodeToUpdate.UpdateThing(updatedThing);
-                parentNode.Content.Add(nodeToUpdate);
-            }
-
-            foreach (var nodeToDelete in this.DeletedThings.Where(x => x is File or Folder).Select(deletedThing => flatListOfNodes.FirstOrDefault(x => x.Thing?.Iid == deletedThing?.Iid)))
-            {
-                rootNode.RemoveChildNode(nodeToDelete);
-            }
-
-            foreach (var addedThing in this.AddedThings.Where(x => x is File or Folder))
-            {
-                var parentNode = GetContainingFolderNodeFromList(flatListOfNodes, addedThing);
-                var nodeToAdd = new FileFolderNodeViewModel(addedThing);
-                parentNode.Content.Add(nodeToAdd);
-            }
-
-            var updatedFileStore = this.UpdatedThings.OfType<FileStore>().FirstOrDefault(x => x.Iid == this.CurrentFileStore?.Iid);
-
-            if (updatedFileStore != null)
-            {
-                this.SetFolders(updatedFileStore.Folder);
-            }
-
+            this.UpdateInnerComponents();
             this.ClearRecordedChanges();
+
             this.IsLoading = false;
 
             return Task.CompletedTask;

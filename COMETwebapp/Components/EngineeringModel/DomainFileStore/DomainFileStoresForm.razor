@@ -51,13 +51,13 @@ Copyright (c) 2023-2024 Starion Group S.A.
                  OnDelete="@(() => this.ViewModel.IsOnDeletionMode = true)"
                  DeleteButtonVisible="@(!this.ShouldCreate)"
                  ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))"
-                 IsLoading="@(this.ViewModel.IsLoading)" />
+                 IsLoading="@(this.ViewModel.IsLoading)"/>
 </EditForm>
 
-<DxPopup @bind-Visible="@(this.IsFolderFileStructureVisible)" 
-         HeaderText="@($"Folder-File Structure: {this.ViewModel.CurrentThing.Name}")" 
-         Width="60%" 
-         CloseOnOutsideClick="false" 
+<DxPopup @bind-Visible="@(this.IsFolderFileStructureVisible)"
+         HeaderText="@($"Folder-File Structure: {this.ViewModel.CurrentThing.Name}")"
+         Width="60%"
+         CloseOnOutsideClick="false"
          Height="60vh">
     <FolderFileStructure ViewModel="@(this.ViewModel.FolderFileStructureViewModel)"/>
 </DxPopup>

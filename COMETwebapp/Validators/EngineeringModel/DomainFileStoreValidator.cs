@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IFolderFileStructureViewModel.cs" company="Starion Group S.A.">
+//  <copyright file="DomainFileStoreValidator.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,40 +22,28 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
+namespace COMETwebapp.Validators.EngineeringModel
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.Validation;
 
-    using COMET.Web.Common.ViewModels.Components.Applications;
+    using COMET.Web.Common.Extensions;
 
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler;
+    using FluentValidation;
 
     /// <summary>
-    /// View model used to manage the folder file structure
+    /// A class to validate the <see cref="DomainFileStore" />
     /// </summary>
-    public interface IFolderFileStructureViewModel : IApplicationBaseViewModel, IHaveReusableRows
+    public class DomainFileStoreValidator : AbstractValidator<DomainFileStore>
     {
         /// <summary>
-        /// The folder-file hierarchically structured
+        /// Instantiates a new <see cref="DomainFileStoreValidator" />
         /// </summary>
-        List<FileFolderNodeViewModel> Structure { get; set; }
-
-        /// <summary>
-        /// Gets the <see cref="IFileHandlerViewModel" />
-        /// </summary>
-        IFileHandlerViewModel FileHandlerViewModel { get; }
-
-        /// <summary>
-        /// Gets the <see cref="IFolderHandlerViewModel" />
-        /// </summary>
-        IFolderHandlerViewModel FolderHandlerViewModel { get; }
-
-        /// <summary>
-        /// Initializes the current <see cref="FolderFileStructureViewModel" />
-        /// </summary>
-        /// <param name="fileStore">The <see cref="FileStore" /> to be set</param>
-        /// <param name="iteration">The current <see cref="Iteration" /></param>
-        void InitializeViewModel(FileStore fileStore, Iteration iteration);
+        /// <param name="validationService">The <see cref="IValidationService" /></param>
+        public DomainFileStoreValidator(IValidationService validationService)
+        {
+            this.RuleFor(x => x.Name).Validate(validationService, nameof(DomainFileStore.Name));
+            this.RuleFor(x => x.Owner).Validate(validationService, nameof(DomainFileStore.Owner));
+        }
     }
 }

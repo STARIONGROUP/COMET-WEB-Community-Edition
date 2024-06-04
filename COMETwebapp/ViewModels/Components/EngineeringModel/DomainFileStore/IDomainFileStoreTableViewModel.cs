@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IFolderFileStructureViewModel.cs" company="Starion Group S.A.">
+//  <copyright file="IDomainFileStoreTableViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,40 +22,47 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.DomainFileStore
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMET.Web.Common.ViewModels.Components.Applications;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
 
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler;
+    using COMETwebapp.ViewModels.Components.Common.DeletableDataItemTable;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
 
     /// <summary>
-    /// View model used to manage the folder file structure
+    /// View model used to manage <see cref="DomainFileStore" />
     /// </summary>
-    public interface IFolderFileStructureViewModel : IApplicationBaseViewModel, IHaveReusableRows
+    public interface IDomainFileStoreTableViewModel : IDeletableDataItemTableViewModel<DomainFileStore, DomainFileStoreRowViewModel>
     {
         /// <summary>
-        /// The folder-file hierarchically structured
+        /// Gets or sets the value to verify if the <see cref="DomainFileStore" /> to create is private
         /// </summary>
-        List<FileFolderNodeViewModel> Structure { get; set; }
+        bool IsPrivate { get; set; }
 
         /// <summary>
-        /// Gets the <see cref="IFileHandlerViewModel" />
+        /// Gets the <see cref="IFolderFileStructureViewModel" />
         /// </summary>
-        IFileHandlerViewModel FileHandlerViewModel { get; }
+        IFolderFileStructureViewModel FolderFileStructureViewModel { get; }
 
         /// <summary>
-        /// Gets the <see cref="IFolderHandlerViewModel" />
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
         /// </summary>
-        IFolderHandlerViewModel FolderHandlerViewModel { get; }
+        IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; }
 
         /// <summary>
-        /// Initializes the current <see cref="FolderFileStructureViewModel" />
+        /// Creates or edits a <see cref="DomainFileStore" />
         /// </summary>
-        /// <param name="fileStore">The <see cref="FileStore" /> to be set</param>
-        /// <param name="iteration">The current <see cref="Iteration" /></param>
-        void InitializeViewModel(FileStore fileStore, Iteration iteration);
+        /// <param name="shouldCreate">The value to check if a new <see cref="DomainFileStore" /> should be created</param>
+        /// <returns>A <see cref="Task" /></returns>
+        Task CreateOrEditDomainFileStore(bool shouldCreate);
+
+        /// <summary>
+        /// Sets the <see cref="DomainFileStoreTableViewModel.CurrentIteration" /> value
+        /// </summary>
+        /// <param name="iteration">The iteration to be set</param>
+        void SetCurrentIteration(Iteration iteration);
     }
 }

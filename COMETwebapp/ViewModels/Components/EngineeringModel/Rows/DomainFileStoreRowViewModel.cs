@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IFolderFileStructureViewModel.cs" company="Starion Group S.A.">
+//  <copyright file="DomainFileStoreRowViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,40 +22,40 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
+namespace COMETwebapp.ViewModels.Components.EngineeringModel.Rows
 {
     using CDP4Common.EngineeringModelData;
 
-    using COMET.Web.Common.ViewModels.Components.Applications;
+    using COMETwebapp.ViewModels.Components.Common.Rows;
 
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler;
+    using ReactiveUI;
 
     /// <summary>
-    /// View model used to manage the folder file structure
+    /// Row View Model for  <see cref="DomainFileStore" />
     /// </summary>
-    public interface IFolderFileStructureViewModel : IApplicationBaseViewModel, IHaveReusableRows
+    public class DomainFileStoreRowViewModel : BaseDataItemRowViewModel<DomainFileStore>
     {
         /// <summary>
-        /// The folder-file hierarchically structured
+        /// The backing field for <see cref="CreatedOn" />
         /// </summary>
-        List<FileFolderNodeViewModel> Structure { get; set; }
+        private DateTime createdOn;
 
         /// <summary>
-        /// Gets the <see cref="IFileHandlerViewModel" />
+        /// Initializes a new instance of the <see cref="DomainFileStoreRowViewModel" /> class.
         /// </summary>
-        IFileHandlerViewModel FileHandlerViewModel { get; }
+        /// <param name="domainFileStore">The associated <see cref="DomainFileStore" /></param>
+        public DomainFileStoreRowViewModel(DomainFileStore domainFileStore) : base(domainFileStore)
+        {
+            this.CreatedOn = domainFileStore.CreatedOn;
+        }
 
         /// <summary>
-        /// Gets the <see cref="IFolderHandlerViewModel" />
+        /// The date and time when the <see cref="DomainFileStore" /> was created
         /// </summary>
-        IFolderHandlerViewModel FolderHandlerViewModel { get; }
-
-        /// <summary>
-        /// Initializes the current <see cref="FolderFileStructureViewModel" />
-        /// </summary>
-        /// <param name="fileStore">The <see cref="FileStore" /> to be set</param>
-        /// <param name="iteration">The current <see cref="Iteration" /></param>
-        void InitializeViewModel(FileStore fileStore, Iteration iteration);
+        public DateTime CreatedOn
+        {
+            get => this.createdOn;
+            set => this.RaiseAndSetIfChanged(ref this.createdOn, value);
+        }
     }
 }

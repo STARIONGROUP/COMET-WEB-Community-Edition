@@ -50,7 +50,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Rows
         }
 
         /// <summary>
-        /// The date and time when the <see cref="CommonFileStore"/> was created, as a <see cref="string"/>
+        /// The date and time when the <see cref="CommonFileStore"/> was created
         /// </summary>
         public DateTime CreatedOn
         {

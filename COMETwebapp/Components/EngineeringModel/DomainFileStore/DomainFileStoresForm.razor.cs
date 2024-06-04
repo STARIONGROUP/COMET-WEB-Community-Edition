@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IFolderFileStructureViewModel.cs" company="Starion Group S.A.">
+//  <copyright file="DomainFileStoresForm.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,40 +22,41 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
+namespace COMETwebapp.Components.EngineeringModel.DomainFileStore
 {
-    using CDP4Common.EngineeringModelData;
+    using System.ComponentModel.DataAnnotations;
 
-    using COMET.Web.Common.ViewModels.Components.Applications;
+    using COMETwebapp.Components.Common;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.DomainFileStore;
 
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler;
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// View model used to manage the folder file structure
+    /// Support class for the <see cref="DomainFileStoresForm" />
     /// </summary>
-    public interface IFolderFileStructureViewModel : IApplicationBaseViewModel, IHaveReusableRows
+    public partial class DomainFileStoresForm : SelectedDataItemForm
     {
         /// <summary>
-        /// The folder-file hierarchically structured
+        /// The <see cref="ICommonFileStoreTableViewModel" /> for this component
         /// </summary>
-        List<FileFolderNodeViewModel> Structure { get; set; }
+        [Parameter]
+        [Required]
+        public IDomainFileStoreTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets the <see cref="IFileHandlerViewModel" />
+        /// Gets the value to check if the folder file structure component is visible
         /// </summary>
-        IFileHandlerViewModel FileHandlerViewModel { get; }
+        public bool IsFolderFileStructureVisible { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="IFolderHandlerViewModel" />
+        /// Method that is executed when there is a valid submit
         /// </summary>
-        IFolderHandlerViewModel FolderHandlerViewModel { get; }
-
-        /// <summary>
-        /// Initializes the current <see cref="FolderFileStructureViewModel" />
-        /// </summary>
-        /// <param name="fileStore">The <see cref="FileStore" /> to be set</param>
-        /// <param name="iteration">The current <see cref="Iteration" /></param>
-        void InitializeViewModel(FileStore fileStore, Iteration iteration);
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnValidSubmit()
+        {
+            await this.ViewModel.CreateOrEditDomainFileStore(this.ShouldCreate);
+            await base.OnValidSubmit();
+        }
     }
 }
