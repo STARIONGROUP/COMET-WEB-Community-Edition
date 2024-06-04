@@ -38,7 +38,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Rows
         /// <summary>
         /// The backing field for <see cref="CreatedOn"/>
         /// </summary>
-        private string createdOn;
+        private DateTime createdOn;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommonFileStoreRowViewModel" /> class.
@@ -46,13 +46,13 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Rows
         /// <param name="commonFileStore">The associated <see cref="CommonFileStore" /></param>
         public CommonFileStoreRowViewModel(CommonFileStore commonFileStore) : base(commonFileStore)
         {
-            this.CreatedOn = commonFileStore.CreatedOn.ToString("dd/MM/yyyy HH:mm:ss");
+            this.CreatedOn = commonFileStore.CreatedOn;
         }
 
         /// <summary>
         /// The date and time when the <see cref="CommonFileStore"/> was created, as a <see cref="string"/>
         /// </summary>
-        public string CreatedOn
+        public DateTime CreatedOn
         {
             get => this.createdOn;
             set => this.RaiseAndSetIfChanged(ref this.createdOn, value);

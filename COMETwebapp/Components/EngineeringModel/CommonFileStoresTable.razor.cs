@@ -1,26 +1,26 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CommonFileStoresTable.razor.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="CommonFileStoresTable.razor.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Components.EngineeringModel
 {
@@ -28,29 +28,27 @@ namespace COMETwebapp.Components.EngineeringModel
 
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Extensions;
+
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
+    using ReactiveUI;
+
     /// <summary>
-    /// Support class for the <see cref="CommonFileStoresTable"/>
+    /// Support class for the <see cref="CommonFileStoresTable" />
     /// </summary>
     public partial class CommonFileStoresTable : SelectedDataItemBase<CommonFileStore, CommonFileStoreRowViewModel>
     {
         /// <summary>
         /// The <see cref="ICommonFileStoreTableViewModel" /> for this component
         /// </summary>
-        [Parameter, Required]
+        [Parameter]
+        [Required]
         public ICommonFileStoreTableViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Gets the value to check if the folder file structure component is visible
-        /// </summary>
-        public bool IsFolderFileStructureVisible { get; private set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -60,20 +58,7 @@ namespace COMETwebapp.Components.EngineeringModel
         {
             base.OnInitialized();
             this.Initialize(this.ViewModel);
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new thing
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
-        {
-            base.CustomizeEditThing(e);
-
-            var dataItem = (CommonFileStoreRowViewModel)e.DataItem;
-            this.ViewModel.CurrentThing = dataItem == null ? new CommonFileStore() : dataItem.Thing.Clone(true);
-            e.EditModel = this.ViewModel.CurrentThing;
-            this.IsOnEditMode = false;
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnDeletionMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -83,26 +68,29 @@ namespace COMETwebapp.Components.EngineeringModel
         protected override void OnSelectedDataItemChanged(CommonFileStoreRowViewModel row)
         {
             base.OnSelectedDataItemChanged(row);
+            this.ShouldCreateThing = false;
             this.ViewModel.CurrentThing = row.Thing.Clone(true);
         }
 
         /// <summary>
-        /// Method invoked when the deletion popup is confirmed
+        /// Method invoked before creating a new thing
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        private async Task OnConfirmDelete()
+        private void OnAddThingClick()
         {
-            await this.ViewModel.OnConfirmPopupButtonClick();
-            this.IsOnEditMode = false;
+            this.ShouldCreateThing = true;
+            this.IsOnEditMode = true;
+            this.ViewModel.CurrentThing = new CommonFileStore();
+            this.InvokeAsync(this.StateHasChanged);
         }
 
         /// <summary>
-        /// Method invoked when the see folder file structure button is clicked
+        /// Method invoked when the deletion of a thing is confirmed
         /// </summary>
-        private void OnSeeFolderFileStructureClick()
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task OnDeletionConfirmed()
         {
-            this.ViewModel.LoadFileStructure();
-            this.IsFolderFileStructureVisible = true;
+            await this.ViewModel.OnConfirmPopupButtonClick();
+            this.IsOnEditMode = false;
         }
     }
 }

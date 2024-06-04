@@ -1,26 +1,26 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FolderFileStructureViewModel.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="FolderFileStructureViewModel.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
 {
@@ -42,32 +42,32 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
     public class FolderFileStructureViewModel : ApplicationBaseViewModel, IFolderFileStructureViewModel
     {
         /// <summary>
-        /// Gets or sets the current <see cref="FileStore"/>
-        /// </summary>
-        private FileStore CurrentFileStore { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="FolderFileStructureViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        /// <param name="fileHandlerViewModel">The <see cref="IFileHandlerViewModel"/></param>
-        /// <param name="folderHandlerViewModel">The <see cref="IFolderHandlerViewModel"/></param>
-        public FolderFileStructureViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IFileHandlerViewModel fileHandlerViewModel, IFolderHandlerViewModel folderHandlerViewModel) 
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
+        /// <param name="fileHandlerViewModel">The <see cref="IFileHandlerViewModel" /></param>
+        /// <param name="folderHandlerViewModel">The <see cref="IFolderHandlerViewModel" /></param>
+        public FolderFileStructureViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IFileHandlerViewModel fileHandlerViewModel, IFolderHandlerViewModel folderHandlerViewModel)
             : base(sessionService, messageBus)
         {
             this.FileHandlerViewModel = fileHandlerViewModel;
             this.FolderHandlerViewModel = folderHandlerViewModel;
-            this.InitializeSubscriptions([typeof(File), typeof(Folder)]);
+            this.InitializeSubscriptions([typeof(File), typeof(Folder), typeof(FileStore)]);
         }
 
         /// <summary>
-        /// Gets the <see cref="IFileHandlerViewModel"/>
+        /// Gets or sets the current <see cref="FileStore" />
+        /// </summary>
+        private FileStore CurrentFileStore { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="IFileHandlerViewModel" />
         /// </summary>
         public IFileHandlerViewModel FileHandlerViewModel { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="IFolderHandlerViewModel"/>
+        /// Gets the <see cref="IFolderHandlerViewModel" />
         /// </summary>
         public IFolderHandlerViewModel FolderHandlerViewModel { get; private set; }
 
@@ -77,15 +77,16 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
         public List<FileFolderNodeViewModel> Structure { get; set; } = [];
 
         /// <summary>
-        /// Initializes the current <see cref="FolderFileStructureViewModel"/>
+        /// Initializes the current <see cref="FolderFileStructureViewModel" />
         /// </summary>
-        /// <param name="fileStore">The <see cref="FileStore"/> to be set</param>
-        /// <param name="iteration">The current <see cref="Iteration"/></param>
+        /// <param name="fileStore">The <see cref="FileStore" /> to be set</param>
+        /// <param name="iteration">The current <see cref="Iteration" /></param>
         public void InitializeViewModel(FileStore fileStore, Iteration iteration)
         {
             this.CurrentFileStore = fileStore;
             this.FileHandlerViewModel.InitializeViewModel(this.CurrentFileStore, iteration);
             this.FolderHandlerViewModel.InitializeViewModel(this.CurrentFileStore, iteration);
+            this.SetFolders(this.CurrentFileStore.Folder);
             this.CreateStructureTree();
         }
 
@@ -114,7 +115,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
             var rootNode = this.Structure.First();
             var flatListOfNodes = rootNode.GetFlatListOfChildrenNodes(true).ToList();
 
-            foreach (var updatedThing in this.UpdatedThings)
+            foreach (var updatedThing in this.UpdatedThings.Where(x => x is File or Folder))
             {
                 var nodeToUpdate = flatListOfNodes.First(x => x.Thing?.Iid == updatedThing?.Iid);
                 var parentNode = GetContainingFolderNodeFromList(flatListOfNodes, updatedThing);
@@ -124,16 +125,23 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
                 parentNode.Content.Add(nodeToUpdate);
             }
 
-            foreach (var nodeToDelete in this.DeletedThings.Select(deletedThing => flatListOfNodes.FirstOrDefault(x => x.Thing?.Iid == deletedThing?.Iid)))
+            foreach (var nodeToDelete in this.DeletedThings.Where(x => x is File or Folder).Select(deletedThing => flatListOfNodes.FirstOrDefault(x => x.Thing?.Iid == deletedThing?.Iid)))
             {
                 rootNode.RemoveChildNode(nodeToDelete);
             }
 
-            foreach (var addedThing in this.AddedThings)
+            foreach (var addedThing in this.AddedThings.Where(x => x is File or Folder))
             {
                 var parentNode = GetContainingFolderNodeFromList(flatListOfNodes, addedThing);
                 var nodeToAdd = new FileFolderNodeViewModel(addedThing);
                 parentNode.Content.Add(nodeToAdd);
+            }
+
+            var updatedFileStore = this.UpdatedThings.OfType<FileStore>().FirstOrDefault(x => x.Iid == this.CurrentFileStore?.Iid);
+
+            if (updatedFileStore != null)
+            {
+                this.SetFolders(updatedFileStore.Folder);
             }
 
             this.ClearRecordedChanges();
@@ -143,7 +151,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
         }
 
         /// <summary>
-        /// Creates the structure tree, present in <see cref="Structure"/>
+        /// Creates the structure tree, present in <see cref="Structure" />
         /// </summary>
         private void CreateStructureTree()
         {
@@ -164,11 +172,13 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
             var nestedFiles = this.CurrentFileStore.File
                 .Where(x => x.CurrentContainingFolder?.Iid == folderNode.Thing?.Iid)
                 .Select(x => new FileFolderNodeViewModel(x))
+                .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
 
             var nestedFolders = this.CurrentFileStore.Folder
                 .Where(x => x.ContainingFolder?.Iid == folderNode.Thing?.Iid)
                 .Select(x => new FileFolderNodeViewModel(x))
+                .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
 
             folderNode.Content.AddRange(nestedFolders);
@@ -178,6 +188,18 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
             {
                 this.LoadFolderContent(nestedFolder);
             }
+        }
+
+        /// <summary>
+        /// Sets the collection of <see cref="Folder" />s with a null value appended for the contained view models that need it
+        /// </summary>
+        /// <param name="folders">The collection of folders to set</param>
+        private void SetFolders(IEnumerable<Folder> folders)
+        {
+            var resultingFolders = folders.ToList();
+            resultingFolders.Add(null);
+            this.FileHandlerViewModel.Folders = resultingFolders;
+            this.FolderHandlerViewModel.Folders = resultingFolders;
         }
 
         /// <summary>

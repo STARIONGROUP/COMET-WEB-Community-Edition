@@ -52,11 +52,10 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
 
             this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
             {
-                OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner =>
-                {
-                    this.CurrentThing.Owner = selectedOwner;
-                })
+                OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner => { this.CurrentThing.Owner = selectedOwner; })
             };
+
+            this.InitializeSubscriptions([typeof(FileStore)]);
         }
 
         /// <summary>
@@ -70,9 +69,9 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         public IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; private set; }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="Folder" />s
+        /// Gets or sets a collection of the available <see cref="Folder" />s
         /// </summary>
-        public IEnumerable<Folder> Folders { get; private set; }
+        public IEnumerable<Folder> Folders { get; set; }
 
         /// <summary>
         /// Initializes the current <see cref="FolderHandlerViewModel" />
@@ -83,10 +82,6 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         {
             this.CurrentFileStore = fileStore;
             this.DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
-
-            var folders = this.CurrentFileStore.Folder.ToList();
-            folders.Add(null);
-            this.Folders = folders;
         }
 
         /// <summary>
@@ -121,6 +116,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
             if (shouldCreate)
             {
                 var engineeringModel = this.CurrentFileStore.GetContainerOfType<EngineeringModel>();
+                this.CurrentThing.CreatedOn = DateTime.UtcNow;
                 this.CurrentThing.Creator = engineeringModel.GetActiveParticipant(this.SessionService.Session.ActivePerson);
 
                 fileStoreClone.Folder.Add(this.CurrentThing);
@@ -147,10 +143,14 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override Task OnSessionRefreshed() => Task.CompletedTask;
+        protected override Task OnSessionRefreshed()
+        {
+            return Task.CompletedTask;
+        }
 
         /// <summary>
-        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has changed
+        /// Update this view model properties when the <see cref="SingleThingApplicationBaseViewModel{TThing}.CurrentThing" /> has
+        /// changed
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnThingChanged()

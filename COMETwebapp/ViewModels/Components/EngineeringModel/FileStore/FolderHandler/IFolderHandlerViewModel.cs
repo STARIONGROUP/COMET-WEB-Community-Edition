@@ -47,9 +47,9 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         Folder CurrentThing { get; set; }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="CurrentThing"/>s
+        /// Gets or sets a collection of the available <see cref="Folder" />s
         /// </summary>
-        IEnumerable<Folder> Folders { get; }
+        IEnumerable<Folder> Folders { get; set; }
 
         /// <summary>
         /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel"/>

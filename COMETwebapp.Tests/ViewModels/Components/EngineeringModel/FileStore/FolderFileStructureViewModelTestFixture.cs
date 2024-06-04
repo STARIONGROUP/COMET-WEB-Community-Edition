@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="FolderFileStructureViewModelTestFixture.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -32,7 +32,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
 
     using CDP4Web.Enumerations;
 
-    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore;
@@ -63,11 +62,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             this.folderHandlerViewModel = new Mock<IFolderHandlerViewModel>();
             this.iteration = new Iteration();
 
-            var siteDirectory = new SiteDirectory()
+            var siteDirectory = new SiteDirectory
             {
                 Domain =
                 {
-                    new DomainOfExpertise()
+                    new DomainOfExpertise
                     {
                         ShortName = "doe",
                         Name = "Domain Of Expertise"
@@ -75,21 +74,21 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
                 }
             };
 
-            var folder1 = new Folder()
+            var folder1 = new Folder
             {
                 Iid = Guid.NewGuid(),
                 Name = "folder 1"
             };
 
-            var file = new File()
+            var file = new File
             {
-                Iid = Guid.NewGuid(), 
+                Iid = Guid.NewGuid(),
                 CurrentContainingFolder = folder1
             };
 
             file.FileRevision.Add(new FileRevision());
 
-            this.commonFileStore = new CommonFileStore()
+            this.commonFileStore = new CommonFileStore
             {
                 Name = "CFS",
                 Folder = { folder1 },
@@ -136,6 +135,15 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             var rootNodeContent = this.viewModel.Structure.First().Content;
             Assert.That(rootNodeContent, Has.Count.EqualTo(2));
 
+            this.messageBus.SendObjectChangeEvent(this.commonFileStore, EventKind.Updated);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+
+            Assert.Multiple(() =>
+            {
+                this.fileHandlerViewModel.VerifySet(x => x.Folders = It.IsAny<IEnumerable<Folder>>(), Times.Exactly(2));
+                this.folderHandlerViewModel.VerifySet(x => x.Folders = It.IsAny<IEnumerable<Folder>>(), Times.Exactly(2));
+            });
+
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(rootNodeContent, Has.Count.EqualTo(2));
 
@@ -148,9 +156,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
                 Assert.That(rootNodeContent.Select(x => x.Thing), Contains.Item(newFile));
                 Assert.That(rootNodeContent, Has.Count.EqualTo(3));
             });
-            
+
             var existingFile = this.commonFileStore.File.First();
-            existingFile.LockedBy = new Person() { ShortName = "locker" };
+            existingFile.LockedBy = new Person { ShortName = "locker" };
             this.messageBus.SendObjectChangeEvent(newFile, EventKind.Updated);
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
