@@ -97,7 +97,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
         /// <param name="addedThings">A collection of added <see cref="Thing" /></param>
         public void AddRows(IEnumerable<Thing> addedThings)
         {
-            var addedThingsList = addedThings.Where(x => x is File or Folder && x.Container.Iid == this.CurrentFileStore.Iid).ToList();
+            var addedThingsList = addedThings.Where(x => x is File or Folder && x.Container?.Iid == this.CurrentFileStore.Iid).ToList();
             var flatListOfNodes = this.Structure[0].GetFlatListOfChildrenNodes(true).ToList();
 
             foreach (var addedThing in addedThingsList)
@@ -114,7 +114,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
         /// <param name="updatedThings">A collection of updated <see cref="Thing" /></param>
         public void UpdateRows(IEnumerable<Thing> updatedThings)
         {
-            var updatedThingsList = updatedThings.Where(x => x is File or Folder && x.Container.Iid == this.CurrentFileStore.Iid).ToList();
+            var updatedThingsList = updatedThings.Where(x => x is File or Folder && x.Container?.Iid == this.CurrentFileStore.Iid).ToList();
             var rootNode = this.Structure[0];
             var flatListOfNodes = rootNode.GetFlatListOfChildrenNodes(true).ToList();
 
@@ -145,7 +145,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
             var rootNode = this.Structure[0];
             var flatListOfNodes = rootNode.GetFlatListOfChildrenNodes(true).ToList();
 
-            var deletedThingsList = this.DeletedThings.Where(x => x is File or Folder && x.Container.Iid == this.CurrentFileStore.Iid)
+            var deletedThingsList = this.DeletedThings.Where(x => x is File or Folder && x.Container?.Iid == this.CurrentFileStore.Iid)
                 .Select(deletedThing => flatListOfNodes.FirstOrDefault(x => x.Thing?.Iid == deletedThing?.Iid))
                 .ToList();
 

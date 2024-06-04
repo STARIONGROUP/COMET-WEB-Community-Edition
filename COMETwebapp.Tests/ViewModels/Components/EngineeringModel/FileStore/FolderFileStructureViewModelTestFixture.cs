@@ -91,10 +91,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             this.commonFileStore = new CommonFileStore
             {
                 Name = "CFS",
-                Folder = { folder1 },
-                File = { file },
                 Owner = siteDirectory.Domain.First()
             };
+
+            this.commonFileStore.Folder.Add(folder1);
+            this.commonFileStore.File.Add(file);
 
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
             this.viewModel = new FolderFileStructureViewModel(this.sessionService.Object, this.messageBus, this.fileHandlerViewModel.Object, this.folderHandlerViewModel.Object);
@@ -147,7 +148,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(rootNodeContent, Has.Count.EqualTo(2));
 
-            var newFile = new File();
+            var newFile = new File
+            {
+                Container = this.commonFileStore
+            };
+
             this.messageBus.SendObjectChangeEvent(newFile, EventKind.Added);
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
