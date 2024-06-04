@@ -104,6 +104,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             this.Dimension = text;
             var dimensions = text.Split(",").Select(int.Parse).ToList();
             var arrayParameterType = (ArrayParameterType)this.Thing;
+            arrayParameterType.Component.Clear();
             var dimensionIndex = 0;
 
             if (arrayParameterType.Dimension.Count > dimensions.Count)
@@ -119,24 +120,49 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
                 }
             }
 
-            if (arrayParameterType.Dimension.Count >= dimensions.Count)
+            if (arrayParameterType.Dimension.Count < dimensions.Count)
             {
-                return;
+                dimensionIndex = 0;
+
+                foreach (var dimension in dimensions)
+                {
+                    if (dimensionIndex >= arrayParameterType.Dimension.Count)
+                    {
+                        arrayParameterType.Dimension.Add(dimension);
+                    }
+
+                    dimensionIndex++;
+                }
             }
 
             dimensionIndex = 0;
 
             foreach (var dimension in dimensions)
             {
-                if (dimensionIndex >= arrayParameterType.Dimension.Count)
-                {
-                    arrayParameterType.Dimension.Add(dimension);
-                }
-
+                arrayParameterType.Dimension[dimensionIndex] = dimension;
                 dimensionIndex++;
             }
 
+            this.GenerateRows(dimensions, 0);
+
             // TODO: #602 (https://github.com/STARIONGROUP/COMET-WEB-Community-Edition/issues/602)
+        }
+
+        private void GenerateRows(List<int> dimensions, int currentDimension)
+        {
+            var arrayParameterType = (ArrayParameterType)this.Thing;
+
+            for (var dimensionIndex = 0; dimensionIndex < dimensions[currentDimension]; dimensionIndex++)
+            {
+                if (currentDimension == dimensions.Count - 1)
+                {
+                    arrayParameterType.Component.Add(new ParameterTypeComponent());
+                }
+                else if(currentDimension < dimensions.Count)
+                {
+                    this.GenerateRows(dimensions, currentDimension + 1);
+                }
+            }
         }
     }
 }

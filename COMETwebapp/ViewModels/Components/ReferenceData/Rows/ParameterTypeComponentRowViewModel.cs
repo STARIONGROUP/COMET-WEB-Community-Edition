@@ -29,6 +29,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using ReactiveUI;
+    using System.Text;
 
     /// <summary>
     /// Row View Model for  <see cref="ParameterTypeComponent" />
@@ -58,7 +59,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         {
             this.Scale = parameterTypeComponent.Scale?.ShortName;
             this.ParameterType = parameterTypeComponent.ParameterType?.Name;
-            this.Coordinates = parameterTypeComponent.Index.ToString();
+
+            if (parameterTypeComponent.Container is ArrayParameterType arrayParameterType)
+            {
+                this.Coordinates = this.GetCoordinatesStringFromFlatIndex(arrayParameterType.Dimension.ToList(), parameterTypeComponent.Index);
+            }
+            else
+            {
+                this.Coordinates = parameterTypeComponent.Index.ToString();
+            }
         }
 
         /// <summary>
@@ -86,6 +95,29 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         {
             get => this.scale;
             set => this.RaiseAndSetIfChanged(ref this.scale, value);
+        }
+
+        private string GetCoordinatesStringFromFlatIndex(List<int> dimensions, int flatIndex)
+        {
+            int remainingIndex = flatIndex;
+            StringBuilder coordinatesBuilder = new StringBuilder();
+
+            for (int i = dimensions.Count - 1; i >= 0; i--)
+            {
+                int dimensionSize = dimensions[i];
+                int coordinate = remainingIndex % dimensionSize;
+                coordinatesBuilder.Insert(0, (coordinate + 1).ToString() + ","); // Add 1 for 1-based indexing
+                remainingIndex /= dimensionSize;
+            }
+
+            coordinatesBuilder.Remove(coordinatesBuilder.Length - 1, 1); // Remove trailing comma
+
+            if (remainingIndex != 0)
+            {
+                throw new ArgumentOutOfRangeException("Flat index is invalid for the provided dimensions.");
+            }
+
+            return coordinatesBuilder.ToString();
         }
     }
 }
