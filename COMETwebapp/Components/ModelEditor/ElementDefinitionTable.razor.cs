@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.Components.ModelEditor
 {
+    using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Extensions;
 
     using COMETwebapp.Services.Interoperability;
@@ -151,12 +152,11 @@ namespace COMETwebapp.Components.ModelEditor
         }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
+        /// Handles the post-assignement flow of the <see cref="ApplicationBase{TViewModel}.ViewModel" /> property
         /// </summary>
-        protected override void OnInitialized()
+        protected override void OnViewModelAssigned()
         {
-            base.OnInitialized();
+            base.OnViewModelAssigned();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnCreationMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnAddingParameterMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));

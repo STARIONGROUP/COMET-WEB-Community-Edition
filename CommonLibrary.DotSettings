@@ -1,12 +1,12 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderText/@EntryValue">--------------------------------------------------------------------------------------------------------------------&#xD;
- &lt;copyright file="${File.FileName}" company="RHEA System S.A."&gt;&#xD;
-    Copyright (c) ${CurrentDate.Year} Starion Group S.A.&#xD;
+ &lt;copyright file="${File.FileName}" company="Starion Group S.A."&gt;&#xD;
+    Copyright (c) 2023-${CurrentDate.Year} Starion Group S.A.&#xD;
 &#xD;
-    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine&#xD;
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua&#xD;
 &#xD;
     This file is part of COMET WEB Community Edition&#xD;
-    The COMET WEB Community Edition is the RHEA Web Application implementation of ECSS-E-TM-10-25&#xD;
+    The COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25&#xD;
     Annex A and Annex C.&#xD;
 &#xD;
     Licensed under the Apache License, Version 2.0 (the "License");&#xD;

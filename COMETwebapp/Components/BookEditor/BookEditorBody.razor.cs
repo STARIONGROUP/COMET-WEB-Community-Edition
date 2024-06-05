@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Components.BookEditor
 {
+    using COMET.Web.Common.Components.Applications;
+
     using ReactiveUI;
 
     /// <summary>
@@ -55,12 +57,11 @@ namespace COMETwebapp.Components.BookEditor
         }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
+        /// Handles the post-assignement flow of the <see cref="ApplicationBase{TViewModel}.ViewModel" /> property
         /// </summary>
-        protected override void OnInitialized()
+        protected override void OnViewModelAssigned()
         {
-            base.OnInitialized();
+            base.OnViewModelAssigned();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.EditorPopupViewModel.IsVisible,
                     x => x.ViewModel.ConfirmCancelPopupViewModel.IsVisible)

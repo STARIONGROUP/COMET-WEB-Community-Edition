@@ -44,29 +44,22 @@ namespace COMET.Web.Common.Components.Applications
         /// The <typeparamref name="TThing" />
         /// </summary>
         [CascadingParameter]
-        public TThing CurrentThing { get; set; }
+        public Thing CurrentThing { get; set; }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
+        /// Handles the post-assignement flow of the <see cref="ApplicationBase{TViewModel}.ViewModel" /> property
         /// </summary>
-        protected override void OnInitialized()
+        protected override void OnViewModelAssigned()
         {
-            base.OnInitialized();
+            if (this.ViewModel != null && this.CurrentThing is TThing tthing)
+            {
+                this.ViewModel.CurrentThing = tthing;
+            }
+
+            base.OnViewModelAssigned();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.CurrentThing)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-        }
-
-        /// <summary>
-        /// Method invoked when the component has received parameters from its parent in
-        /// the render tree, and the incoming values have been assigned to properties.
-        /// </summary>
-        protected override void OnParametersSet()
-        {
-            this.ViewModel.CurrentThing = this.CurrentThing;
-
-            base.OnParametersSet();
         }
     }
 }
