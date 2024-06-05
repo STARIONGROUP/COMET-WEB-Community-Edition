@@ -99,7 +99,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         }
 
         /// <summary>
-        /// Gets the coordinates of the <see cref="ParameterTypeComponent"/>
+        /// Gets the coordinates of the <see cref="ParameterTypeComponent" />
         /// </summary>
         /// <param name="dimensions">A list integers representing the dimensions</param>
         /// <param name="flatIndex">The flat index</param>
@@ -114,7 +114,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
             {
                 var dimensionSize = dimensions[i];
                 var coordinate = remainingIndex % dimensionSize;
-                coordinatesBuilder.Insert(0, (coordinate + 1) + ",");
+                coordinatesBuilder.Insert(0, coordinate + 1 + ",");
                 remainingIndex /= dimensionSize;
             }
 

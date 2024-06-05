@@ -24,7 +24,7 @@ Copyright (c) 2024 Starion Group S.A.
 @if (this.Thing is ArrayParameterType)
 {
     <DxTextBox Text="@(this.Dimension)"
-               TextChanged="@(this.OnTextChanged)"
+               TextChanged="@(this.OnDimensionTextChanged)"
                TextExpression="@(() => this.Dimension)"
                Id="dimensionTextBox"
                NullText="Insert a dimension (e.g. 1,2,3)"/>
@@ -69,7 +69,7 @@ Copyright (c) 2024 Starion Group S.A.
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
-        <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="80px" EditButtonVisible="false">
             <HeaderTemplate>
                 Order
             </HeaderTemplate>
