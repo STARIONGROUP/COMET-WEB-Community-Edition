@@ -37,7 +37,7 @@ Copyright (c) 2024 Starion Group S.A.
         EditModelSaving="@(() => this.OnEditItemSaving())"
         CustomizeEditModel="this.CustomizeEditParameterTypeComponent">
     <Columns>
-        <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.Coordinates)" MinWidth="80"/>
+        <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.Coordinates)" MinWidth="80" Visible="@(this.Thing is ArrayParameterType)" />
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ShortName)" MinWidth="80"/>
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ParameterType)" MinWidth="80"/>
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.Scale)" MinWidth="80"/>
