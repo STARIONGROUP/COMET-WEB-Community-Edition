@@ -143,7 +143,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
         }
 
         [Test]
-        public async Task VerifyMeasurementScaleAddOrEdit()
+        public async Task VerifyParameterTypeAddOrEdit()
         {
             this.viewModel.InitializeViewModel();
 
@@ -201,6 +201,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.CompoundParameterType);
             Assert.That(this.viewModel.CurrentThing, Is.TypeOf<CompoundParameterType>());
+
+            this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.ArrayParameterType);
+            Assert.That(this.viewModel.CurrentThing, Is.TypeOf<ArrayParameterType>());
 
             this.viewModel.SelectedParameterType = new ClassKindWrapper(ClassKind.DateParameterType);
             Assert.That(this.viewModel.CurrentThing, Is.TypeOf<DateParameterType>());

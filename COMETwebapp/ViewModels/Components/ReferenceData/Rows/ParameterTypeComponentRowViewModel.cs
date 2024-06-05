@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
 {
+    using System.Text;
+
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.Common.Rows;
@@ -58,7 +60,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         {
             this.Scale = parameterTypeComponent.Scale?.ShortName;
             this.ParameterType = parameterTypeComponent.ParameterType?.Name;
-            this.Coordinates = parameterTypeComponent.Index.ToString();
+
+            if (parameterTypeComponent.Container is ArrayParameterType arrayParameterType)
+            {
+                this.Coordinates = GetCoordinatesStringFromFlatIndex(arrayParameterType.Dimension.ToList(), parameterTypeComponent.Index);
+            }
+            else
+            {
+                this.Coordinates = parameterTypeComponent.Index.ToString();
+            }
         }
 
         /// <summary>
@@ -86,6 +96,30 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
         {
             get => this.scale;
             set => this.RaiseAndSetIfChanged(ref this.scale, value);
+        }
+
+        /// <summary>
+        /// Gets the coordinates of the <see cref="ParameterTypeComponent" />
+        /// </summary>
+        /// <param name="dimensions">A list integers representing the dimensions</param>
+        /// <param name="flatIndex">The flat index</param>
+        /// <returns>A string with the coordinates, e.g., x,y,z</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        private static string GetCoordinatesStringFromFlatIndex(IReadOnlyList<int> dimensions, int flatIndex)
+        {
+            var remainingIndex = flatIndex;
+            var coordinatesBuilder = new StringBuilder();
+
+            for (var i = dimensions.Count - 1; i >= 0; i--)
+            {
+                var dimensionSize = dimensions[i];
+                var coordinate = remainingIndex % dimensionSize;
+                coordinatesBuilder.Insert(0, coordinate + 1 + ",");
+                remainingIndex /= dimensionSize;
+            }
+
+            coordinatesBuilder.Remove(coordinatesBuilder.Length - 1, 1);
+            return coordinatesBuilder.ToString();
         }
     }
 }
