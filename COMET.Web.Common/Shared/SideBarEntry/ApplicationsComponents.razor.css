@@ -1,0 +1,21 @@
+.application-item-container {
+    background-color: var(--bs-body-color, var(--dxbl-body-color, inherit));
+    color: white !important;
+    margin: 0px 10px 5px 10px;
+    border: 1px solid;
+    border-radius: 15px;
+    padding: 7.5px;
+    text-align: center;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    cursor: pointer;
+    width: 250px;
+    margin-top: -5px;
+}
+
+.application-sidebar-icon {
+    padding-right: 10px;
+    padding-top: 1.5px;
+    padding-left: 10px;
+}
