@@ -23,7 +23,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Shared
+namespace COMETwebapp.Shared
 {
     using COMET.Web.Common.Services.RegistrationService;
 
@@ -32,7 +32,7 @@ namespace COMET.Web.Common.Shared
     /// <summary>
     /// Component used for the top menu
     /// </summary>
-    public partial class SideMenu
+    public partial class SideBar
     {
         /// <summary>
         /// The <see cref="IRegistrationService"/>

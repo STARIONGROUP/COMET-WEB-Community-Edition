@@ -18,6 +18,17 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Shared\SideBarEntry\ApplicationsComponents.razor.css" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Shared\SideBarEntry\ApplicationsComponents.razor.css">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="AntDesign" Version="0.19.0" />
         <PackageReference Include="BlazorStrap" Version="5.1.102.51923" />
         <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
@@ -32,6 +43,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Update="Shared\SideBar.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
       <Content Update="wwwroot\DefaultTextConfiguration.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>

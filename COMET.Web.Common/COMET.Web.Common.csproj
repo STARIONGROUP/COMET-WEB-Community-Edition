@@ -30,9 +30,6 @@
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Shared\SideBarEntry\ApplicationsComponents.razor.css" />
-  </ItemGroup>
-  <ItemGroup>
 	<PackageReference Include="AsyncEnumerator" Version="4.0.2" />
 	<PackageReference Include="Blazored.FluentValidation" Version="2.1.0" />
 	<PackageReference Include="CDP4ServicesDal-CE" Version="27.0.0" />
@@ -75,11 +72,5 @@
   </ItemGroup>
   <ItemGroup>
     <UpToDateCheckInput Remove="Components\Applications\ApplicationTemplate.razor" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Shared\SideBarEntry\ApplicationsComponents.razor.css">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
   </ItemGroup>
 </Project>

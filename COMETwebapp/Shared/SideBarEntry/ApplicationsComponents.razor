@@ -19,18 +19,18 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
-@namespace COMET.Web.Common.Shared.SideBarEntry
 
 @using COMET.Web.Common.Enumerations
-@inherits AuthorizedMenuEntry
+@inherits COMET.Web.Common.Shared.TopMenuEntry.AuthorizedMenuEntry
 
-@this.ConfigurationService.GetText(TextConfigurationKind.NavigationApplicationSelectorTitle)
+<b class="py-4 ps-3">Title 1</b>
+@*<b>@this.ConfigurationService.GetText(TextConfigurationKind.NavigationApplicationSelectorTitle)</b>*@
 @*Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated"*@
 
 @foreach (var applicationEntry in this.RegistrationService.RegisteredApplications)
 {
     @*<DxMenuItem Text="@applicationEntry.Name" NavigateUrl="@applicationEntry.Url" Enabled="@(!applicationEntry.IsDisabled)"/>*@
-    <div class="application-item-container" @onclick=@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))>
+    <div class="application-item-container @(this.NavigationManager.Uri.Contains(applicationEntry.Url) ? "selected-application-item" : "")" @onclick=@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))>
         <span class="oi oi-@applicationEntry.Icon display-flex justify-content-center application-sidebar-icon" aria-hidden="true"></span>
         @applicationEntry.Name
     </div>

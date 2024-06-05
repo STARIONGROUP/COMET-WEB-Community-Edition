@@ -19,9 +19,8 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
-@namespace COMET.Web.Common.Shared
-
 @inherits LayoutComponentBase
+@using COMETwebapp.Shared;
 
 <DxLayoutBreakpoint MaxWidth="1200"/>
 <div class="page">
@@ -33,12 +32,18 @@
         <Items>
             <DxGridLayoutItem Column="0" Area="header">
                 <Template>
-                    <SideMenu/>
+                    <div style="background-color: lightgray;">
+                        <SideBar/>
+                    </div>
                 </Template>
             </DxGridLayoutItem>
-            <DxGridLayoutItem Column="1" Area="content" CssClass="content px-4">
+            <DxGridLayoutItem Column="1" Area="content" CssClass="">
                 <Template>
-                    @(this.Body)
+                    <div style="border-radius: 35px 0px 0px 35px; background-color: white; overflow: auto; height: 100vh;">
+                        <div class="content px-4">
+                            @(this.Body)
+                        </div>
+                    </div>
                 </Template>
             </DxGridLayoutItem>
         </Items>
