@@ -24,12 +24,13 @@
 
 namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
 {
+    using System.Text;
+
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using ReactiveUI;
-    using System.Text;
 
     /// <summary>
     /// Row View Model for  <see cref="ParameterTypeComponent" />
@@ -62,7 +63,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
 
             if (parameterTypeComponent.Container is ArrayParameterType arrayParameterType)
             {
-                this.Coordinates = this.GetCoordinatesStringFromFlatIndex(arrayParameterType.Dimension.ToList(), parameterTypeComponent.Index);
+                this.Coordinates = GetCoordinatesStringFromFlatIndex(arrayParameterType.Dimension.ToList(), parameterTypeComponent.Index);
             }
             else
             {
@@ -97,26 +98,27 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Rows
             set => this.RaiseAndSetIfChanged(ref this.scale, value);
         }
 
-        private string GetCoordinatesStringFromFlatIndex(List<int> dimensions, int flatIndex)
+        /// <summary>
+        /// Gets the coordinates of the <see cref="ParameterTypeComponent"/>
+        /// </summary>
+        /// <param name="dimensions">A list integers representing the dimensions</param>
+        /// <param name="flatIndex">The flat index</param>
+        /// <returns>A string with the coordinates, e.g., x,y,z</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        private static string GetCoordinatesStringFromFlatIndex(IReadOnlyList<int> dimensions, int flatIndex)
         {
-            int remainingIndex = flatIndex;
-            StringBuilder coordinatesBuilder = new StringBuilder();
+            var remainingIndex = flatIndex;
+            var coordinatesBuilder = new StringBuilder();
 
-            for (int i = dimensions.Count - 1; i >= 0; i--)
+            for (var i = dimensions.Count - 1; i >= 0; i--)
             {
-                int dimensionSize = dimensions[i];
-                int coordinate = remainingIndex % dimensionSize;
-                coordinatesBuilder.Insert(0, (coordinate + 1).ToString() + ","); // Add 1 for 1-based indexing
+                var dimensionSize = dimensions[i];
+                var coordinate = remainingIndex % dimensionSize;
+                coordinatesBuilder.Insert(0, (coordinate + 1) + ",");
                 remainingIndex /= dimensionSize;
             }
 
-            coordinatesBuilder.Remove(coordinatesBuilder.Length - 1, 1); // Remove trailing comma
-
-            if (remainingIndex != 0)
-            {
-                throw new ArgumentOutOfRangeException("Flat index is invalid for the provided dimensions.");
-            }
-
+            coordinatesBuilder.Remove(coordinatesBuilder.Length - 1, 1);
             return coordinatesBuilder.ToString();
         }
     }
