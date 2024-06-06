@@ -92,6 +92,8 @@ namespace COMETwebapp.ViewModels.Pages
         /// </summary>
         private void InitializeViewModelBasedOnApplication()
         {
+            this.OpenTabs.Clear();
+            
             if (this.SelectedApplication == null)
             {
                 return;
@@ -110,7 +112,6 @@ namespace COMETwebapp.ViewModels.Pages
                 thingOfInterest = this.sessionService.OpenEngineeringModels.First();
             }
 
-            this.OpenTabs.Clear();
             this.OpenTabs.Add(new TabbedApplicationInformation(viewModel, this.SelectedApplication.ComponentType, thingOfInterest));
         }
     }
