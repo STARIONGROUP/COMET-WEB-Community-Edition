@@ -24,13 +24,13 @@
 
 <b class="pt-4 pb-2 ps-3">Model</b>
 
-@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications.OfType<ModelApplication>())
+@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications.Where(x => x is ModelApplication && !x.IsDisabled))
 {
     <SideBarItem Text="@applicationEntry.Name"
                  OnClick="@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))"
-                 CssClass="@(this.NavigationManager.Uri.Contains(applicationEntry.Url) ? "selected-application-item" : "")"
+                 CssClass="@(this.CurrentApplication == applicationEntry ? "selected-application-item" : "")"
                  IconCssClass="@($"oi oi-{applicationEntry.Icon}")"
-                 Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"/>
+                 Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated && this.CurrentApplication != applicationEntry)" />
 }
 
 <b class="pt-4 pb-2 ps-3">General</b>
@@ -39,7 +39,7 @@
 {
     <SideBarItem Text="@applicationEntry.Name"
                  OnClick="@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))"
-                 CssClass="@(this.NavigationManager.Uri.Contains(applicationEntry.Url) ? "selected-application-item" : "")"
+                 CssClass="@(this.CurrentApplication == applicationEntry ? "selected-application-item" : "")"
                  IconCssClass="@($"oi oi-{applicationEntry.Icon}")"
-                 Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"/>
+                 Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated && this.CurrentApplication != applicationEntry)" />
 }

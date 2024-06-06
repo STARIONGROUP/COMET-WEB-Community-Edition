@@ -46,6 +46,12 @@ namespace COMETwebapp.Shared.SideBarEntry
         public bool Enabled { get; set; } = true;
 
         /// <summary>
+        /// Value to check if the component is a dropdown selector
+        /// </summary>
+        [Parameter]
+        public bool DropdownSelector { get; set; }
+
+        /// <summary>
         /// Gets or sets the icon css class to be displayed
         /// </summary>
         [Parameter]
@@ -82,7 +88,7 @@ namespace COMETwebapp.Shared.SideBarEntry
         {
             if (this.Enabled)
             {
-                this.OnClick.Invoke();
+                this.OnClick?.Invoke();
             }
         }
     }

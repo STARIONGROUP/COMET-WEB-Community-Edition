@@ -1,5 +1,5 @@
 .application-item-container {
-    color: gray;
+    color: var(--bs-body-color, var(--dxbl-body-color, inherit));
     margin: 0px 10px 0px 10px;
     border-radius: 15px;
     padding: 15px 10px 15px 10px;
@@ -9,6 +9,11 @@
     align-items: center;
     cursor: pointer;
     width: 300px;
+    background-color: transparent;
+}
+
+.application-item-container:not(.selected-application-item):hover {
+    background-color: lightgray;
 }
 
 .selected-application-item {

@@ -22,14 +22,22 @@
 @inherits COMET.Web.Common.Shared.TopMenuEntry.AuthorizedMenuEntry
 
 <div class="application-item-container @(this.CssClass)" @onclick="@(this.ExecuteAction)" id="@(this.Id)">
-    
+
     @if (this.ChildContent is not null)
     {
         @(this.ChildContent)
     }
     else
     {
+        <div style=" display: flex; align-items: center;">
         <span class="@(this.IconCssClass) display-flex justify-content-center application-sidebar-icon" aria-hidden="true"></span>
         @(this.Text)
+        </div>
+        if (this.DropdownSelector)
+        {
+            <div style="margin-left: auto;">
+                <span class="oi oi-chevron-right" style="font-size: 15px;"></span>
+            </div>
+        }
     }
 </div>

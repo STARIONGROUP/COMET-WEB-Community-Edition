@@ -28,6 +28,8 @@ namespace COMETwebapp.Shared.SideBarEntry
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.StringTableService;
 
+    using COMETwebapp.Model;
+
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Routing;
 
@@ -53,6 +55,11 @@ namespace COMETwebapp.Shared.SideBarEntry
         /// </summary>
         [Inject]
         public IStringTableService ConfigurationService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current <see cref="Application"/> navigated
+        /// </summary>
+        private Application CurrentApplication { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -81,6 +88,9 @@ namespace COMETwebapp.Shared.SideBarEntry
         /// <param name="e">The <see cref="LocationChangedEventArgs" /></param>
         private void OnLocationChanged(object sender, LocationChangedEventArgs e)
         {
+            var currentUri = new Uri(e.Location);
+            var pageName = currentUri.AbsolutePath.TrimStart('/');
+            this.CurrentApplication = this.RegistrationService.RegisteredApplications.FirstOrDefault(x => x.Url == pageName);
             this.InvokeAsync(this.StateHasChanged);
         }
     }

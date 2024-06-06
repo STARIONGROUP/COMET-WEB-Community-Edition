@@ -99,6 +99,16 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
+        /// Closes the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public new async Task CloseSession()
+        {
+            await base.CloseSession();
+            this.OpenIterations.Clear();
+        }
+
+        /// <summary>
         /// Open the iteration with the selected <see cref="EngineeringModelSetup" /> and <see cref="IterationSetup" />
         /// </summary>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup" /></param>

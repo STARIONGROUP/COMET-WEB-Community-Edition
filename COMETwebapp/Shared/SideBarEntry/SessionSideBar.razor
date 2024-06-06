@@ -26,7 +26,8 @@
              Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"
              OnClick="@(this.ExpandDropdown)"
              IconCssClass="icon icon-database mx-2"
-             Id="user-info-container"/>
+             Id="user-info-container"
+             DropdownSelector="true"/>
 
 <DxDropDown @bind-IsOpen="@(this.Expanded)"
             PositionMode="DropDownPositionMode.Right"
