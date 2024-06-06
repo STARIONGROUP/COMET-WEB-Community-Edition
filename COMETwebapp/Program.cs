@@ -28,6 +28,7 @@ namespace COMETwebapp
     using System.Reflection;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Shared.TopMenuEntry;
 
     using COMETwebapp.Extensions;
     using COMETwebapp.Model;
@@ -59,7 +60,7 @@ namespace COMETwebapp
                 options.AdditionalAssemblies.Add(Assembly.GetAssembly(typeof(Program)));
 
                 // options.AdditionalMenuEntries.AddRange(new List<Type> { typeof(ApplicationMenu), typeof(ModelMenu), typeof(SessionMenu), typeof(ShowHideDeprecatedThings), typeof(AboutMenu), typeof(NotificationComponent) });
-                options.AdditionalMenuEntries.AddRange(new List<Type> { typeof(ApplicationsComponents), typeof(NotificationComponent) });
+                options.AdditionalMenuEntries.AddRange(new List<Type> { typeof(ApplicationsComponents), typeof(ShowHideDeprecatedThingsSideBar), typeof(AboutSideBar), typeof(SessionSideBar), typeof(NotificationComponent) });
                 options.MainLayoutType = typeof(SidebarLayout);
             });
 

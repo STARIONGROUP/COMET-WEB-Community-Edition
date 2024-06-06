@@ -1,0 +1,65 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023-2024 Starion Group S.A.
+//
+//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+//
+//   This file is part of CDP4-COMET WEB Community Edition
+//   The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25
+//   Annex A and Annex C.
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+------------------------------------------------------------------------------->
+@namespace COMETwebapp.Shared.SideBarEntry
+@inherits COMET.Web.Common.Shared.TopMenuEntry.AuthorizedMenuEntry
+
+<SideBarItem Text="Session"
+             Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"
+             OnClick="@(this.ExpandDropdown)"
+             IconCssClass="icon icon-database mx-2"
+             Id="user-info-container"/>
+
+<DxDropDown @bind-IsOpen="@(this.Expanded)"
+            PositionMode="DropDownPositionMode.Right"
+            PositionTarget="#user-info-container"
+            CloseMode="DropDownCloseMode.Close"
+            PreventCloseOnPositionTargetClick="false"
+            HeaderVisible="false"
+            FooterVisible="false">
+    <BodyContentTemplate>
+        <div class="session__header">
+            <div class="row justify-content-center">
+                @(this.AuthorizedMenuEntryViewModel.UserName)
+            </div>
+
+            <div class="row justify-content-center font-size-smaller">
+                @(this.ViewModel.SessionService.Session.DataSourceUri)
+            </div>
+        </div>
+        <div class="session_content">
+            <div class="content__autorefresh">
+                <span id="autorefresh-check">
+                    <DxCheckBox @bind-Checked="@(this.ViewModel.AutoRefreshService.IsAutoRefreshEnabled)"/>
+                </span>
+                Refresh every
+                <span></span>
+                <DxSpinEdit Id="autorefresh-value" CssClass="content__spin" @bind-Value="@(this.ViewModel.AutoRefreshService.AutoRefreshInterval)"
+                            BindValueMode="BindValueMode.OnInput" MinValue="1"/>
+                sec
+            </div>
+            <div class="session__buttons">
+                <DxButton Id="refresh-button" CssClass="btn btn-connect right-margin" Text="@(this.RefreshButtonText)" Enabled="@(!this.IsRefreshing)" Click="@(this.OnRefreshClick)"/>
+                <DxButton Id="logout-button" CssClass="btn btn-connect left-margin" Text="Log out" Click="@(this.Logout)"/>
+            </div>
+        </div>
+    </BodyContentTemplate>
+</DxDropDown>

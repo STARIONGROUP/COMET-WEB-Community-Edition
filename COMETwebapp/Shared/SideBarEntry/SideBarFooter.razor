@@ -19,28 +19,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
-@inherits LayoutComponentBase
+@namespace COMETwebapp.Shared.SideBarEntry
+@using COMET.Web.Common.Utilities
 
-<DxLayoutBreakpoint MaxWidth="1200"/>
-<div class="page">
-    <DxGridLayout CssClass="page-layout">
-        <Columns>
-            <DxGridLayoutColumn Width="auto"></DxGridLayoutColumn>
-            <DxGridLayoutColumn/>
-        </Columns>
-        <Items>
-            <DxGridLayoutItem Column="0" Area="header">
-                <Template>
-                    <div>
-                        <SideBar/>
-                    </div>
-                </Template>
-            </DxGridLayoutItem>
-            <DxGridLayoutItem Column="1" Area="content" CssClass="content px-4 page-layout-item-content">
-                <Template>
-                    @(this.Body)
-                </Template>
-            </DxGridLayoutItem>
-        </Items>
-    </DxGridLayout>
+<div style="display: ruby; position: fixed; bottom: 0; z-index: 2;">
+	<a class="homelink" href="/">
+		<img src=@("_content/CDP4.WEB.Common/images/COMET-Symbol.png") class="p-1" style="width: 75px;" title="COMET Community Edition" alt="COMET Community Edition" />
+		<div class="font-weight-bold title title-item">COMET Community Edition</div>
+	</a>
 </div>

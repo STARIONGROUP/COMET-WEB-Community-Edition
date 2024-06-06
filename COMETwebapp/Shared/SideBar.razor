@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2024 Starion Group S.A.
 //
-//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 //
 //   This file is part of CDP4-COMET WEB Community Edition
 //   The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25
@@ -19,20 +19,22 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.Shared.SideBarEntry
 @using COMET.Web.Common.Shared.TopMenuEntry
 
-<nav class="navbar header-navbar p-0">
+<nav style="height: 100vh;">
     <DxMenu CollapseItemsToHamburgerMenu="true"
             CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
             DisplayMode="MenuDisplayMode.Auto"
             Orientation="Orientation.Vertical"
             HamburgerButtonPosition="MenuHamburgerButtonPosition.Right"
-            CssClass="topmenu">
+            CssClass="topmenu h-100">
         <Items>
             @foreach (var menuEntry in this.RegistrationService.RegisteredAuthorizedMenuEntries.Where(x => x.IsSubclassOf(typeof(MenuEntryBase))))
             {
                 <DynamicComponent Type="@menuEntry"/>
             }
+            <SideBarFooter/>
         </Items>
     </DxMenu>
 </nav>

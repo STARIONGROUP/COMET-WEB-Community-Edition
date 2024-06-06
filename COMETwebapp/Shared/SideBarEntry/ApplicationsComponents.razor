@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2024 Starion Group S.A.
 //
-//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 //
 //   This file is part of CDP4-COMET WEB Community Edition
 //   The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25
@@ -19,34 +19,27 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
-
-@using COMET.Web.Common.Enumerations
+@using COMETwebapp.Model
 @inherits COMET.Web.Common.Shared.TopMenuEntry.AuthorizedMenuEntry
 
-<b class="py-4 ps-3">Title 1</b>
-@*<b>@this.ConfigurationService.GetText(TextConfigurationKind.NavigationApplicationSelectorTitle)</b>*@
-@*Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated"*@
+<b class="pt-4 pb-2 ps-3">Model</b>
 
-@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications)
+@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications.OfType<ModelApplication>())
 {
-    @*<DxMenuItem Text="@applicationEntry.Name" NavigateUrl="@applicationEntry.Url" Enabled="@(!applicationEntry.IsDisabled)"/>*@
-    <div class="application-item-container @(this.NavigationManager.Uri.Contains(applicationEntry.Url) ? "selected-application-item" : "")" @onclick=@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))>
-        <span class="oi oi-@applicationEntry.Icon display-flex justify-content-center application-sidebar-icon" aria-hidden="true"></span>
-        @applicationEntry.Name
-    </div>
+    <SideBarItem Text="@applicationEntry.Name"
+                 OnClick="@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))"
+                 CssClass="@(this.NavigationManager.Uri.Contains(applicationEntry.Url) ? "selected-application-item" : "")"
+                 IconCssClass="@($"oi oi-{applicationEntry.Icon}")"
+                 Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"/>
 }
 
-@*
-<DxMenuItem Text="" IconCssClass="oi oi-layers" >
-	<SubMenuTemplate>
-		@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications)
-		{
-            <DxMenuItem Text="@applicationEntry.Name" NavigateUrl="@applicationEntry.Url" Enabled="@(!applicationEntry.IsDisabled)"/>
-            <div>
-                <h4>@applicationEntry.Name</h4>
-            </div>
-		}
-	</SubMenuTemplate>
-</DxMenuItem>
-*@
+<b class="pt-4 pb-2 ps-3">General</b>
 
+@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications.Where(x => x is not ModelApplication && !x.IsDisabled))
+{
+    <SideBarItem Text="@applicationEntry.Name"
+                 OnClick="@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))"
+                 CssClass="@(this.NavigationManager.Uri.Contains(applicationEntry.Url) ? "selected-application-item" : "")"
+                 IconCssClass="@($"oi oi-{applicationEntry.Icon}")"
+                 Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"/>
+}

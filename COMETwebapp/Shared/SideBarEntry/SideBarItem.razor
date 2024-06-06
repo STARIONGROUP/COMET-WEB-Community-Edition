@@ -19,28 +19,17 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
-@inherits LayoutComponentBase
+@inherits COMET.Web.Common.Shared.TopMenuEntry.AuthorizedMenuEntry
 
-<DxLayoutBreakpoint MaxWidth="1200"/>
-<div class="page">
-    <DxGridLayout CssClass="page-layout">
-        <Columns>
-            <DxGridLayoutColumn Width="auto"></DxGridLayoutColumn>
-            <DxGridLayoutColumn/>
-        </Columns>
-        <Items>
-            <DxGridLayoutItem Column="0" Area="header">
-                <Template>
-                    <div>
-                        <SideBar/>
-                    </div>
-                </Template>
-            </DxGridLayoutItem>
-            <DxGridLayoutItem Column="1" Area="content" CssClass="content px-4 page-layout-item-content">
-                <Template>
-                    @(this.Body)
-                </Template>
-            </DxGridLayoutItem>
-        </Items>
-    </DxGridLayout>
+<div class="application-item-container @(this.CssClass)" @onclick="@(this.ExecuteAction)" id="@(this.Id)">
+    
+    @if (this.ChildContent is not null)
+    {
+        @(this.ChildContent)
+    }
+    else
+    {
+        <span class="@(this.IconCssClass) display-flex justify-content-center application-sidebar-icon" aria-hidden="true"></span>
+        @(this.Text)
+    }
 </div>

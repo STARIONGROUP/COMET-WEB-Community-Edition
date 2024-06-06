@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SideBar.razor.cs" company="Starion Group S.A.">
+//  <copyright file="AboutMenu.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,21 +22,30 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Shared
+namespace COMETwebapp.Shared.SideBarEntry
 {
-    using COMET.Web.Common.Services.RegistrationService;
+    using COMET.Web.Common.Shared.TopMenuEntry;
 
-    using Microsoft.AspNetCore.Components;
+    using COMETwebapp.Components.Shared;
 
     /// <summary>
-    /// Component used for the top menu
+    /// Menu entry to access to the <see cref="About" /> content
     /// </summary>
-    public partial class SideBar
+    public partial class AboutSideBar : MenuEntryBase
     {
         /// <summary>
-        /// The <see cref="IRegistrationService" />
+        /// Value asserting that the popup is visible or not
         /// </summary>
-        [Inject]
-        internal IRegistrationService RegistrationService { get; set; }
+        private bool isVisible;
+
+        /// <summary>
+        /// Set the visibility of the popup
+        /// </summary>
+        /// <param name="visibility">The new visibility state</param>
+        private void SetVisibility(bool visibility)
+        {
+            this.isVisible = visibility;
+            this.InvokeAsync(this.StateHasChanged);
+        }
     }
 }

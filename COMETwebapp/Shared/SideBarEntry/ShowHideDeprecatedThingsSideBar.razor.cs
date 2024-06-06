@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SideBar.razor.cs" company="Starion Group S.A.">
+//  <copyright file="ShowHideDeprecatedThingsSideBar.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,21 +22,37 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Shared
+namespace COMETwebapp.Shared.SideBarEntry
 {
-    using COMET.Web.Common.Services.RegistrationService;
+    using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
+
+    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 
     using Microsoft.AspNetCore.Components;
 
+    using ReactiveUI;
+
     /// <summary>
-    /// Component used for the top menu
+    /// The <see cref="ShowHideDeprecatedThingsSideBar" /> component used to show hide deprecated things
     /// </summary>
-    public partial class SideBar
+    public partial class ShowHideDeprecatedThingsSideBar
     {
         /// <summary>
-        /// The <see cref="IRegistrationService" />
+        /// The <see cref="ISessionMenuViewModel" />
         /// </summary>
         [Inject]
-        internal IRegistrationService RegistrationService { get; set; }
+        public IShowHideDeprecatedThingsViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
     }
 }

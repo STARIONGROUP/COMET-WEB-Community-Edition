@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SideBar.razor.cs" company="Starion Group S.A.">
+//  <copyright file="ModelApplication.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,21 +22,14 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Shared
+namespace COMETwebapp.Model
 {
-    using COMET.Web.Common.Services.RegistrationService;
-
-    using Microsoft.AspNetCore.Components;
+    using COMET.Web.Common.Model;
 
     /// <summary>
-    /// Component used for the top menu
+    /// Define model application information
     /// </summary>
-    public partial class SideBar
+    public class ModelApplication : Application
     {
-        /// <summary>
-        /// The <see cref="IRegistrationService" />
-        /// </summary>
-        [Inject]
-        internal IRegistrationService RegistrationService { get; set; }
     }
 }

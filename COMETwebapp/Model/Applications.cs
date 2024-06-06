@@ -36,42 +36,46 @@ namespace COMETwebapp.Model
         /// <summary>
         /// List of <see cref="Application"/> with Name, Color, Icon and Description data
         /// </summary>
-        public static List<Application> ExistingApplications => new()
-        {
-            new Application
-			{
+        public static List<Application> ExistingApplications =>
+        [
+            new ModelApplication
+            {
                 Name = "Parameter Editor",
                 Color = "#76b8fc",
                 Icon = "spreadsheet",
                 Description = "Table of element usages with their associated parameters.",
                 Url = WebAppConstantValues.ParameterEditorPage
             },
-            new Application
-			{
+
+            new ModelApplication
+            {
                 Name = "Model Dashboard",
                 Color = "#c3cffd",
                 Icon = "task",
                 Description = "Summarize the model progress.",
                 Url = WebAppConstantValues.ModelDashboardPage
             },
-            new Application
-			{
+
+            new ModelApplication
+            {
                 Name = "Subscription Dashboard",
                 Color = "#76fd98",
                 Icon = "person",
                 Description = "Table of subscribed values.",
                 Url = WebAppConstantValues.SubscriptionDashboardPage
             },
-            new Application
-			{
+
+            new ModelApplication
+            {
                 Name = "System Representation",
                 Color = "#a7f876",
                 Icon = "fork",
                 Description = "Represent relations between elements.",
                 Url = WebAppConstantValues.SystemRepresentationPage
             },
+
             new Application
-			{
+            {
                 Name = "Requirement Management",
                 Color = "#fda966",
                 Icon = "link-intact",
@@ -79,6 +83,7 @@ namespace COMETwebapp.Model
                 IsDisabled = true,
                 Url = WebAppConstantValues.RequirementManagementPage
             },
+
             new Application
             {
                 Name = "Budget Editor",
@@ -86,9 +91,10 @@ namespace COMETwebapp.Model
                 Icon = "brush",
                 Description = $"Create budget tables.{Environment.NewLine}Under Development",
                 IsDisabled = true,
-				Url = WebAppConstantValues.BudgetEditorPage
+                Url = WebAppConstantValues.BudgetEditorPage
             },
-            new Application
+
+            new ModelApplication
             {
                 Name = "3D Viewer",
                 Color = "#76fd98",
@@ -96,6 +102,7 @@ namespace COMETwebapp.Model
                 Description = "Show 3D Viewer",
                 Url = WebAppConstantValues.ViewerPage
             },
+
             new Application
             {
                 Name = "Reference Data",
@@ -104,6 +111,7 @@ namespace COMETwebapp.Model
                 Description = "Visualize reference data",
                 Url = WebAppConstantValues.ReferenceDataPage
             },
+
             new Application
             {
                 Name = "Server Administration",
@@ -112,7 +120,8 @@ namespace COMETwebapp.Model
                 Description = "Visualize site directory data",
                 Url = WebAppConstantValues.SiteDirectoryPage
             },
-            new Application
+
+            new ModelApplication
             {
                 Name = "Engineering Model",
                 Color = "#c3cffd",
@@ -120,7 +129,8 @@ namespace COMETwebapp.Model
                 Description = "Visualize the engineering model data",
                 Url = WebAppConstantValues.EngineeringModelPage
             },
-            new Application
+
+            new ModelApplication
             {
                 Name = "Model Editor",
                 Color = "#76fd98",
@@ -128,7 +138,8 @@ namespace COMETwebapp.Model
                 Description = "Populate model",
                 Url = WebAppConstantValues.ModelEditorPage
             },
-            new Application
+
+            new ModelApplication
             {
                 Name = "Book Editor",
                 Color = "#76fd98",
@@ -136,6 +147,6 @@ namespace COMETwebapp.Model
                 Description = "Manage books",
                 Url = WebAppConstantValues.BookEditorPage
             }
-        };
+        ];
     }
 }
