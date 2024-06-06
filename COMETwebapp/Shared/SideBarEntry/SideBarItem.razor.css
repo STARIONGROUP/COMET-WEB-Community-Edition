@@ -2,7 +2,7 @@
     color: var(--bs-body-color, var(--dxbl-body-color, inherit));
     margin: 0px 10px 0px 10px;
     border-radius: 15px;
-    padding: 15px 10px 15px 10px;
+    padding: 12.5px 10px 12.5px 10px;
     text-align: center;
     display: flex;
     justify-content: left;
@@ -23,6 +23,6 @@
 
 .application-sidebar-icon {
     padding-right: 10px;
-    padding-top: 1.5px;
+    margin-top: -1.5px;
     padding-left: 10px;
 }

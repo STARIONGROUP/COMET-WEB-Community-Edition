@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="BookEditorColumn.razor.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -37,7 +37,22 @@ namespace COMETwebapp.Components.BookEditor
     public partial class BookEditorColumn<TItem>
     {
         /// <summary>
-        /// Gets or sets the <see cref="IDomDataService"/>
+        /// The data of size and position of the first item in the list
+        /// </summary>
+        private float[] firstItemSizeAndPosition = Array.Empty<float>();
+
+        /// <summary>
+        /// The data of size and position of the last item in the list
+        /// </summary>
+        private float[] lastItemSizeAndPosition = Array.Empty<float>();
+
+        /// <summary>
+        /// The data of size and position of the selected item
+        /// </summary>
+        private float[] selectedItemSizeAndPosition = Array.Empty<float>();
+
+        /// <summary>
+        /// Gets or sets the <see cref="IDomDataService" />
         /// </summary>
         [Inject]
         public IDomDataService DomDataService { get; set; }
@@ -53,7 +68,7 @@ namespace COMETwebapp.Components.BookEditor
         /// </summary>
         [Parameter]
         public bool DrawLeftLines { get; set; } = true;
-        
+
         /// <summary>
         /// Gets or sets the title of the header
         /// </summary>
@@ -71,7 +86,7 @@ namespace COMETwebapp.Components.BookEditor
         /// </summary>
         [Parameter]
         public bool IsCollapsed { get; set; }
-        
+
         /// <summary>
         /// Gets or set the collection of items
         /// </summary>
@@ -85,19 +100,19 @@ namespace COMETwebapp.Components.BookEditor
         public TItem SelectedValue { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="EventCallback"/> for when the <see cref="SelectedValue"/> changes
+        /// Gets or sets the <see cref="EventCallback" /> for when the <see cref="SelectedValue" /> changes
         /// </summary>
         [Parameter]
         public EventCallback<TItem> SelectedValueChanged { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="EventCallback"/> for when a new item was requested
+        /// Gets or sets the <see cref="EventCallback" /> for when a new item was requested
         /// </summary>
         [Parameter]
         public EventCallback OnCreateNewItemClick { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="EventCallback"/> for when the user request to collapse the column
+        /// Gets or sets the <see cref="EventCallback" /> for when the user request to collapse the column
         /// </summary>
         [Parameter]
         public EventCallback OnCollapseClicked { get; set; }
@@ -109,19 +124,10 @@ namespace COMETwebapp.Components.BookEditor
         public RenderFragment<TItem> ContentTemplate { get; set; }
 
         /// <summary>
-        /// The data of size and position of the first item in the list
+        /// Gets or sets the <see cref="ILogger{TCategoryName}" />
         /// </summary>
-        private float[] firstItemSizeAndPosition = Array.Empty<float>();
-
-        /// <summary>
-        /// The data of size and position of the last item in the list
-        /// </summary>
-        private float[] lastItemSizeAndPosition = Array.Empty<float>();
-
-        /// <summary>
-        /// The data of size and position of the selected item
-        /// </summary>
-        private float[] selectedItemSizeAndPosition = Array.Empty<float>();
+        [Inject]
+        public ILogger<BookEditorColumn<TItem>> Logger { get; set; }
 
         /// <summary>
         /// Gets or sets the class used to selected the nodes
@@ -148,13 +154,42 @@ namespace COMETwebapp.Components.BookEditor
         public bool IsAddButtonDisabled { get; set; }
 
         /// <summary>
+        /// Callback method called from JS when an element performs scroll
+        /// </summary>
+        /// <returns></returns>
+        public async Task OnScroll()
+        {
+            var itemIndex = this.Items.IndexOf(this.SelectedValue);
+            this.selectedItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(itemIndex, this.CssClass, true);
+            await this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Method called when the size of the window changes
+        /// </summary>
+        /// <returns>an asynchronous operation</returns>
+        [JSInvokable]
+        public async Task OnSizeChanged()
+        {
+            try
+            {
+                this.firstItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(0, this.CssClass, false);
+                this.lastItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(this.Items?.Count - 1 ?? 0, this.CssClass, false);
+                this.selectedItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(0, this.CssClass, true);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogWarning(ex, "UI error while updating book editor column with new sizes");
+            }
+        }
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
-        ///
         /// Override this method if you will perform an asynchronous operation and
         /// want the component to refresh when that operation is completed.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
+        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -179,17 +214,6 @@ namespace COMETwebapp.Components.BookEditor
         }
 
         /// <summary>
-        /// Callback method called from JS when an element performs scroll
-        /// </summary>
-        /// <returns></returns>
-        public async Task OnScroll()
-        {
-            var itemIndex = this.Items.IndexOf(this.SelectedValue);
-            this.selectedItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(itemIndex, this.CssClass, true);
-            await this.InvokeAsync(this.StateHasChanged);
-        }
-
-        /// <summary>
         /// Generate the path points for the polyline
         /// </summary>
         /// <returns>the path</returns>
@@ -206,13 +230,13 @@ namespace COMETwebapp.Components.BookEditor
 
             var finalTop = (int)(this.firstItemSizeAndPosition[1] + this.firstItemSizeAndPosition[3] / 2.0f);
 
-            var x1 = (int)(width*0.6);
-            var y1 = (int)(top + height/2.0f);
-            var x2 = (int)(width*0.9);
+            var x1 = (int)(width * 0.6);
+            var y1 = (int)(top + height / 2.0f);
+            var x2 = (int)(width * 0.9);
             var y2 = (int)(top + height / 2.0f);
-            var x3 = (int)(width*0.9);
+            var x3 = (int)(width * 0.9);
             var y3 = finalTop;
-            var x4 = (int)(width);
+            var x4 = (int)width;
             var y4 = finalTop;
 
             return $"{x1},{y1},{x2},{y2},{x3},{y3},{x4},{y4}";
@@ -257,18 +281,6 @@ namespace COMETwebapp.Components.BookEditor
             var x2 = (int)(width * 0.5);
 
             return $"{x1},{y},{x2},{y}";
-        }
-
-        /// <summary>
-        /// Method called when the size of the window changes
-        /// </summary>
-        /// <returns>an asynchronous operation</returns>
-        [JSInvokable]
-        public async Task OnSizeChanged()
-        {
-            this.firstItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(0, this.CssClass, false);
-            this.lastItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(this.Items.Count - 1, this.CssClass, false);
-            this.selectedItemSizeAndPosition = await this.DomDataService.GetElementSizeAndPosition(0, this.CssClass, true);
         }
     }
 }

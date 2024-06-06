@@ -26,76 +26,13 @@ namespace COMETwebapp.Shared.SideBarEntry
 {
     using CDP4Dal;
 
-    using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
-
-    using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
+    using COMET.Web.Common.Shared.TopMenuEntry;
 
     /// <summary>
     /// Menu entry to access to the <see cref="ISession" /> content
     /// </summary>
-    public partial class SessionSideBar
+    public partial class SessionSideBar : SessionMenu
     {
-        /// <summary>
-        /// The <see cref="ISessionMenuViewModel" />
-        /// </summary>
-        [Inject]
-        public ISessionMenuViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// The <see cref="NavigationManager" />
-        /// </summary>
-        [Inject]
-        public NavigationManager NavigationManager { get; set; }
-
-        /// <summary>
-        /// The display text of the refresh button
-        /// </summary>
-        public string RefreshButtonText => this.IsRefreshing ? "Refreshing" : "Refresh";
-
-        /// <summary>
-        /// Value indicating if the menu is expanded or not
-        /// </summary>
-        public bool Expanded { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value to check if the session is being refresh
-        /// </summary>
-        public bool IsRefreshing { get; private set; }
-
-        /// <summary>
-        /// Logs out to the current <see cref="ISession" />
-        /// </summary>
-        public void Logout()
-        {
-            this.Expanded = false;
-            this.NavigationManager.NavigateTo("/Logout");
-        }
-
-        /// <summary>
-        /// Method executed everytime the refresh button is clicked
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task OnRefreshClick()
-        {
-            this.IsRefreshing = true;
-            await this.ViewModel.RefreshSession();
-            this.IsRefreshing = false;
-        }
-
-        /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.NotificationService.NotificationCount)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-        }
-
         /// <summary>
         /// Expands the dropdown present in the navbar
         /// </summary>

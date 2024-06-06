@@ -20,18 +20,18 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMETwebapp.Shared.SideBarEntry
-@inherits COMET.Web.Common.Shared.TopMenuEntry.AuthorizedMenuEntry
+@inherits COMET.Web.Common.Shared.TopMenuEntry.SessionMenu
 
 <SideBarItem Text="Session"
              Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"
              OnClick="@(this.ExpandDropdown)"
              IconCssClass="icon icon-database mx-2"
-             Id="user-info-container"
+             Id="session-side-bar-item"
              DropdownSelector="true"/>
 
 <DxDropDown @bind-IsOpen="@(this.Expanded)"
             PositionMode="DropDownPositionMode.Right"
-            PositionTarget="#user-info-container"
+            PositionTarget="#session-side-bar-item"
             CloseMode="DropDownCloseMode.Close"
             PreventCloseOnPositionTargetClick="false"
             HeaderVisible="false"
