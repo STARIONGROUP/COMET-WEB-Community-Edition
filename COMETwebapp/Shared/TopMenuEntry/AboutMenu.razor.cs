@@ -36,15 +36,15 @@ namespace COMETwebapp.Shared.TopMenuEntry
         /// <summary>
         /// Value asserting that the popup is visible or not
         /// </summary>
-        private bool isVisible;
+        public bool IsVisible { get; set; }
 
         /// <summary>
         /// Set the visibility of the popup
         /// </summary>
         /// <param name="visibility">The new visibility state</param>
-        private void SetVisibility(bool visibility)
+        protected void SetVisibility(bool visibility)
         {
-            this.isVisible = visibility;
+            this.IsVisible = visibility;
         }
     }
 }

@@ -22,7 +22,7 @@
 @inherits COMET.Web.Common.Shared.TopMenuEntry.MenuEntryBase
 
 <DxMenuItem Text="About" IconCssClass="icon icon-info" Click="() => this.SetVisibility(true)" Position="ItemPosition.End"/>
-<DxPopup @bind-Visible="this.isVisible" HeaderText="CDP4-COMET-WEB CE">
+<DxPopup @bind-Visible="this.IsVisible" HeaderText="CDP4-COMET-WEB CE">
     <About/>
     <div class="text-center">
         <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="@(() => this.SetVisibility(false))" />

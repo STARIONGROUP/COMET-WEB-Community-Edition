@@ -36,7 +36,7 @@ namespace COMETwebapp.Shared.SideBarEntry
         /// <summary>
         /// Expands the dropdown present in the navbar
         /// </summary>
-        private void ExpandDropdown()
+        public void ExpandDropdown()
         {
             this.Expanded = true;
             this.InvokeAsync(this.StateHasChanged);

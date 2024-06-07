@@ -19,13 +19,13 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inherits COMET.Web.Common.Shared.TopMenuEntry.MenuEntryBase
+@inherits COMETwebapp.Shared.TopMenuEntry.AboutMenu
 
 <SideBarItem Text="About"
              OnClick="@(() => this.SetVisibility(true))"
              IconCssClass="oi oi-info"/>
 
-<DxPopup @bind-Visible="this.isVisible" HeaderText="CDP4-COMET-WEB CE">
+<DxPopup @bind-Visible="this.IsVisible" HeaderText="CDP4-COMET-WEB CE">
     <About/>
     <div class="text-center">
         <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="@(() => this.SetVisibility(false))" />

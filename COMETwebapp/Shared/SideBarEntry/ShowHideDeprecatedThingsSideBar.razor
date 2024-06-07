@@ -19,7 +19,7 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inherits COMET.Web.Common.Shared.TopMenuEntry.AuthorizedMenuEntry
+@inherits COMETwebapp.Shared.TopMenuEntry.ShowHideDeprecatedThings
 
 <SideBarItem Text="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "Hide Deprecated Things" : "Show Deprecated Things")"
              OnClick="@(() => this.ViewModel.OnShowHideDeprecatedItems())"
