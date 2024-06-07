@@ -24,7 +24,7 @@
 
 <b class="pt-4 pb-2 ps-3">Model</b>
 
-@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications.Where(x => x is ModelApplication && !x.IsDisabled))
+@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications.Where(x => x is TabbedApplication && !x.IsDisabled))
 {
     <SideBarItem Text="@applicationEntry.Name"
                  OnClick="@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))"
@@ -35,7 +35,7 @@
 
 <b class="pt-4 pb-2 ps-3">General</b>
 
-@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications.Where(x => x is not ModelApplication && !x.IsDisabled))
+@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications.Where(x => x is not TabbedApplication && !x.IsDisabled))
 {
     <SideBarItem Text="@applicationEntry.Name"
                  OnClick="@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))"

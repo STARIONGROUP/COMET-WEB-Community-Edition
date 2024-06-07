@@ -29,7 +29,7 @@
             DropDownActionMode="MenuDropDownActionMode.Click"
             Orientation="Orientation.Vertical"
             HamburgerButtonPosition="MenuHamburgerButtonPosition.Right"
-            CssClass="h-100">
+            CssClass="topmenu h-100">
         <Items>
             @foreach (var menuEntry in this.RegistrationService.RegisteredAuthorizedMenuEntries.Where(x => x.IsSubclassOf(typeof(MenuEntryBase))))
             {
