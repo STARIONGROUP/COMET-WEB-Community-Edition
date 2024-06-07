@@ -24,9 +24,10 @@ Copyright (c) 2024 Starion Group S.A.
 @if (this.Thing is ArrayParameterType)
 {
     <DxTextBox Text="@(this.Dimension)"
-               TextChanged="@(this.OnTextChanged)"
+               TextChanged="@(this.OnDimensionTextChanged)"
                TextExpression="@(() => this.Dimension)"
-               Id="dimensionTextBox" />
+               Id="dimensionTextBox"
+               NullText="Insert a dimension (e.g. 1,2,3)"/>
 }
 
 <DxGrid @ref="this.Grid"
@@ -36,12 +37,20 @@ Copyright (c) 2024 Starion Group S.A.
         EditModelSaving="@(() => this.OnEditItemSaving())"
         CustomizeEditModel="this.CustomizeEditParameterTypeComponent">
     <Columns>
+        <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.Coordinates)" MinWidth="80" Visible="@(this.Thing is ArrayParameterType)" />
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ShortName)" MinWidth="80"/>
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ParameterType)" MinWidth="80"/>
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.Scale)" MinWidth="80"/>
-        <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="80px" EditButtonVisible="false">
             <HeaderTemplate>
-                <DxButton Id="addParameterTypeComponentButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                @if (this.Thing is not ArrayParameterType)
+                {
+                    <DxButton Id="addParameterTypeComponentButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                }
+                else
+                {
+                    <span>Edit</span>
+                }
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
@@ -51,13 +60,16 @@ Copyright (c) 2024 Starion Group S.A.
                               IconCssClass="oi oi-pencil"
                               Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
 
-                    <DxButton Id="removeParameterTypeComponentButton"
-                              IconCssClass="oi oi-trash"
-                              Click="() => this.RemoveItem(row)"/>
+                    @if (this.Thing is not ArrayParameterType)
+                    {
+                        <DxButton Id="removeParameterTypeComponentButton"
+                                  IconCssClass="oi oi-trash"
+                                  Click="() => this.RemoveItem(row)"/>
+                    }
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
-        <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="80px" EditButtonVisible="false">
             <HeaderTemplate>
                 Order
             </HeaderTemplate>
@@ -87,15 +99,15 @@ Copyright (c) 2024 Starion Group S.A.
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12">
                 <DxComboBox Data="@(this.ParameterTypes.OrderBy(x => x.Name))"
-                            TextFieldName="@(nameof(CDP4Common.SiteDirectoryData.ParameterType.Name))"
+                            TextFieldName="@(nameof(ParameterType.Name))"
                             NullText="Select a parameter type"
                             TextChanged="@(() => this.Item.Scale = null)"
-                            @bind-Value="@(this.Item.ParameterType)" />
+                            @bind-Value="@(this.Item.ParameterType)"/>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Scale:" ColSpanMd="12">
                 <DxComboBox Data="@(this.GetAvailableScales())"
                             TextFieldName="@(nameof(MeasurementScale.Name))"
-                            @bind-Value="@(this.Item.Scale)" />
+                            @bind-Value="@(this.Item.Scale)"/>
             </DxFormLayoutItem>
         </DxFormLayout>
         <div class="pt-3"></div>

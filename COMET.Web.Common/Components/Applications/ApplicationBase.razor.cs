@@ -42,10 +42,21 @@ namespace COMET.Web.Common.Components.Applications
     public abstract partial class ApplicationBase<TViewModel>
     {
         /// <summary>
-        /// The <typeparamref name="TViewModel" />
+        /// Gets the effective <typeparamref name="TViewModel" />
+        /// </summary>
+        public TViewModel ViewModel { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the injected <typeparamref name="TViewModel" />
         /// </summary>
         [Inject]
-        public TViewModel ViewModel { get; set; }
+        public TViewModel InjectedViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <typeparamref name="TViewModel" /> passed as Parameter
+        /// </summary>
+        [Parameter]
+        public TViewModel ParameterizedViewModel { get; set; }
 
         /// <summary>
         /// The <see cref="NavigationManager" />
@@ -65,20 +76,6 @@ namespace COMET.Web.Common.Components.Applications
         protected int NumberOfUrlRequiredParameters { get; set; } = 1;
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-
-            this.Disposables.Add(this.ViewModel);
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsLoading)
-                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-        }
-
-        /// <summary>
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
@@ -86,6 +83,30 @@ namespace COMET.Web.Common.Components.Applications
         {
             base.OnParametersSet();
 
+            if (this.ViewModel == null)
+            {
+                this.ViewModel = this.ParameterizedViewModel ?? this.InjectedViewModel;
+
+                if (this.ParameterizedViewModel != null && this.InjectedViewModel != null)
+                {
+                    this.InjectedViewModel.Dispose();
+                    this.InjectedViewModel = default;
+                }
+
+                this.OnViewModelAssigned();
+            }
+        }
+
+        /// <summary>
+        /// Handles the post-assignement flow of the <see cref="ViewModel" /> property
+        /// </summary>
+        protected virtual void OnViewModelAssigned()
+        {
+            this.Disposables.Add(this.ViewModel);
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsLoading)
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            
             if (this.ViewModel.HasSetInitialValuesOnce)
             {
                 return;

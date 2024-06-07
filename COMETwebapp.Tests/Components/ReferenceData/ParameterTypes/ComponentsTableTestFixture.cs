@@ -99,7 +99,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
         public async Task VerifyDimensionUpdate()
         {
             this.renderer.SetParametersAndRender(p => p.Add(x => x.Thing, new ArrayParameterType()));
-
             var dimensionTextBox = this.renderer.FindComponents<DxTextBox>().First(x => x.Instance.Id == "dimensionTextBox");
             await this.renderer.InvokeAsync(() => dimensionTextBox.Instance.TextChanged.InvokeAsync("1,2,3"));
             Assert.That(this.renderer.Instance.Dimension, Is.EqualTo("1,2,3"));
@@ -117,6 +116,12 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
                 Assert.That(this.renderer.Instance.Dimension, Is.EqualTo("1,2,3"));
                 Assert.That(((ArrayParameterType)this.renderer.Instance.Thing).Dimension, Has.Count.EqualTo(3));
             });
+
+            await this.renderer.InvokeAsync(() => dimensionTextBox.Instance.TextChanged.InvokeAsync("1,1,3"));
+            Assert.That(((ArrayParameterType)this.renderer.Instance.Thing).Dimension.SequenceEqual([1, 1, 3]), Is.EqualTo(true));
+
+            await this.renderer.InvokeAsync(() => dimensionTextBox.Instance.TextChanged.InvokeAsync("not valid dimension"));
+            Assert.That(((ArrayParameterType)this.renderer.Instance.Thing).Dimension.SequenceEqual([1, 1, 3]), Is.EqualTo(true));
         }
 
         [Test]

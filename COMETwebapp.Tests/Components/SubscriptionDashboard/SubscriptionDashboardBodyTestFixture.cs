@@ -168,6 +168,26 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
                 Assert.That(this.viewModel.OptionSelector.SelectedOption, Is.Not.Null);
                 Assert.That(this.viewModel.ParameterTypeSelector.SelectedParameterType, Is.Not.Null);
             });
+
+            var mockedViewModel = new Mock<ISubscriptionDashboardBodyViewModel>();
+            mockedViewModel.Setup(x => x.CurrentDomain).Returns(this.viewModel.CurrentDomain);
+            mockedViewModel.Setup(x => x.CurrentThing).Returns(this.viewModel.CurrentThing);
+            mockedViewModel.Setup(x => x.DomainOfExpertiseSubscriptionTable).Returns(this.viewModel.DomainOfExpertiseSubscriptionTable);
+            mockedViewModel.Setup(x => x.SubscribedTable).Returns(this.viewModel.SubscribedTable);
+            mockedViewModel.Setup(x => x.OptionSelector).Returns(this.viewModel.OptionSelector);
+            mockedViewModel.Setup(x => x.ParameterTypeSelector).Returns(this.viewModel.ParameterTypeSelector);
+
+            var rendered = this.context.RenderComponent<SubscriptionDashboardBody>(parameters =>
+            {
+                parameters.Add(p => p.CurrentThing, iteration);
+                parameters.Add(p => p.ParameterizedViewModel, mockedViewModel.Object);
+            });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rendered.Instance.ViewModel, Is.EqualTo(mockedViewModel.Object));
+                Assert.That(rendered.Instance.InjectedViewModel, Is.EqualTo(null));
+            });
         }
     }
 }

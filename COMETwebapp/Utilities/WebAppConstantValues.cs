@@ -127,8 +127,13 @@ namespace COMETwebapp.Utilities
         public const string ModelEditorPage = "ModelEditor";
 
         /// <summary>
-        /// The page name of the Book Editor
+        /// The page nastringthe Book Editor
         /// </summary>
         public const string BookEditorPage = "BookEditor";
+
+        /// <summary>
+        /// The page that support multi tabs 
+        /// </summary>
+        public const string TabsPage = "Tabs";
     }
 }

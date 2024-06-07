@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
+    using System.Text.RegularExpressions;
+
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
@@ -64,10 +66,19 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         {
             base.OnInitialized();
 
-            if (this.Thing is ArrayParameterType arrayParameterType)
+            if (this.Thing is not ArrayParameterType arrayParameterType)
             {
-                this.Dimension = string.Join(",", arrayParameterType.Dimension.Select(x => x.ToString()));
+                return;
             }
+
+            if (arrayParameterType.Dimension.Count == 0)
+            {
+                arrayParameterType.Dimension.AddRange([1, 1, 1]);
+                this.OnDimensionTextChanged("1,1,1");
+                return;
+            }
+
+            this.Dimension = string.Join(",", arrayParameterType.Dimension.Select(x => x.ToString()));
         }
 
         /// <summary>
@@ -99,44 +110,136 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// Method executed every time the dimension field text has changed
         /// </summary>
         /// <param name="text">The new text</param>
-        private void OnTextChanged(string text)
+        private void OnDimensionTextChanged(string text)
         {
-            this.Dimension = text;
-            var dimensions = text.Split(",").Select(int.Parse).ToList();
-            var arrayParameterType = (ArrayParameterType)this.Thing;
-            var dimensionIndex = 0;
-
-            if (arrayParameterType.Dimension.Count > dimensions.Count)
-            {
-                foreach (var dimension in arrayParameterType.Dimension.ToList())
-                {
-                    if (dimensionIndex  >= dimensions.Count)
-                    {
-                        arrayParameterType.Dimension.Remove(dimension);
-                    }
-
-                    dimensionIndex++;
-                }
-            }
-
-            if (arrayParameterType.Dimension.Count >= dimensions.Count)
+            if (!DimensionTextPattern().IsMatch(text))
             {
                 return;
             }
 
-            dimensionIndex = 0;
+            this.Dimension = text;
+            var dimensions = text.Split(",").Select(int.Parse).ToList();
 
-            foreach (var dimension in dimensions)
+            this.UpdateDimensions(dimensions);
+            this.GenerateComponents(dimensions, [..new int[dimensions.Count]]);
+            this.TrimComponents(dimensions);
+        }
+
+        /// <summary>
+        /// Trims the not necessary components, if any
+        /// </summary>
+        /// <param name="dimensions">The matrix dimensions</param>
+        private void TrimComponents(List<int> dimensions)
+        {
+            var numberOfElements = GetNumberOfElements(dimensions);
+            var arrayParameterType = (ArrayParameterType)this.Thing;
+
+            if (numberOfElements >= arrayParameterType.Component.Count)
             {
-                if (dimensionIndex >= arrayParameterType.Dimension.Count)
-                {
-                    arrayParameterType.Dimension.Add(dimension);
-                }
-
-                dimensionIndex++;
+                return;
             }
 
-            // TODO: #602 (https://github.com/STARIONGROUP/COMET-WEB-Community-Edition/issues/602)
+            while (arrayParameterType.Component.ElementAtOrDefault(numberOfElements) != null)
+            {
+                arrayParameterType.Component.Remove(arrayParameterType.Component[numberOfElements]);
+            }
         }
+
+        /// <summary>
+        /// Generates parameter type components based on the given dimensions
+        /// </summary>
+        /// <param name="dimensions">The dimensions to be used</param>
+        /// <param name="currentIndices">The current coordinate indices</param>
+        /// <param name="currentDimension">The current dimension parameter used by recursivity</param>
+        private void GenerateComponents(List<int> dimensions, List<int> currentIndices, int currentDimension = 0)
+        {
+            var arrayParameterType = (ArrayParameterType)this.Thing;
+
+            for (var dimensionIndex = 0; dimensionIndex < dimensions[currentDimension]; dimensionIndex++)
+            {
+                currentIndices[currentDimension] = dimensionIndex;
+
+                if (currentDimension == dimensions.Count - 1)
+                {
+                    var flatIndex = GetFlatIndexFromCoordinates(dimensions, currentIndices);
+
+                    if (flatIndex >= arrayParameterType.Component.Count || arrayParameterType.Component[flatIndex] == null)
+                    {
+                        arrayParameterType.Component.Add(new ParameterTypeComponent { Iid = Guid.NewGuid() });
+                    }
+                }
+                else if (currentDimension < dimensions.Count)
+                {
+                    this.GenerateComponents(dimensions, currentIndices, currentDimension + 1);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the dimensions of the <see cref="ArrayParameterType" /> given a list of dimensions
+        /// </summary>
+        /// <param name="dimensions">The dimensions</param>
+        private void UpdateDimensions(List<int> dimensions)
+        {
+            var arrayParameterType = (ArrayParameterType)this.Thing;
+            var dimensionCount = dimensions.Count;
+            var currentDimensionCount = arrayParameterType.Dimension.Count;
+
+            for (var dimensionIndex = 0; dimensionIndex < Math.Max(dimensionCount, currentDimensionCount); dimensionIndex++)
+            {
+                if (dimensionIndex < dimensionCount)
+                {
+                    if (dimensionIndex < currentDimensionCount)
+                    {
+                        arrayParameterType.Dimension[dimensionIndex] = dimensions[dimensionIndex];
+                    }
+                    else
+                    {
+                        arrayParameterType.Dimension.Add(dimensions[dimensionIndex]);
+                    }
+                }
+                else
+                {
+                    arrayParameterType.Dimension.SortedItems.RemoveAt(dimensionCount);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the flat index of a component based on its coordinates
+        /// </summary>
+        /// <param name="dimensions">The dimensions of the matrix</param>
+        /// <param name="coordinates">The coordinates of the component</param>
+        /// <returns>The flat index</returns>
+        private static int GetFlatIndexFromCoordinates(IReadOnlyList<int> dimensions, IReadOnlyList<int> coordinates)
+        {
+            var flatIndex = 0;
+            var multiplier = 1;
+
+            for (var i = dimensions.Count - 1; i >= 0; i--)
+            {
+                flatIndex += coordinates[i] * multiplier;
+                multiplier *= dimensions[i];
+            }
+
+            return flatIndex;
+        }
+
+        /// <summary>
+        /// Gets the number of elements that a matrix with the given dimension has
+        /// </summary>
+        /// <param name="dimensions">The matrix dimensions</param>
+        /// <returns>The number of elements of the matrix</returns>
+        private static int GetNumberOfElements(List<int> dimensions)
+        {
+            return dimensions.Aggregate(1, (current, dimension) => current * dimension);
+        }
+
+        /// <summary>
+        /// The regex used to validate the dimensions field
+        /// </summary>
+        /// <returns>The regex pattern</returns>
+        [GeneratedRegex(@"^\d+(,\d+)*$")]
+        private static partial Regex DimensionTextPattern();
     }
 }
