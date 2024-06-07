@@ -74,6 +74,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         private Mock<IStringTableService> configurationService;
         private Mock<ISessionMenuViewModel> sessionMenuViewModel;
         private Mock<IShowHideDeprecatedThingsViewModel> showHideDeprecatedThingsViewModel;
+        private Mock<IAuthorizedMenuEntryViewModel> authorizedMenuEntryViewModel;
         private SourceList<Iteration> sourceList;
         private List<Type> registeredSideBarEntries;
         private List<Application> registeredApplications;
@@ -116,6 +117,8 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             this.versionService.Setup(x => x.GetVersion()).Returns("1.1.2");
             this.sessionMenuViewModel = new Mock<ISessionMenuViewModel>();
             this.sessionMenuViewModel.Setup(x => x.SessionService).Returns(this.sessionService.Object);
+            this.authorizedMenuEntryViewModel = new Mock<IAuthorizedMenuEntryViewModel>();
+            this.authorizedMenuEntryViewModel.Setup(x => x.IsAuthenticated).Returns(true);
             this.messageBus = new CDPMessageBus();
 
             this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
@@ -129,7 +132,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             this.context.Services.AddSingleton(this.showHideDeprecatedThingsViewModel.Object);
             this.context.Services.AddSingleton<ISessionMenuViewModel, SessionMenuViewModel>();
             this.context.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
-            this.context.Services.AddSingleton<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();
+            this.context.Services.AddSingleton(this.authorizedMenuEntryViewModel.Object);
             this.context.Services.AddSingleton<INotificationService, NotificationService>();
             this.configurationService = new Mock<IStringTableService>();
             this.context.Services.AddSingleton(this.configurationService.Object);
@@ -200,19 +203,6 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
                 Assert.That(sideBarItems, Has.Count.EqualTo(1));
                 Assert.That(sideBarItems[0].Instance.Text, Is.EqualTo(modelDashboardApplication.Name));
             });
-        }
-
-        [Test]
-        public void VerifySideBarEntryRegistration()
-        {
-            var renderer = this.context.RenderComponent<SideBar>();
-            var sideBarEntries = renderer.FindComponents<AuthorizedMenuEntry>();
-            Assert.That(sideBarEntries, Has.Count.EqualTo(8));
-            this.registeredSideBarEntries.Add(typeof(Login));
-            this.registeredSideBarEntries.Add(typeof(TestAuthorizedMenuEntry));
-            renderer.Render();
-            sideBarEntries = renderer.FindComponents<AuthorizedMenuEntry>();
-            Assert.That(sideBarEntries, Has.Count.EqualTo(9));
         }
 
         [Test]
@@ -345,6 +335,19 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
                 Assert.That(modelSideBarViewModel.ConfirmCancelViewModel.IsVisible, Is.False);
                 this.sessionService.Verify(x => x.CloseIteration(It.IsAny<Iteration>()), Times.Once);
             });
+        }
+
+        [Test]
+        public void VerifySideBarEntryRegistration()
+        {
+            var renderer = this.context.RenderComponent<SideBar>();
+            var sideBarEntries = renderer.FindComponents<AuthorizedMenuEntry>();
+            Assert.That(sideBarEntries, Has.Count.EqualTo(8));
+            this.registeredSideBarEntries.Add(typeof(Login));
+            this.registeredSideBarEntries.Add(typeof(TestAuthorizedMenuEntry));
+            renderer.Render();
+            sideBarEntries = renderer.FindComponents<AuthorizedMenuEntry>();
+            Assert.That(sideBarEntries, Has.Count.EqualTo(9));
         }
     }
 }

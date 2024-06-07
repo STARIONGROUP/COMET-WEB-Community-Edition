@@ -43,7 +43,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
-    public class AboutMenuTestFixture
+    public class SideDataItemTestFixture
     {
         private TestContext context;
         private Mock<IVersionService> versionService;
