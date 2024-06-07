@@ -25,13 +25,14 @@
 namespace COMETwebapp.Shared
 {
     using COMET.Web.Common.Services.RegistrationService;
+    using COMET.Web.Common.Shared.TopMenuEntry;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// Component used for the side bar
     /// </summary>
-    public partial class SideBar
+    public partial class SideBar : AuthorizedMenuEntry
     {
         /// <summary>
         /// The <see cref="IRegistrationService" />

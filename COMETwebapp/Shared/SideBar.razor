@@ -19,22 +19,25 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.Shared.SideBarEntry
 @using COMET.Web.Common.Shared.TopMenuEntry
+@inherits COMET.Web.Common.Shared.TopMenuEntry.AuthorizedMenuEntry
 
-<nav style="height: 100vh;">
-    <DxMenu CollapseItemsToHamburgerMenu="true"
-            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-            DisplayMode="MenuDisplayMode.Auto"
-            DropDownActionMode="MenuDropDownActionMode.Click"
-            Orientation="Orientation.Vertical"
-            HamburgerButtonPosition="MenuHamburgerButtonPosition.Right"
-            CssClass="topmenu h-100">
-        <Items>
-            @foreach (var menuEntry in this.RegistrationService.RegisteredAuthorizedMenuEntries.Where(x => x.IsSubclassOf(typeof(MenuEntryBase))))
-            {
-                <DynamicComponent Type="@menuEntry"/>
-            }
-        </Items>
-    </DxMenu>
-</nav>
+@if (this.AuthorizedMenuEntryViewModel.IsAuthenticated)
+{
+    <nav style="height: 100vh;">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Auto"
+                DropDownActionMode="MenuDropDownActionMode.Click"
+                Orientation="Orientation.Vertical"
+                HamburgerButtonPosition="MenuHamburgerButtonPosition.Right"
+                CssClass="topmenu h-100">
+            <Items>
+                @foreach (var menuEntry in this.RegistrationService.RegisteredAuthorizedMenuEntries.Where(x => x.IsSubclassOf(typeof(MenuEntryBase))))
+                {
+                    <DynamicComponent Type="@menuEntry"/>
+                }
+            </Items>
+        </DxMenu>
+    </nav>
+}
