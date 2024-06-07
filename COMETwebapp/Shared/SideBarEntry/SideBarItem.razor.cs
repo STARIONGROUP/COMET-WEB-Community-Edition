@@ -24,12 +24,10 @@
 
 namespace COMETwebapp.Shared.SideBarEntry
 {
-    using COMET.Web.Common.Model;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Menu entry to access <see cref="Application" />(s)
+    /// The component that handles all entries for the side bar
     /// </summary>
     public partial class SideBarItem
     {

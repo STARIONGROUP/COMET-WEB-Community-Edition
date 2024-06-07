@@ -29,7 +29,7 @@ namespace COMETwebapp.Shared
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Component used for the top menu
+    /// Component used for the side bar
     /// </summary>
     public partial class SideBar
     {
@@ -37,6 +37,6 @@ namespace COMETwebapp.Shared
         /// The <see cref="IRegistrationService" />
         /// </summary>
         [Inject]
-        internal IRegistrationService RegistrationService { get; set; }
+        public IRegistrationService RegistrationService { get; set; }
     }
 }

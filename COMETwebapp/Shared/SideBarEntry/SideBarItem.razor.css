@@ -18,6 +18,7 @@
 
 .selected-application-item {
     background-color: var(--bs-body-color, var(--dxbl-body-color, inherit));
+    transition: background-color 500ms linear;
     color: white !important;
 }
 

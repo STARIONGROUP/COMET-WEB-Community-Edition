@@ -33,7 +33,7 @@ namespace COMETwebapp.Shared.SideBarEntry
     using ReactiveUI;
 
     /// <summary>
-    /// The <see cref="ShowHideDeprecatedThingsSideBar" /> component used to show hide deprecated things
+    /// The <see cref="ShowHideDeprecatedThingsSideBar" /> component used to show hide deprecated things in the navbar
     /// </summary>
     public partial class ShowHideDeprecatedThingsSideBar
     {

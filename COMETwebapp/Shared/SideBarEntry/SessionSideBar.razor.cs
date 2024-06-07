@@ -29,7 +29,7 @@ namespace COMETwebapp.Shared.SideBarEntry
     using COMET.Web.Common.Shared.TopMenuEntry;
 
     /// <summary>
-    /// Menu entry to access to the <see cref="ISession" /> content
+    /// Side bar entry to access to the <see cref="ISession" /> content
     /// </summary>
     public partial class SessionSideBar : SessionMenu
     {

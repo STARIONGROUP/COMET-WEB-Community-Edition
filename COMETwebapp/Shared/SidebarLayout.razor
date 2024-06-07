@@ -19,7 +19,6 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
-@using COMET.Web.Common.ViewModels.Shared.TopMenuEntry
 @inherits LayoutComponentBase
 
 <DxLayoutBreakpoint MaxWidth="1200"/>
@@ -30,7 +29,7 @@
             <DxGridLayoutColumn/>
         </Columns>
         <Items>
-            <DxGridLayoutItem Column="0" Area="header">                
+            <DxGridLayoutItem Column="0" Area="header">
                 <Template>
                     @if (this.ViewModel.SessionService.IsSessionOpen)
                     {
@@ -46,13 +45,3 @@
         </Items>
     </DxGridLayout>
 </div>
-
-            @code{
-
-                /// <summary>
-                /// The <see cref="ISessionMenuViewModel" />
-                /// </summary>
-                [Inject]
-                public ISessionMenuViewModel ViewModel { get; set; }
-
-            }

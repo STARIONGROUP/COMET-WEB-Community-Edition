@@ -30,7 +30,7 @@
                  OnClick="@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))"
                  CssClass="@(this.CurrentApplication == applicationEntry ? "selected-application-item" : "")"
                  IconCssClass="@($"oi oi-{applicationEntry.Icon}")"
-                 Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated && this.CurrentApplication != applicationEntry)" />
+                 Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated && this.CurrentApplication != applicationEntry)"/>
 }
 
 <b class="pt-4 pb-2 ps-3">General</b>
@@ -41,5 +41,5 @@
                  OnClick="@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))"
                  CssClass="@(this.CurrentApplication == applicationEntry ? "selected-application-item" : "")"
                  IconCssClass="@($"oi oi-{applicationEntry.Icon}")"
-                 Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated && this.CurrentApplication != applicationEntry)" />
+                 Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated && this.CurrentApplication != applicationEntry)"/>
 }

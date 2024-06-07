@@ -58,10 +58,8 @@ namespace COMETwebapp
             {
                 options.Applications = Applications.ExistingApplications;
                 options.AdditionalAssemblies.Add(Assembly.GetAssembly(typeof(Program)));
-
-                // options.AdditionalMenuEntries.AddRange(new List<Type> { typeof(ApplicationMenu), typeof(ModelMenu), typeof(SessionMenu), typeof(ShowHideDeprecatedThings), typeof(AboutMenu), typeof(NotificationComponent) });
-                options.AdditionalMenuEntries.AddRange(new List<Type> { typeof(ApplicationsComponents), typeof(ShowHideDeprecatedThingsSideBar), typeof(ModelSideBar), typeof(AboutSideBar), typeof(SessionSideBar), typeof(NotificationComponent) });
-                options.MainLayoutType = typeof(SidebarLayout);
+                options.AdditionalMenuEntries.AddRange(new List<Type> { typeof(ApplicationsSideBar), typeof(ShowHideDeprecatedThingsSideBar), typeof(ModelSideBar), typeof(AboutSideBar), typeof(SessionSideBar), typeof(SideBarFooter), typeof(NotificationComponent) });
+                options.MainLayoutType = typeof(SideBarLayout);
             });
 
             builder.Services.RegisterServices();

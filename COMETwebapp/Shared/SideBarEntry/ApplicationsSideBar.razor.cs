@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ApplicationsComponents.razor.cs" company="Starion Group S.A.">
+//  <copyright file="ApplicationsSideBar.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -28,15 +28,13 @@ namespace COMETwebapp.Shared.SideBarEntry
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.StringTableService;
 
-    using COMETwebapp.Model;
-
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Routing;
 
     /// <summary>
-    /// Menu entry to access <see cref="Application" />(s)
+    /// Side bar entry to list the available <see cref="Application" />(s)
     /// </summary>
-    public partial class ApplicationsComponents
+    public partial class ApplicationsSideBar
     {
         /// <summary>
         /// Gets or sets the <see cref="IRegistrationService" />
@@ -57,7 +55,7 @@ namespace COMETwebapp.Shared.SideBarEntry
         public IStringTableService ConfigurationService { get; set; }
 
         /// <summary>
-        /// Gets or sets the current <see cref="Application"/> navigated
+        /// Gets or sets the current <see cref="Application" /> navigated
         /// </summary>
         private Application CurrentApplication { get; set; }
 
