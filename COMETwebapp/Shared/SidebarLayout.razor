@@ -20,6 +20,7 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @inherits LayoutComponentBase
+@namespace COMETwebapp.Shared
 
 <DxLayoutBreakpoint MaxWidth="1200"/>
 <div class="page">
@@ -33,7 +34,7 @@
                 <Template>
                     @if (this.ViewModel.SessionService.IsSessionOpen)
                     {
-                        <SideBar/>
+                        <SideBar />
                     }
                 </Template>
             </DxGridLayoutItem>

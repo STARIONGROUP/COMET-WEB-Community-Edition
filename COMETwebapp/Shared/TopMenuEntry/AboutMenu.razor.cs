@@ -45,6 +45,7 @@ namespace COMETwebapp.Shared.TopMenuEntry
         protected void SetVisibility(bool visibility)
         {
             this.IsVisible = visibility;
+            this.InvokeAsync(this.StateHasChanged);
         }
     }
 }
