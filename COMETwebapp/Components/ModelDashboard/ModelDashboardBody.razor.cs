@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.Components.ModelDashboard
 {
+    using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Utilities;
 
@@ -61,12 +62,11 @@ namespace COMETwebapp.Components.ModelDashboard
         }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
+        /// Handles the post-assignement flow of the <see cref="ApplicationBase{TViewModel}.ViewModel" /> property
         /// </summary>
-        protected override void OnInitialized()
+        protected override void OnViewModelAssigned()
         {
-            base.OnInitialized();
+            base.OnViewModelAssigned();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption,
                     x => x.ViewModel.FiniteStateSelector.SelectedActualFiniteState,

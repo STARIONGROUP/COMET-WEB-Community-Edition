@@ -26,6 +26,14 @@ namespace COMETwebapp.Model
 {
     using COMET.Web.Common.Model;
 
+    using COMETwebapp.Components.EngineeringModel;
+    using COMETwebapp.Components.ModelDashboard;
+    using COMETwebapp.Components.ModelEditor;
+    using COMETwebapp.Components.ParameterEditor;
+    using COMETwebapp.Components.SubscriptionDashboard;
+    using COMETwebapp.Components.SystemRepresentation;
+    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Pages.ModelEditor;
     using COMETwebapp.Utilities;
 
     /// <summary>
@@ -34,108 +42,156 @@ namespace COMETwebapp.Model
     public static class Applications
     {
         /// <summary>
-        /// List of <see cref="Application"/> with Name, Color, Icon and Description data
+        /// A collection of <see cref="Application" />
         /// </summary>
-        public static List<Application> ExistingApplications => new()
+        private static List<Application> applications;
+
+        /// <summary>
+        /// List of <see cref="Application" /> with Name, Color, Icon and Description data
+        /// </summary>
+        public static List<Application> ExistingApplications => applications ?? InitializesApplications();
+
+        /// <summary>
+        /// Initializes all <see cref="Application" />
+        /// </summary>
+        /// <returns>The initialized <see cref="Application" /></returns>
+        private static List<Application> InitializesApplications()
         {
-            new Application
-			{
-                Name = "Parameter Editor",
-                Color = "#76b8fc",
-                Icon = "spreadsheet",
-                Description = "Table of element usages with their associated parameters.",
-                Url = WebAppConstantValues.ParameterEditorPage
-            },
-            new Application
-			{
-                Name = "Model Dashboard",
-                Color = "#c3cffd",
-                Icon = "task",
-                Description = "Summarize the model progress.",
-                Url = WebAppConstantValues.ModelDashboardPage
-            },
-            new Application
-			{
-                Name = "Subscription Dashboard",
-                Color = "#76fd98",
-                Icon = "person",
-                Description = "Table of subscribed values.",
-                Url = WebAppConstantValues.SubscriptionDashboardPage
-            },
-            new Application
-			{
-                Name = "System Representation",
-                Color = "#a7f876",
-                Icon = "fork",
-                Description = "Represent relations between elements.",
-                Url = WebAppConstantValues.SystemRepresentationPage
-            },
-            new Application
-			{
-                Name = "Requirement Management",
-                Color = "#fda966",
-                Icon = "link-intact",
-                Description = $"Edit requirements in the model.{Environment.NewLine}Under Development",
-                IsDisabled = true,
-                Url = WebAppConstantValues.RequirementManagementPage
-            },
-            new Application
+            applications =
+            [
+                new TabbedApplication
+                {
+                    Name = "Parameter Editor",
+                    Color = "#76b8fc",
+                    Icon = "spreadsheet",
+                    Description = "Table of element usages with their associated parameters.",
+                    Url = WebAppConstantValues.ParameterEditorPage,
+                    ComponentType = typeof(ParameterEditorBody)
+                },
+
+                new TabbedApplication
+                {
+                    Name = "Model Dashboard",
+                    Color = "#c3cffd",
+                    Icon = "task",
+                    Description = "Summarize the model progress.",
+                    Url = WebAppConstantValues.ModelDashboardPage,
+                    ComponentType = typeof(ModelDashboardBody)
+                },
+
+                new TabbedApplication
+                {
+                    Name = "Subscription Dashboard",
+                    Color = "#76fd98",
+                    Icon = "person",
+                    Description = "Table of subscribed values.",
+                    Url = WebAppConstantValues.SubscriptionDashboardPage,
+                    ComponentType = typeof(SubscriptionDashboardBody)
+                },
+
+                new TabbedApplication
+                {
+                    Name = "System Representation",
+                    Color = "#a7f876",
+                    Icon = "fork",
+                    Description = "Represent relations between elements.",
+                    Url = WebAppConstantValues.SystemRepresentationPage,
+                    ComponentType = typeof(SystemRepresentationBody)
+                },
+
+                new Application
+                {
+                    Name = "Requirement Management",
+                    Color = "#fda966",
+                    Icon = "link-intact",
+                    Description = $"Edit requirements in the model.{Environment.NewLine}Under Development",
+                    IsDisabled = true,
+                    Url = WebAppConstantValues.RequirementManagementPage
+                },
+
+                new Application
+                {
+                    Name = "Budget Editor",
+                    Color = "#fc3a1aad",
+                    Icon = "brush",
+                    Description = $"Create budget tables.{Environment.NewLine}Under Development",
+                    IsDisabled = true,
+                    Url = WebAppConstantValues.BudgetEditorPage
+                },
+
+                new TabbedApplication
+                {
+                    Name = "3D Viewer",
+                    Color = "#76fd98",
+                    Icon = "eye",
+                    Description = "Show 3D Viewer",
+                    Url = WebAppConstantValues.ViewerPage,
+                    ComponentType = typeof(ViewerBody)
+                },
+
+                new Application
+                {
+                    Name = "Reference Data",
+                    Color = "#fc3a1aad",
+                    Icon = "file",
+                    Description = "Visualize reference data",
+                    Url = WebAppConstantValues.ReferenceDataPage
+                },
+
+                new Application
+                {
+                    Name = "Server Administration",
+                    Color = "#fc3a1aad",
+                    Icon = "folder",
+                    Description = "Visualize site directory data",
+                    Url = WebAppConstantValues.SiteDirectoryPage
+                },
+
+                new TabbedApplication
+                {
+                    Name = "Engineering Model",
+                    Color = "#c3cffd",
+                    Icon = "cog",
+                    Description = "Visualize the engineering model data",
+                    Url = WebAppConstantValues.EngineeringModelPage,
+                    ComponentType = typeof(EngineeringModelBody)
+                },
+
+                new TabbedApplication
+                {
+                    Name = "Model Editor",
+                    Color = "#76fd98",
+                    Icon = "box",
+                    Description = "Populate model",
+                    Url = WebAppConstantValues.ModelEditorPage,
+                    ComponentType = typeof(ElementDefinitionTable)
+                },
+
+                new Application
+                {
+                    Name = "Book Editor",
+                    Color = "#76fd98",
+                    Icon = "book",
+                    Description = "Manage books",
+                    Url = WebAppConstantValues.BookEditorPage
+                },
+
+                new Application
+                {
+                    Name = "Tabs",
+                    Url = WebAppConstantValues.TabsPage,
+                    Color = "#76fd98",
+                    Icon = "list",
+                    Description = "Access applications via tabs",
+                }
+            ];
+
+            foreach (var tabbedApplication in applications.OfType<TabbedApplication>())
             {
-                Name = "Budget Editor",
-                Color = "#fc3a1aad",
-                Icon = "brush",
-                Description = $"Create budget tables.{Environment.NewLine}Under Development",
-                IsDisabled = true,
-				Url = WebAppConstantValues.BudgetEditorPage
-            },
-            new Application
-            {
-                Name = "3D Viewer",
-                Color = "#76fd98",
-                Icon = "eye",
-                Description = "Show 3D Viewer",
-                Url = WebAppConstantValues.ViewerPage
-            },
-            new Application
-            {
-                Name = "Reference Data",
-                Color = "#fc3a1aad",
-                Icon = "file",
-                Description = "Visualize reference data",
-                Url = WebAppConstantValues.ReferenceDataPage
-            },
-            new Application
-            {
-                Name = "Server Administration",
-                Color = "#fc3a1aad",
-                Icon = "folder",
-                Description = "Visualize site directory data",
-                Url = WebAppConstantValues.SiteDirectoryPage
-            },
-            new Application
-            {
-                Name = "Engineering Model",
-                Color = "#c3cffd",
-                Icon = "cog",
-                Description = "Visualize the engineering model data",
-                Url = WebAppConstantValues.EngineeringModelPage
-            },
-            new Application
-            {
-                Name = "Model Editor",
-                Color = "#76fd98",
-                Icon = "box",
-                Description = "Populate model",
-                Url = WebAppConstantValues.ModelEditorPage
-            },
-            new Application
-            {
-                Name = "Book Editor",
-                Color = "#76fd98",
-                Icon = "book",
-                Description = "Manage books",
-                Url = WebAppConstantValues.BookEditorPage
+                tabbedApplication.ResolveTypesProperties();
             }
-        };
+
+            return applications;
+        }
     }
 }

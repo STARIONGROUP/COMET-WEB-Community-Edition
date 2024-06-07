@@ -24,15 +24,13 @@
 
 namespace COMETwebapp.Components.EngineeringModel
 {
-    using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Components.Applications;
 
     using COMETwebapp.Components.EngineeringModel.DomainFileStore;
 
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
 
     /// <summary>
     /// Core component for the Engineering model body application
@@ -69,14 +67,11 @@ namespace COMETwebapp.Components.EngineeringModel
         }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
+        /// Handles the post-assignement flow of the <see cref="ApplicationBase{TViewModel}.ViewModel" /> property
         /// </summary>
-        protected override void OnInitialized()
+        protected override void OnViewModelAssigned()
         {
-            base.OnInitialized();
-            this.Disposables.Add(this.ViewModel.WhenAnyValue(x => x.IsLoading).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-
+            base.OnViewModelAssigned();
             this.SelectComponent(this.MapOfComponentsAndParameters.First().Key);
         }
 
