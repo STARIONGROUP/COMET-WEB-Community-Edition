@@ -342,12 +342,12 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         {
             var renderer = this.context.RenderComponent<SideBar>();
             var sideBarEntries = renderer.FindComponents<AuthorizedMenuEntry>();
-            Assert.That(sideBarEntries, Has.Count.EqualTo(8));
+            Assert.That(sideBarEntries, Has.Count.EqualTo(4));
             this.registeredSideBarEntries.Add(typeof(Login));
             this.registeredSideBarEntries.Add(typeof(TestAuthorizedMenuEntry));
             renderer.Render();
             sideBarEntries = renderer.FindComponents<AuthorizedMenuEntry>();
-            Assert.That(sideBarEntries, Has.Count.EqualTo(9));
+            Assert.That(sideBarEntries, Has.Count.EqualTo(5));
         }
     }
 }
