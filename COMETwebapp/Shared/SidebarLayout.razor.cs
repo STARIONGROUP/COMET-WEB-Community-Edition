@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SideBar.razor.cs" company="Starion Group S.A.">
+//  <copyright file="SidebarLayout.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -24,19 +24,19 @@
 
 namespace COMETwebapp.Shared
 {
-    using COMET.Web.Common.Services.RegistrationService;
+    using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Component used for the side bar
+    /// Class used to support the <see cref="SidebarLayout" /> component
     /// </summary>
-    public partial class SideBar
+    public partial class SidebarLayout
     {
         /// <summary>
-        /// The <see cref="IRegistrationService" />
+        /// The <see cref="ISessionMenuViewModel" />
         /// </summary>
         [Inject]
-        public IRegistrationService RegistrationService { get; set; }
+        public ISessionMenuViewModel ViewModel { get; set; }
     }
 }

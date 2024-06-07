@@ -31,7 +31,10 @@
         <Items>
             <DxGridLayoutItem Column="0">
                 <Template>
-                    <SideBar/>
+                    @if (this.ViewModel.SessionService.IsSessionOpen)
+                    {
+                        <SideBar/>
+                    }
                 </Template>
             </DxGridLayoutItem>
             <DxGridLayoutItem Column="1" CssClass="content px-4 page-layout-item-content">
