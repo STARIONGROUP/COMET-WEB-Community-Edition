@@ -20,47 +20,53 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMETwebapp.Components.Common
-@using CDP4Common.SiteDirectoryData
-@using COMET.Web.Common.Enumerations
-@using COMET.Web.Common.Model
-@using COMET.Web.Common.Utilities
-@using COMET.Web.Common.ViewModels.Components.Applications
+
 @using COMETwebapp.Model
+@using COMET.Web.Common.Model
+@using COMET.Web.Common.ViewModels.Components.Applications
+@inherits OpenModel
 
-@inherits DisposableComponent
-
-<DxFormLayout CaptionPosition="CaptionPosition.Vertical">
+<DxFormLayout CaptionPosition="CaptionPosition.Vertical" CssClass="py-3">
+    <DxFormLayoutItem ColSpanLg="12">
+        <div style="display:flex; flex-direction: column; align-items: center;">
+            <FeatherSmile Size="42"
+                          Color="currentColor"
+                          StrokeWidth="1.8f"/>
+            <h5 class="font-weight-bold mt-1">You have no model selected</h5>
+            <span>Select a model to start working on it</span>
+        </div>
+    </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Model" ColSpanLg="12">
-        <DxComboBox Id="model-selection" Data="@this.ViewModel.AvailableEngineeringModelSetups"
+        <DxComboBox Id="model-selection" Data="@(this.ViewModel.AvailableEngineeringModelSetups)"
                     TextFieldName="@nameof(EngineeringModelSetup.Name)"
-                    @bind-Value="@this.ViewModel.SelectedEngineeringModel"
+                    @bind-Value="@(this.ViewModel.SelectedEngineeringModel)"
                     NullText="Select an Engineering Model"/>
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="View" ColSpanLg="12">
         <DxComboBox Id="view-selection" Data="@(Applications.ExistingApplications.OfType<TabbedApplication>())"
                     TextFieldName="@nameof(Application.Name)"
-                    @bind-Value="@this.ViewModel.SelectedApplication"
+                    @bind-Value="@(this.ViewModel.SelectedApplication)"
                     NullText="Select a View"/>
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Domain" ColSpanLg="12">
-        <DxComboBox Id="domain-selection" Data="@this.ViewModel.AvailablesDomainOfExpertises"
+        <DxComboBox Id="domain-selection" Data="@(this.ViewModel.AvailablesDomainOfExpertises)"
                     TextFieldName="@nameof(DomainOfExpertise.Name)"
-                    @bind-Value="@this.ViewModel.SelectedDomainOfExpertise"
-                    NullText="Select a Domain of Expertise" />
+                    @bind-Value="@(this.ViewModel.SelectedDomainOfExpertise)"
+                    NullText="Select a Domain of Expertise"/>
     </DxFormLayoutItem>
-    
-    @if (this.ViewModel.SelectedApplication?.ViewModelType.IsAssignableTo(typeof(ISingleEngineeringModelApplicationBaseViewModel)) == true)
+
+    @if (this.ViewModel.SelectedApplication?.ViewModelType.IsAssignableTo(typeof(ISingleEngineeringModelApplicationBaseViewModel)) != true)
     {
         <DxFormLayoutItem Caption="Iteration" ColSpanLg="12">
-            <DxComboBox Id="iteration-selection" Data="@this.ViewModel.AvailableIterationSetups"
+            <DxComboBox Id="iteration-selection" Data="@(this.ViewModel.AvailableIterationSetups)"
                         TextFieldName="@nameof(IterationData.IterationName)"
-                        @bind-Value="@this.ViewModel.SelectedIterationSetup"
-                        NullText="Select an Iteration" />
+                        @bind-Value="@(this.ViewModel.SelectedIterationSetup)"
+                        NullText="Select an Iteration"/>
         </DxFormLayoutItem>
     }
 
 </DxFormLayout>
 <div class="modal-footer">
-	<DxButton Id="openmodel__button" CssClass="btn btn-connect"
-	          Text="@this.ButtonText" Enabled="@this.ButtonEnabled" Click="@(this.ViewModel.OpenSession)" />
+    <DxButton Id="openmodel__button" CssClass="btn btn-connect"
+              Text="@(this.ButtonText)" Click="@(this.ViewModel.OpenSession)"/>
 </div>

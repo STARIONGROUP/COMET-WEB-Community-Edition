@@ -125,7 +125,7 @@ namespace COMET.Web.Common.Components
         /// Verifies that all required field are selected
         /// </summary>
         /// <returns>True if all required field are selected</returns>
-        private bool AreRequiredFieldSelected()
+        protected virtual bool AreRequiredFieldSelected()
         {
             return this.ViewModel.SelectedEngineeringModel != null
                    && this.ViewModel.SelectedDomainOfExpertise != null
