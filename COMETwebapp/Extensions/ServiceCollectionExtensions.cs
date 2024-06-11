@@ -121,7 +121,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IFolderHandlerViewModel, FolderHandlerViewModel>();
             serviceCollection.AddTransient<IFileRevisionHandlerViewModel, FileRevisionHandlerViewModel>();
             serviceCollection.AddTransient<IBatchParameterEditorViewModel, BatchParameterEditorViewModel>();
-            serviceCollection.AddTransient<ITabsViewModel, TabsViewModel>();
+            serviceCollection.AddScoped<ITabsViewModel, TabsViewModel>();
         }
     }
 }

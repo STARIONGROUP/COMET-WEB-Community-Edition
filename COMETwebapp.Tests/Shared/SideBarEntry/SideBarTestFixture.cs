@@ -27,6 +27,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
     using AngleSharp.Html.Dom;
 
     using Bunit;
+    using Bunit.TestDoubles;
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
@@ -44,9 +45,12 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
 
+    using COMETwebapp.Model;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Shared;
     using COMETwebapp.Shared.SideBarEntry;
+    using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Pages;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 
     using DynamicData;
@@ -134,6 +138,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             this.context.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
             this.context.Services.AddSingleton(this.authorizedMenuEntryViewModel.Object);
             this.context.Services.AddSingleton<INotificationService, NotificationService>();
+            this.context.Services.AddSingleton(new Mock<ITabsViewModel>().Object);
             this.configurationService = new Mock<IStringTableService>();
             this.context.Services.AddSingleton(this.configurationService.Object);
             this.context.ConfigureDevExpressBlazor();
@@ -348,6 +353,27 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             renderer.Render();
             sideBarEntries = renderer.FindComponents<AuthorizedMenuEntry>();
             Assert.That(sideBarEntries, Has.Count.EqualTo(5));
+        }
+
+        [Test]
+        public async Task VerifySideBarItemsBehavior()
+        {
+            var fakeNavigationManager = (FakeNavigationManager)this.context.Services.GetService(typeof(NavigationManager));
+            Assert.That(fakeNavigationManager, Is.Not.Null);
+
+            this.registeredApplications.AddRange([new TabbedApplication(), new Application { Url = "a" }, new Application { Url = WebAppConstantValues.TabsPage }]);
+            var renderer = this.context.RenderComponent<SideBar>();
+            var firstDataItem = renderer.FindComponent<SideBarItem>();
+            await renderer.InvokeAsync(firstDataItem.Instance.OnClick.Invoke);
+            Assert.That(fakeNavigationManager.Uri, Does.Contain(WebAppConstantValues.TabsPage));
+
+            var secondDataItem = renderer.FindComponents<SideBarItem>()[2];
+            await renderer.InvokeAsync(secondDataItem.Instance.OnClick.Invoke);
+            Assert.That(fakeNavigationManager.Uri, Does.Contain(this.registeredApplications[2].Url));
+
+            var thirdDataItem = renderer.FindComponents<SideBarItem>()[1];
+            await renderer.InvokeAsync(thirdDataItem.Instance.OnClick.Invoke);
+            Assert.That(fakeNavigationManager.Uri, Does.Contain(this.registeredApplications[1].Url));
         }
     }
 }

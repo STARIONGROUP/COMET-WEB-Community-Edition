@@ -24,12 +24,19 @@
 
 namespace COMETwebapp.Shared.SideBarEntry
 {
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.StringTableService;
 
+    using COMETwebapp.Model;
+    using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Pages;
+
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Routing;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Side bar entry to list the available <see cref="Application" />(s)
@@ -55,6 +62,12 @@ namespace COMETwebapp.Shared.SideBarEntry
         public IStringTableService ConfigurationService { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="ITabsViewModel" />
+        /// </summary>
+        [Inject]
+        public ITabsViewModel TabsViewModel { get; set; }
+
+        /// <summary>
         /// Gets or sets the current <see cref="Application" /> navigated
         /// </summary>
         private Application CurrentApplication { get; set; }
@@ -67,6 +80,7 @@ namespace COMETwebapp.Shared.SideBarEntry
         {
             base.OnInitialized();
             this.NavigationManager.LocationChanged += this.OnLocationChanged;
+            this.Disposables.Add(this.WhenAnyValue(x => x.TabsViewModel.SelectedApplication).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -90,6 +104,51 @@ namespace COMETwebapp.Shared.SideBarEntry
             var pageName = currentUri.AbsolutePath.TrimStart('/');
             this.CurrentApplication = this.RegistrationService.RegisteredApplications.FirstOrDefault(x => x.Url == pageName);
             this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Navigates to the selected tabbed application
+        /// </summary>
+        /// <param name="application">The <see cref="TabbedApplication" /> to navigate to</param>
+        private void NavigateToTabbedApplication(TabbedApplication application)
+        {
+            this.TabsViewModel.SelectedApplication = application;
+            this.NavigationManager.NavigateTo(WebAppConstantValues.TabsPage);
+        }
+
+        /// <summary>
+        /// Checks if the given application is the current one
+        /// </summary>
+        /// <param name="application">The <see cref="Application" /></param>
+        /// <returns>The condition to check if is current application</returns>
+        private bool IsCurrentApplication(Application application)
+        {
+            if (this.CurrentApplication?.Url == WebAppConstantValues.TabsPage)
+            {
+                return this.TabsViewModel.SelectedApplication == application;
+            }
+
+            return this.CurrentApplication == application;
+        }
+
+        /// <summary>
+        /// Checks if the given application sidebar item should be enabled
+        /// </summary>
+        /// <param name="application">The <see cref="Application" /></param>
+        /// <returns>The condition to check if is enabled</returns>
+        private bool IsApplicationEnabled(Application application)
+        {
+            if (!this.AuthorizedMenuEntryViewModel.IsAuthenticated)
+            {
+                return false;
+            }
+
+            if (this.CurrentApplication?.Url == WebAppConstantValues.TabsPage)
+            {
+                return this.TabsViewModel.SelectedApplication != application;
+            }
+
+            return this.CurrentApplication != application;
         }
     }
 }
