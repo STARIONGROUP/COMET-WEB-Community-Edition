@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SideDataItemTestFixture.cs" company="Starion Group S.A.">
+//  <copyright file="SideBarItemTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -37,7 +37,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
-    public class SideDataItemTestFixture
+    public class SideBarItemTestFixture
     {
         private TestContext context;
 
