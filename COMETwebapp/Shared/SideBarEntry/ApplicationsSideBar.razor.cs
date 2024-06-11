@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.Shared.SideBarEntry
 {
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.StringTableService;
@@ -79,7 +80,7 @@ namespace COMETwebapp.Shared.SideBarEntry
         {
             base.OnInitialized();
             this.NavigationManager.LocationChanged += this.OnLocationChanged;
-            this.Disposables.Add(this.WhenAnyValue(x => x.TabsViewModel.SelectedApplication).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.TabsViewModel.SelectedApplication).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
