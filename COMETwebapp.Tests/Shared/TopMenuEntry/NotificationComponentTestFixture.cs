@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
 
     using Bunit;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.VersionService;
     using COMET.Web.Common.Test.Helpers;
 
@@ -49,7 +50,6 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
     using IAntDesignNotificationService = AntDesign.INotificationService;
     using INotificationService = COMET.Web.Common.Services.NotificationService.INotificationService;
     using Result = FluentResults.Result;
-    using COMET.Web.Common.Model;
 
     [TestFixture]
     public class NotificationComponentTestFixture

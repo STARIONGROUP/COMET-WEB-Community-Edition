@@ -40,7 +40,7 @@ else
 	{
 		@if (this.ShowActiveModel)
 		{
-			<DxTextBox ReadOnly="true" Text="@($"Active Model : {this.ViewModel.SelectedIterationData?.IterationName}")" SizeMode="SizeMode.Large" CssClass="m-bottom-20px-left-20px" ></DxTextBox>
+			<DxTextBox ReadOnly="true" Text="@($"Active Model : {this.ViewModel.SelectedIterationData?.IterationName}")" SizeMode="SizeMode.Large" CssClass="m-bottom-20px" ></DxTextBox>
 		}
 		<CascadingValue Value="this.ViewModel.SelectedThing">
 			<div>

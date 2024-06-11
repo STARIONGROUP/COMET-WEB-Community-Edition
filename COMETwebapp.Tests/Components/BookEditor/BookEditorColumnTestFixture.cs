@@ -36,6 +36,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
 
     using Moq;
 
@@ -49,6 +50,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
         private TestContext context;
         private IRenderedComponent<BookEditorColumn<Book>> component;
         private Mock<IDomDataService> domDataService;
+        private Mock<ILogger<BookEditorColumn<Book>>> loggerMock;
         private bool editIsClicked;
         private bool deleteIsClicked;
         private bool isCollapsed;
@@ -62,8 +64,10 @@ namespace COMETwebapp.Tests.Components.BookEditor
             this.context.ConfigureDevExpressBlazor();
 
             this.domDataService = new Mock<IDomDataService>();
+            this.loggerMock = new Mock<ILogger<BookEditorColumn<Book>>>();
 
             this.context.Services.AddSingleton(this.domDataService.Object);
+            this.context.Services.AddSingleton(this.loggerMock.Object);
 
             var book = new Book()
             {
@@ -120,7 +124,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
             
             Assert.Multiple(() =>
             {
-                Assert.That(header.Attributes["class"].Value, Is.EqualTo("header-text"));
+                Assert.That(header.Attributes["class"]?.Value, Is.EqualTo("header-text"));
                 Assert.That(header.HasAttribute("style"), Is.True);
             });
 
@@ -144,6 +148,31 @@ namespace COMETwebapp.Tests.Components.BookEditor
                 Assert.That(this.editIsClicked, Is.True);
                 Assert.That(this.deleteIsClicked, Is.True);
             });
+        }
+
+        [Test]
+        public async Task VerifyOnSizeChangedAndScroll()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.component.Instance.OnScroll, Throws.Nothing);
+                Assert.That(this.component.Instance.OnSizeChanged, Throws.Nothing);
+            });
+            
+            this.domDataService.Setup(x => x.GetElementSizeAndPosition(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<bool>())).Throws(new Exception());
+            await this.component.Instance.OnSizeChanged();
+            this.loggerMock.Verify(LogLevel.Warning, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
+        }
+
+        [Test]
+        public async Task VerifyGeneratePathPoints()
+        {
+            this.domDataService.Setup(x => x.GetElementSizeAndPosition(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<bool>())).Returns(Task.FromResult(new float[]{1,2,3,4,5}));
+            await this.component.Instance.OnSizeChanged();
+            this.component.Render();
+
+            var polyline = this.component.Find("#pathPoints");
+            Assert.That(polyline.GetAttribute("points"), Is.EqualTo("1,4,2,4,2,4,3,4"));
         }
     }
 }

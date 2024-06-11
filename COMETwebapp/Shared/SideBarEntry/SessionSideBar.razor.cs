@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="AboutMenu.razor.cs" company="Starion Group S.A.">
+//  <copyright file="SessionSideBar.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,29 +22,23 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Shared.TopMenuEntry
+namespace COMETwebapp.Shared.SideBarEntry
 {
+    using CDP4Dal;
+
     using COMET.Web.Common.Shared.TopMenuEntry;
 
-    using COMETwebapp.Components.Shared;
-
     /// <summary>
-    /// Menu entry to access to the <see cref="About" /> content
+    /// Side bar entry to access to the <see cref="ISession" /> content
     /// </summary>
-    public partial class AboutMenu : MenuEntryBase
+    public partial class SessionSideBar : SessionMenu
     {
         /// <summary>
-        /// Value asserting that the popup is visible or not
+        /// Expands the dropdown present in the navbar
         /// </summary>
-        public bool IsVisible { get; set; }
-
-        /// <summary>
-        /// Set the visibility of the popup
-        /// </summary>
-        /// <param name="visibility">The new visibility state</param>
-        protected void SetVisibility(bool visibility)
+        public void ExpandDropdown()
         {
-            this.IsVisible = visibility;
+            this.Expanded = true;
             this.InvokeAsync(this.StateHasChanged);
         }
     }

@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2024 Starion Group S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -19,12 +19,10 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inherits COMET.Web.Common.Shared.TopMenuEntry.MenuEntryBase
+@inherits COMETwebapp.Shared.TopMenuEntry.ShowHideDeprecatedThings
 
-<DxMenuItem Text="About" IconCssClass="icon icon-info" Click="() => this.SetVisibility(true)" Position="ItemPosition.End"/>
-<DxPopup @bind-Visible="this.IsVisible" HeaderText="CDP4-COMET-WEB CE">
-    <About/>
-    <div class="text-center">
-        <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="@(() => this.SetVisibility(false))" />
-    </div>
-</DxPopup>
+<SideBarItem Text="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "Hide Deprecated Things" : "Show Deprecated Things")"
+             OnClick="@(() => this.ViewModel.OnShowHideDeprecatedItems())"
+             IconCssClass="@($"{(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "icon icon-eye-hide" : "icon icon-eye-show")} mx-2")"
+             Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"
+             Id="showHideIcon"/>
