@@ -30,6 +30,10 @@
             @bind-Value="@this.ViewModel.SelectedApplication"/>
 
 
+@if (this.ViewModel.OpenTabs.Count == 0)
+{
+    <OpenTab/>
+}
 
 @foreach (var tabbedApplication in this.ViewModel.OpenTabs.Items)
 {

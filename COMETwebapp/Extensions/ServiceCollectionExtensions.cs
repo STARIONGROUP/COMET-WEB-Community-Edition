@@ -30,6 +30,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.BookEditor;
+    using COMETwebapp.ViewModels.Components.Common.OpenTab;
     using COMETwebapp.ViewModels.Components.EngineeringModel;
     using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
     using COMETwebapp.ViewModels.Components.EngineeringModel.DomainFileStore;
@@ -122,6 +123,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IFileRevisionHandlerViewModel, FileRevisionHandlerViewModel>();
             serviceCollection.AddTransient<IBatchParameterEditorViewModel, BatchParameterEditorViewModel>();
             serviceCollection.AddTransient<ITabsViewModel, TabsViewModel>();
+            serviceCollection.AddTransient<IOpenTabViewModel, OpenTabViewModel>();
         }
     }
 }

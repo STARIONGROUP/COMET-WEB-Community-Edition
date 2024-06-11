@@ -26,6 +26,7 @@ namespace COMETwebapp.Model
 {
     using COMET.Web.Common.Model;
 
+    using COMETwebapp.Components.BookEditor;
     using COMETwebapp.Components.EngineeringModel;
     using COMETwebapp.Components.ModelDashboard;
     using COMETwebapp.Components.ModelEditor;
@@ -167,13 +168,14 @@ namespace COMETwebapp.Model
                     ComponentType = typeof(ElementDefinitionTable)
                 },
 
-                new Application
+                new TabbedApplication()
                 {
                     Name = "Book Editor",
                     Color = "#76fd98",
                     Icon = "book",
                     Description = "Manage books",
-                    Url = WebAppConstantValues.BookEditorPage
+                    Url = WebAppConstantValues.BookEditorPage,
+                    ComponentType = typeof(BookEditorBody)
                 },
 
                 new Application
