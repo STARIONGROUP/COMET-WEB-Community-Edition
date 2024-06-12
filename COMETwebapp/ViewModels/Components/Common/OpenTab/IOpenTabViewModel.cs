@@ -45,7 +45,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// <summary>
         /// Opens the selected engineering model
         /// </summary>
-        /// <returns>A <see cref="Task"/> containing the operation <see cref="Result"/></returns>
+        /// <returns>A <see cref="Task" /> containing the operation <see cref="Result" /></returns>
         Task<Result> OpenModel();
     }
 }

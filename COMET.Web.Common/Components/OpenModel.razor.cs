@@ -92,9 +92,17 @@ namespace COMET.Web.Common.Components
         protected override void OnInitialized()
         {
             base.OnInitialized();
+            this.Initialize(this.ViewModel);
+        }
 
+        /// <summary>
+        /// Initializes the current <see cref="ViewModel"/>
+        /// </summary>
+        /// <param name="viewModel">The <see cref="IOpenModelViewModel"/> to initialize</param>
+        protected void Initialize(IOpenModelViewModel viewModel)
+        {
+            this.ViewModel = viewModel;
             this.ViewModel.InitializesProperties();
-
             this.Disposables.Add(this.ViewModel);
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedEngineeringModel,

@@ -27,14 +27,11 @@ namespace COMETwebapp.Components.Common
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Components;
-    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.ViewModels.Components.Common.OpenTab;
 
     using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
 
     /// <summary>
     /// Component used to open an <see cref="EngineeringModel" /> tab
@@ -48,13 +45,14 @@ namespace COMETwebapp.Components.Common
         public new IOpenTabViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="Microsoft.AspNetCore.Components.NavigationManager"/>
+        /// Gets or sets the action to be executed when the component is closed. If not set, the cancel button will be hidden
         /// </summary>
-        [Inject]
-        public NavigationManager NavigationManager { get; set; }
+        [Parameter]
+        public Action OnCancel { get; set; }
 
         /// <summary>
-        /// Gets the condition to check if the selected application view model inherits from <see cref="ISingleEngineeringModelApplicationBaseViewModel"/>
+        /// Gets the condition to check if the selected application view model inherits from
+        /// <see cref="ISingleEngineeringModelApplicationBaseViewModel" />
         /// </summary>
         private bool IsEngineeringModelView => this.ViewModel.SelectedApplication?.ViewModelType.IsAssignableTo(typeof(ISingleEngineeringModelApplicationBaseViewModel)) == true;
 
@@ -64,17 +62,7 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         protected override void OnInitialized()
         {
-            base.OnInitialized();
-
-            this.ViewModel.InitializesProperties();
-            this.Disposables.Add(this.ViewModel);
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedEngineeringModel,
-                    x => x.ViewModel.SelectedIterationSetup,
-                    x => x.ViewModel.SelectedDomainOfExpertise,
-                    x => x.ViewModel.SelectedApplication,
-                    x => x.ViewModel.IsOpeningSession)
-                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Initialize(this.ViewModel);
         }
 
         /// <summary>
@@ -89,7 +77,7 @@ namespace COMETwebapp.Components.Common
         /// <summary>
         /// Opens a model and navigates to the selected application/view
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         private async Task OpenModelAndNavigateToView()
         {
             if (this.IsEngineeringModelView)
@@ -100,8 +88,6 @@ namespace COMETwebapp.Components.Common
             {
                 await this.ViewModel.OpenSession();
             }
-
-            // this.NavigationManager.NavigateTo(this.ViewModel.SelectedApplication.Url);
         }
     }
 }

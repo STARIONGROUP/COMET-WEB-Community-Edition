@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2024 Starion Group S.A.
 //
-//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 //
 //   This file is part of CDP4-COMET WEB Community Edition
 //   The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25
@@ -20,13 +20,11 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMETwebapp.Components.Common
-
 @using COMETwebapp.Model
 @using COMET.Web.Common.Model
-@using COMET.Web.Common.ViewModels.Components.Applications
 @inherits OpenModel
 
-<DxFormLayout CaptionPosition="CaptionPosition.Vertical" CssClass="py-3">
+<DxFormLayout CaptionPosition="CaptionPosition.Vertical" CssClass="py-5 px-4">
     <DxFormLayoutItem ColSpanLg="12">
         <div style="display:flex; flex-direction: column; align-items: center;">
             <FeatherSmile Size="42"
@@ -58,15 +56,27 @@
     @if (!this.IsEngineeringModelView)
     {
         <DxFormLayoutItem Caption="Iteration" ColSpanLg="12">
-            <DxComboBox Id="iteration-selection" Data="@(this.ViewModel.AvailableIterationSetups)"
+            <DxComboBox Id="iteration-selection"
+                        Data="@(this.ViewModel.AvailableIterationSetups)"
                         TextFieldName="@nameof(IterationData.IterationName)"
                         @bind-Value="@(this.ViewModel.SelectedIterationSetup)"
                         NullText="Select an Iteration"/>
         </DxFormLayoutItem>
     }
+    <DxFormLayoutItem ColSpanLg="12">
+        <DxButton Id="opentab__button"
+                  CssClass="btn btn-connect w-100 lh-lg"
+                  Text="@($"{this.ButtonText} model")"
+                  Click="@(this.OpenModelAndNavigateToView)"
+                  Enabled="@(this.ButtonEnabled)"/>
 
+        @if (this.OnCancel is not null)
+        {
+            <DxButton Id="closetab__button"
+                      CssClass="btn btn-connect w-100 lh-lg mt-2"
+                      Text="Close"
+                      Click="@(() => this.OnCancel?.Invoke())"
+                      RenderStyle="ButtonRenderStyle.Secondary"/>
+        }
+    </DxFormLayoutItem>
 </DxFormLayout>
-<div class="modal-footer">
-    <DxButton Id="openmodel__button" CssClass="btn btn-connect"
-              Text="@(this.ButtonText)" Click="@(this.OpenModelAndNavigateToView)"/>
-</div>

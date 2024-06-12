@@ -29,12 +29,9 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
-    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
-
-    using DynamicData;
 
     using FluentResults;
 
@@ -65,7 +62,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="configurationService">The <see cref="IConfigurationService" /></param>
-        /// <param name="tabsViewModel">The <see cref="ITabsViewModel"/></param>
+        /// <param name="tabsViewModel">The <see cref="ITabsViewModel" /></param>
         public OpenTabViewModel(ISessionService sessionService, IConfigurationService configurationService, ITabsViewModel tabsViewModel) : base(sessionService, configurationService)
         {
             this.sessionService = sessionService;
@@ -84,7 +81,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// <summary>
         /// Opens the selected engineering model
         /// </summary>
-        /// <returns>A <see cref="Task"/> containing the operation <see cref="Result"/></returns>
+        /// <returns>A <see cref="Task" /> containing the operation <see cref="Result" /></returns>
         public async Task<Result> OpenModel()
         {
             this.IsOpeningSession = true;
@@ -103,7 +100,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         {
             var result = await base.OpenSession();
             this.tabsViewModel.SelectedApplication = this.SelectedApplication;
-            
+
             return result;
         }
     }
