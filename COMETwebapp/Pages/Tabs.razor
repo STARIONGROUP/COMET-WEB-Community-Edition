@@ -27,7 +27,8 @@
 
 <DxComboBox Data="@this.ViewModel.AvailableApplications"
             TextFieldName="@nameof(TabbedApplication.Name)"
-            @bind-Value="@this.ViewModel.SelectedApplication"/>
+            @bind-Value="@this.ViewModel.SelectedApplication"
+            CssClass="mb-2"/>
 
             
 Url => @this.ViewModel.SelectedApplication?.Url
