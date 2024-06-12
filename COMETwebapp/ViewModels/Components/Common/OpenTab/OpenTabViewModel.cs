@@ -95,11 +95,15 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// <summary>
         /// Opens the <see cref="EngineeringModel" /> based on the selected field
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> containing the operation <see cref="Result"/></returns>
         public override async Task<Result<Iteration>> OpenSession()
         {
             var result = await base.OpenSession();
-            this.tabsViewModel.SelectedApplication = this.SelectedApplication;
+
+            if (result.IsSuccess)
+            {
+                this.tabsViewModel.SelectedApplication = this.SelectedApplication;
+            }
 
             return result;
         }
