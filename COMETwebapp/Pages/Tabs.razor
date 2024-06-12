@@ -29,7 +29,8 @@
             TextFieldName="@nameof(TabbedApplication.Name)"
             @bind-Value="@this.ViewModel.SelectedApplication"/>
 
-
+            
+Url => @this.ViewModel.SelectedApplication?.Url
 @if (this.ViewModel.OpenTabs.Count == 0)
 {
     <OpenTab/>
@@ -37,6 +38,7 @@
 
 @foreach (var tabbedApplication in this.ViewModel.OpenTabs.Items)
 {
-    <DynamicApplicationBase ViewModel="tabbedApplication.ApplicationBaseViewModel" ApplicationBaseType="tabbedApplication.ComponentType"
+    <DynamicApplicationBase ViewModel="tabbedApplication.ApplicationBaseViewModel" 
+                            ApplicationBaseType="tabbedApplication.ComponentType"
                             CurrentThing="tabbedApplication.ObjectOfInterest as Thing"/>
 }

@@ -37,7 +37,9 @@ namespace COMET.Web.Common.ViewModels.Components
     using COMET.Web.Common.Utilities.DisposableObject;
 
     using DynamicData.Binding;
-    
+
+    using FluentResults;
+
     using ReactiveUI;
     
     /// <summary>
@@ -186,18 +188,22 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <summary>
         /// Opens the <see cref="EngineeringModel" /> based on the selected field
         /// </summary>
-        /// <returns></returns>
-        public async Task OpenSession()
+        /// <returns>A <see cref="Task"/> containing the operation <see cref="Result"/></returns>
+        public virtual async Task<Result<Iteration>> OpenSession()
         {
-            if (this.SelectedIterationSetup != null && this.SelectedDomainOfExpertise != null)
+            if (this.SelectedIterationSetup == null || this.SelectedDomainOfExpertise == null)
             {
-                this.IsOpeningSession = true;
-
-                await this.sessionService.ReadIteration(this.SelectedEngineeringModel.IterationSetup
-                    .First(x => x.Iid == this.SelectedIterationSetup.IterationSetupId), this.SelectedDomainOfExpertise);
-
-                this.IsOpeningSession = false;
+                return Result.Fail(["The selected iteration and the domain of expertise should not be null"]);
             }
+
+            this.IsOpeningSession = true;
+
+            var result = await this.sessionService.ReadIteration(this.SelectedEngineeringModel.IterationSetup
+                .First(x => x.Iid == this.SelectedIterationSetup.IterationSetupId), this.SelectedDomainOfExpertise);
+
+            this.IsOpeningSession = false;
+
+            return result;
         }
 
         /// <summary>

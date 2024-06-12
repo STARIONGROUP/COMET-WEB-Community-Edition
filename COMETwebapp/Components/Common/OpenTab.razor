@@ -55,7 +55,7 @@
                     NullText="Select a Domain of Expertise"/>
     </DxFormLayoutItem>
 
-    @if (this.ViewModel.SelectedApplication?.ViewModelType.IsAssignableTo(typeof(ISingleEngineeringModelApplicationBaseViewModel)) != true)
+    @if (!this.IsEngineeringModelView)
     {
         <DxFormLayoutItem Caption="Iteration" ColSpanLg="12">
             <DxComboBox Id="iteration-selection" Data="@(this.ViewModel.AvailableIterationSetups)"
@@ -68,5 +68,5 @@
 </DxFormLayout>
 <div class="modal-footer">
     <DxButton Id="openmodel__button" CssClass="btn btn-connect"
-              Text="@(this.ButtonText)" Click="@(this.ViewModel.OpenSession)"/>
+              Text="@(this.ButtonText)" Click="@(this.OpenModelAndNavigateToView)"/>
 </div>

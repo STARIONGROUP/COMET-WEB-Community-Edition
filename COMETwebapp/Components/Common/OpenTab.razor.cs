@@ -28,6 +28,7 @@ namespace COMETwebapp.Components.Common
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.ViewModels.Components.Common.OpenTab;
 
@@ -45,6 +46,17 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         [Inject]
         public new IOpenTabViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Microsoft.AspNetCore.Components.NavigationManager"/>
+        /// </summary>
+        [Inject]
+        public NavigationManager NavigationManager { get; set; }
+
+        /// <summary>
+        /// Gets the condition to check if the selected application view model inherits from <see cref="ISingleEngineeringModelApplicationBaseViewModel"/>
+        /// </summary>
+        private bool IsEngineeringModelView => this.ViewModel.SelectedApplication?.ViewModelType.IsAssignableTo(typeof(ISingleEngineeringModelApplicationBaseViewModel)) == true;
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -72,6 +84,24 @@ namespace COMETwebapp.Components.Common
         protected override bool AreRequiredFieldSelected()
         {
             return base.AreRequiredFieldSelected() && this.ViewModel.SelectedApplication != null;
+        }
+
+        /// <summary>
+        /// Opens a model and navigates to the selected application/view
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task OpenModelAndNavigateToView()
+        {
+            if (this.IsEngineeringModelView)
+            {
+                await this.ViewModel.OpenModel();
+            }
+            else
+            {
+                await this.ViewModel.OpenSession();
+            }
+
+            // this.NavigationManager.NavigateTo(this.ViewModel.SelectedApplication.Url);
         }
     }
 }

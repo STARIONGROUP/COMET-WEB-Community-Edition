@@ -29,8 +29,14 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Model;
+    using COMETwebapp.ViewModels.Pages;
+
+    using DynamicData;
+
+    using FluentResults;
 
     using ReactiveUI;
 
@@ -45,6 +51,11 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// The <see cref="ITabsViewModel" />
+        /// </summary>
+        private readonly ITabsViewModel tabsViewModel;
+
+        /// <summary>
         /// Backing field for <see cref="SelectedApplication" />
         /// </summary>
         private TabbedApplication selectedApplication;
@@ -54,9 +65,11 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="configurationService">The <see cref="IConfigurationService" /></param>
-        public OpenTabViewModel(ISessionService sessionService, IConfigurationService configurationService) : base(sessionService, configurationService)
+        /// <param name="tabsViewModel">The <see cref="ITabsViewModel"/></param>
+        public OpenTabViewModel(ISessionService sessionService, IConfigurationService configurationService, ITabsViewModel tabsViewModel) : base(sessionService, configurationService)
         {
             this.sessionService = sessionService;
+            this.tabsViewModel = tabsViewModel;
         }
 
         /// <summary>
@@ -66,6 +79,32 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         {
             get => this.selectedApplication;
             set => this.RaiseAndSetIfChanged(ref this.selectedApplication, value);
+        }
+
+        /// <summary>
+        /// Opens the selected engineering model
+        /// </summary>
+        /// <returns>A <see cref="Task"/> containing the operation <see cref="Result"/></returns>
+        public async Task<Result> OpenModel()
+        {
+            this.IsOpeningSession = true;
+            var result = await this.sessionService.ReadEngineeringModels([this.SelectedEngineeringModel]);
+            this.IsOpeningSession = false;
+
+            this.tabsViewModel.SelectedApplication = this.SelectedApplication;
+            return result;
+        }
+
+        /// <summary>
+        /// Opens the <see cref="EngineeringModel" /> based on the selected field
+        /// </summary>
+        /// <returns></returns>
+        public override async Task<Result<Iteration>> OpenSession()
+        {
+            var result = await base.OpenSession();
+            this.tabsViewModel.SelectedApplication = this.SelectedApplication;
+            
+            return result;
         }
     }
 }

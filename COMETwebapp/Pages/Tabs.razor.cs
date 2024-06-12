@@ -30,6 +30,8 @@ namespace COMETwebapp.Pages
 
     using Microsoft.AspNetCore.Components;
 
+    using ReactiveUI;
+
     /// <summary>
     /// Support class for the <see cref="Tabs" /> page
     /// </summary>
@@ -50,6 +52,7 @@ namespace COMETwebapp.Pages
             base.OnInitialized();
 
             this.Disposables.Add(this.ViewModel.OpenTabs.CountChanged.SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedApplication).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }
 }

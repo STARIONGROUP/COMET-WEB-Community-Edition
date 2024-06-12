@@ -30,6 +30,8 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
 
     using COMETwebapp.Model;
 
+    using FluentResults;
+
     /// <summary>
     /// View Model that enables a user to open an <see cref="EngineeringModel" />
     /// </summary>
@@ -39,5 +41,11 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// The selected <see cref="TabbedApplication" />
         /// </summary>
         TabbedApplication SelectedApplication { get; set; }
+
+        /// <summary>
+        /// Opens the selected engineering model
+        /// </summary>
+        /// <returns>A <see cref="Task"/> containing the operation <see cref="Result"/></returns>
+        Task<Result> OpenModel();
     }
 }
