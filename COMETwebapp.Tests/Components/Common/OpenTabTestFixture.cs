@@ -32,6 +32,7 @@ namespace COMETwebapp.Tests.Components.Common
 
     using COMETwebapp.Components.BookEditor;
     using COMETwebapp.Components.Common;
+    using COMETwebapp.Components.ModelDashboard;
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Components.Common.OpenTab;
 
@@ -59,6 +60,7 @@ namespace COMETwebapp.Tests.Components.Common
             this.context.ConfigureDevExpressBlazor();
 
             this.viewModel = new Mock<IOpenTabViewModel>();
+            this.viewModel.Setup(x => x.IsCurrentModelOpened).Returns(true);
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(new Mock<IOpenModelViewModel>().Object);
@@ -107,16 +109,28 @@ namespace COMETwebapp.Tests.Components.Common
             await this.renderer.InvokeAsync(openButton.Instance.Click.InvokeAsync);
             this.viewModel.Verify(x => x.OpenSession(), Times.Once);
 
-            var newApplication = new TabbedApplication
+            var bookEditorBodyComponent = new TabbedApplication
             {
                 ComponentType = typeof(BookEditorBody)
             };
 
-            newApplication.ResolveTypesProperties();
+            bookEditorBodyComponent.ResolveTypesProperties();
 
-            this.viewModel.Setup(x => x.SelectedApplication).Returns(newApplication);
+            this.viewModel.Setup(x => x.SelectedApplication).Returns(bookEditorBodyComponent);
             await this.renderer.InvokeAsync(openButton.Instance.Click.InvokeAsync);
             this.viewModel.Verify(x => x.OpenSession(), Times.Exactly(2));
+
+            var modelDashboardBodyComponent = new TabbedApplication
+            {
+                ComponentType = typeof(ModelDashboardBody)
+            };
+
+            modelDashboardBodyComponent.ResolveTypesProperties();
+
+            this.viewModel.Setup(x => x.SelectedApplication).Returns(modelDashboardBodyComponent);
+            this.renderer.Render();
+            await this.renderer.InvokeAsync(openButton.Instance.Click.InvokeAsync);
+            this.viewModel.Verify(x => x.OpenSession(), Times.Exactly(3));
         }
     }
 }

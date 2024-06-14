@@ -30,6 +30,7 @@ namespace COMET.Web.Common.ViewModels.Components
 
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Utilities.DisposableObject;
+
     using FluentResults;
 
     /// <summary>
