@@ -34,39 +34,67 @@
             <span>Select a model to start working on it</span>
         </div>
     </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Model" ColSpanLg="12">
-        <DxComboBox Id="model-selection" Data="@(this.ViewModel.AvailableEngineeringModelSetups)"
-                    TextFieldName="@nameof(EngineeringModelSetup.Name)"
-                    @bind-Value="@(this.ViewModel.SelectedEngineeringModel)"
-                    NullText="Select an Engineering Model"/>
-    </DxFormLayoutItem>
     <DxFormLayoutItem Caption="View" ColSpanLg="12">
-        <DxComboBox Id="view-selection" Data="@(Applications.ExistingApplications.OfType<TabbedApplication>())"
+        <DxComboBox Id="view-selection"
+                    Data="@(Applications.ExistingApplications.OfType<TabbedApplication>())"
                     TextFieldName="@nameof(Application.Name)"
                     @bind-Value="@(this.ViewModel.SelectedApplication)"
                     NullText="Select a View"/>
     </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Domain" ColSpanLg="12">
-        <DxComboBox Id="domain-selection" Data="@(this.ViewModel.AvailablesDomainOfExpertises)"
-                    TextFieldName="@nameof(DomainOfExpertise.Name)"
-                    @bind-Value="@(this.ViewModel.SelectedDomainOfExpertise)"
-                    NullText="Select a Domain of Expertise"/>
-    </DxFormLayoutItem>
 
-    @if (!this.IsEngineeringModelView)
+    @if (this.IsEngineeringModelView || this.IsIterationView || this.ViewModel.SelectedApplication is null)
     {
-        <DxFormLayoutItem Caption="Iteration" ColSpanLg="12">
-            <DxComboBox Id="iteration-selection"
-                        Data="@(this.ViewModel.AvailableIterationSetups)"
-                        TextFieldName="@nameof(IterationData.IterationName)"
-                        @bind-Value="@(this.ViewModel.SelectedIterationSetup)"
-                        NullText="Select an Iteration"/>
+        <DxFormLayoutItem Caption="Model" ColSpanLg="12">
+            <DxComboBox Id="model-selection"
+                        Data="@(this.ViewModel.EngineeringModelSetups)"
+                        TextFieldName="@nameof(EngineeringModelSetup.Name)"
+                        @bind-Value="@(this.ViewModel.SelectedEngineeringModel)"
+                        NullText="Select an Engineering Model"/>
         </DxFormLayoutItem>
+
+        <DxFormLayoutItem Caption="Domain" ColSpanLg="12">
+            <DxComboBox Id="domain-selection"
+                        Data="@(this.ViewModel.AvailablesDomainOfExpertises)"
+                        TextFieldName="@nameof(DomainOfExpertise.Name)"
+                        @bind-Value="@(this.ViewModel.SelectedDomainOfExpertise)"
+                        NullText="Select a Domain of Expertise">
+                <ItemTemplate Context="ctx">
+                    @if (this.ViewModel.IsCurrentModelOpened)
+                    {
+                        <span class="@(this.ViewModel.SelectedIterationDomainOfExpertise == ctx ? "font-weight-bold" : "")">@(ctx.Name)</span>
+                    }
+                    else
+                    {
+                        <span>@(ctx.Name)</span>
+                    }
+                </ItemTemplate>
+            </DxComboBox>
+        </DxFormLayoutItem>
+
+        @if (this.IsIterationView)
+        {
+            <DxFormLayoutItem Caption="Iteration" ColSpanLg="12">
+                <DxComboBox Id="iteration-selection"
+                            Data="@(this.ViewModel.AvailableIterationSetups)"
+                            TextFieldName="@nameof(IterationData.IterationName)"
+                            @bind-Value="@(this.ViewModel.SelectedIterationSetup)"
+                            NullText="Select an Iteration"
+                            ReadOnly="@(this.ViewModel.IsCurrentModelOpened)"/>
+            </DxFormLayoutItem>
+        }
+
+        @if (this.ViewModel.IsCurrentModelOpened)
+        {
+            <DxFormLayoutItem ColSpanLg="12">
+                <sub class="my-1">Model already opened</sub>
+            </DxFormLayoutItem>
+        }
     }
+
     <DxFormLayoutItem ColSpanLg="12">
         <DxButton Id="opentab__button"
                   CssClass="btn btn-connect w-100 lh-lg"
-                  Text="@($"{this.ButtonText} model")"
+                  Text="@($"{this.ButtonText} Tab")"
                   Click="@(this.OpenModelAndNavigateToView)"
                   Enabled="@(this.ButtonEnabled)"/>
 

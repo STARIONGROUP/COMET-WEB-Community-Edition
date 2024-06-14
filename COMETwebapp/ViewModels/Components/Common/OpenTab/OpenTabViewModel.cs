@@ -25,6 +25,7 @@
 namespace COMETwebapp.ViewModels.Components.Common.OpenTab
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -70,6 +71,26 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         }
 
         /// <summary>
+        /// Gets the <see cref="Iteration" /> from the <see cref="OpenModelViewModel.SelectedEngineeringModel" />
+        /// </summary>
+        private Iteration SelectedEngineeringModelIteration => this.sessionService.OpenIterations.Items.FirstOrDefault(x => ((EngineeringModel)x.Container).EngineeringModelSetup == this.SelectedEngineeringModel);
+
+        /// <summary>
+        /// Gets the collection of participant models
+        /// </summary>
+        public IEnumerable<EngineeringModelSetup> EngineeringModelSetups => this.sessionService.GetParticipantModels().OrderBy(x => x.Name);
+
+        /// <summary>
+        /// Gets the condition to check if the current selected model is already opened
+        /// </summary>
+        public bool IsCurrentModelOpened => this.sessionService.OpenEngineeringModels.Any(x => x.EngineeringModelSetup == this.SelectedEngineeringModel);
+
+        /// <summary>
+        /// Gets the <see cref="DomainOfExpertise" /> from the <see cref="OpenModelViewModel.SelectedIterationSetup" />
+        /// </summary>
+        public DomainOfExpertise SelectedIterationDomainOfExpertise => this.sessionService.GetDomainOfExpertise(this.SelectedEngineeringModelIteration);
+
+        /// <summary>
         /// The selected <see cref="TabbedApplication" />
         /// </summary>
         public TabbedApplication SelectedApplication
@@ -79,26 +100,24 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         }
 
         /// <summary>
-        /// Opens the selected engineering model
-        /// </summary>
-        /// <returns>A <see cref="Task" /> containing the operation <see cref="Result" /></returns>
-        public async Task<Result> OpenModel()
-        {
-            this.IsOpeningSession = true;
-            var result = await this.sessionService.ReadEngineeringModels([this.SelectedEngineeringModel]);
-            this.IsOpeningSession = false;
-
-            this.tabsViewModel.SelectedApplication = this.SelectedApplication;
-            return result;
-        }
-
-        /// <summary>
         /// Opens the <see cref="EngineeringModel" /> based on the selected field
         /// </summary>
-        /// <returns>A <see cref="Task"/> containing the operation <see cref="Result"/></returns>
+        /// <returns>A <see cref="Task" /> containing the operation <see cref="Result" /></returns>
         public override async Task<Result<Iteration>> OpenSession()
         {
-            var result = await base.OpenSession();
+            var result = new Result<Iteration>();
+
+            if (!this.IsCurrentModelOpened)
+            {
+                result = await base.OpenSession();
+            }
+            else
+            {
+                if (this.SelectedDomainOfExpertise != this.SelectedIterationDomainOfExpertise)
+                {
+                    this.sessionService.SwitchDomain(this.SelectedEngineeringModelIteration, this.SelectedDomainOfExpertise);
+                }
+            }
 
             if (result.IsSuccess)
             {

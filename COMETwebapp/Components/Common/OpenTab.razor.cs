@@ -57,6 +57,12 @@ namespace COMETwebapp.Components.Common
         private bool IsEngineeringModelView => this.ViewModel.SelectedApplication?.ViewModelType.IsAssignableTo(typeof(ISingleEngineeringModelApplicationBaseViewModel)) == true;
 
         /// <summary>
+        /// Gets the condition to check if the selected application view model inherits from
+        /// <see cref="ISingleIterationApplicationBaseViewModel" />
+        /// </summary>
+        private bool IsIterationView => this.ViewModel.SelectedApplication?.ViewModelType.IsAssignableTo(typeof(ISingleIterationApplicationBaseViewModel)) == true;
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -71,6 +77,11 @@ namespace COMETwebapp.Components.Common
         /// <returns>True if all required field are selected</returns>
         protected override bool AreRequiredFieldSelected()
         {
+            if (!this.IsEngineeringModelView && !this.IsIterationView)
+            {
+                return this.ViewModel.SelectedApplication != null;
+            }
+
             return base.AreRequiredFieldSelected() && this.ViewModel.SelectedApplication != null;
         }
 
@@ -80,14 +91,8 @@ namespace COMETwebapp.Components.Common
         /// <returns>A <see cref="Task" /></returns>
         private async Task OpenModelAndNavigateToView()
         {
-            if (this.IsEngineeringModelView)
-            {
-                await this.ViewModel.OpenModel();
-            }
-            else
-            {
-                await this.ViewModel.OpenSession();
-            }
+            await this.ViewModel.OpenSession();
+            await this.InvokeAsync(this.StateHasChanged);
         }
     }
 }

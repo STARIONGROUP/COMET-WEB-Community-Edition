@@ -61,6 +61,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
             this.sessionService.Setup(x => x.ReadEngineeringModels(It.IsAny<IEnumerable<EngineeringModelSetup>>())).Returns(Task.FromResult(new Result()));
             this.sessionService.Setup(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>())).Returns(Task.FromResult(new Result<Iteration>()));
             this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
+            this.sessionService.Setup(x => x.OpenEngineeringModels).Returns(new List<EngineeringModel>());
 
             this.viewModel = new OpenTabViewModel(this.sessionService.Object, this.configurationService.Object, this.tabsViewModel.Object);
         }
@@ -72,7 +73,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
         }
 
         [Test]
-        public async Task VerifyOpenIteration()
+        public async Task VerifyOpenIterationAndModel()
         {
             var openIterationResult = await this.viewModel.OpenSession();
 
@@ -84,6 +85,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
             });
 
             var iterationSetup = new IterationSetup { Iid = Guid.NewGuid() };
+            this.viewModel.SelectedApplication = new TabbedApplication();
             this.viewModel.SelectedEngineeringModel = new EngineeringModelSetup { IterationSetup = { iterationSetup } };
             this.viewModel.SelectedIterationSetup = new IterationData(iterationSetup);
             this.viewModel.SelectedDomainOfExpertise = new DomainOfExpertise();
@@ -95,20 +97,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
                 this.tabsViewModel.VerifySet(x => x.SelectedApplication = this.viewModel.SelectedApplication, Times.Once);
                 this.sessionService.Verify(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>()), Times.Once);
             });
-        }
 
-        [Test]
-        public async Task VerifyOpenModel()
-        {
-            this.viewModel.SelectedApplication = new TabbedApplication();
-            var openModelResult = await this.viewModel.OpenModel();
+            var newEngineeringModel = new EngineeringModel { EngineeringModelSetup = this.viewModel.SelectedEngineeringModel };
+            this.sessionService.Setup(x => x.OpenEngineeringModels).Returns([newEngineeringModel]);
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(openModelResult.IsSuccess, Is.True);
-                this.tabsViewModel.VerifySet(x => x.SelectedApplication = this.viewModel.SelectedApplication, Times.Once);
-                this.sessionService.Verify(x => x.ReadEngineeringModels(It.IsAny<IEnumerable<EngineeringModelSetup>>()), Times.Once);
-            });
+            await this.viewModel.OpenSession();
+            this.sessionService.Verify(x => x.SwitchDomain(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>()), Times.Once);
         }
     }
 }

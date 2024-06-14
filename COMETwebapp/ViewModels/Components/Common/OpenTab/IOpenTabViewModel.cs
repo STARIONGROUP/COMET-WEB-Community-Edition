@@ -25,12 +25,11 @@
 namespace COMETwebapp.ViewModels.Components.Common.OpenTab
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components;
 
     using COMETwebapp.Model;
-
-    using FluentResults;
 
     /// <summary>
     /// View Model that enables a user to open an <see cref="EngineeringModel" />
@@ -43,9 +42,18 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         TabbedApplication SelectedApplication { get; set; }
 
         /// <summary>
-        /// Opens the selected engineering model
+        /// Gets the collection of participant models
         /// </summary>
-        /// <returns>A <see cref="Task" /> containing the operation <see cref="Result" /></returns>
-        Task<Result> OpenModel();
+        IEnumerable<EngineeringModelSetup> EngineeringModelSetups { get; }
+
+        /// <summary>
+        /// Gets the condition to check if the current selected model is already opened
+        /// </summary>
+        bool IsCurrentModelOpened { get; }
+
+        /// <summary>
+        /// Gets the <see cref="DomainOfExpertise"/> from the <see cref="OpenModelViewModel.SelectedIterationSetup"/>
+        /// </summary>
+        DomainOfExpertise SelectedIterationDomainOfExpertise { get; }
     }
 }

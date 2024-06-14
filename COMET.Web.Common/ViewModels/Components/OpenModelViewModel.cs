@@ -241,7 +241,6 @@ namespace COMET.Web.Common.ViewModels.Components
             else
             {
                 this.SelectedDomainOfExpertise = this.SelectedEngineeringModel.ActiveDomain.Find(x => x == this.sessionService.Session.ActivePerson.DefaultDomain);
-                
                 this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
 
                 this.AvailableIterationSetups = this.SelectedEngineeringModel.IterationSetup
@@ -249,7 +248,15 @@ namespace COMET.Web.Common.ViewModels.Components
                     .OrderBy(x => x.IterationNumber)
                     .Select(x => new IterationData(x));
 
-                this.SelectedIterationSetup = this.AvailableIterationSetups.Last();
+                this.SelectedIterationSetup = this.AvailableIterationSetups.LastOrDefault();
+
+                if (this.SelectedIterationSetup != null)
+                {
+                    return;
+                }
+
+                var currentModelIteration = this.SelectedEngineeringModel.IterationSetup.FirstOrDefault(x => x == this.sessionService.OpenIterations.Items.FirstOrDefault(i => i.Iid == x.IterationIid)?.IterationSetup);
+                this.SelectedIterationSetup = new IterationData(currentModelIteration);
             }
         }
     }

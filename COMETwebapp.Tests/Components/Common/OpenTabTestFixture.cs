@@ -116,7 +116,7 @@ namespace COMETwebapp.Tests.Components.Common
 
             this.viewModel.Setup(x => x.SelectedApplication).Returns(newApplication);
             await this.renderer.InvokeAsync(openButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OpenModel(), Times.Once);
+            this.viewModel.Verify(x => x.OpenSession(), Times.Exactly(2));
         }
     }
 }
