@@ -10,6 +10,9 @@
     cursor: pointer;
     width: 300px;
     background-color: transparent;
+    transition: width 0.5s;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .application-item-container:not(.selected-application-item):hover {

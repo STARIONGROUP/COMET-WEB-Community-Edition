@@ -38,5 +38,10 @@ namespace COMETwebapp.Shared
         /// </summary>
         [Inject]
         public IRegistrationService RegistrationService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value to check if the sidebar is collapsed
+        /// </summary>
+        public bool Collapsed { get; private set; }
     }
 }

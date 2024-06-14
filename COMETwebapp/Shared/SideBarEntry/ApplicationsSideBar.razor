@@ -23,7 +23,9 @@
 @using COMETwebapp.Utilities
 @inherits COMET.Web.Common.Shared.TopMenuEntry.AuthorizedMenuEntry
 
-<b class="pt-4 pb-2 ps-3">Model</b>
+<div class="pt-4 pb-2 ps-3 font-weight-bold">
+    Model
+</div>
 
 @foreach (var applicationEntry in this.RegistrationService.RegisteredApplications.OfType<TabbedApplication>().Where(x => !x.IsDisabled))
 {
@@ -34,7 +36,9 @@
                  Enabled="@(this.IsApplicationEnabled(applicationEntry))"/>
 }
 
-<b class="pt-4 pb-2 ps-3">General</b>
+<div class="pt-4 pb-2 ps-3 font-weight-bold">
+    General
+</div>
 
 @foreach (var applicationEntry in this.RegistrationService.RegisteredApplications.Where(x => x is not TabbedApplication && !x.IsDisabled && x.Url != WebAppConstantValues.TabsPage))
 {
