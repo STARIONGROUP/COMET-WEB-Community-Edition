@@ -31,7 +31,7 @@
         <Items>
             <DxGridLayoutItem Column="0">
                 <Template>
-                    @if (!this.ViewModel.SessionService.IsSessionOpen)
+                    @if (this.ViewModel.SessionService.IsSessionOpen)
                     {
                         <SideBar/>
                     }

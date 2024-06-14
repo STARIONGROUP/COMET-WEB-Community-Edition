@@ -22,8 +22,25 @@
 @using COMET.Web.Common.Shared.TopMenuEntry
 
 <nav class="@($"{(this.Collapsed ? "collapsed" : "")} main-side-bar")">
-    <DxButton Text="Collapse"
-              Click="@(() => this.Collapsed = !this.Collapsed)"/>
+    <div class="@(this.Collapsed ? "text-center" : "text-end")">
+        <DxButton Text="Collapse"
+                  Click="@(() => this.Collapsed = !this.Collapsed)"
+                  RenderStyle="ButtonRenderStyle.None"
+                  style="">
+            @if (this.Collapsed)
+            {
+                <FeatherArrowRight Size="24"
+                                   Color="currentColor"
+                                   StrokeWidth="1.8f" />
+            }
+            else
+            {
+                <FeatherArrowLeft Size="24"
+                                  Color="currentColor"
+                                  StrokeWidth="1.8f" />
+            }
+        </DxButton>
+    </div>
 
     @foreach (var menuEntry in this.RegistrationService.RegisteredAuthorizedMenuEntries.Where(x => x.IsSubclassOf(typeof(MenuEntryBase))))
     {
