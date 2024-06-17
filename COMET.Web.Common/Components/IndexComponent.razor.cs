@@ -71,6 +71,12 @@ namespace COMET.Web.Common.Components
         public string Redirect { get; set; }
 
         /// <summary>
+        /// Gets or sets the value to check if an open iteration is required for accessing the dashboard component
+        /// </summary>
+        [Parameter]
+        public bool OpenIterationRequired { get; set; } = true;
+
+        /// <summary>
         /// The <see cref="NavigationManager" />
         /// </summary>
         [Inject]

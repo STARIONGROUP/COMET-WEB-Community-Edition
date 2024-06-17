@@ -33,6 +33,7 @@ namespace COMETwebapp.ViewModels.Pages
     using COMETwebapp.Model;
 
     using DynamicData;
+    using DynamicData.Binding;
 
     using ReactiveUI;
 
@@ -65,7 +66,7 @@ namespace COMETwebapp.ViewModels.Pages
         {
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
-            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedApplication).Subscribe(_ => this.InitializeViewModelBasedOnApplication()));
+            this.Disposables.Add(this.WhenPropertyChanged(x => x.SelectedApplication).Subscribe(_ => this.InitializeViewModelBasedOnApplication()));
         }
 
         /// <summary>
@@ -84,7 +85,11 @@ namespace COMETwebapp.ViewModels.Pages
         public TabbedApplication SelectedApplication
         {
             get => this.selectedApplication;
-            set => this.RaiseAndSetIfChanged(ref this.selectedApplication, value);
+            set
+            {
+                this.selectedApplication = value;
+                this.RaisePropertyChanged();
+            }
         }
 
         /// <summary>

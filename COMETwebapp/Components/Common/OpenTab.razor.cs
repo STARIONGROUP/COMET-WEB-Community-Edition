@@ -27,11 +27,14 @@ namespace COMETwebapp.Components.Common
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.ViewModels.Components.Common.OpenTab;
 
     using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Component used to open an <see cref="EngineeringModel" /> tab
@@ -69,6 +72,7 @@ namespace COMETwebapp.Components.Common
         protected override void OnInitialized()
         {
             this.Initialize(this.ViewModel);
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedApplication).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>

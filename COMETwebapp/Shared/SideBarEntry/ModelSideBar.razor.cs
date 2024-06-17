@@ -24,6 +24,7 @@
 
 namespace COMETwebapp.Shared.SideBarEntry
 {
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Shared.TopMenuEntry;
 
     /// <summary>
@@ -43,6 +44,16 @@ namespace COMETwebapp.Shared.SideBarEntry
         {
             this.Expanded = true;
             this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its
+        /// initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            this.Disposables.Add(this.ViewModel.SessionService.OpenIterations.CountChanged.SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }
 }
