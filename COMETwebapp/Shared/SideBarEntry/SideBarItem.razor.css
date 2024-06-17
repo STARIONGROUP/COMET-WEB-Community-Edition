@@ -8,8 +8,12 @@
     justify-content: left;
     align-items: center;
     cursor: pointer;
-    width: 300px;
+    width: 250px;
     background-color: transparent;
+    transition: width 0.5s;
+    white-space: nowrap;
+    overflow: hidden;
+    height: 50px;
 }
 
 .application-item-container:not(.selected-application-item):hover {

@@ -20,7 +20,7 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 
-<div class="application-item-container @(this.CssClass)" @onclick="@(this.ExecuteAction)" id="@(this.Id)">
+<div class="application-item-container @(this.CssClass)" @onclick="@(this.ExecuteAction)" id="@(this.Id)" title="@(this.Text)">
 
     @if (this.ChildContent is not null)
     {
@@ -30,11 +30,11 @@
     {
         <div style="display: flex; align-items: center;">
             <span class="@(this.IconCssClass) display-flex justify-content-center application-sidebar-icon" aria-hidden="true"></span>
-            @(this.Text)
+            <span class="not-displayed-on-collapse">@(this.Text)</span>
         </div>
         if (this.DropdownSelector)
         {
-            <div style="margin-left: auto;">
+            <div style="margin-left: auto;" class="not-displayed-on-collapse">
                 <span class="oi oi-chevron-right" style="font-size: 15px;"></span>
             </div>
         }

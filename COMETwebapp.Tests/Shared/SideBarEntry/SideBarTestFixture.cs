@@ -53,6 +53,8 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
     using COMETwebapp.ViewModels.Pages;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 
+    using DevExpress.Blazor;
+
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
@@ -305,6 +307,8 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             var modelSideBarEntry = authorizedSideBarEntries[1];
             var modelSideBarInstance = (ModelSideBar)modelSideBarEntry.Instance;
             var modelSideBarViewModel = modelSideBarInstance.ViewModel;
+            var sideBarItem = modelSideBarEntry.FindComponent<SideBarItem>();
+            await modelSideBarEntry.InvokeAsync(sideBarItem.Instance.OnClick.Invoke);
 
             var modelRow = renderer.FindComponent<ModelMenuRow>();
             await renderer.InvokeAsync(modelRow.Instance.ViewModel.SwitchDomain);
@@ -373,7 +377,16 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
 
             var thirdDataItem = renderer.FindComponents<SideBarItem>()[1];
             await renderer.InvokeAsync(thirdDataItem.Instance.OnClick.Invoke);
-            Assert.That(fakeNavigationManager.Uri, Does.Contain(this.registeredApplications[1].Url));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(fakeNavigationManager.Uri, Does.Contain(this.registeredApplications[1].Url));
+                Assert.That(renderer.Instance.Collapsed, Is.False);
+            });
+            
+            var sideBarCollapseButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "side-bar-collapse-button");
+            await renderer.InvokeAsync(sideBarCollapseButton.Instance.Click.InvokeAsync);
+            Assert.That(renderer.Instance.Collapsed, Is.True);
         }
     }
 }

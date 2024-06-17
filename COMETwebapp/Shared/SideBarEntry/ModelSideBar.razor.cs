@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SideBar.razor.cs" company="Starion Group S.A.">
+//  <copyright file="ModelSideBar.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,26 +22,27 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Shared
+namespace COMETwebapp.Shared.SideBarEntry
 {
-    using COMET.Web.Common.Services.RegistrationService;
-
-    using Microsoft.AspNetCore.Components;
+    using COMET.Web.Common.Shared.TopMenuEntry;
 
     /// <summary>
-    /// Component used for the side bar
+    /// Side bar entry to list the model actions
     /// </summary>
-    public partial class SideBar
+    public partial class ModelSideBar : ModelMenu
     {
         /// <summary>
-        /// The <see cref="IRegistrationService" />
+        /// The value to check if the dropdown should be expanded
         /// </summary>
-        [Inject]
-        public IRegistrationService RegistrationService { get; set; }
+        public bool Expanded { get; private set; }
 
         /// <summary>
-        /// Gets or sets the value to check if the sidebar is collapsed
+        /// Expands the dropdown present in the navbar
         /// </summary>
-        public bool Collapsed { get; private set; }
+        public void ExpandDropdown()
+        {
+            this.Expanded = true;
+            this.InvokeAsync(this.StateHasChanged);
+        }
     }
 }

@@ -78,7 +78,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Markup, Does.Contain("childContent"));
-                Assert.That(renderer.Markup, Does.Not.Contain("txt"));
+                Assert.That(renderer.Markup, Does.Contain("txt"));
             });
         }
     }

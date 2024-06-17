@@ -21,20 +21,29 @@
 ------------------------------------------------------------------------------->
 @using COMET.Web.Common.Shared.TopMenuEntry
 
-<nav style="height: 100vh;">
-    <DxMenu CollapseItemsToHamburgerMenu="true"
-            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-            DisplayMode="MenuDisplayMode.Auto"
-            DropDownActionMode="MenuDropDownActionMode.Click"
-            Orientation="Orientation.Vertical"
-            HamburgerButtonPosition="MenuHamburgerButtonPosition.Right"
-            CssClass="topmenu h-100">
-        <Items>
-            @foreach (var menuEntry in this.RegistrationService.RegisteredAuthorizedMenuEntries.Where(x => x.IsSubclassOf(typeof(MenuEntryBase))))
+<nav class="@($"{(this.Collapsed ? "collapsed" : "")} main-side-bar")">
+    <div class="@(this.Collapsed ? "text-center" : "text-end")">
+        <DxButton Text="Collapse"
+                  Click="@(() => this.Collapsed = !this.Collapsed)"
+                  RenderStyle="ButtonRenderStyle.None"
+                  Id="side-bar-collapse-button">
+            @if (this.Collapsed)
             {
-                <DynamicComponent Type="@menuEntry"/>
+                <FeatherArrowRight Size="24"
+                                   Color="currentColor"
+                                   StrokeWidth="1.8f"/>
             }
-        </Items>
-    </DxMenu>
-</nav>
+            else
+            {
+                <FeatherArrowLeft Size="24"
+                                  Color="currentColor"
+                                  StrokeWidth="1.8f"/>
+            }
+        </DxButton>
+    </div>
 
+    @foreach (var menuEntry in this.RegistrationService.RegisteredAuthorizedMenuEntries.Where(x => x.IsSubclassOf(typeof(MenuEntryBase))))
+    {
+        <DynamicComponent Type="@menuEntry"/>
+    }
+</nav>
