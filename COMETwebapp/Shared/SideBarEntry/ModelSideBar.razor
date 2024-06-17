@@ -20,49 +20,63 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMETwebapp.Shared.SideBarEntry
-@using COMET.Web.Common.Enumerations
 @using COMET.Web.Common.Shared.TopMenuEntry
+@using COMET.Web.Common.Enumerations
 @inherits COMET.Web.Common.Shared.TopMenuEntry.ModelMenu
 
-<ConfirmCancelPopup ViewModel="@(this.ViewModel.ConfirmCancelViewModel)" />
+<ConfirmCancelPopup ViewModel="@(this.ViewModel.ConfirmCancelViewModel)"/>
 
-<DxPopup @bind-Visible="@this.ViewModel.IsOnSwitchDomainMode" CloseOnOutsideClick="false" HeaderText="Switch domain" ShowCloseButton="true">
-	<SwitchDomain ViewModel="@this.ViewModel.SwitchDomainViewModel"/>
+<DxPopup @bind-Visible="@(this.ViewModel.IsOnSwitchDomainMode)" CloseOnOutsideClick="false" HeaderText="Switch domain" ShowCloseButton="true">
+    <SwitchDomain ViewModel="@(this.ViewModel.SwitchDomainViewModel)"/>
 </DxPopup>
 
-<DxPopup @bind-Visible="@this.ViewModel.IsOnOpenIterationMode" CloseOnOutsideClick="false" HeaderText="Open a new Model" ShowCloseButton="true">
-	<OpenModel />
+<DxPopup @bind-Visible="@(this.ViewModel.IsOnOpenIterationMode)" CloseOnOutsideClick="false" HeaderText="Open a new Model" ShowCloseButton="true">
+    <OpenModel/>
 </DxPopup>
 
-<DxMenuItem Name="model-entry" 
-            Text="@this.ConfigurationService.GetText(TextConfigurationKind.NavigationModelSelectorTitle)" 
-            IconCssClass="icon icon-folder" 
-            Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)">
-    <Template>
-        <SideBarItem Text="@this.ConfigurationService.GetText(TextConfigurationKind.NavigationModelSelectorTitle)"
-                     Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"
-                     IconCssClass="icon icon-folder mx-2"
-                     DropdownSelector="true"/>
-    </Template>
-    <Items>
-        <DxMenuItem Name="model-entry-open" Text="@this.ConfigurationService.GetText(TextConfigurationKind.ModelOpenButtonCaption)" Click="@this.ViewModel.AskToOpenIteration">
-            <TextTemplate Context="contextSwitch">
-                <span id="@contextSwitch.Name">
-                    @contextSwitch.Text
-                </span>
-            </TextTemplate>
-        </DxMenuItem>
-        @{
-            var rowIndex = 0;
+<SideBarItem Text="@(this.ConfigurationService.GetText(TextConfigurationKind.NavigationModelSelectorTitle))"
+             OnClick="@(this.ExpandDropdown)"
+             Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"
+             IconCssClass="icon icon-folder mx-2"
+             Id="model-entry"
+             DropdownSelector="true"/>
 
-            foreach (var iteration in this.ViewModel.SessionService.OpenIterations.Items)
-            {
-                var index = rowIndex;
+<DxDropDown @bind-IsOpen="@(this.Expanded)"
+            PositionMode="DropDownPositionMode.Right"
+            PositionTarget="#model-entry"
+            CloseMode="DropDownCloseMode.Close"
+            PreventCloseOnPositionTargetClick="false"
+            HeaderVisible="false"
+            FooterVisible="false"
+            Width="250px">
+    <BodyContentTemplate>
+        <DxMenu DropDownActionMode="MenuDropDownActionMode.Click"
+                Orientation="Orientation.Vertical"
+                HamburgerButtonPosition="MenuHamburgerButtonPosition.Right"
+                CssClass="w-100">
+            <Items>
+                <DxMenuItem Name="model-entry-open" Text="@(this.ConfigurationService.GetText(TextConfigurationKind.ModelOpenButtonCaption))" Click="@(this.ViewModel.AskToOpenIteration)">
+                    <TextTemplate Context="contextSwitch">
+                        <span id="@contextSwitch.Name">
+                            @contextSwitch.Text
+                        </span>
+                    </TextTemplate>
+                </DxMenuItem>
 
-                <ModelMenuRow ViewModel="@(this.ViewModel.CreateRowViewModel(iteration))"
-                              RowIndex="@index"/>
-                rowIndex++;
-            }
-        }
-    </Items>
-</DxMenuItem>
+                @{
+                    var rowIndex = 0;
+
+                    foreach (var iteration in this.ViewModel.SessionService.OpenIterations.Items)
+                    {
+                        var index = rowIndex;
+
+                        <ModelMenuRow ViewModel="@(this.ViewModel.CreateRowViewModel(iteration))"
+                                      RowIndex="@index"/>
+
+                        rowIndex++;
+                    }
+                }
+            </Items>
+        </DxMenu>
+    </BodyContentTemplate>
+</DxDropDown>

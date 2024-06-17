@@ -13,6 +13,7 @@
     transition: width 0.5s;
     white-space: nowrap;
     overflow: hidden;
+    height: 50px;
 }
 
 .application-item-container:not(.selected-application-item):hover {

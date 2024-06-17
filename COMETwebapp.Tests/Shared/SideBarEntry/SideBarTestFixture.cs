@@ -305,6 +305,8 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             var modelSideBarEntry = authorizedSideBarEntries[1];
             var modelSideBarInstance = (ModelSideBar)modelSideBarEntry.Instance;
             var modelSideBarViewModel = modelSideBarInstance.ViewModel;
+            var sideBarItem = modelSideBarEntry.FindComponent<SideBarItem>();
+            await modelSideBarEntry.InvokeAsync(sideBarItem.Instance.OnClick.Invoke);
 
             var modelRow = renderer.FindComponent<ModelMenuRow>();
             await renderer.InvokeAsync(modelRow.Instance.ViewModel.SwitchDomain);
