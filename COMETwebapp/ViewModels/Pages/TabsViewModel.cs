@@ -104,15 +104,18 @@ namespace COMETwebapp.ViewModels.Pages
 
             if (this.SelectedApplication.ThingTypeOfInterest == typeof(Iteration))
             {
-                thingOfInterest = this.sessionService.OpenIterations.Items.First();
+                thingOfInterest = this.sessionService.OpenIterations.Items.FirstOrDefault();
             }
 
             if (this.SelectedApplication.ThingTypeOfInterest == typeof(EngineeringModel))
             {
-                thingOfInterest = this.sessionService.OpenEngineeringModels.First();
+                thingOfInterest = this.sessionService.OpenEngineeringModels.FirstOrDefault();
             }
 
-            this.OpenTabs.Add(new TabbedApplicationInformation(viewModel, this.SelectedApplication.ComponentType, thingOfInterest));
+            if (thingOfInterest != null)
+            {
+                this.OpenTabs.Add(new TabbedApplicationInformation(viewModel, this.SelectedApplication.ComponentType, thingOfInterest));
+            }
         }
     }
 }

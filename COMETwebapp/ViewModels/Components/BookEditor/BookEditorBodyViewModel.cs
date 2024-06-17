@@ -219,6 +219,11 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnThingChanged()
         {
+            if (this.CurrentThing is null)
+            {
+                return Task.CompletedTask;
+            }
+
             this.IsLoading = true;
 
             this.AvailableBooks.Edit(inner =>

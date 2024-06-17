@@ -31,6 +31,8 @@ namespace COMET.Web.Common.ViewModels.Components
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Utilities.DisposableObject;
 
+    using FluentResults;
+
     /// <summary>
     /// View Model that enables a user to open an <see cref="EngineeringModel" />
     /// </summary>
@@ -79,8 +81,8 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <summary>
         /// Opens the <see cref="EngineeringModel" /> based on the selected field
         /// </summary>
-        /// <returns></returns>
-        Task OpenSession();
+        /// <returns>A <see cref="Task"/> containing the operation <see cref="Result"/></returns>
+        Task<Result<Iteration>> OpenSession();
 
         /// <summary>
         /// Preselects the <see cref="Iteration" /> to open

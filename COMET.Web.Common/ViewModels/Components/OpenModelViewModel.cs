@@ -37,7 +37,9 @@ namespace COMET.Web.Common.ViewModels.Components
     using COMET.Web.Common.Utilities.DisposableObject;
 
     using DynamicData.Binding;
-    
+
+    using FluentResults;
+
     using ReactiveUI;
     
     /// <summary>
@@ -186,18 +188,22 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <summary>
         /// Opens the <see cref="EngineeringModel" /> based on the selected field
         /// </summary>
-        /// <returns></returns>
-        public async Task OpenSession()
+        /// <returns>A <see cref="Task"/> containing the operation <see cref="Result"/></returns>
+        public virtual async Task<Result<Iteration>> OpenSession()
         {
-            if (this.SelectedIterationSetup != null && this.SelectedDomainOfExpertise != null)
+            if (this.SelectedIterationSetup == null || this.SelectedDomainOfExpertise == null)
             {
-                this.IsOpeningSession = true;
-
-                await this.sessionService.ReadIteration(this.SelectedEngineeringModel.IterationSetup
-                    .First(x => x.Iid == this.SelectedIterationSetup.IterationSetupId), this.SelectedDomainOfExpertise);
-
-                this.IsOpeningSession = false;
+                return Result.Fail(["The selected iteration and the domain of expertise should not be null"]);
             }
+
+            this.IsOpeningSession = true;
+
+            var result = await this.sessionService.ReadIteration(this.SelectedEngineeringModel.IterationSetup
+                .First(x => x.Iid == this.SelectedIterationSetup.IterationSetupId), this.SelectedDomainOfExpertise);
+
+            this.IsOpeningSession = false;
+
+            return result;
         }
 
         /// <summary>
@@ -235,7 +241,6 @@ namespace COMET.Web.Common.ViewModels.Components
             else
             {
                 this.SelectedDomainOfExpertise = this.SelectedEngineeringModel.ActiveDomain.Find(x => x == this.sessionService.Session.ActivePerson.DefaultDomain);
-                
                 this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
 
                 this.AvailableIterationSetups = this.SelectedEngineeringModel.IterationSetup
@@ -243,7 +248,15 @@ namespace COMET.Web.Common.ViewModels.Components
                     .OrderBy(x => x.IterationNumber)
                     .Select(x => new IterationData(x));
 
-                this.SelectedIterationSetup = this.AvailableIterationSetups.Last();
+                this.SelectedIterationSetup = this.AvailableIterationSetups.LastOrDefault();
+
+                if (this.SelectedIterationSetup != null)
+                {
+                    return;
+                }
+
+                var currentModelIteration = this.SelectedEngineeringModel.IterationSetup.FirstOrDefault(x => x == this.sessionService.OpenIterations.Items.FirstOrDefault(i => i.Iid == x.IterationIid)?.IterationSetup);
+                this.SelectedIterationSetup = new IterationData(currentModelIteration);
             }
         }
     }
