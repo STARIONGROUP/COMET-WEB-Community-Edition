@@ -25,7 +25,8 @@
     <div class="@(this.Collapsed ? "text-center" : "text-end")">
         <DxButton Text="Collapse"
                   Click="@(() => this.Collapsed = !this.Collapsed)"
-                  RenderStyle="ButtonRenderStyle.None">
+                  RenderStyle="ButtonRenderStyle.None"
+                  Id="side-bar-collapse-button">
             @if (this.Collapsed)
             {
                 <FeatherArrowRight Size="24"

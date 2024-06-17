@@ -53,6 +53,8 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
     using COMETwebapp.ViewModels.Pages;
     using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 
+    using DevExpress.Blazor;
+
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
@@ -375,7 +377,16 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
 
             var thirdDataItem = renderer.FindComponents<SideBarItem>()[1];
             await renderer.InvokeAsync(thirdDataItem.Instance.OnClick.Invoke);
-            Assert.That(fakeNavigationManager.Uri, Does.Contain(this.registeredApplications[1].Url));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(fakeNavigationManager.Uri, Does.Contain(this.registeredApplications[1].Url));
+                Assert.That(renderer.Instance.Collapsed, Is.False);
+            });
+            
+            var sideBarCollapseButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "side-bar-collapse-button");
+            await renderer.InvokeAsync(sideBarCollapseButton.Instance.Click.InvokeAsync);
+            Assert.That(renderer.Instance.Collapsed, Is.True);
         }
     }
 }
