@@ -92,9 +92,17 @@ namespace COMET.Web.Common.Components
         protected override void OnInitialized()
         {
             base.OnInitialized();
+            this.Initialize(this.ViewModel);
+        }
 
+        /// <summary>
+        /// Initializes the current <see cref="ViewModel"/>
+        /// </summary>
+        /// <param name="viewModel">The <see cref="IOpenModelViewModel"/> to initialize</param>
+        protected void Initialize(IOpenModelViewModel viewModel)
+        {
+            this.ViewModel = viewModel;
             this.ViewModel.InitializesProperties();
-
             this.Disposables.Add(this.ViewModel);
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedEngineeringModel,
@@ -125,7 +133,7 @@ namespace COMET.Web.Common.Components
         /// Verifies that all required field are selected
         /// </summary>
         /// <returns>True if all required field are selected</returns>
-        private bool AreRequiredFieldSelected()
+        protected virtual bool AreRequiredFieldSelected()
         {
             return this.ViewModel.SelectedEngineeringModel != null
                    && this.ViewModel.SelectedDomainOfExpertise != null

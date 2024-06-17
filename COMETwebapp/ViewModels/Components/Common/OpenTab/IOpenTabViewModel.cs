@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="Tabs.razor.cs" company="Starion Group S.A.">
+//  <copyright file="IOpenTabViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,39 +22,38 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Pages
+namespace COMETwebapp.ViewModels.Components.Common.OpenTab
 {
-    using COMET.Web.Common.Extensions;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Pages;
+    using COMET.Web.Common.ViewModels.Components;
 
-    using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
+    using COMETwebapp.Model;
 
     /// <summary>
-    /// Support class for the <see cref="Tabs" /> page
+    /// View Model that enables a user to open an <see cref="EngineeringModel" />
     /// </summary>
-    public partial class Tabs
+    public interface IOpenTabViewModel : IOpenModelViewModel
     {
         /// <summary>
-        /// Gets or sets the injected <see cref="ITabsViewModel" />
+        /// The selected <see cref="TabbedApplication" />
         /// </summary>
-        [Inject]
-        public ITabsViewModel ViewModel { get; set; }
+        TabbedApplication SelectedApplication { get; set; }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
+        /// Gets the collection of participant models
         /// </summary>
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
+        IEnumerable<EngineeringModelSetup> EngineeringModelSetups { get; }
 
-            this.Disposables.Add(this.WhenAnyValue(
-                    x => x.ViewModel.SelectedApplication,
-                    x => x.ViewModel.OpenTabs.CountChanged)
-                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-        }
+        /// <summary>
+        /// Gets the condition to check if the current selected model is already opened
+        /// </summary>
+        bool IsCurrentModelOpened { get; }
+
+        /// <summary>
+        /// Gets the <see cref="DomainOfExpertise"/> from the <see cref="OpenModelViewModel.SelectedIterationSetup"/>
+        /// </summary>
+        DomainOfExpertise SelectedIterationDomainOfExpertise { get; }
     }
 }

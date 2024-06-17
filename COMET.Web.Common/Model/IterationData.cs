@@ -47,22 +47,24 @@ namespace COMET.Web.Common.Model
             this.IterationName = $"Iteration {iterationSetup.IterationNumber} - ";
             this.IterationName += iterationSetup.FrozenOn == null ? "Active" : iterationSetup.FrozenOn;
 
-            if (displayModelName)
+            if (!displayModelName)
             {
-                var model = (EngineeringModelSetup)iterationSetup.Container;
-                this.IterationName = $"{model.Name} - {this.IterationName}";
+                return;
             }
+
+            var model = (EngineeringModelSetup)iterationSetup.Container;
+            this.IterationName = $"{model.Name} - {this.IterationName}";
         }
 
         /// <summary>
         /// The <see cref="Guid" /> of the <see cref="IterationSetup" />
         /// </summary>
-        public Guid IterationSetupId { get; private set; }
+        public Guid IterationSetupId { get; }
 
         /// <summary>
         /// The Iteration name
         /// </summary>
-        public string IterationName { get; private set; }
+        public string IterationName { get; }
 
         /// <summary>Determines whether the specified object is equal to the current object.</summary>
         /// <param name="obj">The object to compare with the current object.</param>
