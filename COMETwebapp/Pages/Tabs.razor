@@ -21,6 +21,7 @@
 ------------------------------------------------------------------------------->
 @attribute [Route(WebAppConstantValues.TabsPage)]
 @using CDP4Common.CommonData
+@using COMETwebapp.Components.Tabs
 @using COMETwebapp.Model
 @using COMETwebapp.Utilities
 @inherits DisposableComponent
@@ -29,6 +30,12 @@
             TextFieldName="@nameof(TabbedApplication.Name)"
             @bind-Value="@this.ViewModel.SelectedApplication"
             CssClass="mb-2"/>
+            
+@foreach (var tab in this.ViewModel.OpenTabs.Items)
+{
+    <TabBody Text="@(((Iteration)tab.ObjectOfInterest).QueryName())"
+             Icon="typeof(FeatherX)"/>
+}
 
 @if (this.ViewModel.OpenTabs.Count == 0)
 {
