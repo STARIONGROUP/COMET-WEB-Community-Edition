@@ -68,6 +68,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         {
             this.sessionService = sessionService;
             this.tabsViewModel = tabsViewModel;
+            this.Disposables.Add(this.WhenAnyValue(x => x.tabsViewModel.SelectedApplication).Subscribe(application => { this.SelectedApplication = application; }));
         }
 
         /// <summary>

@@ -33,6 +33,7 @@ namespace COMETwebapp.ViewModels.Pages
     using COMETwebapp.Model;
 
     using DynamicData;
+    using DynamicData.Binding;
 
     using ReactiveUI;
 
@@ -65,7 +66,8 @@ namespace COMETwebapp.ViewModels.Pages
         {
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
-            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedApplication).Subscribe(_ => this.InitializeViewModelBasedOnApplication()));
+            this.Disposables.Add(this.WhenPropertyChanged(x => x.SelectedApplication).Subscribe(_ => this.InitializeViewModelBasedOnApplication()));
+            this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(_ => this.CloseTabIfIterationClosed()));
         }
 
         /// <summary>
@@ -84,7 +86,11 @@ namespace COMETwebapp.ViewModels.Pages
         public TabbedApplication SelectedApplication
         {
             get => this.selectedApplication;
-            set => this.RaiseAndSetIfChanged(ref this.selectedApplication, value);
+            set
+            {
+                this.selectedApplication = value;
+                this.RaisePropertyChanged();
+            }
         }
 
         /// <summary>
@@ -116,6 +122,15 @@ namespace COMETwebapp.ViewModels.Pages
             {
                 this.OpenTabs.Add(new TabbedApplicationInformation(viewModel, this.SelectedApplication.ComponentType, thingOfInterest));
             }
+        }
+
+        /// <summary>
+        /// Closes a tab if its iteration has been closed
+        /// </summary>
+        private void CloseTabIfIterationClosed()
+        {
+            var tabsToClose = this.OpenTabs.Items.Where(x => !this.sessionService.OpenIterations.Items.Contains(x.ObjectOfInterest));
+            this.OpenTabs.RemoveMany(tabsToClose);
         }
     }
 }

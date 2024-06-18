@@ -28,6 +28,7 @@ namespace COMET.Web.Common.Components
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.ViewModels.Components;
 
@@ -109,7 +110,7 @@ namespace COMET.Web.Common.Components
                     x => x.ViewModel.SelectedIterationSetup,
                     x => x.ViewModel.SelectedDomainOfExpertise,
                     x => x.ViewModel.IsOpeningSession)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
