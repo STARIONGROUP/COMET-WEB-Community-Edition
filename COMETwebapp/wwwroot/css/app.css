@@ -244,5 +244,5 @@ div[id^="dropdown-customization-target-container-"] { display: flex; }
 
 .collapsed .application-item-container {
     width: 70px !important;
-    display: ruby-text;
+    display: block ruby;
 }
