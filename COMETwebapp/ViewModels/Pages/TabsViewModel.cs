@@ -53,6 +53,11 @@ namespace COMETwebapp.ViewModels.Pages
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// Backing field for <see cref="CurrentTab" />
+        /// </summary>
+        private TabbedApplicationInformation currentTab;
+
+        /// <summary>
         /// Backing field for <see cref="SelectedApplication" />
         /// </summary>
         private TabbedApplication selectedApplication;
@@ -66,7 +71,7 @@ namespace COMETwebapp.ViewModels.Pages
         {
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
-            this.Disposables.Add(this.WhenPropertyChanged(x => x.SelectedApplication).Subscribe(_ => this.InitializeViewModelBasedOnApplication()));
+            this.Disposables.Add(this.WhenPropertyChanged(x => x.SelectedApplication).Subscribe(_ => this.OnSelectedApplicationChange()));
             this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(_ => this.CloseTabIfIterationClosed()));
 
             this.Disposables.Add(this.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(changeSet =>
@@ -74,6 +79,11 @@ namespace COMETwebapp.ViewModels.Pages
                 foreach (var result in changeSet)
                 {
                     result.Item.Current.ApplicationBaseViewModel.IsAllowedToDispose = true;
+                }
+
+                if (!this.OpenTabs.Items.Any())
+                {
+                    this.CurrentTab = null;
                 }
             }));
         }
@@ -86,7 +96,11 @@ namespace COMETwebapp.ViewModels.Pages
         /// <summary>
         /// Gets or sets the current tab
         /// </summary>
-        public TabbedApplicationInformation CurrentTab { get; set; }
+        public TabbedApplicationInformation CurrentTab
+        {
+            get => this.currentTab;
+            set => this.RaiseAndSetIfChanged(ref this.currentTab, value);
+        }
 
         /// <summary>
         /// Gets the collection of available <see cref="TabbedApplication" />
@@ -107,18 +121,16 @@ namespace COMETwebapp.ViewModels.Pages
         }
 
         /// <summary>
-        /// Initializes the <see cref="TabbedApplicationInformation" /> based on the selected <see cref="TabbedApplication" />
+        /// Creates a new tab and sets it to current
         /// </summary>
-        private void InitializeViewModelBasedOnApplication()
+        /// <param name="application">The <see cref="TabbedApplication" /> for which the tab will be created</param>
+        /// <param name="objectOfInterestId">
+        /// The id of the object of interest, which can be an <see cref="Iteration" /> or an
+        /// <see cref="EngineeringModel" />
+        /// </param>
+        public void CreateNewTab(TabbedApplication application, Guid objectOfInterestId)
         {
-            this.OpenTabs.Clear();
-            
-            if (this.SelectedApplication == null)
-            {
-                return;
-            }
-
-            if (this.serviceProvider.GetService(this.SelectedApplication.ViewModelType) is not IApplicationBaseViewModel viewModel)
+            if (this.serviceProvider.GetService(application.ViewModelType) is not IApplicationBaseViewModel viewModel)
             {
                 return;
             }
@@ -126,22 +138,35 @@ namespace COMETwebapp.ViewModels.Pages
             viewModel.IsAllowedToDispose = false;
             object thingOfInterest = default;
 
-            if (this.SelectedApplication.ThingTypeOfInterest == typeof(Iteration))
+            if (application.ThingTypeOfInterest == typeof(Iteration))
             {
-                thingOfInterest = this.sessionService.OpenIterations.Items.FirstOrDefault();
+                thingOfInterest = this.sessionService.OpenIterations.Items.FirstOrDefault(x => x.Iid == objectOfInterestId);
             }
 
-            if (this.SelectedApplication.ThingTypeOfInterest == typeof(EngineeringModel))
+            if (application.ThingTypeOfInterest == typeof(EngineeringModel))
             {
-                thingOfInterest = this.sessionService.OpenEngineeringModels.FirstOrDefault();
+                thingOfInterest = this.sessionService.OpenEngineeringModels.FirstOrDefault(x => x.Iid == objectOfInterestId);
             }
 
             if (thingOfInterest != null)
             {
-                this.OpenTabs.Add(new TabbedApplicationInformation(viewModel, this.SelectedApplication.ComponentType, thingOfInterest));
+                this.OpenTabs.Add(new TabbedApplicationInformation(viewModel, application.ComponentType, thingOfInterest));
             }
 
-            this.CurrentTab = this.OpenTabs.Items.FirstOrDefault();
+            this.SelectedApplication = application;
+        }
+
+        /// <summary>
+        /// Method executed everytime the <see cref="SelectedApplication" /> changes
+        /// </summary>
+        private void OnSelectedApplicationChange()
+        {
+            if (this.SelectedApplication == null)
+            {
+                return;
+            }
+
+            this.CurrentTab = this.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType);
         }
 
         /// <summary>

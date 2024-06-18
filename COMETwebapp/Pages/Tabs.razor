@@ -29,7 +29,7 @@
 {
     <div class="pb-3 mb-3 d-flex gap-2" style="border-bottom: solid 1px #e5e5e5;">
 
-        @foreach (var tab in this.ViewModel.OpenTabs.Items)
+        @foreach (var tab in this.ViewModel.OpenTabs.Items.Where(x => x.ComponentType == this.ViewModel.SelectedApplication?.ComponentType))
         {
             <TabComponent Text="@(GetTabText(tab.ObjectOfInterest))"
                           Icon="typeof(FeatherX)"
@@ -60,9 +60,9 @@ else
              OnTabOpened="@(() => this.SetOpenTabVisibility(false))"/>
 </DxPopup>
 
-@foreach (var tabbedApplication in this.ViewModel.OpenTabs.Items)
+@if(this.ViewModel.CurrentTab is not null)
 {
-    <DynamicApplicationBase ViewModel="tabbedApplication.ApplicationBaseViewModel"
-                            ApplicationBaseType="tabbedApplication.ComponentType"
-                            CurrentThing="tabbedApplication.ObjectOfInterest as Thing"/>
+    <DynamicApplicationBase ViewModel="this.ViewModel.CurrentTab.ApplicationBaseViewModel"
+                            ApplicationBaseType="this.ViewModel.CurrentTab.ComponentType"
+                            CurrentThing="this.ViewModel.CurrentTab.ObjectOfInterest as Thing" />
 }

@@ -101,7 +101,7 @@ namespace COMETwebapp.Components.Tabs
         /// <returns>A <see cref="Task" /></returns>
         private async Task OpenModelAndNavigateToView()
         {
-            await this.ViewModel.OpenSession();
+            await this.ViewModel.OpenTab();
             await this.InvokeAsync(this.StateHasChanged);
             this.OnTabOpened?.Invoke();
         }

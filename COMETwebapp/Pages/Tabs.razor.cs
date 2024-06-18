@@ -60,7 +60,12 @@ namespace COMETwebapp.Pages
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedApplication).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(
+                    x => x.ViewModel.SelectedApplication,
+                    x => x.ViewModel.CurrentTab)
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+
             this.Disposables.Add(this.ViewModel.OpenTabs.CountChanged.SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 

@@ -24,12 +24,14 @@
 
 namespace COMETwebapp.ViewModels.Pages
 {
+    using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.Model;
 
     using DynamicData;
 
     /// <summary>
-    /// The <see cref="ITabsViewModel"/> contains logic and behavior that are required to support multi-tabs application
+    /// The <see cref="ITabsViewModel" /> contains logic and behavior that are required to support multi-tabs application
     /// </summary>
     public interface ITabsViewModel
     {
@@ -44,7 +46,7 @@ namespace COMETwebapp.ViewModels.Pages
         IEnumerable<TabbedApplication> AvailableApplications { get; }
 
         /// <summary>
-        /// Gets or sets the current selected <see cref="TabbedApplication"/>
+        /// Gets or sets the current selected <see cref="TabbedApplication" />
         /// </summary>
         TabbedApplication SelectedApplication { get; set; }
 
@@ -52,5 +54,15 @@ namespace COMETwebapp.ViewModels.Pages
         /// Gets or sets the current tab
         /// </summary>
         TabbedApplicationInformation CurrentTab { get; set; }
+
+        /// <summary>
+        /// Creates a new tab and sets it to current
+        /// </summary>
+        /// <param name="application">The <see cref="TabbedApplication" /> for which the tab will be created</param>
+        /// <param name="objectOfInterestId">
+        /// The id of the object of interest, which can be an <see cref="Iteration" /> or an
+        /// <see cref="EngineeringModel" />
+        /// </param>
+        void CreateNewTab(TabbedApplication application, Guid objectOfInterestId);
     }
 }
