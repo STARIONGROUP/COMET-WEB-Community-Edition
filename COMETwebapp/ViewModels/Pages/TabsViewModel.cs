@@ -68,6 +68,14 @@ namespace COMETwebapp.ViewModels.Pages
             this.serviceProvider = serviceProvider;
             this.Disposables.Add(this.WhenPropertyChanged(x => x.SelectedApplication).Subscribe(_ => this.InitializeViewModelBasedOnApplication()));
             this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(_ => this.CloseTabIfIterationClosed()));
+
+            this.Disposables.Add(this.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(changeSet =>
+            {
+                foreach (var result in changeSet)
+                {
+                    result.Item.Current.ApplicationBaseViewModel.IsAllowedToDispose = true;
+                }
+            }));
         }
 
         /// <summary>
@@ -110,7 +118,12 @@ namespace COMETwebapp.ViewModels.Pages
                 return;
             }
 
-            var viewModel = this.serviceProvider.GetService(this.SelectedApplication.ViewModelType) as IApplicationBaseViewModel;
+            if (this.serviceProvider.GetService(this.SelectedApplication.ViewModelType) is not IApplicationBaseViewModel viewModel)
+            {
+                return;
+            }
+
+            viewModel.IsAllowedToDispose = false;
             object thingOfInterest = default;
 
             if (this.SelectedApplication.ThingTypeOfInterest == typeof(Iteration))

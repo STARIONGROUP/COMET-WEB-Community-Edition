@@ -46,5 +46,10 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         /// Gets the assert that the current session is refreshing
         /// </summary>
         bool IsRefreshing { get; }
+
+        /// <summary>
+        /// Gets or sets the condition to check if the component is allowed to be disposed
+        /// </summary>
+        bool IsAllowedToDispose { get; set; }
     }
 }
