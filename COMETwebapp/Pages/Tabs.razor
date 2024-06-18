@@ -20,24 +20,29 @@
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @attribute [Route(WebAppConstantValues.TabsPage)]
-@using CDP4Common.CommonData
 @using COMETwebapp.Components.Tabs
-@using COMETwebapp.Model
 @using COMETwebapp.Utilities
+@using CDP4Common.CommonData
 @inherits DisposableComponent
 
-<DxComboBox Data="@this.ViewModel.AvailableApplications"
-            TextFieldName="@nameof(TabbedApplication.Name)"
-            @bind-Value="@this.ViewModel.SelectedApplication"
-            CssClass="mb-2"/>
-            
-@foreach (var tab in this.ViewModel.OpenTabs.Items)
+@if (this.ViewModel.OpenTabs.Count > 0)
 {
-    <TabBody Text="@(((Iteration)tab.ObjectOfInterest).QueryName())"
-             Icon="typeof(FeatherX)"/>
-}
+    <div class="pb-3 mb-3 d-flex gap-2" style="border-bottom: solid 1px #e5e5e5;">
 
-@if (this.ViewModel.OpenTabs.Count == 0)
+        @foreach (var tab in this.ViewModel.OpenTabs.Items)
+        {
+            <TabComponent Text="@(GetTabText(tab.ObjectOfInterest))"
+                          Icon="typeof(FeatherX)"
+                          OnClick="@(() => this.OnTabClick(tab))"
+                          OnIconClick="@(() => this.OnRemoveTabClick(tab))"/>
+        }
+
+        <TabComponent Text="Open Model"
+                      Icon="typeof(FeatherPlus)"
+                      OnClick="@(() => this.SetOpenTabVisibility(true))"/>
+    </div>
+}
+else
 {
     <div style="display: flex;justify-content: center;align-items: center;height: 90vh;">
         <div style="width: 500px; align-items: center; display: flex; box-shadow: 0px 2px 6px 0px rgb(0 0 0 / 12%);">
@@ -46,9 +51,18 @@
     </div>
 }
 
+<DxPopup @bind-Visible="@(this.IsOpenTabVisible)"
+         ShowHeader="false"
+         ShowCloseButton="true"
+         CloseOnOutsideClick="true"
+         CloseOnEscape="true">
+    <OpenTab OnCancel="@(() => this.SetOpenTabVisibility(false))"
+             OnTabOpened="@(() => this.SetOpenTabVisibility(false))"/>
+</DxPopup>
+
 @foreach (var tabbedApplication in this.ViewModel.OpenTabs.Items)
 {
-    <DynamicApplicationBase ViewModel="tabbedApplication.ApplicationBaseViewModel" 
+    <DynamicApplicationBase ViewModel="tabbedApplication.ApplicationBaseViewModel"
                             ApplicationBaseType="tabbedApplication.ComponentType"
                             CurrentThing="tabbedApplication.ObjectOfInterest as Thing"/>
 }

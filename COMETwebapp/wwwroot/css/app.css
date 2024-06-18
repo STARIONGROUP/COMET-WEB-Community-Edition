@@ -230,6 +230,10 @@ div[id^="dropdown-customization-target-container-"] { display: flex; }
     display: inline-block!important;
 }
 
+.cursor-pointer{
+    cursor: pointer;
+}
+
 .collapsed .hidden-on-collapse {
     visibility: hidden;
 }

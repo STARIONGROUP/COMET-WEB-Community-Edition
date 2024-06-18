@@ -47,5 +47,10 @@ namespace COMETwebapp.ViewModels.Pages
         /// Gets or sets the current selected <see cref="TabbedApplication"/>
         /// </summary>
         TabbedApplication SelectedApplication { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current tab
+        /// </summary>
+        TabbedApplicationInformation CurrentTab { get; set; }
     }
 }

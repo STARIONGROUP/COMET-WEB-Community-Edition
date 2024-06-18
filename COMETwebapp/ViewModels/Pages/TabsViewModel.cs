@@ -76,6 +76,11 @@ namespace COMETwebapp.ViewModels.Pages
         public SourceList<TabbedApplicationInformation> OpenTabs { get; } = new();
 
         /// <summary>
+        /// Gets or sets the current tab
+        /// </summary>
+        public TabbedApplicationInformation CurrentTab { get; set; }
+
+        /// <summary>
         /// Gets the collection of available <see cref="TabbedApplication" />
         /// </summary>
         public IEnumerable<TabbedApplication> AvailableApplications => Applications.ExistingApplications.OfType<TabbedApplication>();
@@ -122,6 +127,8 @@ namespace COMETwebapp.ViewModels.Pages
             {
                 this.OpenTabs.Add(new TabbedApplicationInformation(viewModel, this.SelectedApplication.ComponentType, thingOfInterest));
             }
+
+            this.CurrentTab = this.OpenTabs.Items.FirstOrDefault();
         }
 
         /// <summary>

@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Common
+namespace COMETwebapp.Components.Tabs
 {
     using CDP4Common.EngineeringModelData;
 
@@ -52,6 +52,12 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         [Parameter]
         public Action OnCancel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the action to be executed when the open tab operation is finished
+        /// </summary>
+        [Parameter]
+        public Action OnTabOpened { get; set; }
 
         /// <summary>
         /// Gets the condition to check if the selected application view model inherits from
@@ -97,6 +103,7 @@ namespace COMETwebapp.Components.Common
         {
             await this.ViewModel.OpenSession();
             await this.InvokeAsync(this.StateHasChanged);
+            this.OnTabOpened?.Invoke();
         }
     }
 }

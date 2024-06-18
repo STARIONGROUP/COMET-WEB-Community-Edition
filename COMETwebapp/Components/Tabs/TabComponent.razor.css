@@ -1,0 +1,9 @@
+﻿.tab-component {
+    /*background-color: lightgray;*/
+    max-width: fit-content;
+    border-radius: 7.5px;
+    padding: 2px 10px 2px 10px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0px 0px 3px 0px gray;
+}

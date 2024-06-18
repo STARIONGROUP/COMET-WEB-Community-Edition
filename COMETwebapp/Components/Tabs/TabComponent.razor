@@ -21,8 +21,12 @@
 ------------------------------------------------------------------------------->
 @inherits DisposableComponent
 
-<div class="tab-component">
+<div class="@($"tab-component {(this.OnClick != null ? "cursor-pointer": "")}")" @onclick="@(() => this.OnClick?.Invoke())">
     @(this.Text)
-    <DynamicComponent Type="@(this.Icon)"
-                      Parameters="IconConfiguration"/>
+    <DxButton RenderStyle="ButtonRenderStyle.None"
+              Click="@(() => this.OnIconClick?.Invoke())"
+              CssClass="px-1">
+        <DynamicComponent Type="@(this.Icon)"
+                          Parameters="IconConfiguration"/>
+    </DxButton>
 </div>

@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Components.Common
+namespace COMETwebapp.Tests.Components.Tabs
 {
     using Bunit;
 
@@ -31,8 +31,8 @@ namespace COMETwebapp.Tests.Components.Common
     using COMET.Web.Common.ViewModels.Components;
 
     using COMETwebapp.Components.BookEditor;
-    using COMETwebapp.Components.Common;
     using COMETwebapp.Components.ModelDashboard;
+    using COMETwebapp.Components.Tabs;
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Components.Common.OpenTab;
 

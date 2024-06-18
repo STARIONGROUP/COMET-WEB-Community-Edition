@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="TabBody.razor.cs" company="Starion Group S.A.">
+//  <copyright file="TabComponent.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -31,7 +31,7 @@ namespace COMETwebapp.Components.Tabs
     /// <summary>
     /// Core component for the System Representation application
     /// </summary>
-    public partial class TabBody : DisposableComponent
+    public partial class TabComponent : DisposableComponent
     {
         /// <summary>
         /// Gets or sets the text to be displayed in the tab title
@@ -46,13 +46,26 @@ namespace COMETwebapp.Components.Tabs
         public Type Icon { get; set; }
 
         /// <summary>
+        /// Gets or sets the action to be executed when the tab is clicked
+        /// </summary>
+        [Parameter]
+        public Action OnClick { get; set; }
+
+        /// <summary>
+        /// Gets or sets the action to be executed when the tab icon is clicked
+        /// </summary>
+        [Parameter]
+        public Action OnIconClick { get; set; }
+
+        /// <summary>
         /// Gets the icon configuration to display
         /// </summary>
         private static Dictionary<string, object> IconConfiguration => new()
         {
-            { "Size", 20 },
+            { "Size", 22 },
             { "Color", "currentColor" },
-            { "StrokeWidth", 1.8f }
+            { "StrokeWidth", 1.8f },
+            { "CssClass", "cursor-pointer" }
         };
     }
 }
