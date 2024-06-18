@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Pages
+namespace COMETwebapp.Tests.ViewModels.Pages
 {
     using CDP4Common.EngineeringModelData;
 
@@ -51,7 +51,7 @@ namespace COMETwebapp.Tests.Pages
             this.sessionService = new Mock<ISessionService>();
             var iterations = new SourceList<Iteration>();
             iterations.Add(new Iteration());
-            var engineeringModels = new List<EngineeringModel> { new () };
+            var engineeringModels = new List<EngineeringModel> { new() };
             this.sessionService.Setup(x => x.OpenIterations).Returns(iterations);
             this.sessionService.Setup(x => x.OpenEngineeringModels).Returns(engineeringModels);
             this.serviceProvider.Setup(x => x.GetService(It.IsAny<Type>())).Returns(new Mock<IApplicationBaseViewModel>().Object);
