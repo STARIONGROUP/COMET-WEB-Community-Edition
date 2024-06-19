@@ -83,6 +83,11 @@ namespace COMET.Web.Common.Components.Applications
         {
             base.OnParametersSet();
 
+            if (this.ViewModel != null && this.ParameterizedViewModel == null)
+            {
+                return;
+            }
+
             this.ViewModel = this.ParameterizedViewModel ?? this.InjectedViewModel;
 
             if (this.ParameterizedViewModel != null && this.InjectedViewModel != null)
