@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
@@ -103,10 +104,11 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// <summary>
         /// Opens the <see cref="EngineeringModel" /> based on the selected field
         /// </summary>
-        /// <returns>A <see cref="Task" /> containing the operation <see cref="Result" /></returns>
-        public override async Task<Result<Iteration>> OpenSession()
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task OpenTab()
         {
             var result = new Result<Iteration>();
+            var isIteration = this.SelectedApplication?.ThingTypeOfInterest == typeof(Iteration);
 
             if (!this.IsCurrentModelOpened)
             {
@@ -122,10 +124,8 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
 
             if (result.IsSuccess)
             {
-                this.tabsViewModel.SelectedApplication = this.SelectedApplication;
+                this.tabsViewModel.CreateNewTab(this.SelectedApplication, isIteration ? this.SelectedEngineeringModelIteration.Iid : this.SelectedEngineeringModel.EngineeringModelIid);
             }
-
-            return result;
         }
     }
 }

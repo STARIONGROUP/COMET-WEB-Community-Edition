@@ -318,14 +318,22 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 return;
             }
 
-            this.CurrentThing.Element.ForEach(e =>
-            {
-                this.Elements.Add(e);
-                this.Elements.AddRange(e.ContainedElement);
-            });
+            this.Elements.Clear();
+            this.RowsTarget.Clear();
+            this.RowsSource.Clear();
 
-            this.Elements.ForEach(e => this.RowsTarget.Add(new ElementDefinitionRowViewModel(e)));
-            this.Elements.ForEach(e => this.RowsSource.Add(new ElementDefinitionRowViewModel(e)));
+            foreach (var element in this.CurrentThing.Element)
+            {
+                this.Elements.Add(element);
+                this.Elements.AddRange(element.ContainedElement);
+            }
+
+            foreach (var element in this.Elements)
+            {
+                this.RowsTarget.Add(new ElementDefinitionRowViewModel(element));
+                this.RowsSource.Add(new ElementDefinitionRowViewModel(element));
+            }
+
             this.AddParameterViewModel.InitializeViewModel(this.CurrentThing);
             this.ElementDefinitionCreationViewModel.InitializeViewModel(this.CurrentThing);
 

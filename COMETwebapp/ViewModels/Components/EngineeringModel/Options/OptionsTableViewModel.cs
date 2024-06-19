@@ -80,6 +80,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
         public void SetCurrentIteration(Iteration iteration)
         {
             this.CurrentIteration = iteration;
+            this.InitializeViewModel();
         }
 
         /// <summary>

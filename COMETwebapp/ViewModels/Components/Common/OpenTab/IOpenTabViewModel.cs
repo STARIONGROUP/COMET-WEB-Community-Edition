@@ -52,8 +52,14 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         bool IsCurrentModelOpened { get; }
 
         /// <summary>
-        /// Gets the <see cref="DomainOfExpertise"/> from the <see cref="OpenModelViewModel.SelectedIterationSetup"/>
+        /// Gets the <see cref="DomainOfExpertise" /> from the <see cref="OpenModelViewModel.SelectedIterationSetup" />
         /// </summary>
         DomainOfExpertise SelectedIterationDomainOfExpertise { get; }
+
+        /// <summary>
+        /// Opens the <see cref="EngineeringModel" /> based on the selected field
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        Task OpenTab();
     }
 }

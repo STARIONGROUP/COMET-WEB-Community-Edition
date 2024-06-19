@@ -24,9 +24,14 @@
 
 namespace COMETwebapp.Pages
 {
+    using CDP4Common.EngineeringModelData;
+
     using COMET.Web.Common.Extensions;
 
+    using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
+
+    using DynamicData;
 
     using Microsoft.AspNetCore.Components;
 
@@ -44,14 +49,67 @@ namespace COMETwebapp.Pages
         public ITabsViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// Gets the open tab component visibility
+        /// </summary>
+        public bool IsOpenTabVisible { get; private set; }
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedApplication).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(
+                    x => x.ViewModel.SelectedApplication,
+                    x => x.ViewModel.CurrentTab)
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+
             this.Disposables.Add(this.ViewModel.OpenTabs.CountChanged.SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
+
+        /// <summary>
+        /// Method executed when a tab is clicked
+        /// </summary>
+        /// <param name="tabbedApplicationInformation">The tab to be set</param>
+        private void OnTabClick(TabbedApplicationInformation tabbedApplicationInformation)
+        {
+            this.ViewModel.CurrentTab = tabbedApplicationInformation;
+        }
+
+        /// <summary>
+        /// Method executed when the remove tab button is clicked
+        /// </summary>
+        /// <param name="tabbedApplicationInformation">The tab to be removed</param>
+        private void OnRemoveTabClick(TabbedApplicationInformation tabbedApplicationInformation)
+        {
+            this.ViewModel.OpenTabs.Remove(tabbedApplicationInformation);
+        }
+
+        /// <summary>
+        /// Sets the open tab popup visibility
+        /// </summary>
+        /// <param name="visibility">The visibility to be set</param>
+        private void SetOpenTabVisibility(bool visibility)
+        {
+            this.IsOpenTabVisible = visibility;
+            this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Gets the tab text for the given object of interest
+        /// </summary>
+        /// <param name="objectOfInterest">The object of interest to get its tab text</param>
+        /// <returns>The tab text</returns>
+        private static string GetTabText(object objectOfInterest)
+        {
+            return objectOfInterest switch
+            {
+                Iteration iteration => iteration.QueryName(),
+                CDP4Common.EngineeringModelData.EngineeringModel engineeringModel => engineeringModel.EngineeringModelSetup.Name,
+                _ => string.Empty
+            };
         }
     }
 }

@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.Common
+namespace COMETwebapp.Components.Tabs
 {
     using CDP4Common.EngineeringModelData;
 
@@ -54,16 +54,20 @@ namespace COMETwebapp.Components.Common
         public Action OnCancel { get; set; }
 
         /// <summary>
-        /// Gets the condition to check if the selected application view model inherits from
-        /// <see cref="ISingleEngineeringModelApplicationBaseViewModel" />
+        /// Gets or sets the action to be executed when the open tab operation is finished
         /// </summary>
-        private bool IsEngineeringModelView => this.ViewModel.SelectedApplication?.ViewModelType.IsAssignableTo(typeof(ISingleEngineeringModelApplicationBaseViewModel)) == true;
+        [Parameter]
+        public Action OnTabOpened { get; set; }
 
         /// <summary>
-        /// Gets the condition to check if the selected application view model inherits from
-        /// <see cref="ISingleIterationApplicationBaseViewModel" />
+        /// Gets the condition to check if the selected application thing type is an <see cref="EngineeringModel"/>
         /// </summary>
-        private bool IsIterationView => this.ViewModel.SelectedApplication?.ViewModelType.IsAssignableTo(typeof(ISingleIterationApplicationBaseViewModel)) == true;
+        private bool IsEngineeringModelView => this.ViewModel.SelectedApplication?.ThingTypeOfInterest == typeof(EngineeringModel);
+
+        /// <summary>
+        /// Gets the condition to check if the selected application thing type is an <see cref="Iteration"/>
+        /// </summary>
+        private bool IsIterationView => this.ViewModel.SelectedApplication?.ThingTypeOfInterest == typeof(Iteration);
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -95,8 +99,9 @@ namespace COMETwebapp.Components.Common
         /// <returns>A <see cref="Task" /></returns>
         private async Task OpenModelAndNavigateToView()
         {
-            await this.ViewModel.OpenSession();
+            await this.ViewModel.OpenTab();
             await this.InvokeAsync(this.StateHasChanged);
+            this.OnTabOpened?.Invoke();
         }
     }
 }

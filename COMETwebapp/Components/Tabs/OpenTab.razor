@@ -19,7 +19,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 ------------------------------------------------------------------------------->
-@namespace COMETwebapp.Components.Common
+@namespace COMETwebapp.Components.Tabs
 @using COMETwebapp.Model
 @using COMET.Web.Common.Model
 @inherits OpenModel
@@ -93,7 +93,7 @@
 
     <DxFormLayoutItem ColSpanLg="12">
         <DxButton Id="opentab__button"
-                  CssClass="btn btn-connect w-100 lh-lg"
+                  CssClass="btn btn-connect w-100 lh-lg mt-3"
                   Text="@($"{this.ButtonText} Tab")"
                   Click="@(this.OpenModelAndNavigateToView)"
                   Enabled="@(this.ButtonEnabled)"/>

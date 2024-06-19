@@ -94,6 +94,20 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         }
 
         /// <summary>
+        /// Gets or sets the condition to check if the component is allowed to be disposed
+        /// </summary>
+        public bool IsAllowedToDispose { get; set; }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <param name="disposing">Value asserting if this component should dispose or not</param>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(this.IsAllowedToDispose);
+        }
+
+        /// <summary>
         /// The <see cref="ISessionService" />
         /// </summary>
         protected ISessionService SessionService { get; private set; }

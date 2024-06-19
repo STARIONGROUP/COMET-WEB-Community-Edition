@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ITabsViewModel.cs" company="Starion Group S.A.">
+//  <copyright file="TabComponent.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,47 +22,56 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Pages
+namespace COMETwebapp.Components.Tabs
 {
-    using CDP4Common.EngineeringModelData;
+    using COMET.Web.Common.Components;
 
-    using COMETwebapp.Model;
-
-    using DynamicData;
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// The <see cref="ITabsViewModel" /> contains logic and behavior that are required to support multi-tabs application
+    /// Core component for the System Representation application
     /// </summary>
-    public interface ITabsViewModel
+    public partial class TabComponent : DisposableComponent
     {
         /// <summary>
-        /// Gets the collection of all <see cref="TabbedApplicationInformation" />
+        /// Gets or sets the text to be displayed in the tab title
         /// </summary>
-        SourceList<TabbedApplicationInformation> OpenTabs { get; }
+        [Parameter]
+        public string Text { get; set; }
 
         /// <summary>
-        /// Gets the collection of available <see cref="TabbedApplication" />
+        /// Gets or sets the icon to be displayed
         /// </summary>
-        IEnumerable<TabbedApplication> AvailableApplications { get; }
+        [Parameter]
+        public Type Icon { get; set; }
 
         /// <summary>
-        /// Gets or sets the current selected <see cref="TabbedApplication" />
+        /// Gets or sets the action to be executed when the tab is clicked
         /// </summary>
-        TabbedApplication SelectedApplication { get; set; }
+        [Parameter]
+        public Action OnClick { get; set; }
 
         /// <summary>
-        /// Gets or sets the current tab
+        /// Gets or sets the action to be executed when the tab icon is clicked
         /// </summary>
-        TabbedApplicationInformation CurrentTab { get; set; }
+        [Parameter]
+        public Action OnIconClick { get; set; }
 
         /// <summary>
-        /// Creates a new tab and sets it to current
+        /// Gets or sets the condition to check if this tab is the current one
         /// </summary>
-        /// <param name="application">The <see cref="TabbedApplication" /> for which the tab will be created</param>
-        /// <param name="objectOfInterestId">
-        /// The id of the object of interest, which can be an <see cref="Iteration" /> or an
-        /// <see cref="EngineeringModel" />
-        /// </param>
-        void CreateNewTab(TabbedApplication application, Guid objectOfInterestId);
+        [Parameter]
+        public bool IsCurrent { get; set; }
+
+        /// <summary>
+        /// Gets the icon configuration to display
+        /// </summary>
+        private static Dictionary<string, object> IconConfiguration => new()
+        {
+            { "Size", 22 },
+            { "Color", "currentColor" },
+            { "StrokeWidth", 1.8f },
+            { "CssClass", "cursor-pointer" }
+        };
     }
 }

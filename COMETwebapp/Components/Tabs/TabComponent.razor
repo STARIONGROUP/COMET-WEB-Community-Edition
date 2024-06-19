@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2024 Starion Group S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -19,25 +19,18 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.EngineeringModel.IEngineeringModelBodyViewModel>
+@inherits DisposableComponent
 
-<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <DxToolbar ItemClick="@(this.OnItemClick)">
-        <Items>
-            @foreach (var mappedValue in this.MapOfComponentsAndParameters)
-            {
-                <DxToolbarItem @key="@(mappedValue.Value.Item2)"
-                               Name="@(mappedValue.Value.Item2)"
-                               Text="@(mappedValue.Value.Item2)"
-                               Tooltip="@(mappedValue.Value.Item2)"
-                               RenderStyle="@(mappedValue.Key == this.SelectedComponent ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)"/>
-            }
-        </Items>
-    </DxToolbar>
+<div class="@($"tab-component {(this.OnClick != null ? "cursor-pointer" : "")} {(this.IsCurrent ? "current-tab" : "")}")"
+     @onclick="@(() => this.OnClick?.Invoke())">
 
-    @if (this.SelectedComponent != null)
-    {
-        <DynamicComponent Type="@(this.SelectedComponent)"
-                          Parameters="this.dynamicComponentParameters"/>
-    }
-</LoadingComponent>
+    <span>@(this.Text)</span>
+
+    <DxButton RenderStyle="ButtonRenderStyle.None"
+              Click="@(() => this.OnIconClick?.Invoke())"
+              CssClass="px-1">
+        <DynamicComponent Type="@(this.Icon)"
+                          Parameters="IconConfiguration"/>
+    </DxButton>
+
+</div>
