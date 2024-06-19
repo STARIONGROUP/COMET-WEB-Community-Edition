@@ -25,7 +25,7 @@
 @using CDP4Common.CommonData
 @inherits DisposableComponent
 
-@if (this.ViewModel.OpenTabs.Count > 0)
+@if (this.ViewModel.CurrentTab is not null)
 {
     <div class="pb-3 mb-3 d-flex gap-2" style="border-bottom: solid 1px #e5e5e5;">
 
@@ -34,7 +34,8 @@
             <TabComponent Text="@(GetTabText(tab.ObjectOfInterest))"
                           Icon="typeof(FeatherX)"
                           OnClick="@(() => this.OnTabClick(tab))"
-                          OnIconClick="@(() => this.OnRemoveTabClick(tab))"/>
+                          OnIconClick="@(() => this.OnRemoveTabClick(tab))"
+                          IsCurrent="@(tab == this.ViewModel.CurrentTab)"/>
         }
 
         <TabComponent Text="Open Model"
@@ -60,9 +61,9 @@ else
              OnTabOpened="@(() => this.SetOpenTabVisibility(false))"/>
 </DxPopup>
 
-@if(this.ViewModel.CurrentTab is not null)
+@if (this.ViewModel.CurrentTab is not null)
 {
     <DynamicApplicationBase ViewModel="this.ViewModel.CurrentTab.ApplicationBaseViewModel"
                             ApplicationBaseType="this.ViewModel.CurrentTab.ComponentType"
-                            CurrentThing="this.ViewModel.CurrentTab.ObjectOfInterest as Thing" />
+                            CurrentThing="this.ViewModel.CurrentTab.ObjectOfInterest as Thing"/>
 }

@@ -58,6 +58,12 @@ namespace COMETwebapp.Components.Tabs
         public Action OnIconClick { get; set; }
 
         /// <summary>
+        /// Gets or sets the condition to check if this tab is the current one
+        /// </summary>
+        [Parameter]
+        public bool IsCurrent { get; set; }
+
+        /// <summary>
         /// Gets the icon configuration to display
         /// </summary>
         private static Dictionary<string, object> IconConfiguration => new()

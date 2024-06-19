@@ -318,6 +318,10 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 return;
             }
 
+            this.Elements.Clear();
+            this.RowsTarget.Clear();
+            this.RowsSource.Clear();
+
             this.CurrentThing.Element.ForEach(e =>
             {
                 this.Elements.Add(e);

@@ -33,7 +33,6 @@ namespace COMETwebapp.ViewModels.Pages
     using COMETwebapp.Model;
 
     using DynamicData;
-    using DynamicData.Binding;
 
     using ReactiveUI;
 
@@ -71,21 +70,9 @@ namespace COMETwebapp.ViewModels.Pages
         {
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
-            this.Disposables.Add(this.WhenPropertyChanged(x => x.SelectedApplication).Subscribe(_ => this.OnSelectedApplicationChange()));
+            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedApplication).Subscribe(_ => this.OnSelectedApplicationChange()));
             this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(_ => this.CloseTabIfIterationClosed()));
-
-            this.Disposables.Add(this.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(changeSet =>
-            {
-                foreach (var result in changeSet)
-                {
-                    result.Item.Current.ApplicationBaseViewModel.IsAllowedToDispose = true;
-                }
-
-                if (!this.OpenTabs.Items.Any())
-                {
-                    this.CurrentTab = null;
-                }
-            }));
+            this.Disposables.Add(this.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(this.OnOpenTabRemoved));
         }
 
         /// <summary>
@@ -113,11 +100,7 @@ namespace COMETwebapp.ViewModels.Pages
         public TabbedApplication SelectedApplication
         {
             get => this.selectedApplication;
-            set
-            {
-                this.selectedApplication = value;
-                this.RaisePropertyChanged();
-            }
+            set => this.RaiseAndSetIfChanged(ref this.selectedApplication, value);
         }
 
         /// <summary>
@@ -154,6 +137,7 @@ namespace COMETwebapp.ViewModels.Pages
             }
 
             this.SelectedApplication = application;
+            this.CurrentTab = this.OpenTabs.Items.Last();
         }
 
         /// <summary>
@@ -174,8 +158,31 @@ namespace COMETwebapp.ViewModels.Pages
         /// </summary>
         private void CloseTabIfIterationClosed()
         {
-            var tabsToClose = this.OpenTabs.Items.Where(x => !this.sessionService.OpenIterations.Items.Contains(x.ObjectOfInterest));
+            var tabsToClose = this.OpenTabs.Items
+                .Where(x => x.ObjectOfInterest is Iteration && !this.sessionService.OpenIterations.Items.Contains(x.ObjectOfInterest));
+
             this.OpenTabs.RemoveMany(tabsToClose);
+        }
+
+        /// <summary>
+        /// Method executed when one or more open tabs are removed
+        /// </summary>
+        /// <param name="changeSet">The change set containing the removed <see cref="TabbedApplicationInformation" /></param>
+        private void OnOpenTabRemoved(IChangeSet<TabbedApplicationInformation> changeSet)
+        {
+            foreach (var result in changeSet)
+            {
+                result.Item.Current.ApplicationBaseViewModel.IsAllowedToDispose = true;
+            }
+
+            var wasCurrentTabRemoved = changeSet
+                .Select(x => x.Item.Current.ApplicationBaseViewModel)
+                .Contains(this.CurrentTab.ApplicationBaseViewModel);
+
+            if (wasCurrentTabRemoved)
+            {
+                this.CurrentTab = this.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType);
+            }
         }
     }
 }

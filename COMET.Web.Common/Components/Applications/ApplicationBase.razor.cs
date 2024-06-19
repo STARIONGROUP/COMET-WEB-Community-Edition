@@ -83,18 +83,17 @@ namespace COMET.Web.Common.Components.Applications
         {
             base.OnParametersSet();
 
-            if (this.ViewModel == null)
+            //todo: create condition to prevent this from being executed everytime
+
+            this.ViewModel = this.ParameterizedViewModel ?? this.InjectedViewModel;
+
+            if (this.ParameterizedViewModel != null && this.InjectedViewModel != null)
             {
-                this.ViewModel = this.ParameterizedViewModel ?? this.InjectedViewModel;
-
-                if (this.ParameterizedViewModel != null && this.InjectedViewModel != null)
-                {
-                    this.InjectedViewModel.Dispose();
-                    this.InjectedViewModel = default;
-                }
-
-                this.OnViewModelAssigned();
+                this.InjectedViewModel.Dispose();
+                this.InjectedViewModel = default;
             }
+
+            this.OnViewModelAssigned();
         }
 
         /// <summary>

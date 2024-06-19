@@ -22,22 +22,22 @@
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.EngineeringModel.IEngineeringModelBodyViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <DxToolbar ItemClick="@this.OnItemClick">
+    <DxToolbar ItemClick="@(this.OnItemClick)">
         <Items>
             @foreach (var mappedValue in this.MapOfComponentsAndParameters)
             {
                 <DxToolbarItem @key="@(mappedValue.Value.Item2)"
                                Name="@(mappedValue.Value.Item2)"
-                               Text="@(mappedValue.Value.Item2)" 
+                               Text="@(mappedValue.Value.Item2)"
                                Tooltip="@(mappedValue.Value.Item2)"
-                               RenderStyle="@(mappedValue.Key == this.SelectedComponent ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
+                               RenderStyle="@(mappedValue.Key == this.SelectedComponent ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)"/>
             }
         </Items>
     </DxToolbar>
 
     @if (this.SelectedComponent != null)
     {
-        <DynamicComponent Type="@this.SelectedComponent" 
+        <DynamicComponent Type="@(this.SelectedComponent)"
                           Parameters="this.dynamicComponentParameters"/>
     }
 </LoadingComponent>
