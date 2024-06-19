@@ -77,6 +77,13 @@ namespace COMET.Web.Common.Components
         public bool OpenIterationRequired { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets the component that will be rendered after the user logs in
+        /// </summary>
+        /// <remarks>Default value is <see cref="Dashboard" /></remarks>
+        [Parameter]
+        public Type HomePage { get; set; } = typeof(Dashboard);
+
+        /// <summary>
         /// The <see cref="NavigationManager" />
         /// </summary>
         [Inject]

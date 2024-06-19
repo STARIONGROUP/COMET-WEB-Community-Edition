@@ -68,7 +68,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
         private TestContext context;
         private ModelDashboardBodyViewModel viewModel;
         private Mock<ISessionService> sessionService;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
             
         [SetUp]
         public void Setup()
@@ -85,7 +85,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(configuration.Object);
-            this.context.Services.AddSingleton(this.messageBus);
+            this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.viewModel = this.context.Services.GetService<IModelDashboardBodyViewModel>() as ModelDashboardBodyViewModel;
         }
 

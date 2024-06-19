@@ -39,7 +39,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
     [TestFixture]
     public class ParameterTypeEditorSelectorViewModelTestFixture
     {
-        private IParameterTypeEditorSelectorViewModel viewModel;
+        private ParameterTypeEditorSelectorViewModel viewModel;
         private CDPMessageBus messageBus;
 
         private IParameterEditorBaseViewModel<T> CreateParameterEditorViewModel<T>() where T : ParameterType, new()

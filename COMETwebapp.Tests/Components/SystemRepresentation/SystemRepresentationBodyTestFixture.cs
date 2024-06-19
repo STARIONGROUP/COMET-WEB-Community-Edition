@@ -61,7 +61,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
     public class SystemRepresentationPageTestFixture
     {
         private TestContext context;
-        private ISystemRepresentationBodyViewModel viewModel;
+        private SystemRepresentationBodyViewModel viewModel;
         private Mock<ISession> session;
         private Mock<ISessionService> sessionService;
         private Assembler assembler;
@@ -100,7 +100,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
             this.viewModel = new SystemRepresentationBodyViewModel(this.sessionService.Object, this.messageBus);
-            this.context.Services.AddSingleton(this.viewModel);
+            this.context.Services.AddSingleton<ISystemRepresentationBodyViewModel>(this.viewModel);
 
             this.person = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
