@@ -83,8 +83,6 @@ namespace COMET.Web.Common.Components.Applications
         {
             base.OnParametersSet();
 
-            //todo: create condition to prevent this from being executed everytime
-
             this.ViewModel = this.ParameterizedViewModel ?? this.InjectedViewModel;
 
             if (this.ParameterizedViewModel != null && this.InjectedViewModel != null)
