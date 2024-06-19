@@ -108,7 +108,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         public async Task OpenTab()
         {
             var result = new Result<Iteration>();
-            var isIteration = this.SelectedApplication?.ViewModelType.IsAssignableTo(typeof(ISingleIterationApplicationBaseViewModel)) == true;
+            var isIteration = this.SelectedApplication?.ThingTypeOfInterest == typeof(Iteration);
 
             if (!this.IsCurrentModelOpened)
             {

@@ -60,16 +60,14 @@ namespace COMETwebapp.Components.Tabs
         public Action OnTabOpened { get; set; }
 
         /// <summary>
-        /// Gets the condition to check if the selected application view model inherits from
-        /// <see cref="ISingleEngineeringModelApplicationBaseViewModel" />
+        /// Gets the condition to check if the selected application thing type is an <see cref="EngineeringModel"/>
         /// </summary>
-        private bool IsEngineeringModelView => this.ViewModel.SelectedApplication?.ViewModelType.IsAssignableTo(typeof(ISingleEngineeringModelApplicationBaseViewModel)) == true;
+        private bool IsEngineeringModelView => this.ViewModel.SelectedApplication?.ThingTypeOfInterest == typeof(EngineeringModel);
 
         /// <summary>
-        /// Gets the condition to check if the selected application view model inherits from
-        /// <see cref="ISingleIterationApplicationBaseViewModel" />
+        /// Gets the condition to check if the selected application thing type is an <see cref="Iteration"/>
         /// </summary>
-        private bool IsIterationView => this.ViewModel.SelectedApplication?.ViewModelType.IsAssignableTo(typeof(ISingleIterationApplicationBaseViewModel)) == true;
+        private bool IsIterationView => this.ViewModel.SelectedApplication?.ThingTypeOfInterest == typeof(Iteration);
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
