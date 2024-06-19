@@ -123,7 +123,7 @@ namespace COMETwebapp.Shared.SideBarEntry
         /// <returns>The condition to check if is current application</returns>
         private bool IsCurrentApplication(Application application)
         {
-            if (this.CurrentApplication?.Url == WebAppConstantValues.TabsPage)
+            if (this.CurrentApplication?.Url == WebAppConstantValues.TabsPage || this.CurrentApplication == null)
             {
                 return this.TabsViewModel.SelectedApplication == application;
             }
