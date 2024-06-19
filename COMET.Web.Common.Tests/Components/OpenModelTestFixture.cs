@@ -53,7 +53,7 @@ namespace COMET.Web.Common.Tests.Components
     [TestFixture]
     public class OpenModelTestFixture
     {
-        private IOpenModelViewModel viewModel;
+        private OpenModelViewModel viewModel;
         private TestContext context;
         private Mock<ISessionService> sessionService;
         private Mock<IConfigurationService> configurationService;
@@ -66,7 +66,7 @@ namespace COMET.Web.Common.Tests.Components
             this.configurationService = new Mock<IConfigurationService>();
             this.viewModel = new OpenModelViewModel(this.sessionService.Object, this.configurationService.Object);
             this.context.ConfigureDevExpressBlazor();
-            this.context.Services.AddSingleton(this.viewModel);
+            this.context.Services.AddSingleton<IOpenModelViewModel>(this.viewModel);
 
             var stringTableService = new Mock<IStringTableService>();
             this.context.Services.AddSingleton(stringTableService.Object);

@@ -38,8 +38,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
 
-    using CDP4Web.Enumerations;
-
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
@@ -64,7 +62,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     public class CategoriesTableTestFixture
     {
         private TestContext context;
-        private ICategoriesTableViewModel viewModel;
+        private CategoriesTableViewModel viewModel;
         private Mock<ISession> session;
         private Mock<IPermissionService> permissionService;
         private Mock<ISessionService> sessionService;
@@ -117,7 +115,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.viewModel = new CategoriesTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus, this.logger.Object);
 
-            this.context.Services.AddSingleton(this.viewModel);
+            this.context.Services.AddSingleton<ICategoriesTableViewModel>(this.viewModel);
 
             this.person = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
@@ -363,20 +361,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         }
 
         [Test]
-        public async Task VerifyOnInitialized()
-        {
-            var renderer = this.context.RenderComponent<CategoriesTable>();
-
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
-                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
-            });
-        }
-
-        [Test]
         public async Task VerifyGridActions()
         {
             var renderer = this.context.RenderComponent<CategoriesTable>();
@@ -404,6 +388,20 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
 
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyOnInitialized()
+        {
+            var renderer = this.context.RenderComponent<CategoriesTable>();
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory1.Name));
+                Assert.That(renderer.Markup, Does.Contain(this.elementDefinitionCategory2.Name));
+            });
         }
     }
 }
