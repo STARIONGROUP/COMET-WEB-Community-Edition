@@ -39,6 +39,7 @@ namespace COMETwebapp.Tests.Pages
     using COMETwebapp.Components.Tabs;
     using COMETwebapp.Model;
     using COMETwebapp.Pages;
+    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Common.OpenTab;
     using COMETwebapp.ViewModels.Components.EngineeringModel;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
@@ -68,8 +69,11 @@ namespace COMETwebapp.Tests.Pages
         public void Setup()
         {
             this.context = new TestContext();
+
+            var engineeringModelBodyApplication = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
             this.viewModel = new Mock<ITabsViewModel>();
             this.viewModel.Setup(x => x.OpenTabs).Returns(new SourceList<TabbedApplicationInformation>());
+            this.viewModel.Setup(x => x.SelectedApplication).Returns(engineeringModelBodyApplication);
 
             var optionsTableViewModel = new Mock<IOptionsTableViewModel>();
             optionsTableViewModel.Setup(x => x.Rows).Returns(new SourceList<OptionRowViewModel>());
@@ -111,6 +115,7 @@ namespace COMETwebapp.Tests.Pages
             var openTabs = new SourceList<TabbedApplicationInformation>();
             openTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
             this.viewModel.Setup(x => x.OpenTabs).Returns(openTabs);
+            this.viewModel.Setup(x => x.CurrentTab).Returns(openTabs.Items.First());
             this.renderer.Render();
 
             var tabComponents = this.renderer.FindComponents<TabComponent>();
@@ -146,6 +151,7 @@ namespace COMETwebapp.Tests.Pages
             var openTabs = new SourceList<TabbedApplicationInformation>();
             openTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
             this.viewModel.Setup(x => x.OpenTabs).Returns(openTabs);
+            this.viewModel.Setup(x => x.CurrentTab).Returns(openTabs.Items.First());
             this.renderer.Render();
 
             tabComponents = this.renderer.FindComponents<TabComponent>();

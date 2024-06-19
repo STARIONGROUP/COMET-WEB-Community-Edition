@@ -29,6 +29,11 @@ namespace COMETwebapp.Tests.ViewModels.Pages
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.Components.BookEditor;
+    using COMETwebapp.Components.EngineeringModel;
+    using COMETwebapp.Model;
+    using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.EngineeringModel;
     using COMETwebapp.ViewModels.Pages;
 
     using DynamicData;
@@ -72,16 +77,56 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         [Test]
         public void VerifyOnSelectedApplication()
         {
-            this.viewModel.SelectedApplication = this.viewModel.AvailableApplications.FirstOrDefault(x => x.ThingTypeOfInterest == typeof(Iteration));
+            Assert.That(this.viewModel.CurrentTab, Is.Null);
+
+            this.viewModel.OpenTabs.Add(new TabbedApplicationInformation(new Mock<IEngineeringModelBodyViewModel>().Object, typeof(EngineeringModelBody), new Iteration()));
+            this.viewModel.SelectedApplication = this.viewModel.AvailableApplications.FirstOrDefault(x => x.Url == WebAppConstantValues.EngineeringModelPage);
+
+            Assert.That(this.viewModel.CurrentTab, Is.Not.Null);
+        }
+
+        [Test]
+        public void VerifyTabCreation()
+        {
+            var engineeringModelApplication = this.viewModel.AvailableApplications.First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
+            this.viewModel.CreateNewTab(engineeringModelApplication, Guid.Empty);
 
             Assert.Multiple(() =>
             {
+                Assert.That(this.viewModel.CurrentTab, Is.Not.Null);
+                Assert.That(this.viewModel.CurrentTab.ObjectOfInterest, Is.TypeOf<Iteration>());
+                Assert.That(this.viewModel.SelectedApplication, Is.Not.Null);
                 Assert.That(this.viewModel.OpenTabs, Has.Count.EqualTo(1));
-                Assert.That(this.viewModel.OpenTabs.Items.First().ObjectOfInterest, Is.EqualTo(this.sessionService.Object.OpenIterations.Items.First()));
             });
 
-            this.viewModel.SelectedApplication = this.viewModel.AvailableApplications.FirstOrDefault(x => x.ThingTypeOfInterest == null);
-            Assert.That(this.viewModel.OpenTabs, Is.Empty);
+            var bookEditorApplication = this.viewModel.AvailableApplications.First(x => x.Url == WebAppConstantValues.BookEditorPage);
+            this.viewModel.CreateNewTab(bookEditorApplication, Guid.Empty);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CurrentTab.ObjectOfInterest, Is.TypeOf<EngineeringModel>());
+                Assert.That(this.viewModel.OpenTabs, Has.Count.EqualTo(2));
+            });
+        }
+
+        [Test]
+        public void VerifyTabRemoval()
+        {
+            var engineeringModelApplication1 = this.viewModel.AvailableApplications.First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
+            var engineeringModelApplication2 = this.viewModel.AvailableApplications.First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
+            this.viewModel.CreateNewTab(engineeringModelApplication1, Guid.Empty);
+            this.viewModel.CreateNewTab(engineeringModelApplication2, Guid.Empty);
+
+            var removedTab = this.viewModel.OpenTabs.Items.ElementAt(1);
+
+            Assert.That(this.viewModel.CurrentTab, Is.EqualTo(removedTab));
+            this.viewModel.OpenTabs.Remove(removedTab);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CurrentTab, Is.Not.EqualTo(removedTab));
+                Assert.That(this.viewModel.CurrentTab, Is.Not.Null);
+            });
         }
     }
 }

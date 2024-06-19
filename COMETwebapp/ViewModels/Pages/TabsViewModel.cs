@@ -137,7 +137,7 @@ namespace COMETwebapp.ViewModels.Pages
             }
 
             this.SelectedApplication = application;
-            this.CurrentTab = this.OpenTabs.Items.Last();
+            this.CurrentTab = this.OpenTabs.Items.LastOrDefault();
         }
 
         /// <summary>
