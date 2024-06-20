@@ -30,7 +30,7 @@
             <FeatherSmile Size="42"
                           Color="currentColor"
                           StrokeWidth="1.8f"/>
-            <h5 class="font-weight-bold mt-1">You have no model selected</h5>
+            <h5 class="font-weight-bold mt-1 text-primary">You have no model selected</h5>
             <span>Select a model to start working on it</span>
         </div>
     </DxFormLayoutItem>
@@ -104,7 +104,7 @@
                       CssClass="btn btn-connect w-100 lh-lg mt-2"
                       Text="Close"
                       Click="@(() => this.OnCancel?.Invoke())"
-                      RenderStyle="ButtonRenderStyle.Secondary"/>
+                      RenderStyleMode="ButtonRenderStyleMode.Outline"/>
         }
     </DxFormLayoutItem>
 </DxFormLayout>
