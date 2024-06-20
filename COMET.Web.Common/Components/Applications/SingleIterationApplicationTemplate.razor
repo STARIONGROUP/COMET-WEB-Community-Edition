@@ -43,7 +43,7 @@ else
 			<DxTextBox ReadOnly="true" Text="@($"Active Model : {this.ViewModel.SelectedIterationData?.IterationName}")" SizeMode="SizeMode.Large" CssClass="m-bottom-20px" ></DxTextBox>
 		}
 		<CascadingValue Value="this.ViewModel.SelectedThing">
-			<div>
+			<div class="template-container">
 				@this.Body
 			</div>
 		</CascadingValue>

@@ -42,9 +42,6 @@ h3, .h3 {
     margin: 0;
 }
 
-.dxbl-text {
-    --dxbl-text-font-size: var(--text-base);
-}
 
 .dxbl-text-edit.dxbl-lg {
     --dxbl-text-edit-padding-y: var(--spacing-3);
@@ -55,7 +52,6 @@ h3, .h3 {
     --dxbl-text-edit-border-radius: var(--spacing-1);
     --dxbl-text-edit-padding-y: var(--spacing-2);
     --dxbl-text-edit-padding-x: var(--spacing-2);
-    /*--dxbl-text-edit-font-size: var(--text-base);*/
 }
 
 .dxbl-toolbar-btn.dxbl-btn {
@@ -79,4 +75,8 @@ h3, .h3 {
 .dxbl-btn-standalone.dxbl-btn-outline-primary {
     --dxbl-btn-hover-bg: var(--colors-white);
     --dxbl-btn-hover-color: var(--colors-primary-500)
+}
+
+.dxbl-toolbar.dxbl-toolbar-adaptive > .dxbl-btn-toolbar{
+    bottom: 0!important;
 }

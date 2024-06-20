@@ -252,7 +252,8 @@ div[id^="dropdown-customization-target-container-"] { display: flex; }
 }
 
 sub {
-    font-size: var(--text-sm);
+    font-size: var(--text-sm)!important;
+    color: var(--colors-gray-500);
 }
 
 .page-layout-item-content {
@@ -260,4 +261,12 @@ sub {
     background-color: white !important;
     border-left: solid 1px var(--colors-gray-100);
     overflow: auto;
+}
+
+.template-container {
+    padding: 32px 20px 10px 20px !important;
+}
+
+#tabs-page-content{
+    padding-top: 16px!important;
 }

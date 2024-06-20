@@ -16,12 +16,11 @@ Copyright (c) 2023-2024 Starion Group S.A.
 ------------------------------------------------------------------------------->
 @attribute [Route(WebAppConstantValues.ReferenceDataPage)]
 @attribute [Authorize]
-@using AntDesign
 @using COMETwebapp.Utilities
 
 <ApplicationTemplate>
     <Body>
-        <DxToolbar ItemClick="@this.OnItemClick">
+        <DxToolbar ItemClick="@(this.OnItemClick)">
             <Items>
                 @foreach (var mappedValue in this.mapOfComponentsAndNames)
                 {
@@ -36,7 +35,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
 
         @if (this.SelectedComponent != null)
         {
-            <DynamicComponent Type="@this.SelectedComponent"/>
+            <DynamicComponent Type="@(this.SelectedComponent)"/>
         }
     </Body>
 </ApplicationTemplate>

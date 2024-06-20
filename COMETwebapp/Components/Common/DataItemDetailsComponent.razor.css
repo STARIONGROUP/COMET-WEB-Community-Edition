@@ -9,7 +9,7 @@
 .data-items-panel-container {
     max-height: 90vh;
     position: sticky;
-    top: 0px;
+    top: 10px;
 }
 
 .data-item-details-image {
