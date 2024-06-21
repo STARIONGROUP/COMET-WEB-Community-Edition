@@ -29,7 +29,11 @@
 }
 
 .application-sidebar-icon {
-    padding-right: 10px;
     margin-top: -1.5px;
-    padding-left: 10px;
+}
+
+.application-item-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }

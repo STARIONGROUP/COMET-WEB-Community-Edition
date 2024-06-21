@@ -66,7 +66,7 @@ namespace COMET.Web.Common.Extensions
 
             if (sessionService.Session == null)
             {
-                throw new ArgumentNullException(nameof(sessionService.Session), "The session may not be null");
+                throw new InvalidOperationException("The session contained by the given session service may not be null");
             }
 
             var parameter = new Parameter(Guid.NewGuid(), null, null)

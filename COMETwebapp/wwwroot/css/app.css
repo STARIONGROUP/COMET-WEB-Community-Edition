@@ -244,6 +244,7 @@ div[id^="dropdown-customization-target-container-"] { display: flex; }
 
 .collapsed .application-item-container {
     width: 70px !important;
+    padding: 22px;
 }
 
 sub {

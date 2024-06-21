@@ -37,7 +37,7 @@
 <SideBarItem Text="@(this.ConfigurationService.GetText(TextConfigurationKind.NavigationModelSelectorTitle))"
              OnClick="@(this.ExpandDropdown)"
              Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"
-             IconCssClass="icon icon-folder mx-2"
+             Icon="@(typeof(FeatherFolder))"
              Id="model-entry"
              DropdownSelector="true"/>
 

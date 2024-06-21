@@ -32,7 +32,7 @@
     <SideBarItem Text="@applicationEntry.Name"
                  OnClick="@(() => this.NavigateToTabbedApplication(applicationEntry))"
                  CssClass="@(this.IsCurrentApplication(applicationEntry) ? "selected-application-item" : "")"
-                 IconCssClass="@($"oi oi-{applicationEntry.Icon}")"
+                 Icon="@(applicationEntry.IconType)"
                  Enabled="@(this.IsApplicationEnabled(applicationEntry))"/>
 }
 
@@ -45,7 +45,7 @@
     <SideBarItem Text="@applicationEntry.Name"
                  OnClick="@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))"
                  CssClass="@(this.IsCurrentApplication(applicationEntry) ? "selected-application-item" : "")"
-                 IconCssClass="@($"oi oi-{applicationEntry.Icon}")"
+                 Icon="@(applicationEntry.IconType)"
                  Enabled="@(this.IsApplicationEnabled(applicationEntry))" />
 }
 

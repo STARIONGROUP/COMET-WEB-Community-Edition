@@ -30,7 +30,6 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
     using COMETwebapp.Model;
 
     using DevExpress.Blazor;
-    using DevExpress.ClipboardSource.SpreadsheetML;
 
     using Microsoft.AspNetCore.Components;
 
@@ -88,7 +87,7 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
         /// Initialize <see cref="DataChart"/> list from data to represent in the grpah
         /// </summary>
         /// <returns>A collection of <see cref="DataChart"/> used in the graph</returns>
-        private IEnumerable<DataChart> GetChartData()
+        private List<DataChart> GetChartData()
         {
             var donutData = new List<DataChart>();
 

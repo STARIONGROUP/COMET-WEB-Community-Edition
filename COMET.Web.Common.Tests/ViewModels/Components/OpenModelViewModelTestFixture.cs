@@ -101,7 +101,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             Assert.That(this.viewModel.AvailableEngineeringModelSetups.Count(), Is.EqualTo(4));
         }
 
-        private static IEnumerable<EngineeringModelSetup> CreateData()
+        private static List<EngineeringModelSetup> CreateData()
         {
             var rdl1 = new ModelReferenceDataLibrary(Guid.NewGuid(), null, null)
             {
@@ -121,8 +121,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
                 }
             };
 
-            return new List<EngineeringModelSetup>
-            {
+            return
+            [
                 new EngineeringModelSetup(Guid.NewGuid(), null, null)
                 {
                     Name = "Model1",
@@ -133,6 +133,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
                     },
                     Kind = EngineeringModelKind.STUDY_MODEL
                 },
+
                 new EngineeringModelSetup(Guid.NewGuid(), null, null)
                 {
                     Name = "Model2",
@@ -143,6 +144,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
                     },
                     Kind = EngineeringModelKind.STUDY_MODEL
                 },
+
                 new EngineeringModelSetup(Guid.NewGuid(), null, null)
                 {
                     Name = "Model3",
@@ -153,6 +155,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
                     },
                     Kind = EngineeringModelKind.STUDY_MODEL
                 },
+
                 new EngineeringModelSetup(Guid.NewGuid(), null, null)
                 {
                     Name = "Model4",
@@ -162,7 +165,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
                         new IterationSetup(Guid.NewGuid(), null, null)
                     },
                     Kind = EngineeringModelKind.STUDY_MODEL
-                },                
+                },
+
                 new EngineeringModelSetup(Guid.NewGuid(), null, null)
                 {
                     Name = "Model5",
@@ -173,7 +177,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
                     },
                     Kind = EngineeringModelKind.STUDY_MODEL
                 }
-            };
+            ];
         }
     }
 }
