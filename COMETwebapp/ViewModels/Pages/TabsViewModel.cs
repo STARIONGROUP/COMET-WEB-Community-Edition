@@ -71,7 +71,7 @@ namespace COMETwebapp.ViewModels.Pages
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedApplication).Subscribe(_ => this.OnSelectedApplicationChange()));
-            this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(_ => this.CloseTabIfIterationClosed()));
+            this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(this.CloseTabIfIterationClosed));
             this.Disposables.Add(this.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(this.OnOpenTabRemoved));
         }
 
@@ -156,12 +156,23 @@ namespace COMETwebapp.ViewModels.Pages
         /// <summary>
         /// Closes a tab if its iteration has been closed
         /// </summary>
-        private void CloseTabIfIterationClosed()
+        /// <param name="numberOfIterations">The new number of open iterations</param>
+        private void CloseTabIfIterationClosed(int numberOfIterations)
         {
-            var tabsToClose = this.OpenTabs.Items
-                .Where(x => x.ObjectOfInterest is Iteration && !this.sessionService.OpenIterations.Items.Contains(x.ObjectOfInterest));
+            var iterationTabsToClose = this.OpenTabs.Items
+                .Where(x => x.ObjectOfInterest is Iteration && !this.sessionService.OpenIterations.Items.Contains(x.ObjectOfInterest))
+                .ToList();
 
-            this.OpenTabs.RemoveMany(tabsToClose);
+            var engineeringModelTabsToClose = this.OpenTabs.Items
+                .Where(x => x.ObjectOfInterest is EngineeringModel && !this.sessionService.OpenEngineeringModels.Contains(x.ObjectOfInterest))
+                .ToList();
+
+            this.OpenTabs.RemoveMany([.. iterationTabsToClose, .. engineeringModelTabsToClose]);
+
+            if (numberOfIterations == 0)
+            {
+                this.CurrentTab = null;
+            }
         }
 
         /// <summary>
@@ -170,14 +181,24 @@ namespace COMETwebapp.ViewModels.Pages
         /// <param name="changeSet">The change set containing the removed <see cref="TabbedApplicationInformation" /></param>
         private void OnOpenTabRemoved(IChangeSet<TabbedApplicationInformation> changeSet)
         {
-            foreach (var result in changeSet)
+            foreach (var result in changeSet.ToList())
             {
-                result.Item.Current.ApplicationBaseViewModel.IsAllowedToDispose = true;
+                if (result.Range.Count > 0)
+                {
+                    foreach (var tabToRemove in result.Range)
+                    {
+                        tabToRemove.ApplicationBaseViewModel.IsAllowedToDispose = true;
+                    }
+                }
+                else
+                {
+                    result.Item.Current.ApplicationBaseViewModel.IsAllowedToDispose = true;
+                }
             }
 
             var wasCurrentTabRemoved = changeSet
-                .Select(x => x.Item.Current.ApplicationBaseViewModel)
-                .Contains(this.CurrentTab.ApplicationBaseViewModel);
+                .Select(x => x.Item.Current)
+                .Contains(this.CurrentTab);
 
             if (wasCurrentTabRemoved)
             {
