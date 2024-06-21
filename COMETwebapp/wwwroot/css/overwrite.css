@@ -79,3 +79,8 @@ h3, .h3 {
 .dxbl-toolbar.dxbl-toolbar-adaptive > .dxbl-btn-toolbar{
     bottom: 0!important;
 }
+
+.open-tab-box-container .dxbl-fl-cpt.dxbl-text {
+    color: var(--colors-gray-950);
+    font-weight: 500;
+}

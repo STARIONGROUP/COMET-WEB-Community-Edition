@@ -46,7 +46,7 @@ namespace COMETwebapp.Tests.IntegrationTests
     public class IntegrationTestFixture
     {
         private string appUrl;
-        private IWebDriver driver;
+        private WebDriver driver;
         private string targetServerUrl;
         private WebDriverWait wait;
 

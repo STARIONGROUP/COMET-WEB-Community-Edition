@@ -23,6 +23,6 @@
 
 <SideBarItem Text="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "Hide Deprecated Things" : "Show Deprecated Things")"
              OnClick="@(() => this.ViewModel.OnShowHideDeprecatedItems())"
-             IconCssClass="@($"{(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "icon icon-eye-hide" : "icon icon-eye-show")} mx-2")"
+             Icon="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? typeof(FeatherEyeOff) : typeof(FeatherEye))"
              Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"
              Id="showHideIcon"/>

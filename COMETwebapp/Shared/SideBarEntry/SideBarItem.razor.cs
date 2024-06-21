@@ -56,6 +56,12 @@ namespace COMETwebapp.Shared.SideBarEntry
         public string IconCssClass { get; set; }
 
         /// <summary>
+        /// Gets or sets the icon to be displayed, overriding the selected <see cref="IconCssClass" />, if set
+        /// </summary>
+        [Parameter]
+        public Type Icon { get; set; }
+
+        /// <summary>
         /// Gets or sets the text to be displayed
         /// </summary>
         [Parameter]
@@ -78,6 +84,17 @@ namespace COMETwebapp.Shared.SideBarEntry
         /// </summary>
         [Parameter]
         public RenderFragment ChildContent { get; set; }
+
+        /// <summary>
+        /// Gets the icon configuration to display
+        /// </summary>
+        private static Dictionary<string, object> IconConfiguration => new()
+        {
+            { "Size", 22 },
+            { "Color", "currentColor" },
+            { "StrokeWidth", 1.8f },
+            { "CssClass", "cursor-pointer" }
+        };
 
         /// <summary>
         /// Executes the onclick action if the component is enabled
