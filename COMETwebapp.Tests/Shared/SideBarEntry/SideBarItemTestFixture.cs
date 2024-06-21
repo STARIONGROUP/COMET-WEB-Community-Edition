@@ -30,6 +30,9 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
 
     using COMETwebapp.Shared.SideBarEntry;
 
+    using Feather.Blazor;
+    using Feather.Blazor.Icons;
+
     using Microsoft.AspNetCore.Components.Web;
 
     using NUnit.Framework;
@@ -79,6 +82,36 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             {
                 Assert.That(renderer.Markup, Does.Contain("childContent"));
                 Assert.That(renderer.Markup, Does.Contain("txt"));
+            });
+        }
+
+        [Test]
+        public void VerifySideBarItemIconDisplay()
+        {
+            var renderer = this.context.RenderComponent<SideBarItem>(parameters => { parameters.Add(p => p.Icon, typeof(FeatherCheck)); });
+            
+            var featherIcons = renderer.FindComponents<Icon>();
+            var cssIcons = renderer.FindAll("#side-bar-item-css-icon");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(featherIcons, Has.Count.GreaterThan(0));
+                Assert.That(cssIcons, Has.Count.EqualTo(0));
+            });
+
+            renderer.SetParametersAndRender(parameters =>
+            {
+                parameters.Add(p => p.IconCssClass, "oi oi-check");
+                parameters.Add(p => p.Icon, null);
+            });
+
+            featherIcons = featherIcons = renderer.FindComponents<Icon>();
+            cssIcons = renderer.FindAll("#side-bar-item-css-icon");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(featherIcons, Has.Count.EqualTo(0));
+                Assert.That(cssIcons, Has.Count.GreaterThan(0));
             });
         }
     }
