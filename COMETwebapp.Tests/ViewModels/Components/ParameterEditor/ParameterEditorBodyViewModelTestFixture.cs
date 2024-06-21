@@ -233,6 +233,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         {
             this.viewModel.Dispose();
             this.messageBus.ClearSubscriptions();
+            this.messageBus.Dispose();
         }
 
         [Test]
