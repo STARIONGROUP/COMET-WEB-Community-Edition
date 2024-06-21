@@ -1,4 +1,5 @@
 .main-side-bar {
     height: 100vh;
-    box-shadow: 0px 2px 6px 0px rgb(0 0 0 / 12%);
+    background-color: var(--colors-primary-25);
+    padding: 10px 20px 30px 20px;
 }

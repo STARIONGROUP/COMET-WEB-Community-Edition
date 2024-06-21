@@ -1,0 +1,81 @@
+body,
+html {
+    font-family: var(--font-body) !important;
+    background: var(--colors-gray-50);
+    color: var(--colors-gray-800);
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-variation-settings: "slnt" 0;
+    font-size: var(--bs-body-font-size) !important;
+}
+
+h1, .h1 {
+    font-size: 2.5rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 120%;
+    margin: 0;
+}
+
+h2, .h2 {
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 120%;
+    margin: 0;
+}
+
+h3, .h3 {
+    font-size: 1.25rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 120%;
+    margin: 0;
+}
+
+.body {
+    font-size: 1rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 130%;
+    margin: 0;
+}
+
+
+.dxbl-text-edit.dxbl-lg {
+    --dxbl-text-edit-padding-y: var(--spacing-3);
+    --dxbl-text-edit-padding-x: var(--spacing-3);
+}
+
+.dxbl-text-edit {
+    --dxbl-text-edit-border-radius: var(--spacing-1);
+    --dxbl-text-edit-padding-y: var(--spacing-2);
+    --dxbl-text-edit-padding-x: var(--spacing-2);
+}
+
+.dxbl-toolbar-btn.dxbl-btn {
+    padding: 7.5px !important;
+}
+
+.text-primary {
+    color: var(--colors-primary-500) !important;
+}
+
+.dxbl-grid-selected-row > td {
+    --dxbl-grid-selection-color: var(--colors-primary-600);
+    --dxbl-grid-selection-bg: var(--colors-gray-200);
+}
+
+.dxbl-btn-standalone.dxbl-btn-dark {
+    --dxbl-btn-bg: var(--colors-gray-800);
+    --dxbl-btn-hover-bg: var(--colors-gray-800);
+}
+
+.dxbl-btn-standalone.dxbl-btn-outline-primary {
+    --dxbl-btn-hover-bg: var(--colors-white);
+    --dxbl-btn-hover-color: var(--colors-primary-500)
+}
+
+.dxbl-toolbar.dxbl-toolbar-adaptive > .dxbl-btn-toolbar{
+    bottom: 0!important;
+}

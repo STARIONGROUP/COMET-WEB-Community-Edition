@@ -1,6 +1,6 @@
-html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-    font-size: 16px !important;
+@font-face {
+    font-family: "Inter";
+    src: url("../fonts/Inter-VariableFont_slnt,wght.ttf") format("truetype");
 }
 
 html, body, #app {
@@ -244,5 +244,24 @@ div[id^="dropdown-customization-target-container-"] { display: flex; }
 
 .collapsed .application-item-container {
     width: 70px !important;
-    display: block ruby;
+}
+
+sub {
+    font-size: var(--text-sm)!important;
+    color: var(--colors-gray-500);
+}
+
+.page-layout-item-content {
+    border-radius: 24px 0px 0px 24px;
+    background-color: white !important;
+    border-left: solid 1px var(--colors-gray-100);
+    overflow: auto;
+}
+
+.template-container {
+    padding: 32px 20px 10px 20px !important;
+}
+
+#tabs-page-content{
+    padding-top: 16px!important;
 }

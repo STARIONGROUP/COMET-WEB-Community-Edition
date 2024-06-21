@@ -18,20 +18,24 @@ Copyright (c) 2023-2024 Starion Group S.A.
 @attribute [Authorize]
 @using COMETwebapp.Utilities
 
-<DxToolbar ItemClick="@this.OnItemClick">
-    <Items>
-        @foreach (var mappedValue in this.mapOfComponentsAndNames)
-        {
-            <DxToolbarItem @key="@(mappedValue.Value)"
-                           Name="@(mappedValue.Value)" 
-                           Text="@(mappedValue.Value)" 
-                           Tooltip="@(mappedValue.Value)"
-                           RenderStyle="@(mappedValue.Key == this.SelectedComponent ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
-        }
-    </Items>
-</DxToolbar>
+<ApplicationTemplate>
+    <Body>
+        <DxToolbar ItemClick="@(this.OnItemClick)">
+            <Items>
+                @foreach (var mappedValue in this.mapOfComponentsAndNames)
+                {
+                    <DxToolbarItem @key="@(mappedValue.Value)"
+                                   Name="@(mappedValue.Value)"
+                                   Text="@(mappedValue.Value)"
+                                   Tooltip="@(mappedValue.Value)"
+                                   RenderStyle="@(mappedValue.Key == this.SelectedComponent ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)"/>
+                }
+            </Items>
+        </DxToolbar>
 
-@if (this.SelectedComponent != null)
-{
-    <DynamicComponent Type="@this.SelectedComponent" />
-}
+        @if (this.SelectedComponent != null)
+        {
+            <DynamicComponent Type="@(this.SelectedComponent)"/>
+        }
+    </Body>
+</ApplicationTemplate>

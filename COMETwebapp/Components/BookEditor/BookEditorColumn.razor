@@ -31,7 +31,7 @@
 <div class="book-editor-column @columnConditionalClass">
     <div class="column-header">
         <button class="icon collapse-button @this.CollapseButtonIconClass" @onclick="@(async () => await this.OnCollapseClicked.InvokeAsync())"></button>
-        <h5 style="background-color:@this.HeaderHexColor" class="header-text">@this.HeaderTitle</h5>
+        <h5 style="background-color:@this.HeaderHexColor" class="header-text p-2">@this.HeaderTitle</h5>
         <button class="icon icon-plus add-item-button @buttonDisabledClass" @onclick="@(async () => await this.OnCreateNewItemClick.InvokeAsync())" disabled="@this.IsAddButtonDisabled"></button>
     </div>
     <div class="column-content">
