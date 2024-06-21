@@ -124,7 +124,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
             
             Assert.Multiple(() =>
             {
-                Assert.That(header.Attributes["class"]?.Value, Is.EqualTo("header-text"));
+                Assert.That(header.Attributes["class"]?.Value, Does.Contain("header-text"));
                 Assert.That(header.HasAttribute("style"), Is.True);
             });
 

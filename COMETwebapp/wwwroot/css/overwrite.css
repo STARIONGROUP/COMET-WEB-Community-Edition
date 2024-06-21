@@ -1,20 +1,19 @@
 body,
 html {
-    /*font-family: var(--font-body);*/
+    font-family: var(--font-body) !important;
     background: var(--colors-gray-50);
     color: var(--colors-gray-800);
-    font-family: "Inter", sans-serif;
     font-optical-sizing: auto;
     font-style: normal;
     font-variation-settings: "slnt" 0;
-    font-size: var(--bs-body-font-size)!important;
+    font-size: var(--bs-body-font-size) !important;
 }
 
 h1, .h1 {
     font-size: 2.5rem;
     font-style: normal;
     font-weight: 700;
-    line-height: 120%; /* 3rem */
+    line-height: 120%;
     margin: 0;
 }
 
@@ -22,7 +21,7 @@ h2, .h2 {
     font-size: 1.5rem;
     font-style: normal;
     font-weight: 700;
-    line-height: 120%; /* 1.8rem */
+    line-height: 120%;
     margin: 0;
 }
 
@@ -30,7 +29,7 @@ h3, .h3 {
     font-size: 1.25rem;
     font-style: normal;
     font-weight: 700;
-    line-height: 120%; /* 1.5rem */
+    line-height: 120%;
     margin: 0;
 }
 
@@ -38,7 +37,7 @@ h3, .h3 {
     font-size: 1rem;
     font-style: normal;
     font-weight: 400;
-    line-height: 130%; /* 1.3rem */
+    line-height: 130%;
     margin: 0;
 }
 

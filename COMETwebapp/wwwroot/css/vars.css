@@ -61,5 +61,5 @@
     --spacing-20: 5rem;
     --dxbl-listbox-font-size: 0.98rem;
     --bs-body-font-size: 0.98rem;
-    --font-body: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
