@@ -50,7 +50,7 @@ namespace COMETwebapp.Pages.ReferenceData
         /// <summary>
         /// The selected component type
         /// </summary>
-        private Type SelectedComponent { get; set; }
+        public Type SelectedComponent { get; private set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
