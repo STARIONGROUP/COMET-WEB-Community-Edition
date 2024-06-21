@@ -166,7 +166,7 @@ namespace COMET.Web.Common.ViewModels.Components.Publications
         /// </summary>
         /// <param name="parameters">the parameters used to create the rows</param>
         /// <returns>A collection of <see cref="PublicationRowViewModel"/></returns>
-        private static IEnumerable<PublicationRowViewModel> CreateRows(IEnumerable<ParameterOrOverrideBase> parameters)
+        private static List<PublicationRowViewModel> CreateRows(IEnumerable<ParameterOrOverrideBase> parameters)
         {
             return parameters.SelectMany(param =>
                 param.ValueSets.Select(valueSet => new PublicationRowViewModel(param, valueSet))).ToList();

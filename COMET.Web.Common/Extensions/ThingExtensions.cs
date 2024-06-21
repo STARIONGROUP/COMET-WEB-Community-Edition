@@ -506,7 +506,7 @@ namespace COMET.Web.Common.Extensions
             var changes = new Dictionary<int, ValueArray<string>>();
             var subscribedParameterValueSet = valueSet.SubscribedValueSet;
 
-            if (!subscribedParameterValueSet.Revisions.Any() || !subscribedParameterValueSet.Revisions.Keys.Any(x => x >= valueSet.RevisionNumber))
+            if (subscribedParameterValueSet.Revisions.Count == 0 || !subscribedParameterValueSet.Revisions.Keys.Any(x => x >= valueSet.RevisionNumber))
             {
                 changes.Add(subscribedParameterValueSet.RevisionNumber, subscribedParameterValueSet.Published);
                 return changes;

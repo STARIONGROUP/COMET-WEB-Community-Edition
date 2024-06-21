@@ -175,7 +175,7 @@ namespace COMET.Web.Common.ViewModels.Components
                         .ToList();
                 }
 
-                if (filteredEngineeringModelSetups.Any())
+                if (filteredEngineeringModelSetups.Count != 0)
                 {
                     this.AvailableEngineeringModelSetups = filteredEngineeringModelSetups;
                     return;
