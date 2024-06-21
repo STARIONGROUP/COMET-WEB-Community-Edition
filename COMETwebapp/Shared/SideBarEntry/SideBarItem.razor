@@ -28,8 +28,18 @@
     }
     else
     {
-        <div style="display: flex; align-items: center;">
-            <span class="@(this.IconCssClass) display-flex justify-content-center application-sidebar-icon" aria-hidden="true"></span>
+        <div class="application-item-content">
+            @if (this.Icon is not null)
+            {
+                <div class="application-sidebar-icon">
+                    <DynamicComponent Type="@(this.Icon)"
+                                      Parameters="IconConfiguration"/>
+                </div>
+            }
+            else
+            {
+                <span class="@(this.IconCssClass) display-flex justify-content-center application-sidebar-icon" aria-hidden="true"></span>
+            }
             <span class="not-displayed-on-collapse">@(this.Text)</span>
         </div>
         if (this.DropdownSelector)

@@ -23,7 +23,7 @@
 
 <SideBarItem Text="About"
              OnClick="@(() => this.SetVisibility(true))"
-             IconCssClass="oi oi-info"/>
+             Icon="@(typeof(FeatherInfo))"/>
 
 <DxPopup @bind-Visible="this.IsVisible" HeaderText="CDP4-COMET-WEB CE">
     <About/>
