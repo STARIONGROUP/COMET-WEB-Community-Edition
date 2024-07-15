@@ -33,7 +33,7 @@ namespace COMETwebapp.ViewModels.Pages
     /// <summary>
     /// The <see cref="ITabsViewModel" /> contains logic and behavior that are required to support multi-tabs application
     /// </summary>
-    public interface ITabsViewModel
+    public interface ITabsViewModel : ITabHandler
     {
         /// <summary>
         /// Gets the collection of all <see cref="TabbedApplicationInformation" />
@@ -49,11 +49,6 @@ namespace COMETwebapp.ViewModels.Pages
         /// Gets or sets the current selected <see cref="TabbedApplication" />
         /// </summary>
         TabbedApplication SelectedApplication { get; set; }
-
-        /// <summary>
-        /// Gets or sets the current tab
-        /// </summary>
-        TabbedApplicationInformation CurrentTab { get; set; }
 
         /// <summary>
         /// Gets the collection of all <see cref="TabPanelInformation"/>s

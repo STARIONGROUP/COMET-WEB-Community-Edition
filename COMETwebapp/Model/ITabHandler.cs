@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="TabPanelInformation.cs" company="Starion Group S.A.">
+//  <copyright file="ITabHandler.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -25,20 +25,13 @@
 namespace COMETwebapp.Model
 {
     /// <summary>
-    /// The <see cref="TabPanelInformation" /> provides required information related to a panel
+    /// The <see cref="ITabHandler" /> provides properties to be used by classes that handle tabs
     /// </summary>
-    public class TabPanelInformation : ITabHandler
+    public interface ITabHandler
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TabbedApplicationInformation" /> class.
-        /// </summary>
-        public TabPanelInformation()
-        {
-        }
-
         /// <summary>
         /// Gets or sets the current tab
         /// </summary>
-        public TabbedApplicationInformation CurrentTab { get; set; }
+        TabbedApplicationInformation CurrentTab { get; set; }
     }
 }

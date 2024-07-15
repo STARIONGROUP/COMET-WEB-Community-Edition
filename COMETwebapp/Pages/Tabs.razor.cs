@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.Pages
 {
-    using CDP4Common.EngineeringModelData;
-
     using COMET.Web.Common.Extensions;
 
     using COMETwebapp.Model;
@@ -73,9 +71,10 @@ namespace COMETwebapp.Pages
         /// Method executed when a tab is clicked
         /// </summary>
         /// <param name="tabbedApplicationInformation">The tab to be set</param>
-        private void OnTabClick(TabbedApplicationInformation tabbedApplicationInformation)
+        /// <param name="tabHandler">The tab handler to handle the tab click</param>
+        private void OnTabClick(TabbedApplicationInformation tabbedApplicationInformation, ITabHandler tabHandler)
         {
-            this.ViewModel.CurrentTab = tabbedApplicationInformation;
+            tabHandler.CurrentTab = tabbedApplicationInformation;
         }
 
         /// <summary>
@@ -95,35 +94,6 @@ namespace COMETwebapp.Pages
         {
             this.IsOpenTabVisible = visibility;
             this.InvokeAsync(this.StateHasChanged);
-        }
-
-        private void AddNewSidePanel()
-        {
-            var currentTab = this.ViewModel.CurrentTab;
-
-            var newPanel = new TabPanelInformation()
-            {
-                CurrentTab = currentTab,
-                PanelIndex = 1
-            };
-
-            currentTab.Panel = newPanel;
-            this.ViewModel.SidePanels.Add(newPanel);
-        }
-
-        /// <summary>
-        /// Gets the tab text for the given object of interest
-        /// </summary>
-        /// <param name="objectOfInterest">The object of interest to get its tab text</param>
-        /// <returns>The tab text</returns>
-        private static string GetTabText(object objectOfInterest)
-        {
-            return objectOfInterest switch
-            {
-                Iteration iteration => iteration.QueryName(),
-                CDP4Common.EngineeringModelData.EngineeringModel engineeringModel => engineeringModel.EngineeringModelSetup.Name,
-                _ => string.Empty
-            };
         }
     }
 }
