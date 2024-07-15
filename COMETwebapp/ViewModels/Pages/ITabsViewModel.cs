@@ -56,6 +56,11 @@ namespace COMETwebapp.ViewModels.Pages
         TabbedApplicationInformation CurrentTab { get; set; }
 
         /// <summary>
+        /// Gets the collection of all <see cref="TabPanelInformation"/>s
+        /// </summary>
+        SourceList<TabPanelInformation> SidePanels { get; }
+
+        /// <summary>
         /// Creates a new tab and sets it to current
         /// </summary>
         /// <param name="application">The <see cref="TabbedApplication" /> for which the tab will be created</param>

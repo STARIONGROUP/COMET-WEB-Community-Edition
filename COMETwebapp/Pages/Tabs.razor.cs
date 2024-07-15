@@ -97,6 +97,20 @@ namespace COMETwebapp.Pages
             this.InvokeAsync(this.StateHasChanged);
         }
 
+        private void AddNewSidePanel()
+        {
+            var currentTab = this.ViewModel.CurrentTab;
+
+            var newPanel = new TabPanelInformation()
+            {
+                CurrentTab = currentTab,
+                PanelIndex = 1
+            };
+
+            currentTab.Panel = newPanel;
+            this.ViewModel.SidePanels.Add(newPanel);
+        }
+
         /// <summary>
         /// Gets the tab text for the given object of interest
         /// </summary>

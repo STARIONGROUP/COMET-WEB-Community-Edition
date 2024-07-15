@@ -23,49 +23,93 @@
 @using COMETwebapp.Components.Tabs
 @using COMETwebapp.Utilities
 @using CDP4Common.CommonData
+@using DynamicData
 @inherits DisposableComponent
 
-@if (this.ViewModel.CurrentTab is not null)
-{
-    <div class="d-flex gap-2 tabs-row">
+<div style="display: flex; height: 100%;">
+<div class="@($"panel-view {(this.ViewModel.CurrentTab is null ? "w-100" : "")}")">
 
-        @foreach (var tab in this.ViewModel.OpenTabs.Items.Where(x => x.ComponentType == this.ViewModel.SelectedApplication?.ComponentType))
-        {
-            <TabComponent Text="@(GetTabText(tab.ObjectOfInterest))"
-                          Icon="typeof(FeatherX)"
-                          OnClick="@(() => this.OnTabClick(tab))"
-                          OnIconClick="@(() => this.OnRemoveTabClick(tab))"
-                          IsCurrent="@(tab == this.ViewModel.CurrentTab)"/>
-        }
+    @if (this.ViewModel.CurrentTab is not null)
+    {
+            <div class="d-flex gap-2 tabs-row">
 
-        <TabComponent Text="Open Model"
-                      Icon="typeof(FeatherPlus)"
-                      OnClick="@(() => this.SetOpenTabVisibility(true))"/>
-    </div>
-}
-else
-{
-    <div class="open-tab-box-container">
-        <div class="open-tab-box">
-            <OpenTab/>
+                @foreach (var tab in this.ViewModel.OpenTabs.Items.Where(x => x.ComponentType == this.ViewModel.SelectedApplication?.ComponentType && x.Panel == null))
+                {
+                    <TabComponent Text="@(GetTabText(tab.ObjectOfInterest))"
+                                  Icon="typeof(FeatherX)"
+                                  OnClick="@(() => this.OnTabClick(tab))"
+                                  OnIconClick="@(() => this.OnRemoveTabClick(tab))"
+                                  IsCurrent="@(tab == this.ViewModel.CurrentTab)"/>
+                }
+
+                <TabComponent Text="Open Model"
+                              Icon="typeof(FeatherPlus)"
+                              OnClick="@(() => this.SetOpenTabVisibility(true))"/>
+            
+                <DxButton Click="@(() => this.AddNewSidePanel())" Text="side"/>
+            </div>
+    }
+    else
+    {
+        <div class="open-tab-box-container">
+            <div class="open-tab-box">
+                <OpenTab/>
+            </div>
         </div>
-    </div>
-}
+    }
 
-<DxPopup @bind-Visible="@(this.IsOpenTabVisible)"
-         ShowHeader="false"
-         ShowCloseButton="true"
-         CloseOnOutsideClick="true"
-         CloseOnEscape="true">
-    <OpenTab OnCancel="@(() => this.SetOpenTabVisibility(false))"
-             OnTabOpened="@(() => this.SetOpenTabVisibility(false))"/>
-</DxPopup>
+    @if (this.ViewModel.CurrentTab is not null)
+    {
+        <div class="template-container" id="tabs-page-content">
+            <DynamicApplicationBase ViewModel="this.ViewModel.CurrentTab.ApplicationBaseViewModel"
+                                    ApplicationBaseType="this.ViewModel.CurrentTab.ComponentType"
+                                    CurrentThing="this.ViewModel.CurrentTab.ObjectOfInterest as Thing"/>
+        </div>
+    }
+</div>
 
-@if (this.ViewModel.CurrentTab is not null)
-{
-    <div class="template-container" id="tabs-page-content">
-        <DynamicApplicationBase ViewModel="this.ViewModel.CurrentTab.ApplicationBaseViewModel"
-                                ApplicationBaseType="this.ViewModel.CurrentTab.ComponentType"
-                                CurrentThing="this.ViewModel.CurrentTab.ObjectOfInterest as Thing"/>
-    </div>
-}
+    @foreach (var panel in this.ViewModel.OpenTabs.Items.Where(x => x.ComponentType == this.ViewModel.SelectedApplication?.ComponentType && x.Panel is not null).GroupBy(x => x.Panel))
+    {
+        <div class="panel-view">
+            @if (panel.Key is not null)
+            {
+                <div class="d-flex gap-2 tabs-row">
+
+                    @foreach (var tab in this.ViewModel.OpenTabs.Items.Where(x => x.ComponentType == this.ViewModel.SelectedApplication?.ComponentType && x.Panel == panel.Key))
+                    {
+                        <TabComponent Text="@(GetTabText(tab.ObjectOfInterest))"
+                                      Icon="typeof(FeatherX)"
+                                      OnClick="@(() => panel.Key.CurrentTab = tab)"
+                                      OnIconClick="@(() => this.ViewModel.OpenTabs.Remove(tab))"
+                                      IsCurrent="@(tab == panel.Key.CurrentTab)" />
+                    }
+
+                    <TabComponent Text="Open Model"
+                                  Icon="typeof(FeatherPlus)"
+                                  OnClick="@(() => this.SetOpenTabVisibility(true))"/>
+                </div>
+            }
+            
+
+            @if (panel.Key is not null)
+            {
+                <div class="template-container" id="tabs-page-content">
+                    <DynamicApplicationBase ViewModel="panel.Key.CurrentTab.ApplicationBaseViewModel"
+                                            ApplicationBaseType="panel.Key.CurrentTab.ComponentType"
+                                            CurrentThing="panel.Key.CurrentTab.ObjectOfInterest as Thing" />
+                </div>
+            }
+
+        </div>
+    }
+
+
+    <DxPopup @bind-Visible="@(this.IsOpenTabVisible)"
+             ShowHeader="false"
+             ShowCloseButton="true"
+             CloseOnOutsideClick="true"
+             CloseOnEscape="true">
+        <OpenTab OnCancel="@(() => this.SetOpenTabVisibility(false))"
+                 OnTabOpened="@(() => this.SetOpenTabVisibility(false))"/>
+    </DxPopup>
+</div>

@@ -81,6 +81,11 @@ namespace COMETwebapp.ViewModels.Pages
         public SourceList<TabbedApplicationInformation> OpenTabs { get; } = new();
 
         /// <summary>
+        /// Gets the collection of all <see cref="TabPanelInformation"/>s
+        /// </summary>
+        public SourceList<TabPanelInformation> SidePanels { get; } = new();
+
+        /// <summary>
         /// Gets or sets the current tab
         /// </summary>
         public TabbedApplicationInformation CurrentTab
