@@ -33,7 +33,8 @@
                               Icon="typeof(FeatherX)"
                               OnClick="@(() => this.OnTabClick.InvokeAsync((tab, this.Handler)))"
                               OnIconClick="@(() => this.OnRemoveTabClick.InvokeAsync(tab))"
-                              IsCurrent="@(tab == this.Handler.CurrentTab)"/>
+                              IsCurrent="@(tab == this.Handler.CurrentTab)"
+                              @key="tab"/>
             }
 
             <TabComponent Text="Open Model"

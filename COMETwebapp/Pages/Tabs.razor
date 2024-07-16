@@ -42,7 +42,8 @@
                                 OnTabClick="@(tuple => OnTabClick(tuple.Item1, tuple.Item2))"
                                 OnRemoveTabClick="@(tab => this.OnRemoveTabClick(tab))"
                                 OnOpenTabClick="@(() => this.OnOpenTabClick(panelsGrouping.Key))"
-                                Tabs="@(this.OpenTabsFromSelectedApplication.Where(x => x.Panel == panelsGrouping.Key).ToList())"/>
+                                Tabs="@(this.OpenTabsFromSelectedApplication.Where(x => x.Panel == panelsGrouping.Key).ToList())"
+                                @key="panelsGrouping.Key"/>
         }
     }
     else
