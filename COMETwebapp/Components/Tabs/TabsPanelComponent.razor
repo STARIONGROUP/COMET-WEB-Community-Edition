@@ -1,0 +1,63 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023-2024 Starion Group S.A.
+//
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+//
+//    This file is part of CDP4-COMET WEB Community Edition
+//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@using CDP4Common.CommonData
+@inherits DisposableComponent
+
+<div class="panel-view @(this.CssClass)">
+    @if (this.Handler.CurrentTab is not null)
+    {
+        <div class="d-flex gap-2 tabs-row">
+
+            @foreach (var tab in this.Tabs)
+            {
+                <TabComponent Text="@(GetTabText(tab.ObjectOfInterest))"
+                              Icon="typeof(FeatherX)"
+                              OnClick="@(() => this.OnTabClick.InvokeAsync((tab, this.Handler)))"
+                              OnIconClick="@(() => this.OnRemoveTabClick.InvokeAsync(tab))"
+                              IsCurrent="@(tab == this.Handler.CurrentTab)"
+                              @key="tab"/>
+            }
+
+            <TabComponent Text="Open Model"
+                          Icon="typeof(FeatherPlus)"
+                          OnClick="@(() => this.OnOpenTabClick.Invoke())"/>
+
+            @if (this.IsSidePanelAvailable)
+            {
+                <DxButton Click="@(() => this.AddSidePanel())"
+                          RenderStyle="ButtonRenderStyle.None"
+                          Id="new-side-panel-button"
+                          style="position: absolute; right: 10px;">
+                    <FeatherColumns Size="30"
+                                    Color="currentColor"
+                                    StrokeWidth="1.8f"/>
+                </DxButton>
+            }
+
+        </div>
+        <div class="template-container" id="tabs-page-content">
+            <DynamicApplicationBase ViewModel="this.Handler.CurrentTab.ApplicationBaseViewModel"
+                                    ApplicationBaseType="this.Handler.CurrentTab.ComponentType"
+                                    CurrentThing="this.Handler.CurrentTab.ObjectOfInterest as Thing"/>
+        </div>
+    }
+</div>

@@ -24,8 +24,6 @@
 
 namespace COMETwebapp.Pages
 {
-    using CDP4Common.EngineeringModelData;
-
     using COMET.Web.Common.Extensions;
 
     using COMETwebapp.Model;
@@ -42,6 +40,16 @@ namespace COMETwebapp.Pages
     /// </summary>
     public partial class Tabs
     {
+        /// <summary>
+        /// Gets or sets the selected side panel
+        /// </summary>
+        private TabPanelInformation SelectedSidePanel { get; set; }
+
+        /// <summary>
+        /// Collection of open tabs that belong from the selected application
+        /// </summary>
+        private IEnumerable<TabbedApplicationInformation> OpenTabsFromSelectedApplication => this.ViewModel.OpenTabs.Items.Where(x => x.ComponentType == this.ViewModel.SelectedApplication?.ComponentType);
+
         /// <summary>
         /// Gets or sets the injected <see cref="ITabsViewModel" />
         /// </summary>
@@ -73,9 +81,10 @@ namespace COMETwebapp.Pages
         /// Method executed when a tab is clicked
         /// </summary>
         /// <param name="tabbedApplicationInformation">The tab to be set</param>
-        private void OnTabClick(TabbedApplicationInformation tabbedApplicationInformation)
+        /// <param name="tabHandler">The tab handler to handle the tab click</param>
+        private static void OnTabClick(TabbedApplicationInformation tabbedApplicationInformation, ITabHandler tabHandler)
         {
-            this.ViewModel.CurrentTab = tabbedApplicationInformation;
+            tabHandler.CurrentTab = tabbedApplicationInformation;
         }
 
         /// <summary>
@@ -98,18 +107,13 @@ namespace COMETwebapp.Pages
         }
 
         /// <summary>
-        /// Gets the tab text for the given object of interest
+        /// Method executed when the open tab button is clicked
         /// </summary>
-        /// <param name="objectOfInterest">The object of interest to get its tab text</param>
-        /// <returns>The tab text</returns>
-        private static string GetTabText(object objectOfInterest)
+        /// <param name="sidePanel">The side panel to be set, if any</param>
+        private void OnOpenTabClick(TabPanelInformation sidePanel = null)
         {
-            return objectOfInterest switch
-            {
-                Iteration iteration => iteration.QueryName(),
-                CDP4Common.EngineeringModelData.EngineeringModel engineeringModel => engineeringModel.EngineeringModelSetup.Name,
-                _ => string.Empty
-            };
+            this.SelectedSidePanel = sidePanel;
+            this.SetOpenTabVisibility(true); 
         }
     }
 }

@@ -93,7 +93,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
         [Test]
         public async Task VerifyOpenIterationAndModel()
         {
-            await this.viewModel.OpenTab();
+            var panel = new TabPanelInformation();
+            await this.viewModel.OpenTab(panel);
 
             Assert.Multiple(() =>
             {
@@ -106,18 +107,18 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
             this.viewModel.SelectedEngineeringModel = ((EngineeringModel)this.sessionService.Object.OpenIterations.Items.First().Container).EngineeringModelSetup;
             this.viewModel.SelectedIterationSetup = new IterationData(this.viewModel.SelectedEngineeringModel.IterationSetup[0]);
             this.viewModel.SelectedDomainOfExpertise = new DomainOfExpertise();
-            await this.viewModel.OpenTab();
+            await this.viewModel.OpenTab(panel);
 
             Assert.Multiple(() =>
             {
-                this.tabsViewModel.Verify(x => x.CreateNewTab(It.IsAny<TabbedApplication>(), It.IsAny<Guid>()), Times.Once);
+                this.tabsViewModel.Verify(x => x.CreateNewTab(It.IsAny<TabbedApplication>(), It.IsAny<Guid>(), It.IsAny<TabPanelInformation>()), Times.Once);
                 this.sessionService.Verify(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>()), Times.Once);
             });
 
             var newEngineeringModel = new EngineeringModel { EngineeringModelSetup = this.viewModel.SelectedEngineeringModel };
             this.sessionService.Setup(x => x.OpenEngineeringModels).Returns([newEngineeringModel]);
 
-            await this.viewModel.OpenTab();
+            await this.viewModel.OpenTab(panel);
             this.sessionService.Verify(x => x.SwitchDomain(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>()), Times.Once);
         }
     }

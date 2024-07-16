@@ -30,7 +30,6 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
-    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
@@ -104,8 +103,9 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// <summary>
         /// Opens the <see cref="EngineeringModel" /> based on the selected field
         /// </summary>
+        /// <param name="panel">The <see cref="TabPanelInformation" /> for which the new tab will be opened</param>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task OpenTab()
+        public async Task OpenTab(TabPanelInformation panel)
         {
             var result = new Result<Iteration>();
             var isIteration = this.SelectedApplication?.ThingTypeOfInterest == typeof(Iteration);
@@ -124,7 +124,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
 
             if (result.IsSuccess)
             {
-                this.tabsViewModel.CreateNewTab(this.SelectedApplication, isIteration ? this.SelectedEngineeringModelIteration.Iid : this.SelectedEngineeringModel.EngineeringModelIid);
+                this.tabsViewModel.CreateNewTab(this.SelectedApplication, isIteration ? this.SelectedEngineeringModelIteration.Iid : this.SelectedEngineeringModel.EngineeringModelIid, panel);
             }
         }
     }

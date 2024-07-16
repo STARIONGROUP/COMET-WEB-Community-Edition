@@ -59,7 +59,8 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// <summary>
         /// Opens the <see cref="EngineeringModel" /> based on the selected field
         /// </summary>
+        /// <param name="panel">The <see cref="TabPanelInformation"/> for which the new tab will be opened</param>
         /// <returns>A <see cref="Task" /></returns>
-        Task OpenTab();
+        Task OpenTab(TabPanelInformation panel);
     }
 }

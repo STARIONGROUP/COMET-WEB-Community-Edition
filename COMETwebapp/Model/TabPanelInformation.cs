@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="TabbedApplicationInformation.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//  <copyright file="TabPanelInformation.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
@@ -24,44 +24,21 @@
 
 namespace COMETwebapp.Model
 {
-    using COMET.Web.Common.ViewModels.Components.Applications;
-
     /// <summary>
-    /// The <see cref="TabbedApplicationInformation" /> provides required information related to an open application
+    /// The <see cref="TabPanelInformation" /> provides required information related to a panel
     /// </summary>
-    public class TabbedApplicationInformation
+    public class TabPanelInformation : ITabHandler
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TabbedApplicationInformation" /> class.
         /// </summary>
-        /// <param name="applicationBaseViewModel">The <see cref="IApplicationBaseViewModel" /></param>
-        /// <param name="componentType">The <see cref="Type" /> of the component to use</param>
-        /// <param name="objectOfInterest">An optinal object of interest</param>
-        public TabbedApplicationInformation(IApplicationBaseViewModel applicationBaseViewModel, Type componentType, object objectOfInterest)
+        public TabPanelInformation()
         {
-            this.ApplicationBaseViewModel = applicationBaseViewModel;
-            this.ComponentType = componentType;
-            this.ObjectOfInterest = objectOfInterest;
         }
 
         /// <summary>
-        /// Gets the <see cref="IApplicationBaseViewModel" />
+        /// Gets or sets the current tab
         /// </summary>
-        public IApplicationBaseViewModel ApplicationBaseViewModel { get; }
-
-        /// <summary>
-        /// Gets the component <see cref="Type" />
-        /// </summary>
-        public Type ComponentType { get; }
-
-        /// <summary>
-        /// Gets the object of interest
-        /// </summary>
-        public object ObjectOfInterest { get; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="TabPanelInformation"/>
-        /// </summary>
-        public TabPanelInformation Panel { get; set; }
+        public TabbedApplicationInformation CurrentTab { get; set; }
     }
 }

@@ -107,6 +107,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             var engineeringModelApplication2 = this.viewModel.AvailableApplications.First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
             this.viewModel.CreateNewTab(engineeringModelApplication1, Guid.Empty);
             this.viewModel.CreateNewTab(engineeringModelApplication2, Guid.Empty);
+            this.viewModel.SidePanels.Add(new TabPanelInformation());
 
             var removedTab = this.viewModel.OpenTabs.Items.ElementAt(1);
 

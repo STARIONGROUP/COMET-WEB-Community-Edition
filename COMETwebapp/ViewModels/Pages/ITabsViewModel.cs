@@ -33,7 +33,7 @@ namespace COMETwebapp.ViewModels.Pages
     /// <summary>
     /// The <see cref="ITabsViewModel" /> contains logic and behavior that are required to support multi-tabs application
     /// </summary>
-    public interface ITabsViewModel
+    public interface ITabsViewModel : ITabHandler
     {
         /// <summary>
         /// Gets the collection of all <see cref="TabbedApplicationInformation" />
@@ -51,9 +51,9 @@ namespace COMETwebapp.ViewModels.Pages
         TabbedApplication SelectedApplication { get; set; }
 
         /// <summary>
-        /// Gets or sets the current tab
+        /// Gets the collection of all <see cref="TabPanelInformation"/>s
         /// </summary>
-        TabbedApplicationInformation CurrentTab { get; set; }
+        SourceList<TabPanelInformation> SidePanels { get; }
 
         /// <summary>
         /// Creates a new tab and sets it to current
@@ -63,6 +63,7 @@ namespace COMETwebapp.ViewModels.Pages
         /// The id of the object of interest, which can be an <see cref="Iteration" /> or an
         /// <see cref="EngineeringModel" />
         /// </param>
-        void CreateNewTab(TabbedApplication application, Guid objectOfInterestId);
+        /// <param name="sidePanel">The panel to open the new tab in</param>
+        void CreateNewTab(TabbedApplication application, Guid objectOfInterestId, TabPanelInformation sidePanel = null);
     }
 }
