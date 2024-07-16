@@ -26,6 +26,8 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
     using System.ComponentModel.DataAnnotations;
 
+    using CDP4Common.SiteDirectoryData;
+
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
 
@@ -42,6 +44,17 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         [Parameter]
         [Required]
         public IParameterTypeTableViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the custom validation fields names that will be validated immediately
+        /// </summary>
+        protected override IEnumerable<string> ImmediateValidationFields =>
+        [
+            nameof(DerivedQuantityKind.QuantityKindFactor),
+            nameof(EnumerationParameterType.ValueDefinition),
+            nameof(SampledFunctionParameterType.DependentParameterType),
+            nameof(SampledFunctionParameterType.IndependentParameterType)
+        ];
 
         /// <summary>
         /// Method that is executed when there is a valid submit
