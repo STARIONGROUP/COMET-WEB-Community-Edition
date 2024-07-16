@@ -53,7 +53,7 @@ namespace COMETwebapp.Components.Tabs
         public ITabHandler Handler { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ITabsViewModel"/>
+        /// Gets or sets the <see cref="ITabsViewModel" />
         /// </summary>
         [Parameter]
         public ITabsViewModel ViewModel { get; set; }
@@ -83,6 +83,12 @@ namespace COMETwebapp.Components.Tabs
         public EventCallback<(TabbedApplicationInformation, ITabHandler)> OnTabClick { get; set; }
 
         /// <summary>
+        /// Gets or sets the condition to check if the side panel should be available
+        /// </summary>
+        [Parameter]
+        public bool IsSidePanelAvailable { get; set; }
+
+        /// <summary>
         /// Gets the tab text for the given object of interest
         /// </summary>
         /// <param name="objectOfInterest">The object of interest to get its tab text</param>
@@ -103,6 +109,11 @@ namespace COMETwebapp.Components.Tabs
         private void AddNewSidePanel()
         {
             var currentTab = this.ViewModel.CurrentTab;
+
+            if (currentTab is null)
+            {
+                return;
+            }
 
             var newPanel = new TabPanelInformation
             {

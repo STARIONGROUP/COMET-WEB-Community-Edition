@@ -25,33 +25,27 @@
 @inherits DisposableComponent
 
 <div style="display: flex; height: 100%;">
-    <TabsPanelComponent Handler="@(this.ViewModel)"
-                        ViewModel="@(this.ViewModel)"
-                        OnTabClick="@(tuple => this.OnTabClick(tuple.Item1, tuple.Item2))"
-                        OnRemoveTabClick="@(tab => this.OnRemoveTabClick(tab))"
-                        OnOpenTabClick="@(() => this.SetOpenTabVisibility(true))"
-                        Tabs="@(this.ViewModel.OpenTabs.Items.Where(x => x.ComponentType == this.ViewModel.SelectedApplication?.ComponentType && x.Panel == null).ToList())"/>
-
-    @foreach (var panelsGrouping in this.ViewModel.OpenTabs.Items.Where(x => x.ComponentType == this.ViewModel.SelectedApplication?.ComponentType && x.Panel is not null).GroupBy(x => x.Panel))
+    @if (this.ViewModel.CurrentTab is not null)
     {
-        <TabsPanelComponent Handler="panelsGrouping.Key"
+        <TabsPanelComponent Handler="@(this.ViewModel)"
                             ViewModel="@(this.ViewModel)"
                             OnTabClick="@(tuple => this.OnTabClick(tuple.Item1, tuple.Item2))"
                             OnRemoveTabClick="@(tab => this.OnRemoveTabClick(tab))"
-                            OnOpenTabClick="@(() => this.SetOpenTabVisibility(true))"
-                            Tabs="@(this.ViewModel.OpenTabs.Items.Where(x => x.ComponentType == this.ViewModel.SelectedApplication?.ComponentType && x.Panel == panelsGrouping.Key).ToList())"/>
-    }
+                            OnOpenTabClick="@(() => this.OnOpenTabClick())"
+                            Tabs="@(this.OpenTabsFromSelectedApplication.Where(x => x.Panel == null).ToList())"
+                            IsSidePanelAvailable="true"/>
 
-    <DxPopup @bind-Visible="@(this.IsOpenTabVisible)"
-             ShowHeader="false"
-             ShowCloseButton="true"
-             CloseOnOutsideClick="true"
-             CloseOnEscape="true">
-        <OpenTab OnCancel="@(() => this.SetOpenTabVisibility(false))"
-                 OnTabOpened="@(() => this.SetOpenTabVisibility(false))"/>
-    </DxPopup>
-    
-    @if (this.ViewModel.CurrentTab is null)
+        @foreach (var panelsGrouping in this.OpenTabsFromSelectedApplication.Where(x => x.Panel is not null).GroupBy(x => x.Panel))
+        {
+            <TabsPanelComponent Handler="panelsGrouping.Key"
+                                ViewModel="@(this.ViewModel)"
+                                OnTabClick="@(tuple => this.OnTabClick(tuple.Item1, tuple.Item2))"
+                                OnRemoveTabClick="@(tab => this.OnRemoveTabClick(tab))"
+                                OnOpenTabClick="@(() => this.OnOpenTabClick(panelsGrouping.Key))"
+                                Tabs="@(this.OpenTabsFromSelectedApplication.Where(x => x.Panel == panelsGrouping.Key).ToList())"/>
+        }
+    }
+    else
     {
         <div class="open-tab-box-container">
             <div class="open-tab-box">
@@ -61,3 +55,12 @@
     }
 </div>
 
+<DxPopup @bind-Visible="@(this.IsOpenTabVisible)"
+         ShowHeader="false"
+         ShowCloseButton="true"
+         CloseOnOutsideClick="true"
+         CloseOnEscape="true">
+    <OpenTab OnCancel="@(() => this.SetOpenTabVisibility(false))"
+             OnTabOpened="@(() => this.SetOpenTabVisibility(false))"
+             Panel="@(this.SelectedSidePanel)"/>
+</DxPopup>

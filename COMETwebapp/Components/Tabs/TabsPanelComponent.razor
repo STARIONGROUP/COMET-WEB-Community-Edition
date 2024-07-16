@@ -33,19 +33,29 @@
                               Icon="typeof(FeatherX)"
                               OnClick="@(() => this.OnTabClick.InvokeAsync((tab, this.Handler)))"
                               OnIconClick="@(() => this.OnRemoveTabClick.InvokeAsync(tab))"
-                              IsCurrent="@(tab == this.Handler.CurrentTab)" />
+                              IsCurrent="@(tab == this.Handler.CurrentTab)"/>
             }
 
             <TabComponent Text="Open Model"
                           Icon="typeof(FeatherPlus)"
                           OnClick="@(() => this.OnOpenTabClick.Invoke())"/>
-            
-            <DxButton Click="@(() => this.AddNewSidePanel())" Text="side"/>
+
+            @if (this.IsSidePanelAvailable)
+            {
+                <DxButton Click="@(() => this.AddNewSidePanel())"
+                          RenderStyle="ButtonRenderStyle.None"
+                          style="position: absolute; right: 20px;">
+                    <FeatherColumns Size="30"
+                                    Color="currentColor"
+                                    StrokeWidth="1.8f"/>
+                </DxButton>
+            }
+
         </div>
         <div class="template-container" id="tabs-page-content">
             <DynamicApplicationBase ViewModel="this.Handler.CurrentTab.ApplicationBaseViewModel"
                                     ApplicationBaseType="this.Handler.CurrentTab.ComponentType"
-                                    CurrentThing="this.Handler.CurrentTab.ObjectOfInterest as Thing" />
+                                    CurrentThing="this.Handler.CurrentTab.ObjectOfInterest as Thing"/>
         </div>
     }
 </div>

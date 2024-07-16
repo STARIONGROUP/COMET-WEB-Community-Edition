@@ -28,8 +28,8 @@ namespace COMETwebapp.Components.Tabs
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
-    using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Components.Common.OpenTab;
 
     using Microsoft.AspNetCore.Components;
@@ -60,12 +60,18 @@ namespace COMETwebapp.Components.Tabs
         public Action OnTabOpened { get; set; }
 
         /// <summary>
-        /// Gets the condition to check if the selected application thing type is an <see cref="EngineeringModel"/>
+        /// Gets or sets the panel to open the new tab, if any
+        /// </summary>
+        [Parameter]
+        public TabPanelInformation Panel { get; set; }
+
+        /// <summary>
+        /// Gets the condition to check if the selected application thing type is an <see cref="EngineeringModel" />
         /// </summary>
         private bool IsEngineeringModelView => this.ViewModel.SelectedApplication?.ThingTypeOfInterest == typeof(EngineeringModel);
 
         /// <summary>
-        /// Gets the condition to check if the selected application thing type is an <see cref="Iteration"/>
+        /// Gets the condition to check if the selected application thing type is an <see cref="Iteration" />
         /// </summary>
         private bool IsIterationView => this.ViewModel.SelectedApplication?.ThingTypeOfInterest == typeof(Iteration);
 
@@ -99,7 +105,7 @@ namespace COMETwebapp.Components.Tabs
         /// <returns>A <see cref="Task" /></returns>
         private async Task OpenModelAndNavigateToView()
         {
-            await this.ViewModel.OpenTab();
+            await this.ViewModel.OpenTab(this.Panel);
             await this.InvokeAsync(this.StateHasChanged);
             this.OnTabOpened?.Invoke();
         }

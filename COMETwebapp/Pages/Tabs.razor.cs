@@ -41,6 +41,16 @@ namespace COMETwebapp.Pages
     public partial class Tabs
     {
         /// <summary>
+        /// Gets or sets the selected side panel
+        /// </summary>
+        private TabPanelInformation SelectedSidePanel { get; set; }
+
+        /// <summary>
+        /// Collection of open tabs that belong from the selected application
+        /// </summary>
+        private IEnumerable<TabbedApplicationInformation> OpenTabsFromSelectedApplication => this.ViewModel.OpenTabs.Items.Where(x => x.ComponentType == this.ViewModel.SelectedApplication?.ComponentType);
+
+        /// <summary>
         /// Gets or sets the injected <see cref="ITabsViewModel" />
         /// </summary>
         [Inject]
@@ -94,6 +104,16 @@ namespace COMETwebapp.Pages
         {
             this.IsOpenTabVisible = visibility;
             this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Method executed when the open tab button is clicked
+        /// </summary>
+        /// <param name="sidePanel">The side panel to be set, if any</param>
+        private void OnOpenTabClick(TabPanelInformation sidePanel = null)
+        {
+            this.SelectedSidePanel = sidePanel;
+            this.SetOpenTabVisibility(true); 
         }
     }
 }

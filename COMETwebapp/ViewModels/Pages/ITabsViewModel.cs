@@ -63,6 +63,7 @@ namespace COMETwebapp.ViewModels.Pages
         /// The id of the object of interest, which can be an <see cref="Iteration" /> or an
         /// <see cref="EngineeringModel" />
         /// </param>
-        void CreateNewTab(TabbedApplication application, Guid objectOfInterestId);
+        /// <param name="sidePanel">The panel to open the new tab in</param>
+        void CreateNewTab(TabbedApplication application, Guid objectOfInterestId, TabPanelInformation sidePanel = null);
     }
 }
