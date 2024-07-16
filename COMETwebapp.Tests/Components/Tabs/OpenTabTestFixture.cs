@@ -105,9 +105,11 @@ namespace COMETwebapp.Tests.Components.Tabs
         [Test]
         public async Task VerifyOpenButton()
         {
+            var panel = new TabPanelInformation();
+
             var openButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "opentab__button");
             await this.renderer.InvokeAsync(openButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OpenTab(), Times.Once);
+            this.viewModel.Verify(x => x.OpenTab(It.IsAny<TabPanelInformation>()), Times.Once);
 
             var bookEditorBodyComponent = new TabbedApplication
             {
@@ -118,7 +120,7 @@ namespace COMETwebapp.Tests.Components.Tabs
 
             this.viewModel.Setup(x => x.SelectedApplication).Returns(bookEditorBodyComponent);
             await this.renderer.InvokeAsync(openButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OpenTab(), Times.Exactly(2));
+            this.viewModel.Verify(x => x.OpenTab(It.IsAny<TabPanelInformation>()), Times.Exactly(2));
 
             var modelDashboardBodyComponent = new TabbedApplication
             {
@@ -130,7 +132,7 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.viewModel.Setup(x => x.SelectedApplication).Returns(modelDashboardBodyComponent);
             this.renderer.Render();
             await this.renderer.InvokeAsync(openButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.OpenTab(), Times.Exactly(3));
+            this.viewModel.Verify(x => x.OpenTab(It.IsAny<TabPanelInformation>()), Times.Exactly(3));
         }
     }
 }
