@@ -167,7 +167,7 @@ namespace COMETwebapp.ViewModels.Pages
                 return;
             }
 
-            this.CurrentTab = this.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType);
+            this.CurrentTab = this.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType && x.Panel == null);
         }
 
         /// <summary>

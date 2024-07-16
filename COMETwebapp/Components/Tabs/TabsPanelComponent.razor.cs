@@ -110,11 +110,6 @@ namespace COMETwebapp.Components.Tabs
         {
             var currentTab = this.ViewModel.CurrentTab;
 
-            if (currentTab is null)
-            {
-                return;
-            }
-
             var newPanel = new TabPanelInformation
             {
                 CurrentTab = currentTab
@@ -122,7 +117,7 @@ namespace COMETwebapp.Components.Tabs
 
             currentTab.Panel = newPanel;
             this.ViewModel.SidePanels.Add(newPanel);
-            this.ViewModel.CurrentTab = this.ViewModel.OpenTabs.Items.LastOrDefault(x => x.Panel == null);
+            this.ViewModel.CurrentTab = this.ViewModel.OpenTabs.Items.LastOrDefault(x => x.ComponentType == this.ViewModel.SelectedApplication.ComponentType && x.Panel == null);
         }
     }
 }

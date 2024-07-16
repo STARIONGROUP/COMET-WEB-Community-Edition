@@ -12,6 +12,7 @@
 
 .panel-view {
     overflow-x: auto;
+    width: 100%;
 }
 
 .panel-view:not(:first-child) {
