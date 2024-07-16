@@ -29,7 +29,7 @@
     {
         <TabsPanelComponent Handler="@(this.ViewModel)"
                             ViewModel="@(this.ViewModel)"
-                            OnTabClick="@(tuple => this.OnTabClick(tuple.Item1, tuple.Item2))"
+                            OnTabClick="@(tuple => OnTabClick(tuple.Item1, tuple.Item2))"
                             OnRemoveTabClick="@(tab => this.OnRemoveTabClick(tab))"
                             OnOpenTabClick="@(() => this.OnOpenTabClick())"
                             Tabs="@(this.OpenTabsFromSelectedApplication.Where(x => x.Panel == null).ToList())"
@@ -39,7 +39,7 @@
         {
             <TabsPanelComponent Handler="panelsGrouping.Key"
                                 ViewModel="@(this.ViewModel)"
-                                OnTabClick="@(tuple => this.OnTabClick(tuple.Item1, tuple.Item2))"
+                                OnTabClick="@(tuple => OnTabClick(tuple.Item1, tuple.Item2))"
                                 OnRemoveTabClick="@(tab => this.OnRemoveTabClick(tab))"
                                 OnOpenTabClick="@(() => this.OnOpenTabClick(panelsGrouping.Key))"
                                 Tabs="@(this.OpenTabsFromSelectedApplication.Where(x => x.Panel == panelsGrouping.Key).ToList())"/>

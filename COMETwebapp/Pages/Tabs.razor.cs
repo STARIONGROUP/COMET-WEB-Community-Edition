@@ -82,7 +82,7 @@ namespace COMETwebapp.Pages
         /// </summary>
         /// <param name="tabbedApplicationInformation">The tab to be set</param>
         /// <param name="tabHandler">The tab handler to handle the tab click</param>
-        private void OnTabClick(TabbedApplicationInformation tabbedApplicationInformation, ITabHandler tabHandler)
+        private static void OnTabClick(TabbedApplicationInformation tabbedApplicationInformation, ITabHandler tabHandler)
         {
             tabHandler.CurrentTab = tabbedApplicationInformation;
         }
