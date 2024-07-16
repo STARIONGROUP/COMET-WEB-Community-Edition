@@ -42,8 +42,9 @@
 
             @if (this.IsSidePanelAvailable)
             {
-                <DxButton Click="@(() => this.AddNewSidePanel())"
+                <DxButton Click="@(() => this.AddSidePanel())"
                           RenderStyle="ButtonRenderStyle.None"
+                          Id="new-side-panel-button"
                           style="position: absolute; right: 10px;">
                     <FeatherColumns Size="30"
                                     Color="currentColor"

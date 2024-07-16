@@ -62,7 +62,7 @@ namespace COMETwebapp.Components.Tabs
         /// Gets or sets the tabs to be displayed
         /// </summary>
         [Parameter]
-        public List<TabbedApplicationInformation> Tabs { get; set; } = new();
+        public List<TabbedApplicationInformation> Tabs { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the method to be executed when the open tab button is clicked
@@ -106,7 +106,7 @@ namespace COMETwebapp.Components.Tabs
         /// <summary>
         /// Adds a new side panel to the tabs page
         /// </summary>
-        private void AddNewSidePanel()
+        private void AddSidePanel()
         {
             var currentTab = this.ViewModel.CurrentTab;
 

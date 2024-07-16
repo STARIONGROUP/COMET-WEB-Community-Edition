@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="TabsTestFixture.cs" company="Starion Group S.A.">
+//  <copyright file="TabsPanelComponentTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Pages
+namespace COMETwebapp.Tests.Components.Tabs
 {
     using Bunit;
 
@@ -31,20 +31,18 @@ namespace COMETwebapp.Tests.Pages
 
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
-    using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Test.Helpers;
-    using COMET.Web.Common.ViewModels.Components;
 
     using COMETwebapp.Components.EngineeringModel;
     using COMETwebapp.Components.Tabs;
     using COMETwebapp.Model;
-    using COMETwebapp.Pages;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.Common.OpenTab;
     using COMETwebapp.ViewModels.Components.EngineeringModel;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
     using COMETwebapp.ViewModels.Pages;
+
+    using DevExpress.Blazor;
 
     using DynamicData;
 
@@ -57,27 +55,21 @@ namespace COMETwebapp.Tests.Pages
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
-    public class TabsTestFixture
+    public class TabsPanelComponentTestFixture
     {
         private TestContext context;
+        private IRenderedComponent<TabsPanelComponent> renderer;
         private Mock<ITabsViewModel> viewModel;
         private Mock<IEngineeringModelBodyViewModel> engineeringModelBodyViewModel;
-        private IRenderedComponent<Tabs> renderer;
         private Iteration iteration;
 
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
             this.context = new TestContext();
+            this.context.ConfigureDevExpressBlazor();
 
             var engineeringModelBodyApplication = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
-            this.viewModel = new Mock<ITabsViewModel>();
-
-            var sidePanels = new SourceList<TabPanelInformation>();
-            sidePanels.Add(new TabPanelInformation());
-            this.viewModel.Setup(x => x.OpenTabs).Returns(new SourceList<TabbedApplicationInformation>());
-            this.viewModel.Setup(x => x.SelectedApplication).Returns(engineeringModelBodyApplication);
-            this.viewModel.Setup(x => x.SidePanels).Returns(sidePanels);
 
             var optionsTableViewModel = new Mock<IOptionsTableViewModel>();
             optionsTableViewModel.Setup(x => x.Rows).Returns(new SourceList<OptionRowViewModel>());
@@ -96,77 +88,52 @@ namespace COMETwebapp.Tests.Pages
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
 
-            this.context.ConfigureDevExpressBlazor();
+            this.viewModel = new Mock<ITabsViewModel>();
+            var openTabs = new SourceList<TabbedApplicationInformation>();
+            openTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
+            this.viewModel.Setup(x => x.OpenTabs).Returns(openTabs);
+            this.viewModel.Setup(x => x.CurrentTab).Returns(openTabs.Items.First());
+            this.viewModel.Setup(x => x.SelectedApplication).Returns(engineeringModelBodyApplication);
+            this.viewModel.Setup(x => x.SidePanels).Returns(new SourceList<TabPanelInformation>());
+
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(this.engineeringModelBodyViewModel.Object);
             this.context.Services.AddSingleton(configuration.Object);
-            this.context.Services.AddSingleton(new Mock<IOpenTabViewModel>().Object);
-            this.context.Services.AddSingleton(new Mock<IOpenModelViewModel>().Object);
-            this.context.Services.AddSingleton(new Mock<IStringTableService>().Object);
 
-            this.renderer = this.context.RenderComponent<Tabs>();
+            this.renderer = this.context.RenderComponent<TabsPanelComponent>(parameters =>
+            {
+                parameters.Add(p => p.ViewModel, this.viewModel.Object);
+                parameters.Add(p => p.Handler, this.viewModel.Object);
+                parameters.Add(p => p.CssClass, "css-test-class");
+                parameters.Add(p => p.IsSidePanelAvailable, true);
+                parameters.Add(p => p.Tabs, this.viewModel.Object.OpenTabs.Items.ToList());
+            });
         }
 
         [TearDown]
         public void Teardown()
         {
             this.context.CleanContext();
+            this.context.Dispose();
         }
 
         [Test]
-        public async Task VerifyTabComponents()
+        public async Task VerifyAddSidePanel()
         {
-            var openTabs = new SourceList<TabbedApplicationInformation>();
-            openTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
-            this.viewModel.Setup(x => x.OpenTabs).Returns(openTabs);
-            this.viewModel.Setup(x => x.CurrentTab).Returns(openTabs.Items.First());
-            this.renderer.Render();
+            var sidePanelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+            await this.renderer.InvokeAsync(sidePanelButton.Instance.Click.InvokeAsync);
 
-            var tabComponents = this.renderer.FindComponents<TabComponent>();
-            var firstTab = tabComponents[0];
-
-            await this.renderer.InvokeAsync(firstTab.Instance.OnClick.Invoke);
-            this.viewModel.VerifySet(x => x.CurrentTab = openTabs.Items.First(), Times.Once);
-            await this.renderer.InvokeAsync(firstTab.Instance.OnIconClick.Invoke);
-
-            Assert.Multiple(() =>
-            {
-                this.viewModel.Verify(x => x.OpenTabs, Times.AtLeastOnce);
-                Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.False);
-            });
-
-            var secondTab = tabComponents[1];
-            await this.renderer.InvokeAsync(secondTab.Instance.OnClick.Invoke);
-            Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.True);
+            this.viewModel.VerifySet(x => x.CurrentTab = null, Times.Once);
         }
 
         [Test]
-        public void VerifyTabsPage()
+        public void VerifyComponent()
         {
-            var tabComponents = this.renderer.FindComponents<TabComponent>();
-            var openTab = this.renderer.FindComponents<OpenTab>();
-
             Assert.Multiple(() =>
             {
-                Assert.That(tabComponents, Has.Count.EqualTo(0));
-                Assert.That(openTab, Has.Count.EqualTo(1));
-            });
-
-            var openTabs = new SourceList<TabbedApplicationInformation>();
-            openTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
-            this.viewModel.Setup(x => x.OpenTabs).Returns(openTabs);
-            this.viewModel.Setup(x => x.CurrentTab).Returns(openTabs.Items.First());
-            this.renderer.Render();
-
-            tabComponents = this.renderer.FindComponents<TabComponent>();
-            openTab = this.renderer.FindComponents<OpenTab>();
-            var componentOfSelectedTab = this.renderer.FindComponent<EngineeringModelBody>();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(tabComponents, Has.Count.EqualTo(2));
-                Assert.That(openTab, Has.Count.EqualTo(0));
-                Assert.That(componentOfSelectedTab.Instance, Is.Not.Null);
+                Assert.That(this.renderer.Instance.ViewModel, Is.EqualTo(this.viewModel.Object));
+                Assert.That(this.renderer.Instance, Is.Not.Null);
+                Assert.That(this.renderer.Markup, Does.Contain("css-test-class"));
             });
         }
     }

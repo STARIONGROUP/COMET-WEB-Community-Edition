@@ -238,6 +238,11 @@ namespace COMETwebapp.ViewModels.Pages
             {
                 handler.CurrentTab = this.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType && x.Panel == selectedSidePanel);
             }
+
+            if (selectedSidePanel != null && handler.CurrentTab == null)
+            {
+                this.SidePanels.Remove((TabPanelInformation)handler);
+            }
         }
     }
 }
