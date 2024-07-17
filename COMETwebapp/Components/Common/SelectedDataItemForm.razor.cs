@@ -75,6 +75,11 @@ namespace COMETwebapp.Components.Common
         protected EditContext EditFormContext { get; set; }
 
         /// <summary>
+        /// Gets or sets the custom validation fields names that will be validated immediately
+        /// </summary>
+        protected virtual IEnumerable<string> ImmediateValidationFields { get; } = Enumerable.Empty<string>();
+
+        /// <summary>
         /// Method that is executed when the cancel button is clicked
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -124,6 +129,20 @@ namespace COMETwebapp.Components.Common
             this.EditFormContext = editFormContext;
             this.MapOfValidationMessages.Clear();
             this.EditFormContext.OnFieldChanged += this.OnFieldChangedHandler;
+
+            this.ValidateCustomFields();
+        }
+
+        /// <summary>
+        /// Validate the custom fields contained by the collection <see cref="ImmediateValidationFields" />
+        /// </summary>
+        private void ValidateCustomFields()
+        {
+            foreach (var fieldStr in this.ImmediateValidationFields)
+            {
+                var fieldIdentifier = this.EditFormContext.Field(fieldStr);
+                this.MapOfValidationMessages[fieldIdentifier] = this.EditFormContext.GetValidationMessages(fieldIdentifier);
+            }
         }
 
         /// <summary>
