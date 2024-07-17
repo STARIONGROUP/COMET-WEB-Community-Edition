@@ -40,10 +40,16 @@ namespace COMETwebapp.Components.Tabs
         public string Text { get; set; }
 
         /// <summary>
-        /// Gets or sets the icon to be displayed
+        /// Gets or sets the icon to be displayed on the right side of a tab
         /// </summary>
         [Parameter]
         public Type Icon { get; set; }
+
+        /// <summary>
+        /// Gets or sets the icon to be displayed as an option icon from a tab
+        /// </summary>
+        [Parameter]
+        public Type CustomOptionIcon { get; set; }
 
         /// <summary>
         /// Gets or sets the action to be executed when the tab is clicked
@@ -56,6 +62,12 @@ namespace COMETwebapp.Components.Tabs
         /// </summary>
         [Parameter]
         public Action OnIconClick { get; set; }
+
+        /// <summary>
+        /// Gets or sets the action to be executed when the custom option icon button is clicked
+        /// </summary>
+        [Parameter]
+        public Action OnCustomOptionIconClick { get; set; }
 
         /// <summary>
         /// Gets or sets the condition to check if this tab is the current one

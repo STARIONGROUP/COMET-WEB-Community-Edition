@@ -31,8 +31,10 @@
             {
                 <TabComponent Text="@(GetTabText(tab.ObjectOfInterest))"
                               Icon="typeof(FeatherX)"
+                              CustomOptionIcon="typeof(FeatherCopy)"
                               OnClick="@(() => this.OnTabClick.InvokeAsync((tab, this.Handler)))"
                               OnIconClick="@(() => this.OnRemoveTabClick.InvokeAsync(tab))"
+                              OnCustomOptionIconClick="@(() => this.OnCreateTabForModel.InvokeAsync(tab))"
                               IsCurrent="@(tab == this.Handler.CurrentTab)"
                               @key="tab"/>
             }

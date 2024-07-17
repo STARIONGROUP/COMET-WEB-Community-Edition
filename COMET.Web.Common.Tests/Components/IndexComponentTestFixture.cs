@@ -24,6 +24,7 @@
 
 namespace COMET.Web.Common.Tests.Components
 {
+    using System.Collections.ObjectModel;
     using System.Reflection;
 
     using Bunit;
@@ -70,6 +71,7 @@ namespace COMET.Web.Common.Tests.Components
         private TestAuthorizationContext authorization;
         private SourceList<Iteration> sourceList;
         private Mock<IRegistrationService> registrationService;
+        private readonly Guid modelId = Guid.NewGuid();
 
         [SetUp]
         public void Setup()
@@ -82,6 +84,7 @@ namespace COMET.Web.Common.Tests.Components
             this.serverConnectionService.Setup(x => x.ServerConfiguration).Returns(serverConfiguration);
             this.sourceList = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.sourceList);
+            this.sessionService.Setup(x => x.OpenEngineeringModels).Returns([]);
 
             this.authenticationService = new Mock<IAuthenticationService>();
 
@@ -157,7 +160,7 @@ namespace COMET.Web.Common.Tests.Components
 
             var engineeringModelSetup = new EngineeringModelSetup
             {
-                Iid = Guid.NewGuid(),
+                Iid = this.modelId,
                 IterationSetup =
                 {
                     new IterationSetup
@@ -165,6 +168,12 @@ namespace COMET.Web.Common.Tests.Components
                         IterationIid = Guid.NewGuid()
                     }
                 }
+            };
+
+            var engineeringModel = new EngineeringModel
+            {
+                Iid = this.modelId,
+                EngineeringModelSetup = engineeringModelSetup
             };
 
             var queries = new Dictionary<string, string>
@@ -183,6 +192,7 @@ namespace COMET.Web.Common.Tests.Components
             Assert.That(openModel.Instance.ViewModel.SelectedEngineeringModel, Is.Null);
 
             this.sessionService.Setup(x => x.GetParticipantModels()).Returns(new List<EngineeringModelSetup> { engineeringModelSetup });
+            this.sessionService.Setup(x => x.OpenEngineeringModels).Returns(new ReadOnlyCollection<EngineeringModel>([engineeringModel]));
 
             renderer = this.context.RenderComponent<IndexComponent>(parameters =>
                 parameters.Add(p => p.Redirect, url));

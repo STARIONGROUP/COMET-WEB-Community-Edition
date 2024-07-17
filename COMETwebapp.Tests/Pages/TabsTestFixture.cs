@@ -31,6 +31,7 @@ namespace COMETwebapp.Tests.Pages
 
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
@@ -103,6 +104,7 @@ namespace COMETwebapp.Tests.Pages
             this.context.Services.AddSingleton(new Mock<IOpenTabViewModel>().Object);
             this.context.Services.AddSingleton(new Mock<IOpenModelViewModel>().Object);
             this.context.Services.AddSingleton(new Mock<IStringTableService>().Object);
+            this.context.Services.AddSingleton(new Mock<ISessionService>().Object);
 
             this.renderer = this.context.RenderComponent<Tabs>();
         }
