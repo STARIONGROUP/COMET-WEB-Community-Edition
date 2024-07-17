@@ -45,7 +45,7 @@ namespace COMETwebapp.Validators.ReferenceData.ParameterTypes.GenericValidators
             this.Include(new ParameterTypeValidator(validationService));
             this.RuleFor(x => x.DefaultScale).NotEmpty().Validate(validationService, nameof(QuantityKind.DefaultScale));
             this.RuleFor(x => x.QuantityDimensionSymbol).NotEmpty().Validate(validationService, nameof(QuantityKind.QuantityDimensionSymbol));
-            this.RuleFor(x => x.PossibleScale).NotEmpty().Validate(validationService, nameof(QuantityKind.PossibleScale));
+            this.RuleFor(x => x.PossibleScale).Validate(validationService, nameof(QuantityKind.PossibleScale));
         }
     }
 }
