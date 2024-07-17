@@ -47,6 +47,8 @@ namespace COMETwebapp.Tests.Pages
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
     using COMETwebapp.ViewModels.Pages;
 
+    using DevExpress.Blazor;
+
     using DynamicData;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -91,11 +93,15 @@ namespace COMETwebapp.Tests.Pages
                 IterationSetup = new IterationSetup
                 {
                     Container = new EngineeringModelSetup()
-                }
+                },
+                Container = new EngineeringModel()
             };
 
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+
+            var sessionService = new Mock<ISessionService>();
+            sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise());
 
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel.Object);
@@ -104,7 +110,7 @@ namespace COMETwebapp.Tests.Pages
             this.context.Services.AddSingleton(new Mock<IOpenTabViewModel>().Object);
             this.context.Services.AddSingleton(new Mock<IOpenModelViewModel>().Object);
             this.context.Services.AddSingleton(new Mock<IStringTableService>().Object);
-            this.context.Services.AddSingleton(new Mock<ISessionService>().Object);
+            this.context.Services.AddSingleton(sessionService.Object);
 
             this.renderer = this.context.RenderComponent<Tabs>();
         }
@@ -140,6 +146,32 @@ namespace COMETwebapp.Tests.Pages
             var secondTab = tabComponents[1];
             await this.renderer.InvokeAsync(secondTab.Instance.OnClick.Invoke);
             Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.True);
+        }
+
+        [Test]
+        public async Task VerifyTabCustomButton()
+        {
+            var openTabs = new SourceList<TabbedApplicationInformation>();
+            var tabToOpen = new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration);
+            openTabs.Add(tabToOpen);
+            this.viewModel.Setup(x => x.OpenTabs).Returns(openTabs);
+            this.viewModel.Setup(x => x.CurrentTab).Returns(tabToOpen);
+            this.renderer.Render();
+
+            var tabCustomButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "tab-custom-option-button");
+            await this.renderer.InvokeAsync(tabCustomButton.Instance.Click.InvokeAsync);
+            Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.True);
+
+            var openTabComponent = this.renderer.FindComponent<OpenTab>();
+            await this.renderer.InvokeAsync(openTabComponent.Instance.OnCancel.Invoke);
+            Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.False);
+
+            tabToOpen = new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), null);
+            openTabs.ReplaceAt(0, tabToOpen);
+            this.renderer.Render();
+            tabCustomButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "tab-custom-option-button");
+            await this.renderer.InvokeAsync(tabCustomButton.Instance.Click.InvokeAsync);
+            Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.False);
         }
 
         [Test]
