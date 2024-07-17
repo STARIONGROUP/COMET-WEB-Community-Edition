@@ -30,6 +30,7 @@
         <TabsPanelComponent Handler="@(this.ViewModel)"
                             ViewModel="@(this.ViewModel)"
                             OnTabClick="@(tuple => OnTabClick(tuple.Item1, tuple.Item2))"
+                            OnCreateTabForModel="@(tab => this.OnCreateTabForModel(tab))"
                             OnRemoveTabClick="@(tab => this.OnRemoveTabClick(tab))"
                             OnOpenTabClick="@(() => this.OnOpenTabClick())"
                             Tabs="@(this.OpenTabsFromSelectedApplication.Where(x => x.Panel == null).ToList())"
@@ -60,8 +61,12 @@
          ShowHeader="false"
          ShowCloseButton="true"
          CloseOnOutsideClick="true"
-         CloseOnEscape="true">
+         CloseOnEscape="true"
+         Closed="@(() => this.ResetOpenTabPopup())">
     <OpenTab OnCancel="@(() => this.SetOpenTabVisibility(false))"
              OnTabOpened="@(() => this.SetOpenTabVisibility(false))"
-             Panel="@(this.SelectedSidePanel)"/>
+             Panel="@(this.SelectedSidePanel)"
+             ModelId="this.ModelId"
+             IterationId="this.IterationId"
+             DomainId="this.DomainId"/>
 </DxPopup>

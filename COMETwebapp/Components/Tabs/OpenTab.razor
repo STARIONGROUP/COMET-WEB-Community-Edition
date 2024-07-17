@@ -49,7 +49,8 @@
                         Data="@(this.ViewModel.EngineeringModelSetups)"
                         TextFieldName="@nameof(EngineeringModelSetup.Name)"
                         @bind-Value="@(this.ViewModel.SelectedEngineeringModel)"
-                        NullText="Select an Engineering Model"/>
+                        NullText="Select an Engineering Model"
+                        Enabled="@(this.ModelId == Guid.Empty)" />
         </DxFormLayoutItem>
 
         <DxFormLayoutItem Caption="Domain" ColSpanLg="12">
@@ -57,7 +58,8 @@
                         Data="@(this.ViewModel.AvailablesDomainOfExpertises)"
                         TextFieldName="@nameof(DomainOfExpertise.Name)"
                         @bind-Value="@(this.ViewModel.SelectedDomainOfExpertise)"
-                        NullText="Select a Domain of Expertise">
+                        NullText="Select a Domain of Expertise"
+                        Enabled="@(this.DomainId == Guid.Empty)">
                 <ItemTemplate Context="ctx">
                     @if (this.ViewModel.IsCurrentModelOpened)
                     {
@@ -79,7 +81,8 @@
                             TextFieldName="@nameof(IterationData.IterationName)"
                             @bind-Value="@(this.ViewModel.SelectedIterationSetup)"
                             NullText="Select an Iteration"
-                            ReadOnly="@(this.ViewModel.IsCurrentModelOpened)"/>
+                            ReadOnly="@(this.ViewModel.IsCurrentModelOpened)"
+                            Enabled="@(this.IterationId == Guid.Empty)" />
             </DxFormLayoutItem>
         }
 

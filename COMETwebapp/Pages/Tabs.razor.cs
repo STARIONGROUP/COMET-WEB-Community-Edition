@@ -24,7 +24,10 @@
 
 namespace COMETwebapp.Pages
 {
+    using CDP4Common.EngineeringModelData;
+
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
@@ -51,10 +54,31 @@ namespace COMETwebapp.Pages
         private IEnumerable<TabbedApplicationInformation> OpenTabsFromSelectedApplication => this.ViewModel.OpenTabs.Items.Where(x => x.ComponentType == this.ViewModel.SelectedApplication?.ComponentType);
 
         /// <summary>
+        /// The model id to fill the opentab form, if needed
+        /// </summary>
+        private Guid ModelId { get; set; }
+
+        /// <summary>
+        /// The iteration id to fill the opentab form, if needed
+        /// </summary>
+        private Guid IterationId { get; set; }
+
+        /// <summary>
+        /// The domain id to fill the opentab form, if needed
+        /// </summary>
+        private Guid DomainId { get; set; }
+
+        /// <summary>
         /// Gets or sets the injected <see cref="ITabsViewModel" />
         /// </summary>
         [Inject]
         public ITabsViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the injected <see cref="ISessionService" />
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
 
         /// <summary>
         /// Gets the open tab component visibility
@@ -113,7 +137,41 @@ namespace COMETwebapp.Pages
         private void OnOpenTabClick(TabPanelInformation sidePanel = null)
         {
             this.SelectedSidePanel = sidePanel;
-            this.SetOpenTabVisibility(true); 
+            this.SetOpenTabVisibility(true);
+        }
+
+        /// <summary>
+        /// Resets the preset id's used to fill the open tab form
+        /// </summary>
+        private void ResetOpenTabPopup()
+        {
+            this.DomainId = Guid.Empty;
+            this.IterationId = Guid.Empty;
+            this.ModelId = Guid.Empty;
+        }
+
+        /// <summary>
+        /// Method executed when the button to open a new view of the selected model is clicked
+        /// </summary>
+        /// <param name="tabbedApplicationInformation">The selected tab that contains the model of interest</param>
+        private void OnCreateTabForModel(TabbedApplicationInformation tabbedApplicationInformation)
+        {
+            var iterationOfInterest = tabbedApplicationInformation.ObjectOfInterest switch
+            {
+                Iteration iteration => iteration,
+                CDP4Common.EngineeringModelData.EngineeringModel model => model.Iteration.First(x => x.IterationSetup.FrozenOn == null),
+                _ => null
+            };
+
+            if (iterationOfInterest == null)
+            {
+                return;
+            }
+
+            this.IterationId = iterationOfInterest.Iid;
+            this.ModelId = ((CDP4Common.EngineeringModelData.EngineeringModel)iterationOfInterest.Container).Iid;
+            this.DomainId = this.SessionService.GetDomainOfExpertise(iterationOfInterest).Iid;
+            this.SetOpenTabVisibility(true);
         }
     }
 }

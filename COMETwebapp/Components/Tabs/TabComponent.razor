@@ -25,12 +25,23 @@
      @onclick="@(() => this.OnClick?.Invoke())">
 
     <span>@(this.Text)</span>
+    
+    @if (this.CustomOptionIcon is not null)
+    {
+        <DxButton RenderStyle="ButtonRenderStyle.None"
+                  Click="@(() => this.OnCustomOptionIconClick?.Invoke())"
+                  CssClass="ps-1 pe-0"
+                  Id="tab-custom-option-button">
+            <DynamicComponent Type="@(this.CustomOptionIcon)"
+                              Parameters="IconConfiguration"/>
+        </DxButton>
+    }
 
     <DxButton RenderStyle="ButtonRenderStyle.None"
               Click="@(() => this.OnIconClick?.Invoke())"
-              CssClass="px-1">
+              CssClass="px-1"
+              Id="tab-button">
         <DynamicComponent Type="@(this.Icon)"
                           Parameters="IconConfiguration"/>
     </DxButton>
-
 </div>

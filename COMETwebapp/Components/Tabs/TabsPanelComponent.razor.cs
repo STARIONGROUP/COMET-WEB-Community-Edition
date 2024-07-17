@@ -71,6 +71,12 @@ namespace COMETwebapp.Components.Tabs
         public Action OnOpenTabClick { get; set; }
 
         /// <summary>
+        /// Gets or sets the method to be executed when the open new tab for the selected model button is clicked
+        /// </summary>
+        [Parameter]
+        public EventCallback<TabbedApplicationInformation> OnCreateTabForModel { get; set; }
+
+        /// <summary>
         /// Gets or sets the method to be executed when the remove tab button is clicked
         /// </summary>
         [Parameter]
