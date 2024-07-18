@@ -88,13 +88,18 @@ namespace COMETwebapp.Tests.Pages
             this.engineeringModelBodyViewModel = new Mock<IEngineeringModelBodyViewModel>();
             this.engineeringModelBodyViewModel.Setup(x => x.OptionsTableViewModel).Returns(optionsTableViewModel.Object);
 
+            var engineeringSetupModel = new EngineeringModelSetup();
+
             this.iteration = new Iteration
             {
                 IterationSetup = new IterationSetup
                 {
-                    Container = new EngineeringModelSetup()
+                    Container = engineeringSetupModel
                 },
-                Container = new EngineeringModel()
+                Container = new EngineeringModel
+                {
+                    EngineeringModelSetup = engineeringSetupModel
+                }
             };
 
             var configuration = new Mock<IConfigurationService>();
