@@ -49,9 +49,9 @@ namespace COMETwebapp.Pages
         private TabPanelInformation SelectedSidePanel { get; set; }
 
         /// <summary>
-        /// Collection of open tabs that belong from the selected application
+        /// Collection of open tabs that belong from view model sourcelist
         /// </summary>
-        private IEnumerable<TabbedApplicationInformation> OpenTabsFromSelectedApplication => this.ViewModel.OpenTabs.Items.Where(x => x.ComponentType == this.ViewModel.SelectedApplication?.ComponentType);
+        private IEnumerable<TabbedApplicationInformation> OpenTabs => this.ViewModel.OpenTabs.Items;
 
         /// <summary>
         /// The model id to fill the opentab form, if needed

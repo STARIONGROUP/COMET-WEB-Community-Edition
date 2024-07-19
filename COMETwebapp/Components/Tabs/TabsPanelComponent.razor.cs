@@ -162,7 +162,7 @@ namespace COMETwebapp.Components.Tabs
 
             currentTab.Panel = newPanel;
             this.ViewModel.SidePanels.Add(newPanel);
-            this.ViewModel.CurrentTab = this.ViewModel.OpenTabs.Items.LastOrDefault(x => x.ComponentType == this.ViewModel.SelectedApplication.ComponentType && x.Panel == null);
+            this.ViewModel.CurrentTab = this.ViewModel.OpenTabs.Items.FirstOrDefault(x => x.Panel == null);
         }
     }
 }
