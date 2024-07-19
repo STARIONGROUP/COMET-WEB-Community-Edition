@@ -71,6 +71,7 @@ namespace COMETwebapp.ViewModels.Pages
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedApplication).Subscribe(_ => this.OnSelectedApplicationChange()));
+            this.Disposables.Add(this.WhenAnyValue(x => x.CurrentTab).Subscribe(_ => this.OnSelectedApplicationChange()));
             this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(this.CloseTabIfIterationClosed));
             this.Disposables.Add(this.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(this.OnOpenTabRemoved));
         }
@@ -168,6 +169,19 @@ namespace COMETwebapp.ViewModels.Pages
             }
 
             this.CurrentTab = this.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType && x.Panel == null);
+        }
+
+        /// <summary>
+        /// Method executed everytime the <see cref="CurrentTab" /> changes
+        /// </summary>
+        private void OnCurrentTabChange()
+        {
+            if (this.CurrentTab == null)
+            {
+                return;
+            }
+
+            this.SelectedApplication = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ComponentType == this.CurrentTab.ComponentType);
         }
 
         /// <summary>
