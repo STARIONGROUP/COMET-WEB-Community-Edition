@@ -40,6 +40,12 @@ namespace COMETwebapp.Components.Tabs
         public string Text { get; set; }
 
         /// <summary>
+        /// Gets or sets the caption text to be displayed when tab hover
+        /// </summary>
+        [Parameter]
+        public string Caption { get; set; }
+
+        /// <summary>
         /// Gets or sets the icon to be displayed on the right side of a tab
         /// </summary>
         [Parameter]
@@ -50,6 +56,12 @@ namespace COMETwebapp.Components.Tabs
         /// </summary>
         [Parameter]
         public Type CustomOptionIcon { get; set; }
+
+        /// <summary>
+        /// Gets or sets the icon to be displayed in the left, distinguishing different applications
+        /// </summary>
+        [Parameter]
+        public Type ApplicationIcon { get; set; }
 
         /// <summary>
         /// Gets or sets the action to be executed when the tab is clicked
