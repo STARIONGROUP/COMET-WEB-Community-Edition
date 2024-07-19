@@ -22,15 +22,25 @@
 @inherits DisposableComponent
 
 <div class="@($"tab-component {(this.OnClick != null ? "cursor-pointer" : "")} {(this.IsCurrent ? "current-tab" : "")}")"
-     @onclick="@(() => this.OnClick?.Invoke())">
+     @onclick="@(() => this.OnClick?.Invoke())"
+     title="@(this.Caption)">
+
+    @if (this.ApplicationIcon is not null)
+    {
+        <DxButton RenderStyle="ButtonRenderStyle.None"
+                  CssClass="px-1">
+            <DynamicComponent Type="@(this.ApplicationIcon)"
+                              Parameters="IconConfiguration"/>
+        </DxButton>
+    }
 
     <span>@(this.Text)</span>
-    
+
     @if (this.CustomOptionIcon is not null)
     {
         <DxButton RenderStyle="ButtonRenderStyle.None"
                   Click="@(() => this.OnCustomOptionIconClick?.Invoke())"
-                  CssClass="ps-1 pe-0"
+                  CssClass="ps-2 pe-0"
                   Id="tab-custom-option-button">
             <DynamicComponent Type="@(this.CustomOptionIcon)"
                               Parameters="IconConfiguration"/>

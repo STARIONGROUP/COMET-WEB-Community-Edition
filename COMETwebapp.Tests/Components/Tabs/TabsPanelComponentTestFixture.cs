@@ -31,6 +31,7 @@ namespace COMETwebapp.Tests.Components.Tabs
 
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.EngineeringModel;
@@ -77,11 +78,17 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.engineeringModelBodyViewModel = new Mock<IEngineeringModelBodyViewModel>();
             this.engineeringModelBodyViewModel.Setup(x => x.OptionsTableViewModel).Returns(optionsTableViewModel.Object);
 
+            var engineeringModelSetup = new EngineeringModelSetup();
+
             this.iteration = new Iteration
             {
                 IterationSetup = new IterationSetup
                 {
-                    Container = new EngineeringModelSetup()
+                    Container = engineeringModelSetup
+                },
+                Container = new EngineeringModel
+                {
+                    EngineeringModelSetup = engineeringModelSetup
                 }
             };
 
@@ -96,6 +103,10 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.viewModel.Setup(x => x.SelectedApplication).Returns(engineeringModelBodyApplication);
             this.viewModel.Setup(x => x.SidePanels).Returns(new SourceList<TabPanelInformation>());
 
+            var sessionService = new Mock<ISessionService>();
+            sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise());
+
+            this.context.Services.AddSingleton(sessionService.Object);
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(this.engineeringModelBodyViewModel.Object);
             this.context.Services.AddSingleton(configuration.Object);

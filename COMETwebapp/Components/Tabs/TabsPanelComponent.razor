@@ -19,6 +19,7 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.Model
 @using CDP4Common.CommonData
 @inherits DisposableComponent
 
@@ -30,12 +31,14 @@
             @foreach (var tab in this.Tabs)
             {
                 <TabComponent Text="@(GetTabText(tab.ObjectOfInterest))"
+                              Caption="@(this.GetCaptionText(tab.ObjectOfInterest))"
                               Icon="typeof(FeatherX)"
                               CustomOptionIcon="typeof(FeatherCopy)"
                               OnClick="@(() => this.OnTabClick.InvokeAsync((tab, this.Handler)))"
                               OnIconClick="@(() => this.OnRemoveTabClick.InvokeAsync(tab))"
                               OnCustomOptionIconClick="@(() => this.OnCreateTabForModel.InvokeAsync(tab))"
                               IsCurrent="@(tab == this.Handler.CurrentTab)"
+                              ApplicationIcon="@(Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ComponentType == tab.ComponentType).IconType)"
                               @key="tab"/>
             }
 

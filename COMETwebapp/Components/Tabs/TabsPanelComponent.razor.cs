@@ -24,9 +24,12 @@
 
 namespace COMETwebapp.Components.Tabs
 {
+    using System.Text;
+
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
@@ -95,6 +98,12 @@ namespace COMETwebapp.Components.Tabs
         public bool IsSidePanelAvailable { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="ISessionService" />
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
         /// Gets the tab text for the given object of interest
         /// </summary>
         /// <param name="objectOfInterest">The object of interest to get its tab text</param>
@@ -107,6 +116,36 @@ namespace COMETwebapp.Components.Tabs
                 EngineeringModel engineeringModel => engineeringModel.EngineeringModelSetup.Name,
                 _ => string.Empty
             };
+        }
+
+        /// <summary>
+        /// Gets the tab caption text for the given object of interest
+        /// </summary>
+        /// <param name="objectOfInterest">The object of interest to get its tab caption text</param>
+        /// <returns>The tab caption</returns>
+        private string GetCaptionText(object objectOfInterest)
+        {
+            var modelName = new StringBuilder();
+            Iteration iterationOfInterest = null;
+
+            switch (objectOfInterest)
+            {
+                case Iteration iteration:
+                    modelName.Append(((EngineeringModel)iteration.Container).EngineeringModelSetup.Name + " - " + iteration.IterationSetup.IterationNumber);
+                    iterationOfInterest = iteration;
+                    break;
+                case EngineeringModel engineeringModel:
+                    modelName.Append(engineeringModel.EngineeringModelSetup.Name);
+                    iterationOfInterest = engineeringModel.Iteration.First(x => x.IterationSetup.FrozenOn == null);
+                    break;
+            }
+
+            modelName.Append(" - ");
+
+            var domainOfExpertiseShortName = this.SessionService.GetDomainOfExpertise(iterationOfInterest).ShortName;
+            modelName.Append(domainOfExpertiseShortName);
+
+            return modelName.ToString();
         }
 
         /// <summary>
