@@ -31,6 +31,7 @@ namespace COMETwebapp.Model
     using COMETwebapp.Components.ModelDashboard;
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.Components.ParameterEditor;
+    using COMETwebapp.Components.ReferenceData;
     using COMETwebapp.Components.SubscriptionDashboard;
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Components.Viewer;
@@ -131,13 +132,14 @@ namespace COMETwebapp.Model
                     ComponentType = typeof(ViewerBody)
                 },
 
-                new Application
+                new TabbedApplication
                 {
                     Name = "Reference Data",
                     Color = "#fc3a1aad",
                     IconType = typeof(FeatherFile),
                     Description = "Visualize reference data",
-                    Url = WebAppConstantValues.ReferenceDataPage
+                    Url = WebAppConstantValues.ReferenceDataPage,
+                    ComponentType = typeof(ReferenceDataBody)
                 },
 
                 new Application

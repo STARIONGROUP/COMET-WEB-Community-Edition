@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ReferenceDataPage.razor.cs" company="Starion Group S.A.">
+//  <copyright file="ReferenceDataBody.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Pages.ReferenceData
+namespace COMETwebapp.Components.ReferenceData
 {
     using COMETwebapp.Components.ReferenceData.Categories;
     using COMETwebapp.Components.ReferenceData.MeasurementScales;
@@ -32,9 +32,9 @@ namespace COMETwebapp.Pages.ReferenceData
     using DevExpress.Blazor;
 
     /// <summary>
-    /// Support class for the <see cref="ReferenceDataPage" />
+    /// Core component for the Reference Data body application
     /// </summary>
-    public partial class ReferenceDataPage
+    public partial class ReferenceDataBody
     {
         /// <summary>
         /// A map with all the available components and their names
@@ -69,6 +69,14 @@ namespace COMETwebapp.Pages.ReferenceData
         private void OnItemClick(ToolbarItemClickEventArgs e)
         {
             this.SelectedComponent = this.mapOfComponentsAndNames.First(x => x.Value == e.ItemName).Key;
+        }
+
+        /// <summary>
+        /// Initializes values of the component and of the ViewModel based on parameters provided from the url
+        /// </summary>
+        /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
+        protected override void InitializeValues(Dictionary<string, string> parameters)
+        {
         }
     }
 }

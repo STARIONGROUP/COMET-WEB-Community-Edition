@@ -110,6 +110,12 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
             var result = new Result<Iteration>();
             var isIteration = this.SelectedApplication?.ThingTypeOfInterest == typeof(Iteration);
 
+            if (this.SelectedApplication?.ThingTypeOfInterest is null)
+            {
+                this.tabsViewModel.CreateNewTab(this.SelectedApplication, Guid.Empty, panel);
+                return;
+            }
+
             if (!this.IsCurrentModelOpened)
             {
                 result = await base.OpenSession();

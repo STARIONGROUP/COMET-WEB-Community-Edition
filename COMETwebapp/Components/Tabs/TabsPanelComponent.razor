@@ -30,10 +30,10 @@
             <div class="d-flex gap-2">
                 @foreach (var tab in this.Tabs)
                 {
-                    <TabComponent Text="@(GetTabText(tab.ObjectOfInterest))"
+                    <TabComponent Text="@(GetTabText(tab))"
                                   Caption="@(this.GetCaptionText(tab.ObjectOfInterest))"
                                   Icon="typeof(FeatherX)"
-                                  CustomOptionIcon="typeof(FeatherCopy)"
+                                  CustomOptionIcon="@(typeof(FeatherCopy))"
                                   OnClick="@(() => this.OnTabClick.InvokeAsync((tab, this.Handler)))"
                                   OnIconClick="@(() => this.OnRemoveTabClick.InvokeAsync(tab))"
                                   OnCustomOptionIconClick="@(() => this.OnCreateTabForModel.InvokeAsync(tab))"

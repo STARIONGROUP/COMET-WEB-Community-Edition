@@ -139,12 +139,7 @@ namespace COMETwebapp.ViewModels.Pages
             }
 
             var tabToCreate = new TabbedApplicationInformation(viewModel, application.ComponentType, thingOfInterest);
-
-            if (thingOfInterest != null)
-            {
-                this.OpenTabs.Add(tabToCreate);
-            }
-
+            this.OpenTabs.Add(tabToCreate);
             this.SelectedApplication = application;
 
             if (sidePanel == null)

@@ -58,6 +58,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler;
     using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
+    using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.ViewModels.Pages;
 
     /// <summary>
@@ -124,6 +125,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IBatchParameterEditorViewModel, BatchParameterEditorViewModel>();
             serviceCollection.AddScoped<ITabsViewModel, TabsViewModel>();
             serviceCollection.AddTransient<IOpenTabViewModel, OpenTabViewModel>();
+            serviceCollection.AddTransient<IReferenceDataBodyViewModel, ReferenceDataBodyViewModel>();
         }
     }
 }
