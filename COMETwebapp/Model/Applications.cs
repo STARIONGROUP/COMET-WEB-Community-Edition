@@ -135,26 +135,6 @@ namespace COMETwebapp.Model
 
                 new TabbedApplication
                 {
-                    Name = "Reference Data",
-                    Color = "#fc3a1aad",
-                    IconType = typeof(FeatherFile),
-                    Description = "Visualize reference data",
-                    Url = WebAppConstantValues.ReferenceDataPage,
-                    ComponentType = typeof(ReferenceDataBody)
-                },
-
-                new TabbedApplication
-                {
-                    Name = "Server Administration",
-                    Color = "#fc3a1aad",
-                    IconType = typeof(FeatherServer),
-                    Description = "Visualize site directory data",
-                    Url = WebAppConstantValues.SiteDirectoryPage,
-                    ComponentType = typeof(SiteDirectoryBody)
-                },
-
-                new TabbedApplication
-                {
                     Name = "Engineering Model",
                     Color = "#c3cffd",
                     IconType = typeof(FeatherSettings),
@@ -181,6 +161,26 @@ namespace COMETwebapp.Model
                     Description = "Manage books",
                     Url = WebAppConstantValues.BookEditorPage,
                     ComponentType = typeof(BookEditorBody)
+                },
+
+                new TabbedApplication
+                {
+                    Name = "Reference Data",
+                    Color = "#fc3a1aad",
+                    IconType = typeof(FeatherFile),
+                    Description = "Visualize reference data",
+                    Url = WebAppConstantValues.ReferenceDataPage,
+                    ComponentType = typeof(ReferenceDataBody)
+                },
+
+                new TabbedApplication
+                {
+                    Name = "Server Administration",
+                    Color = "#fc3a1aad",
+                    IconType = typeof(FeatherServer),
+                    Description = "Visualize site directory data",
+                    Url = WebAppConstantValues.SiteDirectoryPage,
+                    ComponentType = typeof(SiteDirectoryBody)
                 },
 
                 new Application
