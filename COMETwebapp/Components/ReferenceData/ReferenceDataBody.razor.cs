@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="DirectoryPage.razor.cs" company="Starion Group S.A.">
+//  <copyright file="ReferenceDataBody.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,33 +22,29 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Pages.SiteDirectory
+namespace COMETwebapp.Components.ReferenceData
 {
-    using COMETwebapp.Components.SiteDirectory;
-    using COMETwebapp.Components.SiteDirectory.EngineeringModel;
-    using COMETwebapp.Components.SiteDirectory.Roles;
-    using COMETwebapp.Components.SiteDirectory.UserManagement;
+    using COMETwebapp.Components.ReferenceData.Categories;
+    using COMETwebapp.Components.ReferenceData.MeasurementScales;
+    using COMETwebapp.Components.ReferenceData.MeasurementUnits;
+    using COMETwebapp.Components.ReferenceData.ParameterTypes;
 
     using DevExpress.Blazor;
 
-    using DomainsOfExpertiseTable = COMETwebapp.Components.SiteDirectory.DomainsOfExpertiseTable;
-
     /// <summary>
-    /// Support class for the <see cref="DirectoryPage" />
+    /// Core component for the Reference Data body application
     /// </summary>
-    public partial class DirectoryPage
+    public partial class ReferenceDataBody
     {
         /// <summary>
         /// A map with all the available components and their names
         /// </summary>
         private readonly Dictionary<Type, string> mapOfComponentsAndNames = new()
         {
-            { typeof(EngineeringModelsTable), "Models" },
-            { typeof(DomainsOfExpertiseTable), "Domains" },
-            { typeof(OrganizationsTable), "Organizations" },
-            { typeof(UserManagementTable), "User Management" },
-            { typeof(PersonRolesTable), "Person Roles" },
-            { typeof(ParticipantRolesTable), "Participant Roles" }
+            { typeof(ParameterTypeTable), "Parameter Types" },
+            { typeof(MeasurementScalesTable), "Measurement Scales" },
+            { typeof(MeasurementUnitsTable), "Measurement Units" },
+            { typeof(CategoriesTable), "Categories" }
         };
 
         /// <summary>
@@ -73,6 +69,14 @@ namespace COMETwebapp.Pages.SiteDirectory
         private void OnItemClick(ToolbarItemClickEventArgs e)
         {
             this.SelectedComponent = this.mapOfComponentsAndNames.First(x => x.Value == e.ItemName).Key;
+        }
+
+        /// <summary>
+        /// Initializes values of the component and of the ViewModel based on parameters provided from the url
+        /// </summary>
+        /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
+        protected override void InitializeValues(Dictionary<string, string> parameters)
+        {
         }
     }
 }

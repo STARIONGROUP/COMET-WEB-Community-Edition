@@ -80,7 +80,11 @@ namespace COMETwebapp.Shared.SideBarEntry
         {
             base.OnInitialized();
             this.NavigationManager.LocationChanged += this.OnLocationChanged;
-            this.Disposables.Add(this.WhenAnyValue(x => x.TabsViewModel.SelectedApplication).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(x =>
+                    x.TabsViewModel.SelectedApplication,
+                x => x.TabsViewModel.CurrentTab
+            ).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -109,11 +113,18 @@ namespace COMETwebapp.Shared.SideBarEntry
         /// <summary>
         /// Navigates to the selected tabbed application
         /// </summary>
-        /// <param name="application">The <see cref="TabbedApplication" /> to navigate to</param>
-        private void NavigateToTabbedApplication(TabbedApplication application)
+        /// <param name="application">The <see cref="Application" /> to navigate to</param>
+        private void NavigateToApplication(Application application)
         {
-            this.TabsViewModel.SelectedApplication = application;
-            this.NavigationManager.NavigateTo(WebAppConstantValues.TabsPage);
+            if (application is TabbedApplication tabbedApplication)
+            {
+                this.TabsViewModel.SelectedApplication = tabbedApplication;
+                this.NavigationManager.NavigateTo(WebAppConstantValues.TabsPage);
+            }
+            else
+            {
+                this.NavigationManager.NavigateTo(application.Url);
+            }
         }
 
         /// <summary>
@@ -149,6 +160,39 @@ namespace COMETwebapp.Shared.SideBarEntry
             }
 
             return this.CurrentApplication != application;
+        }
+
+        /// <summary>
+        /// Gets the model <see cref="TabbedApplication" />s
+        /// </summary>
+        /// <returns>A collection of applications</returns>
+        private IEnumerable<TabbedApplication> GetModelApplications()
+        {
+            return this.RegistrationService.RegisteredApplications.OfType<TabbedApplication>().Where(x => !x.IsDisabled && x.ThingTypeOfInterest != null);
+        }
+
+        /// <summary>
+        /// Gets the general <see cref="Application" />s
+        /// </summary>
+        /// <returns>A collection of applications</returns>
+        private IEnumerable<Application> GetGeneralApplications()
+        {
+            return this.RegistrationService.RegisteredApplications.Where(x => !x.IsDisabled && x.Url != WebAppConstantValues.TabsPage && !ApplicationHasThingTypeOfInterest(x));
+        }
+
+        /// <summary>
+        /// Checks if an application has a thing type of interest
+        /// </summary>
+        /// <param name="application">The application to check</param>
+        /// <returns>The value to check if the application has a thing type of interest</returns>
+        private static bool ApplicationHasThingTypeOfInterest(Application application)
+        {
+            if (application is not TabbedApplication tabbedApplication)
+            {
+                return false;
+            }
+
+            return tabbedApplication.ThingTypeOfInterest != null;
         }
     }
 }

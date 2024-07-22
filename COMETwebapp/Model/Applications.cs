@@ -31,6 +31,8 @@ namespace COMETwebapp.Model
     using COMETwebapp.Components.ModelDashboard;
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.Components.ParameterEditor;
+    using COMETwebapp.Components.ReferenceData;
+    using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Components.SubscriptionDashboard;
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Components.Viewer;
@@ -131,24 +133,6 @@ namespace COMETwebapp.Model
                     ComponentType = typeof(ViewerBody)
                 },
 
-                new Application
-                {
-                    Name = "Reference Data",
-                    Color = "#fc3a1aad",
-                    IconType = typeof(FeatherFile),
-                    Description = "Visualize reference data",
-                    Url = WebAppConstantValues.ReferenceDataPage
-                },
-
-                new Application
-                {
-                    Name = "Server Administration",
-                    Color = "#fc3a1aad",
-                    IconType = typeof(FeatherServer),
-                    Description = "Visualize site directory data",
-                    Url = WebAppConstantValues.SiteDirectoryPage
-                },
-
                 new TabbedApplication
                 {
                     Name = "Engineering Model",
@@ -177,6 +161,26 @@ namespace COMETwebapp.Model
                     Description = "Manage books",
                     Url = WebAppConstantValues.BookEditorPage,
                     ComponentType = typeof(BookEditorBody)
+                },
+
+                new TabbedApplication
+                {
+                    Name = "Reference Data",
+                    Color = "#fc3a1aad",
+                    IconType = typeof(FeatherFile),
+                    Description = "Visualize reference data",
+                    Url = WebAppConstantValues.ReferenceDataPage,
+                    ComponentType = typeof(ReferenceDataBody)
+                },
+
+                new TabbedApplication
+                {
+                    Name = "Server Administration",
+                    Color = "#fc3a1aad",
+                    IconType = typeof(FeatherServer),
+                    Description = "Visualize site directory data",
+                    Url = WebAppConstantValues.SiteDirectoryPage,
+                    ComponentType = typeof(SiteDirectoryBody)
                 },
 
                 new Application

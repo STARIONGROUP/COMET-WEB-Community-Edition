@@ -106,15 +106,15 @@ namespace COMETwebapp.Components.Tabs
         /// <summary>
         /// Gets the tab text for the given object of interest
         /// </summary>
-        /// <param name="objectOfInterest">The object of interest to get its tab text</param>
+        /// <param name="tab">Thetab to get its text</param>
         /// <returns>The tab text</returns>
-        private static string GetTabText(object objectOfInterest)
+        private static string GetTabText(TabbedApplicationInformation tab)
         {
-            return objectOfInterest switch
+            return tab.ObjectOfInterest switch
             {
                 Iteration iteration => iteration.QueryName(),
                 EngineeringModel engineeringModel => engineeringModel.EngineeringModelSetup.Name,
-                _ => string.Empty
+                _ => Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ComponentType == tab.ComponentType).Name
             };
         }
 
@@ -142,6 +142,11 @@ namespace COMETwebapp.Components.Tabs
 
             modelName.Append(" - ");
 
+            if (iterationOfInterest == null)
+            {
+                return modelName.ToString();
+            }
+
             var domainOfExpertiseShortName = this.SessionService.GetDomainOfExpertise(iterationOfInterest).ShortName;
             modelName.Append(domainOfExpertiseShortName);
 
@@ -162,7 +167,7 @@ namespace COMETwebapp.Components.Tabs
 
             currentTab.Panel = newPanel;
             this.ViewModel.SidePanels.Add(newPanel);
-            this.ViewModel.CurrentTab = this.ViewModel.OpenTabs.Items.LastOrDefault(x => x.ComponentType == this.ViewModel.SelectedApplication.ComponentType && x.Panel == null);
+            this.ViewModel.CurrentTab = this.ViewModel.OpenTabs.Items.FirstOrDefault(x => x.Panel == null);
         }
     }
 }

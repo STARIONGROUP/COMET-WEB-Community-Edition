@@ -27,10 +27,10 @@
     Model
 </div>
 
-@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications.OfType<TabbedApplication>().Where(x => !x.IsDisabled))
+@foreach (var applicationEntry in this.GetModelApplications())
 {
     <SideBarItem Text="@applicationEntry.Name"
-                 OnClick="@(() => this.NavigateToTabbedApplication(applicationEntry))"
+                 OnClick="@(() => this.NavigateToApplication(applicationEntry))"
                  CssClass="@(this.IsCurrentApplication(applicationEntry) ? "selected-application-item" : "")"
                  Icon="@(applicationEntry.IconType)"
                  Enabled="@(this.IsApplicationEnabled(applicationEntry))"/>
@@ -40,10 +40,10 @@
     General
 </div>
 
-@foreach (var applicationEntry in this.RegistrationService.RegisteredApplications.Where(x => x is not TabbedApplication && !x.IsDisabled && x.Url != WebAppConstantValues.TabsPage))
+@foreach (var applicationEntry in this.GetGeneralApplications())
 {
     <SideBarItem Text="@applicationEntry.Name"
-                 OnClick="@(() => this.NavigationManager.NavigateTo(applicationEntry.Url))"
+                 OnClick="@(() => this.NavigateToApplication(applicationEntry))"
                  CssClass="@(this.IsCurrentApplication(applicationEntry) ? "selected-application-item" : "")"
                  Icon="@(applicationEntry.IconType)"
                  Enabled="@(this.IsApplicationEnabled(applicationEntry))" />

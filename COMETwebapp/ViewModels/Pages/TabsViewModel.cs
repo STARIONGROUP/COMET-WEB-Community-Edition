@@ -71,6 +71,7 @@ namespace COMETwebapp.ViewModels.Pages
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedApplication).Subscribe(_ => this.OnSelectedApplicationChange()));
+            this.Disposables.Add(this.WhenAnyValue(x => x.CurrentTab).Subscribe(_ => this.OnCurrentTabChange()));
             this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(this.CloseTabIfIterationClosed));
             this.Disposables.Add(this.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(this.OnOpenTabRemoved));
         }
@@ -138,12 +139,7 @@ namespace COMETwebapp.ViewModels.Pages
             }
 
             var tabToCreate = new TabbedApplicationInformation(viewModel, application.ComponentType, thingOfInterest);
-
-            if (thingOfInterest != null)
-            {
-                this.OpenTabs.Add(tabToCreate);
-            }
-
+            this.OpenTabs.Add(tabToCreate);
             this.SelectedApplication = application;
 
             if (sidePanel == null)
@@ -162,12 +158,25 @@ namespace COMETwebapp.ViewModels.Pages
         /// </summary>
         private void OnSelectedApplicationChange()
         {
-            if (this.SelectedApplication == null)
+            if (this.SelectedApplication == null || this.CurrentTab?.ComponentType == this.SelectedApplication?.ComponentType)
             {
                 return;
             }
 
             this.CurrentTab = this.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType && x.Panel == null);
+        }
+
+        /// <summary>
+        /// Method executed everytime the <see cref="CurrentTab" /> changes
+        /// </summary>
+        private void OnCurrentTabChange()
+        {
+            if (this.CurrentTab == null)
+            {
+                return;
+            }
+
+            this.SelectedApplication = Applications.ExistingApplications.OfType<TabbedApplication>().FirstOrDefault(x => x.ComponentType == this.CurrentTab.ComponentType);
         }
 
         /// <summary>
@@ -236,7 +245,7 @@ namespace COMETwebapp.ViewModels.Pages
 
             if (wasCurrentTabRemoved)
             {
-                handler.CurrentTab = this.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType && x.Panel == selectedSidePanel);
+                handler.CurrentTab = this.OpenTabs.Items.FirstOrDefault(x => x.Panel == selectedSidePanel);
             }
 
             if (selectedSidePanel != null && handler.CurrentTab == null)

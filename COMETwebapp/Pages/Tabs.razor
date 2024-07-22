@@ -33,17 +33,17 @@
                             OnCreateTabForModel="@(tab => this.OnCreateTabForModel(tab))"
                             OnRemoveTabClick="@(tab => this.OnRemoveTabClick(tab))"
                             OnOpenTabClick="@(() => this.OnOpenTabClick())"
-                            Tabs="@(this.OpenTabsFromSelectedApplication.Where(x => x.Panel == null).ToList())"
+                            Tabs="@(this.OpenTabs.Where(x => x.Panel == null).ToList())"
                             IsSidePanelAvailable="true"/>
 
-        @foreach (var panelsGrouping in this.OpenTabsFromSelectedApplication.Where(x => x.Panel is not null).GroupBy(x => x.Panel))
+        @foreach (var panelsGrouping in this.OpenTabs.Where(x => x.Panel is not null).GroupBy(x => x.Panel))
         {
             <TabsPanelComponent Handler="panelsGrouping.Key"
                                 ViewModel="@(this.ViewModel)"
                                 OnTabClick="@(tuple => OnTabClick(tuple.Item1, tuple.Item2))"
                                 OnRemoveTabClick="@(tab => this.OnRemoveTabClick(tab))"
                                 OnOpenTabClick="@(() => this.OnOpenTabClick(panelsGrouping.Key))"
-                                Tabs="@(this.OpenTabsFromSelectedApplication.Where(x => x.Panel == panelsGrouping.Key).ToList())"
+                                Tabs="@(this.OpenTabs.Where(x => x.Panel == panelsGrouping.Key).ToList())"
                                 @key="panelsGrouping.Key"/>
         }
     }
