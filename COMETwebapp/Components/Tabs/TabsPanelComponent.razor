@@ -29,8 +29,12 @@
     {
         <div class="d-flex tabs-row justify-content-between user-select-none">
             <div class="d-flex gap-2">
-
-                <SortableList Group="sharedList" Items="@(this.Panel.OpenTabs.Items.ToList())" OnUpdate="@(indexes => this.SortTabs(indexes.oldIndex, indexes.newIndex))" Context="tab" CssClass="d-flex gap-2">
+                <SortableList Group="tabs-panel" 
+                              Items="@(this.Panel.OpenTabs.Items.ToList())" 
+                              OnUpdate="@(indexes => this.SortTabs(indexes.oldIndex, indexes.newIndex))"
+                              OnRemove="@(indexes => this.OnMovedTab(indexes.oldIndex, indexes.newIndex))"
+                              Context="tab" 
+                              CssClass="d-flex gap-2">
                     <SortableItemTemplate>
                         <TabComponent Text="@(GetTabText(tab))"
                                       Caption="@(this.GetCaptionText(tab.ObjectOfInterest))"

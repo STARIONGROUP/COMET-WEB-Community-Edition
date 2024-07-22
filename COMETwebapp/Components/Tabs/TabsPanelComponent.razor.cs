@@ -109,6 +109,27 @@ namespace COMETwebapp.Components.Tabs
         }
 
         /// <summary>
+        /// Handles the logic to organize data when a tab is moved from one panel to another
+        /// </summary>
+        /// <param name="oldIndex">The dragged tab old panel index</param>
+        /// <param name="newIndex">The dragged tab new panel index</param>
+        private void OnMovedTab(int oldIndex, int newIndex)
+        {
+            var tab = this.Panel.OpenTabs.Items.ElementAt(oldIndex);
+
+            if (this.Panel == this.ViewModel.MainPanel)
+            {
+                this.ViewModel.SidePanel.OpenTabs.Insert(newIndex, tab);
+            }
+            else
+            {
+                this.ViewModel.MainPanel.OpenTabs.Insert(newIndex, tab);
+            }
+
+            this.Panel.OpenTabs.Remove(tab);
+        }
+
+        /// <summary>
         /// Gets the tab text for the given object of interest
         /// </summary>
         /// <param name="tab">Thetab to get its text</param>

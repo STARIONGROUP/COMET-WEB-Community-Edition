@@ -147,7 +147,23 @@ namespace COMETwebapp.ViewModels.Pages
                 return;
             }
 
-            this.MainPanel.CurrentTab = this.MainPanel.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType);
+            var mainPanelTabForCurrentApplication = this.MainPanel.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType);
+            var sidePanelTabForCurrentApplication = this.SidePanel.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType);
+
+            if (mainPanelTabForCurrentApplication != null)
+            {
+                this.MainPanel.CurrentTab = mainPanelTabForCurrentApplication;
+            }
+
+            if (sidePanelTabForCurrentApplication != null)
+            {
+                this.SidePanel.CurrentTab = sidePanelTabForCurrentApplication;
+            }
+
+            if (sidePanelTabForCurrentApplication == null && mainPanelTabForCurrentApplication == null)
+            {
+                this.MainPanel.CurrentTab = null;
+            }
         }
 
         /// <summary>

@@ -93,6 +93,9 @@ namespace COMETwebapp.Pages
                     x => x.ViewModel.MainPanel.CurrentTab,
                     x => x.ViewModel.SidePanel.CurrentTab)
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.ViewModel.MainPanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.SidePanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
