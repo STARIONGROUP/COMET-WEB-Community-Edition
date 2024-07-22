@@ -34,6 +34,7 @@
                                   Caption="@(this.GetCaptionText(tab.ObjectOfInterest))"
                                   Icon="typeof(FeatherX)"
                                   CustomOptionIcon="@(typeof(FeatherCopy))"
+                                  CustomOptionIconVisible="@(tab.ObjectOfInterest != null)"
                                   OnClick="@(() => this.OnTabClick.InvokeAsync((tab, this.Handler)))"
                                   OnIconClick="@(() => this.OnRemoveTabClick.InvokeAsync(tab))"
                                   OnCustomOptionIconClick="@(() => this.OnCreateTabForModel.InvokeAsync(tab))"

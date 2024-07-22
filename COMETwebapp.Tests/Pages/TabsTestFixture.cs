@@ -174,9 +174,8 @@ namespace COMETwebapp.Tests.Pages
             tabToOpen = new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), null);
             openTabs.ReplaceAt(0, tabToOpen);
             this.renderer.Render();
-            tabCustomButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "tab-custom-option-button");
-            await this.renderer.InvokeAsync(tabCustomButton.Instance.Click.InvokeAsync);
-            Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.False);
+            var hasCustomOption = this.renderer.FindComponents<DxButton>().Any(x => x.Instance.Id == "tab-custom-option-button");
+            Assert.That(hasCustomOption, Is.False);
         }
 
         [Test]

@@ -32,6 +32,7 @@ namespace COMETwebapp.Model
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.Components.ParameterEditor;
     using COMETwebapp.Components.ReferenceData;
+    using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Components.SubscriptionDashboard;
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Components.Viewer;
@@ -142,13 +143,14 @@ namespace COMETwebapp.Model
                     ComponentType = typeof(ReferenceDataBody)
                 },
 
-                new Application
+                new TabbedApplication
                 {
                     Name = "Server Administration",
                     Color = "#fc3a1aad",
                     IconType = typeof(FeatherServer),
                     Description = "Visualize site directory data",
-                    Url = WebAppConstantValues.SiteDirectoryPage
+                    Url = WebAppConstantValues.SiteDirectoryPage,
+                    ComponentType = typeof(SiteDirectoryBody)
                 },
 
                 new TabbedApplication

@@ -58,6 +58,12 @@ namespace COMETwebapp.Components.Tabs
         public Type CustomOptionIcon { get; set; }
 
         /// <summary>
+        /// Gets or sets the condition to check if the <see cref="CustomOptionIcon"/> should be visible
+        /// </summary>
+        [Parameter]
+        public bool CustomOptionIconVisible { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the icon to be displayed in the left, distinguishing different applications
         /// </summary>
         [Parameter]

@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="SiteDirectoryPageTestFixture.cs" company="Starion Group S.A.">
+//  <copyright file="ReferenceDataBodyTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Pages.SiteDirectory
+namespace COMETwebapp.Tests.Components.ReferenceData
 {
     using Bunit;
 
@@ -32,14 +32,14 @@ namespace COMETwebapp.Tests.Pages.SiteDirectory
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
-    using COMET.Web.Common.ViewModels.Components.Applications;
 
-    using COMETwebapp.Components.SiteDirectory;
-    using COMETwebapp.Components.SiteDirectory.EngineeringModel;
-    using COMETwebapp.Pages.SiteDirectory;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
+    using COMETwebapp.Components.ReferenceData;
+    using COMETwebapp.Components.ReferenceData.MeasurementScales;
+    using COMETwebapp.Components.ReferenceData.ParameterTypes;
+    using COMETwebapp.ViewModels.Components.ReferenceData;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
+    using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
+    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DynamicData;
 
@@ -53,24 +53,24 @@ namespace COMETwebapp.Tests.Pages.SiteDirectory
     using TestContext = Bunit.TestContext;
 
     [TestFixture]
-    public class SiteDirectoryPageTestFixture
+    public class ReferenceDataBodyTestFixture
     {
         private TestContext context;
-        private Mock<IEngineeringModelsTableViewModel> engineeringModelsTableViewModel;
-        private Mock<IDomainsOfExpertiseTableViewModel> domainsOfExpertiseTableViewModel;
+        private Mock<IParameterTypeTableViewModel> parameterTypesTableViewModel;
+        private Mock<IMeasurementScalesTableViewModel> measurementScalesTableViewModel;
         private Mock<ISessionService> sessionService;
-        private IRenderedComponent<DirectoryPage> renderer;
+        private IRenderedComponent<ReferenceDataBody> renderer;
 
         [SetUp]
         public void Setup()
         {
             this.context = new TestContext();
 
-            this.engineeringModelsTableViewModel = new Mock<IEngineeringModelsTableViewModel>();
-            this.engineeringModelsTableViewModel.Setup(x => x.Rows).Returns(new SourceList<EngineeringModelRowViewModel>());
+            this.parameterTypesTableViewModel = new Mock<IParameterTypeTableViewModel>();
+            this.parameterTypesTableViewModel.Setup(x => x.Rows).Returns(new SourceList<ParameterTypeRowViewModel>());
 
-            this.domainsOfExpertiseTableViewModel = new Mock<IDomainsOfExpertiseTableViewModel>();
-            this.domainsOfExpertiseTableViewModel.Setup(x => x.Rows).Returns(new SourceList<DomainOfExpertiseRowViewModel>());
+            this.measurementScalesTableViewModel = new Mock<IMeasurementScalesTableViewModel>();
+            this.measurementScalesTableViewModel.Setup(x => x.Rows).Returns(new SourceList<MeasurementScaleRowViewModel>());
 
             this.sessionService = new Mock<ISessionService>();
             this.sessionService.Setup(x => x.Session).Returns(new Mock<ISession>().Object);
@@ -80,12 +80,12 @@ namespace COMETwebapp.Tests.Pages.SiteDirectory
 
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.sessionService.Object);
-            this.context.Services.AddSingleton(this.engineeringModelsTableViewModel.Object);
-            this.context.Services.AddSingleton(this.domainsOfExpertiseTableViewModel.Object);
+            this.context.Services.AddSingleton(this.parameterTypesTableViewModel.Object);
+            this.context.Services.AddSingleton(this.measurementScalesTableViewModel.Object);
             this.context.Services.AddSingleton(configuration.Object);
-            this.context.Services.AddSingleton<IApplicationTemplateViewModel, ApplicationTemplateViewModel>();
+            this.context.Services.AddSingleton(new Mock<IReferenceDataBodyViewModel>().Object);
 
-            this.renderer = this.context.RenderComponent<DirectoryPage>();
+            this.renderer = this.context.RenderComponent<ReferenceDataBody>();
         }
 
         [TearDown]
@@ -95,13 +95,13 @@ namespace COMETwebapp.Tests.Pages.SiteDirectory
         }
 
         [Test]
-        public async Task VerifySiteDirectoryPage()
+        public async Task VerifyReferenceDataBody()
         {
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance, Is.Not.Null);
-                Assert.That(this.renderer.Instance.SelectedComponent, Is.EqualTo(typeof(EngineeringModelsTable)));
-                this.engineeringModelsTableViewModel.Verify(x => x.InitializeViewModel(), Times.Once);
+                Assert.That(this.renderer.Instance.SelectedComponent, Is.EqualTo(typeof(ParameterTypeTable)));
+                this.parameterTypesTableViewModel.Verify(x => x.InitializeViewModel(), Times.Once);
             });
 
             var toolBarItem = this.renderer.FindAll("button").ElementAt(1);
@@ -109,8 +109,8 @@ namespace COMETwebapp.Tests.Pages.SiteDirectory
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.renderer.Instance.SelectedComponent, Is.EqualTo(typeof(DomainsOfExpertiseTable)));
-                this.domainsOfExpertiseTableViewModel.Verify(x => x.InitializeViewModel(), Times.Once);
+                Assert.That(this.renderer.Instance.SelectedComponent, Is.EqualTo(typeof(MeasurementScalesTable)));
+                this.measurementScalesTableViewModel.Verify(x => x.InitializeViewModel(), Times.Once);
             });
         }
     }

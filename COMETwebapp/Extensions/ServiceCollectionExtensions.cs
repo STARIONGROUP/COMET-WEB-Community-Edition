@@ -60,6 +60,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
     using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.ViewModels.Pages;
+    using COMETwebapp.ViewModels.Components.SiteDirectory;
 
     /// <summary>
     /// Extension class for the <see cref="IServiceCollection" />
@@ -126,6 +127,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddScoped<ITabsViewModel, TabsViewModel>();
             serviceCollection.AddTransient<IOpenTabViewModel, OpenTabViewModel>();
             serviceCollection.AddTransient<IReferenceDataBodyViewModel, ReferenceDataBodyViewModel>();
+            serviceCollection.AddTransient<ISiteDirectoryBodyViewModel, SiteDirectoryBodyViewModel>();
         }
     }
 }

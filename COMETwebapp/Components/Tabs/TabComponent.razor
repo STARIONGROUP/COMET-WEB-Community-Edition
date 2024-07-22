@@ -36,7 +36,7 @@
 
     <span>@(this.Text)</span>
 
-    @if (this.CustomOptionIcon is not null)
+    @if (this.CustomOptionIcon is not null && this.CustomOptionIconVisible)
     {
         <DxButton RenderStyle="ButtonRenderStyle.None"
                   Click="@(() => this.OnCustomOptionIconClick?.Invoke())"

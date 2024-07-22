@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="DirectoryPage.razor.cs" company="Starion Group S.A.">
+//  <copyright file="SiteDirectoryBody.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,21 +22,18 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Pages.SiteDirectory
+namespace COMETwebapp.Components.SiteDirectory
 {
-    using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Components.SiteDirectory.EngineeringModel;
     using COMETwebapp.Components.SiteDirectory.Roles;
     using COMETwebapp.Components.SiteDirectory.UserManagement;
 
     using DevExpress.Blazor;
 
-    using DomainsOfExpertiseTable = COMETwebapp.Components.SiteDirectory.DomainsOfExpertiseTable;
-
     /// <summary>
-    /// Support class for the <see cref="DirectoryPage" />
+    /// Core component for the Server Admin (old Site Directory) body application
     /// </summary>
-    public partial class DirectoryPage
+    public partial class SiteDirectoryBody
     {
         /// <summary>
         /// A map with all the available components and their names
@@ -64,6 +61,14 @@ namespace COMETwebapp.Pages.SiteDirectory
         {
             base.OnInitialized();
             this.SelectedComponent = this.mapOfComponentsAndNames.First().Key;
+        }
+
+        /// <summary>
+        /// Initializes values of the component and of the ViewModel based on parameters provided from the url
+        /// </summary>
+        /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
+        protected override void InitializeValues(Dictionary<string, string> parameters)
+        {
         }
 
         /// <summary>
