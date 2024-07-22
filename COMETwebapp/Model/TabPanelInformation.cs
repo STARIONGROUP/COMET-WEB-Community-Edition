@@ -24,11 +24,20 @@
 
 namespace COMETwebapp.Model
 {
+    using DynamicData;
+
+    using ReactiveUI;
+
     /// <summary>
     /// The <see cref="TabPanelInformation" /> provides required information related to a panel
     /// </summary>
-    public class TabPanelInformation : ITabHandler
+    public class TabPanelInformation : ReactiveObject
     {
+        /// <summary>
+        /// Backing field for the property <see cref="CurrentTab" />
+        /// </summary>
+        private TabbedApplicationInformation currentTab;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TabbedApplicationInformation" /> class.
         /// </summary>
@@ -39,6 +48,15 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Gets or sets the current tab
         /// </summary>
-        public TabbedApplicationInformation CurrentTab { get; set; }
+        public TabbedApplicationInformation CurrentTab
+        {
+            get => this.currentTab;
+            set => this.RaiseAndSetIfChanged(ref this.currentTab, value);
+        }
+
+        /// <summary>
+        /// Gets the collection of all <see cref="TabbedApplicationInformation" /> contained by the panel
+        /// </summary>
+        public SourceList<TabbedApplicationInformation> OpenTabs { get; set; } = new();
     }
 }

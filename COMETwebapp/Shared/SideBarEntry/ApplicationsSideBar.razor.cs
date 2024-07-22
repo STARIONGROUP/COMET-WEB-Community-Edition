@@ -81,9 +81,10 @@ namespace COMETwebapp.Shared.SideBarEntry
             base.OnInitialized();
             this.NavigationManager.LocationChanged += this.OnLocationChanged;
 
-            this.Disposables.Add(this.WhenAnyValue(x =>
-                    x.TabsViewModel.SelectedApplication,
-                x => x.TabsViewModel.CurrentTab
+            this.Disposables.Add(this.WhenAnyValue(
+                x => x.TabsViewModel.SelectedApplication,
+                x => x.TabsViewModel.MainPanel.CurrentTab,
+                x => x.TabsViewModel.SidePanel.CurrentTab
             ).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 

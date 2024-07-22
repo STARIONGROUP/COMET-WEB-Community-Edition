@@ -44,14 +44,9 @@ namespace COMETwebapp.Pages
     public partial class Tabs
     {
         /// <summary>
-        /// Gets or sets the selected side panel
+        /// Gets or sets the selected panel
         /// </summary>
-        private TabPanelInformation SelectedSidePanel { get; set; }
-
-        /// <summary>
-        /// Collection of open tabs that belong from view model sourcelist
-        /// </summary>
-        private IEnumerable<TabbedApplicationInformation> OpenTabs => this.ViewModel.OpenTabs.Items;
+        private TabPanelInformation SelectedPanel { get; set; }
 
         /// <summary>
         /// The model id to fill the opentab form, if needed
@@ -95,29 +90,29 @@ namespace COMETwebapp.Pages
 
             this.Disposables.Add(this.WhenAnyValue(
                     x => x.ViewModel.SelectedApplication,
-                    x => x.ViewModel.CurrentTab)
+                    x => x.ViewModel.MainPanel.CurrentTab,
+                    x => x.ViewModel.SidePanel.CurrentTab)
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.ViewModel.OpenTabs.CountChanged.SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
         /// Method executed when a tab is clicked
         /// </summary>
         /// <param name="tabbedApplicationInformation">The tab to be set</param>
-        /// <param name="tabHandler">The tab handler to handle the tab click</param>
-        private static void OnTabClick(TabbedApplicationInformation tabbedApplicationInformation, ITabHandler tabHandler)
+        /// <param name="panel">The tab panel to handle the tab click</param>
+        private static void OnTabClick(TabbedApplicationInformation tabbedApplicationInformation, TabPanelInformation panel)
         {
-            tabHandler.CurrentTab = tabbedApplicationInformation;
+            panel.CurrentTab = tabbedApplicationInformation;
         }
 
         /// <summary>
         /// Method executed when the remove tab button is clicked
         /// </summary>
         /// <param name="tabbedApplicationInformation">The tab to be removed</param>
-        private void OnRemoveTabClick(TabbedApplicationInformation tabbedApplicationInformation)
+        /// <param name="panel">The tab panel to handle the tab click</param>
+        private void OnRemoveTabClick(TabbedApplicationInformation tabbedApplicationInformation, TabPanelInformation panel)
         {
-            this.ViewModel.OpenTabs.Remove(tabbedApplicationInformation);
+            panel.OpenTabs.Remove(tabbedApplicationInformation);
         }
 
         /// <summary>
@@ -133,10 +128,10 @@ namespace COMETwebapp.Pages
         /// <summary>
         /// Method executed when the open tab button is clicked
         /// </summary>
-        /// <param name="sidePanel">The side panel to be set, if any</param>
-        private void OnOpenTabClick(TabPanelInformation sidePanel = null)
+        /// <param name="sidePanel">The panel to be set</param>
+        private void OnOpenTabClick(TabPanelInformation sidePanel)
         {
-            this.SelectedSidePanel = sidePanel;
+            this.SelectedPanel = sidePanel;
             this.SetOpenTabVisibility(true);
         }
 
@@ -167,6 +162,9 @@ namespace COMETwebapp.Pages
             {
                 return;
             }
+
+            var isTabFromMainPanel = this.ViewModel.MainPanel.OpenTabs.Items.Contains(tabbedApplicationInformation);
+            this.SelectedPanel = isTabFromMainPanel ? this.ViewModel.MainPanel : this.ViewModel.SidePanel;
 
             this.IterationId = iterationOfInterest.Iid;
             this.ModelId = ((CDP4Common.EngineeringModelData.EngineeringModel)iterationOfInterest.Container).Iid;

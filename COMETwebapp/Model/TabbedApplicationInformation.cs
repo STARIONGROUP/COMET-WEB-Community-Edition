@@ -58,10 +58,5 @@ namespace COMETwebapp.Model
         /// Gets the object of interest
         /// </summary>
         public object ObjectOfInterest { get; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="TabPanelInformation"/>
-        /// </summary>
-        public TabPanelInformation Panel { get; set; }
     }
 }

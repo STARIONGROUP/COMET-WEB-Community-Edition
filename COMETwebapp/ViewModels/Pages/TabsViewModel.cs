@@ -52,11 +52,6 @@ namespace COMETwebapp.ViewModels.Pages
         private readonly ISessionService sessionService;
 
         /// <summary>
-        /// Backing field for <see cref="CurrentTab" />
-        /// </summary>
-        private TabbedApplicationInformation currentTab;
-
-        /// <summary>
         /// Backing field for <see cref="SelectedApplication" />
         /// </summary>
         private TabbedApplication selectedApplication;
@@ -71,29 +66,27 @@ namespace COMETwebapp.ViewModels.Pages
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedApplication).Subscribe(_ => this.OnSelectedApplicationChange()));
-            this.Disposables.Add(this.WhenAnyValue(x => x.CurrentTab).Subscribe(_ => this.OnCurrentTabChange()));
+            this.Disposables.Add(this.WhenAnyValue(x => x.MainPanel.CurrentTab).Subscribe(_ => this.OnCurrentTabChange(this.MainPanel)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.SidePanel.CurrentTab).Subscribe(_ => this.OnCurrentTabChange(this.SidePanel)));
             this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(this.CloseTabIfIterationClosed));
-            this.Disposables.Add(this.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(this.OnOpenTabRemoved));
+            this.Disposables.Add(this.MainPanel.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(this.OnOpenTabRemoved));
+            this.Disposables.Add(this.SidePanel.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(this.OnOpenTabRemoved));
         }
 
         /// <summary>
         /// Gets the collection of all <see cref="TabbedApplicationInformation" />
         /// </summary>
-        public SourceList<TabbedApplicationInformation> OpenTabs { get; } = new();
+        private IEnumerable<TabbedApplicationInformation> OpenTabs => [.. this.MainPanel.OpenTabs.Items, .. this.SidePanel.OpenTabs.Items];
 
         /// <summary>
-        /// Gets the collection of all <see cref="TabPanelInformation" />s
+        /// Gets the side tab panel information
         /// </summary>
-        public SourceList<TabPanelInformation> SidePanels { get; } = new();
+        public TabPanelInformation SidePanel { get; } = new();
 
         /// <summary>
-        /// Gets or sets the current tab
+        /// Gets the main tab panel information
         /// </summary>
-        public TabbedApplicationInformation CurrentTab
-        {
-            get => this.currentTab;
-            set => this.RaiseAndSetIfChanged(ref this.currentTab, value);
-        }
+        public TabPanelInformation MainPanel { get; } = new();
 
         /// <summary>
         /// Gets the collection of available <see cref="TabbedApplication" />
@@ -117,8 +110,8 @@ namespace COMETwebapp.ViewModels.Pages
         /// The id of the object of interest, which can be an <see cref="Iteration" /> or an
         /// <see cref="EngineeringModel" />
         /// </param>
-        /// <param name="sidePanel">The panel to open the new tab in</param>
-        public void CreateNewTab(TabbedApplication application, Guid objectOfInterestId, TabPanelInformation sidePanel = null)
+        /// <param name="panel">The panel to open the new tab in</param>
+        public void CreateNewTab(TabbedApplication application, Guid objectOfInterestId, TabPanelInformation panel)
         {
             if (this.serviceProvider.GetService(application.ViewModelType) is not IApplicationBaseViewModel viewModel)
             {
@@ -139,18 +132,9 @@ namespace COMETwebapp.ViewModels.Pages
             }
 
             var tabToCreate = new TabbedApplicationInformation(viewModel, application.ComponentType, thingOfInterest);
-            this.OpenTabs.Add(tabToCreate);
+            panel.OpenTabs.Add(tabToCreate);
             this.SelectedApplication = application;
-
-            if (sidePanel == null)
-            {
-                this.CurrentTab = tabToCreate;
-            }
-            else
-            {
-                sidePanel.CurrentTab = tabToCreate;
-                tabToCreate.Panel = sidePanel;
-            }
+            panel.CurrentTab = tabToCreate;
         }
 
         /// <summary>
@@ -158,25 +142,26 @@ namespace COMETwebapp.ViewModels.Pages
         /// </summary>
         private void OnSelectedApplicationChange()
         {
-            if (this.SelectedApplication == null || this.CurrentTab?.ComponentType == this.SelectedApplication?.ComponentType)
+            if (this.SelectedApplication == null || this.MainPanel.CurrentTab?.ComponentType == this.SelectedApplication?.ComponentType)
             {
                 return;
             }
 
-            this.CurrentTab = this.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType && x.Panel == null);
+            this.MainPanel.CurrentTab = this.MainPanel.OpenTabs.Items.FirstOrDefault(x => x.ComponentType == this.SelectedApplication.ComponentType);
         }
 
         /// <summary>
-        /// Method executed everytime the <see cref="CurrentTab" /> changes
+        /// Method executed everytime the <see cref="TabPanelInformation.CurrentTab" /> changes
         /// </summary>
-        private void OnCurrentTabChange()
+        /// <param name="panel">The panel where the current tab changed</param>
+        private void OnCurrentTabChange(TabPanelInformation panel)
         {
-            if (this.CurrentTab == null)
+            if (panel.CurrentTab == null)
             {
                 return;
             }
 
-            this.SelectedApplication = Applications.ExistingApplications.OfType<TabbedApplication>().FirstOrDefault(x => x.ComponentType == this.CurrentTab.ComponentType);
+            this.SelectedApplication = Applications.ExistingApplications.OfType<TabbedApplication>().FirstOrDefault(x => x.ComponentType == panel.CurrentTab.ComponentType);
         }
 
         /// <summary>
@@ -185,20 +170,26 @@ namespace COMETwebapp.ViewModels.Pages
         /// <param name="numberOfIterations">The new number of open iterations</param>
         private void CloseTabIfIterationClosed(int numberOfIterations)
         {
-            var iterationTabsToClose = this.OpenTabs.Items
+            var iterationTabsToClose = this.OpenTabs
                 .Where(x => x.ObjectOfInterest is Iteration && !this.sessionService.OpenIterations.Items.Contains(x.ObjectOfInterest))
                 .ToList();
 
-            var engineeringModelTabsToClose = this.OpenTabs.Items
+            var engineeringModelTabsToClose = this.OpenTabs
                 .Where(x => x.ObjectOfInterest is EngineeringModel && !this.sessionService.OpenEngineeringModels.Contains(x.ObjectOfInterest))
                 .ToList();
 
-            this.OpenTabs.RemoveMany([.. iterationTabsToClose, .. engineeringModelTabsToClose]);
+            List<TabbedApplicationInformation> thingTabsToClose = [.. iterationTabsToClose, .. engineeringModelTabsToClose];
 
-            if (numberOfIterations == 0)
+            this.MainPanel.OpenTabs.RemoveMany(thingTabsToClose);
+            this.SidePanel.OpenTabs.RemoveMany(thingTabsToClose);
+
+            if (numberOfIterations != 0)
             {
-                this.CurrentTab = null;
+                return;
             }
+
+            this.MainPanel.CurrentTab = null;
+            this.SidePanel.CurrentTab = null;
         }
 
         /// <summary>
@@ -222,35 +213,24 @@ namespace COMETwebapp.ViewModels.Pages
                 }
             }
 
-            this.SetCurrentTabAfterTabRemoval(changeSet, this);
-
-            foreach (var panel in this.SidePanels.Items)
-            {
-                this.SetCurrentTabAfterTabRemoval(changeSet, panel);
-            }
+            SetCurrentTabAfterTabRemoval(changeSet, this.MainPanel);
+            SetCurrentTabAfterTabRemoval(changeSet, this.SidePanel);
         }
 
         /// <summary>
-        /// Sets the current tab in a <see cref="ITabHandler" /> after a tab removal, if needed
+        /// Sets the current tab in a <see cref="TabPanelInformation" /> after a tab removal, if needed
         /// </summary>
         /// <param name="changeSet">The change set to be used to check deletions</param>
-        /// <param name="handler">The <see cref="ITabHandler" /> to set its current tab</param>
-        private void SetCurrentTabAfterTabRemoval(IChangeSet<TabbedApplicationInformation> changeSet, ITabHandler handler)
+        /// <param name="panel">The <see cref="TabPanelInformation" /> to set its current tab</param>
+        private static void SetCurrentTabAfterTabRemoval(IChangeSet<TabbedApplicationInformation> changeSet, TabPanelInformation panel)
         {
             var wasCurrentTabRemoved = changeSet
                 .Select(x => x.Item.Current)
-                .Contains(handler.CurrentTab);
-
-            var selectedSidePanel = handler is TabPanelInformation ? handler : null;
+                .Contains(panel.CurrentTab);
 
             if (wasCurrentTabRemoved)
             {
-                handler.CurrentTab = this.OpenTabs.Items.FirstOrDefault(x => x.Panel == selectedSidePanel);
-            }
-
-            if (selectedSidePanel != null && handler.CurrentTab == null)
-            {
-                this.SidePanels.Remove((TabPanelInformation)handler);
+                panel.CurrentTab = panel.OpenTabs.Items.FirstOrDefault();
             }
         }
     }

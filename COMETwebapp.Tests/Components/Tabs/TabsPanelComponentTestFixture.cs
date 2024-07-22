@@ -114,7 +114,7 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.renderer = this.context.RenderComponent<TabsPanelComponent>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
-                parameters.Add(p => p.Handler, this.viewModel.Object);
+                parameters.Add(p => p.Panel, this.viewModel.Object);
                 parameters.Add(p => p.CssClass, "css-test-class");
                 parameters.Add(p => p.IsSidePanelAvailable, true);
                 parameters.Add(p => p.Tabs, this.viewModel.Object.OpenTabs.Items.ToList());

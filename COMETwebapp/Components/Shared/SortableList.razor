@@ -1,0 +1,89 @@
+@using System.Collections.Generic
+@using System.Diagnostics.CodeAnalysis
+
+@inject IJSRuntime JS
+
+@typeparam T
+
+<div id="@(this.Id)" class="@(this.CssClass)">
+    @foreach (var item in this.Items)
+    {
+        @if (this.SortableItemTemplate is not null)
+        {
+            @(this.SortableItemTemplate(item))
+        }
+    }
+</div>
+
+@code {
+
+    [Parameter]
+    public RenderFragment<T>? SortableItemTemplate { get; set; }
+
+    [Parameter, AllowNull]
+    public List<T> Items { get; set; }
+
+    [Parameter]
+    public EventCallback<(int oldIndex, int newIndex)> OnUpdate { get; set; }
+
+    [Parameter]
+    public EventCallback<(int oldIndex, int newIndex)> OnRemove { get; set; }
+
+    [Parameter]
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+
+    [Parameter]
+    public string Group { get; set; } = Guid.NewGuid().ToString();
+
+    [Parameter]
+    public string? Pull { get; set; }
+
+    [Parameter]
+    public bool Put { get; set; } = true;
+
+    [Parameter]
+    public bool Sort { get; set; } = true;
+
+    [Parameter]
+    public string Handle { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Filter { get; set; }
+
+    [Parameter]
+    public bool ForceFallback { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the custom css class to be applied in the container component
+    /// </summary>
+    [Parameter]
+    public string CssClass { get; set; }
+
+    private DotNetObjectReference<SortableList<T>>? selfReference;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            this.selfReference = DotNetObjectReference.Create(this);
+            var module = await this.JS.InvokeAsync<IJSObjectReference>("import", "./Components/Shared/SortableList.razor.js");
+            await module.InvokeAsync<string>("init", this.Id, this.Group, this.Pull, this.Put, this.Sort, this.Handle, this.Filter, this.selfReference, this.ForceFallback);
+        }
+    }
+
+    [JSInvokable]
+    public void OnUpdateJS(int oldIndex, int newIndex)
+    {
+        // invoke the OnUpdate event passing in the oldIndex and the newIndex
+        this.OnUpdate.InvokeAsync((oldIndex, newIndex));
+    }
+
+    [JSInvokable]
+    public void OnRemoveJS(int oldIndex, int newIndex)
+    {
+        // remove the item from the list
+        this.OnRemove.InvokeAsync((oldIndex, newIndex));
+    }
+
+    public void Dispose() => this.selfReference?.Dispose();
+}

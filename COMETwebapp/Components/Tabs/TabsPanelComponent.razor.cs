@@ -53,19 +53,13 @@ namespace COMETwebapp.Components.Tabs
         /// Gets or sets the tab handler to be used
         /// </summary>
         [Parameter]
-        public ITabHandler Handler { get; set; }
+        public TabPanelInformation Panel { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ITabsViewModel" />
         /// </summary>
         [Parameter]
         public ITabsViewModel ViewModel { get; set; }
-
-        /// <summary>
-        /// Gets or sets the tabs to be displayed
-        /// </summary>
-        [Parameter]
-        public List<TabbedApplicationInformation> Tabs { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the method to be executed when the open tab button is clicked
@@ -89,7 +83,7 @@ namespace COMETwebapp.Components.Tabs
         /// Gets or sets the method to be executed when the tab is clicked
         /// </summary>
         [Parameter]
-        public EventCallback<(TabbedApplicationInformation, ITabHandler)> OnTabClick { get; set; }
+        public EventCallback<(TabbedApplicationInformation, TabPanelInformation)> OnTabClick { get; set; }
 
         /// <summary>
         /// Gets or sets the condition to check if the side panel should be available
@@ -102,6 +96,17 @@ namespace COMETwebapp.Components.Tabs
         /// </summary>
         [Inject]
         public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Sorts the tabs by the means of drag and drop
+        /// </summary>
+        /// <param name="oldIndex">The dragged tab old index</param>
+        /// <param name="newIndex">The dragged tab new index</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private void SortTabs(int oldIndex, int newIndex)
+        {
+            this.Panel.OpenTabs.Move(oldIndex, newIndex);
+        }
 
         /// <summary>
         /// Gets the tab text for the given object of interest
@@ -158,16 +163,14 @@ namespace COMETwebapp.Components.Tabs
         /// </summary>
         private void AddSidePanel()
         {
-            var currentTab = this.ViewModel.CurrentTab;
+            var currentTab = this.ViewModel.MainPanel.CurrentTab;
+            this.ViewModel.SidePanel.OpenTabs.Add(currentTab);
+            this.ViewModel.SidePanel.CurrentTab = currentTab;
 
-            var newPanel = new TabPanelInformation
-            {
-                CurrentTab = currentTab
-            };
+            this.ViewModel.MainPanel.OpenTabs.Remove(currentTab);
+            this.ViewModel.MainPanel.CurrentTab = this.ViewModel.MainPanel.OpenTabs.Items.FirstOrDefault();
 
-            currentTab.Panel = newPanel;
-            this.ViewModel.SidePanels.Add(newPanel);
-            this.ViewModel.CurrentTab = this.ViewModel.OpenTabs.Items.FirstOrDefault(x => x.Panel == null);
+            // todo: make open tabs reactive so when there are no open tabs, the current tab is set to null
         }
     }
 }
