@@ -31,7 +31,7 @@
                             ViewModel="@(this.ViewModel)"
                             OnTabClick="@(tuple => OnTabClick(tuple.Item1, tuple.Item2))"
                             OnCreateTabForModel="@(tab => this.OnCreateTabForModel(tab))"
-                            OnRemoveTabClick="@(tab => this.OnRemoveTabClick(tab, this.ViewModel.MainPanel))"
+                            OnRemoveTabClick="@(tab => OnRemoveTabClick(tab, this.ViewModel.MainPanel))"
                             OnOpenTabClick="@(() => this.OnOpenTabClick(this.ViewModel.MainPanel))"
                             IsSidePanelAvailable="@(this.ViewModel.SidePanel.OpenTabs.Count == 0)"/>
 
@@ -41,7 +41,7 @@
                                 ViewModel="@(this.ViewModel)"
                                 OnTabClick="@(tuple => OnTabClick(tuple.Item1, tuple.Item2))"
                                 OnCreateTabForModel="@(tab => this.OnCreateTabForModel(tab))"
-                                OnRemoveTabClick="@(tab => this.OnRemoveTabClick(tab, this.ViewModel.SidePanel))"
+                                OnRemoveTabClick="@(tab => OnRemoveTabClick(tab, this.ViewModel.SidePanel))"
                                 OnOpenTabClick="@(() => this.OnOpenTabClick(this.ViewModel.SidePanel))" />
         }
     }

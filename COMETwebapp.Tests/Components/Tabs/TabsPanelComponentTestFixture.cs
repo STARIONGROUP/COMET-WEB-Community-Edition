@@ -98,10 +98,17 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.viewModel = new Mock<ITabsViewModel>();
             var openTabs = new SourceList<TabbedApplicationInformation>();
             openTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
-            this.viewModel.Setup(x => x.OpenTabs).Returns(openTabs);
-            this.viewModel.Setup(x => x.CurrentTab).Returns(openTabs.Items.First());
+
+            var mainPanel = new TabPanelInformation
+            {
+                OpenTabs = openTabs,
+                CurrentTab = openTabs.Items.First()
+            };
+
+            var sidePanel = new TabPanelInformation();
+            this.viewModel.Setup(x => x.MainPanel).Returns(mainPanel);
+            this.viewModel.Setup(x => x.SidePanel).Returns(sidePanel);
             this.viewModel.Setup(x => x.SelectedApplication).Returns(engineeringModelBodyApplication);
-            this.viewModel.Setup(x => x.SidePanels).Returns(new SourceList<TabPanelInformation>());
 
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise());
@@ -114,10 +121,9 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.renderer = this.context.RenderComponent<TabsPanelComponent>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
-                parameters.Add(p => p.Panel, this.viewModel.Object);
+                parameters.Add(p => p.Panel, this.viewModel.Object.MainPanel);
                 parameters.Add(p => p.CssClass, "css-test-class");
                 parameters.Add(p => p.IsSidePanelAvailable, true);
-                parameters.Add(p => p.Tabs, this.viewModel.Object.OpenTabs.Items.ToList());
             });
         }
 
@@ -134,7 +140,12 @@ namespace COMETwebapp.Tests.Components.Tabs
             var sidePanelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
             await this.renderer.InvokeAsync(sidePanelButton.Instance.Click.InvokeAsync);
 
-            this.viewModel.VerifySet(x => x.CurrentTab = null, Times.Once);
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Object.SidePanel.OpenTabs, Has.Count.GreaterThan(0));
+                Assert.That(this.viewModel.Object.SidePanel.CurrentTab, Is.Not.Null);
+                Assert.That(this.viewModel.Object.MainPanel.OpenTabs, Has.Count.EqualTo(0));
+            });
         }
 
         [Test]

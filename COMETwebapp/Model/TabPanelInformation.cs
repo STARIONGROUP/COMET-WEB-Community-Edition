@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Model
 {
+    using COMET.Web.Common.Utilities.DisposableObject;
+
     using DynamicData;
 
     using ReactiveUI;
@@ -31,7 +33,7 @@ namespace COMETwebapp.Model
     /// <summary>
     /// The <see cref="TabPanelInformation" /> provides required information related to a panel
     /// </summary>
-    public class TabPanelInformation : ReactiveObject
+    public class TabPanelInformation : DisposableObject
     {
         /// <summary>
         /// Backing field for the property <see cref="CurrentTab" />
@@ -43,6 +45,7 @@ namespace COMETwebapp.Model
         /// </summary>
         public TabPanelInformation()
         {
+            this.Disposables.Add(this.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(this.OnOpenTabRemoved));
         }
 
         /// <summary>
@@ -58,5 +61,36 @@ namespace COMETwebapp.Model
         /// Gets the collection of all <see cref="TabbedApplicationInformation" /> contained by the panel
         /// </summary>
         public SourceList<TabbedApplicationInformation> OpenTabs { get; set; } = new();
+
+        /// <summary>
+        /// Method executed when one or more open tabs are removed
+        /// </summary>
+        /// <param name="changeSet">The change set containing the removed <see cref="TabbedApplicationInformation" /></param>
+        private void OnOpenTabRemoved(IChangeSet<TabbedApplicationInformation> changeSet)
+        {
+            foreach (var result in changeSet.ToList())
+            {
+                if (result.Range.Count > 0)
+                {
+                    foreach (var tabToRemove in result.Range)
+                    {
+                        tabToRemove.ApplicationBaseViewModel.IsAllowedToDispose = true;
+                    }
+                }
+                else
+                {
+                    result.Item.Current.ApplicationBaseViewModel.IsAllowedToDispose = true;
+                }
+            }
+
+            var wasCurrentTabRemoved = changeSet
+                .Select(x => x.Item.Current)
+                .Contains(this.CurrentTab);
+
+            if (wasCurrentTabRemoved)
+            {
+                this.CurrentTab = this.OpenTabs.Items.FirstOrDefault();
+            }
+        }
     }
 }

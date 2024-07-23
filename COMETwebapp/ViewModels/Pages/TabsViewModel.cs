@@ -69,8 +69,6 @@ namespace COMETwebapp.ViewModels.Pages
             this.Disposables.Add(this.WhenAnyValue(x => x.MainPanel.CurrentTab).Subscribe(_ => this.OnCurrentTabChange(this.MainPanel)));
             this.Disposables.Add(this.WhenAnyValue(x => x.SidePanel.CurrentTab).Subscribe(_ => this.OnCurrentTabChange(this.SidePanel)));
             this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(this.CloseTabIfIterationClosed));
-            this.Disposables.Add(this.MainPanel.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(this.OnOpenTabRemoved));
-            this.Disposables.Add(this.SidePanel.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(this.OnOpenTabRemoved));
         }
 
         /// <summary>
@@ -195,59 +193,8 @@ namespace COMETwebapp.ViewModels.Pages
                 .ToList();
 
             List<TabbedApplicationInformation> thingTabsToClose = [.. iterationTabsToClose, .. engineeringModelTabsToClose];
-
             this.MainPanel.OpenTabs.RemoveMany(thingTabsToClose);
             this.SidePanel.OpenTabs.RemoveMany(thingTabsToClose);
-
-            if (numberOfIterations != 0)
-            {
-                return;
-            }
-
-            this.MainPanel.CurrentTab = null;
-            this.SidePanel.CurrentTab = null;
-        }
-
-        /// <summary>
-        /// Method executed when one or more open tabs are removed
-        /// </summary>
-        /// <param name="changeSet">The change set containing the removed <see cref="TabbedApplicationInformation" /></param>
-        private void OnOpenTabRemoved(IChangeSet<TabbedApplicationInformation> changeSet)
-        {
-            foreach (var result in changeSet.ToList())
-            {
-                if (result.Range.Count > 0)
-                {
-                    foreach (var tabToRemove in result.Range)
-                    {
-                        tabToRemove.ApplicationBaseViewModel.IsAllowedToDispose = true;
-                    }
-                }
-                else
-                {
-                    result.Item.Current.ApplicationBaseViewModel.IsAllowedToDispose = true;
-                }
-            }
-
-            SetCurrentTabAfterTabRemoval(changeSet, this.MainPanel);
-            SetCurrentTabAfterTabRemoval(changeSet, this.SidePanel);
-        }
-
-        /// <summary>
-        /// Sets the current tab in a <see cref="TabPanelInformation" /> after a tab removal, if needed
-        /// </summary>
-        /// <param name="changeSet">The change set to be used to check deletions</param>
-        /// <param name="panel">The <see cref="TabPanelInformation" /> to set its current tab</param>
-        private static void SetCurrentTabAfterTabRemoval(IChangeSet<TabbedApplicationInformation> changeSet, TabPanelInformation panel)
-        {
-            var wasCurrentTabRemoved = changeSet
-                .Select(x => x.Item.Current)
-                .Contains(panel.CurrentTab);
-
-            if (wasCurrentTabRemoved)
-            {
-                panel.CurrentTab = panel.OpenTabs.Items.FirstOrDefault();
-            }
         }
     }
 }

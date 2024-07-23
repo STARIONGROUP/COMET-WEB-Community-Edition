@@ -1,3 +1,15 @@
+/**
+ * Method used to initialize the sortable list functionalities
+ * @param {any} id
+ * @param {any} group
+ * @param {any} pull
+ * @param {any} put
+ * @param {any} sort
+ * @param {any} handle
+ * @param {any} filter
+ * @param {any} component
+ * @param {any} forceFallback
+ */
 export function init(id, group, pull, put, sort, handle, filter, component, forceFallback) {
     var sortable = new Sortable(document.getElementById(id), {
         animation: 200,

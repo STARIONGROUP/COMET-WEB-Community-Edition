@@ -113,7 +113,7 @@ namespace COMETwebapp.Pages
         /// </summary>
         /// <param name="tabbedApplicationInformation">The tab to be removed</param>
         /// <param name="panel">The tab panel to handle the tab click</param>
-        private void OnRemoveTabClick(TabbedApplicationInformation tabbedApplicationInformation, TabPanelInformation panel)
+        private static void OnRemoveTabClick(TabbedApplicationInformation tabbedApplicationInformation, TabPanelInformation panel)
         {
             panel.OpenTabs.Remove(tabbedApplicationInformation);
         }
@@ -131,10 +131,10 @@ namespace COMETwebapp.Pages
         /// <summary>
         /// Method executed when the open tab button is clicked
         /// </summary>
-        /// <param name="sidePanel">The panel to be set</param>
-        private void OnOpenTabClick(TabPanelInformation sidePanel)
+        /// <param name="panel">The panel to be set</param>
+        private void OnOpenTabClick(TabPanelInformation panel)
         {
-            this.SelectedPanel = sidePanel;
+            this.SelectedPanel = panel;
             this.SetOpenTabVisibility(true);
         }
 

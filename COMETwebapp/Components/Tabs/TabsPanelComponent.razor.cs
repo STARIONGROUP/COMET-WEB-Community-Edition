@@ -187,11 +187,7 @@ namespace COMETwebapp.Components.Tabs
             var currentTab = this.ViewModel.MainPanel.CurrentTab;
             this.ViewModel.SidePanel.OpenTabs.Add(currentTab);
             this.ViewModel.SidePanel.CurrentTab = currentTab;
-
             this.ViewModel.MainPanel.OpenTabs.Remove(currentTab);
-            this.ViewModel.MainPanel.CurrentTab = this.ViewModel.MainPanel.OpenTabs.Items.FirstOrDefault();
-
-            // todo: make open tabs reactive so when there are no open tabs, the current tab is set to null
         }
     }
 }

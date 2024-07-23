@@ -68,35 +68,35 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         [Test]
         public void VerifyOnSelectedApplication()
         {
-            Assert.That(this.viewModel.CurrentTab, Is.Null);
+            Assert.That(this.viewModel.MainPanel.CurrentTab, Is.Null);
 
-            this.viewModel.OpenTabs.Add(new TabbedApplicationInformation(new Mock<IEngineeringModelBodyViewModel>().Object, typeof(EngineeringModelBody), new Iteration()));
+            this.viewModel.MainPanel.OpenTabs.Add(new TabbedApplicationInformation(new Mock<IEngineeringModelBodyViewModel>().Object, typeof(EngineeringModelBody), new Iteration()));
             this.viewModel.SelectedApplication = this.viewModel.AvailableApplications.FirstOrDefault(x => x.Url == WebAppConstantValues.EngineeringModelPage);
 
-            Assert.That(this.viewModel.CurrentTab, Is.Not.Null);
+            Assert.That(this.viewModel.MainPanel.CurrentTab, Is.Not.Null);
         }
 
         [Test]
         public void VerifyTabCreation()
         {
             var engineeringModelApplication = this.viewModel.AvailableApplications.First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
-            this.viewModel.CreateNewTab(engineeringModelApplication, Guid.Empty);
+            this.viewModel.CreateNewTab(engineeringModelApplication, Guid.Empty, this.viewModel.MainPanel);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.CurrentTab, Is.Not.Null);
-                Assert.That(this.viewModel.CurrentTab.ObjectOfInterest, Is.TypeOf<Iteration>());
+                Assert.That(this.viewModel.MainPanel.CurrentTab, Is.Not.Null);
+                Assert.That(this.viewModel.MainPanel.CurrentTab.ObjectOfInterest, Is.TypeOf<Iteration>());
                 Assert.That(this.viewModel.SelectedApplication, Is.Not.Null);
-                Assert.That(this.viewModel.OpenTabs, Has.Count.EqualTo(1));
+                Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(1));
             });
 
             var bookEditorApplication = this.viewModel.AvailableApplications.First(x => x.Url == WebAppConstantValues.BookEditorPage);
-            this.viewModel.CreateNewTab(bookEditorApplication, Guid.Empty);
+            this.viewModel.CreateNewTab(bookEditorApplication, Guid.Empty, this.viewModel.MainPanel);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.CurrentTab.ObjectOfInterest, Is.TypeOf<EngineeringModel>());
-                Assert.That(this.viewModel.OpenTabs, Has.Count.EqualTo(2));
+                Assert.That(this.viewModel.MainPanel.CurrentTab.ObjectOfInterest, Is.TypeOf<EngineeringModel>());
+                Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(2));
             });
         }
 
@@ -105,27 +105,26 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         {
             var engineeringModelApplication1 = this.viewModel.AvailableApplications.First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
             var engineeringModelApplication2 = this.viewModel.AvailableApplications.First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
-            this.viewModel.CreateNewTab(engineeringModelApplication1, Guid.Empty);
-            this.viewModel.CreateNewTab(engineeringModelApplication2, Guid.Empty);
-            this.viewModel.SidePanels.Add(new TabPanelInformation());
+            this.viewModel.CreateNewTab(engineeringModelApplication1, Guid.Empty, this.viewModel.MainPanel);
+            this.viewModel.CreateNewTab(engineeringModelApplication2, Guid.Empty, this.viewModel.MainPanel);
 
-            var removedTab = this.viewModel.OpenTabs.Items.ElementAt(1);
+            var removedTab = this.viewModel.MainPanel.OpenTabs.Items.ElementAt(1);
 
-            Assert.That(this.viewModel.CurrentTab, Is.EqualTo(removedTab));
-            this.viewModel.OpenTabs.Remove(removedTab);
+            Assert.That(this.viewModel.MainPanel.CurrentTab, Is.EqualTo(removedTab));
+            this.viewModel.MainPanel.OpenTabs.Remove(removedTab);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.CurrentTab, Is.Not.EqualTo(removedTab));
-                Assert.That(this.viewModel.CurrentTab, Is.Not.Null);
+                Assert.That(this.viewModel.MainPanel.CurrentTab, Is.Not.EqualTo(removedTab));
+                Assert.That(this.viewModel.MainPanel.CurrentTab, Is.Not.Null);
             });
 
-            this.viewModel.CreateNewTab(engineeringModelApplication2, Guid.Empty);
-            this.viewModel.CreateNewTab(engineeringModelApplication2, Guid.Empty);
-            Assert.That(this.viewModel.OpenTabs, Has.Count.EqualTo(3));
+            this.viewModel.CreateNewTab(engineeringModelApplication2, Guid.Empty, this.viewModel.MainPanel);
+            this.viewModel.CreateNewTab(engineeringModelApplication2, Guid.Empty, this.viewModel.MainPanel);
+            Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(3));
 
-            this.viewModel.OpenTabs.RemoveRange(1, 2);
-            Assert.That(this.viewModel.OpenTabs, Has.Count.EqualTo(1));
+            this.viewModel.MainPanel.OpenTabs.RemoveRange(1, 2);
+            Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -134,17 +133,17 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             var engineeringModelApplication = this.viewModel.AvailableApplications.First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
             var iteration = new Iteration();
 
-            this.viewModel.CreateNewTab(engineeringModelApplication, iteration.Iid);
+            this.viewModel.CreateNewTab(engineeringModelApplication, iteration.Iid, this.viewModel.MainPanel);
             this.openIterations.Add(iteration);
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.OpenTabs, Has.Count.EqualTo(1));
-                Assert.That(this.viewModel.CurrentTab, Is.Not.Null);
+                Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(1));
+                Assert.That(this.viewModel.MainPanel.CurrentTab, Is.Not.Null);
             });
 
             this.openIterations.Clear();
-            Assert.That(this.viewModel.CurrentTab, Is.Null);
+            Assert.That(this.viewModel.MainPanel.CurrentTab, Is.Null);
         }
 
         [Test]
@@ -154,7 +153,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             {
                 Assert.That(this.viewModel.AvailableApplications, Is.Not.Empty);
                 Assert.That(this.viewModel.SelectedApplication, Is.Null);
-                Assert.That(this.viewModel.OpenTabs, Has.Count.EqualTo(0));
+                Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(0));
             });
         }
     }
