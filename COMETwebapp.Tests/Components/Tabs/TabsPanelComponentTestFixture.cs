@@ -35,6 +35,7 @@ namespace COMETwebapp.Tests.Components.Tabs
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.EngineeringModel;
+    using COMETwebapp.Components.Shared;
     using COMETwebapp.Components.Tabs;
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
@@ -63,6 +64,8 @@ namespace COMETwebapp.Tests.Components.Tabs
         private Mock<ITabsViewModel> viewModel;
         private Mock<IEngineeringModelBodyViewModel> engineeringModelBodyViewModel;
         private Iteration iteration;
+        private TabPanelInformation mainPanel;
+        private TabPanelInformation sidePanel;
 
         [SetUp]
         public void SetUp()
@@ -98,16 +101,16 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.viewModel = new Mock<ITabsViewModel>();
             var openTabs = new SourceList<TabbedApplicationInformation>();
             openTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
+            this.sidePanel = new TabPanelInformation();
 
-            var mainPanel = new TabPanelInformation
+            this.mainPanel = new TabPanelInformation
             {
                 OpenTabs = openTabs,
                 CurrentTab = openTabs.Items.First()
             };
 
-            var sidePanel = new TabPanelInformation();
-            this.viewModel.Setup(x => x.MainPanel).Returns(mainPanel);
-            this.viewModel.Setup(x => x.SidePanel).Returns(sidePanel);
+            this.viewModel.Setup(x => x.MainPanel).Returns(this.mainPanel);
+            this.viewModel.Setup(x => x.SidePanel).Returns(this.sidePanel);
             this.viewModel.Setup(x => x.SelectedApplication).Returns(engineeringModelBodyApplication);
 
             var sessionService = new Mock<ISessionService>();
@@ -121,7 +124,7 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.renderer = this.context.RenderComponent<TabsPanelComponent>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
-                parameters.Add(p => p.Panel, this.viewModel.Object.MainPanel);
+                parameters.Add(p => p.Panel, this.mainPanel);
                 parameters.Add(p => p.CssClass, "css-test-class");
                 parameters.Add(p => p.IsSidePanelAvailable, true);
             });
@@ -156,6 +159,57 @@ namespace COMETwebapp.Tests.Components.Tabs
                 Assert.That(this.renderer.Instance.ViewModel, Is.EqualTo(this.viewModel.Object));
                 Assert.That(this.renderer.Instance, Is.Not.Null);
                 Assert.That(this.renderer.Markup, Does.Contain("css-test-class"));
+            });
+        }
+
+        [Test]
+        public async Task VerifyTabsOrdering()
+        {
+            var newTab = new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration);
+            this.mainPanel.OpenTabs.Add(newTab);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.mainPanel.OpenTabs, Has.Count.EqualTo(2));
+                Assert.That(this.sidePanel.OpenTabs, Has.Count.EqualTo(0));
+                Assert.That(this.mainPanel.OpenTabs.Items.First(), Is.Not.EqualTo(newTab));
+                Assert.That(this.mainPanel.OpenTabs.Items.ElementAt(1), Is.EqualTo(newTab));
+            });
+
+            var sortableList = this.renderer.FindComponent<SortableList<TabbedApplicationInformation>>();
+            await this.renderer.InvokeAsync(() => sortableList.Instance.OnUpdate.InvokeAsync((0, 1)));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.mainPanel.OpenTabs, Has.Count.EqualTo(2));
+                Assert.That(this.mainPanel.OpenTabs.Items.First(), Is.EqualTo(newTab));
+                Assert.That(this.mainPanel.OpenTabs.Items.ElementAt(1), Is.Not.EqualTo(newTab));
+            });
+
+            await this.renderer.InvokeAsync(() => sortableList.Instance.OnRemove.InvokeAsync((0, 0)));
+            this.sidePanel.CurrentTab = this.sidePanel.OpenTabs.Items.First();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.mainPanel.OpenTabs, Has.Count.EqualTo(1));
+                Assert.That(this.sidePanel.OpenTabs, Has.Count.EqualTo(1));
+                Assert.That(this.mainPanel.OpenTabs.Items.First(), Is.Not.EqualTo(newTab));
+                Assert.That(this.sidePanel.OpenTabs.Items.First(), Is.EqualTo(newTab));
+            });
+
+            this.renderer.SetParametersAndRender(parameters =>
+            {
+                parameters.Add(p => p.Panel, this.sidePanel);
+            });
+
+            sortableList = this.renderer.FindComponent<SortableList<TabbedApplicationInformation>>();
+            await this.renderer.InvokeAsync(() => sortableList.Instance.OnRemove.InvokeAsync((0, 0)));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.mainPanel.OpenTabs, Has.Count.EqualTo(2));
+                Assert.That(this.sidePanel.OpenTabs, Has.Count.EqualTo(0));
+                Assert.That(this.mainPanel.OpenTabs.Items.First(), Is.EqualTo(newTab));
             });
         }
     }

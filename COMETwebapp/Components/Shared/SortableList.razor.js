@@ -11,7 +11,7 @@
  * @param {any} forceFallback
  */
 export function init(id, group, pull, put, sort, handle, filter, component, forceFallback) {
-    var sortable = new Sortable(document.getElementById(id), {
+    new Sortable(document.getElementById(id), {
         animation: 200,
         group: {
             name: group,
