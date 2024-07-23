@@ -21,27 +21,34 @@
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Model
 @using CDP4Common.CommonData
+
 @inherits DisposableComponent
 
 <div class="panel-view @(this.CssClass)">
-    @if (this.Handler.CurrentTab is not null)
+    @if (this.Panel.CurrentTab is not null)
     {
-        <div class="d-flex tabs-row justify-content-between">
+        <div class="d-flex tabs-row justify-content-between user-select-none">
             <div class="d-flex gap-2">
-                @foreach (var tab in this.Tabs)
-                {
-                    <TabComponent Text="@(GetTabText(tab))"
-                                  Caption="@(this.GetCaptionText(tab.ObjectOfInterest))"
-                                  Icon="typeof(FeatherX)"
-                                  CustomOptionIcon="@(typeof(FeatherCopy))"
-                                  CustomOptionIconVisible="@(tab.ObjectOfInterest != null)"
-                                  OnClick="@(() => this.OnTabClick.InvokeAsync((tab, this.Handler)))"
-                                  OnIconClick="@(() => this.OnRemoveTabClick.InvokeAsync(tab))"
-                                  OnCustomOptionIconClick="@(() => this.OnCreateTabForModel.InvokeAsync(tab))"
-                                  IsCurrent="@(tab == this.Handler.CurrentTab)"
-                                  ApplicationIcon="@(Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ComponentType == tab.ComponentType).IconType)"
-                                  @key="tab"/>
-                }
+                <SortableList Group="tabs-panel" 
+                              Items="@(this.Panel.OpenTabs.Items.ToList())" 
+                              OnUpdate="@(indexes => this.SortTabs(indexes.oldIndex, indexes.newIndex))"
+                              OnRemove="@(indexes => this.OnMovedTab(indexes.oldIndex, indexes.newIndex))"
+                              Context="tab" 
+                              CssClass="d-flex gap-2">
+                    <SortableItemTemplate>
+                        <TabComponent Text="@(GetTabText(tab))"
+                                      Caption="@(this.GetCaptionText(tab.ObjectOfInterest))"
+                                      Icon="typeof(FeatherX)"
+                                      CustomOptionIcon="@(typeof(FeatherCopy))"
+                                      CustomOptionIconVisible="@(tab.ObjectOfInterest != null)"
+                                      OnClick="@(() => this.OnTabClick.InvokeAsync((tab, this.Panel)))"
+                                      OnIconClick="@(() => this.OnRemoveTabClick.InvokeAsync(tab))"
+                                      OnCustomOptionIconClick="@(() => this.OnCreateTabForModel.InvokeAsync(tab))"
+                                      IsCurrent="@(tab == this.Panel.CurrentTab)"
+                                      ApplicationIcon="@(Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ComponentType == tab.ComponentType).IconType)"
+                                      @key="tab"/>
+                    </SortableItemTemplate>
+                </SortableList>
 
                 <TabComponent Text="Select Model"
                               Icon="typeof(FeatherPlus)"
@@ -61,9 +68,9 @@
 
         </div>
         <div class="template-container" id="tabs-page-content">
-            <DynamicApplicationBase ViewModel="this.Handler.CurrentTab.ApplicationBaseViewModel"
-                                    ApplicationBaseType="this.Handler.CurrentTab.ComponentType"
-                                    CurrentThing="this.Handler.CurrentTab.ObjectOfInterest as Thing"/>
+            <DynamicApplicationBase ViewModel="this.Panel.CurrentTab.ApplicationBaseViewModel"
+                                    ApplicationBaseType="this.Panel.CurrentTab.ComponentType"
+                                    CurrentThing="this.Panel.CurrentTab.ObjectOfInterest as Thing"/>
         </div>
     }
 </div>

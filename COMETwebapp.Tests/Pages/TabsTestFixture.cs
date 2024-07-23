@@ -67,6 +67,7 @@ namespace COMETwebapp.Tests.Pages
         private Mock<IEngineeringModelBodyViewModel> engineeringModelBodyViewModel;
         private IRenderedComponent<Tabs> renderer;
         private Iteration iteration;
+        private TabPanelInformation mainPanel;
 
         [SetUp]
         public void Setup()
@@ -74,20 +75,6 @@ namespace COMETwebapp.Tests.Pages
             this.context = new TestContext();
 
             var engineeringModelBodyApplication = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
-            this.viewModel = new Mock<ITabsViewModel>();
-
-            var sidePanels = new SourceList<TabPanelInformation>();
-            sidePanels.Add(new TabPanelInformation());
-            this.viewModel.Setup(x => x.OpenTabs).Returns(new SourceList<TabbedApplicationInformation>());
-            this.viewModel.Setup(x => x.SelectedApplication).Returns(engineeringModelBodyApplication);
-            this.viewModel.Setup(x => x.SidePanels).Returns(sidePanels);
-
-            var optionsTableViewModel = new Mock<IOptionsTableViewModel>();
-            optionsTableViewModel.Setup(x => x.Rows).Returns(new SourceList<OptionRowViewModel>());
-            optionsTableViewModel.Setup(x => x.CurrentThing).Returns(new Option());
-            this.engineeringModelBodyViewModel = new Mock<IEngineeringModelBodyViewModel>();
-            this.engineeringModelBodyViewModel.Setup(x => x.OptionsTableViewModel).Returns(optionsTableViewModel.Object);
-
             var engineeringSetupModel = new EngineeringModelSetup();
 
             this.iteration = new Iteration
@@ -101,6 +88,26 @@ namespace COMETwebapp.Tests.Pages
                     EngineeringModelSetup = engineeringSetupModel
                 }
             };
+
+            var optionsTableViewModel = new Mock<IOptionsTableViewModel>();
+            optionsTableViewModel.Setup(x => x.Rows).Returns(new SourceList<OptionRowViewModel>());
+            optionsTableViewModel.Setup(x => x.CurrentThing).Returns(new Option());
+            this.engineeringModelBodyViewModel = new Mock<IEngineeringModelBodyViewModel>();
+            this.engineeringModelBodyViewModel.Setup(x => x.OptionsTableViewModel).Returns(optionsTableViewModel.Object);
+
+            var openTabs = new SourceList<TabbedApplicationInformation>();
+            openTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
+
+            this.mainPanel = new TabPanelInformation
+            {
+                OpenTabs = openTabs,
+                CurrentTab = openTabs.Items.First()
+            };
+
+            this.viewModel = new Mock<ITabsViewModel>();
+            this.viewModel.Setup(x => x.MainPanel).Returns(this.mainPanel);
+            this.viewModel.Setup(x => x.SidePanel).Returns(new TabPanelInformation());
+            this.viewModel.Setup(x => x.SelectedApplication).Returns(engineeringModelBodyApplication);
 
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
@@ -129,22 +136,16 @@ namespace COMETwebapp.Tests.Pages
         [Test]
         public async Task VerifyTabComponents()
         {
-            var openTabs = new SourceList<TabbedApplicationInformation>();
-            openTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
-            this.viewModel.Setup(x => x.OpenTabs).Returns(openTabs);
-            this.viewModel.Setup(x => x.CurrentTab).Returns(openTabs.Items.First());
-            this.renderer.Render();
-
             var tabComponents = this.renderer.FindComponents<TabComponent>();
             var firstTab = tabComponents[0];
 
             await this.renderer.InvokeAsync(firstTab.Instance.OnClick.Invoke);
-            this.viewModel.VerifySet(x => x.CurrentTab = openTabs.Items.First(), Times.Once);
+            Assert.That(this.viewModel.Object.MainPanel.CurrentTab, Is.EqualTo(this.mainPanel.OpenTabs.Items.First()));
             await this.renderer.InvokeAsync(firstTab.Instance.OnIconClick.Invoke);
 
             Assert.Multiple(() =>
             {
-                this.viewModel.Verify(x => x.OpenTabs, Times.AtLeastOnce);
+                Assert.That(this.viewModel.Object.MainPanel.OpenTabs, Has.Count.EqualTo(0));
                 Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.False);
             });
 
@@ -156,13 +157,6 @@ namespace COMETwebapp.Tests.Pages
         [Test]
         public async Task VerifyTabCustomButton()
         {
-            var openTabs = new SourceList<TabbedApplicationInformation>();
-            var tabToOpen = new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration);
-            openTabs.Add(tabToOpen);
-            this.viewModel.Setup(x => x.OpenTabs).Returns(openTabs);
-            this.viewModel.Setup(x => x.CurrentTab).Returns(tabToOpen);
-            this.renderer.Render();
-
             var tabCustomButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "tab-custom-option-button");
             await this.renderer.InvokeAsync(tabCustomButton.Instance.Click.InvokeAsync);
             Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.True);
@@ -171,8 +165,7 @@ namespace COMETwebapp.Tests.Pages
             await this.renderer.InvokeAsync(openTabComponent.Instance.OnCancel.Invoke);
             Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.False);
 
-            tabToOpen = new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), null);
-            openTabs.ReplaceAt(0, tabToOpen);
+            this.mainPanel.OpenTabs.ReplaceAt(0, new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), null));
             this.renderer.Render();
             var hasCustomOption = this.renderer.FindComponents<DxButton>().Any(x => x.Instance.Id == "tab-custom-option-button");
             Assert.That(hasCustomOption, Is.False);
@@ -181,6 +174,9 @@ namespace COMETwebapp.Tests.Pages
         [Test]
         public void VerifyTabsPage()
         {
+            this.viewModel.Setup(x => x.MainPanel).Returns(new TabPanelInformation());
+            this.renderer.Render();
+
             var tabComponents = this.renderer.FindComponents<TabComponent>();
             var openTab = this.renderer.FindComponents<OpenTab>();
 
@@ -190,10 +186,7 @@ namespace COMETwebapp.Tests.Pages
                 Assert.That(openTab, Has.Count.EqualTo(1));
             });
 
-            var openTabs = new SourceList<TabbedApplicationInformation>();
-            openTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
-            this.viewModel.Setup(x => x.OpenTabs).Returns(openTabs);
-            this.viewModel.Setup(x => x.CurrentTab).Returns(openTabs.Items.First());
+            this.viewModel.Setup(x => x.MainPanel).Returns(this.mainPanel);
             this.renderer.Render();
 
             tabComponents = this.renderer.FindComponents<TabComponent>();
