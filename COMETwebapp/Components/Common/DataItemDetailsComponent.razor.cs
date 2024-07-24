@@ -66,5 +66,11 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         [Parameter]
         public string Width { get; set; } = "50%";
+
+        /// <summary>
+        /// The custom css class to be used in the container component
+        /// </summary>
+        [Parameter]
+        public string CssClass { get; set; }
     }
 }

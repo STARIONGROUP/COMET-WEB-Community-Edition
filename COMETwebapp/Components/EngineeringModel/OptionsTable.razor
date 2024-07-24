@@ -16,7 +16,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
 ------------------------------------------------------------------------------->
 @inherits SelectedDataItemBase<Option, OptionRowViewModel>
 
-<div class="d-flex justify-content-between">
+<div class="selected-data-item-page">
     <DxGrid @ref="this.Grid"
             Data="this.ViewModel.Rows.Items"
             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -33,7 +33,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
             PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
             PageSizeSelectorAllRowsItemVisible="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            CssClass="height-fit-content">
+            CssClass="selected-data-item-table">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(OptionRowViewModel.Name)" MinWidth="150"/>
             <DxGridDataColumn FieldName="@nameof(OptionRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>

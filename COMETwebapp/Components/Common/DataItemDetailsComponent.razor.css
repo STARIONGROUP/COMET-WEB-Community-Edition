@@ -6,12 +6,6 @@
     overflow: auto;
 }
 
-.data-items-panel-container {
-    max-height: 90vh;
-    position: sticky;
-    top: 10px;
-}
-
 .data-item-details-image {
     margin: auto;
     display: block;

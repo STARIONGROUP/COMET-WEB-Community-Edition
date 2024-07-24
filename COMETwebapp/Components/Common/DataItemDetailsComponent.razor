@@ -17,7 +17,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
 
 @namespace COMETwebapp.Components.Common
 
-<div class="ps-3 data-items-panel-container" style="width: @this.Width;">
+<div class="data-items-panel-container @(this.CssClass)" style="width: @this.Width;">
     <div class="data-item-details-section">
         @if (this.IsSelected)
         {

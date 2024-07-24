@@ -3,11 +3,10 @@
     border-bottom: solid 1px var(--colors-gray-100);
     padding: 16px;
     border-radius: 24px 0px 0px 0px;
-    min-width: 60vw;
+    overflow: auto;
 }
 
 #tabs-page-content {
-    min-width: 60vw;
 }
 
 .panel-view {

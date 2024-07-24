@@ -16,7 +16,7 @@
 }
 
 .table-container {
-    min-width: 1400px;
+    width: fit-content;
     margin-top: 15px;
     max-height: 80vh;
 }

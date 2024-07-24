@@ -22,7 +22,7 @@
 @inherits SelectedDeprecatableDataItemBase<Person, PersonRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <div class="d-flex justify-content-between">
+    <div class="selected-data-item-page">
         <DxGrid @ref="this.Grid"
                 Data="this.ViewModel.Rows.Items"
                 ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -41,7 +41,7 @@
                 FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                 CustomSummary="CustomSummary"
                 CustomizeSummaryDisplayText="CustomizeSummaryDisplayText"
-                CssClass="height-fit-content">
+                CssClass="selected-data-item-table">
             <TotalSummary>
                 <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="IsActive" ValueDisplayFormat="{0} Total"/>
                 <DxGridSummaryItem SummaryType="GridSummaryItemType.Custom" Name="Inactive" FieldName="IsActive"/>
