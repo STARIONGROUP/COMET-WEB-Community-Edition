@@ -266,3 +266,28 @@ sub {
 #tabs-page-content{
     padding-top: 16px!important;
 }
+
+.selected-data-item-page {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.selected-data-item-table {
+    flex: 1 1 63%;
+    min-width: 300px;
+    height: fit-content;
+}
+
+.data-items-panel-container {
+    max-height: 90vh;
+    position: sticky;
+    top: 10px;
+    flex: 1 1 35%;
+    min-width: 350px;
+}
+
+.model-editor-details {
+    flex: 1 1 40% !important;
+}

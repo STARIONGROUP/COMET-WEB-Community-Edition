@@ -187,10 +187,10 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 
                 var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
                 var thingsToCreate = new List<Thing>();
-                this.CurrentThing.EngineeringModelIid = Guid.NewGuid();
 
                 if (shouldCreate)
                 {
+                    this.CurrentThing.EngineeringModelIid = Guid.NewGuid();
                     siteDirectoryClone.Model.Add(this.CurrentThing);
                     thingsToCreate.Add(siteDirectoryClone);
 
@@ -248,6 +248,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <param name="siteRdl">The updated <see cref="SiteReferenceDataLibrary"/></param>
         private void OnSelectedSiteRdlChanged(SiteReferenceDataLibrary siteRdl)
         {
+            if (this.CurrentThing.Iid != Guid.Empty)
+            {
+                return;
+            }
+
             this.CurrentThing.RequiredRdl.Clear();
 
             if (siteRdl != null)

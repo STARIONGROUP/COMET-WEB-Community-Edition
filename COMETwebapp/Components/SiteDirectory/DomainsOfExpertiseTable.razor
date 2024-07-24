@@ -18,7 +18,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
 @inherits SelectedDeprecatableDataItemBase<DomainOfExpertise, DomainOfExpertiseRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <div class="d-flex justify-content-between">
+    <div class="selected-data-item-page">
         <DxGrid @ref="this.Grid"
                 Data="this.ViewModel.Rows.Items"
                 ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -35,7 +35,7 @@ Copyright (c) 2023-2024 Starion Group S.A.
                 PageSizeSelectorItems="@(new int[] { 20, 35, 50 })"
                 PageSizeSelectorAllRowsItemVisible="true"
                 FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                CssClass="height-fit-content">
+                CssClass="selected-data-item-table">
             <Columns>
                 <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.Name)" MinWidth="150"/>
                 <DxGridDataColumn FieldName="@nameof(DomainOfExpertiseRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
