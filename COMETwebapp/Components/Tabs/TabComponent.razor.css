@@ -1,5 +1,5 @@
 ﻿.tab-component {
-    max-width: fit-content;
+    min-width: fit-content;
     border-radius: 7.5px;
     padding: 2px 10px 2px 10px;
     display: flex;
@@ -8,6 +8,7 @@
     background-color: var(--colors-white);
     color: var(--colors-primary-800);
     font-weight: 500;
+    width: max-content;
 }
 
 .current-tab {

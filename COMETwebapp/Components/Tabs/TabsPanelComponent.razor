@@ -27,7 +27,7 @@
 <div class="panel-view @(this.CssClass)">
     @if (this.Panel.CurrentTab is not null)
     {
-        <div class="d-flex tabs-row justify-content-between user-select-none">
+        <div class="tabs-row">
             <div class="d-flex gap-2">
                 <SortableList Group="tabs-panel" 
                               Items="@(this.Panel.OpenTabs.Items.ToList())" 

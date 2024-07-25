@@ -4,6 +4,15 @@
     padding: 16px;
     border-radius: 24px 0px 0px 0px;
     overflow: auto;
+    user-select: none;
+    justify-content: space-between;
+    display: flex;
+    max-height: 10vh;
+}
+
+#tabs-page-content{
+    max-height: 90vh;
+    overflow: auto;
 }
 
 .panel-view {
