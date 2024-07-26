@@ -31,6 +31,8 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
 
     using System.ComponentModel.DataAnnotations;
 
+    using FluentResults;
+
     /// <summary>
     /// Support class for the <see cref="FileForm"/>
     /// </summary>
@@ -48,13 +50,24 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         public bool IsDeletePopupVisible { get; private set; }
 
         /// <summary>
+        /// Gets the error message from the <see cref="IFileHandlerViewModel.CreateOrEditFile"/>, if any
+        /// </summary>
+        public string ErrorMessage { get; private set; } = string.Empty;
+
+        /// <summary>
         /// Method that is executed when there is a valid submit
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
         protected override async Task OnValidSubmit()
         {
-            await this.ViewModel.CreateOrEditFile(this.ShouldCreate);
-            await base.OnValidSubmit();
+            this.ErrorMessage = string.Empty;
+            var result = await this.ViewModel.CreateOrEditFile(this.ShouldCreate);
+            this.ErrorMessage = string.Join(", ", result.Reasons.OfType<IExceptionalError>().Select(x => x.Exception.Message));
+
+            if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+            {
+                await base.OnValidSubmit();
+            }
         }
 
         /// <summary>

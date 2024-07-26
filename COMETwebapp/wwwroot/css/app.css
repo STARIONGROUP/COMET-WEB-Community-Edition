@@ -291,3 +291,14 @@ sub {
 .model-editor-details {
     flex: 1 1 40% !important;
 }
+
+.validation-container {
+    border: dashed 1px red;
+    padding-top: 1rem;
+    padding-right: 1rem;
+    border-radius: 10px;
+}
+
+    .validation-container:not(:has(li)) {
+        display: none;
+    }

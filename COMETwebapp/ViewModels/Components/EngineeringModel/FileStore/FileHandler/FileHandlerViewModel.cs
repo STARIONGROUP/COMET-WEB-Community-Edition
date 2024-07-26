@@ -36,6 +36,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
 
+    using FluentResults;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -149,8 +151,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// Creates or edits a file
         /// </summary>
         /// <param name="shouldCreate">The condition to check if the file should be created</param>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task CreateOrEditFile(bool shouldCreate)
+        /// <returns>A <see cref="Task"/> containing a <see cref="Result"/></returns>
+        public async Task<Result> CreateOrEditFile(bool shouldCreate)
         {
             this.IsLoading = true;
             this.logger.LogInformation("Creating or editing file");
@@ -193,11 +195,20 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
             }
 
             thingsToUpdate.Add(this.CurrentThing);
+            var result = await this.SessionService.CreateOrUpdateThings(fileStoreClone, thingsToUpdate, newFileRevisions.Select(x => x.LocalPath).ToList());
 
-            await this.SessionService.CreateOrUpdateThings(fileStoreClone, thingsToUpdate, newFileRevisions.Select(x => x.LocalPath).ToList());
+            if (result.IsSuccess)
+            {
+                this.logger.LogInformation("File with iid {iid} updated successfully", this.CurrentThing.Iid);
+            }
+            else
+            {
+                this.logger.LogWarning("File could not be created. {warning}", string.Join(", ", string.Join(", ", result.Reasons.Select(x => x.Message))));
+            }
 
-            this.logger.LogInformation("File with iid {iid} updated successfully", this.CurrentThing.Iid);
             this.IsLoading = false;
+
+            return result;
         }
 
         /// <summary>
