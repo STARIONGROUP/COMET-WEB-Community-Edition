@@ -75,10 +75,12 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.ParameterTableViewModel = parameterTableView;
             this.BatchParameterEditorViewModel = batchParameterEditorViewModel;
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ElementSelector.SelectedElementBase,
+            this.Disposables.Add(this.WhenAnyValue(
+                x => x.ElementSelector.SelectedElementBase,
                 x => x.OptionSelector.SelectedOption,
                 x => x.ParameterTypeSelector.SelectedParameterType,
-                x => x.IsOwnedParameters).SubscribeAsync(_ => this.ApplyFilters()));
+                x => x.IsOwnedParameters)
+                .SubscribeAsync(_ => this.ApplyFilters()));
 
             this.InitializeSubscriptions(ObjectChangedTypesOfInterest);
             this.RegisterViewModelsWithReusableRows([this.ParameterTableViewModel]);
@@ -173,20 +175,19 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         {
             await base.OnThingChanged();
 
+            this.IsLoading = true;
+
             if (!this.HasSetInitialValuesOnce)
             {
-                this.IsLoading = true;
-
                 this.IsOwnedParameters = true;
                 this.ElementSelector.CurrentIteration = this.CurrentThing;
                 this.OptionSelector.CurrentIteration = this.CurrentThing;
                 this.ParameterTypeSelector.CurrentIteration = this.CurrentThing;
                 this.BatchParameterEditorViewModel.CurrentIteration = this.CurrentThing;
-                this.ParameterTableViewModel.InitializeViewModel(this.CurrentThing, this.CurrentDomain, this.OptionSelector.SelectedOption);
-
-                this.IsLoading = false;
             }
 
+            this.ParameterTableViewModel.InitializeViewModel(this.CurrentThing, this.CurrentDomain, this.OptionSelector.SelectedOption);
+            await this.ApplyFilters();
             this.IsLoading = false;
         }
 
