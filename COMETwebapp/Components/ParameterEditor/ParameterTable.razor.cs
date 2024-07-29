@@ -1,18 +1,18 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterTable.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//  <copyright file="ParameterTable.razor.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -24,17 +24,12 @@
 
 namespace COMETwebapp.Components.ParameterEditor
 {
-    using System.Collections.ObjectModel;
-
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
+    using COMET.Web.Common.Extensions;
 
     using COMETwebapp.Comparer;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using DevExpress.Blazor;
-
-    using DynamicData;
 
     using Microsoft.AspNetCore.Components;
 
@@ -53,12 +48,7 @@ namespace COMETwebapp.Components.ParameterEditor
         /// <summary>
         /// The <see cref="ParameterBaseRowViewModelComparer" />
         /// </summary>
-        private ParameterBaseRowViewModelComparer comparer = new();
-
-        /// <summary>
-        /// The sorted collection of <see cref="ParameterBaseRowViewModel" />
-        /// </summary>
-        private ReadOnlyObservableCollection<ParameterBaseRowViewModel> sortedCollection;
+        private readonly ParameterBaseRowViewModelComparer comparer = new();
 
         /// <summary>
         /// Gets or sets the <see cref="IParameterTableViewModel" />
@@ -80,12 +70,7 @@ namespace COMETwebapp.Components.ParameterEditor
             base.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditMode)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.ViewModel.Rows.Connect()
-                .Sort(this.comparer)
-                .Bind(out this.sortedCollection)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.closeEditor = new EventCallbackFactory().Create(this, () => { this.ViewModel.IsOnEditMode = false; });
         }
@@ -93,7 +78,7 @@ namespace COMETwebapp.Components.ParameterEditor
         /// <summary>
         /// Customizes the table rows
         /// </summary>
-        /// <param name="e">The <see cref="GridCustomizeElementEventArgs"/></param>
+        /// <param name="e">The <see cref="GridCustomizeElementEventArgs" /></param>
         private void OnCustomizeElement(GridCustomizeElementEventArgs e)
         {
             if (e.ElementType == GridElementType.DataRow)
@@ -109,7 +94,7 @@ namespace COMETwebapp.Components.ParameterEditor
             if (e.ElementType == GridElementType.GroupCell)
             {
                 var elementBaseName = (string)e.Grid.GetRowValue(e.VisibleIndex, nameof(ParameterBaseRowViewModel.ElementBaseName));
-                var isPublishableParameterInGroup = this.sortedCollection.Any(x => x.IsPublishable && x.ElementBaseName == elementBaseName);
+                var isPublishableParameterInGroup = this.ViewModel.Rows.Items.Any(x => x.IsPublishable && x.ElementBaseName == elementBaseName);
 
                 if (isPublishableParameterInGroup)
                 {

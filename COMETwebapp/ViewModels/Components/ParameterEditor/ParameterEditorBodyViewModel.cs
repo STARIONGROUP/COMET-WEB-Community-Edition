@@ -129,7 +129,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <returns>A <see cref="Task" /></returns>
         protected override async Task OnSessionRefreshed()
         {
-            if (!this.AddedThings.Any() && !this.DeletedThings.Any() && !this.UpdatedThings.Any())
+            if (this.AddedThings.Count == 0 && this.DeletedThings.Count == 0 && this.UpdatedThings.Count == 0)
             {
                 return;
             }

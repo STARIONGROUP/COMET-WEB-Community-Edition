@@ -66,7 +66,7 @@
     <DxGrid @ref="this.Grid"
             CssClass="default-grid"
             ShowAllRows="true"
-            Data="@this.sortedCollection"
+            Data="@this.ViewModel.Rows.Items.Order(this.comparer)"
             SelectionMode="GridSelectionMode.Single"
             AllowSelectRowByClick="false"
             ShowFilterRow="true"
