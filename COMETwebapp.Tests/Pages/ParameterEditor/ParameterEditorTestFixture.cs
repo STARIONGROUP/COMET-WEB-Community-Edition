@@ -139,11 +139,11 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel);
             this.context.Services.AddSingleton(this.sessionService.Object);
-            this.context.Services.AddSingleton(this.messageBus);
             this.context.Services.AddSingleton(mockConfigurationService.Object);
             this.context.Services.AddSingleton(parameterEditorBodyViewModel.Object);
             this.context.Services.AddSingleton(parameterTableViewModel.Object);
             this.context.Services.AddSingleton(configurationService.Object);
+            this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IBatchParameterEditorViewModel, BatchParameterEditorViewModel>();
             this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
