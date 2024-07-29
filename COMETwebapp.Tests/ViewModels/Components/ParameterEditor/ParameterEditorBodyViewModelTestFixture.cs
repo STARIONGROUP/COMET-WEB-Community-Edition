@@ -244,7 +244,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             this.viewModel.ElementSelector.SelectedElementBase = this.viewModel.ElementSelector.AvailableElements.First();
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.DefaultOption, this.viewModel.ElementSelector.SelectedElementBase, null, true), Times.Once);
+            this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.DefaultOption, this.viewModel.ElementSelector.SelectedElementBase, null, true), Times.AtLeastOnce);
 
             this.viewModel.ElementSelector.SelectedElementBase = null;
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);

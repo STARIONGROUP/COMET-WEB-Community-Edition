@@ -73,7 +73,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
         private Mock<ISession> session;
         private Iteration firstIteration;
         private Iteration secondIteration;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
