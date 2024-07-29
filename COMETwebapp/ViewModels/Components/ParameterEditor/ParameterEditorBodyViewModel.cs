@@ -172,23 +172,21 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         protected override async Task OnThingChanged()
         {
             await base.OnThingChanged();
-            this.IsOwnedParameters = true;
-            this.ElementSelector.CurrentIteration = this.CurrentThing;
-            this.OptionSelector.CurrentIteration = this.CurrentThing;
-            this.ParameterTypeSelector.CurrentIteration = this.CurrentThing;
-            this.BatchParameterEditorViewModel.CurrentIteration = this.CurrentThing;
-            await this.InitializeTable();
-        }
 
-        /// <summary>
-        /// Initialize the <see cref="IParameterTableViewModel" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task InitializeTable()
-        {
-            this.IsLoading = true;
-            await Task.Delay(1);
-            this.ParameterTableViewModel.InitializeViewModel(this.CurrentThing, this.CurrentDomain, this.OptionSelector.SelectedOption);
+            if (!this.HasSetInitialValuesOnce)
+            {
+                this.IsLoading = true;
+
+                this.IsOwnedParameters = true;
+                this.ElementSelector.CurrentIteration = this.CurrentThing;
+                this.OptionSelector.CurrentIteration = this.CurrentThing;
+                this.ParameterTypeSelector.CurrentIteration = this.CurrentThing;
+                this.BatchParameterEditorViewModel.CurrentIteration = this.CurrentThing;
+                this.ParameterTableViewModel.InitializeViewModel(this.CurrentThing, this.CurrentDomain, this.OptionSelector.SelectedOption);
+
+                this.IsLoading = false;
+            }
+
             this.IsLoading = false;
         }
 
