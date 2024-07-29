@@ -36,6 +36,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
     using DevExpress.Blazor;
 
+    using FluentResults;
+
     using Microsoft.AspNetCore.Components.Forms;
 
     using Moq;
@@ -55,10 +57,14 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         public void SetUp()
         {
             this.context = new TestContext();
+
+            var domainSelectorViewModel = new Mock<IDomainOfExpertiseSelectorViewModel>();
+
             this.viewModel = new Mock<IFileHandlerViewModel>();
             this.viewModel.Setup(x => x.CurrentThing).Returns(new File());
-            var domainSelectorViewModel = new Mock<IDomainOfExpertiseSelectorViewModel>();
             this.viewModel.Setup(x => x.DomainOfExpertiseSelectorViewModel).Returns(domainSelectorViewModel.Object);
+            this.viewModel.Setup(x => x.CreateOrEditFile(It.IsAny<bool>())).ReturnsAsync(new Result());
+
             this.context.ConfigureDevExpressBlazor();
 
             this.renderer = this.context.RenderComponent<FileForm>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
@@ -72,14 +78,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         }
 
         [Test]
-        public async Task VerifyOnValidSubmitAndDelete()
+        public async Task VerifyFileFormDelete()
         {
-            Assert.That(this.renderer.Instance.IsDeletePopupVisible, Is.EqualTo(false));
-
-            var form = this.renderer.FindComponent<EditForm>();
-            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
-            this.viewModel.Verify(x => x.CreateOrEditFile(It.IsAny<bool>()), Times.Once);
-
             var deleteFileButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deleteFileButton");
             await this.renderer.InvokeAsync(deleteFileButton.Instance.Click.InvokeAsync);
             Assert.That(this.renderer.Instance.IsDeletePopupVisible, Is.EqualTo(true));
@@ -91,6 +91,32 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
             {
                 Assert.That(this.renderer.Instance.IsDeletePopupVisible, Is.EqualTo(false));
                 this.viewModel.Verify(x => x.DeleteFile(), Times.Once);
+            });
+        }
+
+        [Test]
+        public async Task VerifyOnValidSubmitAndDelete()
+        {
+            Assert.That(this.renderer.Instance.IsDeletePopupVisible, Is.EqualTo(false));
+
+            var form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                this.viewModel.Verify(x => x.CreateOrEditFile(It.IsAny<bool>()), Times.Once);
+                Assert.That(this.renderer.Instance.ErrorMessage, Is.Null.Or.Empty);
+            });
+
+            var failingResult = new Result();
+            failingResult.Reasons.Add(new ExceptionalError(new Exception("Invalid")));
+            this.viewModel.Setup(x => x.CreateOrEditFile(It.IsAny<bool>())).ReturnsAsync(failingResult);
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                this.viewModel.Verify(x => x.CreateOrEditFile(It.IsAny<bool>()), Times.Exactly(2));
+                Assert.That(this.renderer.Instance.ErrorMessage, Is.Not.Null.Or.Empty);
             });
         }
     }
