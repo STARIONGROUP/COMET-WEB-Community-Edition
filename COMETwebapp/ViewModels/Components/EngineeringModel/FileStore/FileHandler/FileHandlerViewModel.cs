@@ -203,11 +203,10 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
             }
             else
             {
-                this.logger.LogWarning("File could not be created. {warning}", string.Join(", ", string.Join(", ", result.Reasons.Select(x => x.Message))));
+                this.logger.LogWarning("File could not be created. {warning}", string.Join(", ", result.Reasons.Select(x => x.Message)));
             }
 
             this.IsLoading = false;
-
             return result;
         }
 

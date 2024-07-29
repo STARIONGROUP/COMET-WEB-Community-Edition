@@ -299,6 +299,6 @@ sub {
     border-radius: 10px;
 }
 
-    .validation-container:not(:has(li)) {
-        display: none;
-    }
+.validation-container:not(:has(li)) {
+    display: none;
+}
