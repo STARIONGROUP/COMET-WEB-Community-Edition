@@ -54,7 +54,21 @@ Copyright (c) 2023-2024 Starion Group S.A.
 
     </DxFormLayout>
     <div class="pt-3"></div>
-    <ValidationSummary />
+    
+    <div class="validation-container mt-3">
+        <ul class="validation-errors">
+            <ValidationSummary/>
+            @if (!this.ViewModel.SelectedFileRevisions.Any())
+            {
+                <li class="validation-message">At least one file revision should exist</li>
+            }
+            @if (!string.IsNullOrWhiteSpace(this.ErrorMessage))
+            {
+                <li class="validation-message">@(this.ErrorMessage)</li>
+            }
+        </ul>
+    </div>
+
     <div class="dxbl-grid-edit-form-buttons">
         <DxButton Id="deleteFileButton"
                   Click="@(() => this.IsDeletePopupVisible = true)"

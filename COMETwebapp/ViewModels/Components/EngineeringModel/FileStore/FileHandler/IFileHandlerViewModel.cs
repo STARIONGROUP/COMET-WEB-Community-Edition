@@ -32,6 +32,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
 
+    using FluentResults;
+
     /// <summary>
     /// View model used to manage the files in Filestores
     /// </summary>
@@ -96,8 +98,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         /// Creates a file into a target folder
         /// </summary>
         /// <param name="shouldCreate"></param>
-        /// <returns>A <see cref="Task"/></returns>
-        Task CreateOrEditFile(bool shouldCreate);
+        /// <returns>A <see cref="Task"/> containing a <see cref="Result"/></returns>
+        Task<Result> CreateOrEditFile(bool shouldCreate);
 
         /// <summary>
         /// Deletes the current file
