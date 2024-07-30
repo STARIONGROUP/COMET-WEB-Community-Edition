@@ -24,12 +24,16 @@
 
 namespace COMETwebapp.Components.ParameterEditor
 {
+    using System.Collections.ObjectModel;
+
     using COMET.Web.Common.Extensions;
 
     using COMETwebapp.Comparer;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using DevExpress.Blazor;
+
+    using DynamicData;
 
     using Microsoft.AspNetCore.Components;
 
@@ -41,20 +45,30 @@ namespace COMETwebapp.Components.ParameterEditor
     public partial class ParameterTable
     {
         /// <summary>
+        /// The <see cref="ParameterBaseRowViewModelComparer" />
+        /// </summary>
+        private readonly ParameterBaseRowViewModelComparer comparer = new();
+
+        /// <summary>
         /// <see cref="EventCallback" /> to close the popup editor
         /// </summary>
         private EventCallback closeEditor;
 
         /// <summary>
-        /// The <see cref="ParameterBaseRowViewModelComparer" />
+        /// The sorted collection of <see cref="ParameterBaseRowViewModel" />
         /// </summary>
-        private readonly ParameterBaseRowViewModelComparer comparer = new();
+        private ReadOnlyObservableCollection<ParameterBaseRowViewModel> sortedCollection;
 
         /// <summary>
         /// Gets or sets the <see cref="IParameterTableViewModel" />
         /// </summary>
         [Parameter]
         public IParameterTableViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets the current view model hash code to compare with new ones
+        /// </summary>
+        public int ViewModelHashCode { get; set; }
 
         /// <summary>
         /// Gets or sets the grid control that is being customized.
@@ -76,6 +90,34 @@ namespace COMETwebapp.Components.ParameterEditor
         }
 
         /// <summary>
+        /// Method invoked when the component has received parameters from its parent in
+        /// the render tree, and the incoming values have been assigned to properties.
+        /// </summary>
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
+
+            if (this.ViewModel.GetHashCode() == this.ViewModelHashCode)
+            {
+                return;
+            }
+
+            if (this.ViewModelHashCode != 0)
+            {
+                var latestViewModelRowsSubscription = this.Disposables.Last();
+                latestViewModelRowsSubscription.Dispose();
+                this.Disposables.Remove(latestViewModelRowsSubscription);
+            }
+
+            this.Disposables.Add(this.ViewModel.Rows.Connect()
+                .Sort(this.comparer)
+                .Bind(out this.sortedCollection)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.ViewModelHashCode = this.ViewModel.GetHashCode();
+        }
+
+        /// <summary>
         /// Customizes the table rows
         /// </summary>
         /// <param name="e">The <see cref="GridCustomizeElementEventArgs" /></param>
@@ -94,7 +136,7 @@ namespace COMETwebapp.Components.ParameterEditor
             if (e.ElementType == GridElementType.GroupCell)
             {
                 var elementBaseName = (string)e.Grid.GetRowValue(e.VisibleIndex, nameof(ParameterBaseRowViewModel.ElementBaseName));
-                var isPublishableParameterInGroup = this.ViewModel.Rows.Items.Any(x => x.IsPublishable && x.ElementBaseName == elementBaseName);
+                var isPublishableParameterInGroup = this.sortedCollection.Any(x => x.IsPublishable && x.ElementBaseName == elementBaseName);
 
                 if (isPublishableParameterInGroup)
                 {
