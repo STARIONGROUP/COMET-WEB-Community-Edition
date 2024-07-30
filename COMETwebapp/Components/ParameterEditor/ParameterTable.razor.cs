@@ -66,11 +66,6 @@ namespace COMETwebapp.Components.ParameterEditor
         public IParameterTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets the current view model hash code to compare with new ones
-        /// </summary>
-        public int ViewModelHashCode { get; set; }
-
-        /// <summary>
         /// Gets or sets the grid control that is being customized.
         /// </summary>
         private IGrid Grid { get; set; }
@@ -86,35 +81,13 @@ namespace COMETwebapp.Components.ParameterEditor
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditMode)
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
-            this.closeEditor = new EventCallbackFactory().Create(this, () => { this.ViewModel.IsOnEditMode = false; });
-        }
-
-        /// <summary>
-        /// Method invoked when the component has received parameters from its parent in
-        /// the render tree, and the incoming values have been assigned to properties.
-        /// </summary>
-        protected override void OnParametersSet()
-        {
-            base.OnParametersSet();
-
-            if (this.ViewModel.GetHashCode() == this.ViewModelHashCode)
-            {
-                return;
-            }
-
-            if (this.ViewModelHashCode != 0)
-            {
-                var latestViewModelRowsSubscription = this.Disposables.Last();
-                latestViewModelRowsSubscription.Dispose();
-                this.Disposables.Remove(latestViewModelRowsSubscription);
-            }
-
             this.Disposables.Add(this.ViewModel.Rows.Connect()
+                .AutoRefresh()
                 .Sort(this.comparer)
                 .Bind(out this.sortedCollection)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
-            this.ViewModelHashCode = this.ViewModel.GetHashCode();
+            this.closeEditor = new EventCallbackFactory().Create(this, () => { this.ViewModel.IsOnEditMode = false; });
         }
 
         /// <summary>

@@ -60,6 +60,12 @@ namespace COMET.Web.Common.Components.Applications
         public Thing CurrentThing { get; set; }
 
         /// <summary>
+        /// Gets or sets the component's id
+        /// </summary>
+        [Parameter]
+        public object Id { get; set; }
+
+        /// <summary>
         /// Gets the <see cref="Dictionary{TKey,TValue}"/> of parameters that have to be passed to the <see cref="DynamicComponent"/>
         /// </summary>
         private readonly Dictionary<string, object> parameters = [];
