@@ -100,6 +100,7 @@ namespace COMETwebapp.Components.ParameterEditor
                 additionalParameters["owned"] = this.ViewModel.IsOwnedParameters.ToString();
             }
 
+            this.ViewModel.ApplyFilters();
             this.UpdateUrlWithParameters(additionalParameters, WebAppConstantValues.ParameterEditorPage);
         }
     }

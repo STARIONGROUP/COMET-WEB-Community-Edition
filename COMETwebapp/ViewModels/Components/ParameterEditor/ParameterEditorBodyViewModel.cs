@@ -30,7 +30,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
     using CDP4Dal;
     using CDP4Dal.Events;
 
-    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -74,13 +73,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.SubscriptionService = subscriptionService;
             this.ParameterTableViewModel = parameterTableView;
             this.BatchParameterEditorViewModel = batchParameterEditorViewModel;
-
-            this.Disposables.Add(this.WhenAnyValue(
-                x => x.ElementSelector.SelectedElementBase,
-                x => x.OptionSelector.SelectedOption,
-                x => x.ParameterTypeSelector.SelectedParameterType,
-                x => x.IsOwnedParameters)
-                .SubscribeAsync(_ => this.ApplyFilters()));
 
             this.InitializeSubscriptions(ObjectChangedTypesOfInterest);
             this.RegisterViewModelsWithReusableRows([this.ParameterTableViewModel]);
@@ -126,6 +118,18 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public IBatchParameterEditorViewModel BatchParameterEditorViewModel { get; set; }
 
         /// <summary>
+        /// Apply all the filters on the <see cref="IParameterTableViewModel" />
+        /// </summary>
+        public void ApplyFilters()
+        {
+            if (this.CurrentThing != null)
+            {
+                this.ParameterTableViewModel.ApplyFilters(this.OptionSelector.SelectedOption, this.ElementSelector.SelectedElementBase,
+                    this.ParameterTypeSelector.SelectedParameterType, this.IsOwnedParameters);
+            }
+        }
+
+        /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -160,7 +164,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 
                 if (this.IsOwnedParameters)
                 {
-                    await this.ApplyFilters();
+                    this.ApplyFilters();
                 }
 
                 this.IsLoading = false;
@@ -187,26 +191,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             }
 
             this.ParameterTableViewModel.InitializeViewModel(this.CurrentThing, this.CurrentDomain, this.OptionSelector.SelectedOption);
-            await this.ApplyFilters();
+            this.ApplyFilters();
             this.IsLoading = false;
-        }
-
-        /// <summary>
-        /// Apply all the filters on the <see cref="IParameterTableViewModel" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task ApplyFilters()
-        {
-            if (this.CurrentThing != null)
-            {
-                this.IsLoading = true;
-                await Task.Delay(1);
-
-                this.ParameterTableViewModel.ApplyFilters(this.OptionSelector.SelectedOption, this.ElementSelector.SelectedElementBase,
-                    this.ParameterTypeSelector.SelectedParameterType, this.IsOwnedParameters);
-
-                this.IsLoading = false;
-            }
         }
     }
 }

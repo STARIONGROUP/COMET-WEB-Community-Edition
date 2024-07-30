@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SubscriptionDashboardBodyViewModel.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -46,14 +46,14 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="subscribedTable">The <see cref="ISubscribedTableViewModel" /></param>
-        /// <param name="messageBus">The <see cref="CDPMessageBus"/></param>
+        /// <param name="messageBus">The <see cref="CDPMessageBus" /></param>
         public SubscriptionDashboardBodyViewModel(ISessionService sessionService, ISubscribedTableViewModel subscribedTable, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.SubscribedTable = subscribedTable;
 
             this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption,
                     x => x.ParameterTypeSelector.SelectedParameterType)
-                .SubscribeAsync(_ => this.UpdateTables()));
+                .Subscribe(_ => this.UpdateTables()));
         }
 
         /// <summary>
@@ -75,6 +75,20 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         /// Gets the <see cref="IParameterTypeSelectorViewModel" />
         /// </summary>
         public IParameterTypeSelectorViewModel ParameterTypeSelector { get; } = new ParameterTypeSelectorViewModel();
+
+        /// <summary>
+        /// Updates the <see cref="ISubscribedTableViewModel" /> and <see cref="IDomainOfExpertiseSubscriptionTableViewModel" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public void UpdateTables()
+        {
+            this.IsLoading = true;
+
+            this.SubscribedTable.ApplyFilters(this.OptionSelector.SelectedOption, this.ParameterTypeSelector.SelectedParameterType);
+            this.DomainOfExpertiseSubscriptionTable.ApplyFilters(this.OptionSelector.SelectedOption, this.ParameterTypeSelector.SelectedParameterType);
+
+            this.IsLoading = false;
+        }
 
         /// <summary>
         /// Update this view model properties when the <see cref="Iteration" /> has changed
@@ -112,7 +126,7 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         protected override async Task OnSessionRefreshed()
         {
             await this.OnThingChanged();
-            await this.UpdateTables();
+            this.UpdateTables();
         }
 
         /// <summary>
@@ -123,20 +137,6 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         {
             base.OnDomainChanged();
             return this.OnThingChanged();
-        }
-
-        /// <summary>
-        /// Updates the <see cref="ISubscribedTableViewModel" /> and <see cref="IDomainOfExpertiseSubscriptionTableViewModel" />
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task UpdateTables()
-        {
-            this.IsLoading = true;
-            await Task.Delay(1);
-
-            this.SubscribedTable.ApplyFilters(this.OptionSelector.SelectedOption, this.ParameterTypeSelector.SelectedParameterType);
-            this.DomainOfExpertiseSubscriptionTable.ApplyFilters(this.OptionSelector.SelectedOption, this.ParameterTypeSelector.SelectedParameterType);
-            this.IsLoading = false;
         }
     }
 }

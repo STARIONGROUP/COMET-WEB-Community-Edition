@@ -1,18 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ModelDashboardBodyViewModel.cs" company="Starion Group S.A.">
-//     Copyright (c) 2023-2024 Starion Group S.A.
+//     Copyright (c) 2024 Starion Group S.A.
 // 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 // 
-//     This file is part of CDP4-COMET WEB Community Edition
-//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
@@ -28,7 +28,6 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
 
     using CDP4Dal;
 
-    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -52,11 +51,6 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
         public ModelDashboardBodyViewModel(ISessionService sessionService, IParameterDashboardViewModel parameterDashboard, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.ParameterDashboard = parameterDashboard;
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.FiniteStateSelector.SelectedActualFiniteState,
-                    x => x.OptionSelector.SelectedOption,
-                    x => x.ParameterTypeSelector.SelectedParameterType)
-                .SubscribeAsync(_ => this.UpdateDashboards()));
         }
 
         /// <summary>
@@ -90,6 +84,22 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
         public IParameterTypeSelectorViewModel ParameterTypeSelector { get; private set; } = new ParameterTypeSelectorViewModel();
 
         /// <summary>
+        /// Update the dashboard view models properties
+        /// </summary>
+        public void UpdateDashboards()
+        {
+            this.IsLoading = true;
+
+            this.ParameterDashboard.UpdateProperties(this.CurrentThing, this.OptionSelector.SelectedOption,
+                this.FiniteStateSelector.SelectedActualFiniteState, this.ParameterTypeSelector.SelectedParameterType,
+                this.CurrentDomain, this.AvailableDomains);
+
+            this.ElementDashboard.UpdateProperties(this.CurrentThing, this.CurrentDomain);
+
+            this.IsLoading = false;
+        }
+
+        /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -105,7 +115,7 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
         protected override async Task OnDomainChanged()
         {
             await base.OnDomainChanged();
-            await this.UpdateDashboards();
+            this.UpdateDashboards();
         }
 
         /// <summary>
@@ -124,24 +134,7 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
                 : this.SessionService.GetModelDomains((EngineeringModelSetup)this.CurrentThing.IterationSetup.Container);
 
             this.CurrentDomain = this.CurrentThing == null ? null : this.SessionService.GetDomainOfExpertise(this.CurrentThing);
-            await this.UpdateDashboards();
-        }
-
-        /// <summary>
-        /// Update the dashboard view models properties
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task UpdateDashboards()
-        {
-            this.IsLoading = true;
-            await Task.Delay(1);
-
-            this.ParameterDashboard.UpdateProperties(this.CurrentThing, this.OptionSelector.SelectedOption,
-                this.FiniteStateSelector.SelectedActualFiniteState, this.ParameterTypeSelector.SelectedParameterType,
-                this.CurrentDomain, this.AvailableDomains);
-
-            this.ElementDashboard.UpdateProperties(this.CurrentThing, this.CurrentDomain);
-            this.IsLoading = false;
+            this.UpdateDashboards();
         }
     }
 }

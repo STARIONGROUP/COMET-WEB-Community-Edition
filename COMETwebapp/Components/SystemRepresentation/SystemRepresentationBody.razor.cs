@@ -77,6 +77,7 @@ namespace COMETwebapp.Components.SystemRepresentation
                 additionalParameters[QueryKeys.OptionKey] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToShortGuid();
             }
 
+            this.ViewModel.ApplyFilters();
             this.UpdateUrlWithParameters(additionalParameters, WebAppConstantValues.SystemRepresentationPage);
         }
     }
