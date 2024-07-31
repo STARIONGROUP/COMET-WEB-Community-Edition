@@ -52,21 +52,26 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         ISessionService SessionService { get; }
 
         /// <summary>
-        /// Gets the <see cref="DomainOfExpertise" /> from the current <see cref="Iteration"/>
+        /// Gets the <see cref="DomainOfExpertise" /> from the current <see cref="Iteration" />
         /// </summary>
         DomainOfExpertise CurrentIterationDomain { get; set; }
 
         /// <summary>
-        /// Gets or sets the callback that is executed when the <see cref="SelectedDomainOfExpertise"/> property has changed
+        /// Gets or sets the callback that is executed when the <see cref="SelectedDomainOfExpertise" /> property has changed
         /// </summary>
         EventCallback<DomainOfExpertise> OnSelectedDomainOfExpertiseChange { get; set; }
 
         /// <summary>
-        /// Sets the <see cref="SelectedDomainOfExpertise"/> property or resets its value
+        /// Gets or sets the condition to check if a null selection can be allowed
+        /// </summary>
+        bool AllowNullSelection { get; set; }
+
+        /// <summary>
+        /// Sets the <see cref="SelectedDomainOfExpertise" /> property or resets its value
         /// </summary>
         /// <param name="reset">The condition to check if the value should be reset</param>
-        /// <param name="domainOfExpertise">The <see cref="DomainOfExpertise"/> to be set</param>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <param name="domainOfExpertise">The <see cref="DomainOfExpertise" /> to be set</param>
+        /// <returns>A <see cref="Task" /></returns>
         Task SetSelectedDomainOfExpertiseOrReset(bool reset, DomainOfExpertise domainOfExpertise = null);
     }
 }

@@ -50,14 +50,17 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         private Mock<ILogger<BatchParameterEditorViewModel>> loggerMock;
         private Iteration iteration;
         private CDPMessageBus messageBus;
-        private static readonly ValueArray<string> defaultValueArray = new(["-"]);
+        private static readonly ValueArray<string> DefaultValueArray = new(["-"]);
 
         [SetUp]
         public void Setup()
         {
             this.sessionService = new Mock<ISessionService>();
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(new SiteDirectory());
+
             this.loggerMock = new Mock<ILogger<BatchParameterEditorViewModel>>();
             this.messageBus = new CDPMessageBus();
+
             this.viewModel = new BatchParameterEditorViewModel(this.sessionService.Object, this.messageBus, this.loggerMock.Object);
 
             var domain = new DomainOfExpertise();
@@ -66,7 +69,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             {
                 Iid = Guid.NewGuid(),
                 Name = "mass",
-                ShortName = "m"
+                ShortName = "m",
+                Category =
+                {
+                    new Category()
+                }
             };
 
             var scale = new RatioScale
@@ -86,28 +93,28 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                     new ParameterValueSet
                     {
                         Iid = Guid.NewGuid(),
-                        Manual = defaultValueArray,
-                        Published = defaultValueArray,
+                        Manual = DefaultValueArray,
+                        Published = DefaultValueArray,
                         ValueSwitch = ParameterSwitchKind.MANUAL,
                         ActualOption = new Option()
                     },
                     new ParameterValueSet
                     {
                         Iid = Guid.NewGuid(),
-                        Manual = defaultValueArray,
-                        Published = defaultValueArray,
+                        Manual = DefaultValueArray,
+                        Published = DefaultValueArray,
                         ValueSwitch = ParameterSwitchKind.MANUAL,
                         ActualState = new ActualFiniteState { Container = new ActualFiniteStateList() }
                     },
                     new ParameterValueSet
                     {
                         Iid = Guid.NewGuid(),
-                        Manual = defaultValueArray,
-                        Published = defaultValueArray,
+                        Manual = DefaultValueArray,
+                        Published = DefaultValueArray,
                         ValueSwitch = ParameterSwitchKind.MANUAL,
                         ActualState = new ActualFiniteState { Container = new ActualFiniteStateList() },
                         ActualOption = new Option()
-                    },
+                    }
                 }
             };
 
@@ -173,11 +180,17 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 Assert.That(this.viewModel.ParameterTypeSelectorViewModel.SelectedParameterType, Is.Null);
                 Assert.That(this.viewModel.OptionSelectorViewModel.SelectedOption, Is.Null);
                 Assert.That(this.viewModel.FiniteStateSelectorViewModel.SelectedActualFiniteState, Is.Null);
+                Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise, Is.Null);
+                Assert.That(this.viewModel.SelectedCategory, Is.Null);
                 Assert.That(this.viewModel.SelectedValueSetsRowsToUpdate, Has.Count.EqualTo(0));
                 Assert.That(this.viewModel.IsVisible, Is.EqualTo(true));
                 Assert.That(this.viewModel.Rows.Items.Count(), Is.EqualTo(0));
             });
 
+            this.viewModel.SelectedCategory = new Category();
+            Assert.That(this.viewModel.Rows.Items.Count(), Is.EqualTo(0));
+
+            this.viewModel.SelectedCategory = null;
             var firstTopElementParameter = this.iteration.TopElement.Parameter[0];
             this.viewModel.ParameterTypeSelectorViewModel.SelectedParameterType = firstTopElementParameter.ParameterType;
             Assert.That(this.viewModel.Rows.Items.Count(), Is.EqualTo(3));
@@ -187,6 +200,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             this.viewModel.FiniteStateSelectorViewModel.SelectedActualFiniteState = firstTopElementParameter.ValueSet[1].ActualState;
             Assert.That(this.viewModel.Rows.Items.Count(), Is.EqualTo(1));
+
+            this.viewModel.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise = firstTopElementParameter.Owner;
+            Assert.That(this.viewModel.Rows.Items.Count(), Is.EqualTo(1));
+
+            this.viewModel.SelectedCategory = new Category();
+            Assert.That(this.viewModel.Rows.Items.Count(), Is.EqualTo(0));
         }
 
         [Test]

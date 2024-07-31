@@ -67,6 +67,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             var parameterTypeEditorSelectorViewModel = new Mock<IParameterTypeEditorSelectorViewModel>();
             var finiteStateSelectorViewModel = new Mock<IFiniteStateSelectorViewModel>();
             var optionSelectorViewModel = new Mock<IOptionSelectorViewModel>();
+            var domainOfExpertiseSelectorViewModel = new Mock<IDomainOfExpertiseSelectorViewModel>();
             var confirmCancelPopupViewModel = new Mock<IConfirmCancelPopupViewModel>();
 
             var parameter = new Parameter
@@ -100,6 +101,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             this.viewModel.Setup(x => x.ParameterTypeSelectorViewModel).Returns(parameterTypeSelectorViewModel.Object);
             this.viewModel.Setup(x => x.FiniteStateSelectorViewModel).Returns(finiteStateSelectorViewModel.Object);
             this.viewModel.Setup(x => x.OptionSelectorViewModel).Returns(optionSelectorViewModel.Object);
+            this.viewModel.Setup(x => x.DomainOfExpertiseSelectorViewModel).Returns(domainOfExpertiseSelectorViewModel.Object);
             this.viewModel.Setup(x => x.ParameterTypeEditorSelectorViewModel).Returns(parameterTypeEditorSelectorViewModel.Object);
 
             this.renderer = this.context.RenderComponent<BatchParameterEditor>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
