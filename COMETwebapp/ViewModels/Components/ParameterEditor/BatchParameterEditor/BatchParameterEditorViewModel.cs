@@ -51,24 +51,29 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
     public class BatchParameterEditorViewModel : BelongsToIterationSelectorViewModel, IBatchParameterEditorViewModel
     {
         /// <summary>
+        /// Gets the excluded <see cref="ParameterType" />s for applying the batch updates
+        /// </summary>
+        private readonly IEnumerable<ClassKind> excludedParameterTypes = [ClassKind.SampledFunctionParameterType, ClassKind.ArrayParameterType, ClassKind.CompoundParameterType];
+
+        /// <summary>
         /// Gets the <see cref="ILogger{TCategoryName}" />
         /// </summary>
         private readonly ILogger<BatchParameterEditorViewModel> logger;
 
         /// <summary>
-        /// Gets the <see cref="ICDPMessageBus"/>
+        /// Gets the <see cref="ICDPMessageBus" />
         /// </summary>
         private readonly ICDPMessageBus messageBus;
-
-        /// <summary>
-        /// Gets the excluded <see cref="ParameterType"/>s for applying the batch updates
-        /// </summary>
-        private readonly IEnumerable<ClassKind> excludedParameterTypes = [ClassKind.SampledFunctionParameterType, ClassKind.ArrayParameterType, ClassKind.CompoundParameterType];
 
         /// <summary>
         /// The backing field for <see cref="IsLoading" />
         /// </summary>
         private bool isLoading;
+
+        /// <summary>
+        /// The backing field for <see cref="SelectedCategory" />
+        /// </summary>
+        private Category selectedCategory;
 
         /// <summary>
         /// Creates a new instance of type <see cref="BatchParameterEditorViewModel" />
@@ -83,6 +88,12 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             this.logger = logger;
             var eventCallbackFactory = new EventCallbackFactory();
 
+            this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
+            {
+                AllowNullSelection = true,
+                CurrentIteration = this.CurrentIteration
+            };
+
             this.ConfirmCancelPopupViewModel = new ConfirmCancelPopupViewModel
             {
                 OnCancel = eventCallbackFactory.Create(this, this.OnCancelPopup),
@@ -92,10 +103,12 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             };
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ParameterTypeSelectorViewModel.SelectedParameterType).Subscribe(this.OnSelectedParameterTypeChange));
-           
+
             this.Disposables.Add(this.WhenAnyValue(
-                x => x.OptionSelectorViewModel.SelectedOption, 
-                x => x.FiniteStateSelectorViewModel.SelectedActualFiniteState)
+                    x => x.OptionSelectorViewModel.SelectedOption,
+                    x => x.FiniteStateSelectorViewModel.SelectedActualFiniteState,
+                    x => x.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise,
+                    x => x.SelectedCategory)
                 .Subscribe(_ => this.ApplyFilters()));
         }
 
@@ -119,6 +132,20 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         }
 
         /// <summary>
+        /// Gets a collection of all available categories
+        /// </summary>
+        public IEnumerable<Category> AvailableCategories => this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.DefinedCategory).Distinct();
+
+        /// <summary>
+        /// Gets or sets the selected category
+        /// </summary>
+        public Category SelectedCategory
+        {
+            get => this.selectedCategory;
+            set => this.RaiseAndSetIfChanged(ref this.selectedCategory, value);
+        }
+
+        /// <summary>
         /// Gets the <see cref="IParameterTypeEditorSelectorViewModel" />
         /// </summary>
         public IParameterTypeEditorSelectorViewModel ParameterTypeEditorSelectorViewModel { get; private set; }
@@ -139,12 +166,17 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         public IFiniteStateSelectorViewModel FiniteStateSelectorViewModel { get; private set; } = new FiniteStateSelectorViewModel();
 
         /// <summary>
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
+        /// </summary>
+        public IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; private set; }
+
+        /// <summary>
         /// Gets the <see cref="IConfirmCancelPopupViewModel" />
         /// </summary>
         public IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; private set; }
 
         /// <summary>
-        /// Gets the list of <see cref="ParameterValueSetBaseRowViewModel"/>s
+        /// Gets the list of <see cref="ParameterValueSetBaseRowViewModel" />s
         /// </summary>
         public SourceList<ParameterValueSetBaseRowViewModel> Rows { get; private set; } = new();
 
@@ -161,6 +193,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             this.ParameterTypeSelectorViewModel.SelectedParameterType = null;
             this.OptionSelectorViewModel.SelectedOption = null;
             this.FiniteStateSelectorViewModel.SelectedActualFiniteState = null;
+            this.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise = null;
+            this.SelectedCategory = null;
             this.SelectedValueSetsRowsToUpdate = [];
             this.IsVisible = true;
         }
@@ -173,6 +207,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             this.ParameterTypeSelectorViewModel.CurrentIteration = this.CurrentIteration;
             this.OptionSelectorViewModel.CurrentIteration = this.CurrentIteration;
             this.FiniteStateSelectorViewModel.CurrentIteration = this.CurrentIteration;
+            this.DomainOfExpertiseSelectorViewModel.CurrentIteration = this.CurrentIteration;
 
             var availableParameterTypeIids = this.CurrentIteration?
                 .QueryParameterAndOverrideBases()
@@ -194,7 +229,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         /// <summary>
         /// Method executed everytime the <see cref="ConfirmCancelPopupViewModel" /> is confirmed
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         private async Task OnConfirmPopup()
         {
             this.IsLoading = true;
@@ -233,7 +268,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         }
 
         /// <summary>
-        /// Applies the selected filters for the <see cref="Rows"/>
+        /// Applies the selected filters for the <see cref="Rows" />
         /// </summary>
         private void ApplyFilters()
         {
@@ -244,10 +279,12 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
                 return;
             }
 
-            if (this.ParameterTypeSelectorViewModel.SelectedParameterType != null)
+            if (this.ParameterTypeSelectorViewModel.SelectedParameterType == null)
             {
-                parameterAndOverrideBases = parameterAndOverrideBases.Where(x => x.ParameterType.Iid == this.ParameterTypeSelectorViewModel.SelectedParameterType.Iid);
+                return;
             }
+
+            parameterAndOverrideBases = parameterAndOverrideBases.Where(x => x.ParameterType.Iid == this.ParameterTypeSelectorViewModel.SelectedParameterType.Iid);
 
             var parameterValueSets = parameterAndOverrideBases
                 .OfType<Parameter>()
@@ -261,6 +298,20 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             if (this.FiniteStateSelectorViewModel.SelectedActualFiniteState != null)
             {
                 parameterValueSets = parameterValueSets.Where(x => x.ActualState?.Iid == this.FiniteStateSelectorViewModel.SelectedActualFiniteState.Iid);
+            }
+
+            if (this.SelectedCategory != null)
+            {
+                var parameterTypeCategories = this.ParameterTypeSelectorViewModel.SelectedParameterType.Category;
+
+                parameterValueSets = parameterTypeCategories.Count > 0
+                    ? parameterValueSets.Where(x => x.GetContainerOfType<Parameter>().ParameterType.Category.Contains(this.SelectedCategory))
+                    : parameterValueSets.Where(x => x.GetContainerOfType<ElementDefinition>().Category.Contains(this.SelectedCategory));
+            }
+
+            if (this.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise != null)
+            {
+                parameterValueSets = parameterValueSets.Where(x => x.GetContainerOfType<Parameter>().Owner.Iid == this.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise.Iid);
             }
 
             this.Rows.Edit(action =>

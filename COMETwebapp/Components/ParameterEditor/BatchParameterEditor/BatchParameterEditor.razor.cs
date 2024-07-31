@@ -67,12 +67,14 @@ namespace COMETwebapp.Components.ParameterEditor.BatchParameterEditor
             this.Disposables.Add(this.WhenAnyValue(
                     x => x.ViewModel.ParameterTypeSelectorViewModel.SelectedParameterType,
                     x => x.ViewModel.OptionSelectorViewModel.SelectedOption,
-                    x => x.ViewModel.FiniteStateSelectorViewModel.SelectedActualFiniteState)
+                    x => x.ViewModel.FiniteStateSelectorViewModel.SelectedActualFiniteState,
+                    x => x.ViewModel.SelectedCategory,
+                    x => x.ViewModel.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise)
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
-        /// Gets the group check value based on the given <see cref="ViewModel"/>
+        /// Gets the group check value based on the given <see cref="ViewModel" />
         /// </summary>
         /// <param name="context">The column group context</param>
         /// <returns>The check box value</returns>
@@ -106,9 +108,9 @@ namespace COMETwebapp.Components.ParameterEditor.BatchParameterEditor
         }
 
         /// <summary>
-        /// Gets the <see cref="ParameterValueSetBaseRowViewModel"/>s from the selected element name group
+        /// Gets the <see cref="ParameterValueSetBaseRowViewModel" />s from the selected element name group
         /// </summary>
-        /// <param name="context">The <see cref="GridDataColumnGroupRowTemplateContext"/></param>
+        /// <param name="context">The <see cref="GridDataColumnGroupRowTemplateContext" /></param>
         /// <returns>A collection of data items contained in the given group</returns>
         private IEnumerable<object> GetGroupDataItems(GridDataColumnGroupRowTemplateContext context)
         {

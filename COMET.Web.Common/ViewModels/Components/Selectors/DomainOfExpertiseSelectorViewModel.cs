@@ -51,7 +51,7 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         /// Creates a new instance of <see cref="DomainOfExpertiseSelectorViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         public DomainOfExpertiseSelectorViewModel(ISessionService sessionService, ICDPMessageBus messageBus)
         {
             this.SessionService = sessionService;
@@ -62,7 +62,12 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         }
 
         /// <summary>
-        /// Gets or sets the callback that is executed when the <see cref="SelectedDomainOfExpertise"/> property has changed
+        /// Gets or sets the condition to check if a null selection can be allowed
+        /// </summary>
+        public bool AllowNullSelection { get; set; }
+
+        /// <summary>
+        /// Gets or sets the callback that is executed when the <see cref="SelectedDomainOfExpertise" /> property has changed
         /// </summary>
         public EventCallback<DomainOfExpertise> OnSelectedDomainOfExpertiseChange { get; set; }
 
@@ -91,11 +96,11 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         }
 
         /// <summary>
-        /// Sets the <see cref="SelectedDomainOfExpertise"/> property or resets its value
+        /// Sets the <see cref="SelectedDomainOfExpertise" /> property or resets its value
         /// </summary>
         /// <param name="reset">The condition to check if the value should be reset</param>
-        /// <param name="domainOfExpertise">The <see cref="DomainOfExpertise"/> to be set</param>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <param name="domainOfExpertise">The <see cref="DomainOfExpertise" /> to be set</param>
+        /// <returns>A <see cref="Task" /></returns>
         public async Task SetSelectedDomainOfExpertiseOrReset(bool reset, DomainOfExpertise domainOfExpertise = null)
         {
             switch (reset)
@@ -124,7 +129,7 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         /// <summary>
         /// Method executed when an iteration domain has changed
         /// </summary>
-        /// <param name="domainChangedEvent">The <see cref="DomainChangedEvent"/> data</param>
+        /// <param name="domainChangedEvent">The <see cref="DomainChangedEvent" /> data</param>
         private void OnDomainChanged(DomainChangedEvent domainChangedEvent)
         {
             if (domainChangedEvent.Iteration.Iid == this.CurrentIteration?.Iid)

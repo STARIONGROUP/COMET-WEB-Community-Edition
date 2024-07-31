@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
 {
+    using CDP4Common.SiteDirectoryData;
+
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -68,7 +70,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         IOptionSelectorViewModel OptionSelectorViewModel { get; }
 
         /// <summary>
-        /// Gets the list of <see cref="ParameterValueSetBaseRowViewModel"/>s
+        /// Gets the list of <see cref="ParameterValueSetBaseRowViewModel" />s
         /// </summary>
         SourceList<ParameterValueSetBaseRowViewModel> Rows { get; }
 
@@ -81,6 +83,21 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         /// Gets or sets the collection of selected rows
         /// </summary>
         IReadOnlyList<object> SelectedValueSetsRowsToUpdate { get; set; }
+
+        /// <summary>
+        /// Gets a collection of all available categories
+        /// </summary>
+        IEnumerable<Category> AvailableCategories { get; }
+
+        /// <summary>
+        /// Gets or sets the selected category
+        /// </summary>
+        Category SelectedCategory { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
+        /// </summary>
+        IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; }
 
         /// <summary>
         /// Method invoked for opening the batch update popup

@@ -32,7 +32,7 @@
     <DxComboBox Data="@(this.ViewModel.AvailableDomainsOfExpertise)"
                 @bind-Value="@(this.ViewModel.SelectedDomainOfExpertise)"
                 FilteringMode="DataGridFilteringMode.Contains"
-                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
+                ClearButtonDisplayMode="@(this.ViewModel.AllowNullSelection ? DataEditorClearButtonDisplayMode.Auto : DataEditorClearButtonDisplayMode.Never)"
                 NullText="Select a Domain Of Expertise"
                 AllowUserInput="true"
                 CssClass="@(this.CssClass)">
@@ -47,6 +47,10 @@
                 <div class="@(this.ViewModel.CurrentIterationDomain == domainOfExpertise ? "fw-bold" : string.Empty)">
                     @(domainOfExpertise.GetSelectorNameAndShortname())
                 </div>
+            }
+            else
+            {
+                <span class="text-secondary">@("Select a Domain Of Expertise")</span>
             }
         </EditBoxTemplate>
     </DxComboBox>
