@@ -134,7 +134,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         /// <summary>
         /// Gets a collection of all available categories
         /// </summary>
-        public IEnumerable<Category> AvailableCategories => this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.DefinedCategory).Distinct();
+        public IEnumerable<Category> AvailableCategories => this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.DefinedCategory).Distinct().OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
         /// Gets or sets the selected category
