@@ -97,6 +97,7 @@ namespace COMETwebapp.Components.ModelDashboard
                 additionalParameters[QueryKeys.ParameterKey] = this.ViewModel.ParameterTypeSelector.SelectedParameterType.Iid.ToShortGuid();
             }
 
+            this.ViewModel.UpdateDashboards();
             this.UpdateUrlWithParameters(additionalParameters, pageName);
         }
 

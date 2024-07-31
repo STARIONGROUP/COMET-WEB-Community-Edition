@@ -26,7 +26,7 @@ Copyright (c) 2024 Starion Group S.A.
 
 @inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ParameterEditor.IParameterEditorBodyViewModel>
 
-<LoadingComponent IsVisible="@(this.ViewModel.IsLoading || this.ViewModel.BatchParameterEditorViewModel.IsLoading)">
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
     <div id="@WebAppConstantValues.ParameterEditorPage.QueryPageBodyName()" class="container-fluid">
         <div class="row ">
             <div class="col">

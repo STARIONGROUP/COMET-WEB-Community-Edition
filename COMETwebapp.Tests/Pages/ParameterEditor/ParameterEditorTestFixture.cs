@@ -73,7 +73,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
         private Mock<ISession> session;
         private Iteration firstIteration;
         private Iteration secondIteration;
-        private ICDPMessageBus messageBus;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
@@ -123,21 +123,31 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             this.messageBus = new CDPMessageBus();
 
-            this.context.ConfigureDevExpressBlazor();
-            this.context.Services.AddSingleton(this.viewModel);
-            this.context.Services.AddSingleton(this.sessionService.Object);
-            this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
-            this.context.Services.AddSingleton<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
-            this.context.Services.AddSingleton<IBatchParameterEditorViewModel, BatchParameterEditorViewModel>();
-            this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
-            this.context.Services.AddSingleton<IParameterTableViewModel, ParameterTableViewModel>();
-            this.context.Services.AddSingleton<INotificationService, NotificationService>();
-            this.context.Services.AddSingleton(mockConfigurationService.Object);
-            this.context.Services.AddSingleton(this.messageBus);
+            var parameterTableViewModel = new Mock<IParameterTableViewModel>();
+            parameterTableViewModel.Setup(x => x.Rows).Returns(new SourceList<ParameterBaseRowViewModel>());
+
+            var parameterEditorBodyViewModel = new Mock<IParameterEditorBodyViewModel>();
+            parameterEditorBodyViewModel.Setup(x => x.OptionSelector).Returns(new Mock<IOptionSelectorViewModel>().Object);
+            parameterEditorBodyViewModel.Setup(x => x.BatchParameterEditorViewModel).Returns(new Mock<IBatchParameterEditorViewModel>().Object);
+            parameterEditorBodyViewModel.Setup(x => x.ParameterTypeSelector).Returns(new Mock<IParameterTypeSelectorViewModel>().Object);
+            parameterEditorBodyViewModel.Setup(x => x.ElementSelector).Returns(new Mock<IElementBaseSelectorViewModel>().Object);
+            parameterEditorBodyViewModel.Setup(x => x.ParameterTableViewModel).Returns(parameterTableViewModel.Object);
 
             var configurationService = new Mock<IStringTableService>();
             configurationService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
+
+            this.context.ConfigureDevExpressBlazor();
+            this.context.Services.AddSingleton(this.viewModel);
+            this.context.Services.AddSingleton(this.sessionService.Object);
+            this.context.Services.AddSingleton(mockConfigurationService.Object);
+            this.context.Services.AddSingleton(parameterEditorBodyViewModel.Object);
+            this.context.Services.AddSingleton(parameterTableViewModel.Object);
             this.context.Services.AddSingleton(configurationService.Object);
+            this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
+            this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
+            this.context.Services.AddSingleton<IBatchParameterEditorViewModel, BatchParameterEditorViewModel>();
+            this.context.Services.AddSingleton<ISubscriptionService, SubscriptionService>();
+            this.context.Services.AddSingleton<INotificationService, NotificationService>();
         }
 
         [TearDown]

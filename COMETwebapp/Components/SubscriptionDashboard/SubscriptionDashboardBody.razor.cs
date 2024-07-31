@@ -98,6 +98,7 @@ namespace COMETwebapp.Components.SubscriptionDashboard
                 additionalParameters[QueryKeys.ParameterKey] = this.ViewModel.ParameterTypeSelector.SelectedParameterType.Iid.ToShortGuid();
             }
 
+            this.ViewModel.UpdateTables();
             this.UpdateUrlWithParameters(additionalParameters, WebAppConstantValues.SubscriptionDashboardPage);
         }
 

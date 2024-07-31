@@ -59,5 +59,10 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
         /// Gets the <see cref="IElementDashboardViewModel" />
         /// </summary>
         IElementDashboardViewModel ElementDashboard { get; }
+
+        /// <summary>
+        /// Update the dashboard view models properties
+        /// </summary>
+        void UpdateDashboards();
     }
 }

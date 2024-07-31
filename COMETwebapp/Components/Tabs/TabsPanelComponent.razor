@@ -70,7 +70,8 @@
         <div class="template-container" id="tabs-page-content">
             <DynamicApplicationBase ViewModel="this.Panel.CurrentTab.ApplicationBaseViewModel"
                                     ApplicationBaseType="this.Panel.CurrentTab.ComponentType"
-                                    CurrentThing="this.Panel.CurrentTab.ObjectOfInterest as Thing"/>
+                                    CurrentThing="this.Panel.CurrentTab.ObjectOfInterest as Thing"
+                                    Id="@(this.Panel.CurrentTab.Id)"/>
         </div>
     }
 </div>

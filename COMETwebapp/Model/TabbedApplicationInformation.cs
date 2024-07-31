@@ -42,6 +42,7 @@ namespace COMETwebapp.Model
             this.ApplicationBaseViewModel = applicationBaseViewModel;
             this.ComponentType = componentType;
             this.ObjectOfInterest = objectOfInterest;
+            this.Id = Guid.NewGuid();
         }
 
         /// <summary>
@@ -58,5 +59,10 @@ namespace COMETwebapp.Model
         /// Gets the object of interest
         /// </summary>
         public object ObjectOfInterest { get; }
+
+        /// <summary>
+        /// Gets the tab's id
+        /// </summary>
+        public Guid Id { get; }
     }
 }

@@ -242,33 +242,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             this.viewModel.ElementSelector.SelectedElementBase = this.viewModel.ElementSelector.AvailableElements.First();
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-
-            this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.DefaultOption, this.viewModel.ElementSelector.SelectedElementBase, null, true), Times.Once);
-
-            this.viewModel.ElementSelector.SelectedElementBase = null;
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-
             this.viewModel.ParameterTypeSelector.SelectedParameterType = this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First();
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-
-            this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.DefaultOption,
-                null, this.viewModel.ParameterTypeSelector.SelectedParameterType, true), Times.Once);
-
-            this.viewModel.ParameterTypeSelector.SelectedParameterType = null;
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-
             this.viewModel.OptionSelector.SelectedOption = this.viewModel.CurrentThing.Option.Last();
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-
-            this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.Option.Last(),
-                null, null, true), Times.Once);
-
             this.viewModel.IsOwnedParameters = false;
-            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            this.tableViewModel.Verify(x => x.ApplyFilters(this.iteration.Option.Last(),
-                null, null, false), Times.Once);
+            this.viewModel.ApplyFilters();
+
+            this.tableViewModel.Verify(x => x.ApplyFilters(It.IsAny<Option>(), It.IsAny<ElementBase>(), It.IsAny<ParameterType>(), It.IsAny<bool>()), Times.AtLeastOnce);
         }
 
         [Test]

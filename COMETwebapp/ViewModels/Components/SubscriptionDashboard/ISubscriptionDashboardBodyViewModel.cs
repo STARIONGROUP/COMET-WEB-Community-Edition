@@ -51,5 +51,11 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         /// Gets the <see cref="IParameterTypeSelectorViewModel" />
         /// </summary>
         IParameterTypeSelectorViewModel ParameterTypeSelector { get; }
+
+        /// <summary>
+        /// Updates the <see cref="ISubscribedTableViewModel" /> and <see cref="IDomainOfExpertiseSubscriptionTableViewModel" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        void UpdateTables();
     }
 }

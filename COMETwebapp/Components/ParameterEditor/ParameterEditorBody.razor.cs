@@ -46,7 +46,8 @@ namespace COMETwebapp.Components.ParameterEditor
         {
             base.OnViewModelAssigned();
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption,
+            this.Disposables.Add(this.WhenAnyValue(
+                    x => x.ViewModel.OptionSelector.SelectedOption,
                     x => x.ViewModel.ParameterTypeSelector.SelectedParameterType,
                     x => x.ViewModel.ElementSelector.SelectedElementBase,
                     x => x.ViewModel.IsOwnedParameters)
@@ -99,6 +100,7 @@ namespace COMETwebapp.Components.ParameterEditor
                 additionalParameters["owned"] = this.ViewModel.IsOwnedParameters.ToString();
             }
 
+            this.ViewModel.ApplyFilters();
             this.UpdateUrlWithParameters(additionalParameters, WebAppConstantValues.ParameterEditorPage);
         }
     }
