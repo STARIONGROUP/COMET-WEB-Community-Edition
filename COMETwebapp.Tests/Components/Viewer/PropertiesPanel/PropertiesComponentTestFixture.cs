@@ -1,26 +1,26 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PropertiesComponentTestFixture.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  <copyright file="PropertiesComponentTestFixture.cs" company="Starion Group S.A.">
+//     Copyright (c) 2024 Starion Group S.A.
+// 
+//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+// 
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-//
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 {
@@ -33,6 +33,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Model;
@@ -63,6 +64,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         public void SetUp()
         {
             this.context = new TestContext();
+            this.context.ConfigureDevExpressBlazor();
 
             var babylonService = new Mock<IBabylonInterop>();
             this.context.Services.AddSingleton(babylonService);
@@ -81,13 +83,10 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             this.viewModel = new PropertiesComponentViewModel(babylonService.Object, sessionService.Object, selectionMediator.Object, this.messageBus)
             {
                 IsVisible = true,
-                ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>()
+                ParameterValueSetRelations = []
             };
 
-            this.renderedComponent = this.context.RenderComponent<PropertiesComponent>(parameters =>
-            {
-                parameters.Add(p => p.ViewModel, this.viewModel);
-            });
+            this.renderedComponent = this.context.RenderComponent<PropertiesComponent>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel); });
 
             this.properties = this.renderedComponent.Instance;
         }
@@ -96,6 +95,8 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         public void Teardown()
         {
             this.messageBus.ClearSubscriptions();
+            this.context.CleanContext();
+            this.context.Dispose();
         }
 
         [Test]
@@ -109,21 +110,11 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         }
 
         [Test]
-        public void VerifyThatComponentCanBeHidden()
-        {
-            this.properties.ViewModel.IsVisible = true;
-            var component = this.renderedComponent.Find("#properties-header");
-            Assert.That(component, Is.Not.Null);
-            this.properties.ViewModel.IsVisible = false;
-            Assert.Throws<ElementNotFoundException>(() => this.renderedComponent.Find("#properties-header"));
-        }
-        
-        [Test]
         public void VerifyElementValueChanges()
         {
             var compoundData = new OrderedItemList<ParameterTypeComponent>(null)
             {
-                new ParameterTypeComponent
+                new()
                 {
                     Iid = Guid.NewGuid(),
                     ShortName = "firstValue",
@@ -147,13 +138,13 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 
             parametertype.Component.AddRange(compoundData);
 
-            var parameter = new Parameter() { Iid = Guid.NewGuid(), ParameterType = parametertype };
+            var parameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = parametertype };
 
             this.viewModel.SelectedParameter = parameter;
 
             var compoundValues = new List<string> { "1" };
 
-            var parameterValueSet = new ParameterValueSet()
+            var parameterValueSet = new ParameterValueSet
             {
                 Iid = Guid.NewGuid(),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
@@ -168,15 +159,25 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             });
 
             var compoundValues1 = new List<string> { "false" };
-            
-            var parameterValueSet1 = new ParameterValueSet()
+
+            var parameterValueSet1 = new ParameterValueSet
             {
                 Iid = Guid.NewGuid(),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
-                Manual = new ValueArray<string>(compoundValues1),
+                Manual = new ValueArray<string>(compoundValues1)
             };
-     
-            Assert.That(() => this.viewModel.ParameterValueSetChanged((parameterValueSet1,0)), Throws.Nothing);                
+
+            Assert.That(() => this.viewModel.ParameterValueSetChanged((parameterValueSet1, 0)), Throws.Nothing);
+        }
+
+        [Test]
+        public void VerifyThatComponentCanBeHidden()
+        {
+            this.properties.ViewModel.IsVisible = true;
+            var component = this.renderedComponent.Find("#properties-header");
+            Assert.That(component, Is.Not.Null);
+            this.properties.ViewModel.IsVisible = false;
+            Assert.Throws<ElementNotFoundException>(() => this.renderedComponent.Find("#properties-header"));
         }
     }
 }

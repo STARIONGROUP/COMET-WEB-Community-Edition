@@ -1,7 +1,7 @@
 ﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023-2024 Starion Group S.A.
 
-    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
+    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
 
     This file is part of CDP4-COMET WEB Community Edition
      The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -19,29 +19,27 @@ Copyright (c) 2023-2024 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-
-@using CDP4Dal
+@inherits DisposableComponent
 
 <div id="propertiesPanel">
 
     @if (this.ViewModel.IsVisible)
     {
-        var selectedSceneObject = this.ViewModel.SelectionMediator.SelectedSceneObject;
-        var title = selectedSceneObject is not null ? selectedSceneObject.ElementBase.Name + " - Properties:" : "Properties";
-        var buttonClass = this.ViewModel.ParameterHaveChanges ? "submit-button button-blue" : "submit-button";
-
         <div id="properties-header">
-            <h4 id="properties-title">@title</h4>
-            <button @onclick="()=>this.ViewModel.OnSubmit()" class="@buttonClass" disabled="@(!this.ViewModel.ParameterHaveChanges)">Submit</button>
+            <h4 id="properties-title">@(this.Title)</h4>
+            <DxButton Click="@(() => this.ViewModel.OnSubmit())"
+                      Text="Submit"
+                      Enabled="@(this.ViewModel.ParameterHaveChanges)"/>
         </div>
 
         <div id="parameters-section">
             @{
-                var parameters = this.ViewModel.ParametersInUse is not null ? this.ViewModel.ParametersInUse : new List<CDP4Common.EngineeringModelData.ParameterBase>();
+                var parameters = this.ViewModel.ParametersInUse ?? [];
+
                 @foreach (var parameter in parameters)
                 {
                     var classNames = parameter == this.ViewModel.SelectedParameter ? "parameter-item parameter-item-selected" : "parameter-item";
-                    <p class="@classNames" @onclick="()=> this.ViewModel.SelectedParameter = parameter">@parameter.ParameterType?.Name</p>
+                    <p class="@classNames" @onclick="() => this.ViewModel.SelectedParameter = parameter">@parameter.ParameterType?.Name</p>
                 }
             }
         </div>
