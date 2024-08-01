@@ -76,7 +76,16 @@
             CustomizeElement="this.OnCustomizeElement">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ElementBaseName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true">
+                <CellDisplayTemplate>
+                    @context.DisplayText
+                    
+                    @if (context.DataItem is ParameterBaseRowViewModel parameterBaseRowViewModel && parameterBaseRowViewModel.Parameter is ParameterOverride)
+                    {
+                        <span class="fw-bold"> [Overridden]</span>
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.Option)" Caption="@("Option")" AllowGroup="false" AllowSort="true" />
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.State)" Caption="@("State")" AllowGroup="false" AllowSort="true" />
             <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.PublishedValue)" Caption="@("Published Value")" AllowGroup="false" AllowSort="false" />
