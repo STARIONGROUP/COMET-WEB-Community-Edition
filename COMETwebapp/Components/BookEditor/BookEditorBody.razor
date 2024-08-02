@@ -19,87 +19,85 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.Utilities
 @using COMETwebapp.Extensions
+@using COMETwebapp.Utilities
 @using COMET.Web.Common.Components.BookEditor
 @using CDP4Common.ReportingData
-@inherits COMET.Web.Common.Components.Applications.SingleEngineeringModelApplicationBase<COMETwebapp.ViewModels.Components.BookEditor.IBookEditorBodyViewModel>
+@inherits SingleEngineeringModelApplicationBase<COMETwebapp.ViewModels.Components.BookEditor.IBookEditorBodyViewModel>
 
-<LoadingComponent IsVisible="this.ViewModel.IsLoading">
-    
-    <div id="@WebAppConstantValues.ModelDashboardPage.QueryPageBodyName()" class="book-editor-body">
-        
-        <EditorPopup ViewModel="@this.ViewModel.EditorPopupViewModel"/>
-    
-        <ConfirmCancelPopup ViewModel="@this.ViewModel.ConfirmCancelPopupViewModel"/>
 
-        <BookEditorColumn TItem="Book" HeaderHexColor="#eba434" HeaderTitle="Books"
-                          Items="@this.ViewModel.AvailableBooks.Items.ToList()"
-                          @bind-SelectedValue="@this.ViewModel.SelectedBook"
-                          DrawLeftLines="false"
-                          IsCollapsed="@this.IsBooksColumnCollapsed"
-                          CollapseButtonIconClass="no-display"
-                          CssClass="book-node"
-                          OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Book()))"
-                          OnEditClicked="@((b) => this.ViewModel.SetThingToEdit(b))"
-                          OnDeleteClicked="@((b) => this.ViewModel.SetThingToDelete(b))">
-            <ContentTemplate>
+<div id="@WebAppConstantValues.ModelDashboardPage.QueryPageBodyName()" class="book-editor-body">
+
+    <EditorPopup ViewModel="@(this.ViewModel.EditorPopupViewModel)"/>
+
+    <ConfirmCancelPopup ViewModel="@(this.ViewModel.ConfirmCancelPopupViewModel)"/>
+
+    <BookEditorColumn TItem="Book" HeaderHexColor="#eba434" HeaderTitle="Books"
+                      Items="@(this.ViewModel.AvailableBooks.Items.ToList())"
+                      @bind-SelectedValue="@(this.ViewModel.SelectedBook)"
+                      DrawLeftLines="false"
+                      IsCollapsed="@(this.IsBooksColumnCollapsed)"
+                      CollapseButtonIconClass="no-display"
+                      CssClass="book-node"
+                      OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Book()))"
+                      OnEditClicked="@(b => this.ViewModel.SetThingToEdit(b))"
+                      OnDeleteClicked="@(b => this.ViewModel.SetThingToDelete(b))">
+        <ContentTemplate>
+            @context.Name
+        </ContentTemplate>
+    </BookEditorColumn>
+
+    <BookEditorColumn TItem="Section" HeaderHexColor="#56bd08" HeaderTitle="Sections"
+                      Items="@(this.ViewModel.SelectedBook?.Section.ToList() ?? [])"
+                      @bind-SelectedValue="@(this.ViewModel.SelectedSection)"
+                      IsCollapsed="@(this.IsSectionColumnCollapsed)"
+                      OnCollapseClicked="@(() => this.IsBooksColumnCollapsed = !this.IsBooksColumnCollapsed)"
+                      CollapseButtonIconClass="@(this.IsBooksColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
+                      CssClass="section-node"
+                      OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Section()))"
+                      OnEditClicked="@(s => this.ViewModel.SetThingToEdit(s))"
+                      OnDeleteClicked="@(s => this.ViewModel.SetThingToDelete(s))"
+                      IsAddButtonDisabled="@(this.ViewModel.SelectedBook == null)">
+        <ContentTemplate>
+            @context.Name
+        </ContentTemplate>
+    </BookEditorColumn>
+
+    <BookEditorColumn TItem="Page" HeaderHexColor="#51dded" HeaderTitle="Pages"
+                      Items="@(this.ViewModel.SelectedSection?.Page.ToList() ?? [])"
+                      @bind-SelectedValue="@(this.ViewModel.SelectedPage)"
+                      IsCollapsed="@(this.IsPageColumnCollapsed)"
+                      OnCollapseClicked="@(() => this.IsSectionColumnCollapsed = !this.IsSectionColumnCollapsed)"
+                      CollapseButtonIconClass="@(this.IsSectionColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
+                      CssClass="page-node"
+                      OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Page()))"
+                      OnEditClicked="@(p => this.ViewModel.SetThingToEdit(p))"
+                      OnDeleteClicked="@(p => this.ViewModel.SetThingToDelete(p))"
+                      IsAddButtonDisabled="@(this.ViewModel.SelectedSection == null)">
+        <ContentTemplate>
+            @context.Name
+        </ContentTemplate>
+    </BookEditorColumn>
+
+    <BookEditorColumn TItem="Note" HeaderHexColor="#eb6075" HeaderTitle="Notes"
+                      Items="@(this.ViewModel.SelectedPage?.Note.ToList() ?? [])"
+                      @bind-SelectedValue="@(this.ViewModel.SelectedNote)"
+                      OnCollapseClicked="@(() => this.IsPageColumnCollapsed = !this.IsPageColumnCollapsed)"
+                      CollapseButtonIconClass="@(this.IsPageColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
+                      CssClass="note-node"
+                      OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new TextualNote { LanguageCode = "es" }))"
+                      OnEditClicked="@(n => this.ViewModel.SetThingToEdit(n))"
+                      OnDeleteClicked="@(n => this.ViewModel.SetThingToDelete(n))"
+                      IsAddButtonDisabled="@(this.ViewModel.SelectedPage == null)">
+        <ContentTemplate>
+            @if (context is TextualNote textualNote)
+            {
+                @textualNote.Content
+            }
+            else
+            {
                 @context.Name
-            </ContentTemplate>
-        </BookEditorColumn>
-
-        <BookEditorColumn TItem="Section" HeaderHexColor="#56bd08" HeaderTitle="Sections"
-                          Items="@this.ViewModel.SelectedBook?.Section.ToList()"
-                          @bind-SelectedValue="@this.ViewModel.SelectedSection"
-                          IsCollapsed="@this.IsSectionColumnCollapsed"
-                          OnCollapseClicked="@(() => this.IsBooksColumnCollapsed = !this.IsBooksColumnCollapsed)"
-                          CollapseButtonIconClass="@(this.IsBooksColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
-                          CssClass="section-node"
-                          OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Section()))"
-                          OnEditClicked="@((s) => this.ViewModel.SetThingToEdit(s))"
-                          OnDeleteClicked="@((s) => this.ViewModel.SetThingToDelete(s))"
-                          IsAddButtonDisabled="@(this.ViewModel.SelectedBook == null)">
-            <ContentTemplate>
-                @context.Name
-            </ContentTemplate>
-        </BookEditorColumn>
-
-        <BookEditorColumn TItem="Page" HeaderHexColor="#51dded" HeaderTitle="Pages"
-                          Items="@this.ViewModel.SelectedSection?.Page.ToList()"
-                          @bind-SelectedValue="@this.ViewModel.SelectedPage"
-                          IsCollapsed="@this.IsPageColumnCollapsed"
-                          OnCollapseClicked="@(() => this.IsSectionColumnCollapsed = !this.IsSectionColumnCollapsed)"
-                          CollapseButtonIconClass="@(this.IsSectionColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
-                          CssClass="page-node"
-                          OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Page()))"
-                          OnEditClicked="@((p) => this.ViewModel.SetThingToEdit(p))"
-                          OnDeleteClicked="@((p) => this.ViewModel.SetThingToDelete(p))"
-                          IsAddButtonDisabled="@(this.ViewModel.SelectedSection == null)">
-            <ContentTemplate>
-                @context.Name
-            </ContentTemplate>
-        </BookEditorColumn>
-
-        <BookEditorColumn TItem="Note" HeaderHexColor="#eb6075" HeaderTitle="Notes"
-                          Items="@this.ViewModel.SelectedPage?.Note.ToList()"
-                          @bind-SelectedValue="@this.ViewModel.SelectedNote"
-                          OnCollapseClicked="@(() => this.IsPageColumnCollapsed = !this.IsPageColumnCollapsed)"
-                          CollapseButtonIconClass="@(this.IsPageColumnCollapsed ? "icon-arrow-right" : "icon-arrow-left")"
-                          CssClass="note-node"
-                          OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new TextualNote(){ LanguageCode = "es" }))"
-                          OnEditClicked="@((n) => this.ViewModel.SetThingToEdit(n))"
-                          OnDeleteClicked="@((n) => this.ViewModel.SetThingToDelete(n))"
-                          IsAddButtonDisabled="@(this.ViewModel.SelectedPage == null)">
-            <ContentTemplate>
-                @if (context is TextualNote textualNote)
-                {
-                    @textualNote.Content
-                }
-                else
-                {
-                    @context.Name
-                }
-            </ContentTemplate>
-        </BookEditorColumn>
-    </div>
-</LoadingComponent>
+            }
+        </ContentTemplate>
+    </BookEditorColumn>
+</div>

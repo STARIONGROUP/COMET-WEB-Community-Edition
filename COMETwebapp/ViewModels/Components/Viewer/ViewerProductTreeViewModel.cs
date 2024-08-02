@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     using COMETwebapp.Extensions;
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Common;
     using COMETwebapp.ViewModels.Components.Shared;
 
     using ReactiveUI;
@@ -37,8 +38,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     /// <summary>
     /// ViewModel for the ViewerProductTree
     /// </summary>
-    public class ViewerProductTreeViewModel : ProductTreeViewModel<ViewerNodeViewModel>
+    public class ViewerProductTreeViewModel : ProductTreeViewModel<ViewerNodeViewModel>, IHasLoading
     {
+        /// <summary>
+        /// Backing field for <see cref="IsLoading" />
+        /// </summary>
+        private bool isLoading;
+
         /// <summary>
         /// Creates a new instance of type <see cref="ViewerProductTreeViewModel" />
         /// </summary>
@@ -60,6 +66,15 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public ISelectionMediator SelectionMediator { get; private set; }
 
         /// <summary>
+        /// Value asserting that the current object is loading
+        /// </summary>
+        public bool IsLoading
+        {
+            get => this.isLoading;
+            set => this.RaiseAndSetIfChanged(ref this.isLoading, value);
+        }
+
+        /// <summary>
         /// Creates the product tree
         /// </summary>
         /// <param name="productTreeElements">the product tree elements</param>
@@ -68,10 +83,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <returns>the root baseNode of the tree or null if the tree can not be created</returns>
         public override ViewerNodeViewModel CreateTree(IEnumerable<ElementBase> productTreeElements, Option selectedOption, IEnumerable<ActualFiniteState> selectedActualFiniteStates)
         {
+            this.IsLoading = true;
             var treeElements = productTreeElements.ToList();
 
             if (treeElements.Count == 0 || selectedOption == null || selectedActualFiniteStates == null)
             {
+                this.IsLoading = false;
                 return this.RootViewModel;
             }
 
@@ -88,6 +105,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             this.CreateTreeRecursively(topElement, this.RootViewModel, null, selectedOption, states);
             this.RootViewModel.OrderAllDescendantsByShortName();
 
+            this.IsLoading = false;
             return this.RootViewModel;
         }
 

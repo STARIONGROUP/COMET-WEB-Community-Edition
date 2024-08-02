@@ -96,7 +96,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <summary>
         /// All <see cref="ElementBase" /> of the iteration
         /// </summary>
-        public List<ElementBase> Elements { get; set; }
+        public List<ElementBase> Elements { get; set; } = [];
 
         /// <summary>
         /// Initializes this <see cref="IViewerBodyViewModel" />
@@ -104,11 +104,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <returns>A <see cref="Task" /></returns>
         public async Task InitializeViewModel()
         {
-            this.IsLoading = true;
             await Task.Delay(1);
-
             this.InitializeElementsAndCreateTree();
-            this.IsLoading = false;
         }
 
         /// <summary>
@@ -116,7 +113,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// </summary>
         public IEnumerable<ElementBase> InitializeElements()
         {
-            return this.CurrentThing?.QueryElementsBase().ToList() ?? new List<ElementBase>();
+            return this.CurrentThing?.QueryElementsBase().ToList() ?? [];
         }
 
         /// <summary>
@@ -137,9 +134,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override Task OnSessionRefreshed()
+        protected override async Task OnSessionRefreshed()
         {
-            return this.OnThingChanged();
+            await this.InitializeViewModel();
         }
 
         /// <summary>
@@ -151,8 +148,9 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             await base.OnThingChanged();
             this.OptionSelector.CurrentIteration = this.CurrentThing;
             this.MultipleFiniteStateSelector.CurrentIteration = this.CurrentThing;
-
             await this.InitializeViewModel();
+
+            this.IsLoading = false;
         }
     }
 }
