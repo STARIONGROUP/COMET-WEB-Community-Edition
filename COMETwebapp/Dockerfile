@@ -16,7 +16,7 @@ RUN dotnet build COMETwebapp -c Release -o /app/build --no-restore
 FROM build AS publish
 RUN dotnet publish COMETwebapp -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0.3-alpine3.19 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0.7-alpine3.19 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
