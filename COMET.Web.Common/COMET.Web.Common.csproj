@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <LangVersion>Latest</LangVersion>
-    <Version>4.0.0</Version>
-    <AssemblyVersion>4.0.0</AssemblyVersion>
-    <FileVersion>4.0.0</FileVersion>
+    <Version>5.0.0</Version>
+    <AssemblyVersion>5.0.0</AssemblyVersion>
+    <FileVersion>5.0.0</FileVersion>
     <Title>CDP4 WEB Common</Title>
     <Description>A Common Library for any Blazor based application related to ECSS-E-TM-10-25</Description>
     <Company>Starion Group S.A.</Company>
@@ -24,9 +24,9 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>
-        [Refactor] Login page
-        [Remove] SessionStateKind; AuthenticationStateKind, refactor AuthenticationService
-        [Add] editors and viewmodels
+        [Update] all common view-viewmodels
+        [Update] business logic
+        [Update] to Starion Group S.A.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
