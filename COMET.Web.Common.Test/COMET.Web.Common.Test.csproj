@@ -5,9 +5,9 @@
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
       <Title>CDP4 WEB Common Test</Title>
-      <Version>2.0.0</Version>
-      <AssemblyVersion>2.0.0</AssemblyVersion>
-      <FileVersion>2.0.0</FileVersion>
+      <Version>5.0.0</Version>
+      <AssemblyVersion>5.0.0</AssemblyVersion>
+      <FileVersion>5.0.0</FileVersion>
       <Description>A Common Library that includes DevExpress Blazor and Tasks test helpers</Description>
       <Company>Starion Group S.A.</Company>
       <Copyright>Copyright 2023-2024 Starion Group S.A.</Copyright>
@@ -23,7 +23,7 @@
       <IncludeSymbols>true</IncludeSymbols>
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
       <PackageReleaseNotes>
-        [UPGRADE] Upgrade to Net8
+          [Update] to Starion Group S.A.
       </PackageReleaseNotes>
   </PropertyGroup>
 
