@@ -8,7 +8,7 @@
         <Company>Starion Group S.A.</Company>
         <Copyright>Copyright 2023-2024 Starion Group S.A.</Copyright>
         <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
-        <Authors>Justine, Sam, Alex, Alexander, Antoine, Jaime</Authors>
+        <Authors>Justine, Sam, Alex, Alexander, Antoine, Jaime, Nabil, Joao</Authors>
         <RepositoryType>Git</RepositoryType>
         <RepositoryUrl>https://github.com/STARIONGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
         <ImplicitUsings>enable</ImplicitUsings>

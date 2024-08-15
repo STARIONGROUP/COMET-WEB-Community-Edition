@@ -14,7 +14,7 @@
       <PackageId>CDP4.WEB.Common.Test</PackageId>
       <AssemblyTitle>COMET.WEB.Common.Test</AssemblyTitle>
       <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-      <Authors>Sam, Alex, Alexander, Antoine, Jaime, Nabil</Authors>
+      <Authors>Justine, Sam, Alex, Alexander, Antoine, Jaime, Nabil, Joao</Authors>
       <RepositoryType>Git</RepositoryType>
       <RepositoryUrl>https://github.com/STARIONGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
       <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -35,6 +35,7 @@
 
     <ItemGroup Label="override transitive vulnerable dependency">
         <PackageReference Include="System.Text.Json" Version="8.0.4" />
+        <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
     </ItemGroup>
 
     <ItemGroup>
