@@ -62,6 +62,10 @@
         <PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
     </ItemGroup>
 
+    <ItemGroup Label="override transitive vulnerable dependency">
+        <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\COMET.Web.Common.Test\COMET.Web.Common.Test.csproj" />
         <ProjectReference Include="..\COMET.Web.Common\COMET.Web.Common.csproj" />
