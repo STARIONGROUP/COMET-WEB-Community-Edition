@@ -18,7 +18,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AntDesign" Version="0.20.0.2" />
+        <PackageReference Include="AntDesign" Version="0.20.4.2" />
         <PackageReference Include="BlazorStrap" Version="5.2.101" />
         <PackageReference Include="Feather.Blazor" Version="1.0.1" />
         <PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
