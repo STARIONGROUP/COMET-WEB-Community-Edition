@@ -4,7 +4,7 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>Latest</LangVersion>
-        <Version>5.0.1</Version>
+        <Version>5.1.0</Version>
         <AssemblyVersion>5.0.1</AssemblyVersion>
         <FileVersion>5.0.1</FileVersion>
         <Title>CDP4 WEB Common</Title>
