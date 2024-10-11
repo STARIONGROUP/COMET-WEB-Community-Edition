@@ -4,7 +4,7 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>Latest</LangVersion>
-        <Version>5.1.0</Version>
+        <Version>5.1.1</Version>
         <AssemblyVersion>5.0.1</AssemblyVersion>
         <FileVersion>5.0.1</FileVersion>
         <Title>CDP4 WEB Common</Title>
@@ -25,8 +25,9 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageReleaseNotes>
-            [Update] to CDP4-SDK 27.2.3
-            [Update] to DevExpress.Blazor 23.2.8
+            [Update] to Microsoft.AspNetCore.Components.Authorization 8.0.10
+            [Update] to Microsoft.AspNetCore.WebUtilities 8.0.10
+            [Update] to System.Drawing.Common 8.0.10
         </PackageReleaseNotes>
     </PropertyGroup>
     <ItemGroup>

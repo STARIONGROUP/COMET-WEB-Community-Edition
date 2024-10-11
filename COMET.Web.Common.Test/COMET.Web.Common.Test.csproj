@@ -5,7 +5,7 @@
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
       <Title>CDP4 WEB Common Test</Title>
-      <Version>5.1.0</Version>
+      <Version>5.1.1</Version>
       <AssemblyVersion>5.0.1</AssemblyVersion>
       <FileVersion>5.0.1</FileVersion>
       <Description>A Common Library that includes DevExpress Blazor and Tasks test helpers</Description>
@@ -23,7 +23,7 @@
       <IncludeSymbols>true</IncludeSymbols>
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
       <PackageReleaseNotes>
-          [Update] to Starion Group S.A.
+          [Update] to System.Text.Json 8.0.5
       </PackageReleaseNotes>
   </PropertyGroup>
 

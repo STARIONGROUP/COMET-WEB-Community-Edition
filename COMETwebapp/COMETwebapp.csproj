@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <Version>5.5.0</Version>
+        <Version>5.5.1</Version>
         <Title>CDP4-COMET WEB</Title>
         <Description>A web application that implements ECSS-E-TM-10-25</Description>
         <Company>Starion Group S.A.</Company>
