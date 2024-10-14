@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/STARIONGROUP/COMET-WEB-Community-Edition/development/COMET-Community-Edition.png" width="250">
+![COMET-WEB-Community-Edition](https://raw.githubusercontent.com/STARIONGROUP/COMET-WEB-Community-Edition/development/COMET-WEB-Community-Edition.png)
 
 The CDP4-COMET-WEB Community Editition (CE) is the Starion Group open source Concurrent Design web based application compliant with ECSS-E-TM-10-25 Annex A and Annex C. The solution provides the following items:
   - COMET.Web.Common: A Common Library for any Blazor based application related to ECSS-E-TM-10-25. This can be used to develop various ECSS-E-TM-10-25 web applications and is distributed with the APACHE 2.0 license.
@@ -42,10 +42,8 @@ The Concurrent Design method brings many advantages to the early design phase by
 
 The packages are available on Nuget at:
 
-project                                                                         | Nuget
-------------------------------------------------------------------------------- | ------------
-[CDP4.WEB.Common](https://www.nuget.org/packages/CDP4.WEB.Common)             | [![NuGet Badge](https://buildstats.info/nuget/CDP4.WEB.Common)](https://buildstats.info/nuget/CDP4.WEB.Common)
-[CDP4.WEB.Common.Test](https://www.nuget.org/packages/CDP4.WEB.Common.Test)   | [![NuGet Badge](https://buildstats.info/nuget/CDP4.WEB.Common.Test)](https://buildstats.info/nuget/CDP4.WEB.Common.Test)
+  - CDP4.WEB.Common: ![NuGet Version](https://img.shields.io/nuget/v/CDP4.WEB.Common)
+  - CDP4.WEB.Common.Test: ![NuGet Version](https://img.shields.io/nuget/v/CDP4.WEB.Common.Test)
 
 ## Web Application Build and Deploy using Docker - Manual
 
