@@ -1,4 +1,4 @@
-![COMET-WEB-Community-Edition](https://raw.githubusercontent.com/STARIONGROUP/COMET-WEB-Community-Edition/development/COMET-WEB-Community-Edition.png)
+![COMET-WEB-Community-Edition](https://raw.githubusercontent.com/STARIONGROUP/COMET-WEB-Community-Edition/development/COMET-Community-Edition.png)
 
 The CDP4-COMET-WEB Community Editition (CE) is the Starion Group open source Concurrent Design web based application compliant with ECSS-E-TM-10-25 Annex A and Annex C. The solution provides the following items:
   - COMET.Web.Common: A Common Library for any Blazor based application related to ECSS-E-TM-10-25. This can be used to develop various ECSS-E-TM-10-25 web applications and is distributed with the APACHE 2.0 license.
