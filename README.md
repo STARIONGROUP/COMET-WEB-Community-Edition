@@ -42,8 +42,8 @@ The Concurrent Design method brings many advantages to the early design phase by
 
 The packages are available on Nuget at:
 
-  - CDP4.WEB.Common: ![NuGet Version](https://img.shields.io/nuget/v/CDP4.WEB.Common)
-  - CDP4.WEB.Common.Test: ![NuGet Version](https://img.shields.io/nuget/v/CDP4.WEB.Common.Test)
+  - [CDP4.WEB.Common](https://www.nuget.org/packages/CDP4.WEB.Common): ![NuGet Version](https://img.shields.io/nuget/v/CDP4.WEB.Common)
+  - [CDP4.WEB.Common.Test](https://www.nuget.org/packages/CDP4.WEB.Common.Test): ![NuGet Version](https://img.shields.io/nuget/v/CDP4.WEB.Common.Test)
 
 ## Web Application Build and Deploy using Docker - Manual
 
