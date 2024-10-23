@@ -33,8 +33,8 @@
     <ItemGroup>
         <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
         <PackageReference Include="Blazored.FluentValidation" Version="2.2.0" />
-        <PackageReference Include="CDP4ServicesDal-CE" Version="27.3.4" />
-        <PackageReference Include="CDP4Web-CE" Version="27.3.4" />
+        <PackageReference Include="CDP4ServicesDal-CE" Version="27.4.0" />
+        <PackageReference Include="CDP4Web-CE" Version="27.4.0" />
         <PackageReference Include="DevExpress.Blazor" Version="23.2.9" />
         <PackageReference Include="FluentResults" Version="3.16.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.10" />
