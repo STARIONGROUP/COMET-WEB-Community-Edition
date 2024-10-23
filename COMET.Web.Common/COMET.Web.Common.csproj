@@ -4,9 +4,9 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>Latest</LangVersion>
-        <Version>5.1.1</Version>
-        <AssemblyVersion>5.0.1</AssemblyVersion>
-        <FileVersion>5.0.1</FileVersion>
+        <Version>5.1.2</Version>
+        <AssemblyVersion>5.1.2</AssemblyVersion>
+        <FileVersion>5.1.2</FileVersion>
         <Title>CDP4 WEB Common</Title>
         <Description>A Common Library for any Blazor based application related to ECSS-E-TM-10-25</Description>
         <Company>Starion Group S.A.</Company>
@@ -25,9 +25,7 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageReleaseNotes>
-            [Update] to Microsoft.AspNetCore.Components.Authorization 8.0.10
-            [Update] to Microsoft.AspNetCore.WebUtilities 8.0.10
-            [Update] to System.Drawing.Common 8.0.10
+            [Update] to CDP4-SDK 27.4.0
         </PackageReleaseNotes>
     </PropertyGroup>
     <ItemGroup>
