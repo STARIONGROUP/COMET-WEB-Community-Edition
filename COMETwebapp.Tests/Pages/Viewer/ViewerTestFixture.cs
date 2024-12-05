@@ -151,20 +151,27 @@ namespace COMETwebapp.Tests.Pages.Viewer
         {
             this.openedIterations.AddRange(new List<Iteration> { this.firstIteration });
 
-            this.context.RenderComponent<Viewer>(parameters => { parameters.Add(p => p.IterationId, this.firstIteration.Iid.ToShortGuid()); });
+            var navigationManager = this.context.Services.GetRequiredService<NavigationManager>();
+            var testUri = $"/Viewer?IterationId={this.firstIteration.Iid.ToShortGuid()}";
 
-            var navigation = this.context.Services.GetService<NavigationManager>();
+            // Act: Navigate to the URI and render the component
+            navigationManager.NavigateTo(testUri);
+            this.context.RenderComponent<Viewer>();
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
-                Assert.That(navigation.Uri.Contains("server"), Is.True);
-                Assert.That(navigation.Uri.Contains(this.firstIteration.Iid.ToShortGuid()), Is.True);
+                Assert.That(navigationManager.Uri.Contains("server"), Is.True);
+                Assert.That(navigationManager.Uri.Contains(this.firstIteration.Iid.ToShortGuid()), Is.True);
             });
 
             this.viewModel.SelectedThing = null;
 
-            this.context.RenderComponent<Viewer>(parameters => { parameters.Add(p => p.IterationId, this.secondIteration.Iid.ToShortGuid()); });
+            testUri = $"/Viewer?IterationId={this.secondIteration.Iid.ToShortGuid()}";
+
+            // Act: Navigate to the URI and render the component
+            navigationManager.NavigateTo(testUri);
+            this.context.RenderComponent<Viewer>();
 
             Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
         }
