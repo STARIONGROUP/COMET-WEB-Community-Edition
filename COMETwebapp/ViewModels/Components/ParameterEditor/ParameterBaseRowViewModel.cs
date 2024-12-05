@@ -127,17 +127,14 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 var group = this.Parameter.Group;
                 parameterGroupPath = this.Parameter.Group.Name;
 
-                while (true)
+                while (group != null)
                 {
                     if (group.ContainingGroup != null)
                     {
                         parameterGroupPath = $"{group.ContainingGroup.Name} => {parameterGroupPath}";
-                        group = group.ContainingGroup;
                     }
-                    else
-                    {
-                        break;
-                    }
+
+                    group = group.ContainingGroup;
                 }
             }
 
