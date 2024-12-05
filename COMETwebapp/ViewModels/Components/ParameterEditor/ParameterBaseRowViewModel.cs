@@ -120,14 +120,28 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         private void CalculateParameterGroupData()
         {
-            var parameterGroupName = string.Empty;
+            var parameterGroupPath = string.Empty;
 
             if (this.Parameter.Group != null)
             {
-                parameterGroupName = this.Parameter.Group.Name;
+                var group = this.Parameter.Group;
+                parameterGroupPath = this.Parameter.Group.Name;
+
+                while (true)
+                {
+                    if (group.ContainingGroup != null)
+                    {
+                        parameterGroupPath = $"{group.ContainingGroup.Name} => {parameterGroupPath}";
+                        group = group.ContainingGroup;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
             }
 
-            this.ParameterGroupName = parameterGroupName;
+            this.ParameterGroupPath = parameterGroupPath;
         }
 
         /// <summary>
@@ -187,7 +201,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <summary>
         /// Gets the <see cref="ParameterGroup" /> name
         /// </summary>
-        public string ParameterGroupName { get; private set; }
+        public string ParameterGroupPath { get; private set; }
 
         /// <summary>
         /// Gets the switch for the published value

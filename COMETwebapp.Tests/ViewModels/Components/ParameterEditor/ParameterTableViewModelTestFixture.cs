@@ -51,6 +51,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         private Option option;
         private CDPMessageBus messageBus;
         private ParameterGroup parameterGroup;
+        private ParameterGroup parameterGroup2;
 
         [SetUp]
         public void Setup()
@@ -91,6 +92,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             {
                 Iid = Guid.NewGuid(),
                 Name = "ParameterGroup 1"
+            };
+
+            this.parameterGroup2 = new ParameterGroup()
+            {
+                Iid = Guid.NewGuid(),
+                Name = "ParameterGroup 2",
+                ContainingGroup = this.parameterGroup
             };
 
             var parameter1 = new Parameter()
@@ -139,7 +147,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 ParameterType = parameterType,
                 Scale = scale,
                 Owner = this.domain,
-                Group = this.parameterGroup,
+                Group = this.parameterGroup2,
                 ValueSet =
                 {
                     new ParameterValueSet()
@@ -177,7 +185,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 Iid = Guid.NewGuid(),
                 Name = "Container",
                 Parameter = { parameter3 },
-                ParameterGroup = { this.parameterGroup }
+                ParameterGroup = { this.parameterGroup, this.parameterGroup2 }
             };
 
             var elementDefinition = new ElementDefinition()
@@ -239,7 +247,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 Assert.That(parameterRow.ParameterName, Is.EqualTo("mass"));
                 Assert.That(parameterRow.Option, Is.Empty);
                 Assert.That(parameterRow.State, Is.Empty);
-                Assert.That(parameterRow.ParameterGroupName, Is.EqualTo(this.parameterGroup.Name));
+                Assert.That(parameterRow.ParameterGroupPath, Is.EqualTo($"{this.parameterGroup.Name} => {this.parameterGroup2.Name}"));
             });
         }
 
