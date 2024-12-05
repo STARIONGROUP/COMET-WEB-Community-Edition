@@ -112,6 +112,22 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.Option = this.ValueSet.ActualOption is not null ? this.ValueSet.ActualOption?.Name : string.Empty;
             this.State = this.ValueSet.ActualState is not null ? this.ValueSet.ActualState.Name : string.Empty;
             this.Switch = this.ValueSet.ValueSwitch;
+            this.CalculateParameterGroupData();
+        }
+
+        /// <summary>
+        /// Calculate and set the values of <see cref="ParameterGroup"/> parameters
+        /// </summary>
+        private void CalculateParameterGroupData()
+        {
+            var parameterGroupName = string.Empty;
+
+            if (this.Parameter.Group != null)
+            {
+                parameterGroupName = this.Parameter.Group.Name;
+            }
+
+            this.ParameterGroupName = parameterGroupName;
         }
 
         /// <summary>
@@ -167,6 +183,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Gets the <see cref="Parameter" /> owner name
         /// </summary>
         public string OwnerName { get; private set; }
+
+        /// <summary>
+        /// Gets the <see cref="ParameterGroup" /> name
+        /// </summary>
+        public string ParameterGroupName { get; private set; }
 
         /// <summary>
         /// Gets the switch for the published value

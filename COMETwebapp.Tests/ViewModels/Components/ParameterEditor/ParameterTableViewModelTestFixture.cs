@@ -50,6 +50,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         private Iteration iteration;
         private Option option;
         private CDPMessageBus messageBus;
+        private ParameterGroup parameterGroup;
 
         [SetUp]
         public void Setup()
@@ -86,12 +87,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 ShortName = "kg"
             };
 
+            this.parameterGroup = new ParameterGroup()
+            {
+                Iid = Guid.NewGuid(),
+                Name = "ParameterGroup 1"
+            };
+
             var parameter1 = new Parameter()
             {
                 Iid = Guid.NewGuid(),
                 Owner = this.domain,
                 ParameterType = parameterType,
                 Scale = scale,
+                Group = this.parameterGroup,
                 ValueSet =
                 {
                     new ParameterValueSet()
@@ -111,6 +119,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 Owner = this.domain,
                 ParameterType = parameterType,
                 Scale = scale,
+                Group = this.parameterGroup,
                 ValueSet =
                 {
                     new ParameterValueSet()
@@ -130,6 +139,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 ParameterType = parameterType,
                 Scale = scale,
                 Owner = this.domain,
+                Group = this.parameterGroup,
                 ValueSet =
                 {
                     new ParameterValueSet()
@@ -166,7 +176,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             {
                 Iid = Guid.NewGuid(),
                 Name = "Container",
-                Parameter = { parameter3 }
+                Parameter = { parameter3 },
+                ParameterGroup = { this.parameterGroup }
             };
 
             var elementDefinition = new ElementDefinition()
@@ -228,6 +239,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 Assert.That(parameterRow.ParameterName, Is.EqualTo("mass"));
                 Assert.That(parameterRow.Option, Is.Empty);
                 Assert.That(parameterRow.State, Is.Empty);
+                Assert.That(parameterRow.ParameterGroupName, Is.EqualTo(this.parameterGroup.Name));
             });
         }
 
