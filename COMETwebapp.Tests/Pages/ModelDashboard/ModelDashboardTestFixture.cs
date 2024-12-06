@@ -172,27 +172,28 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
         public void VerifyIterationPreselection()
         {
             this.openedIterations.AddRange(new List<Iteration> { this.firstIteration });
-            
-            this.context.RenderComponent<ModelDashboard>(parameters =>
-            {
-                parameters.Add(p => p.IterationId, this.firstIteration.Iid.ToShortGuid());
-            });
 
-            var navigation = this.context.Services.GetService<NavigationManager>();
+            var navigationManager = this.context.Services.GetRequiredService<NavigationManager>();
+            var testUri = $"/ModelDashboard?IterationId={this.firstIteration.Iid.ToShortGuid()}";
+
+            // Act: Navigate to the URI and render the component
+            navigationManager.NavigateTo(testUri);
+            this.context.RenderComponent<ModelDashboard>();
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
-                Assert.That(navigation.Uri.Contains("server"), Is.True);
-                Assert.That(navigation.Uri.Contains(this.firstIteration.Iid.ToShortGuid()), Is.True);
+                Assert.That(navigationManager.Uri.Contains("server"), Is.True);
+                Assert.That(navigationManager.Uri.Contains(this.firstIteration.Iid.ToShortGuid()), Is.True);
             });
 
             this.viewModel.SelectedThing = null;
 
-            this.context.RenderComponent<ModelDashboard>(parameters =>
-            {
-                parameters.Add(p => p.IterationId, this.secondIteration.Iid.ToShortGuid());
-            });
+            testUri = $"/ModelDashboard?IterationId={this.secondIteration.Iid.ToShortGuid()}";
+
+            // Act: Navigate to the URI and render the component
+            navigationManager.NavigateTo(testUri);
+            this.context.RenderComponent<ModelDashboard>();
 
             Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
         }
