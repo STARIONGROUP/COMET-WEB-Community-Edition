@@ -32,6 +32,7 @@ namespace COMET.Web.Common.Extensions
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Server.Services.ConfigurationService;
     using COMET.Web.Common.Server.Services.StringTableService;
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.RegistrationService;
@@ -87,6 +88,7 @@ namespace COMET.Web.Common.Extensions
             serviceProvider.AddScoped<INotificationService, NotificationService>();
             serviceProvider.AddScoped<ICDPMessageBus, CDPMessageBus>();
             serviceProvider.AddSingleton<IValidationService, ValidationService>();
+            serviceProvider.AddScoped<ICacheService, CacheService>();
             serviceProvider.AddAuthorizationCore();
             serviceProvider.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             serviceProvider.RegisterCommonViewModels();

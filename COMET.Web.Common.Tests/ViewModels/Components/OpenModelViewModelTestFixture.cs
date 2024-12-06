@@ -29,6 +29,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
@@ -45,6 +46,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
         private OpenModelViewModel viewModel;
         private Mock<IConfigurationService> configurationService;
         private Mock<ISessionService> sessionService;
+        private Mock<ICacheService> cacheService;
         private const string RdlShortName = "filterRdl";
         private List<EngineeringModelSetup> models;
 
@@ -53,10 +55,11 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
         {
             this.configurationService = new Mock<IConfigurationService>();
             this.sessionService = new Mock<ISessionService>();
+            this.cacheService = new Mock<ICacheService>();
             var iterations = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(iterations);
 
-            this.viewModel = new OpenModelViewModel(this.sessionService.Object, this.configurationService.Object);
+            this.viewModel = new OpenModelViewModel(this.sessionService.Object, this.configurationService.Object, this.cacheService.Object);
             this.models = CreateData().ToList();
             this.sessionService.Setup(x => x.GetParticipantModels()).Returns(this.models);
         }

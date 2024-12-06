@@ -26,6 +26,7 @@ namespace COMETwebapp.ViewModels.Pages
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Applications;
@@ -47,6 +48,11 @@ namespace COMETwebapp.ViewModels.Pages
         private readonly IServiceProvider serviceProvider;
 
         /// <summary>
+        /// Gets the injected <see cref="ICacheService" />
+        /// </summary>
+        private readonly ICacheService cacheService;
+
+        /// <summary>
         /// Gets the injected <see cref="ISessionService" />
         /// </summary>
         private readonly ISessionService sessionService;
@@ -61,10 +67,12 @@ namespace COMETwebapp.ViewModels.Pages
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="serviceProvider">The <see cref="IServiceProvider" /></param>
-        public TabsViewModel(ISessionService sessionService, IServiceProvider serviceProvider)
+        /// <param name="cacheService">The <see cref="ICacheService"/></param>
+        public TabsViewModel(ISessionService sessionService, IServiceProvider serviceProvider, ICacheService cacheService)
         {
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
+            this.cacheService = cacheService;
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedApplication).Subscribe(_ => this.OnSelectedApplicationChange()));
             this.Disposables.Add(this.WhenAnyValue(x => x.MainPanel.CurrentTab).Subscribe(_ => this.OnCurrentTabChange(this.MainPanel)));
             this.Disposables.Add(this.WhenAnyValue(x => x.SidePanel.CurrentTab).Subscribe(_ => this.OnCurrentTabChange(this.SidePanel)));

@@ -31,7 +31,9 @@ namespace COMET.Web.Common.ViewModels.Components
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
@@ -58,6 +60,11 @@ namespace COMET.Web.Common.ViewModels.Components
         private readonly IConfigurationService configurationService;
 
         /// <summary>
+        /// Gets the <see cref="ICacheService" />
+        /// </summary>
+        protected readonly ICacheService cacheService;
+
+        /// <summary>
         /// Backing field for <see cref="IsOpeningSession" />
         /// </summary>
         private bool isOpeningSession;
@@ -81,10 +88,12 @@ namespace COMET.Web.Common.ViewModels.Components
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="configurationService">The <see cref="IConfigurationService"/></param>
-        public OpenModelViewModel(ISessionService sessionService, IConfigurationService configurationService)
+        /// <param name="cacheService">The <see cref="ICacheService"/></param>
+        public OpenModelViewModel(ISessionService sessionService, IConfigurationService configurationService, ICacheService cacheService)
         {
             this.sessionService = sessionService;
             this.configurationService = configurationService;
+            this.cacheService = cacheService;
 
             this.Disposables.Add(this.WhenAnyPropertyChanged(nameof(this.SelectedEngineeringModel))
                 .Subscribe(_ => this.ComputeAvailableCollections()));
@@ -149,6 +158,23 @@ namespace COMET.Web.Common.ViewModels.Components
             this.SelectedDomainOfExpertise = null;
             this.SelectedEngineeringModel = null;
             this.SelectedIterationSetup = null;
+
+            if (this.cacheService.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedEngineeringModel, out var engineeringModelSetup))
+            {
+                this.selectedEngineeringModel = engineeringModelSetup as EngineeringModelSetup;
+                this.SetAvailableDomainOfEpertiseAndIterationSetups();
+            }
+
+            if (this.cacheService.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, out var iterationData))
+            {
+                this.selectedIterationSetup = iterationData as IterationData;
+            }
+
+            if (this.cacheService.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedDomainOfExpertise, out var domainOfExpertise))
+            {
+                this.selectedDomainOfExpertise = domainOfExpertise as DomainOfExpertise;
+            }
+
             this.IsOpeningSession = false;
 
             var availableEngineeringModelSetups = this.sessionService.GetParticipantModels()
@@ -214,16 +240,19 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <param name="domainId">The <see cref="Guid" /> of the <see cref="DomainOfExpertise" /> to select</param>
         public void PreSelectIteration(Guid modelId, Guid iterationId, Guid domainId)
         {
-            this.selectedEngineeringModel = this.sessionService.OpenEngineeringModels.FirstOrDefault(x => x.Iid == modelId)?.EngineeringModelSetup;
-            var iterationSetup = this.SelectedEngineeringModel?.IterationSetup.Find(x => x.IterationIid == iterationId);
-
-            if (iterationSetup != null)
+            if (!this.cacheService.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, out var lastSelectedIterationData))
             {
-                this.SelectedIterationSetup = new IterationData(iterationSetup);
-            }
+                this.selectedEngineeringModel = this.sessionService.OpenEngineeringModels.FirstOrDefault(x => x.Iid == modelId)?.EngineeringModelSetup;
+                var iterationSetup = this.SelectedEngineeringModel?.IterationSetup.Find(x => x.IterationIid == iterationId);
 
-            this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
-            this.SelectedDomainOfExpertise = this.AvailablesDomainOfExpertises.FirstOrDefault(x => x.Iid == domainId);
+                if (iterationSetup != null)
+                {
+                    this.SelectedIterationSetup = new IterationData(iterationSetup);
+                }
+
+                this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
+                this.SelectedDomainOfExpertise = this.AvailablesDomainOfExpertises.FirstOrDefault(x => x.Iid == domainId);
+            }
         }
 
         /// <summary>
@@ -241,12 +270,8 @@ namespace COMET.Web.Common.ViewModels.Components
             else
             {
                 this.SelectedDomainOfExpertise = this.SelectedEngineeringModel.ActiveDomain.Find(x => x == this.sessionService.Session.ActivePerson.DefaultDomain);
-                this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
 
-                this.AvailableIterationSetups = this.SelectedEngineeringModel.IterationSetup
-                    .Where(x => this.sessionService.OpenIterations.Items.All(i => i.Iid != x.IterationIid))
-                    .OrderBy(x => x.IterationNumber)
-                    .Select(x => new IterationData(x));
+                this.SetAvailableDomainOfEpertiseAndIterationSetups();
 
                 this.SelectedIterationSetup = this.AvailableIterationSetups.LastOrDefault();
 
@@ -258,6 +283,19 @@ namespace COMET.Web.Common.ViewModels.Components
                 var currentModelIteration = this.SelectedEngineeringModel.IterationSetup.FirstOrDefault(x => x == this.sessionService.OpenIterations.Items.FirstOrDefault(i => i.Iid == x.IterationIid)?.IterationSetup);
                 this.SelectedIterationSetup = new IterationData(currentModelIteration);
             }
+        }
+
+        /// <summary>
+        /// Sets the <see cref="AvailablesDomainOfExpertises"/> and <see cref="AvailableIterationSetups"/> 
+        /// </summary>
+        private void SetAvailableDomainOfEpertiseAndIterationSetups()
+        {
+            this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
+
+            this.AvailableIterationSetups = this.SelectedEngineeringModel.IterationSetup
+                .Where(x => this.sessionService.OpenIterations.Items.All(i => i.Iid != x.IterationIid))
+                .OrderBy(x => x.IterationNumber)
+                .Select(x => new IterationData(x));
         }
     }
 }
