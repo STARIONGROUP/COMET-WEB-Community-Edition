@@ -37,6 +37,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
     using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
@@ -70,6 +71,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
             this.viewModel = new Mock<ISingleEngineeringModelApplicationTemplateViewModel>();
 
             this.openEngineeringModels = [];
+            var cacheService = new Mock<ICacheService>();
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.OpenEngineeringModels).Returns(this.openEngineeringModels);
             sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
@@ -84,6 +86,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
             this.context.Services.AddSingleton(mockConfigurationService.Object);
             this.context.Services.AddSingleton(new Mock<IStringTableService>().Object);
             this.context.Services.AddSingleton(sessionService.Object);
+            this.context.Services.AddSingleton(cacheService.Object);
             this.context.ConfigureDevExpressBlazor();
         }
 
