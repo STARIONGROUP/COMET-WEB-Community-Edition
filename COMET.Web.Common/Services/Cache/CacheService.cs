@@ -63,12 +63,14 @@ namespace COMET.Web.Common.Services.Cache
         /// <returns>true if the setting was found</returns>
         public bool TryGetOrAddBrowserSessionSetting(BrowserSessionSettingKey browserSessionSettingKeyKey, object defaultBrowserSessionSettingValue, out object browserSessionSettingvalue)
         {
-            if (this.browserSessionSettings.TryGetValue(browserSessionSettingKeyKey, out browserSessionSettingvalue))
+            if (!this.browserSessionSettings.TryGetValue(browserSessionSettingKeyKey, out browserSessionSettingvalue))
             {
-                return browserSessionSettingvalue != null;
+                this.AddOrUpdateBrowserSessionSetting(browserSessionSettingKeyKey, defaultBrowserSessionSettingValue);
+
+                this.browserSessionSettings.TryGetValue(browserSessionSettingKeyKey, out browserSessionSettingvalue);
             }
 
-            return false;
+            return browserSessionSettingvalue != null;
         }
 
         /// <summary>
