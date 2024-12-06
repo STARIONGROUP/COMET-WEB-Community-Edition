@@ -112,13 +112,13 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.Option = this.ValueSet.ActualOption is not null ? this.ValueSet.ActualOption?.Name : string.Empty;
             this.State = this.ValueSet.ActualState is not null ? this.ValueSet.ActualState.Name : string.Empty;
             this.Switch = this.ValueSet.ValueSwitch;
-            this.CalculateParameterGroupData();
+            this.CalculateParameterGroupPath();
         }
 
         /// <summary>
         /// Calculate and set the values of <see cref="ParameterGroup"/> parameters
         /// </summary>
-        private void CalculateParameterGroupData()
+        private void CalculateParameterGroupPath()
         {
             var parameterGroupPath = string.Empty;
 
