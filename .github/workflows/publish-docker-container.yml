@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'web-*'
+  pull_request:
+    branches: [ "**" ]
 
 jobs:
   build:
@@ -27,18 +29,20 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-    - name: Build and push
+    - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
           context: .
           file: ./COMETwebapp/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
+          provenance: mode=max
           tags: ${{ steps.meta.outputs.tags }}
           secrets: |
             "DEVEXPRESS_NUGET_KEY=${{ secrets.DEVEXPRESS_NUGET_KEY }}"
             "PACKAGE_TOKEN=${{ secrets.PACKAGE_TOKEN }}"
 
     - name: Invoke deployment hook
+      if: github.ref_type == 'tag'
       uses: distributhor/workflow-webhook@v3
       env:
         webhook_url: ${{ secrets.WEBHOOK_URL }}
