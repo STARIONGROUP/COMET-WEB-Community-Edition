@@ -23,7 +23,8 @@
       <IncludeSymbols>true</IncludeSymbols>
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
       <PackageReleaseNotes>
-          [Update] to CDP4.WEB.Common 5.1.2
+          [Update] to CDP4.WEB.Common 5.2.0
+          [Update] to bUnit 1.36.0
       </PackageReleaseNotes>
   </PropertyGroup>
 

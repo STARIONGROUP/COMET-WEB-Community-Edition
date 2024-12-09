@@ -4,9 +4,9 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>Latest</LangVersion>
-        <Version>5.1.2</Version>
-        <AssemblyVersion>5.1.2</AssemblyVersion>
-        <FileVersion>5.1.2</FileVersion>
+        <Version>5.2.0</Version>
+        <AssemblyVersion>5.2.0</AssemblyVersion>
+        <FileVersion>5.2.0</FileVersion>
         <Title>CDP4 WEB Common</Title>
         <Description>A Common Library for any Blazor based application related to ECSS-E-TM-10-25</Description>
         <Company>Starion Group S.A.</Company>
@@ -25,7 +25,9 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageReleaseNotes>
-            [Update] to CDP4-SDK 27.4.0
+            [Update] to CDP4-SDK 27.4.1
+            [Add] CacheService to cache reusable data inside one session
+            [Update] Open viewmodel such that last selected EngineeringModel, Iteration and Domain is preselected
         </PackageReleaseNotes>
     </PropertyGroup>
     <ItemGroup>
