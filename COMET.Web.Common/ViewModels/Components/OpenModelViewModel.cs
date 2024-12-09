@@ -240,7 +240,7 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <param name="domainId">The <see cref="Guid" /> of the <see cref="DomainOfExpertise" /> to select</param>
         public void PreSelectIteration(Guid modelId, Guid iterationId, Guid domainId)
         {
-            if (!this.cacheService.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, out var lastSelectedIterationData))
+            if (!this.cacheService.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, out _))
             {
                 this.selectedEngineeringModel = this.sessionService.OpenEngineeringModels.FirstOrDefault(x => x.Iid == modelId)?.EngineeringModelSetup;
                 var iterationSetup = this.SelectedEngineeringModel?.IterationSetup.Find(x => x.IterationIid == iterationId);

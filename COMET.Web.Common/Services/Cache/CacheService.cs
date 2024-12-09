@@ -36,7 +36,7 @@ namespace COMET.Web.Common.Services.Cache
         /// <summary>
         /// Holds all the settings that can be used during the browser session's lifetime to make the user's experience better
         /// </summary>
-        private ConcurrentDictionary<BrowserSessionSettingKey, object> browserSessionSettings = new();
+        private readonly ConcurrentDictionary<BrowserSessionSettingKey, object> browserSessionSettings = new();
 
         /// <summary>
         /// Tries to get a stored value in the BrowserSessionSettings Dictionary

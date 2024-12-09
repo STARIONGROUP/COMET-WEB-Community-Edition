@@ -48,11 +48,6 @@ namespace COMETwebapp.ViewModels.Pages
         private readonly IServiceProvider serviceProvider;
 
         /// <summary>
-        /// Gets the injected <see cref="ICacheService" />
-        /// </summary>
-        private readonly ICacheService cacheService;
-
-        /// <summary>
         /// Gets the injected <see cref="ISessionService" />
         /// </summary>
         private readonly ISessionService sessionService;
@@ -72,7 +67,6 @@ namespace COMETwebapp.ViewModels.Pages
         {
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
-            this.cacheService = cacheService;
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedApplication).Subscribe(_ => this.OnSelectedApplicationChange()));
             this.Disposables.Add(this.WhenAnyValue(x => x.MainPanel.CurrentTab).Subscribe(_ => this.OnCurrentTabChange(this.MainPanel)));
             this.Disposables.Add(this.WhenAnyValue(x => x.SidePanel.CurrentTab).Subscribe(_ => this.OnCurrentTabChange(this.SidePanel)));
