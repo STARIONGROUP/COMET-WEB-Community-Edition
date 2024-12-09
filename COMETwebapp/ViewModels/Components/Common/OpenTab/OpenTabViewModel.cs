@@ -27,6 +27,8 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
@@ -64,7 +66,8 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="configurationService">The <see cref="IConfigurationService" /></param>
         /// <param name="tabsViewModel">The <see cref="ITabsViewModel" /></param>
-        public OpenTabViewModel(ISessionService sessionService, IConfigurationService configurationService, ITabsViewModel tabsViewModel) : base(sessionService, configurationService)
+        /// <param name="cacheService"></param>
+        public OpenTabViewModel(ISessionService sessionService, IConfigurationService configurationService, ITabsViewModel tabsViewModel, ICacheService cacheService) : base(sessionService, configurationService, cacheService)
         {
             this.sessionService = sessionService;
             this.tabsViewModel = tabsViewModel;
@@ -127,6 +130,12 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
                     this.sessionService.SwitchDomain(this.SelectedEngineeringModelIteration, this.SelectedDomainOfExpertise);
                 }
             }
+
+            this.cacheService.AddOrUpdateBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, this.SelectedIterationSetup);
+            
+            this.cacheService.AddOrUpdateBrowserSessionSetting(BrowserSessionSettingKey.LastUsedDomainOfExpertise, this.SelectedDomainOfExpertise);
+
+            this.cacheService.AddOrUpdateBrowserSessionSetting(BrowserSessionSettingKey.LastUsedEngineeringModel, this.SelectedEngineeringModel);
 
             if (result.IsSuccess)
             {

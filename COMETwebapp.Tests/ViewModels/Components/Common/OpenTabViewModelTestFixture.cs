@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -48,6 +49,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
     public class OpenTabViewModelTestFixture
     {
         private OpenTabViewModel viewModel;
+        private Mock<ICacheService> cacheService;
         private Mock<ISessionService> sessionService;
         private Mock<IConfigurationService> configurationService;
         private Mock<ITabsViewModel> tabsViewModel;
@@ -57,6 +59,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
         {
             this.sessionService = new Mock<ISessionService>();
             this.configurationService = new Mock<IConfigurationService>();
+            this.cacheService = new Mock<ICacheService>();
             this.tabsViewModel = new Mock<ITabsViewModel>();
 
             var id = Guid.NewGuid();
@@ -81,7 +84,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
             this.sessionService.Setup(x => x.ReadEngineeringModels(It.IsAny<IEnumerable<EngineeringModelSetup>>())).Returns(Task.FromResult(new Result()));
             this.sessionService.Setup(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>())).Returns(Task.FromResult(new Result<Iteration>()));
 
-            this.viewModel = new OpenTabViewModel(this.sessionService.Object, this.configurationService.Object, this.tabsViewModel.Object);
+            this.viewModel = new OpenTabViewModel(this.sessionService.Object, this.configurationService.Object, this.tabsViewModel.Object, this.cacheService.Object);
         }
 
         [TearDown]

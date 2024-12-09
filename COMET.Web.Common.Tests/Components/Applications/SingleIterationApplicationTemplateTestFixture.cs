@@ -38,6 +38,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
@@ -61,6 +62,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
     public class SingleIterationApplicationTemplateTestFixture
     {
         private Mock<ISingleIterationApplicationTemplateViewModel> viewModel;
+        private Mock<ICacheService> cacheService;
         private SourceList<Iteration> openIterations;
         private TestContext context;
         private ICDPMessageBus messageBus;
@@ -72,6 +74,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
             this.context = new TestContext();
             this.openIterations = new SourceList<Iteration>();
             this.viewModel = new Mock<ISingleIterationApplicationTemplateViewModel>();
+            this.cacheService = new Mock<ICacheService>();
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
             var session = new Mock<ISession>();
@@ -86,6 +89,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
             this.context.Services.AddSingleton(mockConfigurationService.Object);
             this.context.Services.AddSingleton(new Mock<IStringTableService>().Object);
             this.context.Services.AddSingleton(sessionService.Object);
+            this.context.Services.AddSingleton(this.cacheService.Object);
             this.context.Services.AddSingleton(this.messageBus);
             this.context.ConfigureDevExpressBlazor();
         }

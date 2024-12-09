@@ -39,6 +39,7 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.RegistrationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -64,6 +65,7 @@ namespace COMET.Web.Common.Tests.Components
     {
         private IIndexViewModel viewModel;
         private TestContext context;
+        private Mock<ICacheService> cacheService;
         private Mock<IVersionService> versionService;
         private Mock<ISessionService> sessionService;
         private Mock<IConfigurationService> serverConnectionService;
@@ -80,6 +82,7 @@ namespace COMET.Web.Common.Tests.Components
             this.versionService = new Mock<IVersionService>();
             this.sessionService = new Mock<ISessionService>();
             this.serverConnectionService = new Mock<IConfigurationService>();
+            this.cacheService = new Mock<ICacheService>();
             var serverConfiguration = new ServerConfiguration { FullTrustConfiguration = new FullTrustConfiguration() };
             this.serverConnectionService.Setup(x => x.ServerConfiguration).Returns(serverConfiguration);
             this.sourceList = new SourceList<Iteration>();
@@ -100,6 +103,7 @@ namespace COMET.Web.Common.Tests.Components
             this.context.Services.AddSingleton<ILoginViewModel, LoginViewModel>();
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton(this.registrationService.Object);
+            this.context.Services.AddSingleton(this.cacheService.Object);
             this.context.ConfigureDevExpressBlazor();
             this.authorization = this.context.AddTestAuthorization();
 

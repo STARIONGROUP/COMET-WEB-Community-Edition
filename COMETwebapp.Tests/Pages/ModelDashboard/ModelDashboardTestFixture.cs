@@ -35,6 +35,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
@@ -66,6 +67,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
         private TestContext context;
         private ISingleIterationApplicationTemplateViewModel viewModel;
         private Mock<ISessionService> sessionService;
+        private Mock<ICacheService> cacheService;
         private SourceList<Iteration> openedIterations;
         private Mock<ISession> session;
         private Iteration firstIteration;
@@ -77,6 +79,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
         {
             this.context = new TestContext();
             this.sessionService = new Mock<ISessionService>();
+            this.cacheService = new Mock<ICacheService>();
             this.openedIterations = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.openedIterations);
             this.viewModel = new SingleIterationApplicationTemplateViewModel(this.sessionService.Object, new IterationSelectorViewModel());
@@ -121,6 +124,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel);
             this.context.Services.AddSingleton(this.sessionService.Object);
+            this.context.Services.AddSingleton(this.cacheService.Object);
             this.context.Services.AddSingleton(mockConfigurationService.Object);
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton<IModelDashboardBodyViewModel, ModelDashboardBodyViewModel>();

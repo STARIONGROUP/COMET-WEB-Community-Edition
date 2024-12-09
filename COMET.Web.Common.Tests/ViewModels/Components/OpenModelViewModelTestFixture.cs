@@ -28,7 +28,10 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
@@ -45,6 +48,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
         private OpenModelViewModel viewModel;
         private Mock<IConfigurationService> configurationService;
         private Mock<ISessionService> sessionService;
+        private Mock<ICacheService> cacheService;
         private const string RdlShortName = "filterRdl";
         private List<EngineeringModelSetup> models;
 
@@ -53,12 +57,20 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
         {
             this.configurationService = new Mock<IConfigurationService>();
             this.sessionService = new Mock<ISessionService>();
+            this.cacheService = new Mock<ICacheService>();
             var iterations = new SourceList<Iteration>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(iterations);
 
-            this.viewModel = new OpenModelViewModel(this.sessionService.Object, this.configurationService.Object);
+            this.viewModel = new OpenModelViewModel(this.sessionService.Object, this.configurationService.Object, this.cacheService.Object);
             this.models = CreateData().ToList();
             this.sessionService.Setup(x => x.GetParticipantModels()).Returns(this.models);
+
+            object result;
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedDomainOfExpertise, out result)).Returns(false);
+
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedEngineeringModel, out result)).Returns(false);
+
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, out result)).Returns(false);
         }
 
         [Test]
@@ -99,6 +111,31 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             serverConfiguration.RdlFilter.RdlShortNames = Enumerable.Empty<string>();
             this.viewModel.InitializesProperties();
             Assert.That(this.viewModel.AvailableEngineeringModelSetups.Count(), Is.EqualTo(4));
+        }
+
+        [Test]
+        public void VerifyInitializeViewModelWithBrowserSessionSettings()
+        {
+            //Initialize without server configuration
+            this.viewModel.InitializesProperties();
+            Assert.That(this.viewModel.AvailableEngineeringModelSetups.Count(), Is.EqualTo(5));
+
+            var preselectedEngineeringModel = this.viewModel.AvailableEngineeringModelSetups.First();
+
+            object domainOfExpertise = new DomainOfExpertise(Guid.NewGuid(), null, null);
+            object engineeringModelSetup = preselectedEngineeringModel;
+            object iterationData = new IterationData(preselectedEngineeringModel.IterationSetup.First());
+
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedDomainOfExpertise, out domainOfExpertise)).Returns(true);
+
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedEngineeringModel, out engineeringModelSetup)).Returns(true);
+
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, out iterationData)).Returns(true);
+
+            this.viewModel.InitializesProperties();
+            Assert.That(this.viewModel.SelectedEngineeringModel, Is.EqualTo(engineeringModelSetup));
+            Assert.That(this.viewModel.SelectedIterationSetup, Is.EqualTo(iterationData));
+            Assert.That(this.viewModel.SelectedDomainOfExpertise, Is.EqualTo(domainOfExpertise));
         }
 
         private static List<EngineeringModelSetup> CreateData()
