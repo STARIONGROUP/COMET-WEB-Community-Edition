@@ -121,14 +121,14 @@ namespace COMET.Web.Common.Tests.Components.Applications
 
             Assert.Multiple(() =>
             {
-                Assert.That(renderer.Instance.IterationId, Is.EqualTo(this.openIterations.Items.First().Iid));
-                this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items.First()), Times.Once);
+                Assert.That(renderer.Instance.IterationId, Is.EqualTo(this.openIterations.Items[0].Iid));
+                this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items[0]), Times.Once);
             });
 
             this.viewModel.Setup(x => x.SelectedThing).Returns((Iteration)null);
             _ = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, this.openIterations.Items.First().Iid); });
 
-            this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items.First()), Times.Exactly(2));
+            this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items[0]), Times.Exactly(2));
 
             this.viewModel.Setup(x => x.SelectedThing).Returns(new Iteration
             {
@@ -147,7 +147,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
             Assert.Multiple(() =>
             {
                 Assert.That(renderer.Instance.IterationId, Is.EqualTo(this.viewModel.Object.SelectedThing.Iid));
-                this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items.First()), Times.Exactly(2));
+                this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items[0]), Times.Exactly(2));
             });
         }
 
@@ -181,10 +181,10 @@ namespace COMET.Web.Common.Tests.Components.Applications
             Assert.Multiple(() =>
             {
                 Assert.That(navigationManager.Uri, Is.EqualTo("http://localhost/"));
-                this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items.First()), Times.Exactly(2));
+                this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items[0]), Times.Exactly(2));
             });
 
-            this.viewModel.Setup(x => x.SelectedThing).Returns(this.openIterations.Items.First());
+            this.viewModel.Setup(x => x.SelectedThing).Returns(this.openIterations.Items[0]);
             renderer.Instance.SetCorrectUrl();
             var iteration = this.viewModel.Object.SelectedThing;
 
