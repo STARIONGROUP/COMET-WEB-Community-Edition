@@ -36,6 +36,7 @@
         <PackageReference Include="CDP4ServicesDal-CE" Version="27.4.1" />
         <PackageReference Include="CDP4Web-CE" Version="27.4.1" />
         <PackageReference Include="DevExpress.Blazor" Version="23.2.9" />
+        <PackageReference Include="FastMember" Version="1.5.0" />
         <PackageReference Include="FluentResults" Version="3.16.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.10" />
         <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.10" />

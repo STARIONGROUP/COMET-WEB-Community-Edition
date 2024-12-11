@@ -28,15 +28,46 @@
 
 @if (this.ViewModel.SelectedSystemNode != null)
 {
-	<DxGrid Data="this.ViewModel.Rows" ColumnResizeMode="GridColumnResizeMode.ColumnsContainer" ShowAllRows="true" >
-		<Columns>
-			<DxGridDataColumn Caption="Name" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.ParameterTypeName)" />
-			<DxGridDataColumn Caption="Short Name" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.ShortName)" MinWidth="80" />
-			<DxGridDataColumn Caption="Actual Value" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.ActualValue)" />
-			<DxGridDataColumn Caption="Published Value" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.PublishedValue)" />
-			<DxGridDataColumn Caption="Owner" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.Owner)" MinWidth="50"/>
-			<DxGridDataColumn Caption="Switch" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.SwitchValue)" MinWidth="60"/>
-			<DxGridDataColumn Caption="Model Code" FieldName="@nameof(ElementDefinitionDetailsRowViewModel.ModelCode)" MinWidth="100"/>
-		</Columns>
-	</DxGrid>
+    <CardView Items="@this.ViewModel.Rows.ToList()" ItemSize="150" MinWidth="180" SearchFields="@this.searchFields">
+        <ItemTemplate>
+            <div class="row">
+                <div class="col-10">
+                    <h6 title="@context.ParameterTypeName" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;">@context.ParameterTypeName </h6>
+                </div>
+                <div class="col-2" align="right">
+                    <button class="starion-pill" title="Owning Domain Of Expertise: @context.Owner">@context.Owner</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;" title="@context.ModelCode">
+                    @context.ModelCode
+                </div>
+            </div>
+            <div class="row" style="border-top:1px dotted darkgray;margin-top:8px;padding-top:8px;">
+                <div class="col-6">
+                    @context.SwitchValue:
+                </div>
+                <div class="col-6">
+                    Published:
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;" title="Actual Value: @context.ActualValue">@context.ActualValue</div>
+                <div class="col-6" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;" title="Published Value: @context.PublishedValue">@context.PublishedValue</div>
+            </div>
+        </ItemTemplate>
+    </CardView>
+}
+
+@code 
+{
+    private string[] searchFields =
+    [
+        nameof(ElementDefinitionDetailsRowViewModel.ParameterTypeName),
+        nameof(ElementDefinitionDetailsRowViewModel.Owner),
+        nameof(ElementDefinitionDetailsRowViewModel.ModelCode),
+        nameof(ElementDefinitionDetailsRowViewModel.ActualValue),
+        nameof(ElementDefinitionDetailsRowViewModel.PublishedValue),
+        nameof(ElementDefinitionDetailsRowViewModel.SwitchValue)
+    ];
 }
