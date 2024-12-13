@@ -40,6 +40,6 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// A collection of <see cref="ElementDefinitionDetailsRowViewModel" />
         /// </summary>
-        IEnumerable<ElementDefinitionDetailsRowViewModel> Rows { get; set; }
+        ICollection<ElementDefinitionDetailsRowViewModel> Rows { get; set; }
     }
 }

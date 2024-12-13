@@ -23,24 +23,29 @@
 @typeparam T
 @inherits DisposableComponent
 
-<p style="visibility:@(this.AllowSearch ? "block": "hidden");">
+<p>
     <table>
         <tr>
-            <td><input type="text" @oninput="this.OnSearchTextChanged" placeholder="Search..."/></td>
-            <td><DxComboBox Data="@this.SortFields" SelectedItemChanged="@((string x) => this.OnSelectedItemChanged(x))"
-                                    @bind-Value="@this.SelectedSortField"/>
+            <td style="visibility:@(this.AllowSearch ? "block": "hidden");">
+                <DxTextBox CssClass="inline-search-icon" SizeMode="SizeMode.Medium" BindValueMode="BindValueMode.OnDelayedInput" InputDelay="500" TextChanged="@((string x) => this.OnSearchTextChanged(x))" NullText="Search..." ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+                </DxTextBox>
+            </td>
+            <td style="visibility:@(this.AllowSort ? "block": "hidden");">
+                <DxComboBox CssClass="inline-sort-icon" FilteringMode="DataGridFilteringMode.Contains" SizeMode="SizeMode.Medium" Data="@this.SortFields" SelectedItemChanged="@((string x) => this.OnSelectedSortItemChanged(x))"
+                            @bind-Value="@this.selectedSortField">
+                </DxComboBox>
             </td>
         </tr>
     </table>
 </p>
-<div class="container" style="height:calc(100% - 30px); overflow:auto;">
+<div class="container" style="height:calc(100% - 40px); overflow:auto;">
     <div class="row">
         <Virtualize ItemSize="@this.ItemSize" ItemsProvider="this.LoadItems" @ref="this.virtualize">
             <ItemContent>
-                <div class="col" style="height:(@this.ItemSize)px;min-width:(@this.MinWidth)px;">
+                <div class="col" style="padding-left:0px;margin-left:0px;height:(@this.ItemSize)px;min-width:(@this.MinWidth)px;">
                     <div class="card @(this.GetSelectedClass(@context))"
-                         @onclick="@(() => this.selectOption(@context))"
-                         draggable="true"
+                         @onclick="@(() => this.selectItem(@context))"
+                         draggable="false"
                          dropzone="move"
                          ondragover="event.preventDefault();"
                          @ondragstart="@(() => this.OnDragNode(@context))"

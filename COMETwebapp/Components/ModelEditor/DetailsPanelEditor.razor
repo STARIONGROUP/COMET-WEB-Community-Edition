@@ -28,7 +28,7 @@
 
 @if (this.ViewModel.SelectedSystemNode != null)
 {
-    <CardView Items="@this.ViewModel.Rows.ToList()" ItemSize="150" MinWidth="180">
+    <CardView Items="this.ViewModel.Rows" ItemSize="150" MinWidth="180">
         <ItemTemplate>
             <div class="row">
                 <div class="col-10">
@@ -45,29 +45,21 @@
             </div>
             <div class="row" style="border-top:1px dotted darkgray;margin-top:8px;padding-top:8px;">
                 <div class="col-6">
-                    <CardField Context="@context" FieldName="SwitchValue" />:
+                    <span>
+                        <button class="starion-pill" title="Actual Value's Value Switch: @context.SwitchValue"><CardField Context="@context" FieldName="SwitchValue" /></button>
+                    </span>
+                    <span>Actual:</span>
                 </div>
                 <div class="col-6">
                     Published:
                 </div>
             </div>
             <div class="row">
-                <div class="col-6" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;" title="Actual Value: @context.ActualValue"><CardField Context="@context" FieldName="ActualValue" /></div>
+                <div class="col-6" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;" title="Actual Value: @context.ActualValue">
+                    <CardField Context="@context" FieldName="ActualValue" />
+                </div>
                 <div class="col-6" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;" title="Published Value: @context.PublishedValue"><CardField Context="@context" FieldName="PublishedValue" /></div>
             </div>
         </ItemTemplate>
     </CardView>
-}
-
-@code 
-{
-    private string[] searchAndSortFields =
-    [
-        nameof(ElementDefinitionDetailsRowViewModel.ParameterTypeName),
-        nameof(ElementDefinitionDetailsRowViewModel.Owner),
-        nameof(ElementDefinitionDetailsRowViewModel.ModelCode),
-        nameof(ElementDefinitionDetailsRowViewModel.ActualValue),
-        nameof(ElementDefinitionDetailsRowViewModel.PublishedValue),
-        nameof(ElementDefinitionDetailsRowViewModel.SwitchValue)
-    ];
 }

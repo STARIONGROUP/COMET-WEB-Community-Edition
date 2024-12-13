@@ -32,7 +32,6 @@ namespace COMET.Web.Common.Components
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web.Virtualization;
 
-    using System.Linq.Dynamic;
     using System.Linq.Dynamic.Core;
 
     /// <summary>
@@ -53,16 +52,6 @@ namespace COMET.Web.Common.Components
         public ICollection<T> Items { get; set; } = new List<T>();
 
         /// <summary>
-        /// Gets or sets a collection of propertynames of type <see cref="T"/> to perform search on
-        /// </summary>
-        public HashSet<string> SearchFields { get; set; } = [];
-
-        /// <summary>
-        /// Gets or sets a collection of propertynames of type <see cref="T"/> to perform sorting on
-        /// </summary>
-        public SortedSet<string> SortFields { get; set; } = [string.Empty];
-
-        /// <summary>
         /// Gets or sets the fixed height of a Card, used to calculate the amout of items to load into the DOM in px
         /// </summary>
         [Parameter]
@@ -74,9 +63,31 @@ namespace COMET.Web.Common.Components
         [Parameter]
         public float MinWidth { get; set; } = 250;
 
+        /// <summary>
+        /// Gets or sets a collection of propertynames of type <see cref="T"/> to perform search on
+        /// </summary>
+        public HashSet<string> SearchFields { get; set; } = [];
+
+        /// <summary>
+        /// Gets or sets a collection of propertynames of type <see cref="T"/> to perform sorting on
+        /// </summary>
+        public SortedSet<string> SortFields { get; set; } = [string.Empty];
+
+        /// <summary>
+        /// Gets or sets a value indication that sorting is allowed
+        /// </summary>
         public bool AllowSort { get; set; } = false;
 
+        /// <summary>
+        /// Gets or sets a value indication that searching is allowed
+        /// </summary>
         public bool AllowSearch { get; set; } = false;
+
+        /// <summary>
+        /// hold a reference to the previously selected Item.
+        /// Typically used to check for changes in Items collection
+        /// </summary>
+        private ICollection<T> previousItems = null;
 
         /// <summary>
         /// A reference to the <see cref="Virtualize{T}"/> component for loading items
@@ -99,17 +110,20 @@ namespace COMET.Web.Common.Components
         private T draggedNode { get; set; }
 
         /// <summary>
-        /// Gets or sets the term where to search/filter item of
+        /// Gets or sets the term where to search/filter items on
         /// </summary>
         private string searchTerm { get; set; } = string.Empty;
 
-        public string SelectedSortField { get; set; }
+        /// <summary>
+        /// Gets or sets the term where to sort items on
+        /// </summary>
+        private string selectedSortField { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets the class to visually show a Card to be selected or unselected
         /// </summary>
         /// <param name="vm"></param>
-        /// <returns></returns>
+        /// <returns>A string that retrurns the css class for selected Card</returns>
         private string GetSelectedClass(T vm)
         {
             return vm.Equals(this.selected) ? "selected" : "";
@@ -118,8 +132,8 @@ namespace COMET.Web.Common.Components
         /// <summary>
         /// Set the selected item
         /// </summary>
-        /// <param name="item"></param>
-        private void selectOption(T item)
+        /// <param name="item">The item <see cref="T"/></param>
+        private void selectItem(T item)
         {
             this.selected = item;
         }
@@ -140,18 +154,7 @@ namespace COMET.Web.Common.Components
         /// <returns>A <see cref="Task"/></returns>
         private async Task OnDropNode(T targetNode)
         {
-            //TODO: Implement
-            // var targetFolder = (Folder)targetNode.Thing;
-
-            // switch (this.DraggedNode?.Thing)
-            // {
-            //     case File file:
-            //         await this.ViewModel.FileHandlerViewModel.MoveFile(file, targetFolder);
-            //         break;
-            //     case Folder folder:
-            //         await this.ViewModel.FolderHandlerViewModel.MoveFolder(folder, targetFolder);
-            //         break;
-            // }
+            //not implemented yet
         }
 
         /// <summary>
@@ -162,16 +165,16 @@ namespace COMET.Web.Common.Components
         private async ValueTask<ItemsProviderResult<T>> LoadItems(ItemsProviderRequest request)
         {
             // Filter items based on the SearchTerm
-            var filteredItems = string.IsNullOrWhiteSpace(this.searchTerm)
+            var filteredItems = !this.AllowSearch || string.IsNullOrWhiteSpace(this.searchTerm)
                 ? this.Items
                 : this.Items.Where(item => this.FilterItem(item, this.searchTerm)).ToList();
 
             // Return paged items for virtualization
             var items = filteredItems.Skip(request.StartIndex).Take(request.Count);
 
-            if (!string.IsNullOrWhiteSpace(this.SelectedSortField))
+            if (this.AllowSort && !string.IsNullOrWhiteSpace(this.selectedSortField))
             {
-                items = items.AsQueryable().OrderBy(this.SelectedSortField);
+                items = items.AsQueryable().OrderBy(this.selectedSortField);
             }
 
             return new ItemsProviderResult<T>(items.ToList(), filteredItems.Count);
@@ -185,31 +188,36 @@ namespace COMET.Web.Common.Components
         /// <returns>True if the item's selected properties contain the value to search for, otherwise false</returns>
         private bool FilterItem(T item, string query)
         {
-            var props = this.typeAccessor.GetMembers();
-
-            return props.Where(x => this.SearchFields.Contains(x.Name)).Any(prop =>
+            if (this.AllowSearch)
             {
-                var value = this.typeAccessor[item, prop.Name].ToString();
-                return value != null && value.Contains(query, StringComparison.OrdinalIgnoreCase);
-            });
+                var props = this.typeAccessor.GetMembers();
+
+                return props.Where(x => this.SearchFields.Contains(x.Name)).Any(prop =>
+                {
+                    var value = this.typeAccessor[item, prop.Name].ToString();
+                    return value != null && value.Contains(query, StringComparison.OrdinalIgnoreCase);
+                });
+            }
+
+            return true;
         }
 
         /// <summary>
         /// A method that is executed when the user changes the search input element
         /// </summary>
-        /// <param name="e">The <see cref="ChangeEventArgs"/> from the UI element's event</param>
-        /// <returns></returns>
-        private async Task OnSearchTextChanged(ChangeEventArgs e)
+        /// <param name="value">The text from the UI element's event</param>
+        private void OnSearchTextChanged(string value)
         {
-            this.searchTerm = e.Value?.ToString() ?? string.Empty;
+            this.searchTerm = value ?? string.Empty;
 
-            if (this.virtualize != null)
-            {
-                await this.virtualize.RefreshDataAsync(); // Tell Virtualize to refresh data
-            }
+            this.virtualize?.RefreshDataAsync(); // Tell Virtualize to refresh data
         }
 
-        internal void RegisterCardField(CardField<T> cardField)
+        /// <summary>
+        /// Initializes the <see cref="CardField{T}"/>
+        /// </summary>
+        /// <param name="cardField">the <see cref="CardField{T}"/></param>
+        internal void InitializeCardField(CardField<T> cardField)
         {
             if (cardField.AllowSort)
             {
@@ -230,11 +238,31 @@ namespace COMET.Web.Common.Components
             }
         }
 
-        private void OnSelectedItemChanged(string arg)
+        /// <summary>
+        /// Handles the selection of a the Sort item
+        /// </summary>
+        /// <param name="arg"></param>
+        private void OnSelectedSortItemChanged(string arg)
         {
-            this.SelectedSortField = arg ?? string.Empty;
+            this.selectedSortField = arg ?? string.Empty;
 
             this.virtualize?.RefreshDataAsync(); // Tell Virtualize to refresh data
+        }
+
+        /// <summary>
+        /// Raised when a parameter is set
+        /// </summary>
+        /// <returns>An awaitable <see cref="Task"/></returns>
+        protected override async Task OnParametersSetAsync()
+        {
+            await base.OnParametersSetAsync();
+
+            if (!Equals(this.previousItems, this.Items) && this.virtualize != null)
+            {
+                await this.virtualize.RefreshDataAsync(); // Tell Virtualize to refresh data
+            }
+
+            this.previousItems = this.Items;
         }
     }
 }
