@@ -75,32 +75,12 @@ namespace COMETwebapp.Model
 
                 new TabbedApplication
                 {
-                    Name = "Parameter Editor",
-                    Color = "#76b8fc",
-                    IconType = typeof(FeatherLayout),
-                    Description = "Table of element usages with their associated parameters.",
-                    Url = WebAppConstantValues.ParameterEditorPage,
-                    ComponentType = typeof(ParameterEditorBody)
-                },
-
-                new TabbedApplication
-                {
                     Name = "Subscription Dashboard",
                     Color = "#76fd98",
                     IconType = typeof(FeatherActivity),
                     Description = "Table of subscribed values.",
                     Url = WebAppConstantValues.SubscriptionDashboardPage,
                     ComponentType = typeof(SubscriptionDashboardBody)
-                },
-
-                new TabbedApplication
-                {
-                    Name = "System Representation",
-                    Color = "#a7f876",
-                    IconType = typeof(FeatherShare2),
-                    Description = "Represent relations between elements.",
-                    Url = WebAppConstantValues.SystemRepresentationPage,
-                    ComponentType = typeof(SystemRepresentationBody)
                 },
 
                 new Application
@@ -111,36 +91,6 @@ namespace COMETwebapp.Model
                     Description = $"Edit requirements in the model.{Environment.NewLine}Under Development",
                     IsDisabled = true,
                     Url = WebAppConstantValues.RequirementManagementPage
-                },
-
-                new Application
-                {
-                    Name = "Budget Editor",
-                    Color = "#fc3a1aad",
-                    Icon = "brush",
-                    Description = $"Create budget tables.{Environment.NewLine}Under Development",
-                    IsDisabled = true,
-                    Url = WebAppConstantValues.BudgetEditorPage
-                },
-
-                new TabbedApplication
-                {
-                    Name = "3D Viewer",
-                    Color = "#76fd98",
-                    IconType = typeof(FeatherPackage),
-                    Description = "Show 3D Viewer",
-                    Url = WebAppConstantValues.ViewerPage,
-                    ComponentType = typeof(ViewerBody)
-                },
-
-                new TabbedApplication
-                {
-                    Name = "Engineering Model",
-                    Color = "#c3cffd",
-                    IconType = typeof(FeatherSettings),
-                    Description = "Visualize the engineering model data",
-                    Url = WebAppConstantValues.EngineeringModelPage,
-                    ComponentType = typeof(EngineeringModelBody)
                 },
 
                 new TabbedApplication
@@ -155,12 +105,62 @@ namespace COMETwebapp.Model
 
                 new TabbedApplication
                 {
+                    Name = "Parameter Editor",
+                    Color = "#76b8fc",
+                    IconType = typeof(FeatherLayout),
+                    Description = "Table of element usages with their associated parameters.",
+                    Url = WebAppConstantValues.ParameterEditorPage,
+                    ComponentType = typeof(ParameterEditorBody)
+                },
+
+                new TabbedApplication
+                {
+                    Name = "System Representation",
+                    Color = "#a7f876",
+                    IconType = typeof(FeatherShare2),
+                    Description = "Represent relations between elements.",
+                    Url = WebAppConstantValues.SystemRepresentationPage,
+                    ComponentType = typeof(SystemRepresentationBody)
+                },
+
+                new TabbedApplication
+                {
+                    Name = "3D Viewer",
+                    Color = "#76fd98",
+                    IconType = typeof(FeatherPackage),
+                    Description = "Show 3D Viewer",
+                    Url = WebAppConstantValues.ViewerPage,
+                    ComponentType = typeof(ViewerBody)
+                },
+
+                new Application
+                {
+                    Name = "Budget Editor",
+                    Color = "#fc3a1aad",
+                    Icon = "brush",
+                    Description = $"Create budget tables.{Environment.NewLine}Under Development",
+                    IsDisabled = true,
+                    Url = WebAppConstantValues.BudgetEditorPage
+                },
+
+                new TabbedApplication
+                {
                     Name = "Book Editor",
                     Color = "#76fd98",
                     IconType = typeof(FeatherBook),
                     Description = "Manage books",
                     Url = WebAppConstantValues.BookEditorPage,
                     ComponentType = typeof(BookEditorBody)
+                },
+
+                new TabbedApplication
+                {
+                    Name = "Engineering Model",
+                    Color = "#c3cffd",
+                    IconType = typeof(FeatherSettings),
+                    Description = "Visualize the engineering model data",
+                    Url = WebAppConstantValues.EngineeringModelPage,
+                    ComponentType = typeof(EngineeringModelBody)
                 },
 
                 new TabbedApplication
