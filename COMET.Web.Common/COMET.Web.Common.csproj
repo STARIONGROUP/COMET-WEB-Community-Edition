@@ -44,6 +44,7 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
         <PackageReference Include="ReactiveUI" Version="20.1.63" />
         <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
+        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.5.0" />
         <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     </ItemGroup>
 

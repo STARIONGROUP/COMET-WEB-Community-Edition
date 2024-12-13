@@ -25,15 +25,20 @@
 
 namespace COMET.Web.Common.Components
 {
+    using COMET.Web.Common.Components.CardView;
+
     using FastMember;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web.Virtualization;
 
+    using System.Linq.Dynamic;
+    using System.Linq.Dynamic.Core;
+
     /// <summary>
     /// Component used to show a CardView based on a specific type
     /// </summary>
-    public partial class CardView<T> : DisposableComponent where T : class
+    public partial class CardView<T> : DisposableComponent
     {
         /// <summary>
         /// Gets or sets the item template for the list.
@@ -50,8 +55,12 @@ namespace COMET.Web.Common.Components
         /// <summary>
         /// Gets or sets a collection of propertynames of type <see cref="T"/> to perform search on
         /// </summary>
-        [Parameter]
-        public string[] SearchFields { get; set; }
+        public HashSet<string> SearchFields { get; set; } = [];
+
+        /// <summary>
+        /// Gets or sets a collection of propertynames of type <see cref="T"/> to perform sorting on
+        /// </summary>
+        public SortedSet<string> SortFields { get; set; } = [string.Empty];
 
         /// <summary>
         /// Gets or sets the fixed height of a Card, used to calculate the amout of items to load into the DOM in px
@@ -64,6 +73,10 @@ namespace COMET.Web.Common.Components
         /// </summary>
         [Parameter]
         public float MinWidth { get; set; } = 250;
+
+        public bool AllowSort { get; set; } = false;
+
+        public bool AllowSearch { get; set; } = false;
 
         /// <summary>
         /// A reference to the <see cref="Virtualize{T}"/> component for loading items
@@ -90,6 +103,8 @@ namespace COMET.Web.Common.Components
         /// </summary>
         private string searchTerm { get; set; } = string.Empty;
 
+        public string SelectedSortField { get; set; }
+
         /// <summary>
         /// Gets the class to visually show a Card to be selected or unselected
         /// </summary>
@@ -97,7 +112,7 @@ namespace COMET.Web.Common.Components
         /// <returns></returns>
         private string GetSelectedClass(T vm)
         {
-            return vm == this.selected ? "selected" : "";
+            return vm.Equals(this.selected) ? "selected" : "";
         }
 
         /// <summary>
@@ -152,8 +167,14 @@ namespace COMET.Web.Common.Components
                 : this.Items.Where(item => this.FilterItem(item, this.searchTerm)).ToList();
 
             // Return paged items for virtualization
-            var items = filteredItems.Skip(request.StartIndex).Take(request.Count).ToList();
-            return new ItemsProviderResult<T>(items, filteredItems.Count);
+            var items = filteredItems.Skip(request.StartIndex).Take(request.Count);
+
+            if (!string.IsNullOrWhiteSpace(this.SelectedSortField))
+            {
+                items = items.AsQueryable().OrderBy(this.SelectedSortField);
+            }
+
+            return new ItemsProviderResult<T>(items.ToList(), filteredItems.Count);
         }
 
         /// <summary>
@@ -172,7 +193,7 @@ namespace COMET.Web.Common.Components
                 return value != null && value.Contains(query, StringComparison.OrdinalIgnoreCase);
             });
         }
-        
+
         /// <summary>
         /// A method that is executed when the user changes the search input element
         /// </summary>
@@ -186,6 +207,34 @@ namespace COMET.Web.Common.Components
             {
                 await this.virtualize.RefreshDataAsync(); // Tell Virtualize to refresh data
             }
+        }
+
+        internal void RegisterCardField(CardField<T> cardField)
+        {
+            if (cardField.AllowSort)
+            {
+                if (this.SortFields.Add(cardField.FieldName))
+                {
+                    this.AllowSort = true;
+                    this.StateHasChanged();
+                }
+            }
+
+            if (cardField.AllowSearch)
+            {
+                if (this.SearchFields.Add(cardField.FieldName))
+                {
+                    this.AllowSearch = true;
+                    this.StateHasChanged();
+                }
+            }
+        }
+
+        private void OnSelectedItemChanged(string arg)
+        {
+            this.SelectedSortField = arg ?? string.Empty;
+
+            this.virtualize?.RefreshDataAsync(); // Tell Virtualize to refresh data
         }
     }
 }

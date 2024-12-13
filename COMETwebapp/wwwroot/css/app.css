@@ -313,3 +313,7 @@ sub {
     color: dimgray;
     padding-top: 0px;
 }
+
+.search-mark {
+    background-color: yellow !important;
+}

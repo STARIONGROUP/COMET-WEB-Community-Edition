@@ -10,4 +10,3 @@
 .card.selected {
     border: 2px solid var(--bs-primary, var(--primary));
 }
-

@@ -20,11 +20,18 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components
-@typeparam T where T : class
+@typeparam T
 @inherits DisposableComponent
 
-<p>
-    <input type="text" @oninput="this.OnSearchTextChanged" placeholder="Search..." />
+<p style="visibility:@(this.AllowSearch ? "block": "hidden");">
+    <table>
+        <tr>
+            <td><input type="text" @oninput="this.OnSearchTextChanged" placeholder="Search..."/></td>
+            <td><DxComboBox Data="@this.SortFields" SelectedItemChanged="@((string x) => this.OnSelectedItemChanged(x))"
+                                    @bind-Value="@this.SelectedSortField"/>
+            </td>
+        </tr>
+    </table>
 </p>
 <div class="container" style="height:calc(100% - 30px); overflow:auto;">
     <div class="row">
@@ -39,7 +46,11 @@
                          @ondragstart="@(() => this.OnDragNode(@context))"
                          @ondrop="@(() => this.OnDropNode(@context))">
                         <div class="card-body" style="overflow-y:hidden;overflow-x:hidden">
-                            @this.ItemTemplate(@context)
+                            <CascadingValue Name="CardView" Value = "this">
+                                <CascadingValue Name="SearchTerm" Value="this.searchTerm">
+                                    @this.ItemTemplate(@context)
+                                </CascadingValue>
+                            </CascadingValue>
                         </div>
                     </div>
                 </div>
