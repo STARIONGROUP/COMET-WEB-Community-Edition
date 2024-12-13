@@ -23,16 +23,14 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Components
+namespace COMET.Web.Common.Components.CardView
 {
-    using COMET.Web.Common.Components.CardView;
+    using System.Linq.Dynamic.Core;
 
     using FastMember;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web.Virtualization;
-
-    using System.Linq.Dynamic.Core;
 
     /// <summary>
     /// Component used to show a CardView based on a specific type
@@ -64,30 +62,30 @@ namespace COMET.Web.Common.Components
         public float MinWidth { get; set; } = 250;
 
         /// <summary>
-        /// Gets or sets a collection of propertynames of type <see cref="T"/> to perform search on
+        /// Gets or sets a collection of propertynames of type <see cref="T"/>to perform search on
         /// </summary>
-        public HashSet<string> SearchFields { get; set; } = [];
+        public HashSet<string> SearchFields { get; private set; } = [];
 
         /// <summary>
         /// Gets or sets a collection of propertynames of type <see cref="T"/> to perform sorting on
         /// </summary>
-        public SortedSet<string> SortFields { get; set; } = [string.Empty];
+        public SortedSet<string> SortFields { get; private set; } = [string.Empty];
 
         /// <summary>
         /// Gets or sets a value indication that sorting is allowed
         /// </summary>
-        public bool AllowSort { get; set; } = false;
+        public bool AllowSort { get; set; }
 
         /// <summary>
         /// Gets or sets a value indication that searching is allowed
         /// </summary>
-        public bool AllowSearch { get; set; } = false;
+        public bool AllowSearch { get; set; }
 
         /// <summary>
         /// hold a reference to the previously selected Item.
         /// Typically used to check for changes in Items collection
         /// </summary>
-        private ICollection<T> previousItems = null;
+        private ICollection<T> previousItems;
 
         /// <summary>
         /// A reference to the <see cref="Virtualize{T}"/> component for loading items
@@ -219,22 +217,16 @@ namespace COMET.Web.Common.Components
         /// <param name="cardField">the <see cref="CardField{T}"/></param>
         internal void InitializeCardField(CardField<T> cardField)
         {
-            if (cardField.AllowSort)
+            if (cardField.AllowSort && this.SortFields.Add(cardField.FieldName))
             {
-                if (this.SortFields.Add(cardField.FieldName))
-                {
-                    this.AllowSort = true;
-                    this.StateHasChanged();
-                }
+                this.AllowSort = true;
+                this.StateHasChanged();
             }
 
-            if (cardField.AllowSearch)
+            if (cardField.AllowSearch && this.SearchFields.Add(cardField.FieldName))
             {
-                if (this.SearchFields.Add(cardField.FieldName))
-                {
-                    this.AllowSearch = true;
-                    this.StateHasChanged();
-                }
+                this.AllowSearch = true;
+                this.StateHasChanged();
             }
         }
 
