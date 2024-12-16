@@ -110,7 +110,7 @@ namespace COMET.Web.Common.Components.CardView
             if (this.AllowSearch && !string.IsNullOrWhiteSpace(value) && !string.IsNullOrWhiteSpace(this.SearchTerm))
             {
                 var separatorPattern = $"({this.SearchTerm})";
-                var result = Regex.Split(value, separatorPattern, RegexOptions.IgnoreCase);
+                var result = Regex.Split(value, separatorPattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(30));
                 var elementCounter = 0;
 
                 foreach (var element in result)
