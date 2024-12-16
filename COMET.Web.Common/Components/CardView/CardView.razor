@@ -44,12 +44,7 @@
             <ItemContent>
                 <div class="col" style="padding-left:0px;margin-left:0px;height:(@this.ItemSize)px;min-width:(@this.MinWidth)px;">
                     <div class="card @(this.GetSelectedClass(@context))"
-                         @onclick="@(() => this.selectItem(@context))"
-                         draggable="false"
-                         dropzone="move"
-                         ondragover="event.preventDefault();"
-                         @ondragstart="@(() => this.OnDragNode(@context))"
-                         @ondrop="@(() => this.OnDropNode(@context))">
+                         @onclick="@(() => this.selectItem(@context))">
                         <div class="card-body" style="overflow-y:hidden;overflow-x:hidden">
                             <CascadingValue Name="CardView" Value = "this">
                                 <CascadingValue Name="SearchTerm" Value="this.searchTerm">

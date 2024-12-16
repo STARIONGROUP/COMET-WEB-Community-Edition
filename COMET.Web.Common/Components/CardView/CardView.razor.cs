@@ -103,11 +103,6 @@ namespace COMET.Web.Common.Components.CardView
         private T selected;
 
         /// <summary>
-        /// Gets the dragged node used in drag and drop interactions
-        /// </summary>
-        private T draggedNode { get; set; }
-
-        /// <summary>
         /// Gets or sets the term where to search/filter items on
         /// </summary>
         private string searchTerm { get; set; } = string.Empty;
@@ -134,25 +129,6 @@ namespace COMET.Web.Common.Components.CardView
         private void selectItem(T item)
         {
             this.selected = item;
-        }
-
-        /// <summary>
-        /// Method invoked when a node is dragged
-        /// </summary>
-        /// <param name="node">The dragged node</param>
-        private void OnDragNode(T node)
-        {
-            this.draggedNode = node;
-        }
-
-        /// <summary>
-        /// Method invoked when a node is dropped
-        /// </summary>
-        /// <param name="targetNode">The target node where the <see cref="draggedNode"/> has been dropped</param>
-        /// <returns>A <see cref="Task"/></returns>
-        private async Task OnDropNode(T targetNode)
-        {
-            //not implemented yet
         }
 
         /// <summary>
