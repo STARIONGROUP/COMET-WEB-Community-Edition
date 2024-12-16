@@ -582,7 +582,7 @@
 
     .inline-search-icon::before {
         content: '\e08f'; /* Unicode for an example icon (change this for your preferred icon) */
-        font-family: 'Icons';
+        font-family: Icons;
         top:3px;
         position: absolute;
         left: 5px; /* Position of the icon */
@@ -599,7 +599,7 @@
 
     .inline-sort-icon::before {
         content: '\e0bf'; /* Unicode for an example icon (change this for your preferred icon) */
-        font-family: 'Icons';
+        font-family: Icons;
         vertical-align: middle;
         position: absolute;
         top: 3px;
