@@ -1,0 +1,12 @@
+﻿.card {
+    margin-bottom: 10px;
+    background-color: #f9f9fb;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card.selected {
+    border: 2px solid var(--bs-primary, var(--primary));
+}

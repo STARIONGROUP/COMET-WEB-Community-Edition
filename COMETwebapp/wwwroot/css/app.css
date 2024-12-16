@@ -302,3 +302,18 @@ sub {
 .validation-container:not(:has(li)) {
     display: none;
 }
+
+.starion-pill {
+    margin: 1px;
+    height: 19px;
+    width: auto;
+    border-radius: 30px;
+    background-color: white;
+    border: 1px solid dimgray;
+    color: dimgray;
+    padding-top: 0px;
+}
+
+.search-mark {
+    background-color: yellow !important;
+}

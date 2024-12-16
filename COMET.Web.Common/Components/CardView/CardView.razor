@@ -1,0 +1,61 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023-2024 Starion Group S.A.
+//
+//   Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
+//
+//   This file is part of CDP4-COMET WEB Community Edition
+//   The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25
+//   Annex A and Annex C.
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+------------------------------------------------------------------------------->
+
+@namespace COMET.Web.Common.Components.CardView
+@typeparam T
+@inherits DisposableComponent
+
+<p>
+    <table>
+        <tr>
+            <td id="search-textbox" style="visibility:@(this.AllowSearch ? "block": "hidden");">
+                <DxTextBox CssClass="inline-search-icon" SizeMode="SizeMode.Medium" BindValueMode="BindValueMode.OnDelayedInput" InputDelay="500" TextChanged="this.OnSearchTextChanged" NullText="Search..." ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+                </DxTextBox>
+            </td>
+            <td id="sort-dropdown" style="visibility:@(this.AllowSort ? "block": "hidden");">
+                <DxComboBox TData="string" TValue="string" CssClass="inline-sort-icon" FilteringMode="DataGridFilteringMode.Contains" SizeMode="SizeMode.Medium" Data="@this.SortFields" SelectedItemChanged="@( x => this.OnSelectedSortItemChanged(x))"
+                    @bind-Value="@this.SelectedSortField">
+                </DxComboBox>
+            </td>
+        </tr>
+    </table>
+</p>
+<div class="container" style="height:calc(100% - 40px); overflow:auto;">
+    <div class="row">
+        <Virtualize ItemSize="@this.ItemSize" ItemsProvider="this.LoadItems" @ref="this.virtualize">
+            <ItemContent>
+                <div class="col" style="padding-left:0px;margin-left:0px;height:(@this.ItemSize)px;min-width:(@this.MinWidth)px;">
+                    <div class="card @(this.GetSelectedClass(@context))"
+                         @onclick="@(() => this.SelectItem(@context))">
+                        <div class="card-body" style="overflow-y:hidden;overflow-x:hidden">
+                            <CascadingValue Name="CardView" Value = "this">
+                                <CascadingValue Name="SearchTerm" Value="this.SearchTerm">
+                                    @this.ItemTemplate(@context)
+                                </CascadingValue>
+                            </CascadingValue>
+                        </div>
+                    </div>
+                </div>
+            </ItemContent>
+        </Virtualize>
+    </div>
+</div>
