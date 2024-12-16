@@ -32,6 +32,7 @@ namespace COMET.Web.Common.Tests.Components.CardView
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 
     using NUnit.Framework;
 
@@ -275,6 +276,39 @@ namespace COMET.Web.Common.Tests.Components.CardView
                 Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass1.Id.ToString())).ToList().Count, Is.EqualTo(1));
                 Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass2.Id.ToString())).ToList().Count, Is.EqualTo(1));
                 Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass3.Id.ToString())).Count, Is.EqualTo(1));
+            });
+        }
+
+        [Test]
+        public void VerifySelectComponent()
+        {
+            var component = this.context.RenderComponent<CardView<TestClass>>(parameters =>
+            {
+                parameters
+                    .Add(p => p.Items, this.testClasses)
+                    .Add(p => p.ItemSize, 150)
+                    .Add(p => p.ItemTemplate, NormalTemplate());
+            });
+
+            var cardView = component;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(cardView.Instance.AllowSort, Is.True);
+                Assert.That(cardView.Instance.AllowSearch, Is.True);
+                Assert.That(cardView.Instance.ItemSize, Is.EqualTo(150));
+                Assert.That(cardView.Instance.SearchFields, Is.EquivalentTo(new[] { "Id", "Name" }));
+                Assert.That(cardView.Instance.SortFields, Is.EquivalentTo(new[] { string.Empty, "Id", "Name" }));
+            });
+
+            var firstCardField = component.Find(".card");
+            firstCardField.Click();
+
+            var selectedCardField = component.Find(".selected");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(firstCardField.InnerHtml, Is.EqualTo(selectedCardField.InnerHtml));
             });
         }
 
