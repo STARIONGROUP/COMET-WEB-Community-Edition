@@ -45,6 +45,8 @@ namespace COMET.Web.Common.Tests.Components.CardView
         private TestClass testClass2 = new ();
         private TestClass testClass3 = new ();
         private TestClass[] testClasses;
+        private string[] searchFields = new[] { "Id", "Name" };
+        private string[] sortFields = new[] { string.Empty, "Id", "Name" };
 
         private static RenderFragment<TestClass> NormalTemplate()
         {
@@ -118,8 +120,8 @@ namespace COMET.Web.Common.Tests.Components.CardView
                     Assert.That(cardView.Instance.AllowSort, Is.True);
                     Assert.That(cardView.Instance.AllowSearch, Is.True);
                     Assert.That(cardView.Instance.ItemSize, Is.EqualTo(150));
-                    Assert.That(cardView.Instance.SearchFields, Is.EquivalentTo(new [] {"Id", "Name"}));
-                    Assert.That(cardView.Instance.SortFields, Is.EquivalentTo(new[] { string.Empty, "Id", "Name" }));
+                    Assert.That(cardView.Instance.SearchFields, Is.EquivalentTo(this.searchFields));
+                    Assert.That(cardView.Instance.SortFields, Is.EquivalentTo(this.sortFields));
                 });
 
             var textBoxParentComponent = component.Find("#search-textbox");
@@ -297,8 +299,8 @@ namespace COMET.Web.Common.Tests.Components.CardView
                 Assert.That(cardView.Instance.AllowSort, Is.True);
                 Assert.That(cardView.Instance.AllowSearch, Is.True);
                 Assert.That(cardView.Instance.ItemSize, Is.EqualTo(150));
-                Assert.That(cardView.Instance.SearchFields, Is.EquivalentTo(new[] { "Id", "Name" }));
-                Assert.That(cardView.Instance.SortFields, Is.EquivalentTo(new[] { string.Empty, "Id", "Name" }));
+                Assert.That(cardView.Instance.SearchFields, Is.EquivalentTo(this.searchFields));
+                Assert.That(cardView.Instance.SortFields, Is.EquivalentTo(this.sortFields));
             });
 
             var firstCardField = component.Find(".card");
@@ -330,8 +332,8 @@ namespace COMET.Web.Common.Tests.Components.CardView
                 Assert.That(cardView.Instance.AllowSort, Is.True);
                 Assert.That(cardView.Instance.AllowSearch, Is.True);
                 Assert.That(cardView.Instance.ItemSize, Is.EqualTo(150));
-                Assert.That(cardView.Instance.SearchFields, Is.EquivalentTo(new[] { "Id", "Name" }));
-                Assert.That(cardView.Instance.SortFields, Is.EquivalentTo(new[] { string.Empty, "Id", "Name" }));
+                Assert.That(cardView.Instance.SearchFields, Is.EquivalentTo(this.searchFields));
+                Assert.That(cardView.Instance.SortFields, Is.EquivalentTo(this.sortFields));
             });
 
             var textBoxParentComponent = component.Find("#search-textbox");
@@ -395,8 +397,8 @@ namespace COMET.Web.Common.Tests.Components.CardView
                 Assert.That(cardView.Instance.AllowSort, Is.True);
                 Assert.That(cardView.Instance.AllowSearch, Is.True);
                 Assert.That(cardView.Instance.ItemSize, Is.EqualTo(150));
-                Assert.That(cardView.Instance.SearchFields, Is.EquivalentTo(new[] { "Id", "Name" }));
-                Assert.That(cardView.Instance.SortFields, Is.EquivalentTo(new[] { string.Empty, "Id", "Name" }));
+                Assert.That(cardView.Instance.SearchFields, Is.EquivalentTo(this.searchFields));
+                Assert.That(cardView.Instance.SortFields, Is.EquivalentTo(this.sortFields));
                 Assert.That(cardView.Instance.SelectedSortField == string.Empty);
             });
 

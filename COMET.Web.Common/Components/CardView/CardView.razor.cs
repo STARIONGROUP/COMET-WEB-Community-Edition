@@ -62,12 +62,12 @@ namespace COMET.Web.Common.Components.CardView
         public float MinWidth { get; set; } = 250;
 
         /// <summary>
-        /// Gets or sets a collection of propertynames of type <see cref="T"/>to perform search on
+        /// Gets or sets a collection of propertynames of type T to perform search on
         /// </summary>
         public HashSet<string> SearchFields { get; private set; } = [];
 
         /// <summary>
-        /// Gets or sets a collection of propertynames of type <see cref="T"/> to perform sorting on
+        /// Gets or sets a collection of propertynames of type T to perform sorting on
         /// </summary>
         public SortedSet<string> SortFields { get; private set; } = [string.Empty];
 
@@ -93,7 +93,7 @@ namespace COMET.Web.Common.Components.CardView
         private Virtualize<T>? virtualize; // Reference to the Virtualize component
 
         /// <summary>
-        /// The FastMember <see cref="TypeAccessor"/> to use to perform actions on instances of <see cref="T"/>
+        /// The FastMember <see cref="FastMember.TypeAccessor"/> to use to perform actions on instances of type T
         /// </summary>
         private TypeAccessor typeAccessor = TypeAccessor.Create(typeof(T));
 
@@ -105,7 +105,7 @@ namespace COMET.Web.Common.Components.CardView
         /// <summary>
         /// Gets or sets the term where to search/filter items on
         /// </summary>
-        private string searchTerm { get; set; } = string.Empty;
+        public string SearchTerm { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the term where to sort items on
@@ -125,23 +125,23 @@ namespace COMET.Web.Common.Components.CardView
         /// <summary>
         /// Set the selected item
         /// </summary>
-        /// <param name="item">The item <see cref="T"/></param>
-        private void selectItem(T item)
+        /// <param name="item">The item of type T</param>
+        public void SelectItem(T item)
         {
             this.selected = item;
         }
 
         /// <summary>
-        /// Filters the list of items to show in the UI based on the <see cref="searchTerm"/>
+        /// Filters the list of items to show in the UI based on the <see cref="SearchTerm"/>
         /// </summary>
         /// <param name="request">The request to perform filtering of the items list</param>
         /// <returns>an waitable <see cref="ValueTask"/></returns>
-        private async ValueTask<ItemsProviderResult<T>> LoadItems(ItemsProviderRequest request)
+        private ValueTask<ItemsProviderResult<T>> LoadItems(ItemsProviderRequest request)
         {
             // Filter items based on the SearchTerm
-            var filteredItems = !this.AllowSearch || string.IsNullOrWhiteSpace(this.searchTerm)
+            var filteredItems = !this.AllowSearch || string.IsNullOrWhiteSpace(this.SearchTerm)
                 ? this.Items
-                : this.Items.Where(item => this.FilterItem(item, this.searchTerm)).ToList();
+                : this.Items.Where(item => this.FilterItem(item, this.SearchTerm)).ToList();
 
             // Return paged items for virtualization
             var items = filteredItems.Skip(request.StartIndex).Take(request.Count);
@@ -151,11 +151,11 @@ namespace COMET.Web.Common.Components.CardView
                 items = items.AsQueryable().OrderBy(this.SelectedSortField);
             }
 
-            return new ItemsProviderResult<T>(items.ToList(), filteredItems.Count);
+            return new ValueTask<ItemsProviderResult<T>>(new ItemsProviderResult<T>(items.ToList(), filteredItems.Count));
         }
 
         /// <summary>
-        /// Used to filter items based on the <see cref="searchTerm"/>
+        /// Used to filter items based on the <see cref="SearchTerm"/>
         /// </summary>
         /// <param name="item">The item to perform searching on</param>
         /// <param name="query">The string to search for</param>
@@ -182,7 +182,7 @@ namespace COMET.Web.Common.Components.CardView
         /// <param name="value">The text from the UI element's event</param>
         private void OnSearchTextChanged(string value)
         {
-            this.searchTerm = value ?? string.Empty;
+            this.SearchTerm = value ?? string.Empty;
 
             this.virtualize?.RefreshDataAsync(); // Tell Virtualize to refresh data
         }

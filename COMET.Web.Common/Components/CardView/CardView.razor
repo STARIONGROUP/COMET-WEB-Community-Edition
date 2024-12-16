@@ -31,7 +31,7 @@
                 </DxTextBox>
             </td>
             <td id="sort-dropdown" style="visibility:@(this.AllowSort ? "block": "hidden");">
-                <DxComboBox TData="string" TValue="string" CssClass="inline-sort-icon" FilteringMode="DataGridFilteringMode.Contains" SizeMode="SizeMode.Medium" Data="@this.SortFields" SelectedItemChanged="@((string x) => this.OnSelectedSortItemChanged(x))"
+                <DxComboBox TData="string" TValue="string" CssClass="inline-sort-icon" FilteringMode="DataGridFilteringMode.Contains" SizeMode="SizeMode.Medium" Data="@this.SortFields" SelectedItemChanged="@( x => this.OnSelectedSortItemChanged(x))"
                     @bind-Value="@this.SelectedSortField">
                 </DxComboBox>
             </td>
@@ -44,10 +44,10 @@
             <ItemContent>
                 <div class="col" style="padding-left:0px;margin-left:0px;height:(@this.ItemSize)px;min-width:(@this.MinWidth)px;">
                     <div class="card @(this.GetSelectedClass(@context))"
-                         @onclick="@(() => this.selectItem(@context))">
+                         @onclick="@(() => this.SelectItem(@context))">
                         <div class="card-body" style="overflow-y:hidden;overflow-x:hidden">
                             <CascadingValue Name="CardView" Value = "this">
-                                <CascadingValue Name="SearchTerm" Value="this.searchTerm">
+                                <CascadingValue Name="SearchTerm" Value="this.SearchTerm">
                                     @this.ItemTemplate(@context)
                                 </CascadingValue>
                             </CascadingValue>

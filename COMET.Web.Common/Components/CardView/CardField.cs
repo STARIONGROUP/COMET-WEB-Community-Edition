@@ -39,10 +39,10 @@ namespace COMET.Web.Common.Components.CardView
     public class CardField<T> : ComponentBase
     {
         /// <summary>
-        /// The <see cref="TypeAccessor"/> used to read properties from the instance of <see cref="T"/>.
+        /// The <see cref="FastMember.TypeAccessor"/> used to read properties from the instance of T.
         /// This is a static property on a generic type, so it will have different static values for each used generic type in the application
         /// </summary>
-        private static TypeAccessor typeAccessor { get; set; }
+        private static TypeAccessor typeAccessor;
 
         /// <summary>
         /// Initializes the static properties of this <see cref="CardField{T}"/> class
@@ -71,7 +71,7 @@ namespace COMET.Web.Common.Components.CardView
         public T Context { get; set; }
 
         /// <summary>
-        /// Gets or sets the FieldName (propertyname of <see cref="T"/>) to show in the UI 
+        /// Gets or sets the FieldName (propertyname of T) to show in the UI 
         /// </summary>
         [Parameter]
         public string FieldName { get; set; }
