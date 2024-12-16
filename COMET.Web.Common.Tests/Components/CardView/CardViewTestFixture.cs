@@ -28,11 +28,11 @@ namespace COMET.Web.Common.Tests.Components.CardView
 
     using COMET.Web.Common.Components.CardView;
 
+    using DevExpress.Blazor;
     using DevExpress.Blazor.Internal;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 
     using NUnit.Framework;
 
@@ -309,6 +309,151 @@ namespace COMET.Web.Common.Tests.Components.CardView
             Assert.Multiple(() =>
             {
                 Assert.That(firstCardField.InnerHtml, Is.EqualTo(selectedCardField.InnerHtml));
+            });
+        }
+
+        [Test]
+        public async Task VerifySearchComponent()
+        {
+            var component = this.context.RenderComponent<CardView<TestClass>>(parameters =>
+            {
+                parameters
+                    .Add(p => p.Items, this.testClasses)
+                    .Add(p => p.ItemSize, 150)
+                    .Add(p => p.ItemTemplate, NormalTemplate());
+            });
+
+            var cardView = component;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(cardView.Instance.AllowSort, Is.True);
+                Assert.That(cardView.Instance.AllowSearch, Is.True);
+                Assert.That(cardView.Instance.ItemSize, Is.EqualTo(150));
+                Assert.That(cardView.Instance.SearchFields, Is.EquivalentTo(new[] { "Id", "Name" }));
+                Assert.That(cardView.Instance.SortFields, Is.EquivalentTo(new[] { string.Empty, "Id", "Name" }));
+            });
+
+            var textBoxParentComponent = component.Find("#search-textbox");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(textBoxParentComponent, Is.Not.Null);
+                Assert.That(textBoxParentComponent.Attributes.Single(x => x.Name == "style").Value.Contains("visibility:block"), Is.True);
+            });
+
+            var textBoxComponent = component.FindComponent<DxTextBox>();
+            await component.InvokeAsync(() => textBoxComponent.Instance.TextChanged.InvokeAsync(this.testClass1.Id.ToString()));
+
+            var cardFields = component.FindComponents<CardField<TestClass>>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(cardFields.Count, Is.EqualTo(2));
+
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass1.Name)).ToList().Count, Is.EqualTo(1));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass2.Name)).ToList().Count, Is.EqualTo(0));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass3.Name)).ToList().Count, Is.EqualTo(0));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass1.Id.ToString()) && x.Markup.Contains("search-mark")).ToList().Count, Is.EqualTo(1));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass2.Id.ToString())).ToList().Count, Is.EqualTo(0));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass3.Id.ToString())).Count, Is.EqualTo(0));
+            });
+
+            await component.InvokeAsync(async () => await textBoxComponent.Instance.TextChanged.InvokeAsync(string.Empty));
+
+            cardFields = component.FindComponents<CardField<TestClass>>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(cardFields.Count, Is.EqualTo(6));
+
+                Assert.That(cardFields.Where(x => x.Markup.Contains("search-mark")).ToList().Count, Is.EqualTo(0));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass1.Name)).ToList().Count, Is.EqualTo(1));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass2.Name)).ToList().Count, Is.EqualTo(1));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass3.Name)).ToList().Count, Is.EqualTo(1));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass1.Id.ToString())).ToList().Count, Is.EqualTo(1));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass2.Id.ToString())).ToList().Count, Is.EqualTo(1));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass3.Id.ToString())).Count, Is.EqualTo(1));
+            });
+        }
+
+        [Test]
+        public async Task VerifySortComponent()
+        {
+            var component = this.context.RenderComponent<CardView<TestClass>>(parameters =>
+            {
+                parameters
+                    .Add(p => p.Items, this.testClasses)
+                    .Add(p => p.ItemSize, 150)
+                    .Add(p => p.ItemTemplate, NormalTemplate());
+            });
+
+            var cardView = component;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(cardView.Instance.AllowSort, Is.True);
+                Assert.That(cardView.Instance.AllowSearch, Is.True);
+                Assert.That(cardView.Instance.ItemSize, Is.EqualTo(150));
+                Assert.That(cardView.Instance.SearchFields, Is.EquivalentTo(new[] { "Id", "Name" }));
+                Assert.That(cardView.Instance.SortFields, Is.EquivalentTo(new[] { string.Empty, "Id", "Name" }));
+                Assert.That(cardView.Instance.SelectedSortField == string.Empty);
+            });
+
+            var sortParentComponent = component.Find("#sort-dropdown");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(sortParentComponent, Is.Not.Null);
+                Assert.That(sortParentComponent.Attributes.Single(x => x.Name == "style").Value.Contains("visibility:block"), Is.True);
+            });
+
+            var cardFields = component.FindComponents<CardField<TestClass>>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(cardFields.Count, Is.EqualTo(6));
+
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass1.Name)).ToList().Count, Is.EqualTo(1));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass2.Name)).ToList().Count, Is.EqualTo(1));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass3.Name)).ToList().Count, Is.EqualTo(1));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass1.Id.ToString())).ToList().Count, Is.EqualTo(1));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass2.Id.ToString())).ToList().Count, Is.EqualTo(1));
+                Assert.That(cardFields.Where(x => x.Markup.Contains(this.testClass3.Id.ToString())).Count, Is.EqualTo(1));
+            });
+
+            await component.InvokeAsync(() => component.Instance.OnSelectedSortItemChanged("Id"));
+
+            component.Render();
+
+            cardFields = component.FindComponents<CardField<TestClass>>();
+
+            //var sortedTestClasses = this.testClasses.OrderBy(x => x.Id.ToString()).Select(x => x.Name).ToList();
+            var sortedTestClasses = this.testClasses.OrderBy(x => x.Id).Select(x => x.Name).ToList();
+            var sortedCarFields = cardFields.Where(x => x.Markup.StartsWith("Name-")).Select(x => x.Markup).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(component.Instance.SelectedSortField == "Id");
+                Assert.That(sortedTestClasses[0], Is.EqualTo(sortedCarFields[0]));
+                Assert.That(sortedTestClasses[1], Is.EqualTo(sortedCarFields[1]));
+                Assert.That(sortedTestClasses[2], Is.EqualTo(sortedCarFields[2]));
+            });
+
+            await component.InvokeAsync(() => component.Instance.OnSelectedSortItemChanged(string.Empty));
+
+            component.Render();
+
+            cardFields = component.FindComponents<CardField<TestClass>>();
+
+            sortedCarFields = cardFields.Where(x => x.Markup.StartsWith("Name-")).Select(x => x.Markup).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(component.Instance.SelectedSortField == string.Empty);
+                Assert.That(this.testClasses[0].Name, Is.EqualTo(sortedCarFields[0]));
+                Assert.That(this.testClasses[1].Name, Is.EqualTo(sortedCarFields[1]));
+                Assert.That(this.testClasses[2].Name, Is.EqualTo(sortedCarFields[2]));
             });
         }
 

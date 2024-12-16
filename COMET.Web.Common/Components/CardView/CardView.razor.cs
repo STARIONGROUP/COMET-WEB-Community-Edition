@@ -110,7 +110,7 @@ namespace COMET.Web.Common.Components.CardView
         /// <summary>
         /// Gets or sets the term where to sort items on
         /// </summary>
-        private string selectedSortField { get; set; } = string.Empty;
+        public string SelectedSortField { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets the class to visually show a Card to be selected or unselected
@@ -146,9 +146,9 @@ namespace COMET.Web.Common.Components.CardView
             // Return paged items for virtualization
             var items = filteredItems.Skip(request.StartIndex).Take(request.Count);
 
-            if (this.AllowSort && !string.IsNullOrWhiteSpace(this.selectedSortField))
+            if (this.AllowSort && !string.IsNullOrWhiteSpace(this.SelectedSortField))
             {
-                items = items.AsQueryable().OrderBy(this.selectedSortField);
+                items = items.AsQueryable().OrderBy(this.SelectedSortField);
             }
 
             return new ItemsProviderResult<T>(items.ToList(), filteredItems.Count);
@@ -209,10 +209,10 @@ namespace COMET.Web.Common.Components.CardView
         /// <summary>
         /// Handles the selection of a the Sort item
         /// </summary>
-        /// <param name="arg"></param>
-        private void OnSelectedSortItemChanged(string arg)
+        /// <param name="newVal"></param>
+        public void OnSelectedSortItemChanged(string newVal)
         {
-            this.selectedSortField = arg ?? string.Empty;
+            this.SelectedSortField = newVal ?? string.Empty;
 
             this.virtualize?.RefreshDataAsync(); // Tell Virtualize to refresh data
         }
