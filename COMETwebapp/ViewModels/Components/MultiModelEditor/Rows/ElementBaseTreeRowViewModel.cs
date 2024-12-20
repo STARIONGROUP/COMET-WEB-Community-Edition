@@ -25,6 +25,7 @@
 namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
 
@@ -46,13 +47,19 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         private string elementName;
 
         /// <summary>
+        /// Backing field for <see cref="OwnerShortName"/>
+        /// </summary>
+        private string ownerShortName;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ElementDefinitionRowViewModel" /> class.
-        /// <param name="elementBase">the <see cref="ElementBase" /></param>
+        /// <param name="elementBase">the <see cref="CDP4Common.EngineeringModelData.ElementBase" /></param>
         /// </summary>
         protected ElementBaseTreeRowViewModel(ElementBase elementBase)
         {
             this.ElementBase = elementBase;
             this.ElementName = elementBase.Name;
+            this.OwnerShortName = elementBase.Owner.ShortName;
         }
 
         /// <summary>
@@ -60,6 +67,15 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         /// </summary>
         protected ElementBaseTreeRowViewModel()
         {
+        }
+
+        /// <summary>
+        /// The shortname of the owning <see cref="DomainOfExpertise" />
+        /// </summary>
+        public string OwnerShortName
+    {
+            get => this.ownerShortName;
+            set => this.RaiseAndSetIfChanged(ref this.ownerShortName, value);
         }
 
         /// <summary>
@@ -72,7 +88,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         }
 
         /// <summary>
-        /// The <see cref="ElementBase" />
+        /// The <see cref="CDP4Common.EngineeringModelData.ElementBase" />
         /// </summary>
         public ElementBase ElementBase
         {
@@ -88,6 +104,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         {
             this.ElementBase = elementBaseTreeRow.elementBase;
             this.ElementName = elementBaseTreeRow.elementName;
+            this.OwnerShortName = elementBaseTreeRow.OwnerShortName;
         }
     }
 }

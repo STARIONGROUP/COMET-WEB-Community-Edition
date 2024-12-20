@@ -1,8 +1,4 @@
-﻿@using COMET.Web.Common.Model
-@using COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
-@using CDP4JsonSerializer.JsonConverter
-@inject IJSRuntime JSRuntime
-<!------------------------------------------------------------------------------
+﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2024 Starion Group S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -23,6 +19,11 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMET.Web.Common.Model
+@using COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
+@using CDP4JsonSerializer.JsonConverter
+@inject IJSRuntime JSRuntime
+
 <div style = "height:50px">
 @if (this.IsModelSelectionEnabled)
 {
@@ -60,7 +61,6 @@ else
             var dataItem = (ElementBaseTreeRowViewModel)context.DataItem;
             var draggable = this.AllowDrag && this.AllowNodeDrag.Invoke(this, dataItem);
             var isTopElement = dataItem is ElementDefinitionTreeTreeRowViewModel { IsTopElement: true };
-
             var style = isTopElement ? "font-weight-bold" : string.Empty;
         }
 
@@ -75,13 +75,29 @@ else
                  @ondragenter="@(async () => await this.DragEnter(dataItem))"
                  @ondragleave="@(async () => await this.DragLeave(dataItem))"
                  @ondrop="@(async () => await this.Drop(dataItem))">
-                @dataItem.ElementName
+                @dataItem.ElementName <span>
+                    <button class="starion-pill" title="Owning Domain Of Expertise: @dataItem.OwnerShortName">@dataItem.OwnerShortName</button>
+                </span>
+                @foreach (var category in @dataItem.ElementBase.GetAllCategories())
+                {
+                    <span>
+                        <button class="starion-pill" style="background-color:aliceblue !important;" title="Category: @category.ShortName">@category.ShortName</button>
+                    </span>
+                }
             </div>
         }
         else
         {
             <div>
-                @dataItem.ElementName
+                @dataItem.ElementName <span>
+                    <button class="starion-pill" title="Owning Domain Of Expertise: @dataItem.OwnerShortName">@dataItem.OwnerShortName</button>
+                </span>
+                @foreach (var category in @dataItem.ElementBase.GetAllCategories())
+                {
+                    <span>
+                        <button class="starion-pill" style="background-color:aliceblue !important;" title="Category: @category.ShortName">@category.ShortName</button>
+                    </span>
+                }
             </div>
         }
     </NodeTextTemplate>

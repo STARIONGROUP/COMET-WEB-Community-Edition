@@ -88,10 +88,10 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// <summary>
         /// Method executed when a <see cref="ElementDefinitionRowViewModel" /> is selected
         /// </summary>
-        /// <param name="args">The <see cref="GridRowClickEventArgs" /></param>
-        private void OnElementSelected(ElementBaseTreeRowViewModel args)
+        /// <param name="elementRowViewModel">The <see cref="ElementBaseTreeRowViewModel" /></param>
+        private void OnElementSelected(ElementBaseTreeRowViewModel elementRowViewModel)
         {
-            this.ViewModel.SelectElement(args?.ElementBase);
+            this.ViewModel.SelectElement(elementRowViewModel?.ElementBase);
         }
 
         /// <summary>

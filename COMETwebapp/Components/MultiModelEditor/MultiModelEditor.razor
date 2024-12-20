@@ -20,6 +20,7 @@
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 
+@using COMETwebapp.Components.ModelEditor
 @using COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.MultiModelEditor.IMultiModelEditorViewModel>;
 
@@ -31,35 +32,36 @@
                 <h4>Source Model</h4>
                 <ElementDefinitionTree 
                     @ref="this.SourceTree" 
-                    IsModelSelectionEnabled="true"
+                    Iteration="@this.ViewModel.CurrentThing"
+                    SelectionChanged="model => { if (model != null) this.TargetTree.ClearSelection(); this.OnElementSelected(model);}"
                     AllowDrag="true"
-                    AllowDrop="false"
+                    AllowDrop="true"
+                    OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowed(x))"
+                    OnDragEnter="@(async x => await this.OnDragEnter(x))"
+                    OnDragLeave="@(async x => await this.OnDragLeave(x))"
                     OnDragStart="@(async x => await this.OnDragStart(x))"
                     OnDragEnd="@(async x => await this.OnDragEnd(x))"
+                    OnDrop="@(async x => await this.OnDrop(x))"
                     AllowNodeDrag="(tree, model) => model is ElementDefinitionTreeTreeRowViewModel"
-                    SelectionChanged="model =>
-                    { 
-                        if (model != null) this.TargetTree.ClearSelection(); 
-                        this.OnElementSelected(model);
-                        }">
+                    IsModelSelectionEnabled="true">
                 </ElementDefinitionTree>
             </div>
             <div>
                 <h4>Target Model</h4>
                 <ElementDefinitionTree 
-                                    @ref="this.TargetTree" 
-                                    Iteration="@this.ViewModel.CurrentThing"
-                                    SelectionChanged="model => { if (model != null) this.SourceTree.ClearSelection(); this.OnElementSelected(model);}"
-                                    AllowDrag="true"
-                                    AllowDrop="true"
-                                    OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowed(x))"
-                                    OnDragEnter="@(async x => await this.OnDragEnter(x))"
-                                    OnDragLeave="@(async x => await this.OnDragLeave(x))"
-                                    OnDragStart="@(async x => await this.OnDragStart(x))"
-                                    OnDragEnd="@(async x => await this.OnDragEnd(x))"
-                                    OnDrop="@(async x => await this.OnDrop(x))"
-                                    AllowNodeDrag="(tree, model) => model is ElementDefinitionTreeTreeRowViewModel"
-                                    IsModelSelectionEnabled="false">
+                    @ref="this.TargetTree" 
+                    Iteration="@this.ViewModel.CurrentThing"
+                    SelectionChanged="model => { if (model != null) this.SourceTree.ClearSelection(); this.OnElementSelected(model);}"
+                    AllowDrag="true"
+                    AllowDrop="true"
+                    OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowed(x))"
+                    OnDragEnter="@(async x => await this.OnDragEnter(x))"
+                    OnDragLeave="@(async x => await this.OnDragLeave(x))"
+                    OnDragStart="@(async x => await this.OnDragStart(x))"
+                    OnDragEnd="@(async x => await this.OnDragEnd(x))"
+                    OnDrop="@(async x => await this.OnDrop(x))"
+                    AllowNodeDrag="(tree, model) => model is ElementDefinitionTreeTreeRowViewModel"
+                    IsModelSelectionEnabled="false">
                 </ElementDefinitionTree>
             </div>
         </div>
