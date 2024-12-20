@@ -28,13 +28,13 @@
 
 @if (this.ViewModel.SelectedSystemNode != null)
 {
-    <CardView Items="this.ViewModel.Rows" ItemSize="150" MinWidth="180">
+    <CardView Items="this.ViewModel.Rows" ItemSize="150" MinWidth="280">
         <ItemTemplate>
             <div class="row">
-                <div class="col-10">
+                <div class="col-9">
                     <h6 title="@context.ParameterTypeName" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;"><CardField Context="@context" FieldName="ParameterTypeName"/></h6>
                 </div>
-                <div class="col-2" align="right">
+                <div class="col-3" align="right">
                     <button class="starion-pill" title="Owning Domain Of Expertise: @context.Owner"><CardField Context="@context" FieldName="Owner" /></button>
                 </div>
             </div>

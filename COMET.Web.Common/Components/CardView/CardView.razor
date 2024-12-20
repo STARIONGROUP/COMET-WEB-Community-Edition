@@ -43,8 +43,9 @@
     <div class="row">
         <Virtualize ItemSize="@this.ItemSize" ItemsProvider="this.LoadItems" @ref="this.virtualize">
             <ItemContent>
-                <div class="col" style="padding-left:0px;margin-left:0px;height:(@this.ItemSize)px;min-width:(@this.MinWidth)px;">
+                <div class="col" style="padding-left:0px;margin-left:0px;height:@(this.ItemSize)px;">
                     <div class="card @(this.GetSelectedClass(@context))"
+                         style="min-width:@(this.MinWidth)px"
                          @onclick="@(() => this.SelectItem(@context))">
                         <div class="card-body" style="overflow-y:hidden;overflow-x:hidden">
                             <CascadingValue Name="CardView" Value = "this">
