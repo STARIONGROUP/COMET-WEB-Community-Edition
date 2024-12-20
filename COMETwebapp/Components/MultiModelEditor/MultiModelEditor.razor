@@ -32,7 +32,7 @@
                 <h4>Source Model</h4>
                 <ElementDefinitionTree 
                     @ref="this.SourceTree" 
-                    Iteration="@this.ViewModel.CurrentThing"
+                    InitialIteration="@this.ViewModel.CurrentThing"
                     SelectionChanged="model => { if (model != null) this.TargetTree.ClearSelection(); this.OnElementSelected(model);}"
                     AllowDrag="true"
                     AllowDrop="true"
@@ -50,7 +50,7 @@
                 <h4>Target Model</h4>
                 <ElementDefinitionTree 
                     @ref="this.TargetTree" 
-                    Iteration="@this.ViewModel.CurrentThing"
+                    InitialIteration="@this.ViewModel.CurrentThing"
                     SelectionChanged="model => { if (model != null) this.SourceTree.ClearSelection(); this.OnElementSelected(model);}"
                     AllowDrag="true"
                     AllowDrop="true"

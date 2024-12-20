@@ -36,6 +36,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
+    using COMETwebapp.Components.MultiModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
@@ -180,12 +181,13 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// <summary>
         /// Add a new <see cref="ElementDefinition"/> based on an existing <see cref="ElementBase"/>
         /// </summary>
-        /// <param name="elementBase">The <see cref="ElementBase"/></param>
-        public async Task CopyAndAddNewElement(ElementBase elementBase)
+        /// <param name="elementDefinitionTree">The <see cref="ElementDefinitionTree"/> to copy the node to</param>
+        /// <param name="elementBase">The <see cref="ElementBase"/> to copy</param>
+        public async Task CopyAndAddNewElement(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase)
         {
             this.IsLoading = true;
 
-            if (elementBase.GetContainerOfType<Iteration>() == this.CurrentThing)
+            if (elementBase.GetContainerOfType<Iteration>() == elementDefinitionTree.ViewModel.Iteration)
             {
                 var copyCreator = new CopyElementDefinitionCreator(this.sessionService.Session);
 
@@ -209,7 +211,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
 
                 try
                 {
-                    await copyCreator.Copy((ElementDefinition)elementBase, this.CurrentThing);
+                    await copyCreator.Copy((ElementDefinition)elementBase, elementDefinitionTree.ViewModel.Iteration);
                 }
                 catch (Exception exception)
                 {
@@ -230,7 +232,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// <param name="toElementBase">The <see cref="ElementBase"/> where to add the new <see cref="ElementUsage"/> to</param>
         public async Task AddNewElementUsage(ElementBase fromElementBase, ElementBase toElementBase)
         {
-            if (fromElementBase.GetContainerOfType<Iteration>() == this.CurrentThing && toElementBase.GetContainerOfType<Iteration>() == this.CurrentThing)
+            if (fromElementBase.GetContainerOfType<Iteration>() == toElementBase.GetContainerOfType<Iteration>())
             {
                 this.IsLoading = true;
 
@@ -238,7 +240,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
 
                 try
                 {
-                    await thingCreator.CreateElementUsage((ElementDefinition)toElementBase, (ElementDefinition)fromElementBase, this.sessionService.Session.OpenIterations.First(x => x.Key == this.CurrentThing).Value.Item1, this.sessionService.Session);
+                    await thingCreator.CreateElementUsage((ElementDefinition)toElementBase, (ElementDefinition)fromElementBase, this.sessionService.Session.OpenIterations.First(x => x.Key == toElementBase.GetContainerOfType<Iteration>()).Value.Item1, this.sessionService.Session);
                 }
                 catch (Exception exception)
                 {

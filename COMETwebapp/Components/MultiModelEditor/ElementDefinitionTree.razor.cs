@@ -48,7 +48,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// The Iteration
         /// </summary>
         [Parameter]
-        public Iteration Iteration { get; set; }
+        public Iteration InitialIteration { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating that another model can be selected for this TreeView or not
@@ -154,9 +154,9 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// </remarks>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (this.ViewModel.Iteration != this.Iteration)
+            if (this.ViewModel.Iteration != this.InitialIteration)
             {
-                this.Iteration = this.ViewModel.Iteration;
+                this.InitialIteration = this.ViewModel.Iteration;
             }
         }
 
@@ -168,7 +168,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         {
             base.OnParametersSet();
 
-            this.ViewModel.Iteration = this.Iteration;
+            this.ViewModel.Iteration ??= this.InitialIteration;
         }
 
         /// <summary>

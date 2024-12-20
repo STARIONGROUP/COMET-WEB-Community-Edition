@@ -135,7 +135,7 @@ namespace COMETwebapp.Components.MultiModelEditor
                 if (nodeData.Item2 == null)
                 {
                     // Drop in the same model
-                    await this.ViewModel.CopyAndAddNewElement(elementDefinitionTreeRowViewModel.ElementBase);
+                    await this.ViewModel.CopyAndAddNewElement(nodeData.Item1, elementDefinitionTreeRowViewModel.ElementBase);
                 }
                 else
                 {

@@ -29,6 +29,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
+    using COMETwebapp.Components.MultiModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
@@ -97,8 +98,9 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// <summary>
         /// Add a new <see cref="ElementDefinition"/> based on an existing <see cref="ElementBase"/>
         /// </summary>
-        /// <param name="elementBase">The <see cref="ElementBase"/></param>
-        Task CopyAndAddNewElement(ElementBase elementBase);
+        /// <param name="elementDefinitionTree">The <see cref="ElementDefinitionTree"/> to copy the node to</param>
+        /// <param name="elementBase">The <see cref="ElementBase"/> to copy</param>
+        Task CopyAndAddNewElement(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase);
 
         /// <summary>
         /// Add a new <see cref="ElementUsage"/> based on an existing <see cref="ElementBase"/>
