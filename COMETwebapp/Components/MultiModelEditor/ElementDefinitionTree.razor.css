@@ -1,0 +1,5 @@
+﻿.sticky-scrollable-column {
+    position: sticky;
+    top: 0px;
+    overflow: hidden;
+}

@@ -607,3 +607,12 @@
         color: #757575; /* Icon color */
         font-size: 16px; /* Icon size */
     }
+
+.treeview-drag-over {
+    background-color: burlywood;
+}
+
+.treeview-item-drag-over {
+    background-color: burlywood;
+    box-shadow: 0px 0px 2px 10px burlywood;
+}

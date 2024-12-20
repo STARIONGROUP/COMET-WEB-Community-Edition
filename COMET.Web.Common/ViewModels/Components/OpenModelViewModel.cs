@@ -222,6 +222,11 @@ namespace COMET.Web.Common.ViewModels.Components
                 return Result.Fail(["The selected iteration and the domain of expertise should not be null"]);
             }
 
+            if (this.sessionService.OpenIterations.Items.Any(x => x.IterationSetup.Iid == this.SelectedIterationSetup.IterationSetupId))
+            {
+                return Result.Fail(["The selected iteration is already openened"]);
+            }
+
             this.IsOpeningSession = true;
 
             var result = await this.sessionService.ReadIteration(this.SelectedEngineeringModel.IterationSetup
