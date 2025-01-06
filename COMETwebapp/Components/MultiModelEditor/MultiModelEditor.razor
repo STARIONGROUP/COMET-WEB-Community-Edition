@@ -33,21 +33,23 @@
                 <ElementDefinitionTree 
                     @ref="this.SourceTree" 
                     InitialIteration="@this.ViewModel.CurrentThing"
-                    SelectionChanged="model => { 
-                        if (model != null) 
+                    SelectionChanged="model => 
                         { 
-                            this.TargetTree.ClearSelection(); 
-                        } 
-                        this.OnElementSelected(model);}"
+                            if (model != null) 
+                            { 
+                                this.TargetTree.ClearSelection(); 
+                            } 
+                            this.OnElementSelected(model);
+                        }"
                     AllowDrag="true"
                     AllowDrop="true"
-                    OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowed(x))"
-                    OnDragEnter="@(async x => await this.OnDragEnter(x))"
-                    OnDragLeave="@(async x => await this.OnDragLeave(x))"
-                    OnDragStart="@(async x => await this.OnDragStart(x))"
-                    OnDragEnd="@(async x => await this.OnDragEnd(x))"
-                    OnDrop="@(async x => await this.OnDrop(x))"
-                    AllowNodeDrag="(tree, model) => model is ElementDefinitionTreeTreeRowViewModel"
+                    OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowedAsync(x))"
+                    OnDragEnter="@(async x => await this.OnDragEnterAsync(x))"
+                    OnDragLeave="@(async x => await this.OnDragLeaveAsync())"
+                    OnDragStart="@(async x => await this.OnDragStartAsync(x))"
+                    OnDragEnd="@(async x => await this.OnDragEndAsync())"
+                    OnDrop="@(async x => await this.OnDropAsync(x))"
+                    AllowNodeDrag="(_, model) => model is ElementDefinitionTreeTreeRowViewModel"
                     IsModelSelectionEnabled="true">
                 </ElementDefinitionTree>
             </div>
@@ -56,21 +58,23 @@
                 <ElementDefinitionTree 
                     @ref="this.TargetTree" 
                     InitialIteration="@this.ViewModel.CurrentThing"
-                    SelectionChanged="model => { 
+                    SelectionChanged="model => 
+                    { 
                         if (model != null) 
                         { 
                             this.SourceTree.ClearSelection(); 
                         } 
-                        this.OnElementSelected(model);}"
+                        this.OnElementSelected(model);
+                    }"
                     AllowDrag="true"
                     AllowDrop="true"
-                    OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowed(x))"
-                    OnDragEnter="@(async x => await this.OnDragEnter(x))"
-                    OnDragLeave="@(async x => await this.OnDragLeave(x))"
-                    OnDragStart="@(async x => await this.OnDragStart(x))"
-                    OnDragEnd="@(async x => await this.OnDragEnd(x))"
-                    OnDrop="@(async x => await this.OnDrop(x))"
-                    AllowNodeDrag="(tree, model) => model is ElementDefinitionTreeTreeRowViewModel"
+                    OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowedAsync(x))"
+                    OnDragEnter="@(async x => await this.OnDragEnterAsync(x))"
+                    OnDragLeave="@(async x => await this.OnDragLeaveAsync())"
+                    OnDragStart="@(async x => await this.OnDragStartAsync(x))"
+                    OnDragEnd="@(async x => await this.OnDragEndAsync())"
+                    OnDrop="@(async x => await this.OnDropAsync(x))"
+                    AllowNodeDrag="(_, model) => model is ElementDefinitionTreeTreeRowViewModel"
                     IsModelSelectionEnabled="false">
                 </ElementDefinitionTree>
             </div>

@@ -158,12 +158,14 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// Use the <paramref name="firstRender" /> parameter to ensure that initialization work is only performed
         /// once.
         /// </remarks>
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected override Task OnAfterRenderAsync(bool firstRender)
         {
             if (this.ViewModel.Iteration != this.InitialIteration)
             {
                 this.InitialIteration = this.ViewModel.Iteration;
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

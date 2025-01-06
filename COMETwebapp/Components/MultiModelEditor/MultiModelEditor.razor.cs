@@ -32,8 +32,6 @@ namespace COMETwebapp.Components.MultiModelEditor
     using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
     using COMETwebapp.ViewModels.Components.MultiModelEditor.Rows;
 
-    using DevExpress.Blazor;
-
     using ReactiveUI;
 
     /// <summary>
@@ -99,7 +97,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// </summary>
         /// <param name="nodeData">A <see cref="Tuple"/> that contains the specific <see cref="ElementDefinitionTree"/> and the specific node (<see cref="ElementBaseTreeRowViewModel"/>)</param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private Task OnDragStart((ElementDefinitionTree, ElementBaseTreeRowViewModel) nodeData)
+        private Task OnDragStartAsync((ElementDefinitionTree, ElementBaseTreeRowViewModel) nodeData)
         {
             this.DragObject = nodeData;
             return Task.CompletedTask;
@@ -108,9 +106,8 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// <summary>
         /// Is executed when dragging has been ended for a specific node (<see cref="ElementBaseTreeRowViewModel"/>) in a specific <see cref="ElementDefinitionTree"/>
         /// </summary>
-        /// <param name="nodeData">A <see cref="Tuple"/> that contains the specific <see cref="ElementDefinitionTree"/> and the specific node (<see cref="ElementBaseTreeRowViewModel"/>)</param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private Task OnDragEnd((ElementDefinitionTree, ElementBaseTreeRowViewModel) nodeData)
+        private Task OnDragEndAsync()
         {
             this.DragObject = (null, null);
             return Task.CompletedTask;
@@ -121,7 +118,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// </summary>
         /// <param name="nodeData">A <see cref="Tuple"/> that contains the specific <see cref="ElementDefinitionTree"/> and the specific node (<see cref="ElementBaseTreeRowViewModel"/>)</param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private async Task OnDrop((ElementDefinitionTree, ElementBaseTreeRowViewModel) nodeData)
+        private async Task OnDropAsync((ElementDefinitionTree, ElementBaseTreeRowViewModel) nodeData)
         {
             this.ErrorMessage = string.Empty;
 
@@ -160,7 +157,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// </summary>
         /// <param name="elementData">A <see cref="Tuple"/> that contains the specific <see cref="ElementDefinitionTree"/> and the specific element (<see cref="object"/>)</param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private Task OnDragEnter((ElementDefinitionTree, object) elementData)
+        private Task OnDragEnterAsync((ElementDefinitionTree, object) elementData)
         {
             this.DragOverObject = elementData;
             return Task.CompletedTask;
@@ -169,9 +166,8 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// <summary>
         /// Is executed when a dragged node (<see cref="ElementBaseTreeRowViewModel"/>) leaves a previously hovered over specific element (<see cref="object"/>) in a specific <see cref="ElementDefinitionTree"/>
         /// </summary>
-        /// <param name="elementData">A <see cref="Tuple"/> that contains the specific <see cref="ElementDefinitionTree"/> and the specific element (<see cref="object"/>)</param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private Task OnDragLeave((ElementDefinitionTree, object) elementData)
+        private Task OnDragLeaveAsync()
         {
             this.DragOverObject = (null, null);
             return Task.CompletedTask;
@@ -182,7 +178,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// </summary>
         /// <param name="elementDefinitionTree">The <see cref="ElementDefinitionTree"/> to calculate this for</param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private Task SetDropIsAllowed(ElementDefinitionTree elementDefinitionTree)
+        private Task SetDropIsAllowedAsync(ElementDefinitionTree elementDefinitionTree)
         {
             elementDefinitionTree.AllowNodeDrop = this.CalculateDropIsAllowed(elementDefinitionTree);
             return Task.CompletedTask;
@@ -198,44 +194,44 @@ namespace COMETwebapp.Components.MultiModelEditor
             var dragOverObject = this.DragOverObject;
             var dragObject = this.DragObject;
 
-            if (elementDefinitionTree.AllowDrop)
+            if (!elementDefinitionTree.AllowDrop)
             {
-                if (dragObject != (null, null))
+                return false;
+            }
+
+            if (dragObject == (null, null))
+            {
+                return false;
+            }
+
+            if (dragOverObject == dragObject)
+            {
+                return false;
+            }
+
+            if (dragOverObject.Item2 is ElementDefinitionTreeTreeRowViewModel dragOverVm)
+            {
+                if (dragObject.Item2 is not ElementDefinitionTreeTreeRowViewModel dragVm)
                 {
-                    if (dragOverObject == dragObject)
-                    {
-                        return false;
-                    }
-
-                    if (dragOverObject.Item2 is ElementDefinitionTreeTreeRowViewModel dragOverVm)
-                    {
-                        if (dragObject.Item2 is ElementDefinitionTreeTreeRowViewModel dragVm)
-                        {
-                            if (dragOverVm.ElementBase == dragVm.ElementBase)
-                            {
-                                return false;
-                            }
-
-                            if (dragOverVm.ElementBase.GetContainerOfType<Iteration>() == dragVm.ElementBase.GetContainerOfType<Iteration>())
-                            {
-                                return true;
-                            }
-
-                            return false;
-                        }
-
-                        return false;
-                    }
-
-                    if (dragOverObject.Item1 == elementDefinitionTree)
-                    {
-                        return true;
-                    }
-
                     return false;
                 }
 
+                if (dragOverVm.ElementBase == dragVm.ElementBase)
+                {
+                    return false;
+                }
+
+                if (dragOverVm.ElementBase.GetContainerOfType<Iteration>() == dragVm.ElementBase.GetContainerOfType<Iteration>())
+                {
+                    return true;
+                }
+
                 return false;
+            }
+
+            if (dragOverObject.Item1 == elementDefinitionTree)
+            {
+                return true;
             }
 
             return false;
