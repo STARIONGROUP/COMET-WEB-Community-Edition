@@ -100,7 +100,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// </summary>
         /// <param name="elementDefinitionTree">The <see cref="ElementDefinitionTree"/> to copy the node to</param>
         /// <param name="elementBase">The <see cref="ElementBase"/> to copy</param>
-        Task CopyAndAddNewElement(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase);
+        Task CopyAndAddNewElementAsync(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase);
 
         /// <summary>
         /// Add a new <see cref="ElementUsage"/> based on an existing <see cref="ElementBase"/>

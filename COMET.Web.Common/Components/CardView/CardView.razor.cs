@@ -136,7 +136,7 @@ namespace COMET.Web.Common.Components.CardView
         /// </summary>
         /// <param name="request">The request to perform filtering of the items list</param>
         /// <returns>an waitable <see cref="ValueTask"/></returns>
-        private ValueTask<ItemsProviderResult<T>> LoadItems(ItemsProviderRequest request)
+        private ValueTask<ItemsProviderResult<T>> LoadItemsAsync(ItemsProviderRequest request)
         {
             // Filter items based on the SearchTerm
             var filteredItems = !this.AllowSearch || string.IsNullOrWhiteSpace(this.SearchTerm)

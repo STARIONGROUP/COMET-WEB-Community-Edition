@@ -44,9 +44,9 @@ else
 <div class="@(this.dragOverNode == this.TreeView && this.AllowNodeDrop && this.AllowDrop ? "treeview-drag-over" : "")"
      dropzone="@(this.AllowDrop ? "move" : "")"
      ondragover="@(this.AllowDrop ? "event.preventDefault();" : "")"
-     @ondragenter="@(() => this.DragEnter(this.TreeView))"
-     @ondragleave="@(() => this.DragLeave(this.TreeView))"
-     @ondrop="@(() => this.Drop(null))"
+     @ondragenter="@(() => this.DragEnterAsync(this.TreeView))"
+     @ondragleave="@(() => this.DragLeaveAsync(this.TreeView))"
+     @ondrop="@(() => this.DropAsync(null))"
      style="height:25px;width:inherit;color:cadetblue;@(this.AllowDrop ? "" : "visibility:hidden;")">
     Drop here to create new element...
 </div>
@@ -69,12 +69,12 @@ else
             <div class="@style @(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "treeview-item-drag-over" : "")"
                  draggable="@(this.AllowDrag ? "true" : "false")"
                  dropzone="@(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "move" : "")"
-                 @ondragstart="@(async () => await  this.DragStart(dataItem))"
-                 @ondragend="@(async () => await this.DragEnd(dataItem))"
+                 @ondragstart="@(async () => await  this.DragStartAsync(dataItem))"
+                 @ondragend="@(async () => await this.DragEndAsync(dataItem))"
                  ondragover="@(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "event.preventDefault();" : "")"
-                 @ondragenter="@(async () => await this.DragEnter(dataItem))"
-                 @ondragleave="@(async () => await this.DragLeave(dataItem))"
-                 @ondrop="@(async () => await this.Drop(dataItem))">
+                 @ondragenter="@(async () => await this.DragEnterAsync(dataItem))"
+                 @ondragleave="@(async () => await this.DragLeaveAsync(dataItem))"
+                 @ondrop="@(async () => await this.DropAsync(dataItem))">
                 @dataItem.ElementName <span>
                     <button class="starion-pill" title="Owning Domain Of Expertise: @dataItem.OwnerShortName">@dataItem.OwnerShortName</button>
                 </span>

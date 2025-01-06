@@ -57,11 +57,6 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         private readonly ISessionService sessionService;
 
         /// <summary>
-        /// The injected <see cref="ILogger{MultiModelEditorViewModel}"/>
-        /// </summary>
-        private readonly ILogger<MultiModelEditorViewModel> logger;
-
-        /// <summary>
         /// Backing field for <see cref="IsOnAddingParameterMode" />
         /// </summary>
         private bool isOnAddingParameterMode;
@@ -76,19 +71,17 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
-        /// <param name="logger">The injected <see cref="ILogger{MultiModelEditorViewModel}"/></param>
-        public MultiModelEditorViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<MultiModelEditorViewModel> logger) : base(sessionService, messageBus)
+        public MultiModelEditorViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
         {
             this.sessionService = sessionService;
-            this.logger = logger;
             var eventCallbackFactory = new EventCallbackFactory();
 
             this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel(sessionService, messageBus)
             {
-                OnValidSubmit = eventCallbackFactory.Create(this, this.AddingElementDefinition)
+                OnValidSubmit = eventCallbackFactory.Create(this, this.AddingElementDefinitionAsync)
             };
 
-            this.AddParameterViewModel = new ModelEditor.AddParameterViewModel.AddParameterViewModel(sessionService, messageBus)
+            this.AddParameterViewModel = new AddParameterViewModel(sessionService, messageBus)
             {
                 OnParameterAdded = eventCallbackFactory.Create(this, () => this.IsOnAddingParameterMode = false)
             };
@@ -190,45 +183,40 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// </summary>
         /// <param name="elementDefinitionTree">The <see cref="ElementDefinitionTree"/> to copy the node to</param>
         /// <param name="elementBase">The <see cref="ElementBase"/> to copy</param>
-        public async Task CopyAndAddNewElement(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase)
+        public Task CopyAndAddNewElementAsync(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase)
+        {
+            ArgumentNullException.ThrowIfNull(elementDefinitionTree);
+            ArgumentNullException.ThrowIfNull(elementBase);
+
+            return this.CopyAndAddNewElementImplAsync(elementDefinitionTree, elementBase);
+        }
+
+        /// <summary>
+        /// Add a new <see cref="ElementDefinition"/> based on an existing <see cref="ElementBase"/>
+        /// </summary>
+        /// <param name="elementDefinitionTree">The <see cref="ElementDefinitionTree"/> to copy the node to</param>
+        /// <param name="elementBase">The <see cref="ElementBase"/> to copy</param>
+        private async Task CopyAndAddNewElementImplAsync(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase)
         {
             this.IsLoading = true;
 
-            if (elementBase.GetContainerOfType<Iteration>() == elementDefinitionTree.ViewModel.Iteration)
+            try
             {
-                var copyCreator = new CopyElementDefinitionCreator(this.sessionService.Session);
-
-                try
+                if (elementBase.GetContainerOfType<Iteration>() == elementDefinitionTree.ViewModel.Iteration)
                 {
-                    await copyCreator.Copy((ElementDefinition)elementBase, true);
+                    var copyCreator = new CopyElementDefinitionCreator(this.sessionService.Session);
+                    await copyCreator.CopyAsync((ElementDefinition)elementBase, true);
                 }
-                catch (Exception exception)
+                else
                 {
-                    this.logger.LogError(exception, string.Empty);
-                    throw;
-                }
-                finally
-                {
-                    this.IsLoading = false;
+                    var copyCreator = new CopyCreator(this.sessionService.Session);
+                    await copyCreator.CopyAsync((ElementDefinition)elementBase, elementDefinitionTree.ViewModel.Iteration);
                 }
             }
-            else
-            {
-                var copyCreator = new CopyCreator(this.sessionService.Session);
+            finally
 
-                try
-                {
-                    await copyCreator.Copy((ElementDefinition)elementBase, elementDefinitionTree.ViewModel.Iteration);
-                }
-                catch (Exception exception)
-                {
-                    this.logger.LogError(exception, string.Empty);
-                    throw;
-                }
-                finally
-                {
-                    this.IsLoading = false;
-                }
+            {
+                this.IsLoading = false;
             }
         }
 
@@ -237,7 +225,20 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// </summary>
         /// <param name="fromElementBase">The <see cref="ElementBase"/> to be added as <see cref="ElementUsage"/></param>
         /// <param name="toElementBase">The <see cref="ElementBase"/> where to add the new <see cref="ElementUsage"/> to</param>
-        public async Task AddNewElementUsage(ElementBase fromElementBase, ElementBase toElementBase)
+        public Task AddNewElementUsage(ElementBase fromElementBase, ElementBase toElementBase)
+        {
+            ArgumentNullException.ThrowIfNull(fromElementBase);
+            ArgumentNullException.ThrowIfNull(toElementBase);
+
+            return this.AddNewElementUsageImplAsync(fromElementBase, toElementBase);
+        }
+
+        /// <summary>
+        /// Add a new <see cref="ElementUsage"/> based on an existing <see cref="ElementBase"/>
+        /// </summary>
+        /// <param name="fromElementBase">The <see cref="ElementBase"/> to be added as <see cref="ElementUsage"/></param>
+        /// <param name="toElementBase">The <see cref="ElementBase"/> where to add the new <see cref="ElementUsage"/> to</param>
+        private async Task AddNewElementUsageImplAsync(ElementBase fromElementBase, ElementBase toElementBase)
         {
             if (fromElementBase.GetContainerOfType<Iteration>() == toElementBase.GetContainerOfType<Iteration>())
             {
@@ -247,12 +248,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
 
                 try
                 {
-                    await thingCreator.CreateElementUsage((ElementDefinition)toElementBase, (ElementDefinition)fromElementBase, this.sessionService.Session.OpenIterations.First(x => x.Key == toElementBase.GetContainerOfType<Iteration>()).Value.Item1, this.sessionService.Session);
-                }
-                catch (Exception exception)
-                {
-                    this.logger.LogError(exception, string.Empty);
-                    throw;
+                    await thingCreator.CreateElementUsageAsync((ElementDefinition)toElementBase, (ElementDefinition)fromElementBase, this.sessionService.Session.OpenIterations.First(x => x.Key == toElementBase.GetContainerOfType<Iteration>()).Value.Item1, this.sessionService.Session);
                 }
                 finally
                 {
@@ -265,7 +261,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// Tries to create a new <see cref="ElementDefinition" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task AddingElementDefinition()
+        public async Task AddingElementDefinitionAsync()
         {
             var thingsToCreate = new List<Thing>();
 
@@ -289,12 +285,10 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
             try
             {
                 await this.sessionService.CreateOrUpdateThings(clonedIteration, thingsToCreate);
-                this.IsOnCreationMode = false;
             }
-            catch (Exception exception)
+            finally
             {
-                this.logger.LogError(exception, string.Empty);
-                throw;
+                this.IsOnCreationMode = false;
             }
         }
 

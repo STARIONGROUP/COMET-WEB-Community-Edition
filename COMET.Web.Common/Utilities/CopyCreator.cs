@@ -59,19 +59,15 @@ namespace COMET.Web.Common.Utilities
         /// </summary>
         /// <param name="elementDefinition">The <see cref="ElementDefinition"/> to copy</param>
         /// <param name="targetIteration">The target container</param>
-        public async Task Copy(ElementDefinition elementDefinition, Iteration targetIteration)
+        public async Task CopyAsync(ElementDefinition elementDefinition, Iteration targetIteration)
         {
             // copy the payload to this iteration
             var copyOperationHelper = new CopyPermissionHelper(this.session, false);
             var copyPermissionResult = await copyOperationHelper.ComputeCopyPermissionAsync(elementDefinition, targetIteration);
 
-            if (copyPermissionResult.ErrorList.Any())
+            if (copyPermissionResult.ErrorList.Any() || copyPermissionResult.CopyableThings.Any())
             {
-                await this.WriteCopyOperation(elementDefinition, targetIteration, OperationKind.CopyKeepValuesChangeOwner);
-            }
-            else if (copyPermissionResult.CopyableThings.Any())
-            {
-                await this.WriteCopyOperation(elementDefinition, targetIteration, OperationKind.CopyKeepValuesChangeOwner);
+                await this.WriteCopyOperationAsync(elementDefinition, targetIteration, OperationKind.CopyKeepValuesChangeOwner);
             }
         }
 
@@ -81,7 +77,7 @@ namespace COMET.Web.Common.Utilities
         /// <param name="thingToCopy">The <see cref="Thing"/> to copy</param>
         /// <param name="targetContainer">The target container</param>
         /// <param name="operationKind">The <see cref="OperationKind"/></param>
-        private async Task WriteCopyOperation(Thing thingToCopy, Thing targetContainer, OperationKind operationKind)
+        private async Task WriteCopyOperationAsync(Thing thingToCopy, Thing targetContainer, OperationKind operationKind)
         {
             var clone = thingToCopy.Clone(false);
             var containerClone = targetContainer.Clone(false);

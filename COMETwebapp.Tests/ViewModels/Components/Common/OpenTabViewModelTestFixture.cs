@@ -92,7 +92,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
         [TearDown]
         public void Teardown()
         {
-            this.viewModel.Dispose();
+            this.viewModel?.Dispose();
+            this.alreadyOpenIterations?.Dispose();
         }
 
         [Test]

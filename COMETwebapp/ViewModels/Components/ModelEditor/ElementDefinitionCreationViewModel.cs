@@ -101,6 +101,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <param name="iteration">The <see cref="Iteration" /></param>
         public void InitializeViewModel(Iteration iteration)
         {
+            ArgumentNullException.ThrowIfNull(iteration);
+
             this.DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
             this.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise = ((EngineeringModel)iteration.Container).EngineeringModelSetup.ActiveDomain.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
         }

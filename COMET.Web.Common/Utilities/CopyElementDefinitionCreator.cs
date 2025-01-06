@@ -73,7 +73,19 @@ namespace COMET.Web.Common.Utilities
         /// </summary>
         /// <param name="elementDefinition">The <see cref="ElementDefinition"/> to copy</param>
         /// <param name="areUsagesCopied">Do we need to copy the ElementUsages also?</param>
-        public async Task Copy(ElementDefinition elementDefinition, bool areUsagesCopied)
+        public Task CopyAsync(ElementDefinition elementDefinition, bool areUsagesCopied)
+        {
+            ArgumentNullException.ThrowIfNull(elementDefinition);
+
+            return this.CopyImplAsync(elementDefinition, areUsagesCopied);
+        }
+
+        /// <summary>
+        /// Perform the copy operation of an <see cref="ElementDefinition"/>
+        /// </summary>
+        /// <param name="elementDefinition">The <see cref="ElementDefinition"/> to copy</param>
+        /// <param name="areUsagesCopied">Do we need to copy the ElementUsages also?</param>
+        private async Task CopyImplAsync(ElementDefinition elementDefinition, bool areUsagesCopied)
         {
             var iterationClone = (Iteration)elementDefinition.Container.Clone(false);
             var transactionContext = TransactionContextResolver.ResolveContext(iterationClone);
@@ -99,27 +111,107 @@ namespace COMET.Web.Common.Utilities
         /// Resolve the references of the copy
         /// </summary>
         /// <param name="original">The original <see cref="ElementDefinition"/></param>
-        /// <param name="deepClone">The clone</param>
+        /// <param name="deepClone">The clone <see cref="ElementDefinition"/></param>
         private void ResolveReferences(ElementDefinition original, ElementDefinition deepClone)
         {
+            this.groupMap.Clear();
+            this.valueSetMap.Clear();
+
             // Order of the item in a list is should be kept when cloning
-            // register mapping between original and copy
-            for (var i = 0; i < original.ParameterGroup.Count; i++)
-            {
-                this.groupMap.Add(original.ParameterGroup[i], deepClone.ParameterGroup[i]);
-            }
+            this.RegisterParameterGroupMap(original, deepClone);
+            this.RegisterParameterValueSets(original, deepClone);
+            this.RegisterParameterOverrideValueSets(original, deepClone);
 
-            for (var i = 0; i < deepClone.Parameter.Count; i++)
-            {
-                var originalParameter = original.Parameter[i];
-                var cloneParameter = deepClone.Parameter[i];
+            // Resolve references
+            this.ResolveGroupMappings();
+            this.ResolveParameterMappings(deepClone);
+            this.ResolveParameterSubscriptionValueSets(deepClone);
+            this.ResolveContainedElementSubscriptions(deepClone);
+        }
 
-                for (var j = 0; j < originalParameter.ValueSet.Count; j++)
+        /// <summary>
+        /// Resolve <see cref="ParameterValueSet"/>s for ContainedElements of the cloned <see cref="ElementDefinition"/>
+        /// </summary>
+        /// <param name="deepClone">The deeply cloned <see cref="ElementDefinition"/></param>
+        private void ResolveContainedElementSubscriptions(ElementDefinition deepClone)
+        {
+            // fix the references of the subscription value set
+            foreach (var elementUsage in deepClone.ContainedElement)
+            {
+                foreach (var parameterOverride in elementUsage.ParameterOverride)
                 {
-                    this.valueSetMap.Add(originalParameter.ValueSet[j], cloneParameter.ValueSet[j]);
+                    this.TryResolveParameterSubscriptionValueSets(parameterOverride);
                 }
             }
+        }
 
+        /// <summary>
+        /// Resolve the already registered <see cref="ParameterGroup"/> mappings for the original <see cref="ElementDefinition"/>s' <see cref="Parameter"/>s
+        /// </summary>
+        /// <param name="deepClone">The deeply cloned <see cref="ElementDefinition"/></param>
+        private void ResolveParameterMappings(ElementDefinition deepClone)
+        {
+            // fix the group of the cloned parameters
+            foreach (var parameter in deepClone.Parameter)
+            {
+                if (parameter.Group != null)
+                {
+                    parameter.Group = this.groupMap[parameter.Group];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resolve already registered  <see cref="ParameterSubscriptionValueSet"/> mappings for the cloned <see cref="ElementDefinition"/>
+        /// </summary>
+        /// <param name="deepClone">The deeply cloned <see cref="ElementDefinition"/></param>
+        private void ResolveParameterSubscriptionValueSets(ElementDefinition deepClone)
+        {
+            // fix the group of the cloned parameters
+            foreach (var parameter in deepClone.Parameter)
+            {
+                this.TryResolveParameterSubscriptionValueSets(parameter);
+            }
+        }
+
+        /// <summary>
+        /// Resolve already registered  <see cref="ParameterSubscriptionValueSet"/> mappings for a specific <see cref="ParameterOrOverrideBase"/>
+        /// </summary>
+        /// <param name="parameterOrOverride">The <see cref="ParameterOrOverrideBase"/> used to search for <see cref="ParameterSubscription"/>s</param>
+        private void TryResolveParameterSubscriptionValueSets(ParameterOrOverrideBase parameterOrOverride)
+        {
+            foreach (var parameterSubscription in parameterOrOverride.ParameterSubscription)
+            {
+                foreach (var parameterSubscriptionValueSet in parameterSubscription.ValueSet)
+                {
+                    parameterSubscriptionValueSet.SubscribedValueSet =
+                        this.valueSetMap[parameterSubscriptionValueSet.SubscribedValueSet];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resolve the already registered <see cref="ParameterGroup"/> mappings 
+        /// </summary>
+        private void ResolveGroupMappings()
+        {
+            foreach (var group in this.groupMap.Values)
+            {
+                if (group.ContainingGroup != null)
+                {
+                    // use the mapped group
+                    group.ContainingGroup = this.groupMap[group.ContainingGroup];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Register <see cref="ParameterOverrideValueSet"/>mapping between original and copy <see cref="ElementDefinition"/>s' contained <see cref="ElementUsage"/>s
+        /// </summary>
+        /// <param name="original">The source <see cref="ElementDefinition"/></param>
+        /// <param name="deepClone">The deeply cloned <see cref="ElementDefinition"/></param>
+        private void RegisterParameterOverrideValueSets(ElementDefinition original, ElementDefinition deepClone)
+        {
             for (var i = 0; i < deepClone.ContainedElement.Count; i++)
             {
                 var originalUsage = original.ContainedElement[i];
@@ -136,49 +228,37 @@ namespace COMET.Web.Common.Utilities
                     }
                 }
             }
+        }
 
-            // Resolve references
-            foreach (var group in this.groupMap.Values)
+        /// <summary>
+        /// Register <see cref="ParameterValueSet"/>mapping between original and copy <see cref="ElementDefinition"/>s
+        /// </summary>
+        /// <param name="original">The source <see cref="ElementDefinition"/></param>
+        /// <param name="deepClone">The deeply cloned <see cref="ElementDefinition"/></param>
+        private void RegisterParameterValueSets(ElementDefinition original, ElementDefinition deepClone)
+        {
+            for (var i = 0; i < deepClone.Parameter.Count; i++)
             {
-                if (group.ContainingGroup != null)
+                var originalParameter = original.Parameter[i];
+                var cloneParameter = deepClone.Parameter[i];
+
+                for (var j = 0; j < originalParameter.ValueSet.Count; j++)
                 {
-                    // use the mapped group
-                    group.ContainingGroup = this.groupMap[group.ContainingGroup];
+                    this.valueSetMap.Add(originalParameter.ValueSet[j], cloneParameter.ValueSet[j]);
                 }
             }
+        }
 
-            // fix the group of the cloned parameters
-            foreach (var parameter in deepClone.Parameter)
+        /// <summary>
+        /// Register <see cref="ParameterGroup"/>mapping between original and copy <see cref="ElementDefinition"/>s
+        /// </summary>
+        /// <param name="original">The source <see cref="ElementDefinition"/></param>
+        /// <param name="deepClone">The deeply cloned <see cref="ElementDefinition"/></param>
+        private void RegisterParameterGroupMap(ElementDefinition original, ElementDefinition deepClone)
+        {
+            for (var i = 0; i < original.ParameterGroup.Count; i++)
             {
-                if (parameter.Group != null)
-                {
-                    parameter.Group = this.groupMap[parameter.Group];
-                }
-
-                foreach (var parameterSubscription in parameter.ParameterSubscription)
-                {
-                    foreach (var parameterSubscriptionValueSet in parameterSubscription.ValueSet)
-                    {
-                        parameterSubscriptionValueSet.SubscribedValueSet =
-                            this.valueSetMap[parameterSubscriptionValueSet.SubscribedValueSet];
-                    }
-                }
-            }
-
-            // fix the references of the subscription value set
-            foreach (var elementUsage in deepClone.ContainedElement)
-            {
-                foreach (var parameterOverride in elementUsage.ParameterOverride)
-                {
-                    foreach (var parameterSubscription in parameterOverride.ParameterSubscription)
-                    {
-                        foreach (var parameterSubscriptionValueSet in parameterSubscription.ValueSet)
-                        {
-                            parameterSubscriptionValueSet.SubscribedValueSet =
-                                this.valueSetMap[parameterSubscriptionValueSet.SubscribedValueSet];
-                        }
-                    }
-                }
+                this.groupMap.Add(original.ParameterGroup[i], deepClone.ParameterGroup[i]);
             }
         }
     }

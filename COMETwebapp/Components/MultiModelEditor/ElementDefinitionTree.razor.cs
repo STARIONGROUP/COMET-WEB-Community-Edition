@@ -108,7 +108,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// Is evaluated when calculation if a node is draggable is necessary
         /// </summary>
         [Parameter]
-        public Func<ElementDefinitionTree, ElementBaseTreeRowViewModel, bool> AllowNodeDrag { get; set; } = (x, y) => true;
+        public Func<ElementDefinitionTree, ElementBaseTreeRowViewModel, bool> AllowNodeDrag { get; set; } = (_, _) => true;
 
         /// <summary>
         /// Gets or sets a value indicating that dragging a node is allowed for this <see cref="ElementDefinitionTree"/>
@@ -190,7 +190,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// </summary>
         /// <param name="node">The node where dragging has been started for</param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private async Task DragStart(ElementBaseTreeRowViewModel node)
+        private async Task DragStartAsync(ElementBaseTreeRowViewModel node)
         {
             await this.OnDragStart.InvokeAsync((this, node));
             await this.OnCalculateDropIsAllowed.InvokeAsync(this);
@@ -202,7 +202,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// </summary>
         /// <param name="node">The node where dragging has been ended for</param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private async Task DragEnd(ElementBaseTreeRowViewModel node)
+        private async Task DragEndAsync(ElementBaseTreeRowViewModel node)
         {
             await this.OnDragEnd.InvokeAsync((this, node));
             await this.OnCalculateDropIsAllowed.InvokeAsync(this);
@@ -214,7 +214,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// </summary>
         /// <param name="node">The node where the dragged node has been dropped onto</param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private async Task Drop(ElementBaseTreeRowViewModel node)
+        private async Task DropAsync(ElementBaseTreeRowViewModel node)
         {
             this.dragOverNode = null;
 
@@ -231,7 +231,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// </summary>
         /// <param name="node">The node where the dragged node has been hovered over</param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private async Task DragEnter(object node)
+        private async Task DragEnterAsync(object node)
         {
             if (this.AllowDrop)
             {
@@ -248,7 +248,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// </summary>
         /// <param name="node">The node where the dragged node had been hovered over</param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private async Task DragLeave(object node)
+        private async Task DragLeaveAsync(object node)
         {
             if (this.AllowDrop)
             {

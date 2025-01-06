@@ -33,7 +33,12 @@
                 <ElementDefinitionTree 
                     @ref="this.SourceTree" 
                     InitialIteration="@this.ViewModel.CurrentThing"
-                    SelectionChanged="model => { if (model != null) this.TargetTree.ClearSelection(); this.OnElementSelected(model);}"
+                    SelectionChanged="model => { 
+                        if (model != null) 
+                        { 
+                            this.TargetTree.ClearSelection(); 
+                        } 
+                        this.OnElementSelected(model);}"
                     AllowDrag="true"
                     AllowDrop="true"
                     OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowed(x))"
@@ -51,7 +56,12 @@
                 <ElementDefinitionTree 
                     @ref="this.TargetTree" 
                     InitialIteration="@this.ViewModel.CurrentThing"
-                    SelectionChanged="model => { if (model != null) this.SourceTree.ClearSelection(); this.OnElementSelected(model);}"
+                    SelectionChanged="model => { 
+                        if (model != null) 
+                        { 
+                            this.SourceTree.ClearSelection(); 
+                        } 
+                        this.OnElementSelected(model);}"
                     AllowDrag="true"
                     AllowDrop="true"
                     OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowed(x))"
