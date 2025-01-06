@@ -77,7 +77,7 @@ namespace COMETwebapp.Utilities
         public const string ModelDashboardPage = "ModelDashboard";
 
         /// <summary>
-        /// The page name of the Engieering Model data
+        /// The page name of the Engineering Model data
         /// </summary>
         public const string EngineeringModelPage = "EngineeringModel";
 

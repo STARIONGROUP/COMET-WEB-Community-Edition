@@ -66,7 +66,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="configurationService">The <see cref="IConfigurationService" /></param>
         /// <param name="tabsViewModel">The <see cref="ITabsViewModel" /></param>
-        /// <param name="cacheService"></param>
+        /// <param name="cacheService">The <see cref="ICacheService"/></param>
         public OpenTabViewModel(ISessionService sessionService, IConfigurationService configurationService, ITabsViewModel tabsViewModel, ICacheService cacheService) : base(sessionService, configurationService, cacheService)
         {
             this.sessionService = sessionService;

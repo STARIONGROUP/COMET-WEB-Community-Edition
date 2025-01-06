@@ -53,6 +53,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
         private Mock<ISessionService> sessionService;
         private Mock<IConfigurationService> configurationService;
         private Mock<ITabsViewModel> tabsViewModel;
+        private SourceList<Iteration> alreadyOpenIterations;
 
         [SetUp]
         public void Setup()
@@ -62,24 +63,25 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
             this.cacheService = new Mock<ICacheService>();
             this.tabsViewModel = new Mock<ITabsViewModel>();
 
-            var id = Guid.NewGuid();
+            var alreadyOpenIterationSetup = new IterationSetup { Iid = Guid.NewGuid() };
 
-            var iterationToAdd = new Iteration
+            var alreadyOpenIteration = new Iteration
             {
                 Container = new EngineeringModel
                 {
                     EngineeringModelSetup = new EngineeringModelSetup
                     {
-                        IterationSetup = { new IterationSetup { Iid = id } }
+                        IterationSetup = { alreadyOpenIterationSetup }
                     }
                 },
-                Iid = id
+                Iid = Guid.NewGuid(),
+                IterationSetup = alreadyOpenIterationSetup
             };
 
-            var openIterations = new SourceList<Iteration>();
-            openIterations.Add(iterationToAdd);
+            this.alreadyOpenIterations = new SourceList<Iteration>();
+            this.alreadyOpenIterations.Add(alreadyOpenIteration);
 
-            this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
+            this.sessionService.Setup(x => x.OpenIterations).Returns(this.alreadyOpenIterations);
             this.sessionService.Setup(x => x.OpenEngineeringModels).Returns([]);
             this.sessionService.Setup(x => x.ReadEngineeringModels(It.IsAny<IEnumerable<EngineeringModelSetup>>())).Returns(Task.FromResult(new Result()));
             this.sessionService.Setup(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>())).Returns(Task.FromResult(new Result<Iteration>()));
@@ -105,11 +107,35 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
                 this.sessionService.Verify(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>()), Times.Never);
             });
 
+            var toBeOpenedIterationSetup = new IterationSetup { Iid = Guid.NewGuid() };
+
+            var toBeOpenedIteration = new Iteration
+            {
+                Container = new EngineeringModel
+                {
+                    EngineeringModelSetup = new EngineeringModelSetup
+                    {
+                        IterationSetup = { toBeOpenedIterationSetup }
+                    }
+                },
+                Iid = Guid.NewGuid(),
+                IterationSetup = toBeOpenedIterationSetup
+            };
+
             var engineeringModelBodyApplication = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
             this.viewModel.SelectedApplication = engineeringModelBodyApplication;
-            this.viewModel.SelectedEngineeringModel = ((EngineeringModel)this.sessionService.Object.OpenIterations.Items.First().Container).EngineeringModelSetup;
-            this.viewModel.SelectedIterationSetup = new IterationData(this.viewModel.SelectedEngineeringModel.IterationSetup[0]);
+            this.viewModel.SelectedEngineeringModel = ((EngineeringModel)toBeOpenedIteration.Container).EngineeringModelSetup;
+            this.viewModel.SelectedIterationSetup = new IterationData(toBeOpenedIterationSetup);
             this.viewModel.SelectedDomainOfExpertise = new DomainOfExpertise();
+
+            //Make sure that toBeOpenedIteration is added to sessionService.OpenIterations when new Iteration is open
+            this.sessionService.Setup(x => x.ReadIteration(toBeOpenedIterationSetup, It.IsAny<DomainOfExpertise>()))
+                .Returns(Task.FromResult(new Result<Iteration>()))
+                .Callback(() =>
+                {
+                    this.alreadyOpenIterations.Add(toBeOpenedIteration);
+                });
+
             await this.viewModel.OpenTab(panel);
 
             Assert.Multiple(() =>

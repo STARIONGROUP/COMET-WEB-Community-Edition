@@ -45,6 +45,12 @@ namespace COMETwebapp.Components.MultiModelEditor
         public IElementDefinitionTreeViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// Gets or sets the injected <see cref="ILogger{ElementDefinitionTree}"/>
+        /// </summary>
+        [Inject]
+        public ILogger<ElementDefinitionTree> Logger { get; set; }
+
+        /// <summary>
         /// The Iteration
         /// </summary>
         [Parameter]
@@ -188,7 +194,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         {
             await this.OnDragStart.InvokeAsync((this, node));
             await this.OnCalculateDropIsAllowed.InvokeAsync(this);
-            Console.WriteLine("DragStart");
+            this.Logger.LogDebug("DragStart");
         }
 
         /// <summary>
@@ -200,7 +206,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         {
             await this.OnDragEnd.InvokeAsync((this, node));
             await this.OnCalculateDropIsAllowed.InvokeAsync(this);
-            Console.WriteLine("DragEnd");
+            this.Logger.LogDebug("DragEnd");
         }
 
         /// <summary>
@@ -216,7 +222,7 @@ namespace COMETwebapp.Components.MultiModelEditor
             {
                 await this.OnDrop.InvokeAsync((this, node));
                 await this.OnCalculateDropIsAllowed.InvokeAsync(this);
-                Console.WriteLine("Drop");
+                this.Logger.LogDebug("Drop");
             }
         }
 
@@ -233,7 +239,7 @@ namespace COMETwebapp.Components.MultiModelEditor
                 await this.OnDragEnter.InvokeAsync((this, node));
                 await this.OnCalculateDropIsAllowed.InvokeAsync(this);
 
-                Console.WriteLine("DragEnter");
+                this.Logger.LogDebug("DragEnter");
             }
         }
 
@@ -249,7 +255,7 @@ namespace COMETwebapp.Components.MultiModelEditor
                 this.dragOverNode = null;
                 await this.OnDragLeave.InvokeAsync((this, node));
                 await this.OnCalculateDropIsAllowed.InvokeAsync(this);
-                Console.WriteLine("DragLeave");
+                this.Logger.LogDebug("DragLeave");
             }
         }
     }

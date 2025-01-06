@@ -73,7 +73,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         /// The shortname of the owning <see cref="DomainOfExpertise" />
         /// </summary>
         public string OwnerShortName
-    {
+        {
             get => this.ownerShortName;
             set => this.RaiseAndSetIfChanged(ref this.ownerShortName, value);
         }

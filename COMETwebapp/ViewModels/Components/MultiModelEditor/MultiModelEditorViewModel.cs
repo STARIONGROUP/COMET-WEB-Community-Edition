@@ -57,6 +57,11 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// The injected <see cref="ILogger{MultiModelEditorViewModel}"/>
+        /// </summary>
+        private readonly ILogger<MultiModelEditorViewModel> logger;
+
+        /// <summary>
         /// Backing field for <see cref="IsOnAddingParameterMode" />
         /// </summary>
         private bool isOnAddingParameterMode;
@@ -71,9 +76,11 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
-        public MultiModelEditorViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
+        /// <param name="logger">The injected <see cref="ILogger{MultiModelEditorViewModel}"/></param>
+        public MultiModelEditorViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<MultiModelEditorViewModel> logger) : base(sessionService, messageBus)
         {
             this.sessionService = sessionService;
+            this.logger = logger;
             var eventCallbackFactory = new EventCallbackFactory();
 
             this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel(sessionService, messageBus)
@@ -197,7 +204,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine(exception.Message);
+                    this.logger.LogError(exception, string.Empty);
                     throw;
                 }
                 finally
@@ -215,7 +222,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine(exception.Message);
+                    this.logger.LogError(exception, string.Empty);
                     throw;
                 }
                 finally
@@ -244,7 +251,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine(exception.Message);
+                    this.logger.LogError(exception, string.Empty);
                     throw;
                 }
                 finally
@@ -286,7 +293,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception.Message);
+                this.logger.LogError(exception, string.Empty);
                 throw;
             }
         }
