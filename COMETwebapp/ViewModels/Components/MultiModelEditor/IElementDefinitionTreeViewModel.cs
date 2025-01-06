@@ -41,7 +41,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// <summary>
         /// Gets the collection of the <see cref="ElementDefinitionTreeTreeRowViewModel" />
         /// </summary>
-        ObservableCollection<ElementDefinitionTreeTreeRowViewModel> Rows { get; set; }
+        ObservableCollection<ElementDefinitionTreeTreeRowViewModel> Rows { get; }
 
         /// <summary>
         /// The <see cref="Iteration"/> from which to build the tree

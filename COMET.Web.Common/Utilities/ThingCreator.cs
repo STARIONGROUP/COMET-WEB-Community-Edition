@@ -61,7 +61,7 @@ namespace COMET.Web.Common.Utilities
             ArgumentNullException.ThrowIfNull(owner);
             ArgumentNullException.ThrowIfNull(session);
 
-            return this.CreateElementUsageImplAsync(container, referencedDefinition, owner, session);
+            return CreateElementUsageImplAsync(container, referencedDefinition, owner, session);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace COMET.Web.Common.Utilities
         /// <param name="session">
         /// The <see cref="ISession"/> in which the current <see cref="Parameter"/> is to be added
         /// </param>
-        private async Task CreateElementUsageImplAsync(ElementDefinition container, ElementDefinition referencedDefinition, DomainOfExpertise owner, ISession session)
+        private static async Task CreateElementUsageImplAsync(ElementDefinition container, ElementDefinition referencedDefinition, DomainOfExpertise owner, ISession session)
         {
             var clone = container.Clone(false);
 

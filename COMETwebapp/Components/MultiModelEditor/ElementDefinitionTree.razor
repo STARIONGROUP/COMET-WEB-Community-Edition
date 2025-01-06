@@ -78,7 +78,7 @@ else
                 @dataItem.ElementName <span>
                     <button class="starion-pill" title="Owning Domain Of Expertise: @dataItem.OwnerShortName">@dataItem.OwnerShortName</button>
                 </span>
-                @foreach (var categoryShortName in @dataItem.ElementBase.GetAllCategories().Select(x => x.ShortName))
+                @foreach (var categoryShortName in dataItem.ElementBase.GetAllCategories().Select(x => x.ShortName))
                 {
                     <span>
                         <button class="starion-pill" style="background-color:aliceblue !important;" title="Category: @categoryShortName">@categoryShortName</button>
@@ -92,7 +92,7 @@ else
                 @dataItem.ElementName <span>
                     <button class="starion-pill" title="Owning Domain Of Expertise: @dataItem.OwnerShortName">@dataItem.OwnerShortName</button>
                 </span>
-                @foreach (var categoryShortName in @dataItem.ElementBase.GetAllCategories().Select(x => x.ShortName))
+                @foreach (var categoryShortName in dataItem.ElementBase.GetAllCategories().Select(x => x.ShortName))
                 {
                     <span>
                         <button class="starion-pill" style="background-color:aliceblue !important;" title="Category: @categoryShortName">@categoryShortName</button>

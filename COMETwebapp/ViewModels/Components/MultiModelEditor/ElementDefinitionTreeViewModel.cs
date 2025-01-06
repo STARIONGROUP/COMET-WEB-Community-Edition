@@ -36,7 +36,6 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
-    using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.Components.MultiModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.MultiModelEditor.Rows;
@@ -125,12 +124,12 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// <summary>
         /// All <see cref="ElementBase" /> of the iteration
         /// </summary>
-        public List<ElementBase> Elements { get; set; } = [];
+        public List<ElementBase> Elements { get; private set; } = [];
 
         /// <summary>
         /// Gets the collection of the <see cref="ElementDefinitionTreeTreeRowViewModel" /> for target model
         /// </summary>
-        public ObservableCollection<ElementDefinitionTreeTreeRowViewModel> Rows { get; set; } = [];
+        public ObservableCollection<ElementDefinitionTreeTreeRowViewModel> Rows { get; private set; } = [];
 
         /// <summary>
         /// Represents the selected ElementDefinitionRowViewModel
