@@ -225,7 +225,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// </summary>
         /// <param name="fromElementBase">The <see cref="ElementBase"/> to be added as <see cref="ElementUsage"/></param>
         /// <param name="toElementBase">The <see cref="ElementBase"/> where to add the new <see cref="ElementUsage"/> to</param>
-        public Task AddNewElementUsage(ElementBase fromElementBase, ElementBase toElementBase)
+        public Task AddNewElementUsageAsync(ElementBase fromElementBase, ElementBase toElementBase)
         {
             ArgumentNullException.ThrowIfNull(fromElementBase);
             ArgumentNullException.ThrowIfNull(toElementBase);

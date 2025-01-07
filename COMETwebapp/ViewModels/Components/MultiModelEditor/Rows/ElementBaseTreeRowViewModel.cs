@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ElementBaseRowViewModel.cs" company="Starion Group S.A.">
+//  <copyright file="ElementBaseTreeRowViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -57,6 +57,8 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         /// </summary>
         protected ElementBaseTreeRowViewModel(ElementBase elementBase)
         {
+            ArgumentNullException.ThrowIfNull(elementBase);
+
             this.ElementBase = elementBase;
             this.ElementName = elementBase.Name;
             this.OwnerShortName = elementBase.Owner.ShortName;
@@ -102,6 +104,8 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         /// <param name="elementBaseTreeRow">The <see cref="ElementBaseTreeRowViewModel" /> to use for updating</param>
         public void UpdateProperties(ElementBaseTreeRowViewModel elementBaseTreeRow)
         {
+            ArgumentNullException.ThrowIfNull(elementBaseTreeRow);
+
             this.ElementBase = elementBaseTreeRow.elementBase;
             this.ElementName = elementBaseTreeRow.elementName;
             this.OwnerShortName = elementBaseTreeRow.OwnerShortName;

@@ -55,9 +55,11 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         /// </summary>
         public ElementDefinitionTreeTreeRowViewModel(ElementDefinition elementBase) : base(elementBase)
         {
+            ArgumentNullException.ThrowIfNull(elementBase);
+
             this.IsTopElement = elementBase == elementBase.GetContainerOfType<Iteration>().TopElement;
 
-            var elementUsages = elementBase?.ContainedElement;
+            var elementUsages = elementBase.ContainedElement;
 
             if (elementUsages?.Any() ?? false)
             {
@@ -87,6 +89,8 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         /// <param name="elementDefinitionTreeRow">The <see cref="ElementDefinitionTreeTreeRowViewModel" /> to use for updating</param>
         public void UpdateProperties(ElementDefinitionTreeTreeRowViewModel elementDefinitionTreeRow)
         {
+            ArgumentNullException.ThrowIfNull(elementDefinitionTreeRow);
+
             base.UpdateProperties(elementDefinitionTreeRow);
             this.IsTopElement = elementDefinitionTreeRow.isTopElement;
 

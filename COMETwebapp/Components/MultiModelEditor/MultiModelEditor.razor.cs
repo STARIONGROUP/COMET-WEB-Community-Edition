@@ -136,7 +136,7 @@ namespace COMETwebapp.Components.MultiModelEditor
                 }
                 else
                 {
-                    await this.ViewModel.AddNewElementUsage(elementDefinitionTreeRowViewModel.ElementBase, nodeData.Item2.ElementBase);
+                    await this.ViewModel.AddNewElementUsageAsync(elementDefinitionTreeRowViewModel.ElementBase, nodeData.Item2.ElementBase);
                 }
             }
             catch (Exception ex)

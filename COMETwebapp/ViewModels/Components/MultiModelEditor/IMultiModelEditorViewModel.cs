@@ -107,6 +107,6 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// </summary>
         /// <param name="fromElementBase">The <see cref="ElementBase"/> to be added as <see cref="ElementUsage"/></param>
         /// <param name="toElementBase">The <see cref="ElementBase"/> where to add the new <see cref="ElementUsage"/> to</param>
-        Task AddNewElementUsage(ElementBase fromElementBase, ElementBase toElementBase);
+        Task AddNewElementUsageAsync(ElementBase fromElementBase, ElementBase toElementBase);
     }
 }
