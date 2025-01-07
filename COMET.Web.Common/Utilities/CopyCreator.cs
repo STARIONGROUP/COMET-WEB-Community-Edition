@@ -25,6 +25,7 @@
 
 namespace COMET.Web.Common.Utilities
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -38,6 +39,7 @@ namespace COMET.Web.Common.Utilities
     /// <summary>
     /// The class responsible for copy operations
     /// </summary>
+    [ExcludeFromCodeCoverage(Justification = "No coverage for now, as test code would be related to CopyPermissionHelper methods for most part")]
     public class CopyCreator
     {
         /// <summary>
