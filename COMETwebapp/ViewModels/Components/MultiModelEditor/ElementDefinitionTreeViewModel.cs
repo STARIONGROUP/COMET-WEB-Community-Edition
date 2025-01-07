@@ -119,7 +119,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// <summary>
         /// Gets or a collection of selectable <see cref="Iteration"/>s
         /// </summary>
-        public ObservableCollection<IterationData> Iterations { get; } = new();
+        public ObservableCollection<IterationData> Iterations { get; } = [];
 
         /// <summary>
         /// All <see cref="ElementBase" /> of the iteration

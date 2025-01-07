@@ -285,7 +285,7 @@ namespace COMET.Web.Common.ViewModels.Components
                     return;
                 }
 
-                var currentModelIteration = this.SelectedEngineeringModel.IterationSetup.FirstOrDefault(x => x == this.sessionService.OpenIterations.Items.FirstOrDefault(i => i.Iid == x.IterationIid)?.IterationSetup);
+                var currentModelIteration = this.SelectedEngineeringModel.IterationSetup.Find(x => x == this.sessionService.OpenIterations.Items.FirstOrDefault(i => i.Iid == x.IterationIid)?.IterationSetup);
                 this.SelectedIterationSetup = new IterationData(currentModelIteration);
             }
         }

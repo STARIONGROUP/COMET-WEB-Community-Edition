@@ -42,17 +42,17 @@ namespace COMET.Web.Common.Utilities.HaveObjectChangedTracking
         /// <summary>
         /// A collection of added <see cref="Thing" />s
         /// </summary>
-        protected readonly List<Thing> AddedThings = new();
+        protected readonly List<Thing> AddedThings = [];
 
         /// <summary>
         /// A collection of deleted <see cref="Thing" />s
         /// </summary>
-        protected readonly List<Thing> DeletedThings = new();
+        protected readonly List<Thing> DeletedThings = [];
 
         /// <summary>
         /// A collection of updated <see cref="Thing" />s
         /// </summary>
-        protected readonly List<Thing> UpdatedThings = new();
+        protected readonly List<Thing> UpdatedThings = [];
 
         /// <summary>
         /// Initializes a new instance of <see cref="HaveObjectChangedTracking" />

@@ -47,7 +47,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         /// <summary>
         /// Gets or the collection of <see cref="ElementUsageTreeTreeRowViewModel"/>
         /// </summary>
-        public ObservableCollection<ElementUsageTreeTreeRowViewModel> Rows { get; } = new();
+        public ObservableCollection<ElementUsageTreeTreeRowViewModel> Rows { get; } = [];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ElementDefinitionRowViewModel" /> class.

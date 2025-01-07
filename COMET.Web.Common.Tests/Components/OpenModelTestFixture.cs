@@ -59,10 +59,48 @@ namespace COMET.Web.Common.Tests.Components
         private Mock<ISessionService> sessionService;
         private Mock<IConfigurationService> configurationService;
         private Mock<ICacheService> cacheService;
+        private List<EngineeringModelSetup> engineeringModels;
 
         [SetUp]
         public void Setup()
         {
+            this.engineeringModels =
+            [
+                new()
+                {
+                    Iid = Guid.NewGuid(),
+                    Name = "LOFT",
+                    IterationSetup =
+                    {
+                        new IterationSetup
+                        {
+                            Iid = Guid.NewGuid(),
+                            IterationNumber = 1
+                        }
+                    }
+                },
+
+                new()
+                {
+                    Iid = Guid.NewGuid(),
+                    Name = "EnVision",
+                    IterationSetup =
+                    {
+                        new IterationSetup
+                        {
+                            Iid = Guid.NewGuid(),
+                            IterationNumber = 1,
+                            FrozenOn = DateTimeOffset.Now.AddDays(-1).DateTime
+                        },
+                        new IterationSetup
+                        {
+                            Iid = Guid.NewGuid(),
+                            IterationNumber = 2
+                        }
+                    }
+                }
+            ];
+
             this.context = new TestContext();
             this.sessionService = new Mock<ISessionService>();
             this.configurationService = new Mock<IConfigurationService>();
@@ -84,44 +122,8 @@ namespace COMET.Web.Common.Tests.Components
         [Test]
         public async Task VerifyOpenModel()
         {
-            var engineeringModels = new List<EngineeringModelSetup>
-            {
-                new()
-                {
-                    Iid = Guid.NewGuid(),
-                    Name = "LOFT",
-                    IterationSetup =
-                    {
-                        new IterationSetup
-                        {
-                            Iid = Guid.NewGuid(),
-                            IterationNumber = 1
-                        }
-                    }
-                },
-                new()
-                {
-                    Iid = Guid.NewGuid(),
-                    Name = "EnVision",
-                    IterationSetup =
-                    {
-                        new IterationSetup
-                        {
-                            Iid = Guid.NewGuid(),
-                            IterationNumber = 1,
-                            FrozenOn = DateTime.Now - TimeSpan.FromDays(1)
-                        },
-                        new IterationSetup
-                        {
-                            Iid = Guid.NewGuid(),
-                            IterationNumber = 2
-                        }
-                    }
-                }
-            };
-
             this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
-            this.sessionService.Setup(x => x.GetParticipantModels()).Returns(engineeringModels);
+            this.sessionService.Setup(x => x.GetParticipantModels()).Returns(this.engineeringModels);
             var renderer = this.context.RenderComponent<OpenModel>();
             var layoutItems = renderer.FindComponents<DxFormLayoutItem>();
 
@@ -158,13 +160,49 @@ namespace COMET.Web.Common.Tests.Components
 
             this.viewModel.SelectedEngineeringModel = null;
 
+            var result = await this.viewModel.OpenSession();
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.SelectedDomainOfExpertise, Is.Null);
                 Assert.That(this.viewModel.SelectedIterationSetup, Is.Null);
                 Assert.That(this.viewModel.AvailableIterationSetups, Is.Empty);
                 Assert.That(this.viewModel.AvailablesDomainOfExpertises, Is.Empty);
-                Assert.That(async () => await this.viewModel.OpenSession(), Throws.Nothing);
+                Assert.That(result.IsFailed, Is.True);
+                Assert.That(result.Errors[0].Message, Is.EqualTo("The selected iteration and the domain of expertise should not be null"));
+            });
+        }
+
+        [Test]
+        public async Task VerifyOpenModelFails()
+        {
+            this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
+            this.sessionService.Setup(x => x.GetParticipantModels()).Returns(this.engineeringModels);
+            this.context.RenderComponent<OpenModel>();
+
+            this.sessionService.Setup(x => x.GetModelDomains(It.IsAny<EngineeringModelSetup>()))
+                .Returns(new List<DomainOfExpertise> { new() { Name = "Thermodynamic" } });
+
+            this.viewModel.SelectedEngineeringModel = this.viewModel.AvailableEngineeringModelSetups.First();
+            this.viewModel.SelectedDomainOfExpertise = this.viewModel.AvailablesDomainOfExpertises.First();
+            this.viewModel.SelectedIterationSetup = this.viewModel.AvailableIterationSetups.First();
+
+            var iteration = new Iteration(Guid.NewGuid(), null, null)
+            {
+                IterationSetup = this.engineeringModels.SelectMany(x => x.IterationSetup).Single(x => x.Iid == this.viewModel.SelectedIterationSetup.IterationSetupId)
+            };
+
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(iteration);
+
+            this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
+
+            var result = await this.viewModel.OpenSession();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsFailed, Is.True);
+                Assert.That(result.Errors[0].Message, Is.EqualTo("The selected iteration is already openened"));
             });
         }
     }

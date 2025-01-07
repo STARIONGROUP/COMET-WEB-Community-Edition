@@ -41,7 +41,7 @@ namespace COMET.Web.Common.Components.CardView
         /// Gets or sets the item template for the list.
         /// </summary>
         [Parameter]
-        public RenderFragment<T>? ItemTemplate { get; set; }
+        public RenderFragment<T> ItemTemplate { get; set; }
 
         /// <summary>
         /// Gets or sets the list of items of type T to use
@@ -90,12 +90,12 @@ namespace COMET.Web.Common.Components.CardView
         /// <summary>
         /// A reference to the <see cref="Virtualize{T}"/> component for loading items
         /// </summary>
-        private Virtualize<T>? virtualize; // Reference to the Virtualize component
+        private Virtualize<T> virtualize; // Reference to the Virtualize component
 
         /// <summary>
         /// The FastMember <see cref="FastMember.TypeAccessor"/> to use to perform actions on instances of type T
         /// </summary>
-        private TypeAccessor typeAccessor = TypeAccessor.Create(typeof(T));
+        private readonly TypeAccessor typeAccessor = TypeAccessor.Create(typeof(T));
 
         /// <summary>
         /// The selected Card in the CardView

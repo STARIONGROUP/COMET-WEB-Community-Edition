@@ -52,12 +52,12 @@ namespace COMET.Web.Common.Utilities
         /// <summary>
         /// The original-clone <see cref="ParameterGroup"/> map
         /// </summary>
-        private readonly Dictionary<ParameterGroup, ParameterGroup> groupMap = new Dictionary<ParameterGroup, ParameterGroup>();
+        private readonly Dictionary<ParameterGroup, ParameterGroup> groupMap = [];
 
         /// <summary>
         /// The original-clone <see cref="ParameterValueSetBase"/> map
         /// </summary>
-        private readonly Dictionary<ParameterValueSetBase, ParameterValueSetBase> valueSetMap = new Dictionary<ParameterValueSetBase, ParameterValueSetBase>();
+        private readonly Dictionary<ParameterValueSetBase, ParameterValueSetBase> valueSetMap = [];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CopyElementDefinitionCreator"/> class
