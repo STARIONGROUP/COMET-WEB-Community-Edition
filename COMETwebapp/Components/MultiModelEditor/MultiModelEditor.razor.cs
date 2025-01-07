@@ -122,7 +122,7 @@ namespace COMETwebapp.Components.MultiModelEditor
         {
             this.ErrorMessage = string.Empty;
 
-            if (this.DragObject.Item2 is not ElementDefinitionTreeTreeRowViewModel elementDefinitionTreeRowViewModel)
+            if (this.DragObject.Item2 is not ElementDefinitionTreeRowViewModel elementDefinitionTreeRowViewModel)
             {
                 return;
             }
@@ -209,9 +209,9 @@ namespace COMETwebapp.Components.MultiModelEditor
                 return false;
             }
 
-            if (dragOverObject.Item2 is ElementDefinitionTreeTreeRowViewModel dragOverVm)
+            if (dragOverObject.Item2 is ElementDefinitionTreeRowViewModel dragOverVm)
             {
-                if (dragObject.Item2 is not ElementDefinitionTreeTreeRowViewModel dragVm)
+                if (dragObject.Item2 is not ElementDefinitionTreeRowViewModel dragVm)
                 {
                     return false;
                 }

@@ -127,9 +127,9 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         public List<ElementBase> Elements { get; private set; } = [];
 
         /// <summary>
-        /// Gets the collection of the <see cref="ElementDefinitionTreeTreeRowViewModel" /> for target model
+        /// Gets the collection of the <see cref="ElementDefinitionTreeRowViewModel" /> for target model
         /// </summary>
-        public ObservableCollection<ElementDefinitionTreeTreeRowViewModel> Rows { get; private set; } = [];
+        public ObservableCollection<ElementDefinitionTreeRowViewModel> Rows { get; private set; } = [];
 
         /// <summary>
         /// Represents the selected ElementDefinitionRowViewModel
@@ -143,7 +143,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         public void AddRows(IEnumerable<Thing> addedThings)
         {
             var listOfAddedElementBases = addedThings.OfType<ElementDefinition>().Where(x => this.Iteration?.Element.Contains(x) ?? false).ToList();
-            this.Rows.AddRange(listOfAddedElementBases.Select(e => new ElementDefinitionTreeTreeRowViewModel(e)));
+            this.Rows.AddRange(listOfAddedElementBases.Select(e => new ElementDefinitionTreeRowViewModel(e)));
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
             foreach (var element in updatedThings.OfType<ElementDefinition>().Where(x => this.Iteration?.Element.Contains(x) ?? false).ToList())
             {
                 var row = this.Rows.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
-                row?.UpdateProperties(new ElementDefinitionTreeTreeRowViewModel(element));
+                row?.UpdateProperties(new ElementDefinitionTreeRowViewModel(element));
             }
         }
 

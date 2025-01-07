@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ElementBaseTreeRowViewModelTestFixture.cs" company="Starion Group S.A.">
+//  <copyright file="ElementUsageTreeRowViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -32,9 +32,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
     using NUnit.Framework;
 
     [TestFixture]
-    public class ElementBaseTreeRowViewModelTestFixture
+    public class ElementUsageTreeRowViewModelTestFixture
     {
-        private ElementDefinition elementBase;
+        private ElementUsage elementUsage;
         private string elementName;
         private DomainOfExpertise owner;
         private string ownerShortName;
@@ -50,7 +50,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
                 ShortName = this.ownerShortName
             };
 
-            this.elementBase = new ElementDefinition(Guid.NewGuid(), null, null)
+            this.elementUsage = new ElementUsage(Guid.NewGuid(), null, null)
             {
                 Name = this.elementName,
                 Owner = this.owner
@@ -65,11 +65,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
         [Test]
         public void VerifyCreation()
         {
-            var testVM = new ElementBaseTreeRowViewModelTest(this.elementBase);
+            var testVM = new ElementUsageTreeRowViewModel(this.elementUsage);
 
             Assert.Multiple(() =>
             {
-                Assert.That(testVM.ElementBase, Is.EqualTo(this.elementBase));
+                Assert.That(testVM.ElementBase, Is.EqualTo(this.elementUsage));
                 Assert.That(testVM.ElementName, Is.EqualTo(this.elementName));
                 Assert.That(testVM.OwnerShortName, Is.EqualTo(this.ownerShortName));
             });
@@ -78,13 +78,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
         [Test]
         public void VerifyCreationNullElement()
         {
-            Assert.That(() => new ElementBaseTreeRowViewModelTest(null), Throws.ArgumentNullException);
+            Assert.That(() => new ElementUsageTreeRowViewModel(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public void VerifyCreationAndUpdateProperties()
         {
-            var testVM = new ElementBaseTreeRowViewModelTest();
+            var testVM = new ElementUsageTreeRowViewModel();
 
             Assert.Multiple(() =>
             {
@@ -93,11 +93,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
                 Assert.That(testVM.OwnerShortName, Is.Null);
             });
 
-            testVM.UpdateProperties(new ElementBaseTreeRowViewModelTest(this.elementBase));
+            testVM.UpdateProperties(new ElementUsageTreeRowViewModel(this.elementUsage));
 
             Assert.Multiple(() =>
             {
-                Assert.That(testVM.ElementBase, Is.EqualTo(this.elementBase));
+                Assert.That(testVM.ElementBase, Is.EqualTo(this.elementUsage));
                 Assert.That(testVM.ElementName, Is.EqualTo(this.elementName));
                 Assert.That(testVM.OwnerShortName, Is.EqualTo(this.ownerShortName));
             });
@@ -106,19 +106,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
         [Test]
         public void VerifyUpdatePropertiesNullElement()
         {
-            Assert.That(() => new ElementBaseTreeRowViewModelTest(this.elementBase).UpdateProperties(null), Throws.ArgumentNullException);
-            Assert.That(() => new ElementBaseTreeRowViewModelTest().UpdateProperties(null), Throws.ArgumentNullException);
+            Assert.That(() => new ElementUsageTreeRowViewModel(this.elementUsage).UpdateProperties(null), Throws.ArgumentNullException);
+            Assert.That(() => new ElementUsageTreeRowViewModel().UpdateProperties(null), Throws.ArgumentNullException);
         }
     }
 
-    public class ElementBaseTreeRowViewModelTest : ElementBaseTreeRowViewModel
-    {
-        public ElementBaseTreeRowViewModelTest(ElementBase elementBase) : base(elementBase)
-        {
-        }
-
-        public ElementBaseTreeRowViewModelTest()
-        {
-        }
-    }
 }

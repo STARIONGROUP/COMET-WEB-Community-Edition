@@ -37,7 +37,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
     /// <summary>
     /// Row View Model for  <see cref="ElementDefinition" />
     /// </summary>
-    public class ElementDefinitionTreeTreeRowViewModel : ElementBaseTreeRowViewModel
+    public class ElementDefinitionTreeRowViewModel : ElementBaseTreeRowViewModel
     {
         /// <summary>
         /// Backing field for <see cref="IsTopElement" />
@@ -45,15 +45,15 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         private bool isTopElement;
 
         /// <summary>
-        /// Gets or the collection of <see cref="ElementUsageTreeTreeRowViewModel"/>
+        /// Gets or the collection of <see cref="ElementUsageTreeRowViewModel"/>
         /// </summary>
-        public ObservableCollection<ElementUsageTreeTreeRowViewModel> Rows { get; } = [];
+        public ObservableCollection<ElementUsageTreeRowViewModel> Rows { get; } = [];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ElementDefinitionRowViewModel" /> class.
         /// <param name="elementBase">the <see cref="ElementBase" /></param>
         /// </summary>
-        public ElementDefinitionTreeTreeRowViewModel(ElementDefinition elementBase) : base(elementBase)
+        public ElementDefinitionTreeRowViewModel(ElementDefinition elementBase) : base(elementBase)
         {
             ArgumentNullException.ThrowIfNull(elementBase);
 
@@ -63,14 +63,14 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
 
             if (elementUsages?.Any() ?? false)
             {
-                this.Rows.AddRange(elementUsages.Select(x => new ElementUsageTreeTreeRowViewModel(x)));
+                this.Rows.AddRange(elementUsages.Select(x => new ElementUsageTreeRowViewModel(x)));
             }
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ElementDefinitionTreeTreeRowViewModel" /> class.
+        /// Initializes a new instance of the <see cref="ElementDefinitionTreeRowViewModel" /> class.
         /// </summary>
-        public ElementDefinitionTreeTreeRowViewModel()
+        public ElementDefinitionTreeRowViewModel()
         {
         }
 
@@ -86,8 +86,8 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         /// <summary>
         /// Update this row view model properties
         /// </summary>
-        /// <param name="elementDefinitionTreeRow">The <see cref="ElementDefinitionTreeTreeRowViewModel" /> to use for updating</param>
-        public void UpdateProperties(ElementDefinitionTreeTreeRowViewModel elementDefinitionTreeRow)
+        /// <param name="elementDefinitionTreeRow">The <see cref="ElementDefinitionTreeRowViewModel" /> to use for updating</param>
+        public void UpdateProperties(ElementDefinitionTreeRowViewModel elementDefinitionTreeRow)
         {
             ArgumentNullException.ThrowIfNull(elementDefinitionTreeRow);
 
@@ -100,7 +100,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
 
             if (elementUsages != null)
             {
-                this.Rows.AddRange(elementUsages.Select(x => new ElementUsageTreeTreeRowViewModel(x)));
+                this.Rows.AddRange(elementUsages.Select(x => new ElementUsageTreeRowViewModel(x)));
             }
         }
     }

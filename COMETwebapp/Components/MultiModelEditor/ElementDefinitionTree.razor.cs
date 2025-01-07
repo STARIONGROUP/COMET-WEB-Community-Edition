@@ -133,9 +133,9 @@ namespace COMETwebapp.Components.MultiModelEditor
         public bool AllowNodeDrop { get; set; }
 
         /// <summary>
-        /// A collection of <see cref="ElementDefinitionTreeTreeRowViewModel"/>
+        /// A collection of <see cref="ElementDefinitionTreeRowViewModel"/>
         /// </summary>
-        public IEnumerable<ElementDefinitionTreeTreeRowViewModel> Rows { get; set; }
+        public IEnumerable<ElementDefinitionTreeRowViewModel> Rows { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="TreeView"/>

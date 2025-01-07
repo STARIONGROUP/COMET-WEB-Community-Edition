@@ -49,7 +49,7 @@
                     OnDragStart="@(async x => await this.OnDragStartAsync(x))"
                     OnDragEnd="@(async x => await this.OnDragEndAsync())"
                     OnDrop="@(async x => await this.OnDropAsync(x))"
-                    AllowNodeDrag="(_, model) => model is ElementDefinitionTreeTreeRowViewModel"
+                    AllowNodeDrag="(_, model) => model is ElementDefinitionTreeRowViewModel"
                     IsModelSelectionEnabled="true">
                 </ElementDefinitionTree>
             </div>
@@ -74,7 +74,7 @@
                     OnDragStart="@(async x => await this.OnDragStartAsync(x))"
                     OnDragEnd="@(async x => await this.OnDragEndAsync())"
                     OnDrop="@(async x => await this.OnDropAsync(x))"
-                    AllowNodeDrag="(_, model) => model is ElementDefinitionTreeTreeRowViewModel"
+                    AllowNodeDrag="(_, model) => model is ElementDefinitionTreeRowViewModel"
                     IsModelSelectionEnabled="false">
                 </ElementDefinitionTree>
             </div>

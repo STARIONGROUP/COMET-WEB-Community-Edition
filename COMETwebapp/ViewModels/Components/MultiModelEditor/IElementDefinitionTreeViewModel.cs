@@ -39,9 +39,9 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
     public interface IElementDefinitionTreeViewModel : IHaveReusableRows
     {
         /// <summary>
-        /// Gets the collection of the <see cref="ElementDefinitionTreeTreeRowViewModel" />
+        /// Gets the collection of the <see cref="ElementDefinitionTreeRowViewModel" />
         /// </summary>
-        ObservableCollection<ElementDefinitionTreeTreeRowViewModel> Rows { get; }
+        ObservableCollection<ElementDefinitionTreeRowViewModel> Rows { get; }
 
         /// <summary>
         /// The <see cref="Iteration"/> from which to build the tree

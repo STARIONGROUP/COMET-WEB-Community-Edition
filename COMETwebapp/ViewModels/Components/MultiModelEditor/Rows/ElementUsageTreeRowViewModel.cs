@@ -31,28 +31,28 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
     /// <summary>
     /// Row View Model for  <see cref="ElementUsage" />
     /// </summary>
-    public class ElementUsageTreeTreeRowViewModel : ElementBaseTreeRowViewModel
+    public class ElementUsageTreeRowViewModel : ElementBaseTreeRowViewModel
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ElementUsageTreeTreeRowViewModel" /> class.
+        /// Initializes a new instance of the <see cref="ElementUsageTreeRowViewModel" /> class.
         /// <param name="elementUsage">the <see cref="ElementUsage" /></param>
         /// </summary>
-        public ElementUsageTreeTreeRowViewModel(ElementUsage elementUsage) : base(elementUsage)
+        public ElementUsageTreeRowViewModel(ElementUsage elementUsage) : base(elementUsage)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ElementDefinitionRowViewModel" /> class.
         /// </summary>
-        public ElementUsageTreeTreeRowViewModel()
+        public ElementUsageTreeRowViewModel()
         {
         }
 
         /// <summary>
         /// Update this row view model properties
         /// </summary>
-        /// <param name="elementUsageTreeRow">The <see cref="ElementUsageTreeTreeRowViewModel" /> to use for updating</param>
-        public void UpdateProperties(ElementUsageTreeTreeRowViewModel elementUsageTreeRow)
+        /// <param name="elementUsageTreeRow">The <see cref="ElementUsageTreeRowViewModel" /> to use for updating</param>
+        public void UpdateProperties(ElementUsageTreeRowViewModel elementUsageTreeRow)
         {
             base.UpdateProperties(elementUsageTreeRow);
         }
