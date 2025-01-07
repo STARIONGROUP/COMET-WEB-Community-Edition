@@ -215,14 +215,15 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
                 switch (change.Reason)
                 {
                     case ListChangeReason.AddRange:
-                        foreach (var changeItem in change.Range)
-                        {
-                            var newChangeIterationData = new IterationData(changeItem.IterationSetup, true);
 
-                            if (!this.Iterations.Contains(newChangeIterationData))
-                            {
-                                this.Iterations.Add(newChangeIterationData);
-                            }
+                        var toBeAdded = change.Range
+                            .Select(x => new IterationData(x.IterationSetup, true))
+                            .Where(x => !this.Iterations.Contains(x))
+                            .ToArray();
+
+                        if (toBeAdded.Length > 0)
+                        {
+                            this.Iterations.AddRange(toBeAdded);
                         }
 
                         break;
@@ -238,9 +239,8 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
                         break;
 
                     case ListChangeReason.Remove:
-                        var currentItem = this.Iterations.FirstOrDefault(x => x?.IterationSetupId == change.Item.Current.IterationSetup.Iid);
 
-                        if (currentItem != null)
+                        if (this.Iterations.FirstOrDefault(x => x?.IterationSetupId == change.Item.Current.IterationSetup.Iid) is { } currentItem)
                         {
                             this.Iterations.Remove(currentItem);
                         }

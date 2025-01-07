@@ -80,7 +80,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 
             this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel(sessionService, messageBus)
             {
-                OnValidSubmit = eventCallbackFactory.Create(this, this.AddingElementDefinition)
+                OnValidSubmit = eventCallbackFactory.Create(this, this.AddingElementDefinitionAsync)
             };
 
             this.AddParameterViewModel = new AddParameterViewModel.AddParameterViewModel(sessionService, messageBus)
@@ -95,7 +95,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <summary>
         /// All <see cref="ElementBase" /> of the iteration
         /// </summary>
-        public List<ElementBase> Elements { get; set; } = [];
+        public List<ElementBase> Elements { get; } = [];
 
         /// <summary>
         /// The <see cref="IElementDefinitionDetailsViewModel" />
@@ -244,7 +244,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// Tries to create a new <see cref="ElementDefinition" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task AddingElementDefinition()
+        public async Task AddingElementDefinitionAsync()
         {
             var thingsToCreate = new List<Thing>();
 
