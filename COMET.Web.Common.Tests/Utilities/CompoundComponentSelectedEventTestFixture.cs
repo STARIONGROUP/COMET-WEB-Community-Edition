@@ -48,14 +48,14 @@ namespace COMET.Web.Common.Tests.Utilities
         [SetUp]
         public void SetUp()
         {
-            var parameterType = new CompoundParameterType()
+            var parameterType = new CompoundParameterType
             {
                 Iid = Guid.NewGuid(),
             };
             
             var compoundValues = new List<string> { "1", "0", "3" };
 
-            var parameterValueSet = new ParameterValueSet()
+            var parameterValueSet = new ParameterValueSet
             {
                 Iid = Guid.NewGuid(),
                 ValueSwitch = ParameterSwitchKind.MANUAL,

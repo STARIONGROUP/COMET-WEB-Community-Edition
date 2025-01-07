@@ -94,10 +94,11 @@ namespace COMET.Web.Common.Tests.Utilities
             this.valueSet2 = new ParameterValueSet(Guid.NewGuid(), this.cache, this.uri);
             this.usage = new ElementUsage(Guid.NewGuid(), this.cache, this.uri);
 
-            this.parameterOverride = new ParameterOverride(Guid.NewGuid(), this.cache, this.uri);
-            this.parameterOverride.Parameter = this.parameter2;
-            this.overrideValueset = new ParameterOverrideValueSet(Guid.NewGuid(), this.cache, this.uri);
-            this.overrideValueset.ParameterValueSet = this.valueSet2;
+            this.parameterOverride = new ParameterOverride(Guid.NewGuid(), this.cache, this.uri)
+                { Parameter = this.parameter2 };
+
+            this.overrideValueset = new ParameterOverrideValueSet(Guid.NewGuid(), this.cache, this.uri)
+                { ParameterValueSet = this.valueSet2 };
 
             this.model.Iteration.Add(this.iteration);
             this.iteration.Element.Add(this.elementDef1);
@@ -114,10 +115,16 @@ namespace COMET.Web.Common.Tests.Utilities
 
             this.sub1 = new ParameterSubscription(Guid.NewGuid(), this.cache, this.uri);
             this.sub2 = new ParameterSubscription(Guid.NewGuid(), this.cache, this.uri);
-            this.subValueset1 = new ParameterSubscriptionValueSet(Guid.NewGuid(), this.cache, this.uri);
-            this.subValueset1.SubscribedValueSet = this.valueSet1;
-            this.subValueset2 = new ParameterSubscriptionValueSet(Guid.NewGuid(), this.cache, this.uri);
-            this.subValueset2.SubscribedValueSet = this.overrideValueset;
+
+            this.subValueset1 = new ParameterSubscriptionValueSet(Guid.NewGuid(), this.cache, this.uri)
+            {
+                SubscribedValueSet = this.valueSet1
+            };
+
+            this.subValueset2 = new ParameterSubscriptionValueSet(Guid.NewGuid(), this.cache, this.uri)
+            {
+                SubscribedValueSet = this.overrideValueset
+            };
 
             this.sub1.ValueSet.Add(this.subValueset1);
             this.sub2.ValueSet.Add(this.subValueset2);
