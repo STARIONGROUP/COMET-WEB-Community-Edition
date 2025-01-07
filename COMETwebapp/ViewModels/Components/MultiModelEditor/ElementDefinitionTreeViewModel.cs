@@ -122,11 +122,6 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         public ObservableCollection<IterationData> Iterations { get; } = [];
 
         /// <summary>
-        /// All <see cref="ElementBase" /> of the iteration
-        /// </summary>
-        public List<ElementBase> Elements { get; private set; } = [];
-
-        /// <summary>
         /// Gets the collection of the <see cref="ElementDefinitionTreeRowViewModel" /> for target model
         /// </summary>
         public ObservableCollection<ElementDefinitionTreeRowViewModel> Rows { get; private set; } = [];
@@ -180,28 +175,29 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// Handles the <see cref="SessionStatus.EndUpdate" /> message received
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnEndUpdate()
+        protected override Task OnEndUpdate()
         {
-            await this.OnSessionRefreshed();
+            return this.OnSessionRefreshed();
         }
 
         /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnSessionRefreshed()
+        protected override Task OnSessionRefreshed()
         {
             if (this.AddedThings.Count == 0 && this.DeletedThings.Count == 0 && this.UpdatedThings.Count == 0)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             this.IsLoading = true;
-            await Task.Delay(1);
 
             this.UpdateInnerComponents();
             this.ClearRecordedChanges();
             this.IsLoading = false;
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

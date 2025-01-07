@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
+namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor.Rows
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
@@ -45,31 +45,31 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
         [SetUp]
         public void Setup()
         {
-            this.elementDefinitionName = "TestElementDefinition";
-            this.elementUsageName = "TestElementUsage";
-            this.ownerShortName = "TestOwner";
+            elementDefinitionName = "TestElementDefinition";
+            elementUsageName = "TestElementUsage";
+            ownerShortName = "TestOwner";
 
-            this.iteration = new Iteration();
+            iteration = new Iteration();
 
-            this.owner = new DomainOfExpertise(Guid.NewGuid(), null, null)
+            owner = new DomainOfExpertise(Guid.NewGuid(), null, null)
             {
-                ShortName = this.ownerShortName
+                ShortName = ownerShortName
             };
 
-            this.elementUsage = new ElementUsage(Guid.NewGuid(), null, null)
+            elementUsage = new ElementUsage(Guid.NewGuid(), null, null)
             {
-                Name = this.elementUsageName,
-                Owner = this.owner
+                Name = elementUsageName,
+                Owner = owner
             };
 
-            this.elementDefinition = new ElementDefinition(Guid.NewGuid(), null, null)
+            elementDefinition = new ElementDefinition(Guid.NewGuid(), null, null)
             {
-                Name = this.elementDefinitionName,
-                Owner = this.owner,
-                ContainedElement = { this.elementUsage }
+                Name = elementDefinitionName,
+                Owner = owner,
+                ContainedElement = { elementUsage }
             };
 
-            this.iteration.Element.Add(this.elementDefinition);
+            iteration.Element.Add(elementDefinition);
         }
 
         [TearDown]
@@ -80,13 +80,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
         [Test]
         public void VerifyCreation()
         {
-            var testVM = new ElementDefinitionTreeRowViewModel(this.elementDefinition);
+            var testVM = new ElementDefinitionTreeRowViewModel(elementDefinition);
 
             Assert.Multiple(() =>
             {
-                Assert.That(testVM.ElementBase, Is.EqualTo(this.elementDefinition));
-                Assert.That(testVM.ElementName, Is.EqualTo(this.elementDefinitionName));
-                Assert.That(testVM.OwnerShortName, Is.EqualTo(this.ownerShortName));
+                Assert.That(testVM.ElementBase, Is.EqualTo(elementDefinition));
+                Assert.That(testVM.ElementName, Is.EqualTo(elementDefinitionName));
+                Assert.That(testVM.OwnerShortName, Is.EqualTo(ownerShortName));
                 Assert.That(testVM.IsTopElement, Is.False);
                 Assert.That(testVM.Rows.Count, Is.EqualTo(1));
             });
@@ -112,28 +112,28 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
                 Assert.That(testVM.Rows.Count, Is.EqualTo(0));
             });
 
-            this.iteration.TopElement = this.elementDefinition;
+            iteration.TopElement = elementDefinition;
 
-            testVM.UpdateProperties(new ElementDefinitionTreeRowViewModel(this.elementDefinition));
+            testVM.UpdateProperties(new ElementDefinitionTreeRowViewModel(elementDefinition));
 
             Assert.Multiple(() =>
             {
-                Assert.That(testVM.ElementBase, Is.EqualTo(this.elementDefinition));
-                Assert.That(testVM.ElementName, Is.EqualTo(this.elementDefinitionName));
-                Assert.That(testVM.OwnerShortName, Is.EqualTo(this.ownerShortName));
+                Assert.That(testVM.ElementBase, Is.EqualTo(elementDefinition));
+                Assert.That(testVM.ElementName, Is.EqualTo(elementDefinitionName));
+                Assert.That(testVM.OwnerShortName, Is.EqualTo(ownerShortName));
                 Assert.That(testVM.IsTopElement, Is.True);
                 Assert.That(testVM.Rows.Count, Is.EqualTo(1));
             });
 
-            this.elementDefinition.ContainedElement.Clear();
+            elementDefinition.ContainedElement.Clear();
 
-            testVM.UpdateProperties(new ElementDefinitionTreeRowViewModel(this.elementDefinition));
+            testVM.UpdateProperties(new ElementDefinitionTreeRowViewModel(elementDefinition));
 
             Assert.Multiple(() =>
             {
-                Assert.That(testVM.ElementBase, Is.EqualTo(this.elementDefinition));
-                Assert.That(testVM.ElementName, Is.EqualTo(this.elementDefinitionName));
-                Assert.That(testVM.OwnerShortName, Is.EqualTo(this.ownerShortName));
+                Assert.That(testVM.ElementBase, Is.EqualTo(elementDefinition));
+                Assert.That(testVM.ElementName, Is.EqualTo(elementDefinitionName));
+                Assert.That(testVM.OwnerShortName, Is.EqualTo(ownerShortName));
                 Assert.That(testVM.IsTopElement, Is.True);
                 Assert.That(testVM.Rows.Count, Is.EqualTo(0));
             });
@@ -142,7 +142,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
         [Test]
         public void VerifyUpdatePropertiesNullElement()
         {
-            Assert.That(() => new ElementDefinitionTreeRowViewModel(this.elementDefinition).UpdateProperties(null), Throws.ArgumentNullException);
+            Assert.That(() => new ElementDefinitionTreeRowViewModel(elementDefinition).UpdateProperties(null), Throws.ArgumentNullException);
             Assert.That(() => new ElementDefinitionTreeRowViewModel().UpdateProperties(null), Throws.ArgumentNullException);
         }
     }
