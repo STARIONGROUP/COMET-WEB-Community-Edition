@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IElementDefinitionTreeViewModel.cs" company="Starion Group S.A.">
+//  <copyright file="ElementDefinitionTreeItem.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,45 +22,33 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.MultiModelEditor
+namespace COMETwebapp.Components.MultiModelEditor
 {
-    using System.Collections.ObjectModel;
-
-    using CDP4Common.EngineeringModelData;
-
-    using COMET.Web.Common.Model;
-    using COMET.Web.Common.ViewModels.Components.Applications;
-
     using COMETwebapp.ViewModels.Components.MultiModelEditor.Rows;
 
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
-    /// Interface for the <see cref="ElementDefinitionTreeViewModel" />
+    /// Support class for the <see cref="ElementDefinitionTreeItem" /> component
     /// </summary>
-    public interface IElementDefinitionTreeViewModel : IHaveReusableRows
+    public partial class ElementDefinitionTreeItem
     {
         /// <summary>
-        /// Gets the collection of the <see cref="ElementDefinitionTreeRowViewModel" />
+        /// The css class string for the item
         /// </summary>
-        ObservableCollection<ElementDefinitionTreeRowViewModel> Rows { get; }
+        [Parameter]
+        public string CssClass { get; set; } = string.Empty;
 
         /// <summary>
-        /// The <see cref="Iteration"/> from which to build the tree
+        /// The <see cref="ElementBaseTreeRowViewModel"/> to show in the item
         /// </summary>
-        Iteration Iteration { get; set; }
+        [Parameter]
+        public ElementBaseTreeRowViewModel ElementBaseTreeRowViewModel { get; set; }
 
         /// <summary>
-        /// Gets the Description of the selected model and iteration
+        /// Handle unmatched values, like "draggable" html attribute, so no error is thrown
         /// </summary>
-        string Description { get; }
-
-        /// <summary>
-        /// Gets or a collection of selectable <see cref="Iteration"/>s
-        /// </summary>
-        ObservableCollection<IterationData> Iterations { get; }
-
-        /// <summary>
-        /// The <see cref="Iteration"/> from which to build the tree
-        /// </summary>
-        IterationData SelectedIterationData { get; set; }
+        [Parameter(CaptureUnmatchedValues = true)]
+        public Dictionary<string, object> AdditionalAttributes { get; set; }
     }
 }

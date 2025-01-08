@@ -21,7 +21,6 @@
 ------------------------------------------------------------------------------->
 @using COMET.Web.Common.Model
 @using COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
-@using CDP4JsonSerializer.JsonConverter
 @inject IJSRuntime JSRuntime
 
 <div style = "height:50px">
@@ -52,7 +51,7 @@ else
 </div>
 <DxTreeView @ref="this.TreeView" Data="@this.ViewModel.Rows"
             CssClass="sticky-scrollable-column"
-            SelectionChanged="args => { this.SelectionChanged.InvokeAsync(args.NodeInfo?.DataItem as ElementBaseTreeRowViewModel); }"
+            SelectionChanged="args => {this.SelectionChanged.InvokeAsync(args.NodeInfo?.DataItem as ElementBaseTreeRowViewModel); }"
             AllowSelectNodes="true"
             SizeMode="SizeMode.Small"
             AnimationType="LayoutAnimationType.None">
@@ -61,45 +60,29 @@ else
             var dataItem = (ElementBaseTreeRowViewModel)context.DataItem;
             var draggable = this.AllowDrag && this.AllowNodeDrag.Invoke(this, dataItem);
             var isTopElement = dataItem is ElementDefinitionTreeRowViewModel { IsTopElement: true };
-            var style = isTopElement ? "font-weight-bold" : string.Empty;
+            var cssClass = isTopElement ? "font-weight-bold" : string.Empty;
         }
 
         @if (draggable)
         {
-            <div class="@style @(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "treeview-item-drag-over" : "")"
-                 draggable="@(this.AllowDrag ? "true" : "false")"
-                 dropzone="@(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "move" : "")"
-                 @ondragstart="@(async () => await  this.DragStartAsync(dataItem))"
-                 @ondragend="@(async () => await this.DragEndAsync(dataItem))"
-                 ondragover="@(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "event.preventDefault();" : "")"
-                 @ondragenter="@(async () => await this.DragEnterAsync(dataItem))"
-                 @ondragleave="@(async () => await this.DragLeaveAsync(dataItem))"
-                 @ondrop="@(async () => await this.DropAsync(dataItem))">
-                @dataItem.ElementName <span>
-                    <button class="starion-pill" title="Owning Domain Of Expertise: @dataItem.OwnerShortName">@dataItem.OwnerShortName</button>
-                </span>
-                @foreach (var categoryShortName in dataItem.ElementBase.GetAllCategories().Select(x => x.ShortName))
-                {
-                    <span>
-                        <button class="starion-pill" style="background-color:aliceblue !important;" title="Category: @categoryShortName">@categoryShortName</button>
-                    </span>
-                }
-            </div>
+            <ElementDefinitionTreeItem 
+                CssClass="@($"{cssClass} {(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "treeview-item-drag-over" : "")}")"
+                ElementBaseTreeRowViewModel="@dataItem" 
+                draggable="@(this.AllowDrag ? "true" : "false")"
+                dropzone="@(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "move" : "")"
+                @ondragstart="@(async () => await  this.DragStartAsync(dataItem))"
+                @ondragend="@(async () => await this.DragEndAsync(dataItem))"
+                ondragover="@(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "event.preventDefault();" : "")"
+                @ondragenter="@(async () => await this.DragEnterAsync(dataItem))"
+                @ondragleave="@(async () => await this.DragLeaveAsync(dataItem))"
+                @ondrop="@(async () => await this.DropAsync(dataItem))"
+            />
         }
         else
         {
-            <div>
-                @dataItem.ElementName <span>
-                    <button class="starion-pill" title="Owning Domain Of Expertise: @dataItem.OwnerShortName">@dataItem.OwnerShortName</button>
-                </span>
-                @foreach (var categoryShortName in dataItem.ElementBase.GetAllCategories().Select(x => x.ShortName))
-                {
-                    <span>
-                        <button class="starion-pill" style="background-color:aliceblue !important;" title="Category: @categoryShortName">@categoryShortName</button>
-                    </span>
-                }
-            </div>
+            <ElementDefinitionTreeItem CssClass="@cssClass" ElementBaseTreeRowViewModel="@dataItem" />
         }
+
     </NodeTextTemplate>
     <DataMappings>
         <DxTreeViewDataMapping Children="Rows" Text="ElementName"/>

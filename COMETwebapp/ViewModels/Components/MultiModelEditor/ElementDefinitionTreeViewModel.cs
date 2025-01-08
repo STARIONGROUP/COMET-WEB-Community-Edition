@@ -127,11 +127,6 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         public ObservableCollection<ElementDefinitionTreeRowViewModel> Rows { get; private set; } = [];
 
         /// <summary>
-        /// Represents the selected ElementDefinitionRowViewModel
-        /// </summary>
-        public ElementDefinition SelectedElementDefinition { get; set; }
-
-        /// <summary>
         /// Add rows related to <see cref="ElementDefinition" /> that has been added
         /// </summary>
         /// <param name="addedThings">A collection of added <see cref="Thing" /></param>

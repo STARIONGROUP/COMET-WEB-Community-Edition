@@ -140,7 +140,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
                 Assert.That(this.viewModel.Description, Is.EqualTo("Please select a model"));
                 Assert.That(this.viewModel.Iteration, Is.Null);
                 Assert.That(this.viewModel.Iterations.Count, Is.EqualTo(2));
-                Assert.That(this.viewModel.SelectedElementDefinition, Is.Null);
                 Assert.That(this.viewModel.SelectedIterationData, Is.Null);
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(0));
             });
@@ -153,7 +152,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
                 Assert.That(this.viewModel.Description, Is.EqualTo(expectedIterationData.IterationName));
                 Assert.That(this.viewModel.Iteration, Is.EqualTo(this.iteration));
                 Assert.That(this.viewModel.Iterations.Count, Is.EqualTo(2));
-                Assert.That(this.viewModel.SelectedElementDefinition, Is.Null);
                 Assert.That(this.viewModel.SelectedIterationData, Is.EqualTo(expectedIterationData));
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
             });
@@ -170,7 +168,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
                 Assert.That(this.viewModel.Description, Is.EqualTo(expectedIterationData.IterationName));
                 Assert.That(this.viewModel.Iteration, Is.EqualTo(this.iteration));
                 Assert.That(this.viewModel.Iterations.Count, Is.EqualTo(2));
-                Assert.That(this.viewModel.SelectedElementDefinition, Is.Null);
                 Assert.That(this.viewModel.SelectedIterationData, Is.EqualTo(expectedIterationData));
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
             });
@@ -198,7 +195,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.MultiModeleditor
                 Assert.That(this.viewModel.Description, Is.EqualTo(expectedIterationData.IterationName));
                 Assert.That(this.viewModel.Iteration, Is.EqualTo(this.iteration));
                 Assert.That(this.viewModel.Iterations.Count, Is.EqualTo(2));
-                Assert.That(this.viewModel.SelectedElementDefinition, Is.Null);
                 Assert.That(this.viewModel.SelectedIterationData, Is.EqualTo(expectedIterationData));
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(2));
             });

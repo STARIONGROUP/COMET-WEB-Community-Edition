@@ -128,14 +128,14 @@ namespace COMETwebapp.Components.MultiModelEditor
         private object dragOverNode;
 
         /// <summary>
+        /// Holds a reference to dragover count due to nested child elements of the dragOverNode
+        /// </summary>
+        private int dragOverCounter;
+
+        /// <summary>
         /// Gets or sets a value indicating that dropping a node is allowed for this <see cref="ElementDefinitionTree"/>
         /// </summary>
         public bool AllowNodeDrop { get; set; }
-
-        /// <summary>
-        /// A collection of <see cref="ElementDefinitionTreeRowViewModel"/>
-        /// </summary>
-        public IEnumerable<ElementDefinitionTreeRowViewModel> Rows { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="TreeView"/>
@@ -237,7 +237,14 @@ namespace COMETwebapp.Components.MultiModelEditor
         {
             if (this.AllowDrop)
             {
+                if (this.dragOverNode != node)
+                {
+                    this.dragOverCounter = 0;
+                }
+
                 this.dragOverNode = node;
+                this.dragOverCounter++;
+
                 await this.OnDragEnter.InvokeAsync((this, node));
                 await this.OnCalculateDropIsAllowed.InvokeAsync(this);
 
@@ -254,10 +261,15 @@ namespace COMETwebapp.Components.MultiModelEditor
         {
             if (this.AllowDrop)
             {
-                this.dragOverNode = null;
-                await this.OnDragLeave.InvokeAsync((this, node));
-                await this.OnCalculateDropIsAllowed.InvokeAsync(this);
-                this.Logger.LogDebug("DragLeave");
+                this.dragOverCounter--;
+
+                if (this.dragOverCounter <= 0)
+                {
+                    this.dragOverNode = null;
+                    await this.OnDragLeave.InvokeAsync((this, node));
+                    await this.OnCalculateDropIsAllowed.InvokeAsync(this);
+                    this.Logger.LogDebug("DragLeave");
+                }
             }
         }
     }
