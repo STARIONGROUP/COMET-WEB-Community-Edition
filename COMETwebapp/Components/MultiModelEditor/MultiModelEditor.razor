@@ -26,9 +26,9 @@
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <ValidationMessageComponent ValidationMessage="@(this.ErrorMessage)" />
-    <div class="selected-data-item-page">
-        <div class="selected-data-item-table d-flex" style="flex: 1 1 58%!important;">
-            <div>
+    <div class="selected-data-item-page" style="flex-wrap:nowrap!important;">
+        <div class="selected-data-item-table d-flex" style="flex: 1 1 50%!important;gap: 10px;min-width:600px;">
+            <div style="width:50%; height:100%; border: dashed 1px;padding:15px;border-radius: 10px;max-width: fit-content;">
                 <h4>Source Model</h4>
                 <ElementDefinitionTree 
                     @ref="this.SourceTree" 
@@ -53,7 +53,7 @@
                     IsModelSelectionEnabled="true">
                 </ElementDefinitionTree>
             </div>
-            <div>
+            <div style="width:50%; height:100%; border: dashed 1px;padding:15px;border-radius: 10px;max-width: fit-content;">
                 <h4>Target Model</h4>
                 <ElementDefinitionTree 
                     @ref="this.TargetTree" 
@@ -78,25 +78,25 @@
                     IsModelSelectionEnabled="false">
                 </ElementDefinitionTree>
             </div>
-        </div>
-        <DataItemDetailsComponent IsSelected="@(this.ViewModel.SelectedElementDefinition is not null)"
-                                  NotSelectedText="Select an item to view or edit"
-                                  Width="100%"
-                                  CssClass="model-editor-details">
-            <div class="mb-2 row">
-                <div class="float-end">
-                    @if (this.ViewModel.SelectedElementDefinition is not null)
-                    {
-                        <DxButton Id="addParameter" Text="Add Parameter" IconCssClass="oi oi-plus" Click="@(this.ViewModel.OpenAddParameterPopup)"/>
-                    }
+            <DataItemDetailsComponent IsSelected="@(this.ViewModel.SelectedElementDefinition is not null)"
+                                      NotSelectedText="Select an item to view or edit"
+                                      Width="100%"
+                                      CssClass="model-editor-details">
+                <div class="mb-2 row">
+                    <div class="float-end">
+                        @if (this.ViewModel.SelectedElementDefinition is not null)
+                        {
+                            <DxButton Id="addParameter" Text="Add Parameter" IconCssClass="oi oi-plus" Click="@(this.ViewModel.OpenAddParameterPopup)"/>
+                        }
 
-                    <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
+                        <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
+                    </div>
                 </div>
-            </div>
-            <div style="height: 73vh!important;" class="sticky-scrollable-column justify-content-between">
-                <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"/>
-            </div>
-        </DataItemDetailsComponent>
+                <div style="height: 73vh!important;" class="sticky-scrollable-column justify-content-between">
+                    <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"/>
+                </div>
+            </DataItemDetailsComponent>
+        </div>
     </div>
     <DxPopup CloseOnOutsideClick="false" HeaderText="Create Element Definition" @bind-Visible="@this.ViewModel.IsOnCreationMode" Width="40vw">
         <BodyContentTemplate>

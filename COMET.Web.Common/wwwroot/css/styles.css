@@ -613,6 +613,6 @@
 }
 
 .treeview-item-drag-over {
-    background-color: burlywood;
-    box-shadow: 0px 0px 2px 10px burlywood;
+    background-color: burlywood !important;
+    box-shadow: 0px 0px 2px 10px burlywood !important;
 }

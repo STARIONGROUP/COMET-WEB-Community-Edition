@@ -23,7 +23,7 @@
 @using COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
 @inject IJSRuntime JSRuntime
 
-<div style = "height:50px">
+<div style = "height:50px;">
 @if (this.IsModelSelectionEnabled)
 {
     <DxComboBox TData="IterationData"
@@ -46,46 +46,50 @@ else
      @ondragenter="@(() => this.DragEnterAsync(this.TreeView))"
      @ondragleave="@(() => this.DragLeaveAsync(this.TreeView))"
      @ondrop="@(() => this.DropAsync(null))"
-     style="height:25px;width:inherit;color:cadetblue;@(this.AllowDrop ? "" : "visibility:hidden;")">
+     style="height:25px;color:cadetblue;@(this.AllowDrop ? "" : "visibility:hidden;")">
     Drop here to create new element...
 </div>
-<DxTreeView @ref="this.TreeView" Data="@this.ViewModel.Rows"
-            CssClass="sticky-scrollable-column"
-            SelectionChanged="args => {this.SelectionChanged.InvokeAsync(args.NodeInfo?.DataItem as ElementBaseTreeRowViewModel); }"
-            AllowSelectNodes="true"
-            SizeMode="SizeMode.Small"
-            AnimationType="LayoutAnimationType.None">
-    <NodeTextTemplate>
-        @{
-            var dataItem = (ElementBaseTreeRowViewModel)context.DataItem;
-            var draggable = this.AllowDrag && this.AllowNodeDrag.Invoke(this, dataItem);
-            var isTopElement = dataItem is ElementDefinitionTreeRowViewModel { IsTopElement: true };
-            var cssClass = isTopElement ? "font-weight-bold" : string.Empty;
-        }
+<div style="overflow-y:auto;height: calc(90vh - 175px);">
+    <DxTreeView @ref="this.TreeView" Data="@this.ViewModel.Rows"
+                CssClass="sticky-scrollable-column"
+                SelectionChanged="args => {this.SelectionChanged.InvokeAsync(args.NodeInfo?.DataItem as ElementBaseTreeRowViewModel); }"
+                AllowSelectNodes="true"
+                SizeMode="SizeMode.Small" 
+                ShowFilterPanel="true"
+                FilterMode="NavigationFilterMode.ParentBranch"
+                AnimationType="LayoutAnimationType.None">
+        <NodeTextTemplate>
+            @{
+                var dataItem = (ElementBaseTreeRowViewModel)context.DataItem;
+                var draggable = this.AllowDrag && this.AllowNodeDrag.Invoke(this, dataItem);
+                var isTopElement = dataItem is ElementDefinitionTreeRowViewModel { IsTopElement: true };
+                var cssClass = isTopElement ? "font-weight-bold" : string.Empty;
+            }
 
-        @if (draggable)
-        {
-            <ElementDefinitionTreeItem 
-                CssClass="@($"{cssClass} {(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "treeview-item-drag-over" : "")}")"
-                ElementBaseTreeRowViewModel="@dataItem" 
-                draggable="@(this.AllowDrag ? "true" : "false")"
-                dropzone="@(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "move" : "")"
-                @ondragstart="@(async () => await  this.DragStartAsync(dataItem))"
-                @ondragend="@(async () => await this.DragEndAsync(dataItem))"
-                ondragover="@(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "event.preventDefault();" : "")"
-                @ondragenter="@(async () => await this.DragEnterAsync(dataItem))"
-                @ondragleave="@(async () => await this.DragLeaveAsync(dataItem))"
-                @ondrop="@(async () => await this.DropAsync(dataItem))"
-            />
-        }
-        else
-        {
-            <ElementDefinitionTreeItem CssClass="@cssClass" ElementBaseTreeRowViewModel="@dataItem" />
-        }
+            @if (draggable)
+            {
+                <ElementDefinitionTreeItem 
+                    CssClass="@($"{cssClass} {(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "treeview-item-drag-over" : "")}")"
+                    ElementBaseTreeRowViewModel="@dataItem" 
+                    draggable="@(this.AllowDrag ? "true" : "false")"
+                    dropzone="@(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "move" : "")"
+                    @ondragstart="@(async () => await  this.DragStartAsync(dataItem))"
+                    @ondragend="@(async () => await this.DragEndAsync(dataItem))"
+                    ondragover="@(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "event.preventDefault();" : "")"
+                    @ondragenter="@(async () => await this.DragEnterAsync(dataItem))"
+                    @ondragleave="@(async () => await this.DragLeaveAsync(dataItem))"
+                    @ondrop="@(async () => await this.DropAsync(dataItem))"
+                />
+            }
+            else
+            {
+                <ElementDefinitionTreeItem CssClass="@cssClass" ElementBaseTreeRowViewModel="@dataItem" />
+            }
 
-    </NodeTextTemplate>
-    <DataMappings>
-        <DxTreeViewDataMapping Children="Rows" Text="ElementName"/>
-        <DxTreeViewDataMapping Level="1" Text="ElementName" />
-    </DataMappings>
-</DxTreeView>
+        </NodeTextTemplate>
+        <DataMappings>
+            <DxTreeViewDataMapping Children="Rows" Text="ElementName"/>
+            <DxTreeViewDataMapping Level="1" Text="ElementName" />
+        </DataMappings>
+    </DxTreeView>
+</div>
