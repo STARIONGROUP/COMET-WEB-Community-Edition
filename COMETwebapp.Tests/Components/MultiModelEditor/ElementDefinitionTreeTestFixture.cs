@@ -229,7 +229,7 @@ namespace COMETwebapp.Tests.Components.MultiModelEditor
             {
                 Assert.That(firstItem, Is.Not.Null);
                 Assert.That(firstItem.InnerHtml, Contains.Substring("Test1"));
-                Assert.That(firstItem.Attributes.Length, Is.EqualTo(1));
+                Assert.That(firstItem.Attributes.Length, Is.EqualTo(2));
             });
         }
 
@@ -248,7 +248,7 @@ namespace COMETwebapp.Tests.Components.MultiModelEditor
             {
                 Assert.That(firstItem, Is.Not.Null);
                 Assert.That(firstItem.InnerHtml, Contains.Substring("Test1"));
-                Assert.That(firstItem.Attributes.Length, Is.EqualTo(9));
+                Assert.That(firstItem.Attributes.Length, Is.EqualTo(10));
             });
         }
     }
