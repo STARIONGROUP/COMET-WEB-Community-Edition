@@ -88,7 +88,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
 
                 if (x != null)
                 {
-                    this.AddRows(x.Element);
+                    this.AddRows(x.Element.OrderBy(x => x.Name));
                     this.SelectedIterationData = this.Iterations.SingleOrDefault(y => y?.IterationSetupId == x.IterationSetup.Iid);
                 }
             }));
@@ -134,6 +134,11 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         {
             var listOfAddedElementBases = addedThings.OfType<ElementDefinition>().Where(x => this.Iteration?.Element.Contains(x) ?? false).ToList();
             this.Rows.AddRange(listOfAddedElementBases.Select(e => new ElementDefinitionTreeRowViewModel(e)));
+
+            if (listOfAddedElementBases.Count > 0)
+            {
+                this.SortRows();
+            }
         }
 
         /// <summary>
@@ -142,10 +147,22 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// <param name="updatedThings">A collection of updated <see cref="ElementDefinition" /></param>
         public void UpdateRows(IEnumerable<Thing> updatedThings)
         {
+            var sortCollection = false;
+
             foreach (var element in updatedThings.OfType<ElementDefinition>().Where(x => this.Iteration?.Element.Contains(x) ?? false).ToList())
             {
                 var row = this.Rows.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
-                row?.UpdateProperties(new ElementDefinitionTreeRowViewModel(element));
+
+                if (row != null)
+                {
+                    sortCollection = true;
+                    row.UpdateProperties(new ElementDefinitionTreeRowViewModel(element));
+                }
+            }
+
+            if (sortCollection)
+            {
+                this.SortRows();
             }
         }
 
@@ -155,14 +172,35 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// <param name="deletedThings">A collection of deleted <see cref="ElementDefinition" /></param>
         public void RemoveRows(IEnumerable<Thing> deletedThings)
         {
+            var sortCollection = false;
+
             foreach (var elementId in deletedThings.OfType<ElementDefinition>().Select(x => x.Iid))
             {
                 var row = this.Rows.FirstOrDefault(x => x.ElementBase.Iid == elementId);
 
                 if (row != null)
                 {
+                    sortCollection = true;
                     this.Rows.Remove(row);
                 }
+            }
+
+            if (sortCollection)
+            {
+                this.SortRows();
+            }
+        }
+
+        /// <summary>
+        /// Sorts the rows collection
+        /// </summary>
+        public void SortRows()
+        {
+            var sortableList = this.Rows.OrderBy(x => x.ElementName).ToList();
+
+            for (int i = 0; i < sortableList.Count; i++)
+            {
+                this.Rows.Move(this.Rows.IndexOf(sortableList[i]), i);
             }
         }
 

@@ -39,7 +39,7 @@
         </tr>
     </table>
 </p>
-<div class="container" style="height:100%; overflow:auto;max-width: inherit !important;">
+<div class="container @this.ScrollableAreaCssClass" style="overflow:auto;max-width: inherit !important;">
     <div class="row">
         <Virtualize ItemSize="@this.ItemSize" ItemsProvider="this.LoadItemsAsync" @ref="this.virtualize">
             <ItemContent>

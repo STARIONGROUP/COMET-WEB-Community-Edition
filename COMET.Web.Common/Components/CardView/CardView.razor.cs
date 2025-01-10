@@ -62,6 +62,12 @@ namespace COMET.Web.Common.Components.CardView
         public float MinWidth { get; set; } = 250;
 
         /// <summary>
+        /// CssClass of the ScrollableArea
+        /// </summary>
+        [Parameter]
+        public string ScrollableAreaCssClass { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets a collection of propertynames of type T to perform search on
         /// </summary>
         public HashSet<string> SearchFields { get; private set; } = [];

@@ -63,7 +63,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
 
             if (elementUsages?.Any() ?? false)
             {
-                this.Rows.AddRange(elementUsages.Select(x => new ElementUsageTreeRowViewModel(x)));
+                this.Rows.AddRange(elementUsages.Select(x => new ElementUsageTreeRowViewModel(x)).OrderBy(x => x.ElementName));
             }
         }
 
@@ -100,7 +100,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
 
             if (elementUsages != null)
             {
-                this.Rows.AddRange(elementUsages.Select(x => new ElementUsageTreeRowViewModel(x)));
+                this.Rows.AddRange(elementUsages.Select(x => new ElementUsageTreeRowViewModel(x)).OrderBy(x => x.ElementName));
             }
         }
     }

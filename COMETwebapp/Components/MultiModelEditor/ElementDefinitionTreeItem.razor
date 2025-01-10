@@ -19,17 +19,20 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-
 <div class="@this.CssClass" style="display: flex; justify-content: space-between; align-items: center;" @attributes="this.AdditionalAttributes">
-    @this.ElementBaseTreeRowViewModel.ElementName
+    <span>
+        <CardField Context="@this.ElementBaseTreeRowViewModel" FieldName="ElementName" />
+    </span>
     <span style="text-align: end;">
         <span>
-            <button class="starion-pill" title="Owning Domain Of Expertise: @this.ElementBaseTreeRowViewModel.OwnerShortName">@this.ElementBaseTreeRowViewModel.OwnerShortName</button>
+            <button class="starion-pill" title="Owning Domain Of Expertise: @this.ElementBaseTreeRowViewModel.OwnerShortName"><CardField Context="@this.ElementBaseTreeRowViewModel" FieldName="OwnerShortName" /></button>
         </span>
         @foreach (var categoryShortName in this.ElementBaseTreeRowViewModel.ElementBase.GetAllCategories().Select(x => x.ShortName))
         {
             <span>
-                <button class="starion-pill" style="background-color:aliceblue !important;" title="Category: @categoryShortName">@categoryShortName</button>
+                <button class="starion-pill" style="background-color:aliceblue !important;" title="Category: @categoryShortName">
+                    <CardField Context="@categoryShortName" />
+                </button>
             </span>
         }
     </span>

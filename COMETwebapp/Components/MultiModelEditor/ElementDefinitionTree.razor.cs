@@ -123,6 +123,12 @@ namespace COMETwebapp.Components.MultiModelEditor
         public bool AllowDrop { get; set; }
 
         /// <summary>
+        /// CssClass of the ScrollableArea
+        /// </summary>
+        [Parameter]
+        public string ScrollableAreaCssClass { get; set; } = string.Empty;
+
+        /// <summary>
         /// Holds a reference to the object where the dragged node is dragged over
         /// </summary>
         private object dragOverNode;
@@ -141,6 +147,21 @@ namespace COMETwebapp.Components.MultiModelEditor
         /// Gets or sets the <see cref="TreeView"/>
         /// </summary>
         public DxTreeView TreeView { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indication that searching is allowed
+        /// </summary>
+        public bool AllowSearch { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a collection of propertynames of type T to perform search on
+        /// </summary>
+        public HashSet<string> SearchFields { get; private set; } = [];
+
+        /// <summary>
+        /// Gets or sets the term where to search/filter items on
+        /// </summary>
+        public string SearchTerm { get; set; } = string.Empty;
 
         /// <summary>
         /// Method invoked after each time the component has been rendered. Note that the component does

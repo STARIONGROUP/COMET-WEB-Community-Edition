@@ -52,6 +52,11 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         private string ownerShortName;
 
         /// <summary>
+        /// Backing field for <see cref="SearchString"/>
+        /// </summary>
+        private string searchString;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ElementDefinitionRowViewModel" /> class.
         /// <param name="elementBase">the <see cref="CDP4Common.EngineeringModelData.ElementBase" /></param>
         /// </summary>
@@ -62,6 +67,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
             this.ElementBase = elementBase;
             this.ElementName = elementBase.Name;
             this.OwnerShortName = elementBase.Owner.ShortName;
+            this.SetSearchString();
         }
 
         /// <summary>
@@ -69,6 +75,15 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         /// </summary>
         protected ElementBaseTreeRowViewModel()
         {
+        }
+
+        /// <summary>
+        /// The string that can be used to search for
+        /// </summary>
+        public string SearchString
+        {
+            get => this.searchString;
+            set => this.RaiseAndSetIfChanged(ref this.searchString, value);
         }
 
         /// <summary>
@@ -99,6 +114,16 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
         }
 
         /// <summary>
+        /// Calculates and sets the value of the SearchString property
+        /// </summary>
+        private void SetSearchString()
+        {
+            var value = $"{this.ElementName}```{this.OwnerShortName}```{string.Join("```", this.ElementBase?.GetAllCategories().Select(x => x.ShortName) ?? [""])}";
+
+            this.SearchString = value;
+        }
+
+        /// <summary>
         /// Update this row view model properties
         /// </summary>
         /// <param name="elementBaseTreeRow">The <see cref="ElementBaseTreeRowViewModel" /> to use for updating</param>
@@ -109,6 +134,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor.Rows
             this.ElementBase = elementBaseTreeRow.elementBase;
             this.ElementName = elementBaseTreeRow.elementName;
             this.OwnerShortName = elementBaseTreeRow.OwnerShortName;
+            this.SetSearchString();
         }
     }
 }

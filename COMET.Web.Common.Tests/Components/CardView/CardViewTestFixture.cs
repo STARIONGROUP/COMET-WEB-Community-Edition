@@ -45,8 +45,8 @@ namespace COMET.Web.Common.Tests.Components.CardView
         private TestClass testClass2 = new ();
         private TestClass testClass3 = new ();
         private TestClass[] testClasses;
-        private string[] searchFields = new[] { "Id", "Name" };
-        private string[] sortFields = new[] { string.Empty, "Id", "Name" };
+        private readonly string[] searchFields = ["Id", "Name"];
+        private readonly string[] sortFields = [string.Empty, "Id", "Name"];
 
         private static RenderFragment<TestClass> NormalTemplate()
         {
@@ -110,7 +110,8 @@ namespace COMET.Web.Common.Tests.Components.CardView
                 parameters
                     .Add(p => p.Items, this.testClasses)
                     .Add(p => p.ItemSize, 150)
-                    .Add(p => p.ItemTemplate, NormalTemplate());
+                    .Add(p => p.ItemTemplate, NormalTemplate())
+                    .Add(p => p.ScrollableAreaCssClass, "scrollable-area");
             });
 
             var cardView = component;
@@ -122,6 +123,7 @@ namespace COMET.Web.Common.Tests.Components.CardView
                     Assert.That(cardView.Instance.ItemSize, Is.EqualTo(150));
                     Assert.That(cardView.Instance.SearchFields, Is.EquivalentTo(this.searchFields));
                     Assert.That(cardView.Instance.SortFields, Is.EquivalentTo(this.sortFields));
+                    Assert.That(cardView.Instance.ScrollableAreaCssClass, Is.EqualTo("scrollable-area"));
                 });
 
             var textBoxParentComponent = component.Find("#search-textbox");
@@ -139,6 +141,10 @@ namespace COMET.Web.Common.Tests.Components.CardView
                 Assert.That(comboBoxParentComponent, Is.Not.Null);
                 Assert.That(comboBoxParentComponent.Attributes.Single(x => x.Name == "style").Value.Contains("visibility:block"), Is.True);
             });
+
+            var scrollableAreaComponent = component.Find(".scrollable-area");
+
+            Assert.That(scrollableAreaComponent, Is.Not.Null);
 
             var cardFields = component.FindComponents<CardField<TestClass>>();
 
@@ -430,7 +436,6 @@ namespace COMET.Web.Common.Tests.Components.CardView
 
             cardFields = component.FindComponents<CardField<TestClass>>();
 
-            //var sortedTestClasses = this.testClasses.OrderBy(x => x.Id.ToString()).Select(x => x.Name).ToList();
             var sortedTestClasses = this.testClasses.OrderBy(x => x.Id).Select(x => x.Name).ToList();
             var sortedCarFields = cardFields.Where(x => x.Markup.StartsWith("Name-")).Select(x => x.Markup).ToList();
 

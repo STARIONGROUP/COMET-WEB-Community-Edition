@@ -29,9 +29,9 @@
     <div class="selected-data-item-page" style="flex-wrap:nowrap!important;">
         <div class="selected-data-item-table d-flex" style="flex: 1 1 50%!important;gap: 10px;min-width:600px;">
             <div style="width:50%; height:100%; border: dashed 1px;padding:15px;border-radius: 10px;max-width: fit-content;">
-                <h4>Source Model</h4>
                 <ElementDefinitionTree 
-                    @ref="this.SourceTree" 
+                    @ref="this.SourceTree"
+                    ScrollableAreaCssClass="treeview-scrollarea"
                     InitialIteration="@this.ViewModel.CurrentThing"
                     SelectionChanged="model => 
                         { 
@@ -54,9 +54,9 @@
                 </ElementDefinitionTree>
             </div>
             <div style="width:50%; height:100%; border: dashed 1px;padding:15px;border-radius: 10px;max-width: fit-content;">
-                <h4>Target Model</h4>
                 <ElementDefinitionTree 
-                    @ref="this.TargetTree" 
+                    @ref="this.TargetTree"
+                    ScrollableAreaCssClass="treeview-scrollarea"
                     InitialIteration="@this.ViewModel.CurrentThing"
                     SelectionChanged="model => 
                     { 
@@ -92,9 +92,7 @@
                         <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
                     </div>
                 </div>
-                <div style="height: 73vh!important;" class="sticky-scrollable-column justify-content-between">
-                    <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"/>
-                </div>
+                <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"/>
             </DataItemDetailsComponent>
         </div>
     </div>

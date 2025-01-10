@@ -616,3 +616,11 @@
     background-color: burlywood !important;
     box-shadow: 0px 0px 2px 10px burlywood !important;
 }
+
+.treeview-scrollarea {
+    height: calc(90vh - 185px);
+}
+
+.cardview-detailspanel-scrollarea {
+    height: calc(90vh - 145px);
+}
