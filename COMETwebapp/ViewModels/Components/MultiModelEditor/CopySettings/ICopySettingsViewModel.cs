@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="BrowserSessionSettings.cs" company="Starion Group S.A.">
+//  <copyright file="ICopySettingsViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,36 +22,46 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Enumerations
+namespace COMETwebapp.ViewModels.Components.MultiModelEditor.CopySettings
 {
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
-
     using CDP4Dal.Operations;
 
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
-    /// En enumeration of possible keys to be used to store and retrieve cached BrowserSessionSettings
+    /// Interface for the <see cref="CopySettingsViewModel" />
     /// </summary>
-    public enum BrowserSessionSettingKey
+    public interface ICopySettingsViewModel
     {
         /// <summary>
-        /// Key to handle the last selected <see cref="EngineeringModel"/>
+        /// Gets a collection of <see cref="OperationKind"/> instance that can be selected as Copy Operation
         /// </summary>
-        LastUsedEngineeringModel,
+        CopyOperationKinds AvailableOperationKinds { get; }
 
         /// <summary>
-        /// Key to handle the last selected <see cref="IterationSetup"/>
+        /// Gets the selected <see cref="OperationKind"/>
         /// </summary>
-        LastUsedIterationData,
+        OperationKind SelectedOperationKind { get; set; }
 
         /// <summary>
-        /// Key to handle the last selected <see cref="DomainOfExpertise"/>
+        /// The callback executed when the method <see cref="SaveSettings" /> was executed
         /// </summary>
-        LastUsedDomainOfExpertise,
-        
+        EventCallback OnSaveSettings { get; set; }
+
         /// <summary>
-        /// Key to handle the type of <see cref="OperationKind"/> to use when copying data from one model to another
+        /// The selected copy <see cref="OperationKind"/>'s descriptive text
         /// </summary>
-        CopyElementDefinitionOperationKind
+        string SelectedOperationKindDescription { get; }
+
+        /// <summary>
+        /// Initializes the current view model
+        /// </summary>
+        void InitializeViewModel();
+
+        /// <summary>
+        /// Saves the Settings
+        /// </summary>
+        /// <returns>An awaitable <see cref="Task"/></returns>
+        Task SaveSettings();
     }
 }

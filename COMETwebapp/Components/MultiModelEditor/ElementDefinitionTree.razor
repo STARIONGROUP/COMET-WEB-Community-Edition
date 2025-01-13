@@ -50,13 +50,13 @@ else
         </tr>
     </table>
 </p>
-<div class="@(this.dragOverNode == this.TreeView && this.AllowNodeDrop && this.AllowDrop ? "treeview-drag-over" : "")"
+<div class="drop-area-color @(this.dragOverNode == this.TreeView && this.AllowNodeDrop && this.AllowDrop ? "treeview-drag-over" : "")"
      dropzone="@(this.AllowDrop ? "move" : "")"
      ondragover="@(this.AllowDrop ? "event.preventDefault();" : "")"
      @ondragenter="@(() => this.DragEnterAsync(this.TreeView))"
      @ondragleave="@(() => this.DragLeaveAsync(this.TreeView))"
      @ondrop="@(() => this.DropAsync(null))"
-     style="padding:2px;width:100%;border:dotted 1px;border-radius: 5px;height:25px;color:cadetblue;@(this.AllowDrop ? "" : "visibility:hidden;")">
+     style="padding:2px;border:dotted 1px;border-radius: 5px;height:25px;@(this.AllowDrop ? "" : "visibility:hidden;")">
     Drop here to create new element...
 </div>
 <div class="@this.ScrollableAreaCssClass" style="overflow-y:auto;">

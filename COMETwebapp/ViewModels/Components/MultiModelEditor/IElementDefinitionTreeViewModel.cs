@@ -31,6 +31,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
     using COMET.Web.Common.Model;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.ViewModels.Components.MultiModelEditor.CopySettings;
     using COMETwebapp.ViewModels.Components.MultiModelEditor.Rows;
 
     /// <summary>

@@ -73,6 +73,7 @@ namespace COMETwebapp.Components.MultiModelEditor
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnCreationMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnAddingParameterMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnCopySettingsMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>

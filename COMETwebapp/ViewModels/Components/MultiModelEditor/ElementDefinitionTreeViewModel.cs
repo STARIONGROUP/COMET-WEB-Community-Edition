@@ -38,9 +38,13 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
 
     using COMETwebapp.Components.MultiModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor;
+    using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
+    using COMETwebapp.ViewModels.Components.MultiModelEditor.CopySettings;
     using COMETwebapp.ViewModels.Components.MultiModelEditor.Rows;
 
     using DynamicData;
+
+    using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
@@ -74,7 +78,8 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
-        public ElementDefinitionTreeViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
+        /// <param name="copySettingsViewModel">The Injected <see cref="ICopySettingsViewModel"/></param>
+        public ElementDefinitionTreeViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ICopySettingsViewModel copySettingsViewModel) : base(sessionService, messageBus)
         {
             this.sessionService = sessionService;
             this.RegisterViewModelWithReusableRows(this);

@@ -30,7 +30,10 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
 
     using CDP4Dal;
     using CDP4Dal.Events;
+    using CDP4Dal.Operations;
 
+    using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.Applications;
@@ -39,6 +42,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
     using COMETwebapp.Components.MultiModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
+    using COMETwebapp.ViewModels.Components.MultiModelEditor.CopySettings;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
@@ -57,6 +61,11 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// The <see cref="ICacheService" />
+        /// </summary>
+        private readonly ICacheService cacheService;
+
+        /// <summary>
         /// Backing field for <see cref="IsOnAddingParameterMode" />
         /// </summary>
         private bool isOnAddingParameterMode;
@@ -67,13 +76,20 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         private bool isOnCreationMode;
 
         /// <summary>
+        /// Backing field for <see cref="isOnCopySettingsMode" />
+        /// </summary>
+        private bool isOnCopySettingsMode;
+
+        /// <summary>
         /// Creates a new instance of <see cref="ElementDefinitionTableViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
-        public MultiModelEditorViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
+        /// <param name="cacheService">The <see cref="ICacheService"/></param>
+        public MultiModelEditorViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ICacheService cacheService) : base(sessionService, messageBus)
         {
             this.sessionService = sessionService;
+            this.cacheService = cacheService;
             var eventCallbackFactory = new EventCallbackFactory();
 
             this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel(sessionService, messageBus)
@@ -84,6 +100,11 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
             this.AddParameterViewModel = new AddParameterViewModel(sessionService, messageBus)
             {
                 OnParameterAdded = eventCallbackFactory.Create(this, () => this.IsOnAddingParameterMode = false)
+            };
+
+            this.CopySettingsViewModel = new CopySettingsViewModel(cacheService)
+            {
+                OnSaveSettings = eventCallbackFactory.Create(this, () => this.IsOnCopySettingsMode = false)
             };
 
             this.InitializeSubscriptions([typeof(ElementBase)]);
@@ -112,6 +133,11 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         public IAddParameterViewModel AddParameterViewModel { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="ICopySettingsViewModel" />
+        /// </summary>
+        public ICopySettingsViewModel CopySettingsViewModel { get; set; }
+
+        /// <summary>
         /// Gets target <see cref="Iteration" /> 
         /// </summary>
         public Iteration TargetIteration { get; set; }
@@ -120,6 +146,24 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// Gets source <see cref="Iteration" />
         /// </summary>
         public Iteration SourceIteration { get; set; }
+
+        /// <summary>
+        /// Value indicating the user is currently setting the Copy settings that apply when a node is dropped 
+        /// </summary>
+        public bool IsOnCopySettingsMode
+        {
+            get => this.isOnCopySettingsMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnCopySettingsMode, value);
+        }
+
+        /// <summary>
+        /// Opens the <see cref="CopySettings" /> popup
+        /// </summary>
+        public void OpenCopySettingsPopup()
+        {
+            this.CopySettingsViewModel.InitializeViewModel();
+            this.IsOnCopySettingsMode = true;
+        }
 
         /// <summary>
         /// Value indicating the user is currently creating a new <see cref="ElementDefinition" />
@@ -164,6 +208,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// </summary>
         public void OpenCreateElementDefinitionCreationPopup()
         {
+            this.ElementDefinitionCreationViewModel.InitializeViewModel(this.SelectedElementDefinition.GetContainerOfType<Iteration>());
             this.ElementDefinitionCreationViewModel.ElementDefinition = new ElementDefinition();
             this.ElementDefinitionCreationViewModel.SelectedCategories = new List<Category>();
             this.IsOnCreationMode = true;
@@ -210,7 +255,10 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
                 else
                 {
                     var copyCreator = new CopyCreator(this.sessionService.Session);
-                    await copyCreator.CopyAsync((ElementDefinition)elementBase, elementDefinitionTree.ViewModel.Iteration);
+
+                    this.cacheService.TryGetOrAddBrowserSessionSetting(BrowserSessionSettingKey.CopyElementDefinitionOperationKind, OperationKind.Copy, out var selectedOperationKind);
+
+                    await copyCreator.CopyAsync((ElementDefinition)elementBase, elementDefinitionTree.ViewModel.Iteration, selectedOperationKind is OperationKind operationKind ? operationKind : OperationKind.Copy);
                 }
             }
             finally
@@ -270,9 +318,10 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
                 this.ElementDefinitionCreationViewModel.ElementDefinition.Category = this.ElementDefinitionCreationViewModel.SelectedCategories.ToList();
             }
 
-            this.ElementDefinitionCreationViewModel.ElementDefinition.Container = this.CurrentThing;
+            var iteration = this.SelectedElementDefinition.GetContainerOfType<Iteration>();
+            this.ElementDefinitionCreationViewModel.ElementDefinition.Container = iteration;
             thingsToCreate.Add(this.ElementDefinitionCreationViewModel.ElementDefinition);
-            var clonedIteration = this.CurrentThing.Clone(false);
+            var clonedIteration = iteration.Clone(false);
 
             if (this.ElementDefinitionCreationViewModel.IsTopElement)
             {

@@ -32,6 +32,7 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
     using COMETwebapp.Components.MultiModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
+    using COMETwebapp.ViewModels.Components.MultiModelEditor.CopySettings;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
     /// <summary>
@@ -75,9 +76,19 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         IAddParameterViewModel AddParameterViewModel { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="ICopySettingsViewModel" />
+        /// </summary>
+        ICopySettingsViewModel CopySettingsViewModel { get; set; }
+
+        /// <summary>
         /// Value indicating the user is currently adding a new <see cref="Parameter" /> to a <see cref="ElementDefinition" />
         /// </summary>
         bool IsOnAddingParameterMode { get; set; }
+
+        /// <summary>
+        /// Value indicating the user is currently setting the Copy settings that apply when a node is dropped 
+        /// </summary>
+        bool IsOnCopySettingsMode { get; set; }
 
         /// <summary>
         /// Opens the <see cref="ElementDefinitionCreation" /> popup
@@ -94,6 +105,11 @@ namespace COMETwebapp.ViewModels.Components.MultiModelEditor
         /// Opens the <see cref="AddParameter" /> popup
         /// </summary>
         void OpenAddParameterPopup();
+
+        /// <summary>
+        /// Opens the <see cref="CopySettings" /> popup
+        /// </summary>
+        void OpenCopySettingsPopup();
 
         /// <summary>
         /// Add a new <see cref="ElementDefinition"/> based on an existing <see cref="ElementBase"/>

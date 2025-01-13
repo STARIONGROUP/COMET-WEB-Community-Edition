@@ -618,9 +618,9 @@
 }
 
 .treeview-scrollarea {
-    height: calc(90vh - 185px);
+    height: calc(90vh - 220px);
 }
 
 .cardview-detailspanel-scrollarea {
-    height: calc(90vh - 145px);
+    height: calc(90vh - 165px);
 }

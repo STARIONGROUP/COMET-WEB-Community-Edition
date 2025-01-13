@@ -61,7 +61,8 @@ namespace COMET.Web.Common.Utilities
         /// </summary>
         /// <param name="elementDefinition">The <see cref="ElementDefinition"/> to copy</param>
         /// <param name="targetIteration">The target container</param>
-        public async Task CopyAsync(ElementDefinition elementDefinition, Iteration targetIteration)
+        /// <param name="operationKind">The <see cref="OperationKind"/> that defines the kind of copy operation.</param>
+        public async Task CopyAsync(ElementDefinition elementDefinition, Iteration targetIteration, OperationKind operationKind = OperationKind.CopyDefaultValuesChangeOwner)
         {
             // copy the payload to this iteration
             var copyOperationHelper = new CopyPermissionHelper(this.session, false);
@@ -69,7 +70,7 @@ namespace COMET.Web.Common.Utilities
 
             if (copyPermissionResult.ErrorList.Any() || copyPermissionResult.CopyableThings.Any())
             {
-                await this.WriteCopyOperationAsync(elementDefinition, targetIteration, OperationKind.CopyKeepValuesChangeOwner);
+                await this.WriteCopyOperationAsync(elementDefinition, targetIteration, operationKind);
             }
         }
 

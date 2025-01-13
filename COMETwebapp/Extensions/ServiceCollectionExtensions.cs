@@ -62,6 +62,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.ViewModels.Pages;
     using COMETwebapp.ViewModels.Components.SiteDirectory;
+    using COMETwebapp.ViewModels.Components.MultiModelEditor.CopySettings;
 
     /// <summary>
     /// Extension class for the <see cref="IServiceCollection" />
@@ -107,6 +108,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IElementDefinitionTableViewModel, ElementDefinitionTableViewModel>();
             serviceCollection.AddTransient<IElementDefinitionTreeViewModel, ElementDefinitionTreeViewModel>();
             serviceCollection.AddTransient<IMultiModelEditorViewModel, MultiModelEditorViewModel>();
+            serviceCollection.AddTransient<ICopySettingsViewModel, CopySettingsViewModel>();
             serviceCollection.AddTransient<IBookEditorBodyViewModel, BookEditorBodyViewModel>();
             serviceCollection.AddTransient<IMeasurementUnitsTableViewModel, MeasurementUnitsTableViewModel>();
             serviceCollection.AddTransient<IMeasurementScalesTableViewModel, MeasurementScalesTableViewModel>();
