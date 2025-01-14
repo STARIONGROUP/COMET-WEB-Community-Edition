@@ -30,7 +30,6 @@ namespace COMETwebapp.Model
     using COMETwebapp.Components.EngineeringModel;
     using COMETwebapp.Components.ModelDashboard;
     using COMETwebapp.Components.ModelEditor;
-    using COMETwebapp.Components.MultiModelEditor;
     using COMETwebapp.Components.ParameterEditor;
     using COMETwebapp.Components.ReferenceData;
     using COMETwebapp.Components.SiteDirectory;
@@ -101,17 +100,7 @@ namespace COMETwebapp.Model
                     IconType = typeof(FeatherBox),
                     Description = "Populate model",
                     Url = WebAppConstantValues.ModelEditorPage,
-                    ComponentType = typeof(ElementDefinitionTable)
-                },
-
-                new TabbedApplication
-                {
-                    Name = "Multi Model Editor",
-                    Color = "#76fd98",
-                    IconType = typeof(FeatherBox),
-                    Description = "Populate multiple models",
-                    Url = WebAppConstantValues.MultiModelEditorPage,
-                    ComponentType = typeof(MultiModelEditor)
+                    ComponentType = typeof(ModelEditor)
                 },
 
                 new TabbedApplication
