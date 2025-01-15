@@ -41,7 +41,7 @@ namespace COMET.Web.Common.Components.CardView
         /// Gets or sets the item template for the list.
         /// </summary>
         [Parameter]
-        public RenderFragment<T>? ItemTemplate { get; set; }
+        public RenderFragment<T> ItemTemplate { get; set; }
 
         /// <summary>
         /// Gets or sets the list of items of type T to use
@@ -60,6 +60,12 @@ namespace COMET.Web.Common.Components.CardView
         /// </summary>
         [Parameter]
         public float MinWidth { get; set; } = 250;
+
+        /// <summary>
+        /// CssClass of the ScrollableArea
+        /// </summary>
+        [Parameter]
+        public string ScrollableAreaCssClass { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets a collection of propertynames of type T to perform search on
@@ -90,12 +96,12 @@ namespace COMET.Web.Common.Components.CardView
         /// <summary>
         /// A reference to the <see cref="Virtualize{T}"/> component for loading items
         /// </summary>
-        private Virtualize<T>? virtualize; // Reference to the Virtualize component
+        private Virtualize<T> virtualize; // Reference to the Virtualize component
 
         /// <summary>
         /// The FastMember <see cref="FastMember.TypeAccessor"/> to use to perform actions on instances of type T
         /// </summary>
-        private TypeAccessor typeAccessor = TypeAccessor.Create(typeof(T));
+        private readonly TypeAccessor typeAccessor = TypeAccessor.Create(typeof(T));
 
         /// <summary>
         /// The selected Card in the CardView
@@ -136,7 +142,7 @@ namespace COMET.Web.Common.Components.CardView
         /// </summary>
         /// <param name="request">The request to perform filtering of the items list</param>
         /// <returns>an waitable <see cref="ValueTask"/></returns>
-        private ValueTask<ItemsProviderResult<T>> LoadItems(ItemsProviderRequest request)
+        private ValueTask<ItemsProviderResult<T>> LoadItemsAsync(ItemsProviderRequest request)
         {
             // Filter items based on the SearchTerm
             var filteredItems = !this.AllowSearch || string.IsNullOrWhiteSpace(this.SearchTerm)

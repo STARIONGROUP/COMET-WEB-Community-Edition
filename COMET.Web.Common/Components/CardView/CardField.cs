@@ -95,7 +95,7 @@ namespace COMET.Web.Common.Components.CardView
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            this.CardView.InitializeCardField(this);
+            this.CardView?.InitializeCardField(this);
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace COMET.Web.Common.Components.CardView
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
             base.BuildRenderTree(builder);
-            var value = typeAccessor[this.Context, this.FieldName].ToString();
+            var value = string.IsNullOrWhiteSpace(this.FieldName) ? this.Context.ToString(): typeAccessor[this.Context, this.FieldName].ToString();
 
             if (this.AllowSearch && !string.IsNullOrWhiteSpace(value) && !string.IsNullOrWhiteSpace(this.SearchTerm))
             {

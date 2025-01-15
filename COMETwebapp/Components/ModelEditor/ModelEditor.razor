@@ -1,0 +1,131 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023-2024 Starion Group S.A.
+//
+//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
+//
+//    This file is part of CDP4-COMET WEB Community Edition
+//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@using COMETwebapp.ViewModels.Components.ModelEditor.CopySettings
+@using COMETwebapp.ViewModels.Components.ModelEditor.Rows
+@inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ModelEditor.IModelEditorViewModel>;
+
+<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <div style="padding-bottom:5px;">
+        @if (!this.ViewModel.IsSourceModelSameAsTargetModel)
+        {
+            <span title="Select copy mode settings for copying ElementDefinitions from one model to the other">
+                <DxButton Click="() => { this.ViewModel.OpenCopySettingsPopup(); }" CssClass="drop-area-background-color" title="Open drop settings" IconCssClass="oi oi-transfer"></DxButton>
+            </span>
+            <span title="Selected copy mode for copying ElementDefinitions to another Iteration">
+                Copy mode to different Iteration: @this.ViewModel.CopySettingsViewModel.SelectedOperationKindDescription, 
+            </span>
+        }
+        <span title="Copy mode for copying ElementDefinitions inside the same Iteration">
+            Copy mode to same Iteration: @(new CopyOperationKinds().CopyToSameModelDefaultText)
+        </span>
+    </div>
+    <ValidationMessageComponent ValidationMessage="@(this.ErrorMessage)" />
+    <div class="selected-data-item-page" style="flex-wrap:nowrap!important;">
+        <div class="selected-data-item-table d-flex" style="flex: 1 1 50%!important;gap: 10px;min-width:600px;">
+            <div style="width:50%; height:100%; border: dashed 1px;padding:15px;border-radius: 10px;max-width: fit-content;">
+                <ElementDefinitionTree 
+                    @ref="this.SourceTree"
+                    ScrollableAreaCssClass="treeview-scrollarea"
+                    InitialIteration="@this.ViewModel.CurrentThing"
+                    SelectionChanged="model => 
+                    { 
+                        if (model != null) 
+                        { 
+                            this.TargetTree.ClearSelection(); 
+                        } 
+                        this.OnElementSelected(model);
+                    }"
+                    AllowDrag="true"
+                    AllowDrop="true"
+                    OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowedAsync(x))"
+                    OnDragEnter="@(async x => await this.OnDragEnterAsync(x))"
+                    OnDragLeave="@(async x => await this.OnDragLeaveAsync())"
+                    OnDragStart="@(async x => await this.OnDragStartAsync(x))"
+                    OnDragEnd="@(async x => await this.OnDragEndAsync())"
+                    OnDrop="@(async x => await this.OnDropAsync(x))"
+                    AllowNodeDrag="(_, model) => model is ElementDefinitionTreeRowViewModel"
+                    IsModelSelectionEnabled="true">
+                </ElementDefinitionTree>
+            </div>
+            <div style="width:50%; height:100%; border: dashed 1px;padding:15px;border-radius: 10px;max-width: fit-content;">
+                <ElementDefinitionTree 
+                    @ref="this.TargetTree"
+                    ScrollableAreaCssClass="treeview-scrollarea"
+                    InitialIteration="@this.ViewModel.CurrentThing"
+                    SelectionChanged="model => 
+                    { 
+                        if (model != null) 
+                        { 
+                            this.SourceTree.ClearSelection(); 
+                        } 
+                        this.OnElementSelected(model);
+                    }"
+                    AllowDrag="true"
+                    AllowDrop="true"
+                    OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowedAsync(x))"
+                    OnDragEnter="@(async x => await this.OnDragEnterAsync(x))"
+                    OnDragLeave="@(async x => await this.OnDragLeaveAsync())"
+                    OnDragStart="@(async x => await this.OnDragStartAsync(x))"
+                    OnDragEnd="@(async x => await this.OnDragEndAsync())"
+                    OnDrop="@(async x => await this.OnDropAsync(x))"
+                    AllowNodeDrag="(_, model) => model is ElementDefinitionTreeRowViewModel"
+                    IsModelSelectionEnabled="false">
+                </ElementDefinitionTree>
+            </div>
+            <DataItemDetailsComponent IsSelected="@(this.ViewModel.SelectedElementDefinition is not null)"
+                                      NotSelectedText="Select an item to view or edit"
+                                      Width="100%"
+                                      CssClass="model-editor-details">
+                <div class="mb-2 row">
+                    <div class="float-end">
+                        @if (this.ViewModel.SelectedElementDefinition is not null)
+                        {
+                            <DxButton Id="addParameter" Text="Add Parameter" IconCssClass="oi oi-plus" Click="@(this.ViewModel.OpenAddParameterPopup)"/>
+                        }
+
+                        <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
+                    </div>
+                </div>
+                <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"/>
+            </DataItemDetailsComponent>
+        </div>
+    </div>
+    <DxPopup CloseOnOutsideClick="false" HeaderText="Create Element Definition" @bind-Visible="@this.ViewModel.IsOnCreationMode" Width="40vw">
+        <BodyContentTemplate>
+            <ElementDefinitionCreation ViewModel="@this.ViewModel.ElementDefinitionCreationViewModel"/>
+        </BodyContentTemplate>
+    </DxPopup>
+    
+    <DxPopup CloseOnOutsideClick="false" HeaderText="Add Parameter" @bind-Visible="@this.ViewModel.IsOnAddingParameterMode" Width="40vw">
+        <BodyContentTemplate>
+            <AddParameter ViewModel="@this.ViewModel.AddParameterViewModel"/>
+        </BodyContentTemplate>
+    </DxPopup>
+    
+    <DxPopup CloseOnOutsideClick="false" HeaderText="Set Copy Settings" @bind-Visible="@this.ViewModel.IsOnCopySettingsMode" Width="40vw">
+        <BodyContentTemplate>
+            <CopySettings ViewModel="this.ViewModel.CopySettingsViewModel" OnAfterSaveSettings="this.StateHasChanged"/>
+        </BodyContentTemplate>
+    </DxPopup>
+
+</LoadingComponent>

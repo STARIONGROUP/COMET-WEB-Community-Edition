@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="BrowserSessionSettings.cs" company="Starion Group S.A.">
+//  <copyright file="ElementUsageTreeRowViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,36 +22,37 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Enumerations
+namespace COMETwebapp.ViewModels.Components.ModelEditor.Rows
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
-
-    using CDP4Dal.Operations;
 
     /// <summary>
-    /// En enumeration of possible keys to be used to store and retrieve cached BrowserSessionSettings
+    /// Row View Model for  <see cref="ElementUsage" />
     /// </summary>
-    public enum BrowserSessionSettingKey
+    public class ElementUsageTreeRowViewModel : ElementBaseTreeRowViewModel
     {
         /// <summary>
-        /// Key to handle the last selected <see cref="EngineeringModel"/>
+        /// Initializes a new instance of the <see cref="ElementUsageTreeRowViewModel" /> class.
+        /// <param name="elementUsage">the <see cref="ElementUsage" /></param>
         /// </summary>
-        LastUsedEngineeringModel,
+        public ElementUsageTreeRowViewModel(ElementUsage elementUsage) : base(elementUsage)
+        {
+        }
 
         /// <summary>
-        /// Key to handle the last selected <see cref="IterationSetup"/>
+        /// Initializes a new instance of the <see cref="ElementUsageTreeRowViewModel" /> class.
         /// </summary>
-        LastUsedIterationData,
+        public ElementUsageTreeRowViewModel()
+        {
+        }
 
         /// <summary>
-        /// Key to handle the last selected <see cref="DomainOfExpertise"/>
+        /// Update this row view model properties
         /// </summary>
-        LastUsedDomainOfExpertise,
-        
-        /// <summary>
-        /// Key to handle the type of <see cref="OperationKind"/> to use when copying data from one model to another
-        /// </summary>
-        CopyElementDefinitionOperationKind
+        /// <param name="elementUsageTreeRow">The <see cref="ElementUsageTreeRowViewModel" /> to use for updating</param>
+        public void UpdateProperties(ElementUsageTreeRowViewModel elementUsageTreeRow)
+        {
+            base.UpdateProperties(elementUsageTreeRow);
+        }
     }
 }

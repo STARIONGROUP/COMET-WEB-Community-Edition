@@ -22,44 +22,44 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ModelEditor
+namespace COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreationViewModel
 {
-	using CDP4Common.EngineeringModelData;
-	using CDP4Common.SiteDirectoryData;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using Microsoft.AspNetCore.Components;
 
-	/// <summary>
-	///     Interface definition for <see cref="ElementDefinitionCreationViewModel" />
-	/// </summary>
-	public interface IElementDefinitionCreationViewModel
-	{
-		/// <summary>
-		/// A collection of available <see cref="Category" />s
-		/// </summary>
-		IEnumerable<Category> AvailableCategories { get; set; }
+    /// <summary>
+    ///     Interface definition for <see cref="ElementDefinitionCreationViewModel" />
+    /// </summary>
+    public interface IElementDefinitionCreationViewModel
+    {
+        /// <summary>
+        /// A collection of available <see cref="Category" />s
+        /// </summary>
+        IEnumerable<Category> AvailableCategories { get; set; }
 
-		/// <summary>
-		///     An <see cref="EventCallback" /> to invoke on form submit
-		/// </summary>
-		EventCallback OnValidSubmit { get; set; }
+        /// <summary>
+        ///     An <see cref="EventCallback" /> to invoke on form submit
+        /// </summary>
+        EventCallback OnValidSubmit { get; set; }
 
-		/// <summary>
-		/// Value indicating if the <see cref="ElementDefinition"/> is top element
-		/// </summary>
-		bool IsTopElement { get; set; }
+        /// <summary>
+        /// Value indicating if the <see cref="ElementDefinition"/> is top element
+        /// </summary>
+        bool IsTopElement { get; set; }
 
-		/// <summary>
-		/// The <see cref="ElementDefinition" /> to create or edit
-		/// </summary>
-		ElementDefinition ElementDefinition { get; set; }
+        /// <summary>
+        /// The <see cref="ElementDefinition" /> to create or edit
+        /// </summary>
+        ElementDefinition ElementDefinition { get; set; }
 
-		/// <summary>
-		/// Selected <see cref="Category" />
-		/// </summary>
-		IEnumerable<Category> SelectedCategories { get; set; }
+        /// <summary>
+        /// Selected <see cref="Category" />
+        /// </summary>
+        IEnumerable<Category> SelectedCategories { get; set; }
 
         /// <summary>
         /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />

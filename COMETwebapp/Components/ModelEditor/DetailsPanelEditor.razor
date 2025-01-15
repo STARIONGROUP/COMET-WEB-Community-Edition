@@ -19,16 +19,11 @@
 //     You should have received a copy of the GNU Affero General Public License
 //     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using CDP4Common.SiteDirectoryData;
-@using COMET.Web.Common.Extensions;
-@using COMETwebapp.Model
-@using CDP4Common.EngineeringModelData
-@using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 @inherits DisposableComponent
 
 @if (this.ViewModel.SelectedSystemNode != null)
 {
-    <CardView Items="this.ViewModel.Rows" ItemSize="150" MinWidth="280">
+    <CardView ScrollableAreaCssClass="cardview-detailspanel-scrollarea" Items="this.ViewModel.Rows" ItemSize="150" MinWidth="280">
         <ItemTemplate>
             <div class="row">
                 <div class="col-9">

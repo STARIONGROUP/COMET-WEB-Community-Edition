@@ -222,6 +222,11 @@ namespace COMET.Web.Common.ViewModels.Components
                 return Result.Fail(["The selected iteration and the domain of expertise should not be null"]);
             }
 
+            if (this.sessionService.OpenIterations.Items.Any(x => x.IterationSetup.Iid == this.SelectedIterationSetup.IterationSetupId))
+            {
+                return Result.Fail(["The selected iteration is already openened"]);
+            }
+
             this.IsOpeningSession = true;
 
             var result = await this.sessionService.ReadIteration(this.SelectedEngineeringModel.IterationSetup
@@ -280,7 +285,7 @@ namespace COMET.Web.Common.ViewModels.Components
                     return;
                 }
 
-                var currentModelIteration = this.SelectedEngineeringModel.IterationSetup.FirstOrDefault(x => x == this.sessionService.OpenIterations.Items.FirstOrDefault(i => i.Iid == x.IterationIid)?.IterationSetup);
+                var currentModelIteration = this.SelectedEngineeringModel.IterationSetup.Find(x => x == this.sessionService.OpenIterations.Items.FirstOrDefault(i => i.Iid == x.IterationIid)?.IterationSetup);
                 this.SelectedIterationSetup = new IterationData(currentModelIteration);
             }
         }

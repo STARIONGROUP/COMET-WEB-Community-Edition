@@ -22,7 +22,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.ModelEditor
+namespace COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreationViewModel
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -56,11 +56,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         {
             this.sessionService = sessionService;
 
-            this.DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
+            DomainOfExpertiseSelectorViewModel = new DomainOfExpertiseSelectorViewModel(sessionService, messageBus)
             {
                 OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner =>
                 {
-                    this.ElementDefinition.Owner = selectedOwner;
+                    ElementDefinition.Owner = selectedOwner;
                 })
             };
         }
@@ -101,8 +101,10 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <param name="iteration">The <see cref="Iteration" /></param>
         public void InitializeViewModel(Iteration iteration)
         {
-            this.DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
-            this.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise = ((EngineeringModel)iteration.Container).EngineeringModelSetup.ActiveDomain.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+            ArgumentNullException.ThrowIfNull(iteration);
+
+            DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
+            DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise = ((EngineeringModel)iteration.Container).EngineeringModelSetup.ActiveDomain.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
         }
 
         /// <summary>
@@ -113,14 +115,14 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// </summary>
         public void OnInitialized()
         {
-            this.AvailableCategories = [];
+            AvailableCategories = [];
 
-            foreach (var referenceDataLibrary in this.sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
+            foreach (var referenceDataLibrary in sessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries())
             {
-                this.AvailableCategories = this.AvailableCategories.Concat(referenceDataLibrary.DefinedCategory).Where(category => category.PermissibleClass.Contains(ClassKind.ElementDefinition)).ToList();
+                AvailableCategories = AvailableCategories.Concat(referenceDataLibrary.DefinedCategory).Where(category => category.PermissibleClass.Contains(ClassKind.ElementDefinition)).ToList();
             }
 
-            this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(true);
+            DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(true);
         }
     }
 }

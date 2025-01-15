@@ -30,9 +30,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
-
-    using COMETwebapp.ViewModels.Components.ModelEditor;
-
+    using COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreationViewModel;
     using DynamicData;
 
     using Moq;

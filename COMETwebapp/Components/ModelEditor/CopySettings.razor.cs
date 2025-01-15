@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="BrowserSessionSettings.cs" company="Starion Group S.A.">
+//  <copyright file="CopySettings.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,36 +22,40 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Enumerations
+namespace COMETwebapp.Components.ModelEditor
 {
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
+    using COMET.Web.Common.Components;
 
-    using CDP4Dal.Operations;
+    using COMETwebapp.ViewModels.Components.ModelEditor.CopySettings;
+
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// En enumeration of possible keys to be used to store and retrieve cached BrowserSessionSettings
+    /// Partial class for the component <see cref="CopySettings" />
     /// </summary>
-    public enum BrowserSessionSettingKey
+    public partial class CopySettings : DisposableComponent
     {
         /// <summary>
-        /// Key to handle the last selected <see cref="EngineeringModel"/>
+        /// The <see cref="ICopySettingsViewModel" /> for the component
         /// </summary>
-        LastUsedEngineeringModel,
+        [Parameter]
+        public ICopySettingsViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Key to handle the last selected <see cref="IterationSetup"/>
+        /// Action to perform after settings are saved.
         /// </summary>
-        LastUsedIterationData,
+        [Parameter]
+        public EventCallback OnAfterSaveSettings { get; set; }
 
         /// <summary>
-        /// Key to handle the last selected <see cref="DomainOfExpertise"/>
+        /// Save the settings
         /// </summary>
-        LastUsedDomainOfExpertise,
-        
-        /// <summary>
-        /// Key to handle the type of <see cref="OperationKind"/> to use when copying data from one model to another
-        /// </summary>
-        CopyElementDefinitionOperationKind
+        /// <returns>an awaitable <see cref="Task"/></returns>
+        private async Task SaveSettings()
+        {
+            await this.ViewModel.SaveSettings();
+            await this.InvokeAsync(this.StateHasChanged);
+            await this.OnAfterSaveSettings.InvokeAsync();
+        }
     }
 }

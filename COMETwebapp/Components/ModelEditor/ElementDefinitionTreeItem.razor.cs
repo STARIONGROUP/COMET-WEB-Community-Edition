@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="BrowserSessionSettings.cs" company="Starion Group S.A.">
+//  <copyright file="ElementDefinitionTreeItem.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,36 +22,33 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Enumerations
+namespace COMETwebapp.Components.ModelEditor
 {
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
+    using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
 
-    using CDP4Dal.Operations;
+    using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// En enumeration of possible keys to be used to store and retrieve cached BrowserSessionSettings
+    /// Support class for the <see cref="ElementDefinitionTreeItem" /> component
     /// </summary>
-    public enum BrowserSessionSettingKey
+    public partial class ElementDefinitionTreeItem
     {
         /// <summary>
-        /// Key to handle the last selected <see cref="EngineeringModel"/>
+        /// The css class string for the item
         /// </summary>
-        LastUsedEngineeringModel,
+        [Parameter]
+        public string CssClass { get; set; } = string.Empty;
 
         /// <summary>
-        /// Key to handle the last selected <see cref="IterationSetup"/>
+        /// The <see cref="ElementBaseTreeRowViewModel"/> to show in the item
         /// </summary>
-        LastUsedIterationData,
+        [Parameter]
+        public ElementBaseTreeRowViewModel ElementBaseTreeRowViewModel { get; set; }
 
         /// <summary>
-        /// Key to handle the last selected <see cref="DomainOfExpertise"/>
+        /// Handle unmatched values, like "draggable" html attribute, so no error is thrown
         /// </summary>
-        LastUsedDomainOfExpertise,
-        
-        /// <summary>
-        /// Key to handle the type of <see cref="OperationKind"/> to use when copying data from one model to another
-        /// </summary>
-        CopyElementDefinitionOperationKind
+        [Parameter(CaptureUnmatchedValues = true)]
+        public Dictionary<string, object> AdditionalAttributes { get; set; }
     }
 }

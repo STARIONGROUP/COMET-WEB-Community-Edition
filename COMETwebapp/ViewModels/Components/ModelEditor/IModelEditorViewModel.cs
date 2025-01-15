@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IElementDefinitionTableViewModel.cs" company="Starion Group S.A.">
+//  <copyright file="IModelEditorViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -24,31 +24,30 @@
 
 namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
-    using System.Collections.ObjectModel;
-
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
-    using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
+    using COMETwebapp.ViewModels.Components.ModelEditor.CopySettings;
+    using COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreationViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
     /// <summary>
-    /// Interface for the <see cref="ElementDefinitionTableViewModel" />
+    /// Interface for the <see cref="ModelEditorViewModel" />
     /// </summary>
-    public interface IElementDefinitionTableViewModel : ISingleIterationApplicationBaseViewModel, IHaveReusableRows
+    public interface IModelEditorViewModel : ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
-        /// Gets the collection of the <see cref="ElementDefinitionRowViewModel" />
+        /// Gets the target <see cref="Iteration"/> />
         /// </summary>
-        ObservableCollection<ElementDefinitionRowViewModel> RowsTarget { get; }
+        Iteration TargetIteration { get; set; }
 
         /// <summary>
-        /// Gets the collection of the <see cref="ElementDefinitionRowViewModel" />
+        /// Gets the source <see cref="Iteration" />
         /// </summary>
-        ObservableCollection<ElementDefinitionRowViewModel> RowsSource { get; }
+        Iteration SourceIteration { get; set; }
 
         /// <summary>
         /// Value indicating the user is currently creating a new <see cref="ElementDefinition" />
@@ -76,9 +75,24 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         IAddParameterViewModel AddParameterViewModel { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="ICopySettingsViewModel" />
+        /// </summary>
+        ICopySettingsViewModel CopySettingsViewModel { get; set; }
+
+        /// <summary>
         /// Value indicating the user is currently adding a new <see cref="Parameter" /> to a <see cref="ElementDefinition" />
         /// </summary>
         bool IsOnAddingParameterMode { get; set; }
+
+        /// <summary>
+        /// Value indicating the user is currently setting the Copy settings that apply when a node is dropped 
+        /// </summary>
+        bool IsOnCopySettingsMode { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating that source model and target model are based on the same <see cref="Iteration"/>
+        /// </summary>
+        bool IsSourceModelSameAsTargetModel { get; }
 
         /// <summary>
         /// Opens the <see cref="ElementDefinitionCreation" /> popup
@@ -95,5 +109,24 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// Opens the <see cref="AddParameter" /> popup
         /// </summary>
         void OpenAddParameterPopup();
+
+        /// <summary>
+        /// Opens the <see cref="COMETwebapp.Components.ModelEditor.CopySettings" /> popup
+        /// </summary>
+        void OpenCopySettingsPopup();
+
+        /// <summary>
+        /// Add a new <see cref="ElementDefinition"/> based on an existing <see cref="ElementBase"/>
+        /// </summary>
+        /// <param name="elementDefinitionTree">The <see cref="ElementDefinitionTree"/> to copy the node to</param>
+        /// <param name="elementBase">The <see cref="ElementBase"/> to copy</param>
+        Task CopyAndAddNewElementAsync(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase);
+
+        /// <summary>
+        /// Add a new <see cref="ElementUsage"/> based on an existing <see cref="ElementBase"/>
+        /// </summary>
+        /// <param name="fromElementBase">The <see cref="ElementBase"/> to be added as <see cref="ElementUsage"/></param>
+        /// <param name="toElementBase">The <see cref="ElementBase"/> where to add the new <see cref="ElementUsage"/> to</param>
+        Task AddNewElementUsageAsync(ElementBase fromElementBase, ElementBase toElementBase);
     }
 }

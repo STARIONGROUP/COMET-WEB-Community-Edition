@@ -23,14 +23,13 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace COMETwebapp.Components.ModelEditor
 {
-	using COMETwebapp.ViewModels.Components.ModelEditor;
+    using COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreationViewModel;
+    using Microsoft.AspNetCore.Components;
 
-	using Microsoft.AspNetCore.Components;
-
-	/// <summary>
-	///     Partial class for the component <see cref="ElementDefinitionCreation"/>
-	/// </summary>
-	public partial class ElementDefinitionCreation
+    /// <summary>
+    ///     Partial class for the component <see cref="ElementDefinitionCreation"/>
+    /// </summary>
+    public partial class ElementDefinitionCreation
 	{
 		/// <summary>
 		///     The <see cref="IElementDefinitionCreationViewModel" /> for the component

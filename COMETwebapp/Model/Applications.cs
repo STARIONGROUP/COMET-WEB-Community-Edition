@@ -100,7 +100,7 @@ namespace COMETwebapp.Model
                     IconType = typeof(FeatherBox),
                     Description = "Populate model",
                     Url = WebAppConstantValues.ModelEditorPage,
-                    ComponentType = typeof(ElementDefinitionTable)
+                    ComponentType = typeof(ModelEditor)
                 },
 
                 new TabbedApplication

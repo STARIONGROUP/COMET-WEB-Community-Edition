@@ -39,9 +39,9 @@
         </tr>
     </table>
 </p>
-<div class="container" style="height:calc(100% - 40px); overflow:auto;">
+<div class="container @this.ScrollableAreaCssClass" style="overflow:auto;max-width: inherit !important;">
     <div class="row">
-        <Virtualize ItemSize="@this.ItemSize" ItemsProvider="this.LoadItems" @ref="this.virtualize">
+        <Virtualize ItemSize="@this.ItemSize" ItemsProvider="this.LoadItemsAsync" @ref="this.virtualize">
             <ItemContent>
                 <div class="col" style="padding-left:0px;margin-left:0px;height:@(this.ItemSize)px;">
                     <div class="card @(this.GetSelectedClass(@context))"

@@ -57,6 +57,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler;
+    using COMETwebapp.ViewModels.Components.ModelEditor.CopySettings;
     using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
     using COMETwebapp.ViewModels.Components.ReferenceData;
     using COMETwebapp.ViewModels.Pages;
@@ -77,7 +78,6 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddScoped<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
             serviceCollection.AddScoped<ISceneSettings, SceneSettings>();
             serviceCollection.AddScoped<ISelectionMediator, SelectionMediator>();
-            serviceCollection.AddScoped<IDraggableElementService, DraggableElementService>();
             serviceCollection.AddScoped<IBabylonInterop, BabylonInterop>();
             serviceCollection.AddScoped<IDomDataService, DomDataService>();
             serviceCollection.AddScoped<IJsUtilitiesService, JsUtilitiesService>();
@@ -103,7 +103,9 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IUserManagementTableViewModel, UserManagementTableViewModel>();
             serviceCollection.AddTransient<ICategoriesTableViewModel, CategoriesTableViewModel>();
             serviceCollection.AddTransient<ISystemRepresentationBodyViewModel, SystemRepresentationBodyViewModel>();
-            serviceCollection.AddTransient<IElementDefinitionTableViewModel, ElementDefinitionTableViewModel>();
+            serviceCollection.AddTransient<IElementDefinitionTreeViewModel, ElementDefinitionTreeViewModel>();
+            serviceCollection.AddTransient<IModelEditorViewModel, ModelEditorViewModel>();
+            serviceCollection.AddTransient<ICopySettingsViewModel, CopySettingsViewModel>();
             serviceCollection.AddTransient<IBookEditorBodyViewModel, BookEditorBodyViewModel>();
             serviceCollection.AddTransient<IMeasurementUnitsTableViewModel, MeasurementUnitsTableViewModel>();
             serviceCollection.AddTransient<IMeasurementScalesTableViewModel, MeasurementScalesTableViewModel>();

@@ -316,4 +316,13 @@ sub {
 
 .search-mark {
     background-color: yellow !important;
+    color:black !important;
+}
+
+.drop-area-background-color {
+    background-color: cadetblue !important;
+}
+
+.drop-area-color {
+    color: cadetblue !important;
 }

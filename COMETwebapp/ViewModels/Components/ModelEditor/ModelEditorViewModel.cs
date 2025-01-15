@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ElementDefinitionTableViewModel.cs" company="Starion Group S.A.">
+//  <copyright file="ModelEditorViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -24,39 +24,45 @@
 
 namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
-    using System.Collections.ObjectModel;
-
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
     using CDP4Dal.Events;
+    using CDP4Dal.Operations;
 
+    using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
-    using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
+    using COMETwebapp.ViewModels.Components.ModelEditor.CopySettings;
+    using COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreationViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-
-    using DynamicData;
 
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
     /// <summary>
-    /// ViewModel for the <see cref="ElementDefinitionTable" />
+    /// ViewModel for the <see cref="ModelEditor" />
     /// </summary>
-    public class ElementDefinitionTableViewModel : SingleIterationApplicationBaseViewModel, IElementDefinitionTableViewModel
+    public class ModelEditorViewModel : SingleIterationApplicationBaseViewModel, IModelEditorViewModel
     {
         /// <summary>
         /// The <see cref="ISessionService" />
         /// </summary>
         private readonly ISessionService sessionService;
+
+        /// <summary>
+        /// The <see cref="ICacheService" />
+        /// </summary>
+        private readonly ICacheService cacheService;
 
         /// <summary>
         /// Backing field for <see cref="IsOnAddingParameterMode" />
@@ -69,18 +75,40 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         private bool isOnCreationMode;
 
         /// <summary>
-        /// Creates a new instance of <see cref="ElementDefinitionTableViewModel" />
+        /// Backing field for <see cref="isOnCopySettingsMode" />
+        /// </summary>
+        private bool isOnCopySettingsMode;
+
+        /// <summary>
+        /// Backing field for <see cref="IsSourceModelSameAsTargetModel" />
+        /// </summary>
+        private bool isSourceModelSameAsTargetModel;
+
+        /// <summary>
+        /// Backing field for <see cref="TargetIteration"/>
+        /// </summary>
+        private Iteration targetIteration;
+
+        /// <summary>
+        /// Backing field for <see cref="SourceIteration"/>
+        /// </summary>
+        private Iteration sourceIteration;
+
+        /// <summary>
+        /// Creates a new instance of <see cref="ModelEditorViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
-        public ElementDefinitionTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
+        /// <param name="cacheService">The <see cref="ICacheService"/></param>
+        public ModelEditorViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ICacheService cacheService) : base(sessionService, messageBus)
         {
             this.sessionService = sessionService;
+            this.cacheService = cacheService;
             var eventCallbackFactory = new EventCallbackFactory();
 
-            this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel(sessionService, messageBus)
+            this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel.ElementDefinitionCreationViewModel(sessionService, messageBus)
             {
-                OnValidSubmit = eventCallbackFactory.Create(this, this.AddingElementDefinition)
+                OnValidSubmit = eventCallbackFactory.Create(this, this.AddingElementDefinitionAsync)
             };
 
             this.AddParameterViewModel = new AddParameterViewModel.AddParameterViewModel(sessionService, messageBus)
@@ -88,14 +116,30 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 OnParameterAdded = eventCallbackFactory.Create(this, () => this.IsOnAddingParameterMode = false)
             };
 
+            this.CopySettingsViewModel = new CopySettingsViewModel(cacheService)
+            {
+                OnSaveSettings = eventCallbackFactory.Create(this, () => this.IsOnCopySettingsMode = false)
+            };
+
             this.InitializeSubscriptions([typeof(ElementBase)]);
-            this.RegisterViewModelWithReusableRows(this);
+
+            this.Disposables.Add(
+                this.WhenAnyValue(x => x.CurrentThing)
+                    .Subscribe(x => this.TargetIteration = this.CurrentThing)
+            );
+
+            this.Disposables.Add(
+                this.WhenAnyValue(
+                        x => x.SourceIteration, 
+                        x => x.TargetIteration)
+                    .Subscribe(x => this.IsSourceModelSameAsTargetModel = (x.Item1 != null && x.Item1 == x.Item2))
+            );
         }
 
         /// <summary>
-        /// All <see cref="ElementBase" /> of the iteration
+        /// Represents the selected ElementDefinitionRowViewModel
         /// </summary>
-        public List<ElementBase> Elements { get; set; } = [];
+        public ElementDefinition SelectedElementDefinition { get; set; }
 
         /// <summary>
         /// The <see cref="IElementDefinitionDetailsViewModel" />
@@ -113,14 +157,45 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         public IAddParameterViewModel AddParameterViewModel { get; set; }
 
         /// <summary>
-        /// Gets the collection of the <see cref="ElementDefinitionRowViewModel" /> for target model
+        /// Gets or sets the <see cref="ICopySettingsViewModel" />
         /// </summary>
-        public ObservableCollection<ElementDefinitionRowViewModel> RowsTarget { get; } = [];
+        public ICopySettingsViewModel CopySettingsViewModel { get; set; }
 
         /// <summary>
-        /// Gets the collection of the <see cref="ElementDefinitionRowViewModel" /> for source model
+        /// Gets or sets target <see cref="Iteration" /> 
         /// </summary>
-        public ObservableCollection<ElementDefinitionRowViewModel> RowsSource { get; } = [];
+        public Iteration TargetIteration
+        {
+            get => this.targetIteration;
+            set => this.RaiseAndSetIfChanged(ref this.targetIteration, value);
+        }
+
+        /// <summary>
+        /// Gets or sets source <see cref="Iteration" />
+        /// </summary>
+        public Iteration SourceIteration
+        {
+            get => this.sourceIteration;
+            set => this.RaiseAndSetIfChanged(ref this.sourceIteration, value);
+        }
+
+        /// <summary>
+        /// Value indicating the user is currently setting the Copy settings that apply when a node is dropped 
+        /// </summary>
+        public bool IsOnCopySettingsMode
+        {
+            get => this.isOnCopySettingsMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnCopySettingsMode, value);
+        }
+
+        /// <summary>
+        /// Opens the <see cref="CopySettings" /> popup
+        /// </summary>
+        public void OpenCopySettingsPopup()
+        {
+            this.CopySettingsViewModel.InitializeViewModel();
+            this.IsOnCopySettingsMode = true;
+        }
 
         /// <summary>
         /// Value indicating the user is currently creating a new <see cref="ElementDefinition" />
@@ -141,9 +216,13 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         }
 
         /// <summary>
-        /// Represents the selected ElementDefinitionRowViewModel
+        /// Gets a value indicating that source model and target model are based on the same <see cref="Iteration"/>
         /// </summary>
-        public ElementDefinition SelectedElementDefinition { get; set; }
+        public bool IsSourceModelSameAsTargetModel
+        {
+            get => this.isSourceModelSameAsTargetModel;
+            set => this.RaiseAndSetIfChanged(ref this.isSourceModelSameAsTargetModel, value);
+        }
 
         /// <summary>
         /// Set the selected <see cref="ElementDefinition" />
@@ -170,6 +249,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// </summary>
         public void OpenCreateElementDefinitionCreationPopup()
         {
+            this.ElementDefinitionCreationViewModel.InitializeViewModel(this.SelectedElementDefinition.GetContainerOfType<Iteration>());
             this.ElementDefinitionCreationViewModel.ElementDefinition = new ElementDefinition();
             this.ElementDefinitionCreationViewModel.SelectedCategories = new List<Category>();
             this.IsOnCreationMode = true;
@@ -185,57 +265,83 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         }
 
         /// <summary>
-        /// Add rows related to <see cref="ElementBase" /> that has been added
+        /// Add a new <see cref="ElementDefinition"/> based on an existing <see cref="ElementBase"/>
         /// </summary>
-        /// <param name="addedThings">A collection of added <see cref="Thing" /></param>
-        public void AddRows(IEnumerable<Thing> addedThings)
+        /// <param name="elementDefinitionTree">The <see cref="ElementDefinitionTree"/> to copy the node to</param>
+        /// <param name="elementBase">The <see cref="ElementBase"/> to copy</param>
+        public Task CopyAndAddNewElementAsync(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase)
         {
-            var listOfAddedElementBases = addedThings.OfType<ElementBase>().ToList();
-            this.RowsSource.AddRange(listOfAddedElementBases.Select(e => new ElementDefinitionRowViewModel(e)));
-            this.RowsTarget.AddRange(listOfAddedElementBases.Select(e => new ElementDefinitionRowViewModel(e)));
+            ArgumentNullException.ThrowIfNull(elementDefinitionTree);
+            ArgumentNullException.ThrowIfNull(elementBase);
+
+            return this.CopyAndAddNewElementImplAsync(elementDefinitionTree, elementBase);
         }
 
         /// <summary>
-        /// Updates rows related to <see cref="ElementBase" /> that have been updated
+        /// Add a new <see cref="ElementDefinition"/> based on an existing <see cref="ElementBase"/>
         /// </summary>
-        /// <param name="updatedThings">A collection of updated <see cref="ElementBase" /></param>
-        public void UpdateRows(IEnumerable<Thing> updatedThings)
+        /// <param name="elementDefinitionTree">The <see cref="ElementDefinitionTree"/> to copy the node to</param>
+        /// <param name="elementBase">The <see cref="ElementBase"/> to copy</param>
+        private async Task CopyAndAddNewElementImplAsync(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase)
         {
-            foreach (var element in updatedThings.OfType<ElementBase>())
+            this.IsLoading = true;
+
+            try
             {
-                var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
-                row?.UpdateProperties(new ElementDefinitionRowViewModel(element));
-
-                row = this.RowsTarget.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
-                row?.UpdateProperties(new ElementDefinitionRowViewModel(element));
-
-                if (element.Iid == this.SelectedElementDefinition.Iid)
+                if (elementBase.GetContainerOfType<Iteration>() == elementDefinitionTree.ViewModel.Iteration)
                 {
-                    this.SelectElement(element);
+                    var copyCreator = new CopyElementDefinitionCreator(this.sessionService.Session);
+                    await copyCreator.CopyAsync((ElementDefinition)elementBase, true);
                 }
+                else
+                {
+                    var copyCreator = new CopyCreator(this.sessionService.Session);
+
+                    this.cacheService.TryGetOrAddBrowserSessionSetting(BrowserSessionSettingKey.CopyElementDefinitionOperationKind, OperationKind.Copy, out var selectedOperationKind);
+
+                    await copyCreator.CopyAsync((ElementDefinition)elementBase, elementDefinitionTree.ViewModel.Iteration, selectedOperationKind is OperationKind operationKind ? operationKind : OperationKind.Copy);
+                }
+            }
+            finally
+
+            {
+                this.IsLoading = false;
             }
         }
 
         /// <summary>
-        /// Remove rows related to a <see cref="ElementBase" /> that has been deleted
+        /// Add a new <see cref="ElementUsage"/> based on an existing <see cref="ElementBase"/>
         /// </summary>
-        /// <param name="deletedThings">A collection of deleted <see cref="ElementBase" /></param>
-        public void RemoveRows(IEnumerable<Thing> deletedThings)
+        /// <param name="fromElementBase">The <see cref="ElementBase"/> to be added as <see cref="ElementUsage"/></param>
+        /// <param name="toElementBase">The <see cref="ElementBase"/> where to add the new <see cref="ElementUsage"/> to</param>
+        public Task AddNewElementUsageAsync(ElementBase fromElementBase, ElementBase toElementBase)
         {
-            foreach (var elementId in deletedThings.OfType<ElementBase>().Select(x => x.Iid))
+            ArgumentNullException.ThrowIfNull(fromElementBase);
+            ArgumentNullException.ThrowIfNull(toElementBase);
+
+            return this.AddNewElementUsageImplAsync(fromElementBase, toElementBase);
+        }
+
+        /// <summary>
+        /// Add a new <see cref="ElementUsage"/> based on an existing <see cref="ElementBase"/>
+        /// </summary>
+        /// <param name="fromElementBase">The <see cref="ElementBase"/> to be added as <see cref="ElementUsage"/></param>
+        /// <param name="toElementBase">The <see cref="ElementBase"/> where to add the new <see cref="ElementUsage"/> to</param>
+        private async Task AddNewElementUsageImplAsync(ElementBase fromElementBase, ElementBase toElementBase)
+        {
+            if (fromElementBase.GetContainerOfType<Iteration>() == toElementBase.GetContainerOfType<Iteration>())
             {
-                var row = this.RowsSource.FirstOrDefault(x => x.ElementBase.Iid == elementId);
+                this.IsLoading = true;
 
-                if (row != null)
+                var thingCreator = new ThingCreator();
+
+                try
                 {
-                    this.RowsSource.Remove(row);
+                    await thingCreator.CreateElementUsageAsync((ElementDefinition)toElementBase, (ElementDefinition)fromElementBase, this.sessionService.Session.OpenIterations.First(x => x.Key == toElementBase.GetContainerOfType<Iteration>()).Value.Item1, this.sessionService.Session);
                 }
-
-                row = this.RowsTarget.FirstOrDefault(x => x.ElementBase.Iid == elementId);
-
-                if (row != null)
+                finally
                 {
-                    this.RowsTarget.Remove(row);
+                    this.IsLoading = false;
                 }
             }
         }
@@ -244,7 +350,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// Tries to create a new <see cref="ElementDefinition" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task AddingElementDefinition()
+        public async Task AddingElementDefinitionAsync()
         {
             var thingsToCreate = new List<Thing>();
 
@@ -253,9 +359,10 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 this.ElementDefinitionCreationViewModel.ElementDefinition.Category = this.ElementDefinitionCreationViewModel.SelectedCategories.ToList();
             }
 
-            this.ElementDefinitionCreationViewModel.ElementDefinition.Container = this.CurrentThing;
+            var iteration = this.SelectedElementDefinition.GetContainerOfType<Iteration>();
+            this.ElementDefinitionCreationViewModel.ElementDefinition.Container = iteration;
             thingsToCreate.Add(this.ElementDefinitionCreationViewModel.ElementDefinition);
-            var clonedIteration = this.CurrentThing.Clone(false);
+            var clonedIteration = iteration.Clone(false);
 
             if (this.ElementDefinitionCreationViewModel.IsTopElement)
             {
@@ -268,12 +375,10 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             try
             {
                 await this.sessionService.CreateOrUpdateThings(clonedIteration, thingsToCreate);
-                this.IsOnCreationMode = false;
             }
-            catch (Exception exception)
+            finally
             {
-                Console.WriteLine(exception.Message);
-                throw;
+                this.IsOnCreationMode = false;
             }
         }
 
@@ -290,19 +395,10 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnSessionRefreshed()
+        protected override Task OnSessionRefreshed()
         {
-            if (this.AddedThings.Count == 0 && this.DeletedThings.Count == 0 && this.UpdatedThings.Count == 0)
-            {
-                return;
-            }
-
-            this.IsLoading = true;
-            await Task.Delay(1);
-
-            this.UpdateInnerComponents();
-            this.ClearRecordedChanges();
-            this.IsLoading = false;
+            this.SelectElement(this.SelectedElementDefinition);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -316,22 +412,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             if (this.CurrentThing == null)
             {
                 return;
-            }
-
-            this.Elements.Clear();
-            this.RowsTarget.Clear();
-            this.RowsSource.Clear();
-
-            foreach (var element in this.CurrentThing.Element)
-            {
-                this.Elements.Add(element);
-                this.Elements.AddRange(element.ContainedElement);
-            }
-
-            foreach (var element in this.Elements)
-            {
-                this.RowsTarget.Add(new ElementDefinitionRowViewModel(element));
-                this.RowsSource.Add(new ElementDefinitionRowViewModel(element));
             }
 
             this.AddParameterViewModel.InitializeViewModel(this.CurrentThing);

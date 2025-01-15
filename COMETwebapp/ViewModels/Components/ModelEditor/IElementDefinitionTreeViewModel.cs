@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="BrowserSessionSettings.cs" company="Starion Group S.A.">
+//  <copyright file="IElementDefinitionTreeViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2024 Starion Group S.A.
 // 
 //     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
@@ -22,36 +22,45 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMET.Web.Common.Enumerations
+namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
-    using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
+    using System.Collections.ObjectModel;
 
-    using CDP4Dal.Operations;
+    using CDP4Common.EngineeringModelData;
+
+    using COMET.Web.Common.Model;
+    using COMET.Web.Common.ViewModels.Components.Applications;
+
+    using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
 
     /// <summary>
-    /// En enumeration of possible keys to be used to store and retrieve cached BrowserSessionSettings
+    /// Interface for the <see cref="ElementDefinitionTreeViewModel" />
     /// </summary>
-    public enum BrowserSessionSettingKey
+    public interface IElementDefinitionTreeViewModel : IHaveReusableRows
     {
         /// <summary>
-        /// Key to handle the last selected <see cref="EngineeringModel"/>
+        /// Gets the collection of the <see cref="ElementDefinitionTreeRowViewModel" />
         /// </summary>
-        LastUsedEngineeringModel,
+        ObservableCollection<ElementDefinitionTreeRowViewModel> Rows { get; }
 
         /// <summary>
-        /// Key to handle the last selected <see cref="IterationSetup"/>
+        /// The <see cref="Iteration"/> from which to build the tree
         /// </summary>
-        LastUsedIterationData,
+        Iteration Iteration { get; set; }
 
         /// <summary>
-        /// Key to handle the last selected <see cref="DomainOfExpertise"/>
+        /// Gets the Description of the selected model and iteration
         /// </summary>
-        LastUsedDomainOfExpertise,
-        
+        string Description { get; }
+
         /// <summary>
-        /// Key to handle the type of <see cref="OperationKind"/> to use when copying data from one model to another
+        /// Gets or a collection of selectable <see cref="Iteration"/>s
         /// </summary>
-        CopyElementDefinitionOperationKind
+        ObservableCollection<IterationData> Iterations { get; }
+
+        /// <summary>
+        /// The <see cref="Iteration"/> from which to build the tree
+        /// </summary>
+        IterationData SelectedIterationData { get; set; }
     }
 }
