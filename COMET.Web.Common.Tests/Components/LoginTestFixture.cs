@@ -71,6 +71,7 @@ namespace COMET.Web.Common.Tests.Components
             this.context = new TestContext();
             this.viewModel = new LoginViewModel(this.authenticationService.Object, this.serverConnectionService.Object);
             this.context.Services.AddSingleton(this.viewModel);
+            this.context.Services.AddSingleton(this.authenticationService.Object);
             this.context.ConfigureDevExpressBlazor();
         }
 

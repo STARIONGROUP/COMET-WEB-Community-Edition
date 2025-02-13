@@ -25,6 +25,10 @@
 
 namespace COMET.Web.Common.ViewModels.Components
 {
+    using CDP4Dal.DAL;
+
+    using CDP4DalCommon.Authentication;
+
     using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.ConfigurationService;
 
@@ -56,9 +60,28 @@ namespace COMET.Web.Common.ViewModels.Components
         AuthenticationDto AuthenticationDto { get; }
 
         /// <summary>
+        /// Gets the <see cref="Result{TValue}" /> for a <see cref="AuthenticationSchemeResponse" /> that provides supported scheme by a
+        /// </summary>
+        Result<AuthenticationSchemeResponse> AuthenticationSchemeResponseResult { get; set; }
+
+        /// <summary>
         /// Attempt to login to a COMET Server
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task ExecuteLogin();
+
+        /// <summary>
+        /// Attempt to login to a COMET Server
+        /// </summary>
+        /// <param name="authenticationSchemeKind">The <see cref="AuthenticationSchemeKind"/> that should be used</param>
+        /// <param name="authenticationInformation">The <see cref="AuthenticationInformation"/> that should be used for authentication</param>
+        /// <returns>A <see cref="Task" /></returns>
+        Task ExecuteLogin(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation);
+
+        /// <summary>
+        /// Request supported <see cref="AuthenticationSchemeKind"/> by the server that we want to reach
+        /// </summary>
+        /// <returns>An awaitable <see cref="Task"/></returns>
+        Task RequestAvailableAuthenticationScheme();
     }
 }

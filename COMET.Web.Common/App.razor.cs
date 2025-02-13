@@ -73,6 +73,11 @@ namespace COMET.Web.Common
         /// <param name="navigationContext">The <see cref="NavigationContext" /></param>
         private async Task OnNavigate(NavigationContext navigationContext)
         {
+            if (navigationContext.Path.StartsWith("callback") || navigationContext.Path.StartsWith("/callback"))
+            {
+                return;
+            }
+
             switch (navigationContext.Path)
             {
                 case "":

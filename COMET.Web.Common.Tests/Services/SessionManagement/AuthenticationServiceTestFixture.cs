@@ -25,6 +25,8 @@
 
 namespace COMET.Web.Common.Tests.Services.SessionManagement
 {
+    using Blazored.SessionStorage;
+
     using CDP4Dal;
     using CDP4Dal.DAL;
 
@@ -45,18 +47,20 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         private CometWebAuthStateProvider cometWebAuthStateProvider;
         private AuthenticationService authenticationService;
         private AuthenticationDto authenticationDto;
+        private Mock<ISessionStorageService> sessionStorageService;
 
         [SetUp]
         public void SetUp()
         {
             this.session = new Mock<ISession>();
             this.sessionService = new Mock<ISessionService>();
+            this.sessionStorageService = new Mock<ISessionStorageService>();
 
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.sessionService.Setup(x => x.IsSessionOpen).Returns(false);
 
             this.cometWebAuthStateProvider = new CometWebAuthStateProvider(this.sessionService.Object);
-            this.authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider);
+            this.authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider, this.sessionStorageService.Object);
 
             this.authenticationDto = new AuthenticationDto
             {
