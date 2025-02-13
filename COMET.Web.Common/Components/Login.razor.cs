@@ -352,6 +352,8 @@ namespace COMET.Web.Common.Components
         private void HandleBack()
         {
             this.ViewModel.AuthenticationSchemeResponseResult = null;
+            this.ViewModel.AuthenticationDto.UserName = null;
+            this.ViewModel.AuthenticationDto.Password = null;
         }
     }
 }
