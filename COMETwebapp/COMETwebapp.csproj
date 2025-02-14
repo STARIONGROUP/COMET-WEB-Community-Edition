@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <Version>5.8.0</Version>
         <Title>CDP4-COMET WEB</Title>
         <Description>A web application that implements ECSS-E-TM-10-25</Description>
@@ -18,14 +18,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AntDesign" Version="0.20.4.2" />
-        <PackageReference Include="BlazorStrap" Version="5.2.101" />
+        <PackageReference Include="AntDesign" Version="1.2.0" />
+        <PackageReference Include="BlazorStrap" Version="5.2.103.250102" />
         <PackageReference Include="Feather.Blazor" Version="1.0.1" />
-        <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
-        <PackageReference Include="Serilog.Sinks.Async" Version="2.0.0" />
-        <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+        <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+        <PackageReference Include="System.Drawing.Common" Version="9.0.2" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
-        <PackageReference Include="Z.Blazor.Diagrams" Version="3.0.2" />
+        <PackageReference Include="Z.Blazor.Diagrams" Version="3.0.3" />
     </ItemGroup>
 
     <ItemGroup>

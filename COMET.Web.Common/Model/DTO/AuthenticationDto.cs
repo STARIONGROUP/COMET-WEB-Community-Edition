@@ -25,8 +25,6 @@
 
 namespace COMET.Web.Common.Model.DTO
 {
-    using System.ComponentModel.DataAnnotations;
-
     /// <summary>
     /// Authentication information to connect to an E-TM-10-25 data source
     /// </summary>
@@ -35,24 +33,26 @@ namespace COMET.Web.Common.Model.DTO
         /// <summary>
         /// Gets or sets the address of the datasource to connect to
         /// </summary>
-        [Url]
         public string SourceAddress { get; set; }
 
         /// <summary>
         /// Gets or sets the username to authenticate with
         /// </summary>
-        [Required]
         public string UserName { get; set; }
 
         /// <summary>
         /// Gets or sets the password to authenticate with
         /// </summary>
-        [Required]
         public string Password { get; set; }
 
         /// <summary>
         /// Gets or sets the condition to check if full trust is active. This option allows connecting to servers with self signed certificates
         /// </summary>
         public bool FullTrust { get; set; } = false;
+        
+        /// <summary>
+        /// Asserts that credentials should be validated or no 
+        /// </summary>
+        public bool ShouldValidateCredentials { get; set; } = true;
     }
 }

@@ -21,12 +21,17 @@
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components
 @using COMET.Web.Common.Enumerations
+@using Blazored.FluentValidation
 @inherits DisposableComponent
 
-<EditForm Context="editFormContext" Model="@(this.ViewModel.AuthenticationDto)" OnValidSubmit="this.ExecuteLogin">
-    <DataAnnotationsValidator/>
+<DxLoadingPanel Visible="this.checkingRestoreSession" 
+                IsContentBlocked="true"
+                ApplyBackgroundShading="false"
+                Text="Trying to restore previous session, if possible...">
+<EditForm Context="editFormContext" Model="@this.ViewModel.AuthenticationDto" OnValidSubmit="this.HandleSubmitAsync" >
+    <FluentValidationValidator />
     <DxFormLayout CaptionPosition="CaptionPosition.Vertical">
-        @if (string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress))
+        @if (string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress) && this.ShouldProvideServerInformationInput())
         {
             <DxFormLayoutItem Caption="Source Address:" ColSpanLg="12">
                 <Template>
@@ -40,29 +45,34 @@
                 </Template>
             </DxFormLayoutItem>
         }
-        <DxFormLayoutItem Caption="@(this.UsernameLabel)" BeginRow="true" ColSpanLg="12">
-            <Template>
-                <DxTextBox Id="username" @bind-Text="@(this.ViewModel.AuthenticationDto.UserName)"
-                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                           NullText="Enter your username"
-                           BindValueMode="BindValueMode.OnInput"
-                           @onfocus="@(() => this.HandleFieldFocus("UserName"))"
-                           @onblur="@(() => this.HandleFieldBlur("UserName"))"/>
-            </Template>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="@(this.PasswordLabel)" BeginRow="true" ColSpanLg="12">
-            <Template>
-                <DxTextBox Id="password" @bind-Text="@(this.ViewModel.AuthenticationDto.Password)"
-                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                           NullText="Enter your password"
-                           BindValueMode="BindValueMode.OnInput"
-                           @onfocus="@(() => this.HandleFieldFocus("Password"))"
-                           @onblur="@(() => this.HandleFieldBlur("Password"))"
-                           Password="true"/>
-            </Template>
-        </DxFormLayoutItem>
+        
+        @if (this.RequiresUserNameAndPasswordInput())
+        {
+            <DxFormLayoutItem Caption="@(this.UsernameLabel)" BeginRow="true" ColSpanLg="12">
+                <Template>
+                    <DxTextBox Id="username" @bind-Text="@(this.ViewModel.AuthenticationDto.UserName)"
+                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                               NullText="Enter your username"
+                               BindValueMode="BindValueMode.OnInput"
+                               @onfocus="@(() => this.HandleFieldFocus("UserName"))"
+                               @onblur="@(() => this.HandleFieldBlur("UserName"))"/>
+                </Template>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="@(this.PasswordLabel)" BeginRow="true" ColSpanLg="12">
+                <Template>
+                    <DxTextBox Id="password" @bind-Text="@(this.ViewModel.AuthenticationDto.Password)"
+                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                               NullText="Enter your password"
+                               BindValueMode="BindValueMode.OnInput"
+                               @onfocus="@(() => this.HandleFieldFocus("Password"))"
+                               @onblur="@(() => this.HandleFieldBlur("Password"))"
+                               Password="true"/>
+                </Template>
+            </DxFormLayoutItem>
+        }
 
-        @if (this.ServerConfiguration.FullTrustConfiguration?.IsVisible == true || this.ServerConfiguration.FullTrustConfiguration?.IsTrusted == FullTrustTrustedKind.UserDefined)
+        @if ((this.ServerConfiguration.FullTrustConfiguration?.IsVisible == true || this.ServerConfiguration.FullTrustConfiguration?.IsTrusted == FullTrustTrustedKind.UserDefined)
+             && this.ShouldProvideServerInformationInput())
         {
             <DxFormLayoutItem Caption="@(this.FullTrustLabel)" BeginRow="true" ColSpanLg="12" CaptionPosition="CaptionPosition.Horizontal">
                 <Template>
@@ -97,8 +107,7 @@
                 </li>
             }
 
-            @if (fieldFocusedStatus.Key == "Password" && !string.IsNullOrEmpty(editFormContext.GetValidationMessages(() => this.ViewModel.AuthenticationDto.Password).FirstOrDefault()))
-            {
+            @if (fieldFocusedStatus.Key == "Password" &&  !string.IsNullOrEmpty(editFormContext.GetValidationMessages(() => this.ViewModel.AuthenticationDto.Password).FirstOrDefault())) {
                 <li class="validation-message">
                     <ValidationMessage For="() => this.ViewModel.AuthenticationDto.Password"/>
                 </li>
@@ -117,10 +126,32 @@
             </ul>
         </div>
     }
-
     <div class="modal-footer">
-        <DxButton Id="connectbtn" Text="@(this.LoginButtonDisplayText)" CssClass="btn btn-connect"
-                  Enabled="@(this.LoginEnabled)"
-                  SubmitFormOnClick="true"/>
+        @if (this.ServerConfiguration.AllowMultipleStepsAuthentication && this.ShouldProvideServerInformationInput())
+        {
+            <DxButton Id="nextBtn" Text="Next" CssClass="btn btn-connect"
+                      Enabled="@(!this.ViewModel.IsLoading)"
+                      SubmitFormOnClick="true"/>
+        }
+        else if(this.RequiresUserNameAndPasswordInput())
+        {
+            if (this.ServerConfiguration.AllowMultipleStepsAuthentication
+                && string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress))
+            {
+                <DxButton Id="backBtn" Text="Back" CssClass="btn"
+                          SubmitFormOnClick="false"
+                          Enabled="@(!this.ViewModel.IsLoading)"
+                          Click="@this.HandleBack"/>
+            }
+
+            <DxButton Id="connectbtn" Text="@(this.LoginButtonDisplayText)" CssClass="btn btn-connect"
+                      Enabled="@(this.LoginEnabled)"
+                      SubmitFormOnClick="true"/>
+        }
+        else
+        {
+            <p>Redirecting to external authority provider</p>
+        }
     </div>
 </EditForm>
+</DxLoadingPanel>

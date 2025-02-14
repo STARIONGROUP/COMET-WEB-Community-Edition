@@ -79,6 +79,7 @@ namespace COMETwebapp.Tests.Pages
             this.context.Services.AddSingleton(loginViewModel.Object);
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(this.sessionService.Object);
+            this.context.Services.AddSingleton(new Mock<IAuthenticationService>().Object);
         }
 
         [TearDown]

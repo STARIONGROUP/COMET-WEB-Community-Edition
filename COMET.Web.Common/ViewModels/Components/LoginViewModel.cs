@@ -24,6 +24,10 @@
 
 namespace COMET.Web.Common.ViewModels.Components
 {
+    using CDP4Dal.DAL;
+
+    using CDP4DalCommon.Authentication;
+
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.ConfigurationService;
@@ -44,9 +48,19 @@ namespace COMET.Web.Common.ViewModels.Components
         private readonly IAuthenticationService authenticationService;
 
         /// <summary>
+        /// Backing field for <see cref="AuthenticationDto" />
+        /// </summary>
+        private AuthenticationDto authenticationDto;
+
+        /// <summary>
         /// Backing field for <see cref="AuthenticationResult" />
         /// </summary>
         private Result authenticationResult = new();
+
+        /// <summary>
+        /// Backing field for <see cref="AuthenticationSchemeResponseResult" />
+        /// </summary>
+        private Result<AuthenticationSchemeResponse> authenticationSchemeResponseResult;
 
         /// <summary>
         /// Backing field for <see cref="isLoading" />
@@ -63,6 +77,15 @@ namespace COMET.Web.Common.ViewModels.Components
             this.ServerConnectionService = serverConnectionService;
             this.authenticationService = authenticationService;
             this.ResetAuthenticationDto();
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Result{TValue}" /> for a <see cref="AuthenticationSchemeResponse" /> that provides supported scheme by a
+        /// </summary>
+        public Result<AuthenticationSchemeResponse> AuthenticationSchemeResponseResult
+        {
+            get => this.authenticationSchemeResponseResult;
+            set => this.RaiseAndSetIfChanged(ref this.authenticationSchemeResponseResult, value);
         }
 
         /// <summary>
@@ -91,7 +114,11 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <summary>
         /// The <see cref="AuthenticationDto" /> used for perfoming a login
         /// </summary>
-        public AuthenticationDto AuthenticationDto { get; private set; }
+        public AuthenticationDto AuthenticationDto
+        {
+            get => this.authenticationDto;
+            private set => this.RaiseAndSetIfChanged(ref this.authenticationDto, value);
+        }
 
         /// <summary>
         /// Attempt to login to a COMET Server
@@ -117,11 +144,42 @@ namespace COMET.Web.Common.ViewModels.Components
         }
 
         /// <summary>
-        /// Resets the <see cref="AuthenticationDto"/> property to a new object with the default parameters
+        /// Attempt to login to a COMET Server
+        /// </summary>
+        /// <param name="authenticationSchemeKind">The <see cref="AuthenticationSchemeKind" /> that should be used</param>
+        /// <param name="authenticationInformation">The <see cref="AuthenticationInformation" /> that should be used for authentication</param>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task ExecuteLoginAsync(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation)
+        {
+            this.IsLoading = true;
+            this.AuthenticationResult = await this.authenticationService.LoginAsync(authenticationSchemeKind, authenticationInformation);
+            this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Request supported <see cref="AuthenticationSchemeKind" /> by the server that we want to reach
+        /// </summary>
+        /// <returns>An awaitable <see cref="Task" /></returns>
+        public async Task RequestAvailableAuthenticationSchemeAsync()
+        {
+            this.IsLoading = true;
+
+            if (!string.IsNullOrEmpty(this.ServerConnectionService.ServerConfiguration.ServerAddress))
+            {
+                this.AuthenticationDto.SourceAddress = this.ServerConnectionService.ServerConfiguration.ServerAddress;
+            }
+
+            this.AuthenticationSchemeResponseResult = await this.authenticationService.RequestAvailableAuthenticationSchemeAsync(this.AuthenticationDto.SourceAddress, this.AuthenticationDto.FullTrust);
+
+            this.IsLoading = false;
+        }
+        
+        /// <summary>
+        /// Resets the <see cref="AuthenticationDto" /> property to a new object with the default parameters
         /// </summary>
         private void ResetAuthenticationDto()
         {
-            this.AuthenticationDto = new AuthenticationDto()
+            this.AuthenticationDto = new AuthenticationDto
             {
                 FullTrust = this.ServerConnectionService.ServerConfiguration?.FullTrustConfiguration?.IsTrusted == FullTrustTrustedKind.FullTrust
             };

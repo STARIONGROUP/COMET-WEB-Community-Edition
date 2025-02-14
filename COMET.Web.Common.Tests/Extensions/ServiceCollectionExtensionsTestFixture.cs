@@ -27,11 +27,14 @@ namespace COMET.Web.Common.Tests.Extensions
 {
     using System.Reflection;
 
+    using Blazored.SessionStorage;
+
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
 
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.JSInterop;
 
     using Moq;
 
@@ -49,6 +52,8 @@ namespace COMET.Web.Common.Tests.Extensions
             serviceCollection.AddScoped(_ => new HttpClient());
             serviceCollection.AddLogging();
             serviceCollection.RegisterCdp4CometCommonServices(globalOptions: _ => { });
+            serviceCollection.AddBlazoredSessionStorage();
+            serviceCollection.AddSingleton(new Mock<IJSRuntime>().Object);
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             foreach (var service in serviceCollection.Where(x => x.ServiceType.Assembly == Assembly.GetAssembly(typeof(ISessionService))))
@@ -64,6 +69,8 @@ namespace COMET.Web.Common.Tests.Extensions
             serviceCollection.AddScoped(_ => new HttpClient());
             serviceCollection.AddLogging();
             serviceCollection.RegisterCdp4CometCommonServices(false,globalOptions: _ => { });
+            serviceCollection.AddBlazoredSessionStorage();
+            serviceCollection.AddSingleton(new Mock<IJSRuntime>().Object);
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             foreach (var service in serviceCollection.Where(x => x.ServiceType.Assembly == Assembly.GetAssembly(typeof(ISessionService))))

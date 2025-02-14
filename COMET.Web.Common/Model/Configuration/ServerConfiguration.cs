@@ -48,5 +48,15 @@ namespace COMET.Web.Common.Model.Configuration
         /// Gets or sets the <see cref="EngineeringModelRdlFilter"/>. If not filters are specified all the available models are shown
         /// </summary>
         public EngineeringModelRdlFilter RdlFilter { get; set; }
+
+        /// <summary>
+        /// Gets or sets the asserts that the deployed web application should allow multiple steps authentication or not
+        /// </summary>
+        public bool AllowMultipleStepsAuthentication { get; set; }
+
+        /// <summary>
+        /// Gets or sets an optional authorization client secret, in case of a fix configuration
+        /// </summary>
+        public string ExternalAuthorizationClientSecret { get; set; }
     }
 }

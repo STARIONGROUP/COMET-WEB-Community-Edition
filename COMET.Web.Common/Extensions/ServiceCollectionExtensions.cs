@@ -25,6 +25,8 @@
 
 namespace COMET.Web.Common.Extensions
 {
+    using Blazored.SessionStorage;
+
     using CDP4Common.Validation;
 
     using CDP4Dal;
@@ -92,6 +94,7 @@ namespace COMET.Web.Common.Extensions
             serviceProvider.AddAuthorizationCore();
             serviceProvider.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             serviceProvider.RegisterCommonViewModels();
+            serviceProvider.AddBlazoredSessionStorage();
         }
 
         /// <summary>
