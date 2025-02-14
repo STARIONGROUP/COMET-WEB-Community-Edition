@@ -27,6 +27,10 @@ namespace COMET.Web.Common.Tests.Components
 {
     using Bunit;
 
+    using CDP4Dal.DAL;
+
+    using CDP4DalCommon.Authentication;
+
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Model.DTO;
@@ -35,8 +39,11 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
 
+    using DevExpress.Blazor;
+
     using FluentResults;
 
+    using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
@@ -54,6 +61,7 @@ namespace COMET.Web.Common.Tests.Components
         private TestContext context;
         private Mock<IAuthenticationService> authenticationService;
         private Mock<IConfigurationService> serverConnectionService;
+        private ServerConfiguration serverConfiguration;
 
         [SetUp]
         public void Setup()
@@ -61,13 +69,13 @@ namespace COMET.Web.Common.Tests.Components
             this.authenticationService = new Mock<IAuthenticationService>();
             this.serverConnectionService = new Mock<IConfigurationService>();
 
-            var serverConfiguration = new ServerConfiguration
+            this.serverConfiguration = new ServerConfiguration
             {
                 ServerAddress = "http://localhost.com",
                 FullTrustConfiguration = new FullTrustConfiguration()
             };
 
-            this.serverConnectionService.Setup(x => x.ServerConfiguration).Returns(serverConfiguration);
+            this.serverConnectionService.Setup(x => x.ServerConfiguration).Returns(this.serverConfiguration);
             this.context = new TestContext();
             this.viewModel = new LoginViewModel(this.authenticationService.Object, this.serverConnectionService.Object);
             this.context.Services.AddSingleton(this.viewModel);
@@ -189,6 +197,77 @@ namespace COMET.Web.Common.Tests.Components
 
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
             Assert.That(renderer.Instance.ErrorMessages, Is.Empty);
+        }
+
+        [Test]
+        public async Task VerifyMultipleAuthenticationSchemeFlowWithInternalToken()
+        {
+            this.serverConfiguration.ServerAddress = null;
+            this.serverConfiguration.AllowMultipleStepsAuthentication = true;
+
+            var renderer = this.context.RenderComponent<Login>();
+            var editForm = renderer.FindComponent<EditForm>();
+
+            Assert.That(renderer.FindComponents<DxTextBox>(), Has.Count.EqualTo(1));
+            
+            const string sourceAddress = "http://localhost:5000"; 
+            this.viewModel.AuthenticationDto.SourceAddress = sourceAddress;
+
+            var authenticationSchemeResponse = new AuthenticationSchemeResponse()
+            {
+                Schemes = [AuthenticationSchemeKind.LocalJwtBearer, AuthenticationSchemeKind.Basic]
+            };
+
+            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationScheme(sourceAddress, false))
+                .ReturnsAsync(Result.Ok(authenticationSchemeResponse));
+            
+            await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
+            Assert.That(renderer.FindComponents<DxTextBox>(), Has.Count.EqualTo(2));
+            
+            this.viewModel.AuthenticationDto.UserName = "admin";
+            this.viewModel.AuthenticationDto.Password = "pass";
+
+            this.authenticationService.Setup(x => x.Login(AuthenticationSchemeKind.LocalJwtBearer, It.IsAny<AuthenticationInformation>()))
+                .ReturnsAsync(Result.Ok);
+            
+            await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.AuthenticationResult, Is.Not.Null);
+                Assert.That(this.viewModel.AuthenticationResult.IsSuccess, Is.True);
+            });
+        }
+
+        [Test]
+        public async Task VerifyMultipleAuthenticationSchemeFlowWithExternalToken()
+        {
+            this.serverConfiguration.ServerAddress = null;
+            this.serverConfiguration.AllowMultipleStepsAuthentication = true;
+            
+            var renderer = this.context.RenderComponent<Login>();
+            var editForm = renderer.FindComponent<EditForm>();
+
+            Assert.That(renderer.FindComponents<DxTextBox>(), Has.Count.EqualTo(1));
+            
+            const string sourceAddress = "http://localhost:5000"; 
+            this.viewModel.AuthenticationDto.SourceAddress = sourceAddress;
+
+            var authenticationSchemeResponse = new AuthenticationSchemeResponse()
+            {
+                Schemes = [AuthenticationSchemeKind.ExternalJwtBearer],
+                Authority = "http://localhost:8080/realms/MyRealm",
+                ClientId = "client"
+            };
+
+            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationScheme(sourceAddress, false))
+                .ReturnsAsync(Result.Ok(authenticationSchemeResponse));
+            
+            await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
+            Assert.That(renderer.FindComponents<DxTextBox>(), Has.Count.EqualTo(0));
+
+            var navigationManager = this.context.Services.GetService<NavigationManager>();
+            Assert.That(navigationManager.Uri.StartsWith(authenticationSchemeResponse.Authority), Is.True);
         }
     }
 }
