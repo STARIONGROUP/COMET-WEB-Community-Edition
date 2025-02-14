@@ -3,13 +3,13 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>Latest</LangVersion>
-    <Version>5.3.0</Version>
-    <AssemblyVersion>5.3.0</AssemblyVersion>
-    <FileVersion>5.3.0</FileVersion>
+    <Version>6.0.0</Version>
+    <AssemblyVersion>6.0.0</AssemblyVersion>
+    <FileVersion>6.0.0</FileVersion>
     <Title>CDP4 WEB Common</Title>
     <Description>A Common Library for any Blazor based application related to ECSS-E-TM-10-25</Description>
     <Company>Starion Group S.A.</Company>
-    <Copyright>Copyright 2023-2024 Starion Group S.A.</Copyright>
+    <Copyright>Copyright 2023-2025 Starion Group S.A.</Copyright>
     <PackageId>CDP4.WEB.Common</PackageId>
     <AssemblyTitle>COMET.WEB.Common</AssemblyTitle>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
