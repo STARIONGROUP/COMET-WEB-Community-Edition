@@ -73,17 +73,19 @@ namespace COMET.Web.Common
         /// <param name="navigationContext">The <see cref="NavigationContext" /></param>
         private async Task OnNavigate(NavigationContext navigationContext)
         {
-            if (navigationContext.Path.StartsWith("callback") || navigationContext.Path.StartsWith("/callback"))
+            var loweredPath = navigationContext.Path.ToLower();
+            
+            if (loweredPath.StartsWith("callback") || loweredPath.StartsWith("/callback"))
             {
                 return;
             }
 
-            switch (navigationContext.Path)
+            switch (loweredPath)
             {
                 case "":
                 case "/":
-                case "/Logout":
-                case "Logout":
+                case "/logout":
+                case "logout":
                     break;
                 default:
                     if (navigationContext.Path.GetParametersFromUrl().ContainsKey("redirect"))

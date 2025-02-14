@@ -40,12 +40,12 @@ namespace COMET.Web.Common.Model.DTO
         public string RefreshToken { get; set; }
 
         /// <summary>
-        /// The expires time of the <see cref="AccessToken" />
+        /// The expires time of the <see cref="AccessToken" />, in seconds
         /// </summary>
         public int ExpiresIn { get; set; }
 
         /// <summary>
-        /// The expires time of the <see cref="RefreshToken" />
+        /// The expires time of the <see cref="RefreshToken" />, in seconds
         /// </summary>
         public int RefreshExpiresIn { get; set; }
     }
