@@ -215,7 +215,7 @@ namespace COMET.Web.Common.Components
 
             if (firstRender)
             {
-                await this.AuthenticationService.TryRestoreLastSession();
+                await this.AuthenticationService.TryRestoreLastSessionAsync();
                 this.checkingRestoreSession = false;
                 await this.InvokeAsync(this.StateHasChanged);
             }
@@ -322,7 +322,7 @@ namespace COMET.Web.Common.Components
         /// Handle the valid submission
         /// </summary>
         /// <returns>An awaitable <see cref="Task" /></returns>
-        private async Task HandleSubmit()
+        private async Task HandleSubmitAsync()
         {
             if (this.ServerConfiguration.AllowMultipleStepsAuthentication && this.ShouldProvideServerInformationInput())
             {
@@ -330,7 +330,7 @@ namespace COMET.Web.Common.Components
 
                 if (this.ViewModel.AuthenticationSchemeResponseResult.IsSuccess && this.ViewModel.AuthenticationSchemeResponseResult.Value.Schemes.Contains(AuthenticationSchemeKind.ExternalJwtBearer))
                 {
-                    var uri = new UriBuilder($"{this.ViewModel.AuthenticationSchemeResponseResult.Value.Authority}/protocol/openid-connect/auth");
+                    var uri = new UriBuilder(new Uri($"{this.ViewModel.AuthenticationSchemeResponseResult.Value.Authority}/protocol/openid-connect/auth"));
                     var queryParameters = HttpUtility.ParseQueryString(uri.Query);
                     queryParameters["response_type"] = "code";
                     queryParameters["client_id"] = this.ViewModel.AuthenticationSchemeResponseResult.Value.ClientId;

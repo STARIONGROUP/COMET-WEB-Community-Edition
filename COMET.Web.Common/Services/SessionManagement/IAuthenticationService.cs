@@ -57,7 +57,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="authenticationSchemeKind">The <see cref="AuthenticationSchemeKind"/> that has been selected</param>
         /// <param name="authenticationInformation">The <see cref="AuthenticationInformation"/> that contains required information that should be used for authentication</param>
         /// <returns>An awaitable <see cref="Task"/> that contains the <see cref="Result"/> of the operation</returns>
-        Task<Result> Login(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation);
+        Task<Result> LoginAsync(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation);
         
         /// <summary>
         /// Logout from the data source
@@ -74,13 +74,13 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="fullTrust">A value indicating whether the connection shall be fully trusted or not (in case of HttpClient connections this includes trusing self signed SSL certificates)</param>
         /// <returns>An awaitable <see cref="Task{TResult}"/> that contains the <see cref="Result{TResult}"/> of the operation, with the returned <see cref="AuthenticationSchemeResponse"/>
         /// in case of success</returns>
-        Task<Result<AuthenticationSchemeResponse>> RequestAvailableAuthenticationScheme(string serverUrl, bool fullTrust = false);
+        Task<Result<AuthenticationSchemeResponse>> RequestAvailableAuthenticationSchemeAsync(string serverUrl, bool fullTrust = false);
 
         /// <summary>
         /// Retrieves the last used server url
         /// </summary>
         /// <returns>An awaitable <see cref="Task{TResult}"/> with the retrieved server url</returns>
-        Task<string> RetrieveLastUsedServerUrl();
+        Task<string> RetrieveLastUsedServerUrlAsync();
 
         /// <summary>
         /// Exchange an OpenId connect to retrieve the generated JWT token
@@ -95,6 +95,6 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <summary>
         /// Tries to restore the last authenticated session, if applicable
         /// </summary>
-        Task TryRestoreLastSession();
+        Task TryRestoreLastSessionAsync();
     }
 }

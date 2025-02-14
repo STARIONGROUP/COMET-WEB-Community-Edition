@@ -63,7 +63,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
 
             Assert.That(this.loginViewModel.AuthenticationSchemeResponseResult, Is.Null);
             
-            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationScheme(this.loginViewModel.AuthenticationDto.SourceAddress, false))
+            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationSchemeAsync(this.loginViewModel.AuthenticationDto.SourceAddress, false))
                 .ReturnsAsync(Result.Fail("Unreachable server"));
 
             await this.loginViewModel.RequestAvailableAuthenticationScheme();
@@ -74,7 +74,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
                 Assert.That(this.loginViewModel.AuthenticationSchemeResponseResult.IsSuccess, Is.False);
             });
             
-            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationScheme(this.loginViewModel.AuthenticationDto.SourceAddress, false))
+            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationSchemeAsync(this.loginViewModel.AuthenticationDto.SourceAddress, false))
                 .ReturnsAsync(Result.Ok(new AuthenticationSchemeResponse()));
             
             await this.loginViewModel.RequestAvailableAuthenticationScheme();

@@ -81,7 +81,7 @@ namespace COMET.Web.Common.Tests.Pages
 
             Assert.Multiple(() =>
             {
-                this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrl(), Times.Never);
+                this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrlAsync(), Times.Never);
                 Assert.That(navigation.Uri, Is.EqualTo("http://localhost/"));
             });
         }
@@ -106,22 +106,22 @@ namespace COMET.Web.Common.Tests.Pages
             
             Assert.Multiple(() =>
             {
-                this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrl(), Times.Once);
+                this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrlAsync(), Times.Once);
                 Assert.That(navigation.Uri, Is.EqualTo("http://localhost/"));
             });
 
             const string cometUrl = "http://localhost:5000";
-            this.authenticationService.Setup(x => x.RetrieveLastUsedServerUrl()).ReturnsAsync(cometUrl);
+            this.authenticationService.Setup(x => x.RetrieveLastUsedServerUrlAsync()).ReturnsAsync(cometUrl);
             
-            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationScheme(cometUrl, false))
+            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationSchemeAsync(cometUrl, false))
                 .ReturnsAsync(Result.Fail<AuthenticationSchemeResponse>("failed"));
             
             navigation.NavigateTo(uri);
             
             Assert.Multiple(() =>
             {
-                this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrl(), Times.Exactly(2));
-                this.authenticationService.Verify(x => x.RequestAvailableAuthenticationScheme(cometUrl, false), Times.Once);
+                this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrlAsync(), Times.Exactly(2));
+                this.authenticationService.Verify(x => x.RequestAvailableAuthenticationSchemeAsync(cometUrl, false), Times.Once);
                 
                 this.authenticationService.Verify(x => x.ExchangeOpenIdConnectCode(It.IsAny<string>(), 
                     It.IsAny<AuthenticationSchemeResponse>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
@@ -134,15 +134,15 @@ namespace COMET.Web.Common.Tests.Pages
                 Schemes = [AuthenticationSchemeKind.Basic]
             };
 
-            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationScheme(cometUrl, false))
+            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationSchemeAsync(cometUrl, false))
                 .ReturnsAsync(Result.Ok(authenticationResponse));
 
             navigation.NavigateTo(uri);
 
             Assert.Multiple(() =>
             {
-                this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrl(), Times.Exactly(3));
-                this.authenticationService.Verify(x => x.RequestAvailableAuthenticationScheme(cometUrl, false), Times.Exactly(2));
+                this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrlAsync(), Times.Exactly(3));
+                this.authenticationService.Verify(x => x.RequestAvailableAuthenticationSchemeAsync(cometUrl, false), Times.Exactly(2));
                 
                 this.authenticationService.Verify(x => x.ExchangeOpenIdConnectCode(It.IsAny<string>(), 
                     It.IsAny<AuthenticationSchemeResponse>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
@@ -161,8 +161,8 @@ namespace COMET.Web.Common.Tests.Pages
 
             Assert.Multiple(() =>
             {
-                this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrl(), Times.Exactly(4));
-                this.authenticationService.Verify(x => x.RequestAvailableAuthenticationScheme(cometUrl, false), Times.Exactly(3));
+                this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrlAsync(), Times.Exactly(4));
+                this.authenticationService.Verify(x => x.RequestAvailableAuthenticationSchemeAsync(cometUrl, false), Times.Exactly(3));
                 
                 this.authenticationService.Verify(x => x.ExchangeOpenIdConnectCode(queryParameters["code"], 
                     authenticationResponse, It.IsAny<string>(), null), Times.Once);

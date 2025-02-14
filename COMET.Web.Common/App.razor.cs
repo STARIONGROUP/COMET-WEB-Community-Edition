@@ -26,6 +26,7 @@
 namespace COMET.Web.Common
 {
     using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.RegistrationService;
@@ -73,9 +74,9 @@ namespace COMET.Web.Common
         /// <param name="navigationContext">The <see cref="NavigationContext" /></param>
         private async Task OnNavigate(NavigationContext navigationContext)
         {
-            var loweredPath = navigationContext.Path.ToLower();
+            var loweredPath = navigationContext.Path.ToLower(CultureInfo.InvariantCulture);
             
-            if (loweredPath.StartsWith("callback") || loweredPath.StartsWith("/callback"))
+            if (loweredPath.StartsWith("callback", StringComparison.InvariantCulture) || loweredPath.StartsWith("/callback", StringComparison.InvariantCulture))
             {
                 return;
             }

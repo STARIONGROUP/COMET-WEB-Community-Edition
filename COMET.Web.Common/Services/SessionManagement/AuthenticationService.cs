@@ -31,6 +31,7 @@ namespace COMET.Web.Common.Services.SessionManagement
 
     using CDP4Dal;
     using CDP4Dal.DAL;
+    using CDP4Dal.Utilities;
 
     using CDP4DalCommon.Authentication;
 
@@ -142,7 +143,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="authenticationSchemeKind">The <see cref="AuthenticationSchemeKind"/> that has been selected</param>
         /// <param name="authenticationInformation">The <see cref="AuthenticationInformation"/> that contains required information that should be used for authentication</param>
         /// <returns>An awaitable <see cref="Task"/> that contains the <see cref="Result"/> of the operation</returns>
-        public async Task<Result> Login(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation)
+        public async Task<Result> LoginAsync(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation)
         {
             var authenticationResult = await this.sessionService.AuthenticateAndOpenSession(authenticationSchemeKind, authenticationInformation);
 
@@ -166,7 +167,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="fullTrust">A value indicating whether the connection shall be fully trusted or not (in case of HttpClient connections this includes trusing self signed SSL certificates)</param>
         /// <returns>An awaitable <see cref="Task{TResult}"/> that contains the <see cref="Result{TResult}"/> of the operation, with the returned <see cref="AuthenticationSchemeResponse"/>
         /// in case of success</returns>
-        public async Task<Result<AuthenticationSchemeResponse>> RequestAvailableAuthenticationScheme(string serverUrl, bool fullTrust = false)
+        public async Task<Result<AuthenticationSchemeResponse>> RequestAvailableAuthenticationSchemeAsync(string serverUrl, bool fullTrust = false)
         {
             if (string.IsNullOrEmpty(serverUrl))
             {
@@ -191,7 +192,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// Retrieves the last used server url
         /// </summary>
         /// <returns>An awaitable <see cref="Task{TResult}"/> with the retrieved server url</returns>
-        public async Task<string> RetrieveLastUsedServerUrl()
+        public async Task<string> RetrieveLastUsedServerUrlAsync()
         {
             return await this.sessionStorageService.GetItemAsync<string>(ServerUrlKey);
         }
@@ -199,21 +200,21 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <summary>
         /// Tries to restore the last authenticated session, if applicable
         /// </summary>
-        public async Task TryRestoreLastSession()
+        public async Task TryRestoreLastSessionAsync()
         {
-            var serverUrl = await this.RetrieveLastUsedServerUrl();
+            var serverUrl = await this.RetrieveLastUsedServerUrlAsync();
 
             if (string.IsNullOrEmpty(serverUrl))
             {
                 return;
             }
             
-            var authenticationSchemeResponse = await this.RequestAvailableAuthenticationScheme(serverUrl);
+            var authenticationSchemeResponse = await this.RequestAvailableAuthenticationSchemeAsync(serverUrl);
 
             if (authenticationSchemeResponse.IsFailed 
                 || !authenticationSchemeResponse.Value.Schemes.Intersect([AuthenticationSchemeKind.ExternalJwtBearer, AuthenticationSchemeKind.LocalJwtBearer]).Any())
             {
-                await this.CleanupStorage();
+                await this.CleanupStorageAsync();
                 return;
             }
             
@@ -221,7 +222,7 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             if (string.IsNullOrEmpty(previousToken))
             {
-                await this.CleanupStorage();
+                await this.CleanupStorageAsync();
                 return;
             }
             
@@ -229,11 +230,11 @@ namespace COMET.Web.Common.Services.SessionManagement
                 ? AuthenticationSchemeKind.ExternalJwtBearer 
                 : AuthenticationSchemeKind.LocalJwtBearer;
             
-            var result = await this.Login(authenticationSchemeToBeUsed, new AuthenticationInformation(previousToken));
+            var result = await this.LoginAsync(authenticationSchemeToBeUsed, new AuthenticationInformation(previousToken));
 
             if (result.IsFailed)
             {
-                await this.CleanupStorage();
+                await this.CleanupStorageAsync();
             }
         }
 
@@ -247,6 +248,9 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <returns>An awaitable <see cref="Task"/></returns>
         public async Task ExchangeOpenIdConnectCode(string code, AuthenticationSchemeResponse authenticationSchemeResponse, string redirectUrl, string clientSecret = null)
         {
+            Guard.ThrowIfNull(authenticationSchemeResponse, nameof(authenticationSchemeResponse));
+            Guard.ThrowIfNullOrEmpty(redirectUrl, nameof(redirectUrl));
+            
             if (!authenticationSchemeResponse.Schemes.Contains(AuthenticationSchemeKind.ExternalJwtBearer))
             {
                 throw new InvalidOperationException("Supported scheme should at least contains ExternalJwtBearer");
@@ -276,7 +280,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             {
                 var content = await httpResponse.Content.ReadAsStringAsync();
                 var openIdAuthentication = JsonSerializer.Deserialize<OpenIdAuthenticationDto>(content, JsonSerializerOptions);
-                var result = await this.Login(AuthenticationSchemeKind.ExternalJwtBearer, new AuthenticationInformation(openIdAuthentication.AccessToken));
+                var result = await this.LoginAsync(AuthenticationSchemeKind.ExternalJwtBearer, new AuthenticationInformation(openIdAuthentication.AccessToken));
 
                 if (result.IsSuccess)
                 {
@@ -300,13 +304,13 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
             
-            await this.CleanupStorage();
+            await this.CleanupStorageAsync();
         }
 
         /// <summary>
         /// Cleans all values that could be present inside the Session Storage
         /// </summary>
-        private async Task CleanupStorage()
+        private async Task CleanupStorageAsync()
         {
             await this.sessionStorageService.SetItemAsync(AccessTokenKey, string.Empty);
             await this.sessionStorageService.SetItemAsync(ServerUrlKey, string.Empty);

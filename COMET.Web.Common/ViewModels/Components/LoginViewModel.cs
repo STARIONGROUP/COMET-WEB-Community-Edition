@@ -152,7 +152,7 @@ namespace COMET.Web.Common.ViewModels.Components
         public async Task ExecuteLogin(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation)
         {
             this.IsLoading = true;
-            this.AuthenticationResult = await this.authenticationService.Login(authenticationSchemeKind, authenticationInformation);
+            this.AuthenticationResult = await this.authenticationService.LoginAsync(authenticationSchemeKind, authenticationInformation);
             this.IsLoading = false;
         }
 
@@ -169,7 +169,7 @@ namespace COMET.Web.Common.ViewModels.Components
                 this.AuthenticationDto.SourceAddress = this.ServerConnectionService.ServerConfiguration.ServerAddress;
             }
 
-            this.AuthenticationSchemeResponseResult = await this.authenticationService.RequestAvailableAuthenticationScheme(this.AuthenticationDto.SourceAddress, this.AuthenticationDto.FullTrust);
+            this.AuthenticationSchemeResponseResult = await this.authenticationService.RequestAvailableAuthenticationSchemeAsync(this.AuthenticationDto.SourceAddress, this.AuthenticationDto.FullTrust);
 
             this.IsLoading = false;
         }

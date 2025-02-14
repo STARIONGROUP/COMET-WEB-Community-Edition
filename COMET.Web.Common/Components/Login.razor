@@ -28,7 +28,7 @@
                 IsContentBlocked="true"
                 ApplyBackgroundShading="false"
                 Text="Trying to restore previous session, if possible...">
-<EditForm Context="editFormContext" Model="@this.ViewModel.AuthenticationDto" OnValidSubmit="this.HandleSubmit" >
+<EditForm Context="editFormContext" Model="@this.ViewModel.AuthenticationDto" OnValidSubmit="this.HandleSubmitAsync" >
     <FluentValidationValidator />
     <DxFormLayout CaptionPosition="CaptionPosition.Vertical">
         @if (string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress) && this.ShouldProvideServerInformationInput())
@@ -147,6 +147,10 @@
             <DxButton Id="connectbtn" Text="@(this.LoginButtonDisplayText)" CssClass="btn btn-connect"
                       Enabled="@(this.LoginEnabled)"
                       SubmitFormOnClick="true"/>
+        }
+        else
+        {
+            <p>Redirecting to external authority provider</p>
         }
     </div>
 </EditForm>

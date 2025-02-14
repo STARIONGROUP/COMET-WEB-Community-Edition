@@ -102,7 +102,7 @@ namespace COMET.Web.Common.Pages
                 return;
             }
 
-            var serverUrl = await this.AuthenticationService.RetrieveLastUsedServerUrl();
+            var serverUrl = await this.AuthenticationService.RetrieveLastUsedServerUrlAsync();
 
             if (string.IsNullOrEmpty(serverUrl))
             {
@@ -110,7 +110,7 @@ namespace COMET.Web.Common.Pages
                 return;
             }
             
-            var possibleSchemes = await this.AuthenticationService.RequestAvailableAuthenticationScheme(serverUrl);
+            var possibleSchemes = await this.AuthenticationService.RequestAvailableAuthenticationSchemeAsync(serverUrl);
 
             if (possibleSchemes.IsFailed || !possibleSchemes.Value.Schemes.Contains(AuthenticationSchemeKind.ExternalJwtBearer))
             {

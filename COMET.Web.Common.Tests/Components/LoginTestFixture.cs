@@ -57,7 +57,7 @@ namespace COMET.Web.Common.Tests.Components
     [TestFixture]
     public class LoginTestFixture
     {
-        private ILoginViewModel viewModel;
+        private LoginViewModel viewModel;
         private TestContext context;
         private Mock<IAuthenticationService> authenticationService;
         private Mock<IConfigurationService> serverConnectionService;
@@ -218,7 +218,7 @@ namespace COMET.Web.Common.Tests.Components
                 Schemes = [AuthenticationSchemeKind.LocalJwtBearer, AuthenticationSchemeKind.Basic]
             };
 
-            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationScheme(sourceAddress, false))
+            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationSchemeAsync(sourceAddress, false))
                 .ReturnsAsync(Result.Ok(authenticationSchemeResponse));
             
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
@@ -227,7 +227,7 @@ namespace COMET.Web.Common.Tests.Components
             this.viewModel.AuthenticationDto.UserName = "admin";
             this.viewModel.AuthenticationDto.Password = "pass";
 
-            this.authenticationService.Setup(x => x.Login(AuthenticationSchemeKind.LocalJwtBearer, It.IsAny<AuthenticationInformation>()))
+            this.authenticationService.Setup(x => x.LoginAsync(AuthenticationSchemeKind.LocalJwtBearer, It.IsAny<AuthenticationInformation>()))
                 .ReturnsAsync(Result.Ok);
             
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
@@ -260,7 +260,7 @@ namespace COMET.Web.Common.Tests.Components
                 ClientId = "client"
             };
 
-            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationScheme(sourceAddress, false))
+            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationSchemeAsync(sourceAddress, false))
                 .ReturnsAsync(Result.Ok(authenticationSchemeResponse));
             
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
