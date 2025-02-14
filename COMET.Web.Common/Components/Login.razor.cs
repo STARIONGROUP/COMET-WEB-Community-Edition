@@ -174,7 +174,7 @@ namespace COMET.Web.Common.Components
 
             if (!string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress) && this.ServerConfiguration.AllowMultipleStepsAuthentication)
             {
-                await this.ViewModel.RequestAvailableAuthenticationScheme();
+                await this.ViewModel.RequestAvailableAuthenticationSchemeAsync();
             }
         }
 
@@ -269,7 +269,7 @@ namespace COMET.Web.Common.Components
                         ? AuthenticationSchemeKind.LocalJwtBearer
                         : AuthenticationSchemeKind.Basic;
 
-                    await this.ViewModel.ExecuteLogin(scheme, authenticationInformation);
+                    await this.ViewModel.ExecuteLoginAsync(scheme, authenticationInformation);
                 }
             }
             else
@@ -315,7 +315,7 @@ namespace COMET.Web.Common.Components
         /// <returns>An awaitable <see cref="Task" /></returns>
         private Task ProvideServerInformation()
         {
-            return this.ViewModel.RequestAvailableAuthenticationScheme();
+            return this.ViewModel.RequestAvailableAuthenticationSchemeAsync();
         }
 
         /// <summary>

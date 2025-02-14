@@ -76,12 +76,12 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <param name="authenticationSchemeKind">The <see cref="AuthenticationSchemeKind"/> that should be used</param>
         /// <param name="authenticationInformation">The <see cref="AuthenticationInformation"/> that should be used for authentication</param>
         /// <returns>A <see cref="Task" /></returns>
-        Task ExecuteLogin(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation);
+        Task ExecuteLoginAsync(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation);
 
         /// <summary>
         /// Request supported <see cref="AuthenticationSchemeKind"/> by the server that we want to reach
         /// </summary>
         /// <returns>An awaitable <see cref="Task"/></returns>
-        Task RequestAvailableAuthenticationScheme();
+        Task RequestAvailableAuthenticationSchemeAsync();
     }
 }

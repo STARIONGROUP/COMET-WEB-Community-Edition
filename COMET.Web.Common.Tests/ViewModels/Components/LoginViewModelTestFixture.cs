@@ -66,7 +66,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             this.authenticationService.Setup(x => x.RequestAvailableAuthenticationSchemeAsync(this.loginViewModel.AuthenticationDto.SourceAddress, false))
                 .ReturnsAsync(Result.Fail("Unreachable server"));
 
-            await this.loginViewModel.RequestAvailableAuthenticationScheme();
+            await this.loginViewModel.RequestAvailableAuthenticationSchemeAsync();
 
             Assert.Multiple(() =>
             {
@@ -77,7 +77,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             this.authenticationService.Setup(x => x.RequestAvailableAuthenticationSchemeAsync(this.loginViewModel.AuthenticationDto.SourceAddress, false))
                 .ReturnsAsync(Result.Ok(new AuthenticationSchemeResponse()));
             
-            await this.loginViewModel.RequestAvailableAuthenticationScheme();
+            await this.loginViewModel.RequestAvailableAuthenticationSchemeAsync();
 
             Assert.Multiple(() =>
             {
@@ -88,7 +88,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             this.loginViewModel.AuthenticationDto.SourceAddress = "http://localhost:50";
             this.configurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration(){ServerAddress = "http://localhost:5000"});
             
-            await this.loginViewModel.RequestAvailableAuthenticationScheme();
+            await this.loginViewModel.RequestAvailableAuthenticationSchemeAsync();
 
             Assert.Multiple(() =>
             {

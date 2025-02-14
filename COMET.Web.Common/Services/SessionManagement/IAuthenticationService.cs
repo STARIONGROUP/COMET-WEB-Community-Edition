@@ -90,7 +90,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="redirectUrl">The redirect url</param>
         /// <param name="clientSecret">An optional client secret</param>
         /// <returns>An awaitable <see cref="Task"/></returns>
-        Task ExchangeOpenIdConnectCode(string code, AuthenticationSchemeResponse authenticationSchemeResponse, string redirectUrl, string clientSecret = null);
+        Task ExchangeOpenIdConnectCodeAsync(string code, AuthenticationSchemeResponse authenticationSchemeResponse, string redirectUrl, string clientSecret = null);
 
         /// <summary>
         /// Tries to restore the last authenticated session, if applicable

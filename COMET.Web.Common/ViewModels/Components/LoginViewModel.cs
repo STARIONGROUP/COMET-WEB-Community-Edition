@@ -149,7 +149,7 @@ namespace COMET.Web.Common.ViewModels.Components
         /// <param name="authenticationSchemeKind">The <see cref="AuthenticationSchemeKind" /> that should be used</param>
         /// <param name="authenticationInformation">The <see cref="AuthenticationInformation" /> that should be used for authentication</param>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task ExecuteLogin(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation)
+        public async Task ExecuteLoginAsync(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation)
         {
             this.IsLoading = true;
             this.AuthenticationResult = await this.authenticationService.LoginAsync(authenticationSchemeKind, authenticationInformation);
@@ -160,7 +160,7 @@ namespace COMET.Web.Common.ViewModels.Components
         /// Request supported <see cref="AuthenticationSchemeKind" /> by the server that we want to reach
         /// </summary>
         /// <returns>An awaitable <see cref="Task" /></returns>
-        public async Task RequestAvailableAuthenticationScheme()
+        public async Task RequestAvailableAuthenticationSchemeAsync()
         {
             this.IsLoading = true;
 

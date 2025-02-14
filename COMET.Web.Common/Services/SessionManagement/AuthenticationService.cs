@@ -246,7 +246,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="redirectUrl">The redirect url</param>
         /// <param name="clientSecret">An optional client secret</param>
         /// <returns>An awaitable <see cref="Task"/></returns>
-        public async Task ExchangeOpenIdConnectCode(string code, AuthenticationSchemeResponse authenticationSchemeResponse, string redirectUrl, string clientSecret = null)
+        public async Task ExchangeOpenIdConnectCodeAsync(string code, AuthenticationSchemeResponse authenticationSchemeResponse, string redirectUrl, string clientSecret = null)
         {
             Guard.ThrowIfNull(authenticationSchemeResponse, nameof(authenticationSchemeResponse));
             Guard.ThrowIfNullOrEmpty(redirectUrl, nameof(redirectUrl));
@@ -272,7 +272,7 @@ namespace COMET.Web.Common.Services.SessionManagement
                 parameters.Add(new KeyValuePair<string, string>("client_secret", clientSecret));
             }
 
-            var httpMessage = new HttpRequestMessage(HttpMethod.Post, $"{authenticationSchemeResponse.Authority.TrimEnd('/')}/protocol/openid-connect/token");
+            var httpMessage = new HttpRequestMessage(HttpMethod.Post, new Uri($"{authenticationSchemeResponse.Authority.TrimEnd('/')}/protocol/openid-connect/token"));
             httpMessage.Content = new FormUrlEncodedContent(parameters);
             using var httpResponse = await httpClient.SendAsync(httpMessage);
 

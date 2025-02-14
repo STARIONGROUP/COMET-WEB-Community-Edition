@@ -123,7 +123,7 @@ namespace COMET.Web.Common.Tests.Pages
                 this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrlAsync(), Times.Exactly(2));
                 this.authenticationService.Verify(x => x.RequestAvailableAuthenticationSchemeAsync(cometUrl, false), Times.Once);
                 
-                this.authenticationService.Verify(x => x.ExchangeOpenIdConnectCode(It.IsAny<string>(), 
+                this.authenticationService.Verify(x => x.ExchangeOpenIdConnectCodeAsync(It.IsAny<string>(), 
                     It.IsAny<AuthenticationSchemeResponse>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
                 
                 Assert.That(navigation.Uri, Is.EqualTo("http://localhost/"));
@@ -144,7 +144,7 @@ namespace COMET.Web.Common.Tests.Pages
                 this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrlAsync(), Times.Exactly(3));
                 this.authenticationService.Verify(x => x.RequestAvailableAuthenticationSchemeAsync(cometUrl, false), Times.Exactly(2));
                 
-                this.authenticationService.Verify(x => x.ExchangeOpenIdConnectCode(It.IsAny<string>(), 
+                this.authenticationService.Verify(x => x.ExchangeOpenIdConnectCodeAsync(It.IsAny<string>(), 
                     It.IsAny<AuthenticationSchemeResponse>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
                 
                 Assert.That(navigation.Uri, Is.EqualTo("http://localhost/"));
@@ -154,7 +154,7 @@ namespace COMET.Web.Common.Tests.Pages
             authenticationResponse.Authority = queryParameters["iss"];
             authenticationResponse.ClientId = "auth";
 
-            this.authenticationService.Setup(x => x.ExchangeOpenIdConnectCode(cometUrl, It.IsAny<AuthenticationSchemeResponse>(), It.IsAny<string>(), It.IsAny<string>()))
+            this.authenticationService.Setup(x => x.ExchangeOpenIdConnectCodeAsync(cometUrl, It.IsAny<AuthenticationSchemeResponse>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.CompletedTask);
             
             navigation.NavigateTo(uri);
@@ -164,7 +164,7 @@ namespace COMET.Web.Common.Tests.Pages
                 this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrlAsync(), Times.Exactly(4));
                 this.authenticationService.Verify(x => x.RequestAvailableAuthenticationSchemeAsync(cometUrl, false), Times.Exactly(3));
                 
-                this.authenticationService.Verify(x => x.ExchangeOpenIdConnectCode(queryParameters["code"], 
+                this.authenticationService.Verify(x => x.ExchangeOpenIdConnectCodeAsync(queryParameters["code"], 
                     authenticationResponse, It.IsAny<string>(), null), Times.Once);
                 
                 Assert.That(navigation.Uri, Is.EqualTo("http://localhost/"));

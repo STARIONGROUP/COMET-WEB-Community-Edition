@@ -118,7 +118,7 @@ namespace COMET.Web.Common.Pages
                 return;
             }
             
-            await this.AuthenticationService.ExchangeOpenIdConnectCode(this.Code, possibleSchemes.Value, $"{this.NavigationManager.BaseUri.TrimEnd('/')}/callback",
+            await this.AuthenticationService.ExchangeOpenIdConnectCodeAsync(this.Code, possibleSchemes.Value, $"{this.NavigationManager.BaseUri.TrimEnd('/')}/callback",
                 this.ConfigurationService.ServerConfiguration.ExternalAuthorizationClientSecret);
 
             this.NavigationManager.NavigateTo("/");
