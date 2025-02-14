@@ -32,6 +32,7 @@ namespace COMET.Web.Common.Tests.Pages
     using COMET.Web.Common.Pages;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Test.Helpers;
 
     using FluentResults;
 
@@ -60,10 +61,17 @@ namespace COMET.Web.Common.Tests.Pages
             this.configurationService.Setup(x => x.ServerConfiguration).Returns(serverConfig);
         
             this.context = new TestContext();
+            this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.authenticationService.Object);
             this.context.Services.AddSingleton(this.configurationService.Object);
         }
 
+        [TearDown]
+        public void Teardown()
+        {
+            this.context.Dispose();
+        }
+        
         [Test]
         public void VerifyCallbackWithoutParams()
         {
