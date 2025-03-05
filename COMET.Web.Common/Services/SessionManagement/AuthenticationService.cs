@@ -117,7 +117,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             this.openIdConnectService = openIdConnectService;
             this.automaticTokenRefreshService = automaticTokenRefreshService;
 
-            this.automaticTokenRefreshService.TokenRefreshed += this.StoreAuthenticationTokens;
+            this.automaticTokenRefreshService.TokenRefreshed += this.StoreAuthenticationTokensAsync;
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace COMET.Web.Common.Services.SessionManagement
 
                 if (authenticationSchemeKind is AuthenticationSchemeKind.LocalJwtBearer or AuthenticationSchemeKind.ExternalJwtBearer)
                 {
-                    await this.StoreAuthenticationTokens();
+                    await this.StoreAuthenticationTokensAsync();
 
                     this.automaticTokenRefreshService.Initialize(this.sessionService.Session, this.lastSupportedAuthenticationSchemeResponse);
                     _ = this.automaticTokenRefreshService.StartAsync().ConfigureAwait(false);
@@ -289,6 +289,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         {
             Guard.ThrowIfNull(authenticationSchemeResponse, nameof(authenticationSchemeResponse));
             Guard.ThrowIfNullOrEmpty(redirectUrl, nameof(redirectUrl));
+            Guard.ThrowIfNullOrEmpty(code, nameof(code));
 
             if (!authenticationSchemeResponse.Schemes.Contains(AuthenticationSchemeKind.ExternalJwtBearer))
             {
@@ -329,7 +330,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         public void Dispose()
         {
-            this.automaticTokenRefreshService.TokenRefreshed -= this.StoreAuthenticationTokens;
+            this.automaticTokenRefreshService.TokenRefreshed -= this.StoreAuthenticationTokensAsync;
             this.automaticTokenRefreshService.Dispose();
         }
 
@@ -337,7 +338,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// Stores <see cref="AuthenticationTokens" /> information into the session storage
         /// </summary>
         /// <returns>An awaitable <see cref="Task" /></returns>
-        private async Task StoreAuthenticationTokens()
+        private async Task StoreAuthenticationTokensAsync()
         {
             await this.sessionStorageService.SetItemAsync(AccessTokenKey, this.sessionService.Session.Credentials.Tokens.AccessToken);
             await this.sessionStorageService.SetItemAsync(RefreshTokenKey, this.sessionService.Session.Credentials.Tokens.RefreshToken);

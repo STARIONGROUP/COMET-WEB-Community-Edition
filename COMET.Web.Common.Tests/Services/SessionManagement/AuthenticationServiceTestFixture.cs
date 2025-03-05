@@ -85,6 +85,12 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             };
         }
 
+        [TearDown]
+        public void Teardown()
+        {
+            this.authenticationService.Dispose();
+        }
+
         [Test]
         public async Task VerifyLogout()
         {
@@ -213,6 +219,43 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             
             await this.authenticationService.TryRestoreLastSessionAsync();
             this.sessionService.Verify(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.LocalJwtBearer, It.IsAny<AuthenticationInformation>()), Times.Once);
+        }
+        
+        [Test]
+        public async Task VerifyExchangeOpenIdConnectCodeAsync()
+        {
+            const string code = "aRandomCode";
+            const string redirect = "http://localhost/callback";
+            
+            var authenticationSchemeResponse = new AuthenticationSchemeResponse()
+            {
+                Schemes = [AuthenticationSchemeKind.Basic]
+            };            
+            
+            await  Assert.MultipleAsync(async () =>
+            {
+                await Assert.ThatAsync(() => this.authenticationService.ExchangeOpenIdConnectCodeAsync(null, authenticationSchemeResponse, redirect), Throws.Exception);
+                await Assert.ThatAsync(() => this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, null, redirect), Throws.Exception);
+                await Assert.ThatAsync(() => this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, null), Throws.Exception);
+                await Assert.ThatAsync(() => this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect), Throws.Exception);
+            });
+
+            authenticationSchemeResponse.Schemes = [AuthenticationSchemeKind.ExternalJwtBearer];
+            var openIdDto = new OpenIdAuthenticationDto("access", "refresh", 1500, 15000);
+            
+            this.openIdConnectService.Setup(x => x.RequestAuthenticationToken(code, authenticationSchemeResponse, redirect, null)).ReturnsAsync(openIdDto);
+            
+            this.sessionService.Setup(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.ExternalJwtBearer, It.IsAny<AuthenticationInformation>()))
+                .ReturnsAsync(Result.Ok())
+                .Callback(()=> this.credentials.ProvideUserToken(openIdDto, AuthenticationSchemeKind.ExternalJwtBearer));
+            
+            await this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect);
+            this.sessionService.Verify(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.ExternalJwtBearer, It.IsAny<AuthenticationInformation>()), Times.Once);
+            
+            this.openIdConnectService.Setup(x => x.RequestAuthenticationToken(code, authenticationSchemeResponse, redirect, null)).ThrowsAsync(new InvalidOperationException());
+            await this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect);
+
+            this.sessionStorageService.Verify(x => x.SetItemAsync(It.IsAny<string>(), string.Empty, default), Times.Exactly(3));
         }
     }
 }
