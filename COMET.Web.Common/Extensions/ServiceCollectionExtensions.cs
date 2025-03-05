@@ -31,6 +31,9 @@ namespace COMET.Web.Common.Extensions
 
     using CDP4Dal;
 
+    using CDP4ServicesDal;
+    using CDP4ServicesDal.ExternalAuthenticationProviderService;
+
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Server.Services.ConfigurationService;
     using COMET.Web.Common.Server.Services.StringTableService;
@@ -91,6 +94,8 @@ namespace COMET.Web.Common.Extensions
             serviceProvider.AddScoped<ICDPMessageBus, CDPMessageBus>();
             serviceProvider.AddSingleton<IValidationService, ValidationService>();
             serviceProvider.AddScoped<ICacheService, CacheService>();
+            serviceProvider.AddScoped<IOpenIdConnectService, OpenIdConnectService>();
+            serviceProvider.AddScoped<IAutomaticTokenRefreshService, AutomaticTokenRefreshService>();
             serviceProvider.AddAuthorizationCore();
             serviceProvider.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             serviceProvider.RegisterCommonViewModels();

@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>Latest</LangVersion>
-    <Version>6.0.0</Version>
-    <AssemblyVersion>6.0.0</AssemblyVersion>
-    <FileVersion>6.0.0</FileVersion>
+    <Version>6.1.0</Version>
+    <AssemblyVersion>6.1.0</AssemblyVersion>
+    <FileVersion>6.1.0</FileVersion>
     <Title>CDP4 WEB Common</Title>
     <Description>A Common Library for any Blazor based application related to ECSS-E-TM-10-25</Description>
     <Company>Starion Group S.A.</Company>
@@ -24,7 +24,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>
-            [Update] to CDP4-SDK 28.0.0
+            [Update] to CDP4-SDK 28.2.0
             [Add] Support of multiple authentication scheme
         </PackageReleaseNotes>
   </PropertyGroup>
@@ -32,8 +32,8 @@
     <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
     <PackageReference Include="Blazored.FluentValidation" Version="2.2.0" />
     <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
-    <PackageReference Include="CDP4ServicesDal-CE" Version="28.0.0" />
-    <PackageReference Include="CDP4Web-CE" Version="28.0.0" />
+    <PackageReference Include="CDP4ServicesDal-CE" Version="28.2.0" />
+    <PackageReference Include="CDP4Web-CE" Version="28.2.0" />
     <PackageReference Include="DevExpress.Blazor" Version="23.2.11" />
     <PackageReference Include="FastMember" Version="1.5.0" />
     <PackageReference Include="FluentResults" Version="3.16.0" />

@@ -32,6 +32,9 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 
     using CDP4DalCommon.Authentication;
 
+    using CDP4ServicesDal;
+    using CDP4ServicesDal.ExternalAuthenticationProviderService;
+
     using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -50,6 +53,9 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         private AuthenticationService authenticationService;
         private AuthenticationDto authenticationDto;
         private Mock<ISessionStorageService> sessionStorageService;
+        private Mock<IOpenIdConnectService> openIdConnectService;
+        private Mock<IAutomaticTokenRefreshService> automaticTokenRefreshService;
+        private Credentials credentials;
 
         [SetUp]
         public void SetUp()
@@ -57,13 +63,20 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             this.session = new Mock<ISession>();
             this.sessionService = new Mock<ISessionService>();
             this.sessionStorageService = new Mock<ISessionStorageService>();
-
+            this.openIdConnectService = new Mock<IOpenIdConnectService>();
+            this.automaticTokenRefreshService = new Mock<IAutomaticTokenRefreshService>();
+            
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.sessionService.Setup(x => x.IsSessionOpen).Returns(false);
 
             this.cometWebAuthStateProvider = new CometWebAuthStateProvider(this.sessionService.Object);
-            this.authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider, this.sessionStorageService.Object);
+            
+            this.authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider, this.sessionStorageService.Object,
+                this.openIdConnectService.Object, this.automaticTokenRefreshService.Object);
 
+            this.credentials = new Credentials(new Uri("http://localhost:5000/"));
+            this.session.Setup(x => x.Credentials).Returns(this.credentials);
+            
             this.authenticationDto = new AuthenticationDto
             {
                 SourceAddress = "https://www.stariongroup.eu/",
@@ -120,16 +133,20 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
                 this.sessionStorageService.Verify(x => x.SetItemAsync("access_token", It.IsAny<string>(), default), Times.Never);
             });
             
-            var tokenBasedAuthenticationInfo = new AuthenticationInformation("token");
-            this.sessionService.Setup(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.ExternalJwtBearer, tokenBasedAuthenticationInfo)).ReturnsAsync(Result.Ok());
-            this.sessionService.Setup(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.LocalJwtBearer, tokenBasedAuthenticationInfo)).ReturnsAsync(Result.Ok());
-
+            var tokenBasedAuthenticationInfo = new AuthenticationInformation(new AuthenticationTokens("token", "refresh"));
+            
+            this.sessionService.Setup(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.ExternalJwtBearer, tokenBasedAuthenticationInfo)).ReturnsAsync(Result.Ok())
+                .Callback(() => this.credentials.ProvideUserToken(tokenBasedAuthenticationInfo.Token, AuthenticationSchemeKind.ExternalJwtBearer));
+            
+            this.sessionService.Setup(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.LocalJwtBearer, tokenBasedAuthenticationInfo)).ReturnsAsync(Result.Ok())
+                .Callback(() => this.credentials.ProvideUserToken(tokenBasedAuthenticationInfo.Token, AuthenticationSchemeKind.LocalJwtBearer));
+            
             loginResult = await this.authenticationService.LoginAsync(AuthenticationSchemeKind.LocalJwtBearer, tokenBasedAuthenticationInfo);
 
             Assert.Multiple(() =>
             {
                 Assert.That(loginResult.IsSuccess, Is.EqualTo(true)); 
-                this.sessionStorageService.Verify(x => x.SetItemAsync("access_token", tokenBasedAuthenticationInfo.Token, default), Times.Once);
+                this.sessionStorageService.Verify(x => x.SetItemAsync("access_token", tokenBasedAuthenticationInfo.Token.AccessToken, default), Times.Once);
             });
             
             loginResult = await this.authenticationService.LoginAsync(AuthenticationSchemeKind.ExternalJwtBearer, tokenBasedAuthenticationInfo);
@@ -137,7 +154,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             Assert.Multiple(() =>
             {
                 Assert.That(loginResult.IsSuccess, Is.EqualTo(true)); 
-                this.sessionStorageService.Verify(x => x.SetItemAsync("access_token", tokenBasedAuthenticationInfo.Token, default), Times.Exactly(2));
+                this.sessionStorageService.Verify(x => x.SetItemAsync("access_token", tokenBasedAuthenticationInfo.Token.AccessToken, default), Times.Exactly(2));
             });
         }
 
