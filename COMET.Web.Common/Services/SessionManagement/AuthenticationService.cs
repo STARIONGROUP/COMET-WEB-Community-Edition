@@ -34,9 +34,6 @@ namespace COMET.Web.Common.Services.SessionManagement
 
     using CDP4DalCommon.Authentication;
 
-    using CDP4ServicesDal;
-    using CDP4ServicesDal.ExternalAuthenticationProviderService;
-
     using CDP4Web.Extensions;
 
     using COMET.Web.Common.Model.DTO;
@@ -72,14 +69,14 @@ namespace COMET.Web.Common.Services.SessionManagement
         private readonly AuthenticationStateProvider authStateProvider;
 
         /// <summary>
-        /// Gets the injected <see cref="IAutomaticTokenRefreshService" /> that will provide token refresh features
+        /// Gets the injected <see cref="IAuthenticationRefreshService" /> that will provide token refresh features
         /// </summary>
-        private readonly IAutomaticTokenRefreshService automaticTokenRefreshService;
+        private readonly IAuthenticationRefreshService automaticTokenRefreshService;
 
         /// <summary>
-        /// Gets the injected <see cref="IOpenIdConnectService" /> used to communicate with the external authentication provider
+        /// Gets the injected <see cref="IProvideExternalAuthenticationService" /> used to communicate with the external authentication provider
         /// </summary>
-        private readonly IOpenIdConnectService openIdConnectService;
+        private readonly IProvideExternalAuthenticationService openIdConnectService;
 
         /// <summary>
         /// The (injected) <see cref="ISessionService" /> that provides access to the <see cref="ISession" />
@@ -106,10 +103,10 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// The (injected) <see cref="AuthenticationStateProvider" />
         /// </param>
         /// <param name="sessionStorageService">The injected <see cref="ISessionStorageService" /> that allows interaction with the browser session storage</param>
-        /// <param name="openIdConnectService">The injected <see cref="IOpenIdConnectService" /> used to communicate with the external authentication provider</param>
-        /// <param name="automaticTokenRefreshService">The injected <see cref="IAutomaticTokenRefreshService" /> that will provide token refresh features</param>
+        /// <param name="openIdConnectService">The injected <see cref="IProvideExternalAuthenticationService" /> used to communicate with the external authentication provider</param>
+        /// <param name="automaticTokenRefreshService">The injected <see cref="IAuthenticationRefreshService" /> that will provide token refresh features</param>
         public AuthenticationService(ISessionService sessionService, AuthenticationStateProvider authenticationStateProvider, ISessionStorageService sessionStorageService,
-            IOpenIdConnectService openIdConnectService, IAutomaticTokenRefreshService automaticTokenRefreshService)
+            IProvideExternalAuthenticationService openIdConnectService, IAuthenticationRefreshService automaticTokenRefreshService)
         {
             this.authStateProvider = authenticationStateProvider;
             this.sessionService = sessionService;
@@ -117,7 +114,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             this.openIdConnectService = openIdConnectService;
             this.automaticTokenRefreshService = automaticTokenRefreshService;
 
-            this.automaticTokenRefreshService.TokenRefreshed += this.StoreAuthenticationTokensAsync;
+            this.automaticTokenRefreshService.AuthenticationRefreshed += this.StoreAuthenticationTokensAsync;
         }
 
         /// <summary>
@@ -250,7 +247,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             }
 
             var refreshToken = await this.sessionStorageService.GetItemAsync<string>(RefreshTokenKey);
-            var authenticationToken = new AuthenticationTokens(previousToken, refreshToken);
+            var authenticationToken = new AuthenticationToken(previousToken, refreshToken);
 
             var authenticationSchemeToBeUsed = authenticationSchemeResponse.Value.Schemes.Contains(AuthenticationSchemeKind.ExternalJwtBearer)
                 ? AuthenticationSchemeKind.ExternalJwtBearer
@@ -261,7 +258,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             try
             {
                 this.automaticTokenRefreshService.Initialize(this.sessionService.Session, this.lastSupportedAuthenticationSchemeResponse);
-                await this.automaticTokenRefreshService.RefreshAuthenticationTokenAsync();
+                await this.automaticTokenRefreshService.RefreshAuthenticationInformationAsync();
             }
             catch
             {
@@ -269,7 +266,7 @@ namespace COMET.Web.Common.Services.SessionManagement
                 return;
             }
 
-            var result = await this.LoginAsync(authenticationSchemeToBeUsed, new AuthenticationInformation(this.sessionService.Session.Credentials.Tokens));
+            var result = await this.LoginAsync(authenticationSchemeToBeUsed, new AuthenticationInformation(this.sessionService.Session.Credentials.Token));
 
             if (result.IsFailed)
             {
@@ -330,18 +327,18 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// </summary>
         public void Dispose()
         {
-            this.automaticTokenRefreshService.TokenRefreshed -= this.StoreAuthenticationTokensAsync;
+            this.automaticTokenRefreshService.AuthenticationRefreshed -= this.StoreAuthenticationTokensAsync;
             this.automaticTokenRefreshService.Dispose();
         }
 
         /// <summary>
-        /// Stores <see cref="AuthenticationTokens" /> information into the session storage
+        /// Stores <see cref="AuthenticationToken" /> information into the session storage
         /// </summary>
         /// <returns>An awaitable <see cref="Task" /></returns>
         private async Task StoreAuthenticationTokensAsync()
         {
-            await this.sessionStorageService.SetItemAsync(AccessTokenKey, this.sessionService.Session.Credentials.Tokens.AccessToken);
-            await this.sessionStorageService.SetItemAsync(RefreshTokenKey, this.sessionService.Session.Credentials.Tokens.RefreshToken);
+            await this.sessionStorageService.SetItemAsync(AccessTokenKey, this.sessionService.Session.Credentials.Token.AccessToken);
+            await this.sessionStorageService.SetItemAsync(RefreshTokenKey, this.sessionService.Session.Credentials.Token.RefreshToken);
         }
 
         /// <summary>

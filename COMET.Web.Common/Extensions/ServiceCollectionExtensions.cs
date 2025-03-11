@@ -94,8 +94,8 @@ namespace COMET.Web.Common.Extensions
             serviceProvider.AddScoped<ICDPMessageBus, CDPMessageBus>();
             serviceProvider.AddSingleton<IValidationService, ValidationService>();
             serviceProvider.AddScoped<ICacheService, CacheService>();
-            serviceProvider.AddScoped<IOpenIdConnectService, OpenIdConnectService>();
-            serviceProvider.AddScoped<IAutomaticTokenRefreshService, AutomaticTokenRefreshService>();
+            serviceProvider.AddScoped<IProvideExternalAuthenticationService, OpenIdConnectService>();
+            serviceProvider.AddScoped<IAuthenticationRefreshService, AuthenticationTokenRefreshService>();
             serviceProvider.AddAuthorizationCore();
             serviceProvider.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             serviceProvider.RegisterCommonViewModels();
