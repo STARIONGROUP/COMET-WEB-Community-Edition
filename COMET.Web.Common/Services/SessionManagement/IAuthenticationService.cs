@@ -38,7 +38,7 @@ namespace COMET.Web.Common.Services.SessionManagement
     /// The purpose of the <see cref="IAuthenticationService" /> is to authenticate against
     /// a E-TM-10-25 Annex C.2 data source
     /// </summary>
-    public interface IAuthenticationService
+    public interface IAuthenticationService: IDisposable
     {
         /// <summary>
         /// Login (authenticate) with authentication information to a data source

@@ -50,6 +50,9 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         private AuthenticationService authenticationService;
         private AuthenticationDto authenticationDto;
         private Mock<ISessionStorageService> sessionStorageService;
+        private Mock<IProvideExternalAuthenticationService> openIdConnectService;
+        private Mock<IAuthenticationRefreshService> automaticTokenRefreshService;
+        private Credentials credentials;
 
         [SetUp]
         public void SetUp()
@@ -57,19 +60,32 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             this.session = new Mock<ISession>();
             this.sessionService = new Mock<ISessionService>();
             this.sessionStorageService = new Mock<ISessionStorageService>();
-
+            this.openIdConnectService = new Mock<IProvideExternalAuthenticationService>();
+            this.automaticTokenRefreshService = new Mock<IAuthenticationRefreshService>();
+            
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.sessionService.Setup(x => x.IsSessionOpen).Returns(false);
 
             this.cometWebAuthStateProvider = new CometWebAuthStateProvider(this.sessionService.Object);
-            this.authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider, this.sessionStorageService.Object);
+            
+            this.authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider, this.sessionStorageService.Object,
+                this.openIdConnectService.Object, this.automaticTokenRefreshService.Object);
 
+            this.credentials = new Credentials(new Uri("http://localhost:5000/"));
+            this.session.Setup(x => x.Credentials).Returns(this.credentials);
+            
             this.authenticationDto = new AuthenticationDto
             {
                 SourceAddress = "https://www.stariongroup.eu/",
                 UserName = "John Doe",
                 Password = "secret"
             };
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.authenticationService.Dispose();
         }
 
         [Test]
@@ -120,16 +136,20 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
                 this.sessionStorageService.Verify(x => x.SetItemAsync("access_token", It.IsAny<string>(), default), Times.Never);
             });
             
-            var tokenBasedAuthenticationInfo = new AuthenticationInformation("token");
-            this.sessionService.Setup(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.ExternalJwtBearer, tokenBasedAuthenticationInfo)).ReturnsAsync(Result.Ok());
-            this.sessionService.Setup(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.LocalJwtBearer, tokenBasedAuthenticationInfo)).ReturnsAsync(Result.Ok());
-
+            var tokenBasedAuthenticationInfo = new AuthenticationInformation(new AuthenticationToken("token", "refresh"));
+            
+            this.sessionService.Setup(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.ExternalJwtBearer, tokenBasedAuthenticationInfo)).ReturnsAsync(Result.Ok())
+                .Callback(() => this.credentials.ProvideUserToken(tokenBasedAuthenticationInfo.Token, AuthenticationSchemeKind.ExternalJwtBearer));
+            
+            this.sessionService.Setup(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.LocalJwtBearer, tokenBasedAuthenticationInfo)).ReturnsAsync(Result.Ok())
+                .Callback(() => this.credentials.ProvideUserToken(tokenBasedAuthenticationInfo.Token, AuthenticationSchemeKind.LocalJwtBearer));
+            
             loginResult = await this.authenticationService.LoginAsync(AuthenticationSchemeKind.LocalJwtBearer, tokenBasedAuthenticationInfo);
 
             Assert.Multiple(() =>
             {
                 Assert.That(loginResult.IsSuccess, Is.EqualTo(true)); 
-                this.sessionStorageService.Verify(x => x.SetItemAsync("access_token", tokenBasedAuthenticationInfo.Token, default), Times.Once);
+                this.sessionStorageService.Verify(x => x.SetItemAsync("access_token", tokenBasedAuthenticationInfo.Token.AccessToken, default), Times.Once);
             });
             
             loginResult = await this.authenticationService.LoginAsync(AuthenticationSchemeKind.ExternalJwtBearer, tokenBasedAuthenticationInfo);
@@ -137,7 +157,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             Assert.Multiple(() =>
             {
                 Assert.That(loginResult.IsSuccess, Is.EqualTo(true)); 
-                this.sessionStorageService.Verify(x => x.SetItemAsync("access_token", tokenBasedAuthenticationInfo.Token, default), Times.Exactly(2));
+                this.sessionStorageService.Verify(x => x.SetItemAsync("access_token", tokenBasedAuthenticationInfo.Token.AccessToken, default), Times.Exactly(2));
             });
         }
 
@@ -196,6 +216,43 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             
             await this.authenticationService.TryRestoreLastSessionAsync();
             this.sessionService.Verify(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.LocalJwtBearer, It.IsAny<AuthenticationInformation>()), Times.Once);
+        }
+        
+        [Test]
+        public async Task VerifyExchangeOpenIdConnectCodeAsync()
+        {
+            const string code = "aRandomCode";
+            const string redirect = "http://localhost/callback";
+            
+            var authenticationSchemeResponse = new AuthenticationSchemeResponse()
+            {
+                Schemes = [AuthenticationSchemeKind.Basic]
+            };            
+            
+            await  Assert.MultipleAsync(async () =>
+            {
+                await Assert.ThatAsync(() => this.authenticationService.ExchangeOpenIdConnectCodeAsync(null, authenticationSchemeResponse, redirect), Throws.Exception);
+                await Assert.ThatAsync(() => this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, null, redirect), Throws.Exception);
+                await Assert.ThatAsync(() => this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, null), Throws.Exception);
+                await Assert.ThatAsync(() => this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect), Throws.Exception);
+            });
+
+            authenticationSchemeResponse.Schemes = [AuthenticationSchemeKind.ExternalJwtBearer];
+            var openIdDto = new AuthenticationToken("access", "refresh");
+            
+            this.openIdConnectService.Setup(x => x.RequestAuthenticationToken(code, authenticationSchemeResponse, redirect, null)).ReturnsAsync(openIdDto);
+            
+            this.sessionService.Setup(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.ExternalJwtBearer, It.IsAny<AuthenticationInformation>()))
+                .ReturnsAsync(Result.Ok())
+                .Callback(()=> this.credentials.ProvideUserToken(openIdDto, AuthenticationSchemeKind.ExternalJwtBearer));
+            
+            await this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect);
+            this.sessionService.Verify(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.ExternalJwtBearer, It.IsAny<AuthenticationInformation>()), Times.Once);
+            
+            this.openIdConnectService.Setup(x => x.RequestAuthenticationToken(code, authenticationSchemeResponse, redirect, null)).ThrowsAsync(new InvalidOperationException());
+            await this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect);
+
+            this.sessionStorageService.Verify(x => x.SetItemAsync(It.IsAny<string>(), string.Empty, default), Times.Exactly(3));
         }
     }
 }
