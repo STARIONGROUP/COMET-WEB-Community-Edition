@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <Version>6.2.0</Version>
+        <Version>6.2.1</Version>
         <Title>CDP4-COMET WEB</Title>
         <Description>A web application that implements ECSS-E-TM-10-25</Description>
         <Company>Starion Group S.A.</Company>
@@ -16,6 +16,14 @@
         <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\ascii-art.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Resources\ascii-art.txt" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="AntDesign" Version="1.2.0" />

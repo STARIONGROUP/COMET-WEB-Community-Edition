@@ -24,17 +24,19 @@
 
 namespace COMETwebapp
 {
+    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
 
     using COMET.Web.Common.Extensions;
-
+    
     using COMETwebapp.Extensions;
     using COMETwebapp.Model;
+    using COMETwebapp.Resources;
     using COMETwebapp.Shared;
     using COMETwebapp.Shared.SideBarEntry;
     using COMETwebapp.Shared.TopMenuEntry;
-
+    
     using Serilog;
 
     /// <summary>
@@ -46,8 +48,10 @@ namespace COMETwebapp
         /// <summary>
         /// Point of entry of the application
         /// </summary>
-        public static async Task Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
+            Console.Title = "CDP4-COMET WEB";
+
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddRazorPages();
@@ -73,13 +77,38 @@ namespace COMETwebapp
             });
 
             var app = builder.Build();
-            app.UseStaticFiles();
-            app.UseRouting();
-            app.MapBlazorHub();
-            app.MapFallbackToPage("/_Host");
 
-            await app.Services.InitializeCdp4CometCommonServices();
-            await app.RunAsync();
+            var logger = app.Services.GetService<ILogger<Program>>();
+
+            try
+            {
+                var resourceLoader = app.Services.GetService<IResourceLoader>();
+                
+                logger.LogInformation(resourceLoader.QueryLogo());
+
+                logger.LogInformation("################################################################");
+
+                logger.LogInformation("Starting CDP4-COMET WEB v{version}", resourceLoader.QueryVersion());
+
+                app.UseStaticFiles();
+                app.UseRouting();
+                app.MapBlazorHub();
+                app.MapFallbackToPage("/_Host");
+
+                await app.Services.InitializeCdp4CometCommonServices();
+
+                logger.LogInformation("CDP4-COMET WEB is running and accepting connections");
+
+                await app.RunAsync();
+
+                logger.LogInformation("Terminated CDP4-COMET WEB cleanly");
+                return 0;
+            }
+            catch (Exception e)
+            {
+                logger.LogCritical(e, "An unhandled exception occurred during startup-bootstrapping");
+                return -1;
+            }
         }
     }
 }

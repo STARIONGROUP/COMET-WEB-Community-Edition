@@ -25,6 +25,7 @@
 namespace COMETwebapp.Extensions
 {
     using COMETwebapp.Model.Viewer;
+    using COMETwebapp.Resources;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Services.SubscriptionService;
@@ -34,34 +35,34 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.EngineeringModel;
     using COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore;
     using COMETwebapp.ViewModels.Components.EngineeringModel.DomainFileStore;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
-    using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
-    using COMETwebapp.ViewModels.Components.ModelDashboard;
-    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
-    using COMETwebapp.ViewModels.Components.ModelEditor;
-    using COMETwebapp.ViewModels.Components.ParameterEditor;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
-    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
-    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
-    using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.Organizations;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.Roles;
-    using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
-    using COMETwebapp.ViewModels.Components.SystemRepresentation;
-    using COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement;
-    using COMETwebapp.ViewModels.Components.Viewer;
-    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHandler;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
+    using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
+    using COMETwebapp.ViewModels.Components.ModelDashboard;
+    using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
+    using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.CopySettings;
+    using COMETwebapp.ViewModels.Components.ParameterEditor;
     using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
     using COMETwebapp.ViewModels.Components.ReferenceData;
-    using COMETwebapp.ViewModels.Pages;
+    using COMETwebapp.ViewModels.Components.ReferenceData.Categories;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
+    using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
+    using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.SiteDirectory;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Organizations;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.Roles;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement;
+    using COMETwebapp.ViewModels.Components.SubscriptionDashboard;
+    using COMETwebapp.ViewModels.Components.SystemRepresentation;
+    using COMETwebapp.ViewModels.Components.Viewer;
+    using COMETwebapp.ViewModels.Pages;
+    using COMETwebapp.ViewModels.Shared.TopMenuEntry;
 
     /// <summary>
     /// Extension class for the <see cref="IServiceCollection" />
@@ -74,6 +75,7 @@ namespace COMETwebapp.Extensions
         /// <param name="serviceCollection">The <see cref="IServiceCollection" /></param>
         public static void RegisterServices(this IServiceCollection serviceCollection)
         {
+            serviceCollection.AddSingleton<IResourceLoader, ResourceLoader>();
             serviceCollection.AddScoped<ISubscriptionService, SubscriptionService>();
             serviceCollection.AddScoped<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
             serviceCollection.AddScoped<ISceneSettings, SceneSettings>();
