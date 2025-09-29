@@ -40,10 +40,14 @@ jobs:
         languages: ${{ matrix.language }}
 
     - name: add Github nuget feed
-      run: dotnet nuget add source https://nuget.pkg.github.com/STARIONGROUP/index.json -n StarionGithubFeed -u STARIONGROUP -p ${{ secrets.PACKAGE_TOKEN }} --store-password-in-clear-text
+      env:
+          PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+      run: dotnet nuget add source https://nuget.pkg.github.com/STARIONGROUP/index.json -n StarionGithubFeed -u STARIONGROUP -p $PACKAGE_TOKEN --store-password-in-clear-text
 
     - name: add DevExpress nuget feed
-      run: dotnet nuget add source https://nuget.devexpress.com/api -n DXFeed -u DevExpress -p ${{ secrets.DEVEXPRESS_NUGET_KEY }} --store-password-in-clear-text
+      env:
+          DEVEXPRESS_NUGET_KEY: ${{ secrets.DEVEXPRESS_NUGET_KEY }}
+      run: dotnet nuget add source https://nuget.devexpress.com/api -n DXFeed -u DevExpress -p $DEVEXPRESS_NUGET_KEY --store-password-in-clear-text
 
     - name: Install dependencies
       run: dotnet restore COMETwebapp.sln
