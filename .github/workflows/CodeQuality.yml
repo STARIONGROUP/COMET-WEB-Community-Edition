@@ -33,7 +33,7 @@ jobs:
       - name: add Github nuget feed
         env:
           PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
-        run: dotnet nuget add source https://nuget.pkg.github.com/STARIONGROUP/index.json -n StarionGithubFeed -u STARIONGROUP -p $secrets.PACKAGE_TOKEN --store-password-in-clear-text
+        run: dotnet nuget add source https://nuget.pkg.github.com/STARIONGROUP/index.json -n StarionGithubFeed -u STARIONGROUP -p $PACKAGE_TOKEN --store-password-in-clear-text
 
       - name: add DevExpress nuget feed
         env:
