@@ -31,7 +31,7 @@
         <PackageReference Include="Feather.Blazor" Version="1.0.1" />
         <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
         <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
-        <PackageReference Include="System.Drawing.Common" Version="9.0.2" />
+        <PackageReference Include="System.Drawing.Common" Version="9.0.9" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
         <PackageReference Include="Z.Blazor.Diagrams" Version="3.0.3" />
     </ItemGroup>
