@@ -36,6 +36,8 @@ namespace COMET.Web.Common.Utilities
     using CDP4Dal.Operations;
     using CDP4Dal.Permission;
 
+    using CDP4DalCommon.Protocol.Operations;
+
     /// <summary>
     /// The class responsible for copy operations
     /// </summary>

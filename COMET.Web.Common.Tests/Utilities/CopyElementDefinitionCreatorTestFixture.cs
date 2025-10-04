@@ -36,6 +36,8 @@ namespace COMET.Web.Common.Tests.Utilities
     using CDP4Dal;
     using CDP4Dal.Operations;
 
+    using CDP4DalCommon.Protocol.Operations;
+
     using COMET.Web.Common.Utilities;
 
     using Moq;

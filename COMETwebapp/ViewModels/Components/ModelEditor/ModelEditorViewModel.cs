@@ -30,7 +30,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 
     using CDP4Dal;
     using CDP4Dal.Events;
-    using CDP4Dal.Operations;
+
+    using CDP4DalCommon.Protocol.Operations;
 
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.Cache;

@@ -24,7 +24,7 @@
 
 namespace COMETwebapp.ViewModels.Components.ModelEditor.CopySettings
 {
-    using CDP4Dal.Operations;
+    using CDP4DalCommon.Protocol.Operations;
 
     using Microsoft.AspNetCore.Components;
 

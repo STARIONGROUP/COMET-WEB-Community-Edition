@@ -31,8 +31,8 @@
     <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
     <PackageReference Include="Blazored.FluentValidation" Version="2.2.0" />
     <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
-    <PackageReference Include="CDP4ServicesDal-CE" Version="28.3.2" />
-    <PackageReference Include="CDP4Web-CE" Version="28.3.2" />
+    <PackageReference Include="CDP4ServicesDal-CE" Version="29.0.0" />
+    <PackageReference Include="CDP4Web-CE" Version="29.0.0" />
     <PackageReference Include="DevExpress.Blazor" Version="23.2.11" />
     <PackageReference Include="FastMember" Version="1.5.0" />
     <PackageReference Include="FluentResults" Version="4.0.0" />
