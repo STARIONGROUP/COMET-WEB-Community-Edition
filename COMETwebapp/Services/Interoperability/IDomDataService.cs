@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IDomDataService.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
+//    Copyright (c) 2023-2025 Starion Group S.A.
 //
 //    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //

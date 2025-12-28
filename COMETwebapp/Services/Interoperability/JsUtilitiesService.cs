@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="JsUtilitiesService.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2024 Starion Group S.A.
+//    Copyright (c) 2023-2025 Starion Group S.A.
 //
 //    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Antoine Théate, João Rua
 //

@@ -10,7 +10,7 @@
       <FileVersion>5.1.2</FileVersion>
       <Description>A Common Library that includes DevExpress Blazor and Tasks test helpers</Description>
       <Company>Starion Group S.A.</Company>
-      <Copyright>Copyright 2023-2024 Starion Group S.A.</Copyright>
+      <Copyright>Copyright 2023-2025 Starion Group S.A.</Copyright>
       <PackageId>CDP4.WEB.Common.Test</PackageId>
       <AssemblyTitle>COMET.WEB.Common.Test</AssemblyTitle>
       <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -30,7 +30,7 @@
 
   <ItemGroup>
     <PackageReference Include="bunit.web" Version="1.38.5" />
-    <PackageReference Include="DevExpress.Blazor" Version="23.2.11" />
+    <PackageReference Include="DevExpress.Blazor" Version="23.2.15" />
     <PackageReference Include="Moq" Version="4.20.72" />
   </ItemGroup>
 
