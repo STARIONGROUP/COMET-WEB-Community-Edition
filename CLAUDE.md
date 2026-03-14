@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-COMET Web Community Edition is a Blazor Server-Side web application implementing the ECSS-E-TM-10-25 standard for concurrent engineering design. Built on .NET 9.0 with ReactiveUI (MVVM + Reactive programming) and DevExpress Blazor components.
+COMET Web Community Edition is a Blazor Server-Side web application implementing the ECSS-E-TM-10-25 standard for concurrent engineering design. Built on .NET 10.0 with ReactiveUI (MVVM + Reactive programming) and DevExpress Blazor components.
 
 ## Build & Test Commands
 
