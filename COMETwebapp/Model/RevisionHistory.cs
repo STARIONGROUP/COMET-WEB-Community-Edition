@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RevisionHistory.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2025 Starion Group S.A.
+//    Copyright (c) 2023-2026 Starion Group S.A.
 //
 //    Authors: Justine Veirier d'aiguebonne, Sam Gerené, Alex Vorobiev, Alexander van Delft
 //
