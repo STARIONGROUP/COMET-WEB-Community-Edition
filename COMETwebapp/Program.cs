@@ -29,7 +29,9 @@ namespace COMETwebapp
     using System.Reflection;
 
     using COMET.Web.Common.Extensions;
-    
+
+    using ReactiveUI.Builder;
+
     using COMETwebapp.Extensions;
     using COMETwebapp.Model;
     using COMETwebapp.Resources;
@@ -57,6 +59,9 @@ namespace COMETwebapp
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
 
+            RxAppBuilder.CreateReactiveUIBuilder()
+                            .WithBlazor().BuildApp();
+            
             builder.Services.RegisterCdp4CometCommonServices(true, options =>
             {
                 options.Applications = Applications.ExistingApplications;
