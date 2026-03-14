@@ -14,5 +14,8 @@
 **/docker-compose*
 **/Dockerfile*
 **/obj
+**/COMET.Web.Common.Tests
+**/COMET.Web.Common.Test
+**/COMETwebapp.Tests
 !nginx.conf
 switcher.json

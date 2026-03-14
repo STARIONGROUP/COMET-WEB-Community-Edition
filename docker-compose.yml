@@ -1,0 +1,13 @@
+# run with: docker compose up --build
+# secrets are read from .env file
+
+services:
+  cometweb:
+    build:
+      context: .
+      dockerfile: COMETwebapp/Dockerfile
+      args:
+        DEVEXPRESS_NUGET_KEY: ${DEVEXPRESS_NUGET_KEY}
+        PACKAGE_TOKEN: ${PACKAGE_TOKEN}
+    ports:
+      - "8080:8080"

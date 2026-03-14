@@ -353,5 +353,6 @@ MigrationBackup/
 # Jetbrains folders
 .idea/
 
+.env
 switcher.json
 /.claude/settings.local.json
