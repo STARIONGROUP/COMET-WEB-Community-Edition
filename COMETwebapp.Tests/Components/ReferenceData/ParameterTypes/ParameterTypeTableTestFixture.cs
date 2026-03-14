@@ -47,19 +47,18 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ParameterTypeTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IParameterTypeTableViewModel> viewModel;
         private ParameterType parameterType;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.parameterType = new BooleanParameterType
@@ -87,7 +86,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
         [Test]
         public void VerifyOnInitialized()
         {
-            var renderer = this.context.RenderComponent<ParameterTypeTable>();
+            var renderer = this.context.Render<ParameterTypeTable>();
 
             Assert.Multiple(() =>
             {
@@ -100,7 +99,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
         [Test]
         public async Task VerifyParameterTypeGridActions()
         {
-            var renderer = this.context.RenderComponent<ParameterTypeTable>();
+            var renderer = this.context.Render<ParameterTypeTable>();
 
             var addParameterTypeButton = renderer.FindComponent<DxButton>();
             await renderer.InvokeAsync(addParameterTypeButton.Instance.Click.InvokeAsync);

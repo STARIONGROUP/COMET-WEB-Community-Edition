@@ -58,19 +58,18 @@ namespace COMET.Web.Common.Tests.Components
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class IndexComponentTestFixture
     {
         private IIndexViewModel viewModel;
-        private TestContext context;
+        private BunitContext context;
         private Mock<ICacheService> cacheService;
         private Mock<IVersionService> versionService;
         private Mock<ISessionService> sessionService;
         private Mock<IConfigurationService> serverConnectionService;
         private Mock<IAuthenticationService> authenticationService;
-        private TestAuthorizationContext authorization;
+        private BunitAuthorizationContext authorization;
         private SourceList<Iteration> sourceList;
         private Mock<IRegistrationService> registrationService;
         private readonly Guid modelId = Guid.NewGuid();
@@ -78,7 +77,7 @@ namespace COMET.Web.Common.Tests.Components
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.versionService = new Mock<IVersionService>();
             this.sessionService = new Mock<ISessionService>();
             this.serverConnectionService = new Mock<IConfigurationService>();
@@ -105,7 +104,7 @@ namespace COMET.Web.Common.Tests.Components
             this.context.Services.AddSingleton(this.registrationService.Object);
             this.context.Services.AddSingleton(this.cacheService.Object);
             this.context.ConfigureDevExpressBlazor();
-            this.authorization = this.context.AddTestAuthorization();
+            this.authorization = this.context.AddAuthorization();
 
             var configurationService = new Mock<IStringTableService>();
             configurationService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
@@ -126,7 +125,7 @@ namespace COMET.Web.Common.Tests.Components
             var session = new Mock<ISession>();
             session.Setup(x => x.DataSourceUri).Returns("http://localhost");
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
-            var renderer = this.context.RenderComponent<IndexComponent>();
+            var renderer = this.context.Render<IndexComponent>();
             Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
             this.sourceList.Add(new Iteration());
             Assert.That(() => renderer.FindComponent<Dashboard>(), Throws.Nothing);
@@ -135,7 +134,7 @@ namespace COMET.Web.Common.Tests.Components
         [Test]
         public void VerifyIndexPageNotAuthorized()
         {
-            var renderer = this.context.RenderComponent<IndexComponent>();
+            var renderer = this.context.Render<IndexComponent>();
             Assert.That(() => renderer.FindComponent<Login>(), Throws.Nothing);
         }
 
@@ -189,7 +188,7 @@ namespace COMET.Web.Common.Tests.Components
 
             var url = QueryHelpers.AddQueryString("ModelDashboard", queries);
 
-            var renderer = this.context.RenderComponent<IndexComponent>(parameters =>
+            var renderer = this.context.Render<IndexComponent>(parameters =>
                 parameters.Add(p => p.Redirect, url));
 
             var openModel = renderer.FindComponent<OpenModel>();
@@ -198,7 +197,7 @@ namespace COMET.Web.Common.Tests.Components
             this.sessionService.Setup(x => x.GetParticipantModels()).Returns(new List<EngineeringModelSetup> { engineeringModelSetup });
             this.sessionService.Setup(x => x.OpenEngineeringModels).Returns(new ReadOnlyCollection<EngineeringModel>([engineeringModel]));
 
-            renderer = this.context.RenderComponent<IndexComponent>(parameters =>
+            renderer = this.context.Render<IndexComponent>(parameters =>
                 parameters.Add(p => p.Redirect, url));
 
             openModel = renderer.FindComponent<OpenModel>();
@@ -209,7 +208,7 @@ namespace COMET.Web.Common.Tests.Components
                 IterationIid = iteration.Iid
             });
 
-            renderer = this.context.RenderComponent<IndexComponent>(parameters =>
+            renderer = this.context.Render<IndexComponent>(parameters =>
                 parameters.Add(p => p.Redirect, url));
 
             openModel = renderer.FindComponent<OpenModel>();
@@ -220,7 +219,7 @@ namespace COMET.Web.Common.Tests.Components
                 domain
             });
 
-            renderer = this.context.RenderComponent<IndexComponent>(parameters =>
+            renderer = this.context.Render<IndexComponent>(parameters =>
                 parameters.Add(p => p.Redirect, url));
 
             openModel = renderer.FindComponent<OpenModel>();
@@ -233,7 +232,7 @@ namespace COMET.Web.Common.Tests.Components
             const string targetServer = "http://localhost:5000";
             var url = QueryHelpers.AddQueryString("ModelDashboard", QueryKeys.ServerKey, targetServer);
 
-            var renderer = this.context.RenderComponent<IndexComponent>(parameters => { parameters.Add(p => p.Redirect, url); });
+            var renderer = this.context.Render<IndexComponent>(parameters => { parameters.Add(p => p.Redirect, url); });
 
             var login = renderer.FindComponent<Login>();
             Assert.That(login.Instance.ViewModel.AuthenticationDto.SourceAddress, Is.EqualTo(targetServer));

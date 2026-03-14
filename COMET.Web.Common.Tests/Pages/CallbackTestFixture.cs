@@ -24,6 +24,8 @@
 
 namespace COMET.Web.Common.Tests.Pages
 {
+    using Bunit;
+
     using System.Collections.Specialized;
 
     using CDP4DalCommon.Authentication;
@@ -43,14 +45,13 @@ namespace COMET.Web.Common.Tests.Pages
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
     
     [TestFixture]
     public class CallbackTestFixture
     {
         private Mock<IAuthenticationService> authenticationService;
         private Mock<IConfigurationService> configurationService;
-        private TestContext context;
+        private BunitContext context;
 
         [SetUp]
         public void Setup()
@@ -60,7 +61,7 @@ namespace COMET.Web.Common.Tests.Pages
             var serverConfig = new ServerConfiguration();
             this.configurationService.Setup(x => x.ServerConfiguration).Returns(serverConfig);
         
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.authenticationService.Object);
             this.context.Services.AddSingleton(this.configurationService.Object);
@@ -77,7 +78,7 @@ namespace COMET.Web.Common.Tests.Pages
         {
             var navigation = this.context.Services.GetService<NavigationManager>();
             navigation.NavigateTo("/callback");
-            _ = this.context.RenderComponent<Callback>();
+            _ = this.context.Render<Callback>();
 
             Assert.Multiple(() =>
             {
@@ -100,7 +101,7 @@ namespace COMET.Web.Common.Tests.Pages
 
             uri += $"?{string.Join("&", queryParameters.AllKeys.Select(key => $"{key}={queryParameters[key]!}"))}";
             
-            _ = this.context.RenderComponent<Callback>();
+            _ = this.context.Render<Callback>();
             var navigation = this.context.Services.GetService<NavigationManager>();
             navigation.NavigateTo(uri);
             

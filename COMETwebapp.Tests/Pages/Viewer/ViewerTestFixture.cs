@@ -62,12 +62,11 @@ namespace COMETwebapp.Tests.Pages.Viewer
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ViewerTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private ISingleIterationApplicationTemplateViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private SourceList<Iteration> openedIterations;
@@ -80,7 +79,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.sessionService = new Mock<ISessionService>();
             this.cacheService = new Mock<ICacheService>();
             this.openedIterations = new SourceList<Iteration>();
@@ -160,7 +159,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
 
             // Act: Navigate to the URI and render the component
             navigationManager.NavigateTo(testUri);
-            this.context.RenderComponent<Viewer>();
+            this.context.Render<Viewer>();
 
             Assert.Multiple(() =>
             {
@@ -175,7 +174,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
 
             // Act: Navigate to the URI and render the component
             navigationManager.NavigateTo(testUri);
-            this.context.RenderComponent<Viewer>();
+            this.context.Render<Viewer>();
 
             Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
         }
@@ -184,7 +183,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
         public async Task VerifyIterationSelection()
         {
             this.openedIterations.AddRange(new List<Iteration> { this.firstIteration, this.secondIteration });
-            var renderer = this.context.RenderComponent<Viewer>();
+            var renderer = this.context.Render<Viewer>();
 
             Assert.That(this.viewModel.IterationSelectorViewModel.AvailableIterations.ToList(), Has.Count.EqualTo(2));
             this.viewModel.IterationSelectorViewModel.SelectedIteration = this.viewModel.IterationSelectorViewModel.AvailableIterations.Last();
@@ -205,7 +204,7 @@ namespace COMETwebapp.Tests.Pages.Viewer
         [Test]
         public void VerifyOpenModelPresent()
         {
-            var renderer = this.context.RenderComponent<Viewer>();
+            var renderer = this.context.Render<Viewer>();
             Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
         }
     }

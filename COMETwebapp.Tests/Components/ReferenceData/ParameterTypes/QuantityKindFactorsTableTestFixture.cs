@@ -36,19 +36,18 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class QuantityKindFactorsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<QuantityKindFactorsTable> renderer;
         private DerivedQuantityKind parameterType;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.parameterType = new DerivedQuantityKind
@@ -60,7 +59,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
                 }
             };
 
-            this.renderer = this.context.RenderComponent<QuantityKindFactorsTable>(parameters =>
+            this.renderer = this.context.Render<QuantityKindFactorsTable>(parameters =>
             {
                 parameters.Add(p => p.QuantityKindParameterTypes, [new SimpleQuantityKind(), new SpecializedQuantityKind()]);
                 parameters.Add(p => p.Thing, this.parameterType);

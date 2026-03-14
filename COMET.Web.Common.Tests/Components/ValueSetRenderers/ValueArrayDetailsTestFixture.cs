@@ -34,18 +34,17 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ValueArrayDetailsTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private static readonly string[] SfptValuesArray = ["1", "10", "2", "20"];
 
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
         }
 
         [TearDown]
@@ -69,7 +68,7 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
 
             var valueArray = new ValueArray<string>(new []{"45"});
 
-            var renderer = this.context.RenderComponent<ValueArrayDetails>(parameters =>
+            var renderer = this.context.Render<ValueArrayDetails>(parameters =>
             {
                 parameters.Add(p => p.ParameterType, mass);
                 parameters.Add(p => p.Value,valueArray);
@@ -99,7 +98,7 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
 
             var valueArray = new ValueArray<string>(new[] { "-", "true" });
 
-            var renderer = this.context.RenderComponent<ValueArrayDetails>(parameters =>
+            var renderer = this.context.Render<ValueArrayDetails>(parameters =>
             {
                 parameters.Add(p => p.ParameterType, compoundParameterType);
                 parameters.Add(p => p.Value, valueArray);
@@ -126,7 +125,7 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
 
             var valueArray = new ValueArray<string>(new[]{"-", "false", "true", "-"});
             
-            var renderer = this.context.RenderComponent<ValueArrayDetails>(parameters =>
+            var renderer = this.context.Render<ValueArrayDetails>(parameters =>
             {
                 parameters.Add(p => p.ParameterType, arrayParameterType);
                 parameters.Add(p => p.Value, valueArray);
@@ -154,7 +153,7 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
 
             var valueArray = new ValueArray<string>(new[] { "-", "false", "true", "-", "-", "false", "true", "true" });
 
-            var renderer = this.context.RenderComponent<ValueArrayDetails>(parameters =>
+            var renderer = this.context.Render<ValueArrayDetails>(parameters =>
             {
                 parameters.Add(p => p.ParameterType, arrayParameterType);
                 parameters.Add(p => p.Value, valueArray);
@@ -182,7 +181,7 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
 
             var valueArray = new ValueArray<string>(SfptValuesArray);
 
-            var renderer = this.context.RenderComponent<ValueArrayDetails>(parameters =>
+            var renderer = this.context.Render<ValueArrayDetails>(parameters =>
             {
                 parameters.Add(p => p.ParameterType, sfpt);
                 parameters.Add(p => p.Value, valueArray);

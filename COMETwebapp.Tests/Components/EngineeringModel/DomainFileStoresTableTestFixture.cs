@@ -50,12 +50,11 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class DomainFileStoresTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<DomainFileStoresTable> renderer;
         private Mock<IDomainFileStoreTableViewModel> viewModel;
         private DomainFileStore domainFileStore;
@@ -63,7 +62,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.viewModel = new Mock<IDomainFileStoreTableViewModel>();
 
             this.domainFileStore = new DomainFileStore()
@@ -81,7 +80,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<DomainFileStoresTable>(parameters =>
+            this.renderer = this.context.Render<DomainFileStoresTable>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
             });

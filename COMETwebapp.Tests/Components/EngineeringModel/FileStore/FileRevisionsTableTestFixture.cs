@@ -43,12 +43,11 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class FileRevisionsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<FileRevisionsTable> renderer;
         private Mock<IFileRevisionHandlerViewModel> viewModel;
         private List<FileRevision> fileRevisions;
@@ -56,7 +55,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.viewModel = new Mock<IFileRevisionHandlerViewModel>();
             this.fileRevisions = [new FileRevision()];
 
@@ -64,7 +63,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
             this.viewModel.Setup(x => x.CurrentFile).Returns(new File());
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<FileRevisionsTable>(parameters =>
+            this.renderer = this.context.Render<FileRevisionsTable>(parameters =>
             { 
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
                 parameters.Add(p => p.FileRevisions, this.fileRevisions);
@@ -83,7 +82,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         { 
             var timesFileRevisionsWasChanged = 0;
 
-            this.renderer.SetParametersAndRender(parameters =>
+            this.renderer.Render(parameters =>
             {
                 parameters.Add(p => p.FileRevisionsChanged, () => { timesFileRevisionsWasChanged += 1; });
             });
@@ -102,7 +101,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         {
             var timesFileRevisionsWasChanged = 0;
 
-            this.renderer.SetParametersAndRender(parameters =>
+            this.renderer.Render(parameters =>
             {
                 parameters.Add(p => p.FileRevisionsChanged, () => { timesFileRevisionsWasChanged += 1; });
             });

@@ -54,12 +54,11 @@ namespace COMETwebapp.Tests.Components.Tabs
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class TabsPanelComponentTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<TabsPanelComponent> renderer;
         private Mock<ITabsViewModel> viewModel;
         private Mock<IEngineeringModelBodyViewModel> engineeringModelBodyViewModel;
@@ -70,7 +69,7 @@ namespace COMETwebapp.Tests.Components.Tabs
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             var engineeringModelBodyApplication = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
@@ -121,7 +120,7 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.context.Services.AddSingleton(this.engineeringModelBodyViewModel.Object);
             this.context.Services.AddSingleton(configuration.Object);
 
-            this.renderer = this.context.RenderComponent<TabsPanelComponent>(parameters =>
+            this.renderer = this.context.Render<TabsPanelComponent>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
                 parameters.Add(p => p.Panel, this.mainPanel);
@@ -197,7 +196,7 @@ namespace COMETwebapp.Tests.Components.Tabs
                 Assert.That(this.sidePanel.OpenTabs.Items.First(), Is.EqualTo(newTab));
             });
 
-            this.renderer.SetParametersAndRender(parameters =>
+            this.renderer.Render(parameters =>
             {
                 parameters.Add(p => p.Panel, this.sidePanel);
             });

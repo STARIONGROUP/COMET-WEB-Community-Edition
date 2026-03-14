@@ -50,7 +50,6 @@ namespace COMETwebapp.Tests.Model
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     /// <summary>
     /// Primitives tests that verifies the correct behavior of JSInterop
@@ -58,7 +57,7 @@ namespace COMETwebapp.Tests.Model
     [TestFixture]
     public class SceneObjectTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private List<Primitive> positionables;
         private List<Primitive> primitives;
         private ElementDefinition elementDef;
@@ -75,7 +74,7 @@ namespace COMETwebapp.Tests.Model
             this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.cache, this.uri) { Name = "domain" };
 
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
 
             var session = new Mock<ISessionService>();

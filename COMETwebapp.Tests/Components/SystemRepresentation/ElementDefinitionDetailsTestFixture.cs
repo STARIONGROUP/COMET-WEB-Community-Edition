@@ -38,12 +38,11 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ElementDefinitionTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private ElementDefinitionDetailsViewModel elementDefinitionDetailsViewModel;
         private Assembler assembler;
         private readonly Uri uri = new ("http://test.com");
@@ -54,7 +53,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.messageBus = new CDPMessageBus();
@@ -87,7 +86,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         [Test]
         public void VerifyComponent()
         {
-            var renderer = this.context.RenderComponent<ElementDefinitionDetails>(parameters =>
+            var renderer = this.context.Render<ElementDefinitionDetails>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.elementDefinitionDetailsViewModel);
             });

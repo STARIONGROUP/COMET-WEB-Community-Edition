@@ -44,12 +44,11 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class OrganizationalParticipantsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<OrganizationalParticipantsTable> renderer;
         private Mock<IOrganizationalParticipantsTableViewModel> viewModel;
         private EngineeringModelSetup model;
@@ -59,7 +58,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.viewModel = new Mock<IOrganizationalParticipantsTableViewModel>();
 
             this.model = new EngineeringModelSetup
@@ -98,7 +97,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<OrganizationalParticipantsTable>(p => { p.Add(parameter => parameter.ViewModel, this.viewModel.Object); });
+            this.renderer = this.context.Render<OrganizationalParticipantsTable>(p => { p.Add(parameter => parameter.ViewModel, this.viewModel.Object); });
         }
 
         [TearDown]

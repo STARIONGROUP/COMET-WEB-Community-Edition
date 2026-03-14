@@ -36,19 +36,18 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ComponentsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<ComponentsTable> renderer;
         private CompoundParameterType parameterType;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.parameterType = new CompoundParameterType
@@ -68,7 +67,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
                 }
             };
 
-            this.renderer = this.context.RenderComponent<ComponentsTable>(parameters =>
+            this.renderer = this.context.Render<ComponentsTable>(parameters =>
             {
                 parameters.Add(p => p.ParameterTypes, [new SimpleQuantityKind(), new SpecializedQuantityKind()]);
                 parameters.Add(p => p.Thing, this.parameterType);
@@ -98,7 +97,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
         [Test]
         public async Task VerifyDimensionUpdate()
         {
-            this.renderer.SetParametersAndRender(p => p.Add(x => x.Thing, new ArrayParameterType()));
+            this.renderer.Render(p => p.Add(x => x.Thing, new ArrayParameterType()));
             var dimensionTextBox = this.renderer.FindComponents<DxTextBox>().First(x => x.Instance.Id == "dimensionTextBox");
             await this.renderer.InvokeAsync(() => dimensionTextBox.Instance.TextChanged.InvokeAsync("1,2,3"));
             Assert.That(this.renderer.Instance.Dimension, Is.EqualTo("1,2,3"));
@@ -106,7 +105,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             var arrayParameterTypeWithDimensions = new ArrayParameterType();
             arrayParameterTypeWithDimensions.Dimension.AddRange([1, 2, 3, 4, 5]);
 
-            this.renderer.SetParametersAndRender(p => { p.Add(x => x.Thing, arrayParameterTypeWithDimensions); });
+            this.renderer.Render(p => { p.Add(x => x.Thing, arrayParameterTypeWithDimensions); });
 
             Assert.That(((ArrayParameterType)this.renderer.Instance.Thing).Dimension, Has.Count.EqualTo(5));
             await this.renderer.InvokeAsync(() => dimensionTextBox.Instance.TextChanged.InvokeAsync("1,2,3"));

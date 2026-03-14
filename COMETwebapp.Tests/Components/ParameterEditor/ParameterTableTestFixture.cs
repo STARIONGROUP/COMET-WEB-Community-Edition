@@ -48,12 +48,11 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ParameterTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<ParameterTable> renderedComponent;
         private ParameterTable table;
         private Mock<ISessionService> sessionService;
@@ -63,7 +62,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
             this.sessionService = new Mock<ISessionService>();
             this.context.Services.AddSingleton(this.sessionService.Object);
@@ -79,7 +78,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
             this.parameterTableViewModel.Setup(x => x.Rows).Returns(parametersList);
 
-            this.renderedComponent = this.context.RenderComponent<ParameterTable>(parameters =>
+            this.renderedComponent = this.context.Render<ParameterTable>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.parameterTableViewModel.Object);
             });
@@ -116,7 +115,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
                 Assert.That(highlightedGroupRows.Count, Is.EqualTo(1));
             });
             
-            grid.SetParametersAndRender(p => p.Add(x => x.AutoExpandAllGroupRows, true));
+            grid.Render(p => p.Add(x => x.AutoExpandAllGroupRows, true));
             var highlightedRows = grid.FindAll(".font-weight-bold");
 
             Assert.Multiple(() =>

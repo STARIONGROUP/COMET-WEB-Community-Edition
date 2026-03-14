@@ -36,18 +36,17 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ScaleValueDefinitionsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<ScaleValueDefinitionsTable> renderer;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             var scale = new OrdinalScale()
@@ -55,7 +54,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
                 ValueDefinition = { new ScaleValueDefinition() }
             };
 
-            this.renderer = this.context.RenderComponent<ScaleValueDefinitionsTable>(parameters => { parameters.Add(p => p.MeasurementScale, scale); });
+            this.renderer = this.context.Render<ScaleValueDefinitionsTable>(parameters => { parameters.Add(p => p.MeasurementScale, scale); });
         }
 
         [TearDown]
@@ -80,7 +79,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         {
             var timesScaleValueDefinitionsChanged = 0;
 
-            this.renderer.SetParametersAndRender(p => { p.Add(parameters => parameters.MeasurementScaleChanged, () => { timesScaleValueDefinitionsChanged++; }); });
+            this.renderer.Render(p => { p.Add(parameters => parameters.MeasurementScaleChanged, () => { timesScaleValueDefinitionsChanged++; }); });
 
             var editScaleValueDefinitionButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editScaleValueDefinitionButton");
             await this.renderer.InvokeAsync(editScaleValueDefinitionButton.Instance.Click.InvokeAsync);

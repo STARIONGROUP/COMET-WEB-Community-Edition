@@ -46,12 +46,11 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class DomainsOfExpertiseTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IDomainsOfExpertiseTableViewModel> viewModel;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
         private DomainOfExpertise domainOfExpertise1;
@@ -60,7 +59,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             this.viewModel = new Mock<IDomainsOfExpertiseTableViewModel>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
@@ -103,7 +102,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [Test]
         public async Task VerifyAddingOrEditingDomainOfExpertise()
         {
-            var renderer = this.context.RenderComponent<DomainsOfExpertiseTable>();
+            var renderer = this.context.Render<DomainsOfExpertiseTable>();
 
             var addDomainOfExpertiseButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "dataItemDetailsButton");
             await renderer.InvokeAsync(addDomainOfExpertiseButton.Instance.Click.InvokeAsync);
@@ -136,7 +135,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [Test]
         public void VerifyOnInitialized()
         {
-            var renderer = this.context.RenderComponent<DomainsOfExpertiseTable>();
+            var renderer = this.context.Render<DomainsOfExpertiseTable>();
 
             Assert.Multiple(() =>
             {

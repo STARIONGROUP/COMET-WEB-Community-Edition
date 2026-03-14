@@ -41,19 +41,18 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class OrientationComponentTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private OrientationComponent orientation;
         private IRenderedComponent<OrientationComponent> renderedComponent;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
             this.context.ConfigureDevExpressBlazor();
 
@@ -62,7 +61,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
             orientationViewModel.Setup(x => x.CurrentValueSet.ActualValue).Returns(new ValueArray<string>(new List<string>() { "0", "0", "0", }));
             orientationViewModel.Setup(x => x.Orientation).Returns(Orientation.Identity());
 
-            this.renderedComponent = this.context.RenderComponent<OrientationComponent>(parameters =>
+            this.renderedComponent = this.context.Render<OrientationComponent>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, orientationViewModel.Object);
             });

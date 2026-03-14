@@ -39,12 +39,11 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class DateTimeParameterTypeEditorTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<DateTimeParameterTypeEditor> renderedComponent;
         private DateTimeParameterTypeEditor editor;
         private Mock<IParameterEditorBaseViewModel<DateTimeParameterType>> viewModelMock;
@@ -52,7 +51,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             var parameterValueSet = new ParameterValueSet
@@ -66,7 +65,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
             this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
 
-            this.renderedComponent = this.context.RenderComponent<DateTimeParameterTypeEditor>(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.renderedComponent = this.context.Render<DateTimeParameterTypeEditor>(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
 
             this.editor = this.renderedComponent.Instance;
         }

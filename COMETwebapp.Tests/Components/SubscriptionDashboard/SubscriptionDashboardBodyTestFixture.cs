@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 {
+    using Bunit;
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -48,12 +50,11 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class SubscriptionDashboardBodyTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private ISubscriptionDashboardBodyViewModel viewModel;
         private Mock<ISubscriptionService> subscriptionService;
         private Mock<ISessionService> sessionService;
@@ -63,7 +64,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.sessionService = new Mock<ISessionService>();
             this.subscriptionService = new Mock<ISubscriptionService>();
             this.subscriptionService.Setup(x => x.SubscriptionsWithUpdate).Returns(new Dictionary<Guid, List<Guid>>());
@@ -90,7 +91,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         {
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise() { Name = "Thermal" });
             
-            _ = this.context.RenderComponent<SubscriptionDashboardBody>(parameters =>
+            _ = this.context.Render<SubscriptionDashboardBody>(parameters =>
             {
                 parameters.Add(p => p.CurrentThing, new Iteration());
             });
@@ -158,7 +159,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
             iteration.TopElement = iteration.Element[0];
 
-            _ = this.context.RenderComponent<SubscriptionDashboardBody>(parameters =>
+            _ = this.context.Render<SubscriptionDashboardBody>(parameters =>
             {
                 parameters.Add(p => p.CurrentThing, iteration);
             });
@@ -177,7 +178,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             mockedViewModel.Setup(x => x.OptionSelector).Returns(this.viewModel.OptionSelector);
             mockedViewModel.Setup(x => x.ParameterTypeSelector).Returns(this.viewModel.ParameterTypeSelector);
 
-            var rendered = this.context.RenderComponent<SubscriptionDashboardBody>(parameters =>
+            var rendered = this.context.Render<SubscriptionDashboardBody>(parameters =>
             {
                 parameters.Add(p => p.CurrentThing, iteration);
                 parameters.Add(p => p.ParameterizedViewModel, mockedViewModel.Object);

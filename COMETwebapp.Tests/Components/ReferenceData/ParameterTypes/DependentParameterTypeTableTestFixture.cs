@@ -36,19 +36,18 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class DependentParameterTypeTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<DependentParameterTypeTable> renderer;
         private SampledFunctionParameterType parameterType;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.parameterType = new SampledFunctionParameterType
@@ -69,7 +68,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
                 }
             };
 
-            this.renderer = this.context.RenderComponent<DependentParameterTypeTable>(parameters =>
+            this.renderer = this.context.Render<DependentParameterTypeTable>(parameters =>
             {
                 parameters.Add(p => p.ParameterTypes, [new SimpleQuantityKind(), new SpecializedQuantityKind()]);
                 parameters.Add(p => p.Thing, this.parameterType);

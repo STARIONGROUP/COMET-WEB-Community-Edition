@@ -46,7 +46,6 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
     using IAntDesignNotificationService = AntDesign.INotificationService;
     using INotificationService = COMET.Web.Common.Services.NotificationService.INotificationService;
     using Result = FluentResults.Result;
@@ -54,7 +53,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
     [TestFixture]
     public class NotificationComponentTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IVersionService> versionService;
         private Mock<INotificationService> notificationService;
         private Mock<IAntDesignNotificationService> antDesignNotificationService;
@@ -62,7 +61,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.antDesignNotificationService = new Mock<IAntDesignNotificationService>();
             this.notificationService = new Mock<INotificationService>();
             this.notificationService.Setup(x => x.Results).Returns(new SourceList<ResultNotification>());
@@ -92,7 +91,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
         [Test]
         public void VerifyAboutEntry()
         {
-            var renderer = this.context.RenderComponent<DxMenu>(parameters =>
+            var renderer = this.context.Render<DxMenu>(parameters =>
             {
                 parameters.Add(p => p.Items, builder =>
                 {

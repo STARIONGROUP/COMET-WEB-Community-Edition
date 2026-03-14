@@ -48,12 +48,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class MeasurementScalesTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IMeasurementScalesTableViewModel> viewModel;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
         private MeasurementScale measurementScale1;
@@ -62,7 +61,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             this.viewModel = new Mock<IMeasurementScalesTableViewModel>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
@@ -116,7 +115,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         [Test]
         public async Task VerifyAddingOrEditingMeasurementScale()
         {
-            var renderer = this.context.RenderComponent<MeasurementScalesTable>();
+            var renderer = this.context.Render<MeasurementScalesTable>();
 
             var addMeasurementScaleButton = renderer.FindComponent<DxButton>();
             await renderer.InvokeAsync(addMeasurementScaleButton.Instance.Click.InvokeAsync);
@@ -149,7 +148,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         [Test]
         public void VerifyOnInitialized()
         {
-            var renderer = this.context.RenderComponent<MeasurementScalesTable>();
+            var renderer = this.context.Render<MeasurementScalesTable>();
 
             Assert.Multiple(() =>
             {

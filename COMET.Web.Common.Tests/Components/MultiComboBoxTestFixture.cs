@@ -35,21 +35,20 @@ namespace COMET.Web.Common.Tests.Components
 
     using Microsoft.AspNetCore.Components;
 
-    using TestContext = Bunit.TestContext;
 
     using NUnit.Framework;
 
     [TestFixture]
     public class MultiComboBoxTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<MultiComboBox<Category>> component;
         private List<Category> availableCategories;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.availableCategories = new List<Category>
@@ -67,7 +66,7 @@ namespace COMET.Web.Common.Tests.Components
         [TestCase(false, true)]
         public async Task VerifyComponent(bool isComponentEnabled, bool isComponentReadOnly)
         {
-            this.component = this.context.RenderComponent<MultiComboBox<Category>>(parameter =>
+            this.component = this.context.Render<MultiComboBox<Category>>(parameter =>
             {
                 parameter.Add(p => p.Data, this.availableCategories);
                 parameter.Add(p => p.Values, this.availableCategories);

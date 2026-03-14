@@ -50,19 +50,18 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class SubscribedTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<ISubscribedTableViewModel> viewModel;
         private SourceList<ParameterSubscriptionRowViewModel> rows;
 
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.rows = new SourceList<ParameterSubscriptionRowViewModel>();
             this.viewModel = new Mock<ISubscribedTableViewModel>();
             this.viewModel.Setup(x => x.Rows).Returns(this.rows);
@@ -78,7 +77,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         [Test]
         public async Task VerifyComponent()
         {
-            var renderer = this.context.RenderComponent<SubscribedTable>(parameters =>
+            var renderer = this.context.Render<SubscribedTable>(parameters =>
                 parameters.Add(p => p.ViewModel, this.viewModel.Object));
 
             Assert.That(() => renderer.FindComponent<DxGrid>(), Throws.Exception);
@@ -133,7 +132,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         [Test]
         public async Task VerifyBooleanParameterEvolutionComponent()
         {
-            var renderer = this.context.RenderComponent<SubscribedTable>(parameters =>
+            var renderer = this.context.Render<SubscribedTable>(parameters =>
                 parameters.Add(p => p.ViewModel, this.viewModel.Object));
 
             Assert.That(() => renderer.FindComponent<DxGrid>(), Throws.Exception);
@@ -188,7 +187,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         [Test]
         public async Task VerifyEnumerationParameterEvolutionComponent()
         {
-            var renderer = this.context.RenderComponent<SubscribedTable>(parameters =>
+            var renderer = this.context.Render<SubscribedTable>(parameters =>
                 parameters.Add(p => p.ViewModel, this.viewModel.Object));
 
             Assert.That(() => renderer.FindComponent<DxGrid>(), Throws.Exception);
@@ -273,7 +272,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         [Test]
         public async Task VerifyCompoundParameterEvolutionComponent()
         {
-            var renderer = this.context.RenderComponent<SubscribedTable>(parameters =>
+            var renderer = this.context.Render<SubscribedTable>(parameters =>
                 parameters.Add(p => p.ViewModel, this.viewModel.Object));
 
             Assert.That(() => renderer.FindComponent<DxGrid>(), Throws.Exception);
@@ -368,7 +367,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         [Test]
         public async Task VerifyDateParameterEvolutionComponent()
         {
-            var renderer = this.context.RenderComponent<SubscribedTable>(parameters =>
+            var renderer = this.context.Render<SubscribedTable>(parameters =>
                 parameters.Add(p => p.ViewModel, this.viewModel.Object));
 
             Assert.That(() => renderer.FindComponent<DxGrid>(), Throws.Exception);

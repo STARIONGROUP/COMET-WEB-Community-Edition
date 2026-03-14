@@ -49,13 +49,12 @@ namespace COMET.Web.Common.Tests.Components
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class OpenModelTestFixture
     {
         private OpenModelViewModel viewModel;
-        private TestContext context;
+        private BunitContext context;
         private Mock<ISessionService> sessionService;
         private Mock<IConfigurationService> configurationService;
         private Mock<ICacheService> cacheService;
@@ -101,7 +100,7 @@ namespace COMET.Web.Common.Tests.Components
                 }
             ];
 
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.sessionService = new Mock<ISessionService>();
             this.configurationService = new Mock<IConfigurationService>();
             this.cacheService = new Mock<ICacheService>();
@@ -124,7 +123,7 @@ namespace COMET.Web.Common.Tests.Components
         {
             this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
             this.sessionService.Setup(x => x.GetParticipantModels()).Returns(this.engineeringModels);
-            var renderer = this.context.RenderComponent<OpenModel>();
+            var renderer = this.context.Render<OpenModel>();
             var layoutItems = renderer.FindComponents<DxFormLayoutItem>();
 
             Assert.Multiple(() =>
@@ -178,7 +177,7 @@ namespace COMET.Web.Common.Tests.Components
         {
             this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
             this.sessionService.Setup(x => x.GetParticipantModels()).Returns(this.engineeringModels);
-            this.context.RenderComponent<OpenModel>();
+            this.context.Render<OpenModel>();
 
             this.sessionService.Setup(x => x.GetModelDomains(It.IsAny<EngineeringModelSetup>()))
                 .Returns(new List<DomainOfExpertise> { new() { Name = "Thermodynamic" } });

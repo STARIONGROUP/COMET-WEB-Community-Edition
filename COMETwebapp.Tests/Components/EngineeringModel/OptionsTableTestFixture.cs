@@ -44,12 +44,11 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class OptionsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<OptionsTable> renderer;
         private Mock<IOptionsTableViewModel> viewModel;
         private Option option;
@@ -57,7 +56,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.viewModel = new Mock<IOptionsTableViewModel>();
 
             this.option = new Option
@@ -74,7 +73,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
 
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<OptionsTable>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
+            this.renderer = this.context.Render<OptionsTable>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
         }
 
         [TearDown]

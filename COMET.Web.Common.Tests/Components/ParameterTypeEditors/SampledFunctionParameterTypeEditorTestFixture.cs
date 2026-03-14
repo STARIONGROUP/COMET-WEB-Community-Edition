@@ -43,18 +43,17 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class SampledFunctionParameterTypeEditorTestFixture
     {
         private Mock<IParameterEditorBaseViewModel<SampledFunctionParameterType>> viewModel;
-        private TestContext context;
+        private BunitContext context;
 
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             var sfpt = new SampledFunctionParameterType();
@@ -130,7 +129,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
         [Test]
         public async Task VerifyNonEditMode()
         {
-            var renderer = this.context.RenderComponent<SampledFunctionParameterTypeEditor>(parameters =>
+            var renderer = this.context.Render<SampledFunctionParameterTypeEditor>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
             });
@@ -147,7 +146,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
             var callback = new EventCallbackFactory().Create(this, () => callbackCount++);
             this.viewModel.Setup(x => x.IsReadOnly).Returns(true);
 
-            var renderer = this.context.RenderComponent<SampledFunctionParameterTypeEditor>(parameters =>
+            var renderer = this.context.Render<SampledFunctionParameterTypeEditor>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
                 parameters.Add(p => p.IsOnEditMode, true);

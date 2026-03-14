@@ -38,12 +38,11 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class IterationsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<IterationsTable> renderer;
         private EngineeringModelSetup model;
         private Iteration iteration1;
@@ -51,7 +50,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             this.model = new EngineeringModelSetup
             {
@@ -69,7 +68,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             rows.Add(new IterationRowViewModel(this.iteration1));
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<IterationsTable>(p =>
+            this.renderer = this.context.Render<IterationsTable>(p =>
             {
                 p.Add(parameter => parameter.EngineeringModelSetup, this.model);
                 p.Add(parameter => parameter.IterationRows, rows.Items);

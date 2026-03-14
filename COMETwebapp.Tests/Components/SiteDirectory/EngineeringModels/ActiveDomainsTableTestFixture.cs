@@ -36,12 +36,11 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ActiveDomainsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<ActiveDomainsTable> renderer;
         private EngineeringModelSetup model;
         private DomainOfExpertise domain1;
@@ -50,7 +49,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.model = new EngineeringModelSetup();
 
             this.domain1 = new DomainOfExpertise
@@ -70,7 +69,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             this.model.ActiveDomain = [this.domain1, this.domain2];
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<ActiveDomainsTable>(p => { p.Add(parameter => parameter.EngineeringModelSetup, this.model); });
+            this.renderer = this.context.Render<ActiveDomainsTable>(p => { p.Add(parameter => parameter.EngineeringModelSetup, this.model); });
         }
 
         [TearDown]

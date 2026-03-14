@@ -49,12 +49,11 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class OrganizationsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IOrganizationsTableViewModel> viewModel;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
         private Organization organization1;
@@ -63,7 +62,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             this.viewModel = new Mock<IOrganizationsTableViewModel>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
@@ -106,7 +105,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [Test]
         public void VerifyOnInitialized()
         {
-            var renderer = this.context.RenderComponent<OrganizationsTable>();
+            var renderer = this.context.Render<OrganizationsTable>();
 
             Assert.Multiple(() =>
             {
@@ -121,7 +120,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [Test]
         public async Task VerifyAddingOrEditingOrganization()
         {
-            var renderer = this.context.RenderComponent<OrganizationsTable>();
+            var renderer = this.context.Render<OrganizationsTable>();
 
             var addOrganizationButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "dataItemDetailsButton");
             await renderer.InvokeAsync(addOrganizationButton.Instance.Click.InvokeAsync);

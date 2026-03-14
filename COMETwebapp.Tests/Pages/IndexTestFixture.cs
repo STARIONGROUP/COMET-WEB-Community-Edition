@@ -49,20 +49,19 @@ namespace COMETwebapp.Tests.Pages
     using NUnit.Framework;
 
     using Result = FluentResults.Result;
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class IndexTestFixture
     {
         private Mock<IIndexViewModel> viewModel;
-        private TestContext context;
+        private BunitContext context;
         private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
-            this.context.AddTestAuthorization();
+            this.context = new BunitContext();
+            this.context.AddAuthorization();
             this.context.ConfigureDevExpressBlazor();
 
             this.sessionService = new Mock<ISessionService>();
@@ -92,7 +91,7 @@ namespace COMETwebapp.Tests.Pages
         [Test]
         public void VerifyIndexPageNotAuthorized()
         {
-            var renderer = this.context.RenderComponent<Index>();
+            var renderer = this.context.Render<Index>();
             Assert.That(() => renderer.FindComponent<Login>(), Throws.Nothing);
         }
     }

@@ -46,12 +46,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class CategoryHierarchyDiagramTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<CategoryHierarchyDiagram> renderer;
         private Mock<IJsUtilitiesService> jsUtilities;
         private Category category;
@@ -59,7 +58,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.category = new Category()
@@ -76,7 +75,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.context.JSInterop.Setup<Rectangle>("ZBlazorDiagrams.getBoundingClientRect", _ => true).SetResult(new Rectangle(1.0, 1.1, 1.1, 1.1));
             this.context.Services.AddSingleton(this.jsUtilities.Object);
 
-            this.renderer = this.context.RenderComponent<CategoryHierarchyDiagram>(parameters =>
+            this.renderer = this.context.Render<CategoryHierarchyDiagram>(parameters =>
             {
                 parameters.Add(p => p.Category, this.category);
             });

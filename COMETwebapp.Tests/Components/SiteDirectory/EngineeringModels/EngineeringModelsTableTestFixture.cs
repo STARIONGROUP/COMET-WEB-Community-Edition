@@ -45,12 +45,11 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class EngineeringModelsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<EngineeringModelsTable> renderer;
         private Mock<IEngineeringModelsTableViewModel> viewModel;
         private EngineeringModelSetup engineeringModel1;
@@ -59,7 +58,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             this.viewModel = new Mock<IEngineeringModelsTableViewModel>();
 
@@ -87,7 +86,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<EngineeringModelsTable>();
+            this.renderer = this.context.Render<EngineeringModelsTable>();
         }
 
         [TearDown]

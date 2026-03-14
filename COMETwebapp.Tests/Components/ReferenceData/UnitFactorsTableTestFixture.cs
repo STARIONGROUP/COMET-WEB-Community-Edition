@@ -36,19 +36,18 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class UnitFactorsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<UnitFactorsTable> renderer;
         private DerivedUnit derivedUnit;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.derivedUnit = new DerivedUnit
@@ -68,7 +67,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
                 new SimpleUnit()
             };
 
-            this.renderer = this.context.RenderComponent<UnitFactorsTable>(p =>
+            this.renderer = this.context.Render<UnitFactorsTable>(p =>
             {
                 p.Add(x => x.Thing, this.derivedUnit);
                 p.Add(x => x.MeasurementUnits, measurementUnits);

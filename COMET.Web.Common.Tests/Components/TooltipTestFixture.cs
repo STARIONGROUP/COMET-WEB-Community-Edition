@@ -31,7 +31,6 @@ namespace COMET.Web.Common.Tests.Components
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class TooltipTestFixture
@@ -39,11 +38,11 @@ namespace COMET.Web.Common.Tests.Components
         [Test]
         public void VerifyTooltipComponent()
         {
-            var context = new TestContext();
+            var context = new BunitContext();
             const string cssClass = "cssclass";
             const string text = "Some text";
 
-            var renderer = context.RenderComponent<Tooltip>(parameters =>
+            var renderer = context.Render<Tooltip>(parameters =>
             {
                 parameters.Add(p => p.Text, text);
                 parameters.Add(p => p.MarginBottom, cssClass);

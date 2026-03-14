@@ -49,12 +49,11 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class SiteDirectoryBodyTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IEngineeringModelsTableViewModel> engineeringModelsTableViewModel;
         private Mock<IDomainsOfExpertiseTableViewModel> domainsOfExpertiseTableViewModel;
         private Mock<ISessionService> sessionService;
@@ -63,7 +62,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             this.engineeringModelsTableViewModel = new Mock<IEngineeringModelsTableViewModel>();
             this.engineeringModelsTableViewModel.Setup(x => x.Rows).Returns(new SourceList<EngineeringModelRowViewModel>());
@@ -84,7 +83,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             this.context.Services.AddSingleton(configuration.Object);
             this.context.Services.AddSingleton(new Mock<ISiteDirectoryBodyViewModel>().Object);
 
-            this.renderer = this.context.RenderComponent<SiteDirectoryBody>();
+            this.renderer = this.context.Render<SiteDirectoryBody>();
         }
 
         [TearDown]

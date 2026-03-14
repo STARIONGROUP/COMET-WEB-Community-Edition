@@ -49,12 +49,11 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class CommonFileStoresTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<CommonFileStoresTable> renderer;
         private Mock<ICommonFileStoreTableViewModel> viewModel;
         private CommonFileStore commonFileStore;
@@ -62,7 +61,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.viewModel = new Mock<ICommonFileStoreTableViewModel>();
 
             this.commonFileStore = new CommonFileStore()
@@ -80,7 +79,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<CommonFileStoresTable>(parameters =>
+            this.renderer = this.context.Render<CommonFileStoresTable>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
             });

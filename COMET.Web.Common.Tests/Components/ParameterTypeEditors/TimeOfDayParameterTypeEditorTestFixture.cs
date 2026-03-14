@@ -43,12 +43,11 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class TimeOfDayParameterTypeEditorTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<TimeOfDayParameterTypeEditor> renderedComponent;
         private TimeOfDayParameterTypeEditor editor;
         private bool eventCallbackCalled;
@@ -58,7 +57,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             var parameterValueSet = new ParameterValueSet
@@ -77,7 +76,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
             this.viewModelMock.Setup(x => x.OnParameterValueChanged(It.IsAny<object>()))
                 .Callback(() => this.eventCallback.InvokeAsync());
 
-            this.renderedComponent = this.context.RenderComponent<TimeOfDayParameterTypeEditor>(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.renderedComponent = this.context.Render<TimeOfDayParameterTypeEditor>(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
 
             this.editor = this.renderedComponent.Instance;
         }
@@ -113,7 +112,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
         {
             this.viewModelMock.Setup(x => x.IsReadOnly).Returns(true);
 
-            this.renderedComponent.SetParametersAndRender(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.renderedComponent.Render(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
 
             var textbox = this.renderedComponent.FindComponent<DxTimeEdit<TimeSpan>>();
             this.editor.ViewModel.IsReadOnly = true;

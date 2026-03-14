@@ -44,19 +44,18 @@ namespace COMET.Web.Common.Tests.Components
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class PublicationsTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<Publications> renderer;
         private Mock<IPublicationsViewModel> viewModel;
         
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
             
             this.viewModel = new Mock<IPublicationsViewModel>();
@@ -69,7 +68,7 @@ namespace COMET.Web.Common.Tests.Components
             this.viewModel.Setup(x => x.Rows).Returns(new SourceList<PublicationRowViewModel>());
             this.viewModel.Setup(x => x.PublishableParameters).Returns(new List<ParameterOrOverrideBase>());
 
-            this.renderer = this.context.RenderComponent<Publications>(parameters =>
+            this.renderer = this.context.Render<Publications>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
             });
@@ -94,7 +93,7 @@ namespace COMET.Web.Common.Tests.Components
 
             this.viewModel.Setup(x => x.CanPublish).Returns(true);
 
-            this.renderer.SetParametersAndRender(parameters =>
+            this.renderer.Render(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
             });
@@ -181,7 +180,7 @@ namespace COMET.Web.Common.Tests.Components
             this.viewModel.Setup(x => x.PublishableParameters).Returns(publishableParameters);
             this.viewModel.Setup(x => x.Rows).Returns(publicationRows);
 
-            this.renderer.SetParametersAndRender(parameters =>
+            this.renderer.Render(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
             });

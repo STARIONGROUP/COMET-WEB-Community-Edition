@@ -25,6 +25,8 @@
 
 namespace COMET.Web.Common.Tests.Pages
 {
+    using Bunit;
+
     using COMET.Web.Common.Pages;
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -35,19 +37,18 @@ namespace COMET.Web.Common.Tests.Pages
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class LogoutTestFixture
     {
         private Mock<IAuthenticationService> authenticationService;
-        private TestContext context;
+        private BunitContext context;
 
         [SetUp]
         public void Setup()
         {
             this.authenticationService = new Mock<IAuthenticationService>();
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.Services.AddSingleton(this.authenticationService.Object);
         }
 
@@ -56,7 +57,7 @@ namespace COMET.Web.Common.Tests.Pages
         {
             var navigation = this.context.Services.GetService<NavigationManager>();
             navigation.NavigateTo("/Logout");
-            _ = this.context.RenderComponent<Logout>();
+            _ = this.context.Render<Logout>();
 
             Assert.Multiple(() =>
             {

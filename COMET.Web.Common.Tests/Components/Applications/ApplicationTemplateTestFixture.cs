@@ -25,6 +25,8 @@
 
 namespace COMET.Web.Common.Tests.Components.Applications
 {
+    using Bunit;
+
     using CDP4Dal;
 
     using COMET.Web.Common.Components.Applications;
@@ -41,12 +43,11 @@ namespace COMET.Web.Common.Tests.Components.Applications
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ApplicationTemplateTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IApplicationTemplateViewModel> viewModel;
         private Mock<ISessionService> sessionService;
         private Mock<IConfigurationService> configurationService;
@@ -55,7 +56,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.viewModel = new Mock<IApplicationTemplateViewModel>();
             this.sessionService = new Mock<ISessionService>();
             this.configurationService = new Mock<IConfigurationService>();
@@ -72,7 +73,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
         [Test]
         public void VerifyApplicationTemplateWithoutDefinedAddress()
         {
-            this.context.RenderComponent<ApplicationTemplate>();
+            this.context.Render<ApplicationTemplate>();
             var navigationManager = this.context.Services.GetService<NavigationManager>();
             Assert.That(navigationManager.Uri, Does.Contain($"{QueryKeys.ServerKey}=abc"));
         }
@@ -81,7 +82,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
         public void VerifyApplicationTemplateWithDefinedAddress()
         {
             this.configuration.ServerAddress = "abc";
-            this.context.RenderComponent<ApplicationTemplate>();
+            this.context.Render<ApplicationTemplate>();
             var navigationManager = this.context.Services.GetService<NavigationManager>();
             Assert.That(navigationManager.Uri, Does.Not.Contain($"{QueryKeys.ServerKey}=abc"));
         }

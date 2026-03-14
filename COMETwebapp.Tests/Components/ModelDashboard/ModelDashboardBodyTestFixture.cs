@@ -61,11 +61,10 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     public class ModelDashboardBodyTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private ModelDashboardBodyViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private CDPMessageBus messageBus;
@@ -73,7 +72,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.sessionService = new Mock<ISessionService>();
             this.messageBus = new CDPMessageBus();
 
@@ -99,7 +98,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
         [Test]
         public async Task VerifyModelDashboardComponent()
         {
-            var renderer = this.context.RenderComponent<ModelDashboardBody>();
+            var renderer = this.context.Render<ModelDashboardBody>();
             Assert.That(this.viewModel.CurrentThing, Is.Null);
             this.messageBus.SendMessage(new DomainChangedEvent(null, null));
             Assert.That(this.viewModel.CurrentDomain, Is.Null);

@@ -38,19 +38,18 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ViewerProductTreeTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private ViewerProductTree productTree;
         private IRenderedComponent<ViewerProductTree> renderedComponent;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             var selectionMediator = new Mock<ISelectionMediator>();
@@ -70,7 +69,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             rootNode.AddChild(node1);
             rootNode.AddChild(node5);
 
-            this.renderedComponent = this.context.RenderComponent<ViewerProductTree>(parameters =>
+            this.renderedComponent = this.context.Render<ViewerProductTree>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, productTreeVM);
             });

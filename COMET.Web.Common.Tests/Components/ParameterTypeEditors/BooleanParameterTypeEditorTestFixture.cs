@@ -43,12 +43,11 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class BooleanParameterTypeEditorTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<BooleanParameterTypeEditor> renderedComponent;
         private BooleanParameterTypeEditor editor;
         private bool eventCallbackCalled;
@@ -58,7 +57,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             var parameterValueSet = new ParameterValueSet
@@ -79,7 +78,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
                 .Callback(() => this.eventCallback.InvokeAsync())
                 .Returns(Task.CompletedTask);
 
-            this.renderedComponent = this.context.RenderComponent<BooleanParameterTypeEditor>(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.renderedComponent = this.context.Render<BooleanParameterTypeEditor>(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
 
             this.editor = this.renderedComponent.Instance;
         }
@@ -115,7 +114,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
         {
             this.viewModelMock.Setup(x => x.IsReadOnly).Returns(true);
 
-            this.renderedComponent.SetParametersAndRender(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.renderedComponent.Render(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
 
             var textbox = this.renderedComponent.FindComponent<DxComboBox<string, string>>();
             this.editor.ViewModel.IsReadOnly = true;

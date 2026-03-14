@@ -24,6 +24,9 @@
 
 namespace COMETwebapp.Tests.Shared.TopMenuEntry
 {
+    using System.Net;
+    using System.Net.Http;
+
     using Bunit;
 
     using COMET.Web.Common.Services.VersionService;
@@ -40,22 +43,24 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class SideDataItemTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IVersionService> versionService;
 
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.versionService = new Mock<IVersionService>();
             this.versionService.Setup(x => x.GetVersion()).Returns("1.1.2");
             this.context.Services.AddSingleton(this.versionService.Object);
-            this.context.Services.AddSingleton(new Mock<IHttpClientFactory>().Object);
+            var httpClientFactory = new Mock<IHttpClientFactory>();
+            var httpClient = new HttpClient(new MockHttpMessageHandler());
+            httpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            this.context.Services.AddSingleton(httpClientFactory.Object);
             this.context.ConfigureDevExpressBlazor();
         }
 
@@ -68,7 +73,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
         [Test]
         public async Task VerifyAboutEntry()
         {
-            var renderer = this.context.RenderComponent<DxMenu>(parameters =>
+            var renderer = this.context.Render<DxMenu>(parameters =>
             {
                 parameters.Add(p => p.Items, builder =>
                 {
@@ -91,6 +96,17 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
             var closeButton = popup.FindComponent<DxButton>();
             await renderer.InvokeAsync(closeButton.Instance.Click.InvokeAsync);
             Assert.That(popup.Instance.Visible, Is.False);
+        }
+
+        private class MockHttpMessageHandler : HttpMessageHandler
+        {
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("Mock license content")
+                });
+            }
         }
     }
 }

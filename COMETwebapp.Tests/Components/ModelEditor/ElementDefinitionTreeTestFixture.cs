@@ -48,12 +48,11 @@ namespace COMETwebapp.Tests.Components.ModelEditor
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ElementDefinitionTreeTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<ElementDefinitionTree> renderedComponent;
         private ElementDefinitionTree tree;
         private Mock<IElementDefinitionTreeViewModel> elementDefinitionTreeViewModel;
@@ -61,7 +60,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         [SetUp]
         public void SetUp()
         {
-            context = new TestContext();
+            context = new BunitContext();
             context.ConfigureDevExpressBlazor();
 
             var configuration = new Mock<IConfigurationService>();
@@ -83,7 +82,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             context.Services.AddSingleton(elementDefinitionTreeViewModel.Object);
             context.Services.AddSingleton<ISessionService, SessionService>();
 
-            renderedComponent = context.RenderComponent<ElementDefinitionTree>();
+            renderedComponent = context.Render<ElementDefinitionTree>();
             tree = renderedComponent.Instance;
         }
 
@@ -109,7 +108,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         {
             ElementBaseTreeRowViewModel selectedModel = null;
 
-            renderedComponent = context.RenderComponent<ElementDefinitionTree>(parameters =>
+            renderedComponent = context.Render<ElementDefinitionTree>(parameters =>
             {
                 parameters
                     .Add(p => p.SelectionChanged, model => selectedModel = model);
@@ -138,7 +137,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         {
             Assert.That(() => renderedComponent.FindComponent<DxComboBox<IterationData, IterationData>>(), Throws.TypeOf<ComponentNotFoundException>());
 
-            renderedComponent = context.RenderComponent<ElementDefinitionTree>(parameters =>
+            renderedComponent = context.Render<ElementDefinitionTree>(parameters =>
             {
                 parameters
                     .Add(p => p.IsModelSelectionEnabled, true);
@@ -167,7 +166,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
 
             elementDefinitionTreeViewModel.VerifySet(x => x.Iteration = iteration, Times.Never);
 
-            renderedComponent = context.RenderComponent<ElementDefinitionTree>(parameters =>
+            renderedComponent = context.Render<ElementDefinitionTree>(parameters =>
             {
                 parameters
                     .Add(p => p.InitialIteration, iteration);
@@ -206,7 +205,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
 
             elementDefinitionTreeViewModel.VerifySet(x => x.Iteration = iteration1, Times.Never);
 
-            renderedComponent = context.RenderComponent<ElementDefinitionTree>(parameters =>
+            renderedComponent = context.Render<ElementDefinitionTree>(parameters =>
             {
                 parameters
                     .Add(p => p.InitialIteration, iteration1);
@@ -236,7 +235,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         [Test]
         public void VerifyDragIsAllowed()
         {
-            renderedComponent = context.RenderComponent<ElementDefinitionTree>(parameters =>
+            renderedComponent = context.Render<ElementDefinitionTree>(parameters =>
             {
                 parameters
                     .Add(p => p.AllowDrag, true);

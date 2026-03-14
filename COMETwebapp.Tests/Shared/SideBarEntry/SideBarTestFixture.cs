@@ -65,12 +65,11 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class SideBarTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private CometWebAuthStateProvider stateProvider;
         private Mock<ISessionService> sessionService;
         private Mock<IAutoRefreshService> autoRefreshService;
@@ -93,7 +92,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.sessionService = new Mock<ISessionService>();
             this.stateProvider = new CometWebAuthStateProvider(this.sessionService.Object);
             this.authenticationService = new Mock<IAuthenticationService>();
@@ -156,7 +155,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         [Test]
         public async Task VerifyAboutSideBar()
         {
-            var renderer = this.context.RenderComponent<SideBar>();
+            var renderer = this.context.Render<SideBar>();
             var aboutSideBar = renderer.FindComponent<AboutSideBar>();
             Assert.That(aboutSideBar.Instance.IsVisible, Is.EqualTo(false));
 
@@ -184,7 +183,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
 
             this.sessionService.Setup(x => x.IsSessionOpen).Returns(true);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
-            var renderer = this.context.RenderComponent<SideBar>();
+            var renderer = this.context.Render<SideBar>();
             var applicationSideBar = renderer.FindComponent<ApplicationsSideBar>();
             var sideBarItems = applicationSideBar.FindComponents<SideBarItem>();
             Assert.That(sideBarItems, Has.Count.EqualTo(0));
@@ -201,7 +200,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             this.registeredApplications.Add(modelDashboardApplication);
             this.registrationService.Setup(x => x.RegisteredApplications).Returns(this.registeredApplications);
 
-            renderer = this.context.RenderComponent<SideBar>();
+            renderer = this.context.Render<SideBar>();
             applicationSideBar = renderer.FindComponent<ApplicationsSideBar>();
             sideBarItems = applicationSideBar.FindComponents<SideBarItem>();
 
@@ -217,7 +216,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         {
             var navigationManager = this.context.Services.GetService<NavigationManager>()!;
             navigationManager.NavigateTo("/AnUrl");
-            var renderer = this.context.RenderComponent<SideBar>();
+            var renderer = this.context.Render<SideBar>();
             var footer = renderer.FindComponent<SideBarFooter>();
             var link = (IHtmlAnchorElement)footer.Find("a");
             Assert.That(navigationManager.Uri, Does.EndWith("AnUrl"));
@@ -228,7 +227,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         [Test]
         public async Task VerifySideBar()
         {
-            var renderer = this.context.RenderComponent<SideBar>();
+            var renderer = this.context.Render<SideBar>();
             var authorizedSideBarEntries = renderer.FindComponents<AuthorizedMenuEntry>();
             Assert.That(authorizedSideBarEntries.All(x => x.Instance.AuthorizedMenuEntryViewModel.IsAuthenticated), Is.EqualTo(true));
 
@@ -349,7 +348,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         [Test]
         public void VerifySideBarEntryRegistration()
         {
-            var renderer = this.context.RenderComponent<SideBar>();
+            var renderer = this.context.Render<SideBar>();
             var sideBarEntries = renderer.FindComponents<AuthorizedMenuEntry>();
             Assert.That(sideBarEntries, Has.Count.EqualTo(4));
             this.registeredSideBarEntries.Add(typeof(Login));
@@ -362,11 +361,11 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         [Test]
         public async Task VerifySideBarItemsBehavior()
         {
-            var fakeNavigationManager = (FakeNavigationManager)this.context.Services.GetService(typeof(NavigationManager));
+            var fakeNavigationManager = (BunitNavigationManager)this.context.Services.GetService(typeof(NavigationManager));
             Assert.That(fakeNavigationManager, Is.Not.Null);
 
             this.registeredApplications.AddRange([new TabbedApplication(), new Application { Url = "a" }, new Application { Url = WebAppConstantValues.TabsPage }]);
-            var renderer = this.context.RenderComponent<SideBar>();
+            var renderer = this.context.Render<SideBar>();
             var firstDataItem = renderer.FindComponent<SideBarItem>();
             await renderer.InvokeAsync(firstDataItem.Instance.OnClick.Invoke);
             Assert.That(fakeNavigationManager.Uri, Does.Contain(WebAppConstantValues.TabsPage));

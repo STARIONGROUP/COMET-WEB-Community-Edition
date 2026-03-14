@@ -52,13 +52,12 @@ namespace COMET.Web.Common.Tests.Components
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class LoginTestFixture
     {
         private LoginViewModel viewModel;
-        private TestContext context;
+        private BunitContext context;
         private Mock<IAuthenticationService> authenticationService;
         private Mock<IConfigurationService> serverConnectionService;
         private ServerConfiguration serverConfiguration;
@@ -76,7 +75,7 @@ namespace COMET.Web.Common.Tests.Components
             };
 
             this.serverConnectionService.Setup(x => x.ServerConfiguration).Returns(this.serverConfiguration);
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.viewModel = new LoginViewModel(this.authenticationService.Object, this.serverConnectionService.Object);
             this.context.Services.AddSingleton<ILoginViewModel>(this.viewModel);
             this.context.Services.AddSingleton(this.authenticationService.Object);
@@ -92,7 +91,7 @@ namespace COMET.Web.Common.Tests.Components
         [Test]
         public async Task VerifyErrorsShown()
         {
-            var renderer = this.context.RenderComponent<Login>();
+            var renderer = this.context.Render<Login>();
             var errorsElement = renderer.Find(".validation-errors");
             var numberOfRequiredFieldsInFirstLoginTry = renderer.Instance.FieldsFocusedStatus.Count - 1;
 
@@ -122,7 +121,7 @@ namespace COMET.Web.Common.Tests.Components
         [Test]
         public void VerifyFocusingAndBluring()
         {
-            var renderer = this.context.RenderComponent<Login>();
+            var renderer = this.context.Render<Login>();
 
             Assert.That(renderer.Instance.FieldsFocusedStatus, Is.EqualTo(new Dictionary<string, bool>()
             {
@@ -157,7 +156,7 @@ namespace COMET.Web.Common.Tests.Components
         [Test]
         public async Task VerifyPerformLogin()
         {
-            var renderer = this.context.RenderComponent<Login>();
+            var renderer = this.context.Render<Login>();
             var editForm = renderer.FindComponent<EditForm>();
 
             this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>())).ReturnsAsync(Result.Ok);
@@ -205,7 +204,7 @@ namespace COMET.Web.Common.Tests.Components
             this.serverConfiguration.ServerAddress = null;
             this.serverConfiguration.AllowMultipleStepsAuthentication = true;
 
-            var renderer = this.context.RenderComponent<Login>();
+            var renderer = this.context.Render<Login>();
             var editForm = renderer.FindComponent<EditForm>();
 
             Assert.That(renderer.FindComponents<DxTextBox>(), Has.Count.EqualTo(1));
@@ -245,7 +244,7 @@ namespace COMET.Web.Common.Tests.Components
             this.serverConfiguration.ServerAddress = null;
             this.serverConfiguration.AllowMultipleStepsAuthentication = true;
             
-            var renderer = this.context.RenderComponent<Login>();
+            var renderer = this.context.Render<Login>();
             var editForm = renderer.FindComponent<EditForm>();
 
             Assert.That(renderer.FindComponents<DxTextBox>(), Has.Count.EqualTo(1));

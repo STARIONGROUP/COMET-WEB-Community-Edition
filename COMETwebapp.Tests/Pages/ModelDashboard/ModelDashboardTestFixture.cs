@@ -59,12 +59,11 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ModelDashboardTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private ISingleIterationApplicationTemplateViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private Mock<ICacheService> cacheService;
@@ -77,7 +76,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.sessionService = new Mock<ISessionService>();
             this.cacheService = new Mock<ICacheService>();
             this.openedIterations = new SourceList<Iteration>();
@@ -146,7 +145,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
         [Test]
         public void VerifyOpenModelPresent()
         {
-            var renderer = this.context.RenderComponent<ModelDashboard>();
+            var renderer = this.context.Render<ModelDashboard>();
             Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
         }
 
@@ -154,7 +153,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
         public async Task VerifyIterationSelection()
         {
             this.openedIterations.AddRange(new List<Iteration> { this.firstIteration, this.secondIteration });
-            var renderer = this.context.RenderComponent<ModelDashboard>();
+            var renderer = this.context.Render<ModelDashboard>();
 
             Assert.That(this.viewModel.IterationSelectorViewModel.AvailableIterations.ToList(), Has.Count.EqualTo(2));
             this.viewModel.IterationSelectorViewModel.SelectedIteration = this.viewModel.IterationSelectorViewModel.AvailableIterations.Last();
@@ -182,7 +181,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
 
             // Act: Navigate to the URI and render the component
             navigationManager.NavigateTo(testUri);
-            this.context.RenderComponent<ModelDashboard>();
+            this.context.Render<ModelDashboard>();
 
             Assert.Multiple(() =>
             {
@@ -197,7 +196,7 @@ namespace COMETwebapp.Tests.Pages.ModelDashboard
 
             // Act: Navigate to the URI and render the component
             navigationManager.NavigateTo(testUri);
-            this.context.RenderComponent<ModelDashboard>();
+            this.context.Render<ModelDashboard>();
 
             Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
         }

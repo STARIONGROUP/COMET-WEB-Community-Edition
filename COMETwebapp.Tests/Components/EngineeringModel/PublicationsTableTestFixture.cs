@@ -47,12 +47,11 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class PublicationsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<PublicationsTable> renderer;
         private Mock<IPublicationsTableViewModel> viewModel;
         private Publication publication;
@@ -61,7 +60,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.viewModel = new Mock<IPublicationsTableViewModel>();
 
             var domain = new DomainOfExpertise()
@@ -102,7 +101,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<PublicationsTable>(parameters =>
+            this.renderer = this.context.Render<PublicationsTable>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
             });

@@ -354,3 +354,4 @@ MigrationBackup/
 .idea/
 
 switcher.json
+/.claude/settings.local.json

@@ -42,12 +42,11 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class InputEditorTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<InputEditor<Book>> component;
         private Book book;
         private List<DomainOfExpertise> activeDomains;
@@ -59,7 +58,7 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
             this.sessionService = new Mock<ISessionService>();
             this.context.Services.AddSingleton(this.sessionService.Object);
@@ -82,7 +81,7 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
                 Category = this.availableCategories
             };
 
-            this.component = this.context.RenderComponent<InputEditor<Book>>(parameters =>
+            this.component = this.context.Render<InputEditor<Book>>(parameters =>
             {
                 parameters.Add(p => p.Item, this.book);
                 parameters.Add(p => p.ActiveDomains, this.activeDomains);

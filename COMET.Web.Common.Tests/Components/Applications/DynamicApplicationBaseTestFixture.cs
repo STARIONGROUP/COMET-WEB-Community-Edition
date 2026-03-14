@@ -24,6 +24,8 @@
 
 namespace COMET.Web.Common.Tests.Components.Applications
 {
+    using Bunit;
+
     using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Components.BookEditor;
     using COMET.Web.Common.Services.ConfigurationService;
@@ -35,20 +37,19 @@ namespace COMET.Web.Common.Tests.Components.Applications
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class DynamicApplicationBaseTestFixture
     {
         private Mock<ICustomApplicationBaseViewModel> viewModel;
-        private TestContext context;
+        private BunitContext context;
         private Type componentType;
 
         [SetUp]
         public void Setup()
         {
             this.viewModel = new Mock<ICustomApplicationBaseViewModel>();
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.componentType = typeof(CustomApplicationBase);
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(new Mock<IConfigurationService>().Object);
@@ -59,7 +60,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
         {
             var invalidType = typeof(EditorPopup);
 
-            Assert.That(() => this.context.RenderComponent<DynamicApplicationBase>(parameters =>
+            Assert.That(() => this.context.Render<DynamicApplicationBase>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
                 parameters.Add(p => p.ApplicationBaseType, invalidType);
@@ -67,13 +68,13 @@ namespace COMET.Web.Common.Tests.Components.Applications
 
             var invalidViewModel = new Mock<IOtherCustomApplicationBaseViewModel>();
 
-            Assert.That(() => this.context.RenderComponent<DynamicApplicationBase>(parameters =>
+            Assert.That(() => this.context.Render<DynamicApplicationBase>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, invalidViewModel.Object);
                 parameters.Add(p => p.ApplicationBaseType, this.componentType);
             }), Throws.InvalidOperationException.With.Message.Contain("does not matches the required Type"));
 
-            Assert.That(() => this.context.RenderComponent<DynamicApplicationBase>(parameters =>
+            Assert.That(() => this.context.Render<DynamicApplicationBase>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
                 parameters.Add(p => p.ApplicationBaseType, this.componentType);

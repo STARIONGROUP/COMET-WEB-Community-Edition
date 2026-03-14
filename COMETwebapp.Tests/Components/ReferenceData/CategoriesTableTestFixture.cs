@@ -56,12 +56,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class CategoriesTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private CategoriesTableViewModel viewModel;
         private Mock<ISession> session;
         private Mock<IPermissionService> permissionService;
@@ -91,7 +90,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.messageBus = new CDPMessageBus();
             this.logger = new Mock<ILogger<CategoriesTableViewModel>>();
             this.session = new Mock<ISession>();
@@ -315,7 +314,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         [Test]
         public async Task VerifyAddOrEditCategory()
         {
-            var renderer = this.context.RenderComponent<CategoriesTable>();
+            var renderer = this.context.Render<CategoriesTable>();
 
             Assert.Multiple(() =>
             {
@@ -363,7 +362,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         [Test]
         public async Task VerifyGridActions()
         {
-            var renderer = this.context.RenderComponent<CategoriesTable>();
+            var renderer = this.context.Render<CategoriesTable>();
             var grid = renderer.FindComponent<DxGrid>();
             var firstRow = this.viewModel.Rows.Items.First();
 
@@ -393,7 +392,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         [Test]
         public async Task VerifyOnInitialized()
         {
-            var renderer = this.context.RenderComponent<CategoriesTable>();
+            var renderer = this.context.Render<CategoriesTable>();
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 

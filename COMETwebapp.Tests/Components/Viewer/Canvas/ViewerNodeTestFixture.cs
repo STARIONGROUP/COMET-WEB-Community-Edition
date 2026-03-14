@@ -36,12 +36,11 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ViewerNodeTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private ViewerNode nodeComponent;
         private ViewerNodeViewModel componentViewModel;
         private IRenderedComponent<ViewerNode> renderedComponent;
@@ -49,12 +48,12 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.componentViewModel = new ViewerNodeViewModel(null);
             
-            this.renderedComponent = this.context.RenderComponent<ViewerNode>(parameters 
+            this.renderedComponent = this.context.Render<ViewerNode>(parameters 
                 => parameters.Add(p=> p.ViewModel, this.componentViewModel)
                              .Add(p=>p.Level, 1)
             );

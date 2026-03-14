@@ -49,12 +49,11 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class EngineeringModelBodyTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<EngineeringModelBody> renderer;
         private Mock<IEngineeringModelBodyViewModel> viewModel;
         private Mock<IOptionsTableViewModel> optionsTableViewModel;
@@ -63,7 +62,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             this.viewModel = new Mock<IEngineeringModelBodyViewModel>();
             this.iteration = new Iteration();
@@ -81,7 +80,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<EngineeringModelBody>();
+            this.renderer = this.context.Render<EngineeringModelBody>();
         }
 
         [TearDown]

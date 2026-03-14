@@ -36,11 +36,10 @@ namespace COMET.Web.Common.Tests.Components.CardView
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     public class CardViewTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private TestClass testClass1 = new ();
         private TestClass testClass2 = new ();
         private TestClass testClass3 = new ();
@@ -91,21 +90,17 @@ namespace COMET.Web.Common.Tests.Components.CardView
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.testClasses = [this.testClass1, this.testClass2, this.testClass3];
 
             this.context.Services.AddDevExpressBlazor(_ => ConfigureJsInterop(this.context.JSInterop));
 
-            this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init");
-            this.context.JSInterop.SetupVoid("DxBlazor.DropDown.getReference");
-            this.context.JSInterop.SetupVoid("DxBlazor.ComboBox.loadModule");
-            this.context.JSInterop.SetupVoid("DxBlazor.Input.loadModule");
         }
 
         [Test]
         public void VerifyComponent()
         {
-            var component = this.context.RenderComponent<CardView<TestClass>>(parameters =>
+            var component = this.context.Render<CardView<TestClass>>(parameters =>
             {
                 parameters
                     .Add(p => p.Items, this.testClasses)
@@ -170,7 +165,7 @@ namespace COMET.Web.Common.Tests.Components.CardView
         [Test]
         public void VerifyComponentWithoutSortAndSearch()
         {
-            var component = this.context.RenderComponent<CardView<TestClass>>(parameters =>
+            var component = this.context.Render<CardView<TestClass>>(parameters =>
             {
                 parameters
                     .Add(p => p.Items, this.testClasses)
@@ -229,7 +224,7 @@ namespace COMET.Web.Common.Tests.Components.CardView
         [Test]
         public void VerifyComponentRerenders()
         {
-            var component = this.context.RenderComponent<CardView<TestClass>>(parameters =>
+            var component = this.context.Render<CardView<TestClass>>(parameters =>
             {
                 parameters
                     .Add(p => p.Items, this.testClasses)
@@ -263,7 +258,7 @@ namespace COMET.Web.Common.Tests.Components.CardView
             this.testClass3 = new TestClass();
             this.testClasses = [this.testClass1, this.testClass2, this.testClass3];
 
-            component.SetParametersAndRender(parameters => parameters
+            component.Render(parameters => parameters
                 .Add(p => p.Items, this.testClasses));
 
             cardFields = component.FindComponents<CardField<TestClass>>();
@@ -290,7 +285,7 @@ namespace COMET.Web.Common.Tests.Components.CardView
         [Test]
         public void VerifySelectComponent()
         {
-            var component = this.context.RenderComponent<CardView<TestClass>>(parameters =>
+            var component = this.context.Render<CardView<TestClass>>(parameters =>
             {
                 parameters
                     .Add(p => p.Items, this.testClasses)
@@ -323,7 +318,7 @@ namespace COMET.Web.Common.Tests.Components.CardView
         [Test]
         public async Task VerifySearchComponent()
         {
-            var component = this.context.RenderComponent<CardView<TestClass>>(parameters =>
+            var component = this.context.Render<CardView<TestClass>>(parameters =>
             {
                 parameters
                     .Add(p => p.Items, this.testClasses)
@@ -388,7 +383,7 @@ namespace COMET.Web.Common.Tests.Components.CardView
         [Test]
         public async Task VerifySortComponent()
         {
-            var component = this.context.RenderComponent<CardView<TestClass>>(parameters =>
+            var component = this.context.Render<CardView<TestClass>>(parameters =>
             {
                 parameters
                     .Add(p => p.Items, this.testClasses)

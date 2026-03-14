@@ -24,6 +24,8 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
 {
+    using Bunit;
+
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
@@ -38,12 +40,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class PropertiesViewModelTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IPropertiesComponentViewModel viewModel;
         private Mock<IBabylonInterop> babylonInterop;
         private Mock<ISessionService> sessionService;
@@ -53,7 +54,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.selectionMediator = new Mock<ISelectionMediator>();
 
             this.selectionMediator.Setup(x => x.RaiseOnModelSelectionChanged(null)).Callback(() => this.viewModel.IsVisible = false);

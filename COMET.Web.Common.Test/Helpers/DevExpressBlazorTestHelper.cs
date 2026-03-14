@@ -36,16 +36,16 @@ namespace COMET.Web.Common.Test.Helpers
     using Microsoft.Extensions.DependencyInjection.Extensions;
 
     /// <summary>
-    /// Helper class that configures a <see cref="TestContext" /> to be able to test DevExpress components
+    /// Helper class that configures a <see cref="BunitContext" /> to be able to test DevExpress components
     /// </summary>
     [ExcludeFromCodeCoverage]
     public static class DevExpressBlazorTestHelper
     {
         /// <summary>
-        /// Configure the <see cref="TestContext" /> to include all prerequisites to test components with DevExpress components
+        /// Configure the <see cref="BunitContext" /> to include all prerequisites to test components with DevExpress components
         /// </summary>
-        /// <param name="context">The <see cref="TestContext" /></param>
-        public static void ConfigureDevExpressBlazor(this TestContext context)
+        /// <param name="context">The <see cref="BunitContext" /></param>
+        public static void ConfigureDevExpressBlazor(this BunitContext context)
         {
             context.Services.TryAddScoped<IEnvironmentInfoFactory, MockEnvironmentInfoFactory>();
             context.Services.TryAddScoped<IEnvironmentInfo, MockEnvironmentInfo>();
@@ -59,10 +59,10 @@ namespace COMET.Web.Common.Test.Helpers
         }
 
         /// <summary>
-        /// Restore the <see cref="TestContext.JSInterop" /> and disposes the <see cref="TestContext" />
+        /// Restore the <see cref="BunitContext.JSInterop" /> and disposes the <see cref="BunitContext" />
         /// </summary>
-        /// <param name="context">The <see cref="TestContext" /></param>
-        public static void CleanContext(this TestContext context)
+        /// <param name="context">The <see cref="BunitContext" /></param>
+        public static void CleanContext(this BunitContext context)
         {
             context.JSInterop.Mode = JSRuntimeMode.Strict;
             context.Dispose();

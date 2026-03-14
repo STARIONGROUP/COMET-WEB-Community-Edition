@@ -56,7 +56,6 @@ namespace COMET.Web.Common.Tests.Components.Applications
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class SingleIterationApplicationTemplateTestFixture
@@ -64,14 +63,14 @@ namespace COMET.Web.Common.Tests.Components.Applications
         private Mock<ISingleIterationApplicationTemplateViewModel> viewModel;
         private Mock<ICacheService> cacheService;
         private SourceList<Iteration> openIterations;
-        private TestContext context;
+        private BunitContext context;
         private ICDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
         {
             this.messageBus = new CDPMessageBus();
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.openIterations = new SourceList<Iteration>();
             this.viewModel = new Mock<ISingleIterationApplicationTemplateViewModel>();
             this.cacheService = new Mock<ICacheService>();
@@ -117,7 +116,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
             });
 
             this.viewModel.Setup(x => x.OnThingSelect(It.IsAny<Iteration>())).Callback((Iteration iteration) => this.viewModel.Setup(x => x.SelectedThing).Returns(iteration));
-            var renderer = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, Guid.NewGuid()); });
+            var renderer = this.context.Render<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, Guid.NewGuid()); });
 
             Assert.Multiple(() =>
             {
@@ -126,7 +125,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
             });
 
             this.viewModel.Setup(x => x.SelectedThing).Returns((Iteration)null);
-            _ = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, this.openIterations.Items.First().Iid); });
+            _ = this.context.Render<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, this.openIterations.Items.First().Iid); });
 
             this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items[0]), Times.Exactly(2));
 
@@ -142,7 +141,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
                 }
             });
 
-            renderer = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, this.openIterations.Items.First().Iid); });
+            renderer = this.context.Render<SingleIterationApplicationTemplate>(parameters => { parameters.Add(p => p.IterationId, this.openIterations.Items.First().Iid); });
 
             Assert.Multiple(() =>
             {
@@ -166,7 +165,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
                 }
             });
 
-            var renderer = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters =>
+            var renderer = this.context.Render<SingleIterationApplicationTemplate>(parameters =>
             {
                 parameters.Add(p => p.Body, builder =>
                 {
@@ -203,7 +202,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
 
             this.openIterations.Add(new Iteration());
 
-            renderer = this.context.RenderComponent<SingleIterationApplicationTemplate>(parameters =>
+            renderer = this.context.Render<SingleIterationApplicationTemplate>(parameters =>
             {
                 parameters.Add(p => p.Body, builder =>
                 {

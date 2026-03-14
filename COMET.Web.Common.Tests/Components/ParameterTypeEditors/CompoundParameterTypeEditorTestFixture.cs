@@ -44,12 +44,11 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class CompoundParameterTypeEditorTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<CompoundParameterTypeEditor> renderedComponent;
         private CompoundParameterTypeEditor editor;
         private Mock<IParameterEditorBaseViewModel<CompoundParameterType>> viewModelMock;
@@ -58,7 +57,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             var compoundValues = new List<string> { "1", "0", "3" };
@@ -133,7 +132,7 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
             this.viewModelMock.Setup(x => x.ValueSet).Returns(parameterValueSet);
             this.viewModelMock.Setup(x => x.ValueArray).Returns(parameterValueSet.Manual);
 
-            this.renderedComponent = this.context.RenderComponent<CompoundParameterTypeEditor>(parameters =>
+            this.renderedComponent = this.context.Render<CompoundParameterTypeEditor>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModelMock.Object);
                 parameters.Add(p => p.BindValueMode, BindValueMode.OnInput);

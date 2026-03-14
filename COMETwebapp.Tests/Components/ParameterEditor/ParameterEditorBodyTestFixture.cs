@@ -55,12 +55,11 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ParameterEditorBodyTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<ParameterEditorBody> renderedComponent;
         private ParameterEditorBody editor;
         private CDPMessageBus messageBus;
@@ -68,7 +67,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.messageBus = new CDPMessageBus();
@@ -140,7 +139,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             parameterEditorViewModel.Setup(x => x.BatchParameterEditorViewModel).Returns(batchParameterEditorViewModelMock.Object);
             this.context.Services.AddSingleton(batchParameterEditorViewModelMock.Object);
 
-            this.renderedComponent = this.context.RenderComponent<ParameterEditorBody>();
+            this.renderedComponent = this.context.Render<ParameterEditorBody>();
             this.editor = this.renderedComponent.Instance;
         }
 

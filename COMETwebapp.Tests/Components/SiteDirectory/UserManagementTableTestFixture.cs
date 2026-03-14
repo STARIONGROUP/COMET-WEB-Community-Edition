@@ -61,12 +61,11 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class UserManagementTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private UserManagementTableViewModel viewModel;
         private Mock<ISession> session;
         private Mock<ILogger<UserManagementTableViewModel>> logger;
@@ -90,7 +89,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             this.session = new Mock<ISession>();
             this.sessionService = new Mock<ISessionService>();
@@ -270,7 +269,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [Test]
         public async Task VerifyActivatingPerson()
         {
-            var renderer = this.context.RenderComponent<UserManagementTable>();
+            var renderer = this.context.Render<UserManagementTable>();
 
             Assert.Multiple(() =>
             {
@@ -294,7 +293,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [Test]
         public async Task VerifyAddingOrEditingPerson()
         {
-            var renderer = this.context.RenderComponent<UserManagementTable>();
+            var renderer = this.context.Render<UserManagementTable>();
             this.viewModel.IsDefaultEmail = true;
             this.viewModel.IsDefaultTelephoneNumber = true;
             this.viewModel.EmailAddress = new EmailAddress { Value = "email@email.com" };
@@ -330,7 +329,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [Test]
         public async Task VerifyAddingOrEditingPersonInteractions()
         {
-            var renderer = this.context.RenderComponent<UserManagementTable>();
+            var renderer = this.context.Render<UserManagementTable>();
 
             var addDomainOfExpertiseButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "dataItemDetailsButton");
             await renderer.InvokeAsync(addDomainOfExpertiseButton.Instance.Click.InvokeAsync);
@@ -363,7 +362,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [Test]
         public void VerifyOnInitialized()
         {
-            var renderer = this.context.RenderComponent<UserManagementTable>();
+            var renderer = this.context.Render<UserManagementTable>();
 
             Assert.Multiple(() =>
             {
@@ -375,7 +374,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         [Test]
         public void VerifyRecordChange()
         {
-            this.context.RenderComponent<UserManagementTable>();
+            this.context.Render<UserManagementTable>();
 
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(2));

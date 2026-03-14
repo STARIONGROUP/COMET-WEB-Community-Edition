@@ -39,12 +39,11 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class CanvasTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Canvas3D canvas;
         private ICanvasViewModel viewModel;
 
@@ -54,7 +53,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
             this.context.ConfigureDevExpressBlazor();
 
@@ -64,7 +63,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             this.viewModel = new CanvasViewModel(this.babylonInterop.Object, this.selectionMediator.Object);
             this.context.Services.AddSingleton(this.viewModel);
 
-            var rendererComponent = this.context.RenderComponent<Canvas3D>(parameters =>
+            var rendererComponent = this.context.Render<Canvas3D>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel);
             });

@@ -44,19 +44,18 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class FolderFormTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<FolderForm> renderer;
         private Mock<IFolderHandlerViewModel> viewModel;
 
         [SetUp]
          public void SetUp()
          {
-             this.context = new TestContext();
+             this.context = new BunitContext();
              this.viewModel = new Mock<IFolderHandlerViewModel>();
              this.viewModel.Setup(x => x.CurrentThing).Returns(new Folder());
 
@@ -65,7 +64,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
             this.context.ConfigureDevExpressBlazor();
 
-             this.renderer = this.context.RenderComponent<FolderForm>(parameters =>
+             this.renderer = this.context.Render<FolderForm>(parameters =>
              {
                  parameters.Add(p => p.ViewModel, this.viewModel.Object);
              });

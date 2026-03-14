@@ -62,12 +62,11 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ParameterEditorTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private ISingleIterationApplicationTemplateViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private Mock<ICacheService> cacheService;
@@ -80,7 +79,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.sessionService = new Mock<ISessionService>();
             this.cacheService = new Mock<ICacheService>();
             this.openedIterations = new SourceList<Iteration>();
@@ -171,7 +170,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
 
             // Act: Navigate to the URI and render the component
             navigationManager.NavigateTo(testUri);
-            this.context.RenderComponent<ParameterEditor>();
+            this.context.Render<ParameterEditor>();
 
             Assert.Multiple(() =>
             {
@@ -186,7 +185,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
 
             // Act: Navigate to the URI and render the component
             navigationManager.NavigateTo(testUri);
-            this.context.RenderComponent<ParameterEditor>();
+            this.context.Render<ParameterEditor>();
 
             Assert.That(this.viewModel.SelectedThing, Is.EqualTo(this.firstIteration));
         }
@@ -195,7 +194,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
         public async Task VerifyIterationSelection()
         {
             this.openedIterations.AddRange(new List<Iteration> { this.firstIteration, this.secondIteration });
-            var renderer = this.context.RenderComponent<ParameterEditor>();
+            var renderer = this.context.Render<ParameterEditor>();
 
             Assert.That(this.viewModel.IterationSelectorViewModel.AvailableIterations.ToList(), Has.Count.EqualTo(2));
             this.viewModel.IterationSelectorViewModel.SelectedIteration = this.viewModel.IterationSelectorViewModel.AvailableIterations.Last();
@@ -216,7 +215,7 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
         [Test]
         public void VerifyOpenModelPresent()
         {
-            var renderer = this.context.RenderComponent<ParameterEditor>();
+            var renderer = this.context.Render<ParameterEditor>();
             Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
         }
     }

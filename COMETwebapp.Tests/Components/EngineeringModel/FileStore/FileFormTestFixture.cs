@@ -44,19 +44,18 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class FileFormTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<FileForm> renderer;
         private Mock<IFileHandlerViewModel> viewModel;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             var domainSelectorViewModel = new Mock<IDomainOfExpertiseSelectorViewModel>();
 
@@ -67,7 +66,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<FileForm>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
+            this.renderer = this.context.Render<FileForm>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
         }
 
         [TearDown]

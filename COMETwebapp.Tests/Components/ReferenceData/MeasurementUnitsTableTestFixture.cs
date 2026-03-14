@@ -48,12 +48,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class MeasurementUnitsTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IMeasurementUnitsTableViewModel> viewModel;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
         private MeasurementUnit measurementUnit1;
@@ -62,7 +61,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             this.viewModel = new Mock<IMeasurementUnitsTableViewModel>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
@@ -107,7 +106,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         [Test]
         public async Task VerifyAddingOrEditingMeasurementUnit()
         {
-            var renderer = this.context.RenderComponent<MeasurementUnitsTable>();
+            var renderer = this.context.Render<MeasurementUnitsTable>();
 
             var addMeasurementUnitButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "dataItemDetailsButton");
             await renderer.InvokeAsync(addMeasurementUnitButton.Instance.Click.InvokeAsync);
@@ -140,7 +139,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         [Test]
         public void VerifyOnInitialized()
         {
-            var renderer = this.context.RenderComponent<MeasurementUnitsTable>();
+            var renderer = this.context.Render<MeasurementUnitsTable>();
 
             Assert.Multiple(() =>
             {

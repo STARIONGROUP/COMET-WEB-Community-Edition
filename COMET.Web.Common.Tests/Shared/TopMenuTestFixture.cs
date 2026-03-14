@@ -58,12 +58,11 @@ namespace COMET.Web.Common.Tests.Shared
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class TopMenuTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private CometWebAuthStateProvider stateProvider;
         private Mock<ISessionService> sessionService;
         private Mock<IAutoRefreshService> autoRefreshService;
@@ -79,7 +78,7 @@ namespace COMET.Web.Common.Tests.Shared
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.sessionService = new Mock<ISessionService>();
             this.stateProvider = new CometWebAuthStateProvider(this.sessionService.Object);
             this.authenticationService = new Mock<IAuthenticationService>();
@@ -128,7 +127,7 @@ namespace COMET.Web.Common.Tests.Shared
         [Test]
         public async Task VerifyTopMenu()
         {
-            var renderer = this.context.RenderComponent<TopMenu>();
+            var renderer = this.context.Render<TopMenu>();
             var authorizedMenuEntries = renderer.FindComponents<AuthorizedMenuEntry>();
 
             Assert.That(authorizedMenuEntries.All(x => !x.Instance.AuthorizedMenuEntryViewModel.IsAuthenticated), Is.True);
@@ -264,7 +263,7 @@ namespace COMET.Web.Common.Tests.Shared
 
             this.sessionService.Setup(x => x.IsSessionOpen).Returns(true);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
-            var renderer = this.context.RenderComponent<TopMenu>();
+            var renderer = this.context.Render<TopMenu>();
             var applicationMenuEntry = renderer.FindComponent<ApplicationMenu>();
             var dxMenus = applicationMenuEntry.FindComponents<DxMenuItem>();
             Assert.That(dxMenus, Has.Count.EqualTo(1));
@@ -291,7 +290,7 @@ namespace COMET.Web.Common.Tests.Shared
         [Test]
         public void VerifyMenuEntryRegistration()
         {
-            var renderer = this.context.RenderComponent<TopMenu>();
+            var renderer = this.context.Render<TopMenu>();
             var menuEntries = renderer.FindComponents<AuthorizedMenuEntry>();
             Assert.That(menuEntries, Has.Count.EqualTo(3));
             this.registeredMenuEntries.Add(typeof(Login));
@@ -306,7 +305,7 @@ namespace COMET.Web.Common.Tests.Shared
         {
             var navigationManager = this.context.Services.GetService<NavigationManager>()!;
             navigationManager.NavigateTo("/AnUrl");
-            var renderer = this.context.RenderComponent<TopMenu>();
+            var renderer = this.context.Render<TopMenu>();
             var topMenuTitle = renderer.FindComponent<TopMenuTitle>();
             var link = (IHtmlAnchorElement)topMenuTitle.Find("a");
             Assert.That(navigationManager.Uri, Does.EndWith("AnUrl"));
@@ -318,7 +317,7 @@ namespace COMET.Web.Common.Tests.Shared
         public void VerifyCustomTitleHeader()
         {
             this.registrationService.Setup(x => x.CustomHeader).Returns(typeof(CustomHeader));
-            var renderer = this.context.RenderComponent<TopMenu>();
+            var renderer = this.context.Render<TopMenu>();
 
             Assert.Multiple(() =>
             {

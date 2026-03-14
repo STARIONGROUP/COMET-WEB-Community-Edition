@@ -57,12 +57,11 @@ namespace COMETwebapp.Tests.Pages
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class TabsTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<ITabsViewModel> viewModel;
         private Mock<IEngineeringModelBodyViewModel> engineeringModelBodyViewModel;
         private IRenderedComponent<Tabs> renderer;
@@ -72,7 +71,7 @@ namespace COMETwebapp.Tests.Pages
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             var engineeringModelBodyApplication = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
             var engineeringSetupModel = new EngineeringModelSetup();
@@ -124,7 +123,7 @@ namespace COMETwebapp.Tests.Pages
             this.context.Services.AddSingleton(new Mock<IStringTableService>().Object);
             this.context.Services.AddSingleton(sessionService.Object);
 
-            this.renderer = this.context.RenderComponent<Tabs>();
+            this.renderer = this.context.Render<Tabs>();
         }
 
         [TearDown]

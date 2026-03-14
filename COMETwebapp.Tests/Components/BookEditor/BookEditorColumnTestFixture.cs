@@ -42,12 +42,11 @@ namespace COMETwebapp.Tests.Components.BookEditor
 
     using NUnit.Framework;
     
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class BookEditorColumnTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<BookEditorColumn<Book>> component;
         private Mock<IDomDataService> domDataService;
         private Mock<ILogger<BookEditorColumn<Book>>> loggerMock;
@@ -60,7 +59,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.domDataService = new Mock<IDomDataService>();
@@ -86,7 +85,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
             var onCollapseClicked = new EventCallbackFactory().Create(this, () => this.isCollapsed = true);
             var onAddNewItemClicked = new EventCallbackFactory().Create(this, () => this.addNewItemIsClicked = true);
             
-            this.component = this.context.RenderComponent<BookEditorColumn<Book>>(parameters =>
+            this.component = this.context.Render<BookEditorColumn<Book>>(parameters =>
             {
                 parameters.Add(p => p.CollapseButtonIconClass, "icon-class");
                 parameters.Add(p => p.HeaderTitle, "TestColumn");

@@ -36,23 +36,22 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     public class ParameterSwitchKindComponentTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<ParameterSwitchKindSelector> renderedComponent;
         private ParameterSwitchKindSelector parameterSwitch;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             var viewModel = new ParameterSwitchKindSelectorViewModel(ParameterSwitchKind.MANUAL, false);
 
-            this.renderedComponent = this.context.RenderComponent<ParameterSwitchKindSelector>(parameters =>
+            this.renderedComponent = this.context.Render<ParameterSwitchKindSelector>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, viewModel);
             });

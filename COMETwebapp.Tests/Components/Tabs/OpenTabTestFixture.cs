@@ -44,19 +44,18 @@ namespace COMETwebapp.Tests.Components.Tabs
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class OpenTabTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<OpenTab> renderer;
         private Mock<IOpenTabViewModel> viewModel;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.viewModel = new Mock<IOpenTabViewModel>();
@@ -66,7 +65,7 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.context.Services.AddSingleton(new Mock<IOpenModelViewModel>().Object);
             this.context.Services.AddSingleton(new Mock<IStringTableService>().Object);
 
-            this.renderer = this.context.RenderComponent<OpenTab>();
+            this.renderer = this.context.Render<OpenTab>();
         }
 
         [TearDown]
@@ -83,7 +82,7 @@ namespace COMETwebapp.Tests.Components.Tabs
             var closeButton = this.renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "closetab__button");
             Assert.That(closeButton, Is.Null);
 
-            this.renderer.SetParametersAndRender(parameters => { parameters.Add(p => p.OnCancel, () => wasCanceled = true); });
+            this.renderer.Render(parameters => { parameters.Add(p => p.OnCancel, () => wasCanceled = true); });
 
             closeButton = this.renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "closetab__button");
             Assert.That(closeButton, Is.Not.Null);

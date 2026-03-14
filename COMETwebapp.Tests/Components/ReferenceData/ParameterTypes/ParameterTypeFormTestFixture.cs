@@ -43,12 +43,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ParameterTypeFormTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IParameterTypeTableViewModel> viewModel;
         private IRenderedComponent<ParameterTypeForm> renderer;
 
@@ -61,14 +60,14 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.viewModel = new Mock<IParameterTypeTableViewModel>();
             this.viewModel.Setup(x => x.ParameterTypes).Returns([new ClassKindWrapper(ClassKind.BooleanParameterType)]);
             this.viewModel.Setup(x => x.CurrentThing).Returns(new BooleanParameterType());
 
-            this.renderer = this.context.RenderComponent<ParameterTypeForm>(parameters =>
+            this.renderer = this.context.Render<ParameterTypeForm>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
                 parameters.Add(p => p.ShouldCreate, true);

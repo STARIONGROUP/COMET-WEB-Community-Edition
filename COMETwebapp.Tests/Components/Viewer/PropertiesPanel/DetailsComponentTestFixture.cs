@@ -40,12 +40,11 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class DetailsComponentTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private DetailsComponent details;
         private IRenderedComponent<DetailsComponent> renderedComponent;
         private Mock<IDetailsComponentViewModel> viewModel;
@@ -53,13 +52,13 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.viewModel = new Mock<IDetailsComponentViewModel>();
             this.viewModel.Setup(x => x.ParameterType).Returns(new TextParameterType());
 
-            this.renderedComponent = this.context.RenderComponent<DetailsComponent>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
+            this.renderedComponent = this.context.Render<DetailsComponent>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
 
             this.details = this.renderedComponent.Instance;
         }

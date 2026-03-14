@@ -48,12 +48,11 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class EditotPopupTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IEditorPopupViewModel> viewmodel;
         private IRenderedComponent<EditorPopup> component;
         private List<DomainOfExpertise> activeDomains;
@@ -66,7 +65,7 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
             this.sessionService = new Mock<ISessionService>();
             this.configurationService = new Mock<IConfigurationService>();
@@ -103,7 +102,7 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
             this.viewmodel.Setup(x => x.OnConfirmClick).Returns(onConfirmClicked);
             this.viewmodel.Setup(x => x.ValidationErrors).Returns(new SourceList<string>());
 
-            this.component = this.context.RenderComponent<EditorPopup>(parameters =>
+            this.component = this.context.Render<EditorPopup>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewmodel.Object);
             });

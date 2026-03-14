@@ -37,18 +37,17 @@ namespace COMETwebapp.Tests.Services.Interoperability
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class DomDataServiceTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private DomDataService service;
 
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             var jsRuntime = new Mock<IJSRuntime>();
 
             this.context.JSInterop.SetupVoid("setDotNetHelper");

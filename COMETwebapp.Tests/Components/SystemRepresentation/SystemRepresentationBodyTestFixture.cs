@@ -55,12 +55,11 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class SystemRepresentationPageTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private SystemRepresentationBodyViewModel viewModel;
         private Mock<ISession> session;
         private Mock<ISessionService> sessionService;
@@ -81,7 +80,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         {
             var logger = new Mock<ILogger<SessionService>>();
 
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.session = new Mock<ISession>();
             this.messageBus = new CDPMessageBus();
 
@@ -259,7 +258,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         [Test]
         public void VerifyOnInitialized()
         {
-            var renderer = this.context.RenderComponent<SystemRepresentationBody>(parameters => { parameters.Add(p => p.CurrentThing, this.iteration); });
+            var renderer = this.context.Render<SystemRepresentationBody>(parameters => { parameters.Add(p => p.CurrentThing, this.iteration); });
 
             var option1 = new Option(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {
@@ -275,7 +274,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         [Test]
         public async Task VerifySelectNode()
         {
-            this.context.RenderComponent<SystemRepresentationBody>(parameters => { parameters.Add(p => p.CurrentThing, this.iteration); });
+            this.context.Render<SystemRepresentationBody>(parameters => { parameters.Add(p => p.CurrentThing, this.iteration); });
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 

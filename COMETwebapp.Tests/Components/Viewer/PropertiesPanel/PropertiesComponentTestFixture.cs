@@ -49,12 +49,11 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class PropertiesComponentTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private PropertiesComponent properties;
         private IRenderedComponent<PropertiesComponent> renderedComponent;
         private PropertiesComponentViewModel viewModel;
@@ -63,7 +62,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             var babylonService = new Mock<IBabylonInterop>();
@@ -86,7 +85,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
                 ParameterValueSetRelations = []
             };
 
-            this.renderedComponent = this.context.RenderComponent<PropertiesComponent>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel); });
+            this.renderedComponent = this.context.Render<PropertiesComponent>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel); });
 
             this.properties = this.renderedComponent.Instance;
         }

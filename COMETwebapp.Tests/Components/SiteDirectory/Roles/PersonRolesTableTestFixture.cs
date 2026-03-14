@@ -45,12 +45,11 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class PersonRolesTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<PersonRolesTable> renderer;
         private Mock<IPersonRolesTableViewModel> viewModel;
         private PersonRole personRole;
@@ -58,7 +57,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.viewModel = new Mock<IPersonRolesTableViewModel>();
 
             this.personRole = new PersonRole
@@ -77,7 +76,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<PersonRolesTable>();
+            this.renderer = this.context.Render<PersonRolesTable>();
         }
 
         [TearDown]

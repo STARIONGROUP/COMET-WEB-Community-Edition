@@ -44,19 +44,18 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class DomainOfExpertiseSubscriptionTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IDomainOfExpertiseSubscriptionTableViewModel> viewModel;
         private SourceList<OwnedParameterOrOverrideBaseRowViewModel> rows;
 
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.viewModel = new Mock<IDomainOfExpertiseSubscriptionTableViewModel>();
             this.rows = new SourceList<OwnedParameterOrOverrideBaseRowViewModel>();
             this.viewModel.Setup(x => x.Rows).Returns(this.rows);
@@ -72,7 +71,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         [Test]
         public void VerifyComponent()
         {
-            var renderer = this.context.RenderComponent<DomainOfExpertiseSubscriptionTable>(
+            var renderer = this.context.Render<DomainOfExpertiseSubscriptionTable>(
                 parameters =>
                 {
                     parameters.Add(p => p.ViewModel, this.viewModel.Object);

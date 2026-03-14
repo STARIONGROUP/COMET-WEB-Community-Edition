@@ -50,12 +50,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ReferenceDataBodyTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IParameterTypeTableViewModel> parameterTypesTableViewModel;
         private Mock<IMeasurementScalesTableViewModel> measurementScalesTableViewModel;
         private Mock<ISessionService> sessionService;
@@ -64,7 +63,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             this.parameterTypesTableViewModel = new Mock<IParameterTypeTableViewModel>();
             this.parameterTypesTableViewModel.Setup(x => x.Rows).Returns(new SourceList<ParameterTypeRowViewModel>());
@@ -85,7 +84,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
             this.context.Services.AddSingleton(configuration.Object);
             this.context.Services.AddSingleton(new Mock<IReferenceDataBodyViewModel>().Object);
 
-            this.renderer = this.context.RenderComponent<ReferenceDataBody>();
+            this.renderer = this.context.Render<ReferenceDataBody>();
         }
 
         [TearDown]

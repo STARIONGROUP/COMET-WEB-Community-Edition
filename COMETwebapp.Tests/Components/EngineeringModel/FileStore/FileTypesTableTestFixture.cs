@@ -39,19 +39,18 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class FileTypesTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<FileTypesTable> renderer;
         private FileRevision fileRevision;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.fileRevision = new FileRevision();
 
             var pdfFileType = new FileType()
@@ -83,7 +82,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
             this.fileRevision.FileType.AddRange([pdfFileType, jsonFileType]);
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.RenderComponent<FileTypesTable>(parameters =>
+            this.renderer = this.context.Render<FileTypesTable>(parameters =>
             { 
                 parameters.Add(p => p.FileTypes, siteRdl.FileType);
                 parameters.Add(p => p.SelectedFileTypes, this.fileRevision.FileType);
@@ -102,7 +101,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         {
             var timesSelectedFileTypesWasChanged = 0;
 
-            this.renderer.SetParametersAndRender(parameters =>
+            this.renderer.Render(parameters =>
             {
                 parameters.Add(p => p.SelectedFileTypesChanged, () => { timesSelectedFileTypesWasChanged += 1; });
             });
@@ -144,7 +143,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         {
             var timesSelectedFileTypesWasChanged = 0;
 
-            this.renderer.SetParametersAndRender(parameters =>
+            this.renderer.Render(parameters =>
             {
                 parameters.Add(p => p.SelectedFileTypesChanged, () => { timesSelectedFileTypesWasChanged += 1; });
             });

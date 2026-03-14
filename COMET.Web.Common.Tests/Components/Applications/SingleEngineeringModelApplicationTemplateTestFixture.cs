@@ -55,19 +55,18 @@ namespace COMET.Web.Common.Tests.Components.Applications
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class SingleEngineeringModelApplicationTemplateTestFixture
     {
         private Mock<ISingleEngineeringModelApplicationTemplateViewModel> viewModel;
         private List<EngineeringModel> openEngineeringModels;
-        private TestContext context;
+        private BunitContext context;
 
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.viewModel = new Mock<ISingleEngineeringModelApplicationTemplateViewModel>();
 
             this.openEngineeringModels = [];
@@ -109,7 +108,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
             });
 
             this.viewModel.Setup(x => x.OnThingSelect(It.IsAny<EngineeringModel>())).Callback((EngineeringModel engineeringModel) => this.viewModel.Setup(x => x.SelectedThing).Returns(engineeringModel));
-            var renderer = this.context.RenderComponent<SingleEngineeringModelApplicationTemplate>(parameters => { parameters.Add(p => p.EngineeringModelId, Guid.NewGuid()); });
+            var renderer = this.context.Render<SingleEngineeringModelApplicationTemplate>(parameters => { parameters.Add(p => p.EngineeringModelId, Guid.NewGuid()); });
 
             Assert.Multiple(() =>
             {
@@ -118,7 +117,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
             });
 
             this.viewModel.Setup(x => x.SelectedThing).Returns((EngineeringModel)null);
-            _ = this.context.RenderComponent<SingleEngineeringModelApplicationTemplate>(parameters => { parameters.Add(p => p.EngineeringModelId, this.openEngineeringModels[0].Iid); });
+            _ = this.context.Render<SingleEngineeringModelApplicationTemplate>(parameters => { parameters.Add(p => p.EngineeringModelId, this.openEngineeringModels[0].Iid); });
 
             this.viewModel.Verify(x => x.OnThingSelect(this.openEngineeringModels[0]), Times.Exactly(2));
 
@@ -131,7 +130,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
                 }
             });
 
-            renderer = this.context.RenderComponent<SingleEngineeringModelApplicationTemplate>(parameters => { parameters.Add(p => p.EngineeringModelId, this.openEngineeringModels[0].Iid); });
+            renderer = this.context.Render<SingleEngineeringModelApplicationTemplate>(parameters => { parameters.Add(p => p.EngineeringModelId, this.openEngineeringModels[0].Iid); });
 
             Assert.Multiple(() =>
             {
@@ -152,7 +151,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
                 }
             });
 
-            var renderer = this.context.RenderComponent<SingleEngineeringModelApplicationTemplate>(parameters =>
+            var renderer = this.context.Render<SingleEngineeringModelApplicationTemplate>(parameters =>
             {
                 parameters.Add(p => p.Body, builder =>
                 {
@@ -187,7 +186,7 @@ namespace COMET.Web.Common.Tests.Components.Applications
 
             this.openEngineeringModels.Add(new EngineeringModel());
 
-            renderer = this.context.RenderComponent<SingleEngineeringModelApplicationTemplate>(parameters =>
+            renderer = this.context.Render<SingleEngineeringModelApplicationTemplate>(parameters =>
             {
                 parameters.Add(p => p.Body, builder =>
                 {

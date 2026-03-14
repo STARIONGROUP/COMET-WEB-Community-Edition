@@ -41,21 +41,20 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     
     using NUnit.Framework;
     
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ActualFiniteStateSelectorTestFixture
     {
         private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
         private readonly Uri uri = new("https://www.stariongroup.eu/");
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<ActualFiniteStateSelector> renderedComponent;
         private ActualFiniteStateSelector actualStateSelector;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
 
             this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
 
@@ -96,7 +95,7 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
 
             viewModel.Setup(x => x.ActualFiniteStates).Returns(actualFiniteStates);
 
-            this.renderedComponent = this.context.RenderComponent<ActualFiniteStateSelector>(parameters =>
+            this.renderedComponent = this.context.Render<ActualFiniteStateSelector>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, viewModel.Object);
             });

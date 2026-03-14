@@ -39,19 +39,18 @@ namespace COMET.Web.Common.Tests.Components.Selectors
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class EngineeringModelSelectorTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private Mock<IEngineeringModelSelectorViewModel> viewModel;
         private List<EngineeringModelSetup> setups;
         
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.setups = new List<EngineeringModelSetup>();
@@ -70,7 +69,7 @@ namespace COMET.Web.Common.Tests.Components.Selectors
         [Test]
         public async Task VerifyEngineeringModelSelectorComponent()
         {
-            var renderer = this.context.RenderComponent<EngineeringModelSelector>(parameters =>
+            var renderer = this.context.Render<EngineeringModelSelector>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
             });

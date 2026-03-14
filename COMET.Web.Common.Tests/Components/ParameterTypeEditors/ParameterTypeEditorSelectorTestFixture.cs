@@ -43,12 +43,11 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class ParameterTypeEditorSelectorTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<ParameterTypeEditorSelector> renderedComponent;
         private ParameterTypeEditorSelector editorSelector;
         private Mock<IParameterTypeEditorSelectorViewModel> viewModelMock;
@@ -58,12 +57,12 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             this.viewModelMock = new Mock<IParameterTypeEditorSelectorViewModel>();
 
-            this.renderedComponent = this.context.RenderComponent<ParameterTypeEditorSelector>(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
+            this.renderedComponent = this.context.Render<ParameterTypeEditorSelector>(parameters => { parameters.Add(p => p.ViewModel, this.viewModelMock.Object); });
             this.editorSelector = this.renderedComponent.Instance;
          
             this.valueSet = new ParameterValueSet()

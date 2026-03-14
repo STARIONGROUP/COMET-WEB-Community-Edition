@@ -42,7 +42,6 @@ namespace COMET.Web.Common.Tests.Components
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class DashboardTestFixture
@@ -50,7 +49,7 @@ namespace COMET.Web.Common.Tests.Components
         private List<Application> applications;
         private Mock<IRegistrationService> registrationService;
         private Mock<IStringTableService> configurationService;
-        private TestContext context;
+        private BunitContext context;
 
         [SetUp]
         public void Setup()
@@ -84,7 +83,7 @@ namespace COMET.Web.Common.Tests.Components
             this.configurationService = new Mock<IStringTableService>();
             this.configurationService.Setup(x => x.GetText(TextConfigurationKind.LandingPageTitle)).Returns(string.Empty);
 
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.Services.AddSingleton(this.registrationService.Object);
             this.context.Services.AddSingleton(this.configurationService.Object);
         }
@@ -98,7 +97,7 @@ namespace COMET.Web.Common.Tests.Components
         [Test]
         public void VerifyDashboard()
         {
-            var renderer = this.context.RenderComponent<Dashboard>();
+            var renderer = this.context.Render<Dashboard>();
             var applicationCards = renderer.FindComponents<ApplicationCard>();
             Assert.That(applicationCards, Has.Count.EqualTo(2));
 

@@ -37,17 +37,16 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class SideBarItemTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
 
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
         }
 
@@ -62,7 +61,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         {
             var wasCliked = false;
 
-            var renderer = this.context.RenderComponent<SideBarItem>(parameters =>
+            var renderer = this.context.Render<SideBarItem>(parameters =>
             {
                 parameters.Add(p => p.Text, "txt");
                 parameters.Add(p => p.Id, "id");
@@ -76,7 +75,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             await renderer.InvokeAsync(() => idDiv.ClickAsync(new MouseEventArgs()));
             Assert.That(wasCliked, Is.EqualTo(true));
 
-            renderer.SetParametersAndRender(parameters => { parameters.Add(p => p.ChildContent, "childContent"); });
+            renderer.Render(parameters => { parameters.Add(p => p.ChildContent, "childContent"); });
 
             Assert.Multiple(() =>
             {
@@ -88,7 +87,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         [Test]
         public void VerifySideBarItemIconDisplay()
         {
-            var renderer = this.context.RenderComponent<SideBarItem>(parameters => { parameters.Add(p => p.Icon, typeof(FeatherCheck)); });
+            var renderer = this.context.Render<SideBarItem>(parameters => { parameters.Add(p => p.Icon, typeof(FeatherCheck)); });
             
             var featherIcons = renderer.FindComponents<Icon>();
             var cssIcons = renderer.FindAll("#side-bar-item-css-icon");
@@ -99,7 +98,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
                 Assert.That(cssIcons, Has.Count.EqualTo(0));
             });
 
-            renderer.SetParametersAndRender(parameters =>
+            renderer.Render(parameters =>
             {
                 parameters.Add(p => p.IconCssClass, "oi oi-check");
                 parameters.Add(p => p.Icon, null);

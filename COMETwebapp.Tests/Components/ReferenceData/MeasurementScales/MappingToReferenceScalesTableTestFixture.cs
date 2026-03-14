@@ -36,18 +36,17 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class MappingToReferenceScalesTableTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<MappingToReferenceScalesTable> renderer;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             var mappingToReferenceScale = new MappingToReferenceScale
@@ -61,7 +60,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
                 MappingToReferenceScale = { mappingToReferenceScale }
             };
 
-            this.renderer = this.context.RenderComponent<MappingToReferenceScalesTable>(parameters =>
+            this.renderer = this.context.Render<MappingToReferenceScalesTable>(parameters =>
             {
                 parameters.Add(p => p.MeasurementScale, scale);
                 parameters.Add(p => p.DependentScaleValueDefinitions, [new ScaleValueDefinition()]);
@@ -93,7 +92,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         {
             var timesMeasurementScaleChanged = 0;
 
-            this.renderer.SetParametersAndRender(p => { p.Add(parameters => parameters.MeasurementScaleChanged, () => { timesMeasurementScaleChanged++; }); });
+            this.renderer.Render(p => { p.Add(parameters => parameters.MeasurementScaleChanged, () => { timesMeasurementScaleChanged++; }); });
 
             var editMappingToReferenceScaleButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editMappingToReferenceScaleButton");
             await this.renderer.InvokeAsync(editMappingToReferenceScaleButton.Instance.Click.InvokeAsync);

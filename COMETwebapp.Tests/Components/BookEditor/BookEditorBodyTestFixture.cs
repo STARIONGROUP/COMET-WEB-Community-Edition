@@ -50,12 +50,11 @@ namespace COMETwebapp.Tests.Components.BookEditor
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class BookEditorBodyTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<BookEditorBody> component;
         private Mock<IBookEditorBodyViewModel> viewModel;
         private Mock<ISessionService> sessionService;
@@ -68,7 +67,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
         [SetUp]
         public void Setup()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
             this.sessionService = new Mock<ISessionService>();
             this.configurationService = new Mock<IConfigurationService>();
@@ -113,7 +112,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
             this.context.Services.AddSingleton(domDataService.Object);
             this.context.Services.AddSingleton<IValidationService, ValidationService>();
 
-            this.component = this.context.RenderComponent<BookEditorBody>();
+            this.component = this.context.Render<BookEditorBody>();
         }
         
         [TearDown]

@@ -48,19 +48,18 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using NUnit.Framework;
 
-    using TestContext = Bunit.TestContext;
 
     [TestFixture]
     public class BatchParameterEditorTestFixture
     {
-        private TestContext context;
+        private BunitContext context;
         private IRenderedComponent<BatchParameterEditor> renderer;
         private Mock<IBatchParameterEditorViewModel> viewModel;
 
         [SetUp]
         public void SetUp()
         {
-            this.context = new TestContext();
+            this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
             var parameterTypeSelectorViewModel = new Mock<IParameterTypeSelectorViewModel>();
@@ -104,7 +103,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             this.viewModel.Setup(x => x.DomainOfExpertiseSelectorViewModel).Returns(domainOfExpertiseSelectorViewModel.Object);
             this.viewModel.Setup(x => x.ParameterTypeEditorSelectorViewModel).Returns(parameterTypeEditorSelectorViewModel.Object);
 
-            this.renderer = this.context.RenderComponent<BatchParameterEditor>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
+            this.renderer = this.context.Render<BatchParameterEditor>(parameters => { parameters.Add(p => p.ViewModel, this.viewModel.Object); });
         }
 
         [TearDown]
