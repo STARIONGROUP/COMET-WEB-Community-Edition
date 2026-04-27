@@ -31,12 +31,17 @@ namespace COMETwebapp
     using ReactiveUI.Builder;
 
     using COMETwebapp.Extensions;
+    using COMETwebapp.Health;
     using COMETwebapp.Model;
+    using COMETwebapp.Model.Configuration;
     using COMETwebapp.Resources;
     using COMETwebapp.Shared;
     using COMETwebapp.Shared.SideBarEntry;
     using COMETwebapp.Shared.TopMenuEntry;
-    
+
+    using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+    using Microsoft.Extensions.Options;
+
     using Serilog;
 
     /// <summary>
@@ -72,6 +77,12 @@ namespace COMETwebapp
             builder.Services.RegisterViewModels();
             builder.Services.AddAntDesign();
 
+            builder.Services.Configure<HealthConfig>(builder.Configuration.GetSection("Health"));
+            builder.Services.AddSingleton<ICometHasStartedService, CometHasStartedService>();
+            builder.Services.AddSingleton<StartupHealthCheck>();
+            builder.Services.AddHealthChecks()
+                .AddCheck<StartupHealthCheck>("startup", tags: ["startup", "ready"]);
+
             builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
             {
                 loggerConfiguration.ReadFrom
@@ -98,7 +109,22 @@ namespace COMETwebapp
                 app.MapBlazorHub();
                 app.MapFallbackToPage("/_Host");
 
+                var healthConfig = app.Services.GetRequiredService<IOptions<HealthConfig>>().Value;
+
+                var liveness = app.MapHealthChecks("/healthz", new HealthCheckOptions { Predicate = _ => false });
+                var startup = app.MapHealthChecks("/health/startup", new HealthCheckOptions { Predicate = c => c.Tags.Contains("startup") });
+                var ready = app.MapHealthChecks("/ready", new HealthCheckOptions { Predicate = c => c.Tags.Contains("ready") });
+
+                if (healthConfig.AllowedHosts is { Length: > 0 })
+                {
+                    liveness.RequireHost(healthConfig.AllowedHosts);
+                    startup.RequireHost(healthConfig.AllowedHosts);
+                    ready.RequireHost(healthConfig.AllowedHosts);
+                }
+
                 await app.Services.InitializeCdp4CometCommonServices();
+
+                app.Services.GetRequiredService<ICometHasStartedService>().MarkStarted();
 
                 logger.LogInformation("CDP4-COMET WEB is running and accepting connections");
 
