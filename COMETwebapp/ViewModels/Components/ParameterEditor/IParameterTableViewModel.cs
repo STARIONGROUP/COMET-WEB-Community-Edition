@@ -66,12 +66,16 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         void UpdateDomain(DomainOfExpertise currentDomain);
 
         /// <summary>
-        /// Apply filters based on <see cref="Option"/>, <see cref="ElementBase"/>, <see cref="ParameterType"/> and <see cref="DomainOfExpertise"/>
+        /// Apply filters based on <see cref="Option"/>, <see cref="ElementBase"/>, <see cref="ParameterType"/> and <see cref="DomainOfExpertise"/>.
         /// </summary>
-        /// <param name="selectedOption">The selected <see cref="Option"/></param>
-        /// <param name="selectedElementBase">The selected <see cref="ElementBase"/></param>
-        /// <param name="selectedParameterType">The selected <see cref="ParameterType"/></param>
-        /// <param name="isOwnedParameters">Value asserting that the only <see cref="Thing"/> owned by the current <see cref="DomainOfExpertise"/> should be visible</param>
-        void ApplyFilters(Option selectedOption, ElementBase selectedElementBase, ParameterType selectedParameterType, bool isOwnedParameters);
+        /// <param name="selectedOption">The selected <see cref="Option"/>.</param>
+        /// <param name="selectedElementBase">The selected <see cref="ElementBase"/>.</param>
+        /// <param name="selectedParameterTypes">
+        /// The collection of <see cref="ParameterType"/>s to filter on. <c>null</c> or an empty collection means
+        /// no parameter-type filter is applied; otherwise rows whose <see cref="ParameterType"/> is not in the
+        /// collection are removed.
+        /// </param>
+        /// <param name="isOwnedParameters">Value asserting that only <see cref="Thing"/>s owned by the current <see cref="DomainOfExpertise"/> should be visible.</param>
+        void ApplyFilters(Option selectedOption, ElementBase selectedElementBase, IEnumerable<ParameterType> selectedParameterTypes, bool isOwnedParameters);
     }
 }

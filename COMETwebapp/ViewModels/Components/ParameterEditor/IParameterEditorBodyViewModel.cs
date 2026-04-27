@@ -49,9 +49,10 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public IOptionSelectorViewModel OptionSelector { get; }
 
         /// <summary>
-        /// Gets the <see cref="IParameterTypeSelectorViewModel" />
+        /// Gets the <see cref="IMultiParameterTypeSelectorViewModel" /> driving the parameter-type filter.
+        /// An empty selection means no parameter-type filtering is applied.
         /// </summary>
-        public IParameterTypeSelectorViewModel ParameterTypeSelector { get; }
+        public IMultiParameterTypeSelectorViewModel ParameterTypeSelector { get; }
 
         /// <summary>
         /// Sets if only parameters owned by the active domain are shown

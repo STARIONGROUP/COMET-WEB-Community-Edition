@@ -85,7 +85,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
             parameterEditorViewModel.Setup(x => x.ElementSelector).Returns(new ElementBaseSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.OptionSelector).Returns(new OptionSelectorViewModel());
-            parameterEditorViewModel.Setup(x => x.ParameterTypeSelector).Returns(new ParameterTypeSelectorViewModel());
+            parameterEditorViewModel.Setup(x => x.ParameterTypeSelector).Returns(new MultiParameterTypeSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.ParameterTableViewModel).Returns(new ParameterTableViewModel(sessionService.Object, this.messageBus));
 
             var configuration = new Mock<IConfigurationService>();
@@ -163,7 +163,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         public void VerifyComponentUi()
         {
             var elementFilterCombo = this.renderedComponent.FindComponent<ElementBaseSelector>();
-            var parameterFilterCombo = this.renderedComponent.FindComponent<ParameterTypeSelector>();
+            var parameterFilterCombo = this.renderedComponent.FindComponent<MultiParameterTypeSelector>();
             var optionFilterCombo = this.renderedComponent.FindComponent<OptionSelector>();
 
             var isOwnedCheckbox = this.renderedComponent.FindComponent<DxCheckBox<bool>>();
