@@ -1,9 +1,7 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ICherryPickRunner.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
-// 
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, Nabil Abbar
-// 
+//
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25
 //    Annex A and Annex C.

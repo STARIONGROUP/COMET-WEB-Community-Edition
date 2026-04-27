@@ -30,6 +30,16 @@ dotnet run --project COMETwebapp/COMETwebapp.csproj
 
 **NuGet feeds:** nuget.org, GitHub Packages (STARIONGROUP, needs `PACKAGE_TOKEN`), DevExpress private feed (needs `DEVEXPRESS_NUGET_KEY`).
 
+There is **no committed `nuget.config`** — feeds are configured per-environment by CI workflows (`.github/workflows/CodeQuality.yml`, `publish-docker-container.yml`) and the Dockerfile. Locally you must add the feeds yourself and export both env vars, or `dotnet restore` will fail on CDP4-COMET-SDK packages.
+
+## CI Quality Gates
+
+PRs are gated by five workflows in `.github/workflows/`: `CodeQuality.yml` (SonarQube), `codeql.yml`, `semgrep.yml`, `nuget-reference-check.yml`, and `publish-docker-container.yml` (triggers on `web-*` tags). Style violations are caught here, not by `dotnet build` — there is no `.editorconfig` in the repo.
+
+## Release Process
+
+NuGet releases are **manual**, not automated: run `release.bat` at the repo root (Release build → `dotnet pack` → push to nuget.org with an API key). CI does not publish packages.
+
 ## Solution Structure
 
 | Project | Purpose | License |
@@ -44,9 +54,16 @@ dotnet run --project COMETwebapp/COMETwebapp.csproj
 
 ### MVVM + Reactive Pattern
 - **ViewModels** implement interfaces (e.g., `ITabsViewModel`) and extend `DisposableObject`
+- `DisposableObject` is **defined locally** in `COMET.Web.Common/Utilities/DisposableObject/DisposableObject.cs` (extends `ReactiveObject`) — not from the SDK. All ViewModels in this repo extend it, not `ReactiveObject` directly
 - Reactive properties use `RaiseAndSetIfChanged` from ReactiveUI
 - Subscriptions are tracked via `Disposables` collection for cleanup
 - Components receive ViewModels as Blazor `[Parameter]` with DI fallback via `[Inject]`
+- **Razor code-behind**: components use partial classes — `Foo.razor` for markup + `Foo.razor.cs` for logic. Avoid putting non-trivial logic in `@code` blocks
+
+### Core Services
+Most features touch one or both of these (in `COMET.Web.Common/Services/SessionManagement/`):
+- **`ISessionService`** — manages the open `ISession`, engineering models, and iterations
+- **`IAuthenticationService`** — handles login/logout against a CDP4-COMET server
 
 ### Dependency Injection
 - Services registered via extension methods in `ServiceCollectionExtensions` classes
@@ -61,6 +78,12 @@ dotnet run --project COMETwebapp/COMETwebapp.csproj
 ### Key SDK Dependency
 Core domain model comes from **CDP4-COMET-SDK** (`CDP4ServicesDal-CE`, `CDP4Web-CE`). The SDK provides the data access layer and domain types for the ECSS-E-TM-10-25 standard.
 
+### Build Flags Worth Knowing
+From `COMETwebapp/COMETwebapp.csproj`:
+- `ImplicitUsings=enable` — don't add redundant `using System;` etc.
+- `InvariantGlobalization=true`
+- `BlazorEnableTimeZoneSupport=false` — timezone work must be explicit; `DateTime.Now`/`TimeZoneInfo` won't behave as in a normal .NET app
+
 ## Code Style (from CONTRIBUTING.md)
 
 - 4-space indentation, no tabs
@@ -70,7 +93,7 @@ Core domain model comes from **CDP4-COMET-SDK** (`CDP4ServicesDal-CE`, `CDP4Web-
 - Curly braces required for all blocks, even single-line
 - `using` statements inside namespaces
 - No `#region` directives
-- Style enforced via ReSharper `.DotSettings` file
+- Style enforced via ReSharper `.DotSettings` files (no `.editorconfig` exists). `dotnet build` and `dotnet format` will **not** catch violations — SonarQube CI does
 
 ## Testing
 
@@ -78,3 +101,5 @@ Core domain model comes from **CDP4-COMET-SDK** (`CDP4ServicesDal-CE`, `CDP4Web-
 - **Mocking:** Moq
 - **Test structure** mirrors source project structure
 - Integration tests exist but are excluded from CI by default
+- **Reusable helpers** ship in `COMET.Web.Common.Test` (NuGet: `CDP4.WEB.Common.Test`): `DevExpressBlazorTestHelper` (call `ConfigureDevExpressBlazor()` on any bunit `TestContext` rendering DX components), `MockedLoggerHelper`, `TaskHelper`. Prefer these over rolling your own setup
+- **Nullable is disabled in test projects** (`<Nullable>disable</Nullable>` in both `*.Tests.csproj`), unlike production code — don't be surprised by missing null-annotations in fixtures

@@ -1,9 +1,7 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParameterTypeValidator.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
-// 
-//     Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar, Théate Antoine, João Rua
-// 
+//
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
