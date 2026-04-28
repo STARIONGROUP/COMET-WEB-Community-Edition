@@ -83,9 +83,32 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     <DxCheckBox @bind-Checked="@(this.ViewModel.IsDefaultTelephoneNumber)"/>
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Password">
+                <DxFormLayoutItem Caption="@(this.ShouldCreate ? "Set password:" : "Change password:")" ColSpanMd="10">
+                    <DxCheckBox Id="changePasswordCheckBox"
+                                @bind-Checked="@(this.ViewModel.IsPasswordEditEnabled)"/>
+                </DxFormLayoutItem>
+                @if (this.ViewModel.IsPasswordEditEnabled)
+                {
+                    <DxFormLayoutItem Caption="Password:" ColSpanMd="10">
+                        <DxTextBox Id="passwordInput"
+                                   @bind-Text="@(this.ViewModel.Password)"
+                                   BindValueMode="BindValueMode.OnInput"
+                                   Password="true"
+                                   CssClass="cw-480"/>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Confirm password:" ColSpanMd="10">
+                        <DxTextBox Id="passwordConfirmationInput"
+                                   @bind-Text="@(this.ViewModel.PasswordConfirmation)"
+                                   BindValueMode="BindValueMode.OnInput"
+                                   Password="true"
+                                   CssClass="cw-480"/>
+                    </DxFormLayoutItem>
+                }
+            </DxFormLayoutTabPage>
         </DxFormLayoutTabPages>
     </DxFormLayout>
-    <FormButtons SaveButtonEnabled="@(this.IsSaveButtonEnabled(editFormContext))"
+    <FormButtons SaveButtonEnabled="@(this.IsSaveButtonEnabled(editFormContext) && this.ViewModel.IsPasswordValid)"
                  OnCancel="@(this.OnCancel)"
-                 ValidationMessages="@(this.MapOfValidationMessages.SelectMany(x => x.Value))"/>
+                 ValidationMessages="@(this.GetAllValidationMessages())"/>
 </EditForm>
