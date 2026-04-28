@@ -92,9 +92,10 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public IOptionSelectorViewModel OptionSelector { get; private set; } = new OptionSelectorViewModel(false);
 
         /// <summary>
-        /// Gets the <see cref="IParameterTypeSelectorViewModel" />
+        /// Gets the <see cref="IMultiParameterTypeSelectorViewModel" /> driving the parameter-type filter.
+        /// An empty selection means no parameter-type filtering is applied.
         /// </summary>
-        public IParameterTypeSelectorViewModel ParameterTypeSelector { get; private set; } = new ParameterTypeSelectorViewModel();
+        public IMultiParameterTypeSelectorViewModel ParameterTypeSelector { get; private set; } = new MultiParameterTypeSelectorViewModel();
 
         /// <summary>
         /// Sets if only parameters owned by the active domain are shown
@@ -123,7 +124,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             if (this.CurrentThing != null)
             {
                 this.ParameterTableViewModel.ApplyFilters(this.OptionSelector.SelectedOption, this.ElementSelector.SelectedElementBase,
-                    this.ParameterTypeSelector.SelectedParameterType, this.IsOwnedParameters);
+                    this.ParameterTypeSelector.SelectedParameterTypes, this.IsOwnedParameters);
             }
         }
 

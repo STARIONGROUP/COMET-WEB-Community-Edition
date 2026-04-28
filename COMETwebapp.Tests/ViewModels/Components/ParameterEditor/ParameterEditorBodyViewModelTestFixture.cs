@@ -240,13 +240,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             this.viewModel.ElementSelector.SelectedElementBase = this.viewModel.ElementSelector.AvailableElements.First();
-            this.viewModel.ParameterTypeSelector.SelectedParameterType = this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First();
+            this.viewModel.ParameterTypeSelector.SelectedParameterTypes = new List<ParameterType> { this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First() };
             this.viewModel.OptionSelector.SelectedOption = this.viewModel.CurrentThing.Option.Last();
             this.viewModel.IsOwnedParameters = false;
 
             this.viewModel.ApplyFilters();
 
-            this.tableViewModel.Verify(x => x.ApplyFilters(It.IsAny<Option>(), It.IsAny<ElementBase>(), It.IsAny<ParameterType>(), It.IsAny<bool>()), Times.AtLeastOnce);
+            this.tableViewModel.Verify(x => x.ApplyFilters(It.IsAny<Option>(), It.IsAny<ElementBase>(), It.IsAny<IEnumerable<ParameterType>>(), It.IsAny<bool>()), Times.AtLeastOnce);
         }
 
         [Test]

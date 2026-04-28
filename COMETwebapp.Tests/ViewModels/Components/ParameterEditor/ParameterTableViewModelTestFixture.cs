@@ -303,10 +303,21 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             this.viewModel.ApplyFilters(this.iteration.DefaultOption, this.iteration.Element[^1], null, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(3));
 
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, new ArrayParameterType() { Iid = Guid.NewGuid() }, true);
+            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, new[] { new ArrayParameterType { Iid = Guid.NewGuid() } }, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(0));
 
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, this.iteration.TopElement.Parameter[0].ParameterType, true);
+            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, new[] { this.iteration.TopElement.Parameter[0].ParameterType }, true);
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
+
+            var multipleParameterTypes = new[]
+            {
+                this.iteration.TopElement.Parameter[0].ParameterType,
+                new ArrayParameterType { Iid = Guid.NewGuid() }
+            };
+            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, multipleParameterTypes, true);
+            Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
+
+            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, Array.Empty<ParameterType>(), true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
 
             this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, null, false);

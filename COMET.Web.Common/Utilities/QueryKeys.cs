@@ -65,5 +65,11 @@ namespace COMET.Web.Common.Utilities
         /// The query key for the <see cref="ParameterType" />
         /// </summary>
         public const string ParameterKey = "parameter";
+
+        /// <summary>
+        /// The query key for a comma-delimited list of <see cref="ParameterType" /> short-form GUIDs, used by
+        /// multi-select filters such as the Parameter Editor's parameter-type filter.
+        /// </summary>
+        public const string ParametersKey = "parameters";
     }
 }
