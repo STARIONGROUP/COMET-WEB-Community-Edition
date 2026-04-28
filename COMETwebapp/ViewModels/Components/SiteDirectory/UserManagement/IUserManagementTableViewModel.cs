@@ -78,6 +78,26 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         bool IsDefaultTelephoneNumber { get; set; }
 
         /// <summary>
+        /// Indicates if the password should be set or changed when the current <see cref="Person" /> is saved
+        /// </summary>
+        bool IsPasswordEditEnabled { get; set; }
+
+        /// <summary>
+        /// The new password to be applied to the current <see cref="Person" /> when <see cref="IsPasswordEditEnabled" /> is true
+        /// </summary>
+        string Password { get; set; }
+
+        /// <summary>
+        /// The confirmation of the <see cref="Password" />, expected to match it before saving
+        /// </summary>
+        string PasswordConfirmation { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the password fields are in a valid state to allow saving the current <see cref="Person" />
+        /// </summary>
+        bool IsPasswordValid { get; }
+
+        /// <summary>
         /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
         /// </summary>
         IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; }

@@ -325,6 +325,77 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         }
 
         [Test]
+        public async Task VerifyChangingPassword()
+        {
+            var personToEdit = new Person
+            {
+                GivenName = "Test",
+                Surname = "Test",
+                ShortName = "TT",
+                IsActive = true,
+                IsDeprecated = false,
+                Password = "originalPassword"
+            };
+
+            this.viewModel.CurrentThing = personToEdit;
+
+            // by default the password edit toggle is off and the password is considered valid
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsPasswordEditEnabled, Is.False);
+                Assert.That(this.viewModel.IsPasswordValid, Is.True);
+            });
+
+            // saving without enabling password edit must not change the password
+            await this.viewModel.CreateOrEditPerson(false);
+            Assert.That(personToEdit.Password, Is.EqualTo("originalPassword"));
+
+            // enabling password edit with non-matching confirmation makes the form invalid
+            this.viewModel.CurrentThing = personToEdit;
+            this.viewModel.IsPasswordEditEnabled = true;
+            this.viewModel.Password = "newPassword";
+            this.viewModel.PasswordConfirmation = "different";
+            Assert.That(this.viewModel.IsPasswordValid, Is.False);
+
+            // empty password is also invalid
+            this.viewModel.Password = string.Empty;
+            this.viewModel.PasswordConfirmation = string.Empty;
+            Assert.That(this.viewModel.IsPasswordValid, Is.False);
+
+            // matching password and confirmation makes the form valid and is applied on save
+            this.viewModel.Password = "newPassword";
+            this.viewModel.PasswordConfirmation = "newPassword";
+            Assert.That(this.viewModel.IsPasswordValid, Is.True);
+
+            await this.viewModel.CreateOrEditPerson(false);
+            Assert.That(personToEdit.Password, Is.EqualTo("newPassword"));
+
+            // after a save the password fields are reset so credentials are not retained on the view model
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsPasswordEditEnabled, Is.False);
+                Assert.That(this.viewModel.Password, Is.Empty);
+                Assert.That(this.viewModel.PasswordConfirmation, Is.Empty);
+            });
+        }
+
+        [Test]
+        public void VerifyPasswordTabIsRendered()
+        {
+            this.viewModel.CurrentThing = new Person { GivenName = "Test", Surname = "Test", ShortName = "TT" };
+
+            var renderer = this.context.Render<UserManagementForm>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel)
+                .Add(p => p.IsVisible, true)
+                .Add(p => p.ShouldCreate, false));
+
+            // the Password tab caption is exposed by the form. The tab body itself is rendered lazily by DevExpress
+            // when the tab becomes active, so we don't assert the input markup here — that is covered by the
+            // VerifyChangingPassword view model test instead.
+            Assert.That(renderer.Markup, Does.Contain("Password"));
+        }
+
+        [Test]
         public async Task VerifyAddingOrEditingPersonInteractions()
         {
             var renderer = this.context.Render<UserManagementTable>();

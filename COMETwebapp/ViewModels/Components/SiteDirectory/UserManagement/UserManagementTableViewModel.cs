@@ -111,6 +111,30 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         public bool IsDefaultTelephoneNumber { get; set; }
 
         /// <summary>
+        /// Indicates if the password should be set or changed when the current <see cref="Person" /> is saved
+        /// </summary>
+        public bool IsPasswordEditEnabled { get; set; }
+
+        /// <summary>
+        /// The new password to be applied to the current <see cref="Person" /> when <see cref="IsPasswordEditEnabled" /> is true
+        /// </summary>
+        public string Password { get; set; }
+
+        /// <summary>
+        /// The confirmation of the <see cref="Password" />, expected to match it before saving
+        /// </summary>
+        public string PasswordConfirmation { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the password fields are in a valid state to allow saving the current <see cref="Person" />.
+        /// When <see cref="IsPasswordEditEnabled" /> is false the password is not changed and the state is considered valid;
+        /// otherwise the <see cref="Password" /> must be non-empty and match the <see cref="PasswordConfirmation" />.
+        /// </summary>
+        public bool IsPasswordValid =>
+            !this.IsPasswordEditEnabled
+            || (!string.IsNullOrEmpty(this.Password) && this.Password == this.PasswordConfirmation);
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// Override this method if you will perform an asynchronous operation and
@@ -137,6 +161,8 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
             {
                 await this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(this.CurrentThing.Iid == Guid.Empty, this.CurrentThing.DefaultDomain);
             }
+
+            this.ResetPasswordFields();
         }
 
         /// <summary>
@@ -172,6 +198,11 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
                 if (this.IsDefaultTelephoneNumber)
                 {
                     this.CurrentThing.DefaultTelephoneNumber = this.TelephoneNumber;
+                }
+
+                if (this.IsPasswordEditEnabled)
+                {
+                    this.CurrentThing.Password = this.Password;
                 }
 
                 var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
@@ -245,6 +276,17 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
             this.TelephoneNumber = new TelephoneNumber();
             this.IsDefaultEmail = false;
             this.IsDefaultTelephoneNumber = false;
+            this.ResetPasswordFields();
+        }
+
+        /// <summary>
+        /// Resets the password related fields so that switching between persons or saving does not leak credentials
+        /// </summary>
+        private void ResetPasswordFields()
+        {
+            this.IsPasswordEditEnabled = false;
+            this.Password = string.Empty;
+            this.PasswordConfirmation = string.Empty;
         }
     }
 }

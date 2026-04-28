@@ -50,5 +50,24 @@ namespace COMETwebapp.Components.SiteDirectory.UserManagement
             await this.ViewModel.CreateOrEditPerson(this.ShouldCreate);
             await base.OnValidSubmit();
         }
+
+        /// <summary>
+        /// Combines the form-level validation messages with the password-related validation messages
+        /// produced by the view model state, so the user sees both in the same list under the form buttons.
+        /// </summary>
+        /// <returns>The validation messages to display</returns>
+        private IEnumerable<string> GetAllValidationMessages()
+        {
+            var messages = this.MapOfValidationMessages.SelectMany(x => x.Value);
+
+            if (this.ViewModel.IsPasswordEditEnabled && !this.ViewModel.IsPasswordValid)
+            {
+                messages = messages.Concat([string.IsNullOrEmpty(this.ViewModel.Password)
+                    ? "The password cannot be empty."
+                    : "The password and its confirmation do not match."]);
+            }
+
+            return messages;
+        }
     }
 }
