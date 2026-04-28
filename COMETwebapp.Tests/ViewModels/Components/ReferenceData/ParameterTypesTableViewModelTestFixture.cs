@@ -22,10 +22,15 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 {
+    using System.Collections.Concurrent;
+
+    using CDP4Common;
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
+    using CDP4Dal.Operations;
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Model;
@@ -166,6 +171,110 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>())).Throws(new Exception("Error"));
             await this.viewModel.CreateOrEditParameterType(false);
             this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
+        }
+
+        [Test]
+        public async Task VerifyDefinitionsArePersistedAlongsideTheParameterType()
+        {
+            this.viewModel.InitializeViewModel();
+
+            var existingDefinition = new Definition { Iid = Guid.NewGuid(), Content = "Existing", LanguageCode = "en-GB" };
+            var newDefinition = new Definition { Iid = Guid.NewGuid(), Content = "New", LanguageCode = "fr-FR" };
+
+            this.viewModel.CurrentThing = new TextParameterType
+            {
+                Iid = Guid.NewGuid(),
+                ShortName = "withDefinitions",
+                Name = "with definitions",
+                Definition = { existingDefinition, newDefinition }
+            };
+
+            List<Thing> capturedThings = null;
+
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>()))
+                .Callback<Thing, IReadOnlyCollection<Thing>, NotificationDescription>((_, things, _) => capturedThings = things.ToList())
+                .Returns(Task.FromResult(new Result()));
+
+            await this.viewModel.CreateOrEditParameterType(true);
+
+            Assert.That(capturedThings, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(capturedThings, Does.Contain(existingDefinition));
+                Assert.That(capturedThings, Does.Contain(newDefinition));
+                Assert.That(capturedThings, Does.Contain(this.viewModel.CurrentThing));
+            });
+        }
+
+        [Test]
+        public async Task VerifyEditingExistingParameterTypeWithNewDefinitionProducesCorrectOperations()
+        {
+            // Mirrors the production edit-existing flow: the cached parameter type is deep-cloned, a new
+            // definition is appended in memory, then the resulting clones are fed through a real
+            // ThingTransaction so we can assert the produced operation container matches what the server
+            // expects (a Create for the new definition, an Update for the parameter type whose Definition
+            // list now references the new Iid).
+            this.viewModel.InitializeViewModel();
+
+            var cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            var siteDir = new SiteDirectory(Guid.NewGuid(), cache, null) { ShortName = "siteDir" };
+            cache.TryAdd(siteDir.CacheKey, new Lazy<Thing>(() => siteDir));
+
+            var rdl = new SiteReferenceDataLibrary(Guid.NewGuid(), cache, null) { ShortName = "cached-rdl" };
+            siteDir.SiteReferenceDataLibrary.Add(rdl);
+            cache.TryAdd(rdl.CacheKey, new Lazy<Thing>(() => rdl));
+
+            var cachedParameterType = new TextParameterType(Guid.NewGuid(), cache, null) { ShortName = "cached", Name = "cached" };
+            rdl.ParameterType.Add(cachedParameterType);
+            cache.TryAdd(cachedParameterType.CacheKey, new Lazy<Thing>(() => cachedParameterType));
+
+            var cachedDefinition = new Definition(Guid.NewGuid(), cache, null) { Content = "cached", LanguageCode = "en-GB" };
+            cachedParameterType.Definition.Add(cachedDefinition);
+            cache.TryAdd(cachedDefinition.CacheKey, new Lazy<Thing>(() => cachedDefinition));
+
+            var parameterTypeClone = cachedParameterType.Clone(true);
+            var newDefinition = new Definition { Iid = Guid.NewGuid(), Content = "new", LanguageCode = "fr-FR" };
+            parameterTypeClone.Definition.Add(newDefinition);
+
+            this.viewModel.CurrentThing = parameterTypeClone;
+            this.viewModel.SelectedReferenceDataLibrary = rdl;
+
+            List<Thing> capturedThings = null;
+
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>()))
+                .Callback<Thing, IReadOnlyCollection<Thing>, NotificationDescription>((_, things, _) => capturedThings = things.ToList())
+                .Returns(Task.FromResult(new Result()));
+
+            await this.viewModel.CreateOrEditParameterType(false);
+
+            Assert.That(capturedThings, Is.Not.Null);
+
+            var rdlClone = rdl.Clone(false);
+            var transaction = new ThingTransaction(TransactionContextResolver.ResolveContext(rdlClone));
+
+            foreach (var thing in capturedThings)
+            {
+                transaction.CreateOrUpdate(thing);
+            }
+
+            var operationContainer = transaction.FinalizeTransaction();
+            var operations = operationContainer.Operations.ToList();
+
+            var createOps = operations.Where(o => o.OperationKind == CDP4DalCommon.Protocol.Operations.OperationKind.Create).ToList();
+            var updateOps = operations.Where(o => o.OperationKind == CDP4DalCommon.Protocol.Operations.OperationKind.Update).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(createOps, Has.Count.EqualTo(1), "exactly one Create op should be produced for the new Definition");
+                Assert.That(createOps[0].ModifiedThing.Iid, Is.EqualTo(newDefinition.Iid));
+                Assert.That(updateOps.Any(o => o.ModifiedThing.Iid == parameterTypeClone.Iid), Is.True, "the parameter type must be in an Update op");
+
+                var ptDto = (CDP4Common.DTO.TextParameterType)updateOps.Single(o => o.ModifiedThing.Iid == parameterTypeClone.Iid).ModifiedThing;
+                Assert.That(ptDto.Definition, Does.Contain(newDefinition.Iid), "the updated parameter type DTO must reference the new Definition Iid");
+                Assert.That(ptDto.Definition, Does.Contain(cachedDefinition.Iid), "the updated parameter type DTO must keep the existing Definition Iid");
+            });
         }
 
         [Test]

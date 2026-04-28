@@ -176,6 +176,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
                         break;
                 }
 
+                thingsToCreate.AddRange(this.CurrentThing.Definition);
                 thingsToCreate.Add(this.CurrentThing);
 
                 await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
