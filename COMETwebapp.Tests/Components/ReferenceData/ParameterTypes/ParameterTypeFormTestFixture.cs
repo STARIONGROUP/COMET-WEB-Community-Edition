@@ -129,5 +129,13 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             await this.renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
             this.viewModel.Verify(x => x.CreateOrEditParameterType(true), Times.Once);
         }
+
+        [Test]
+        public void VerifyDefinitionsTabIsRendered()
+        {
+            // the Definitions tab caption is exposed for every parameter type — the inner DefinitionsTable
+            // body is rendered lazily by DevExpress when the tab becomes active, so we only assert the caption.
+            Assert.That(this.renderer.Markup, Does.Contain("Definitions"));
+        }
     }
 }

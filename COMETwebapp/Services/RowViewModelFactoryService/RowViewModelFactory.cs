@@ -47,6 +47,7 @@ namespace COMETwebapp.Services.RowViewModelFactoryService
             {
                 // Reference data rows
                 Category castThing => new CategoryRowViewModel(castThing),
+                Definition castThing => new DefinitionRowViewModel(castThing),
                 DependentParameterTypeAssignment castThing => new DependentParameterTypeRowViewModel(castThing),
                 EnumerationValueDefinition castThing => new EnumerationValueDefinitionRowViewModel(castThing),
                 IndependentParameterTypeAssignment castThing => new IndependentParameterTypeRowViewModel(castThing),

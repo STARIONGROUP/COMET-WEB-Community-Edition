@@ -1,0 +1,64 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+@inherits DisposableComponent
+
+<DxGrid @ref="this.Grid"
+        Data="this.GetRows()"
+        EditMode="GridEditMode.PopupEditForm"
+        PopupEditFormHeaderText="Definition"
+        EditModelSaving="@(() => this.OnEditItemSaving())"
+        CustomizeEditModel="this.CustomizeEditDefinition">
+    <Columns>
+        <DxGridDataColumn FieldName="@nameof(DefinitionRowViewModel.LanguageCode)" Caption="Language" MinWidth="80" />
+        <DxGridDataColumn FieldName="@nameof(DefinitionRowViewModel.Content)" Caption="Content" MinWidth="200" />
+        <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+            <HeaderTemplate>
+                <DxButton Id="addDefinitionButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+            </HeaderTemplate>
+            <CellDisplayTemplate>
+                @{
+                    var row = (DefinitionRowViewModel)context.DataItem;
+
+                    <DxButton Id="editDefinitionButton"
+                              IconCssClass="oi oi-pencil"
+                              Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
+
+                    <DxButton Id="removeDefinitionButton"
+                              IconCssClass="oi oi-trash"
+                              Click="() => this.RemoveItem(row)"/>
+                }
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
+    </Columns>
+
+    <EditFormTemplate Context="EditFormContext">
+        <FluentValidationValidator/>
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Language Code:" ColSpanMd="10">
+                <DxTextBox Id="definitionLanguageCodeInput" @bind-Text="@(this.Item.LanguageCode)"/>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Content:" ColSpanMd="10">
+                <DxMemo Id="definitionContentInput" @bind-Text="@(this.Item.Content)" Rows="5"/>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+        <div class="pt-3"></div>
+        <ValidationSummary/>
+    </EditFormTemplate>
+</DxGrid>

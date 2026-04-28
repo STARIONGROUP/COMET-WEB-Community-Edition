@@ -34,7 +34,7 @@ namespace COMETwebapp.Health
         /// <summary>
         /// Single source of truth for both <see cref="HasStarted"/> and <see cref="StartedAt"/>,
         /// stored as UTC ticks so that <see cref="Interlocked.CompareExchange(ref long, long, long)"/>
-        /// can publish the timestamp atomically and all reads go through <see cref="Interlocked.Read"/>.
+        /// can publish the timestamp atomically and all reads go through <see cref="Interlocked.Read(ref readonly long)"/>.
         /// </summary>
         private long startedAtTicks;
 
