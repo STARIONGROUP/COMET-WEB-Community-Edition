@@ -32,22 +32,16 @@ namespace COMETwebapp.Health
     public class CometHasStartedService : ICometHasStartedService
     {
         /// <summary>
-        /// Backing field for <see cref="StartedAt"/>, stored as UTC ticks so that
-        /// <see cref="Interlocked.CompareExchange(ref long, long, long)"/> can be used to publish
-        /// the timestamp atomically.
+        /// Single source of truth for both <see cref="HasStarted"/> and <see cref="StartedAt"/>,
+        /// stored as UTC ticks so that <see cref="Interlocked.CompareExchange(ref long, long, long)"/>
+        /// can publish the timestamp atomically and all reads go through <see cref="Interlocked.Read"/>.
         /// </summary>
         private long startedAtTicks;
 
         /// <summary>
-        /// Backing field for <see cref="HasStarted"/>. Marked <c>volatile</c> so that probe
-        /// requests on other threads observe the flip immediately.
-        /// </summary>
-        private volatile bool hasStarted;
-
-        /// <summary>
         /// Gets a value indicating whether startup bootstrap has completed.
         /// </summary>
-        public bool HasStarted => this.hasStarted;
+        public bool HasStarted => Interlocked.Read(ref this.startedAtTicks) != 0;
 
         /// <summary>
         /// Gets the timestamp at which <see cref="MarkStarted"/> was first called, or
@@ -68,13 +62,7 @@ namespace COMETwebapp.Health
         /// </summary>
         public void MarkStarted()
         {
-            if (this.hasStarted)
-            {
-                return;
-            }
-
             Interlocked.CompareExchange(ref this.startedAtTicks, DateTime.UtcNow.Ticks, 0);
-            this.hasStarted = true;
         }
     }
 }
