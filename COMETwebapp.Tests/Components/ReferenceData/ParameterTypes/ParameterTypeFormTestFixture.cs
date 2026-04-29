@@ -64,6 +64,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             this.viewModel = new Mock<IParameterTypeTableViewModel>();
             this.viewModel.Setup(x => x.ParameterTypes).Returns([new ClassKindWrapper(ClassKind.BooleanParameterType)]);
             this.viewModel.Setup(x => x.CurrentThing).Returns(new BooleanParameterType());
+            this.viewModel.Setup(x => x.Categories).Returns([]);
 
             this.renderer = this.context.Render<ParameterTypeForm>(parameters =>
             {
@@ -136,6 +137,12 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             // the Definitions tab caption is exposed for every parameter type — the inner DefinitionsTable
             // body is rendered lazily by DevExpress when the tab becomes active, so we only assert the caption.
             Assert.That(this.renderer.Markup, Does.Contain("Definitions"));
+        }
+
+        [Test]
+        public void VerifyCategoriesTabIsRendered()
+        {
+            Assert.That(this.renderer.Markup, Does.Contain("Categories"));
         }
     }
 }

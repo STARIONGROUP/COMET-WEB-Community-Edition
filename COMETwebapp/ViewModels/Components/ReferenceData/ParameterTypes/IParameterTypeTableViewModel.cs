@@ -64,6 +64,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         IEnumerable<MeasurementScaleRowViewModel> MeasurementScales { get; }
 
         /// <summary>
+        /// Gets the <see cref="Category" />s eligible for the current <see cref="ParameterType" />, drawn from the chain of
+        /// <see cref="ReferenceDataLibrary" />s and filtered by <see cref="Category.PermissibleClass" />.
+        /// </summary>
+        IEnumerable<Category> Categories { get; }
+
+        /// <summary>
         /// Creates or edits a <see cref="ParameterType" />
         /// </summary>
         /// <param name="shouldCreate">The value to check if a new <see cref="ParameterType" /> should be created</param>
