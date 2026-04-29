@@ -94,7 +94,6 @@ namespace COMETwebapp.Tests.Validators.ReferenceData
                 ShortName = "updatedBoolean",
                 Symbol = "symb",
                 DefaultScale = new OrdinalScale(),
-                QuantityDimensionSymbol = "1",
                 PossibleScale = [new OrdinalScale()]
             };
 
@@ -174,9 +173,11 @@ namespace COMETwebapp.Tests.Validators.ReferenceData
 
             Assert.That(this.quantityKindValidator.Validate(parameterType).IsValid, Is.EqualTo(false));
             parameterType.DefaultScale = new OrdinalScale();
-            parameterType.QuantityDimensionSymbol = "1";
             parameterType.PossibleScale = [parameterType.DefaultScale];
             Assert.That(this.quantityKindValidator.Validate(parameterType).IsValid, Is.EqualTo(true));
+
+            parameterType.QuantityDimensionSymbol = string.Empty;
+            Assert.That(this.quantityKindValidator.Validate(parameterType).IsValid, Is.EqualTo(true), "QuantityDimensionSymbol is optional per the data model (issue #762)");
         }
 
         [Test]
@@ -230,7 +231,6 @@ namespace COMETwebapp.Tests.Validators.ReferenceData
                 ShortName = "updatedBoolean",
                 Symbol = "symb",
                 DefaultScale = new OrdinalScale(),
-                QuantityDimensionSymbol = "1",
                 PossibleScale = [new OrdinalScale()]
             };
 
