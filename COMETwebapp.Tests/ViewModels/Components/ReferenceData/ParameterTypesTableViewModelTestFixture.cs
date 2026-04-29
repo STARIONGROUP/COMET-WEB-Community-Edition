@@ -194,7 +194,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService
                 .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>()))
                 .Callback<Thing, IReadOnlyCollection<Thing>, NotificationDescription>((_, things, _) => capturedThings = things.ToList())
-                .Returns(Task.FromResult(new Result()));
+                .ReturnsAsync(new Result());
 
             await this.viewModel.CreateOrEditParameterType(true);
 
@@ -245,7 +245,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService
                 .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>()))
                 .Callback<Thing, IReadOnlyCollection<Thing>, NotificationDescription>((_, things, _) => capturedThings = things.ToList())
-                .Returns(Task.FromResult(new Result()));
+                .ReturnsAsync(new Result());
 
             await this.viewModel.CreateOrEditParameterType(false);
 
