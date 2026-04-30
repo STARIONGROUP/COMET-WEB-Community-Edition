@@ -85,6 +85,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.ShowHideDeprecatedThingsService).Returns(this.showHideService.Object);
             this.viewModel.Setup(x => x.CurrentThing).Returns(new DomainOfExpertise());
+            this.viewModel.Setup(x => x.Categories).Returns([]);
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();

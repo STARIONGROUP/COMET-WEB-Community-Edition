@@ -45,6 +45,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
 
     using NUnit.Framework;
 
+    using Result = FluentResults.Result;
+
     [TestFixture]
     public class DomainsOfExpertiseTableViewModelTestFixture
     {
@@ -56,6 +58,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
         private CDPMessageBus messageBus;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
         private DomainOfExpertise domainOfExpertise;
+        private SiteDirectory siteDirectory;
 
         [SetUp]
         public void Setup()
@@ -72,12 +75,26 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
                 Name = "scale",
             };
 
-            var siteDirectory = new SiteDirectory()
+            this.siteDirectory = new SiteDirectory()
             {
-                ShortName = "siteDirectory"
+                ShortName = "siteDirectory",
+                SiteReferenceDataLibrary =
+                {
+                    new SiteReferenceDataLibrary
+                    {
+                        ShortName = "siteRdl",
+                        Name = "Site RDL",
+                        DefinedCategory =
+                        {
+                            new Category { ShortName = "domCat", Name = "Domain category", PermissibleClass = { ClassKind.DomainOfExpertise } },
+                            new Category { ShortName = "definedCat", Name = "Defined-thing category", PermissibleClass = { ClassKind.DefinedThing } },
+                            new Category { ShortName = "elCat", Name = "Element category", PermissibleClass = { ClassKind.ElementDefinition } }
+                        }
+                    }
+                }
             };
 
-            siteDirectory.Domain.Add(this.domainOfExpertise);
+            this.siteDirectory.Domain.Add(this.domainOfExpertise);
 
             this.assembler = new Assembler(new Uri("http://localhost:5000/"), this.messageBus);
             var lazyDomain = new Lazy<Thing>(this.domainOfExpertise);
@@ -87,9 +104,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             session.Setup(x => x.Assembler).Returns(this.assembler);
-            session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
+            session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
-            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(this.siteDirectory);
 
             this.viewModel = new DomainsOfExpertiseTableViewModel(this.sessionService.Object, this.showHideService.Object, this.messageBus, this.loggerMock.Object);
         }
@@ -180,6 +197,67 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
 
             await this.viewModel.CreateOrEditDomainOfExpertise(true);
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.Is<List<Thing>>(c => c.Count == 2), It.IsAny<NotificationDescription>()), Times.Once);
+        }
+
+        [Test]
+        public void VerifyCategoriesAreFilteredByPermissibleClass()
+        {
+            this.viewModel.InitializeViewModel();
+
+            // CurrentThing is a DomainOfExpertise.
+            // domCat (PermissibleClass = DomainOfExpertise, literal match) — eligible.
+            // definedCat (PermissibleClass = DefinedThing, superclass match via the inheritance chain) — eligible.
+            // elCat (ElementDefinition, unrelated branch) — excluded.
+            Assert.That(this.viewModel.Categories.Select(c => c.ShortName), Is.EquivalentTo(new[] { "domCat", "definedCat" }));
+        }
+
+        [Test]
+        public void VerifyCategoriesIncludesPermissibleClassesAcrossInheritanceChain()
+        {
+            this.viewModel.InitializeViewModel();
+
+            var eligibleShortNames = this.viewModel.Categories.Select(c => c.ShortName).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(eligibleShortNames, Does.Contain("definedCat"),
+                    "A Category whose PermissibleClass is the DefinedThing superclass must be eligible for DomainOfExpertise via the inheritance chain.");
+                Assert.That(eligibleShortNames, Does.Contain("domCat"),
+                    "A Category whose PermissibleClass is DomainOfExpertise must be eligible.");
+                Assert.That(eligibleShortNames, Does.Not.Contain("elCat"),
+                    "elCat targets ElementDefinition and must remain excluded.");
+            });
+        }
+
+        [Test]
+        public async Task VerifyCategoriesArePersistedAlongsideTheDomainOfExpertise()
+        {
+            this.viewModel.InitializeViewModel();
+
+            var category = this.siteDirectory.SiteReferenceDataLibrary.First().DefinedCategory.First(c => c.ShortName == "domCat");
+
+            this.viewModel.CurrentThing = new DomainOfExpertise
+            {
+                Iid = Guid.NewGuid(),
+                ShortName = "withCategory",
+                Name = "with category",
+                Category = { category }
+            };
+
+            List<Thing> capturedThings = null;
+
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<SiteDirectory>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>()))
+                .Callback<Thing, IReadOnlyCollection<Thing>, NotificationDescription>((_, things, _) => capturedThings = things.ToList())
+                .ReturnsAsync(new Result());
+
+            await this.viewModel.CreateOrEditDomainOfExpertise(false);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(capturedThings, Does.Contain(this.viewModel.CurrentThing));
+                Assert.That(this.viewModel.CurrentThing.Category, Does.Contain(category));
+            });
         }
     }
 }

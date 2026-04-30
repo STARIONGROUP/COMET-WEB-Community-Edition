@@ -23,6 +23,7 @@
 namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
 {
     using CDP4Common.CommonData;
+    using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
@@ -53,6 +54,13 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
         {
             this.CurrentThing = new DomainOfExpertise();
         }
+
+        /// <summary>
+        /// Gets the <see cref="Category" />s eligible for the current <see cref="DomainOfExpertise" />, drawn from
+        /// the chain of <see cref="ReferenceDataLibrary" />s available in the <see cref="SiteDirectory" /> and
+        /// filtered by <see cref="Category.PermissibleClass" />.
+        /// </summary>
+        public IEnumerable<Category> Categories => this.GetPossibleCategories();
 
         /// <summary>
         /// Creates or edits a <see cref="DomainOfExpertise"/>
@@ -94,6 +102,34 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
         protected override List<DomainOfExpertise> QueryListOfThings()
         {
             return this.SessionService.GetSiteDirectory().Domain;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Category" />s eligible for the current <see cref="DomainOfExpertise" />, aggregated
+        /// across the <see cref="ReferenceDataLibrary" />s available in the <see cref="SiteDirectory" /> and
+        /// filtered by <see cref="Category.PermissibleClass" /> against the full inheritance chain of
+        /// <see cref="DomainOfExpertise" /> via <see cref="TypeResolver.GetAllSuperTypes" />.
+        /// </summary>
+        /// <returns>A collection of <see cref="Category" />s</returns>
+        private IEnumerable<Category> GetPossibleCategories()
+        {
+            if (this.CurrentThing is null)
+            {
+                return Enumerable.Empty<Category>();
+            }
+
+            var applicableClassKinds = TypeResolver.GetAllSuperTypes(this.CurrentThing)
+                .Select(t => Enum.TryParse<ClassKind>(t.Name, out var kind) ? (ClassKind?)kind : null)
+                .Where(kind => kind.HasValue)
+                .Select(kind => kind.Value)
+                .ToHashSet();
+
+            return this.SessionService.GetSiteDirectory()
+                .AvailableReferenceDataLibraries()
+                .SelectMany(rdl => rdl.QueryCategoriesFromChainOfRdls())
+                .Distinct()
+                .Where(c => c.PermissibleClass.Any(applicableClassKinds.Contains))
+                .OrderBy(c => c.Name, StringComparer.InvariantCultureIgnoreCase);
         }
     }
 }

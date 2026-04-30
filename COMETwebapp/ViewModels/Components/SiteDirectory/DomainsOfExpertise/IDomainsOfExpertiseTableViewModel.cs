@@ -33,6 +33,13 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise
     public interface IDomainsOfExpertiseTableViewModel : IDeprecatableDataItemTableViewModel<DomainOfExpertise, DomainOfExpertiseRowViewModel>
     {
         /// <summary>
+        /// Gets the <see cref="Category" />s eligible for the current <see cref="DomainOfExpertise" />, drawn from
+        /// the chain of <see cref="ReferenceDataLibrary" />s available in the <see cref="SiteDirectory" /> and
+        /// filtered by <see cref="Category.PermissibleClass" />.
+        /// </summary>
+        IEnumerable<Category> Categories { get; }
+
+        /// <summary>
         /// Creates or edits a <see cref="DomainOfExpertise"/>
         /// </summary>
         /// <param name="shouldCreate">The value to check if a new <see cref="DomainOfExpertise"/> should be created</param>
