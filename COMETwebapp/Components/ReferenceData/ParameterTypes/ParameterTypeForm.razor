@@ -181,24 +181,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
             }
 
             <DxFormLayoutTabPage Caption="Categories">
-                <DxGrid Data="@(this.ViewModel.Categories
-                                  .OrderByDescending(c => this.ViewModel.CurrentThing.Category.Contains(c))
-                                  .ThenBy(c => c.Name))"
-                        ShowAllRows="true"
-                        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                        SelectionMode="GridSelectionMode.Multiple"
-                        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-                        KeyFieldName="@nameof(Category.Iid)"
-                        SelectedDataItems="@(this.ViewModel.CurrentThing.Category.Cast<object>().ToArray())"
-                        SelectedDataItemsChanged="@(items => this.ViewModel.CurrentThing.Category = items.Cast<Category>().ToList())"
-                        CssClass="cw-480">
-                    <Columns>
-                        <DxGridSelectionColumn Width="60px" AllowSelectAll="true"/>
-                        <DxGridDataColumn FieldName="@nameof(Category.Name)" AllowSort="true"/>
-                        <DxGridDataColumn FieldName="@nameof(Category.ShortName)" AllowSort="true"/>
-                        <DxGridDataColumn FieldName="@nameof(Category.IsDeprecated)" Caption="Deprecated" AllowSort="true"/>
-                    </Columns>
-                </DxGrid>
+                <CategoriesTable Thing="@this.ViewModel.CurrentThing"
+                                 AvailableCategories="@this.ViewModel.Categories"/>
             </DxFormLayoutTabPage>
 
             <DxFormLayoutTabPage Caption="Definitions">
