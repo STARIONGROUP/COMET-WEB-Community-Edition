@@ -95,6 +95,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                     {
                         Unit = new SimpleUnit()
                     }
+                },
+                DefinedCategory =
+                {
+                    new Category { ShortName = "ptCat", Name = "PT category", PermissibleClass = { ClassKind.BooleanParameterType, ClassKind.TextParameterType } },
+                    new Category { ShortName = "elCat", Name = "Element category", PermissibleClass = { ClassKind.ElementDefinition } },
+                    new Category { ShortName = "anyPtCat", Name = "Any PT category", PermissibleClass = { ClassKind.ParameterType } }
                 }
             };
 
@@ -204,6 +210,74 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 Assert.That(capturedThings, Does.Contain(existingDefinition));
                 Assert.That(capturedThings, Does.Contain(newDefinition));
                 Assert.That(capturedThings, Does.Contain(this.viewModel.CurrentThing));
+            });
+        }
+
+        [Test]
+        public void VerifyCategoriesAreFilteredByPermissibleClass()
+        {
+            this.viewModel.InitializeViewModel();
+
+            // CurrentThing defaults to BooleanParameterType.
+            // ptCat (PermissibleClass includes BooleanParameterType, literal match) — eligible.
+            // anyPtCat (PermissibleClass = ParameterType, superclass match via the inheritance chain) — eligible.
+            // elCat (ElementDefinition only, unrelated branch) — excluded.
+            Assert.That(this.viewModel.Categories.Select(c => c.ShortName), Is.EquivalentTo(new[] { "ptCat", "anyPtCat" }));
+        }
+
+        [Test]
+        public void VerifyCategoriesIncludesPermissibleClassesAcrossInheritanceChain()
+        {
+            this.viewModel.InitializeViewModel();
+
+            this.viewModel.CurrentThing = new SimpleQuantityKind
+            {
+                Iid = Guid.NewGuid(),
+                ShortName = "sqk",
+                Name = "simple quantity kind"
+            };
+
+            var eligibleShortNames = this.viewModel.Categories.Select(c => c.ShortName).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(eligibleShortNames, Does.Contain("anyPtCat"),
+                    "A Category whose PermissibleClass is the ParameterType superclass must be eligible for SimpleQuantityKind via the inheritance chain.");
+                Assert.That(eligibleShortNames, Does.Not.Contain("ptCat"),
+                    "ptCat lists only Boolean/Text leaves and must not match SimpleQuantityKind.");
+                Assert.That(eligibleShortNames, Does.Not.Contain("elCat"),
+                    "elCat targets ElementDefinition and must remain excluded.");
+            });
+        }
+
+        [Test]
+        public async Task VerifyCategoriesArePersistedAlongsideTheParameterType()
+        {
+            this.viewModel.InitializeViewModel();
+
+            var category = this.siteDirectory.SiteReferenceDataLibrary.First().DefinedCategory.First(c => c.ShortName == "ptCat");
+
+            this.viewModel.CurrentThing = new TextParameterType
+            {
+                Iid = Guid.NewGuid(),
+                ShortName = "withCategory",
+                Name = "with category",
+                Category = { category }
+            };
+
+            List<Thing> capturedThings = null;
+
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<ReferenceDataLibrary>(), It.IsAny<List<Thing>>(), It.IsAny<NotificationDescription>()))
+                .Callback<Thing, IReadOnlyCollection<Thing>, NotificationDescription>((_, things, _) => capturedThings = things.ToList())
+                .ReturnsAsync(new Result());
+
+            await this.viewModel.CreateOrEditParameterType(true);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(capturedThings, Does.Contain(this.viewModel.CurrentThing));
+                Assert.That(((TextParameterType)this.viewModel.CurrentThing).Category, Does.Contain(category));
             });
         }
 

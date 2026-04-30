@@ -23,6 +23,7 @@
 namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.CommonData;
+    using CDP4Common.Helpers;
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
@@ -88,6 +89,12 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// Gets the possible available <see cref="MeasurementScale" />s
         /// </summary>
         public IEnumerable<MeasurementScaleRowViewModel> MeasurementScales => this.GetPossibleMeasurementScales();
+
+        /// <summary>
+        /// Gets the <see cref="Category" />s eligible for the current <see cref="ParameterType" />, drawn from the chain of
+        /// <see cref="ReferenceDataLibrary" />s and filtered by <see cref="Category.PermissibleClass" />.
+        /// </summary>
+        public IEnumerable<Category> Categories => this.GetPossibleCategories();
 
         /// <summary>
         /// Gets the available parameter types <see cref="ClassKindWrapper" />s
@@ -277,6 +284,31 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
 
             var filteredMeasurementScales = allMeasurementScales.Where(x => !specializedQuantity.General.AllPossibleScale.Contains(x.Thing));
             return filteredMeasurementScales;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Category" />s eligible for the current <see cref="ParameterType" />, drawn from the
+        /// chain of <see cref="ReferenceDataLibrary" />s and filtered by <see cref="Category.PermissibleClass" />
+        /// against the full inheritance chain of the current <see cref="ParameterType" /> via
+        /// <see cref="TypeResolver.GetAllSuperTypes" />.
+        /// </summary>
+        /// <returns>A collection of <see cref="Category" />s</returns>
+        private IEnumerable<Category> GetPossibleCategories()
+        {
+            if (this.SelectedReferenceDataLibrary is null || this.CurrentThing is null)
+            {
+                return Enumerable.Empty<Category>();
+            }
+
+            var applicableClassKinds = TypeResolver.GetAllSuperTypes(this.CurrentThing)
+                .Select(t => Enum.TryParse<ClassKind>(t.Name, out var kind) ? (ClassKind?)kind : null)
+                .Where(kind => kind.HasValue)
+                .Select(kind => kind.Value)
+                .ToHashSet();
+
+            return this.SelectedReferenceDataLibrary.QueryCategoriesFromChainOfRdls()
+                .Where(c => c.PermissibleClass.Any(applicableClassKinds.Contains))
+                .OrderBy(c => c.Name, StringComparer.InvariantCultureIgnoreCase);
         }
     }
 }
