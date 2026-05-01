@@ -102,5 +102,61 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                 Assert.That(elementDefinitionDetails[1].InnerHtml, Does.Contain(this.iteration.Element[0].Name));
             });
         }
+
+        /// <summary>
+        /// Verifies that when a selected <see cref="ElementUsage" /> is rendered, the displayed Category column
+        /// includes the categories of the referenced <see cref="ElementDefinition" /> in addition to the usage's
+        /// own categories — the behaviour expected by issue #744.
+        /// </summary>
+        [Test]
+        public void VerifyElementUsageDisplaysReferencedElementDefinitionCategories()
+        {
+            var definitionCategory = new Category(Guid.NewGuid(), this.assembler.Cache, this.uri)
+            {
+                Name = "DefCat",
+                ShortName = "DefCat"
+            };
+
+            var usageCategory = new Category(Guid.NewGuid(), this.assembler.Cache, this.uri)
+            {
+                Name = "UsageCat",
+                ShortName = "UsageCat"
+            };
+
+            var elementDefinition = new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri)
+            {
+                Name = "Definition",
+                ShortName = "DEF",
+                Owner = this.domain,
+                Category = { definitionCategory }
+            };
+
+            var elementUsage = new ElementUsage(Guid.NewGuid(), this.assembler.Cache, this.uri)
+            {
+                Name = "Usage",
+                ShortName = "USG",
+                Owner = this.domain,
+                ElementDefinition = elementDefinition,
+                Category = { usageCategory }
+            };
+
+            var renderer = this.context.Render<ElementDefinitionDetails>(parameters =>
+            {
+                parameters.Add(p => p.ViewModel, this.elementDefinitionDetailsViewModel);
+            });
+
+            this.elementDefinitionDetailsViewModel.SelectedSystemNode = elementUsage;
+            renderer.Render();
+
+            var rows = renderer.FindAll("tr");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rows[1].InnerHtml, Does.Contain("DefCat"),
+                    "The referenced ElementDefinition's category must appear in the rendered Category column.");
+                Assert.That(rows[1].InnerHtml, Does.Contain("UsageCat"),
+                    "The ElementUsage's own category must still appear in the rendered Category column.");
+            });
+        }
     }
 }

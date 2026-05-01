@@ -51,7 +51,7 @@
 					@this.ViewModel.SelectedSystemNode.Owner.ShortName
 					</td>
 					<td class="align-middle">
-						@this.ViewModel.SelectedSystemNode.Category.Select(x => x.Name).AsCommaSeparated()
+						@this.ViewModel.SelectedSystemNode.GetAllCategories().Select(x => x.Name).AsCommaSeparated()
 					</td>
 					<td class="align-middle">
 						@this.ViewModel.SelectedSystemNode.Definition.Select(x => x.Content).AsCommaSeparated()
