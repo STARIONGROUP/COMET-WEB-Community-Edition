@@ -129,6 +129,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
                 Assert.That(this.viewModel.IsPrivate, Is.EqualTo(false));
                 Assert.That(firstRow.Thing, Is.EqualTo(this.domainFileStore));
                 Assert.That(firstRow.CreatedOn, Is.EqualTo(this.domainFileStore.CreatedOn));
+                Assert.That(firstRow.OwnerShortName, Is.EqualTo(this.domainFileStore.Owner.ShortName));
             });
         }
     }
