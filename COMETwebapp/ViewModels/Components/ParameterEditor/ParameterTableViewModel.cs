@@ -71,6 +71,14 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         private HashSet<Guid> currentParameterTypeIds = new();
 
         /// <summary>
+        /// The set of <see cref="Category.Iid" />s currently selected as a multi-select filter. Empty means
+        /// "no filter"; otherwise rows whose owning <see cref="ElementBase" /> does not carry (directly or
+        /// through its referenced <see cref="ElementDefinition" /> / super-categories) at least one of these
+        /// categories are removed.
+        /// </summary>
+        private HashSet<Guid> currentCategoryIds = new();
+
+        /// <summary>
         /// Gets or sets the <see cref="ParameterBaseRowViewModel" /> for this <see cref="ParameterTableViewModel" />
         /// </summary>
         private DomainOfExpertise domainOfExpertise;
@@ -163,7 +171,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
 
         /// <summary>
         /// Apply filters based on <see cref="Option" />, <see cref="ElementBase" />, a multi-select set of
-        /// <see cref="ParameterType" />s and <see cref="DomainOfExpertise" />.
+        /// <see cref="ParameterType" />s, a multi-select set of <see cref="Category" />s and
+        /// <see cref="DomainOfExpertise" />.
         /// </summary>
         /// <param name="selectedOption">The selected <see cref="Option" />.</param>
         /// <param name="selectedElementBase">The selected <see cref="ElementBase" />.</param>
@@ -172,11 +181,18 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// no parameter-type filter is applied; otherwise rows whose <see cref="ParameterType" /> is not in the
         /// collection are removed.
         /// </param>
+        /// <param name="selectedCategories">
+        /// The collection of <see cref="Category" />s to filter on. <c>null</c> or an empty collection means no
+        /// category filter is applied; otherwise rows whose owning <see cref="ElementBase" /> does not carry at
+        /// least one of these categories (transitively, including the referenced
+        /// <see cref="ElementDefinition" />'s categories for an <see cref="ElementUsage" />, and super-categories)
+        /// are removed.
+        /// </param>
         /// <param name="isOwnedParameters">
         /// Value asserting that only <see cref="Thing" />s owned by the current <see cref="DomainOfExpertise" />
         /// should be visible.
         /// </param>
-        public void ApplyFilters(Option selectedOption, ElementBase selectedElementBase, IEnumerable<ParameterType> selectedParameterTypes, bool isOwnedParameters)
+        public void ApplyFilters(Option selectedOption, ElementBase selectedElementBase, IEnumerable<ParameterType> selectedParameterTypes, IEnumerable<Category> selectedCategories, bool isOwnedParameters)
         {
             if (this.iteration == null)
             {
@@ -188,6 +204,9 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             this.currentParameterTypeIds = selectedParameterTypes == null
                 ? new HashSet<Guid>()
                 : new HashSet<Guid>(selectedParameterTypes.Select(x => x.Iid));
+            this.currentCategoryIds = selectedCategories == null
+                ? new HashSet<Guid>()
+                : new HashSet<Guid>(selectedCategories.Select(x => x.Iid));
             this.ownedParameters = isOwnedParameters;
 
             var rows = this.CreateRowsBasedOnFilters(this.iteration.QueryParameterAndOverrideBases(selectedOption).ToList());
@@ -317,6 +336,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 ApplyParameterTypeFilter(parameters, this.currentParameterTypeIds);
             }
 
+            if (this.currentCategoryIds.Count > 0)
+            {
+                ApplyCategoryFilter(parameters, this.currentCategoryIds);
+            }
+
             return this.CreateParameterBaseRowViewModels(parameters, this.currentOption.Iid).DistinctBy(x => x.ValueSetId);
         }
 
@@ -346,6 +370,28 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         private static void ApplyParameterTypeFilter(List<ParameterOrOverrideBase> parameters, ISet<Guid> parameterTypeIds)
         {
             parameters.RemoveAll(x => !parameterTypeIds.Contains(x.ParameterType.Iid));
+        }
+
+        /// <summary>
+        /// Apply a filtering pass that retains only parameters whose owning <see cref="ElementBase" /> carries at
+        /// least one of the categories whose identifier is in <paramref name="categoryIds" />. Resolution uses
+        /// <see cref="CategorizableThingExtensions.GetAllCategories(ICategorizableThing, bool)" /> so that an
+        /// <see cref="ElementUsage" /> inherits the categories of its referenced <see cref="ElementDefinition" />,
+        /// and super-categories are honoured. Mutates <paramref name="parameters" /> in place.
+        /// </summary>
+        /// <param name="parameters">A collection of <see cref="ParameterOrOverrideBase" /> to filter.</param>
+        /// <param name="categoryIds">The <see cref="ISet{T}" /> of allowed <see cref="Category.Iid" /> values.</param>
+        private static void ApplyCategoryFilter(List<ParameterOrOverrideBase> parameters, ISet<Guid> categoryIds)
+        {
+            parameters.RemoveAll(p =>
+            {
+                if (p.Container is not ElementBase elementBase)
+                {
+                    return true;
+                }
+
+                return !elementBase.GetAllCategories().Any(c => categoryIds.Contains(c.Iid));
+            });
         }
 
         /// <summary>

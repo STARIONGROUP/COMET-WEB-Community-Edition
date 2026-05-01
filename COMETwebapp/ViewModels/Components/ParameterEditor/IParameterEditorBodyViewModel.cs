@@ -55,6 +55,13 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public IMultiParameterTypeSelectorViewModel ParameterTypeSelector { get; }
 
         /// <summary>
+        /// Gets the <see cref="IMultiCategorySelectorViewModel" /> driving the category filter on the building
+        /// blocks (<see cref="CDP4Common.EngineeringModelData.ElementBase" />). An empty selection means no
+        /// category filtering is applied.
+        /// </summary>
+        public IMultiCategorySelectorViewModel CategorySelector { get; }
+
+        /// <summary>
         /// Sets if only parameters owned by the active domain are shown
         /// </summary>
         bool IsOwnedParameters { get; set; }

@@ -50,6 +50,7 @@ namespace COMETwebapp.Components.ParameterEditor
                     x => x.ViewModel.OptionSelector.SelectedOption,
                     x => x.ViewModel.ParameterTypeSelector.SelectedParameterTypes,
                     x => x.ViewModel.ElementSelector.SelectedElementBase,
+                    x => x.ViewModel.CategorySelector.SelectedCategories,
                     x => x.ViewModel.IsOwnedParameters)
                 .Subscribe(_ => this.UpdateUrl()));
 
@@ -87,6 +88,18 @@ namespace COMETwebapp.Components.ParameterEditor
                     this.ViewModel.ParameterTypeSelector.SelectedParameterTypes = new List<ParameterType> { match };
                 }
             }
+
+            if (parameters.TryGetValue(QueryKeys.CategoriesKey, out var categoriesValue) && !string.IsNullOrWhiteSpace(categoriesValue))
+            {
+                var ids = categoriesValue
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(x => x.FromShortGuid())
+                    .ToHashSet();
+
+                this.ViewModel.CategorySelector.SelectedCategories = this.ViewModel.CategorySelector.AvailableCategories
+                    .Where(x => ids.Contains(x.Iid))
+                    .ToList();
+            }
         }
 
         /// <summary>
@@ -111,6 +124,13 @@ namespace COMETwebapp.Components.ParameterEditor
             if (selectedParameterTypes.Count > 0)
             {
                 additionalParameters[QueryKeys.ParametersKey] = string.Join(",", selectedParameterTypes.Select(x => x.Iid.ToShortGuid()));
+            }
+
+            var selectedCategories = this.ViewModel.CategorySelector.SelectedCategories?.ToList() ?? new List<Category>();
+
+            if (selectedCategories.Count > 0)
+            {
+                additionalParameters[QueryKeys.CategoriesKey] = string.Join(",", selectedCategories.Select(x => x.Iid.ToShortGuid()));
             }
 
             if (this.ViewModel.IsOwnedParameters)
