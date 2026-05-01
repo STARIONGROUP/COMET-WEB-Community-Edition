@@ -17,10 +17,56 @@
 //     You should have received a copy of the GNU Affero General Public License
 //     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMET.Web.Common.Extensions
 @inherits DisposableComponent
 
 @if (this.ViewModel.SelectedSystemNode != null)
 {
+    <div class="card cardview-detailspanel-summary mb-2" style="padding:8px;">
+        <div class="row" style="margin-bottom:4px;">
+            <div class="col-9">
+                <h6 title="@this.ViewModel.SelectedSystemNode.Name"
+                    style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:0;">
+                    @this.ViewModel.SelectedSystemNode.Name
+                </h6>
+                <small class="text-muted">@this.ViewModel.SelectedSystemNode.ShortName</small>
+            </div>
+            <div class="col-3" align="right">
+                <button class="starion-pill"
+                        title="Owning Domain Of Expertise: @this.ViewModel.SelectedSystemNode.Owner.ShortName">
+                    @this.ViewModel.SelectedSystemNode.Owner.ShortName
+                </button>
+            </div>
+        </div>
+        @{
+            var categories = this.ViewModel.SelectedSystemNode.GetAllCategories().ToList();
+        }
+        @if (categories.Count > 0)
+        {
+            <div class="row" style="margin-bottom:4px;">
+                <div class="col-12">
+                    @foreach (var category in categories)
+                    {
+                        <button class="starion-pill" title="Category: @category.Name" style="margin-right:4px;">
+                            @category.Name
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+        @{
+            var definition = this.ViewModel.SelectedSystemNode.Definition.Select(x => x.Content).AsCommaSeparated();
+        }
+        @if (!string.IsNullOrWhiteSpace(definition))
+        {
+            <div class="row" style="border-top:1px dotted darkgray;margin-top:8px;padding-top:8px;">
+                <div class="col-12" title="@definition">
+                    @definition
+                </div>
+            </div>
+        }
+    </div>
+
     <CardView ScrollableAreaCssClass="cardview-detailspanel-scrollarea" Items="this.ViewModel.Rows" ItemSize="150" MinWidth="280">
         <ItemTemplate>
             <div class="row">
