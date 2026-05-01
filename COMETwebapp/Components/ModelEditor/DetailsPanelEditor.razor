@@ -70,11 +70,20 @@
     <CardView ScrollableAreaCssClass="cardview-detailspanel-scrollarea" Items="this.ViewModel.Rows" ItemSize="150" MinWidth="280">
         <ItemTemplate>
             <div class="row">
-                <div class="col-9">
+                <div class="col-8">
                     <h6 title="@context.ParameterTypeName" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;"><CardField Context="@context" FieldName="ParameterTypeName"/></h6>
                 </div>
-                <div class="col-3" align="right">
+                <div class="col-4" align="right">
                     <button class="starion-pill" title="Owning Domain Of Expertise: @context.Owner"><CardField Context="@context" FieldName="Owner" /></button>
+                    @if (this.OnDeleteParameter.HasDelegate)
+                    {
+                        <DxButton IconCssClass="oi oi-trash"
+                                  RenderStyle="ButtonRenderStyle.Danger"
+                                  RenderStyleMode="ButtonRenderStyleMode.Text"
+                                  CssClass="ms-1"
+                                  Click="@(() => this.OnDeleteParameter.InvokeAsync(context.Parameter))"
+                                  title="Delete this parameter"/>
+                    }
                 </div>
             </div>
             <div class="row">

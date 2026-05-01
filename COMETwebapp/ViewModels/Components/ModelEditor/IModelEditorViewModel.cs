@@ -23,6 +23,7 @@
 namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
@@ -169,5 +170,28 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// </summary>
         /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
         Task DeleteSelectedElementAsync();
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the delete-confirmation popup for
+        /// a <see cref="Parameter" />. Kept separate from <see cref="DeleteElementPopupViewModel" /> so the
+        /// confirm callbacks remain unambiguous.
+        /// </summary>
+        IConfirmCancelPopupViewModel DeleteParameterPopupViewModel { get; }
+
+        /// <summary>
+        /// Opens the delete-confirmation popup for a <see cref="Parameter" />. Composes a content message
+        /// that names the parameter (its <see cref="ParameterType" />) and the containing
+        /// <see cref="ElementDefinition" />.
+        /// </summary>
+        /// <param name="parameter">The <see cref="Parameter" /> the user requested to delete.</param>
+        void OpenDeleteParameterPopup(Parameter parameter);
+
+        /// <summary>
+        /// Performs the deletion of the parameter previously passed to
+        /// <see cref="OpenDeleteParameterPopup" /> via the session service. Refreshes the details rows on
+        /// success and always closes the popup.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
+        Task DeleteSelectedParameterAsync();
     }
 }

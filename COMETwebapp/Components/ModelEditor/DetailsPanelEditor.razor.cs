@@ -21,6 +21,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace COMETwebapp.Components.ModelEditor
 {
+    using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
@@ -38,6 +40,14 @@ namespace COMETwebapp.Components.ModelEditor
 		/// </summary>
 		[Parameter]
 		public IElementDefinitionDetailsViewModel ViewModel { get; set; }
+
+		/// <summary>
+		///     Optional callback invoked when the user clicks the per-card delete affordance for a
+		///     <see cref="Parameter" />. When unset, the delete affordance is not rendered, so consumers
+		///     other than the Model Editor remain read-only.
+		/// </summary>
+		[Parameter]
+		public EventCallback<Parameter> OnDeleteParameter { get; set; }
 
 		/// <summary>
 		///     Method invoked when the component is ready to start, having received its

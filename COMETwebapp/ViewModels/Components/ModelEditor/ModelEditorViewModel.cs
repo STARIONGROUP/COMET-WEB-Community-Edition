@@ -115,6 +115,13 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         private bool isOnDeletionMode;
 
         /// <summary>
+        /// The <see cref="Parameter" /> the user requested to delete, captured when
+        /// <see cref="OpenDeleteParameterPopup" /> is invoked and consumed by
+        /// <see cref="DeleteSelectedParameterAsync" />.
+        /// </summary>
+        private Parameter selectedParameterToDelete;
+
+        /// <summary>
         /// Creates a new instance of <see cref="ModelEditorViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
@@ -150,6 +157,15 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 CancelRenderStyle = ButtonRenderStyle.Secondary,
                 OnCancel = eventCallbackFactory.Create(this, this.OnDeleteCancelled),
                 OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedElementAsync)
+            };
+
+            this.DeleteParameterPopupViewModel = new ConfirmCancelPopupViewModel
+            {
+                HeaderText = "Delete parameter",
+                ConfirmRenderStyle = ButtonRenderStyle.Danger,
+                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                OnCancel = eventCallbackFactory.Create(this, this.OnDeleteParameterCancelled),
+                OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedParameterAsync)
             };
 
             this.InitializeSubscriptions([typeof(ElementBase)]);
@@ -414,6 +430,116 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             {
                 OnSuccess = $"{kind} '{label}' deleted",
                 OnError = $"Failed to delete {kind} '{label}'"
+            };
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the parameter delete-confirmation popup.
+        /// </summary>
+        public IConfirmCancelPopupViewModel DeleteParameterPopupViewModel { get; }
+
+        /// <summary>
+        /// Opens the delete-confirmation popup for the supplied <see cref="Parameter" />, captures the
+        /// parameter as the deletion target, and composes a content message that identifies the parameter
+        /// type and the containing <see cref="ElementDefinition" />.
+        /// </summary>
+        /// <param name="parameter">The <see cref="Parameter" /> the user requested to delete.</param>
+        public void OpenDeleteParameterPopup(Parameter parameter)
+        {
+            if (parameter is null)
+            {
+                return;
+            }
+
+            this.selectedParameterToDelete = parameter;
+
+            var parameterTypeName = parameter.ParameterType?.Name ?? "Parameter";
+            var containerName = parameter.Container is ElementDefinition containing ? containing.Name : null;
+
+            this.DeleteParameterPopupViewModel.ContentText = string.IsNullOrWhiteSpace(containerName)
+                ? $"You are about to delete the Parameter '{parameterTypeName}'. This cannot be undone."
+                : $"You are about to delete the Parameter '{parameterTypeName}' from {containerName}. This cannot be undone.";
+
+            this.DeleteParameterPopupViewModel.IsVisible = true;
+        }
+
+        /// <summary>
+        /// Performs the deletion of the parameter captured by <see cref="OpenDeleteParameterPopup" /> using
+        /// <see cref="ISessionService.DeleteThingsWithNotification" /> with the cloned containing
+        /// <see cref="ElementDefinition" /> as the operation top container. Refreshes the parameter rows
+        /// shown by the details panel on success and always closes the popup.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
+        public async Task DeleteSelectedParameterAsync()
+        {
+            var parameter = this.selectedParameterToDelete;
+
+            if (parameter is null || parameter.Container is not ElementDefinition containingDefinition)
+            {
+                this.CloseDeleteParameterPopup();
+                return;
+            }
+
+            try
+            {
+                this.IsLoading = true;
+
+                var clonedContainer = containingDefinition.Clone(false);
+                var clonedParameter = parameter.Clone(false);
+
+                var result = await this.sessionService.DeleteThingsWithNotification(clonedContainer, new[] { clonedParameter }, GetParameterDeletionNotificationDescription(parameter));
+
+                if (result.IsSuccess)
+                {
+                    this.ElementDefinitionDetailsViewModel.Rows = this.SelectedElementDefinition?.Parameter
+                        .Where(x => x.Iid != parameter.Iid)
+                        .Select(x => new ElementDefinitionDetailsRowViewModel(x))
+                        .ToList();
+                }
+            }
+            catch (Exception exception)
+            {
+                this.logger?.LogError(exception, "An error occurred while deleting the Parameter with iid {Iid}", parameter.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
+                this.CloseDeleteParameterPopup();
+            }
+        }
+
+        /// <summary>
+        /// Closes the parameter delete-confirmation popup and clears the captured target.
+        /// </summary>
+        private void CloseDeleteParameterPopup()
+        {
+            this.DeleteParameterPopupViewModel.IsVisible = false;
+            this.selectedParameterToDelete = null;
+        }
+
+        /// <summary>
+        /// Cancellation handler bound to <see cref="DeleteParameterPopupViewModel" />'s
+        /// <see cref="IConfirmCancelPopupViewModel.OnCancel" />.
+        /// </summary>
+        private void OnDeleteParameterCancelled()
+        {
+            this.CloseDeleteParameterPopup();
+        }
+
+        /// <summary>
+        /// Builds a <see cref="NotificationDescription" /> used to surface the success / failure of a
+        /// <see cref="Parameter" /> deletion through the existing notification pipeline.
+        /// </summary>
+        /// <param name="parameter">The <see cref="Parameter" /> being deleted.</param>
+        /// <returns>The <see cref="NotificationDescription" /> describing the operation.</returns>
+        private static NotificationDescription GetParameterDeletionNotificationDescription(Parameter parameter)
+        {
+            var label = parameter.ParameterType?.Name ?? "Parameter";
+
+            return new NotificationDescription
+            {
+                OnSuccess = $"Parameter '{label}' deleted",
+                OnError = $"Failed to delete Parameter '{label}'"
             };
         }
 
