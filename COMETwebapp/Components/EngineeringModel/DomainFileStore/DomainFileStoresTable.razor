@@ -34,6 +34,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             CssClass="selected-data-item-table">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(DomainFileStoreRowViewModel.Name)" MinWidth="150"/>
+            <DxGridDataColumn FieldName="@nameof(DomainFileStoreRowViewModel.OwnerShortName)" Caption="Owner" MinWidth="100"/>
             <DxGridDataColumn FieldName="@nameof(DomainFileStoreRowViewModel.CreatedOn)" MinWidth="80" DisplayFormat="{0:dd/MM/yyyy HH:mm:ss}" SearchEnabled="false"/>
         </Columns>
     </DxGrid>

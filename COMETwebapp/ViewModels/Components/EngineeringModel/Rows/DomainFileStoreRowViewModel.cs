@@ -39,12 +39,18 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Rows
         private DateTime createdOn;
 
         /// <summary>
+        /// The backing field for <see cref="OwnerShortName" />
+        /// </summary>
+        private string ownerShortName;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DomainFileStoreRowViewModel" /> class.
         /// </summary>
         /// <param name="domainFileStore">The associated <see cref="DomainFileStore" /></param>
         public DomainFileStoreRowViewModel(DomainFileStore domainFileStore) : base(domainFileStore)
         {
             this.CreatedOn = domainFileStore.CreatedOn;
+            this.OwnerShortName = domainFileStore.Owner?.ShortName;
         }
 
         /// <summary>
@@ -54,6 +60,15 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Rows
         {
             get => this.createdOn;
             set => this.RaiseAndSetIfChanged(ref this.createdOn, value);
+        }
+
+        /// <summary>
+        /// The short name of the owning <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" />.
+        /// </summary>
+        public string OwnerShortName
+        {
+            get => this.ownerShortName;
+            set => this.RaiseAndSetIfChanged(ref this.ownerShortName, value);
         }
     }
 }

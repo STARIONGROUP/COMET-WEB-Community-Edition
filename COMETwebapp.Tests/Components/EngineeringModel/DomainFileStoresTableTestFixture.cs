@@ -66,7 +66,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             this.domainFileStore = new DomainFileStore()
             {
                 Name = "DFS Name",
-                Owner = new DomainOfExpertise(){ Name = "Owner" },
+                Owner = new DomainOfExpertise(){ Name = "Owner", ShortName = "OWN" },
                 Container = new EngineeringModel()
             };
 
@@ -98,6 +98,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
             {
                 Assert.That(this.renderer.Instance.ViewModel, Is.EqualTo(this.viewModel.Object));
                 Assert.That(this.renderer.Markup, Does.Contain(this.domainFileStore.Name));
+                Assert.That(this.renderer.Markup, Does.Contain(this.domainFileStore.Owner.ShortName));
                 this.viewModel.Verify(x => x.InitializeViewModel(), Times.Once);
             });
         }
