@@ -32,9 +32,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     using CDP4DalCommon.Protocol.Operations;
 
     using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities;
+    using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
@@ -44,7 +46,10 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
+    using DevExpress.Blazor;
+
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
 
     using ReactiveUI;
 
@@ -62,6 +67,12 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// The <see cref="ICacheService" />
         /// </summary>
         private readonly ICacheService cacheService;
+
+        /// <summary>
+        /// The <see cref="ILogger{T}" /> used to record any exception thrown by the delete pipeline so that
+        /// it surfaces in the application log without aborting the popup-close path.
+        /// </summary>
+        private readonly ILogger<ModelEditorViewModel> logger;
 
         /// <summary>
         /// Backing field for <see cref="IsOnAddingParameterMode" />
@@ -94,15 +105,27 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         private Iteration sourceIteration;
 
         /// <summary>
+        /// Backing field for <see cref="SelectedElement" />.
+        /// </summary>
+        private ElementBase selectedElement;
+
+        /// <summary>
+        /// Backing field for <see cref="IsOnDeletionMode" />.
+        /// </summary>
+        private bool isOnDeletionMode;
+
+        /// <summary>
         /// Creates a new instance of <see cref="ModelEditorViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="cacheService">The <see cref="ICacheService"/></param>
-        public ModelEditorViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ICacheService cacheService) : base(sessionService, messageBus)
+        /// <param name="logger">The <see cref="ILogger{T}"/> used to record delete-pipeline exceptions.</param>
+        public ModelEditorViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ICacheService cacheService, ILogger<ModelEditorViewModel> logger) : base(sessionService, messageBus)
         {
             this.sessionService = sessionService;
             this.cacheService = cacheService;
+            this.logger = logger;
             var eventCallbackFactory = new EventCallbackFactory();
 
             this.ElementDefinitionCreationViewModel = new ElementDefinitionCreationViewModel.ElementDefinitionCreationViewModel(sessionService, messageBus)
@@ -118,6 +141,15 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             this.CopySettingsViewModel = new CopySettingsViewModel(cacheService)
             {
                 OnSaveSettings = eventCallbackFactory.Create(this, () => this.IsOnCopySettingsMode = false)
+            };
+
+            this.DeleteElementPopupViewModel = new ConfirmCancelPopupViewModel
+            {
+                HeaderText = "Delete element",
+                ConfirmRenderStyle = ButtonRenderStyle.Danger,
+                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                OnCancel = eventCallbackFactory.Create(this, this.OnDeleteCancelled),
+                OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedElementAsync)
             };
 
             this.InitializeSubscriptions([typeof(ElementBase)]);
@@ -231,6 +263,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         {
             // It is preferable to have a selection based on the Iid of the Thing
             this.ElementDefinitionDetailsViewModel.SelectedSystemNode = selectedElementBase;
+            this.SelectedElement = selectedElementBase;
 
             this.SelectedElementDefinition = selectedElementBase switch
             {
@@ -241,6 +274,147 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 
             this.ElementDefinitionDetailsViewModel.Rows = this.SelectedElementDefinition?.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList();
             this.AddParameterViewModel.SetSelectedElementDefinition(this.SelectedElementDefinition);
+        }
+
+        /// <summary>
+        /// Gets the currently selected <see cref="ElementBase" /> — preserves the <see cref="ElementUsage" />
+        /// identity so that delete operates on the usage rather than its containing definition.
+        /// </summary>
+        public ElementBase SelectedElement
+        {
+            get => this.selectedElement;
+            private set => this.RaiseAndSetIfChanged(ref this.selectedElement, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user is currently confirming deletion of
+        /// <see cref="SelectedElement" />.
+        /// </summary>
+        public bool IsOnDeletionMode
+        {
+            get => this.isOnDeletionMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnDeletionMode, value);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> that drives the delete-confirmation popup.
+        /// </summary>
+        public IConfirmCancelPopupViewModel DeleteElementPopupViewModel { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether <see cref="SelectedElement" /> is the iteration's
+        /// <see cref="Iteration.TopElement" /> — in which case deletion must be blocked because the
+        /// iteration always requires a top element.
+        /// </summary>
+        public bool IsSelectedElementTopElement
+            => this.SelectedElement is ElementDefinition selectedDefinition
+               && this.CurrentThing?.TopElement != null
+               && selectedDefinition.Iid == this.CurrentThing.TopElement.Iid;
+
+        /// <summary>
+        /// Opens the delete-confirmation popup with a content message describing the element to delete. No
+        /// reference scan is performed because the COMET server cascades cleanup of any referencing
+        /// <see cref="ElementUsage" />s when an <see cref="ElementDefinition" /> is deleted.
+        /// </summary>
+        public void OpenDeleteElementPopup()
+        {
+            if (this.SelectedElement is null || this.IsSelectedElementTopElement)
+            {
+                return;
+            }
+
+            this.DeleteElementPopupViewModel.ContentText = this.SelectedElement switch
+            {
+                ElementUsage usage => $"You are about to delete the Element Usage '{usage.Name}' ({usage.ShortName}) from {((ElementDefinition)usage.Container).Name}. This cannot be undone.",
+                ElementDefinition definition => $"You are about to delete the Element Definition '{definition.Name}' ({definition.ShortName}). This cannot be undone.",
+                _ => $"You are about to delete '{this.SelectedElement.Name}'. This cannot be undone."
+            };
+
+            this.DeleteElementPopupViewModel.IsVisible = true;
+            this.IsOnDeletionMode = true;
+        }
+
+        /// <summary>
+        /// Performs the deletion of <see cref="SelectedElement" /> using
+        /// <see cref="ISessionService.DeleteThingsWithNotification" /> with the cloned containing
+        /// <see cref="Thing" /> as the operation top container. Clears the selection on success and always
+        /// closes the popup.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
+        public async Task DeleteSelectedElementAsync()
+        {
+            var thing = this.SelectedElement;
+
+            if (thing is null || this.IsSelectedElementTopElement)
+            {
+                this.CloseDeleteElementPopup();
+                return;
+            }
+
+            try
+            {
+                this.IsLoading = true;
+
+                var clonedContainer = thing.Container.Clone(false);
+                var clonedThing = thing.Clone(false);
+
+                var result = await this.sessionService.DeleteThingsWithNotification(clonedContainer, new[] { clonedThing }, GetDeletionNotificationDescription(thing));
+
+                if (result.IsSuccess)
+                {
+                    this.SelectElement(null);
+                }
+            }
+            catch (Exception exception)
+            {
+                this.logger?.LogError(exception, "An error occurred while deleting the {Kind} with iid {Iid}", thing.GetType().Name, thing.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
+                this.CloseDeleteElementPopup();
+            }
+        }
+
+        /// <summary>
+        /// Closes the delete-confirmation popup and resets the deletion-mode flag.
+        /// </summary>
+        private void CloseDeleteElementPopup()
+        {
+            this.DeleteElementPopupViewModel.IsVisible = false;
+            this.IsOnDeletionMode = false;
+        }
+
+        /// <summary>
+        /// Cancellation handler bound to <see cref="IConfirmCancelPopupViewModel.OnCancel" />.
+        /// </summary>
+        private void OnDeleteCancelled()
+        {
+            this.CloseDeleteElementPopup();
+        }
+
+        /// <summary>
+        /// Builds a <see cref="NotificationDescription" /> used to surface the success / failure of a delete
+        /// operation through the existing <see cref="COMET.Web.Common.Services.NotificationService.INotificationService" /> pipeline.
+        /// </summary>
+        /// <param name="thing">The <see cref="ElementBase" /> being deleted.</param>
+        /// <returns>The <see cref="NotificationDescription" /> describing the operation.</returns>
+        private static NotificationDescription GetDeletionNotificationDescription(ElementBase thing)
+        {
+            var kind = thing switch
+            {
+                ElementUsage => "Element Usage",
+                ElementDefinition => "Element Definition",
+                _ => "Element"
+            };
+
+            var label = string.IsNullOrWhiteSpace(thing.Name) ? thing.ShortName : thing.Name;
+
+            return new NotificationDescription
+            {
+                OnSuccess = $"{kind} '{label}' deleted",
+                OnError = $"Failed to delete {kind} '{label}'"
+            };
         }
 
         /// <summary>

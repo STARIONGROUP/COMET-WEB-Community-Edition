@@ -80,9 +80,14 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.Rows
         }
 
         /// <summary>
-        /// Update this row view model properties
+        /// Update this row view model properties.
+        /// Performs a diff-based update of <see cref="Rows" /> rather than Clear-then-AddRange so that the
+        /// bound DevExpress TreeView never receives a Reset notification followed by a re-population. A
+        /// Reset triggers DevExpress's internal mapping to enumerate and dispose its child bindings, and a
+        /// subsequent population during that enumeration raises "Collection was modified" — which also
+        /// leaves the parent's expand-indicator stale when the last child is removed.
         /// </summary>
-        /// <param name="elementDefinitionTreeRow">The <see cref="ElementDefinitionTreeRowViewModel" /> to use for updating</param>
+        /// <param name="elementDefinitionTreeRow">The <see cref="ElementDefinitionTreeRowViewModel" /> to use for updating.</param>
         public void UpdateProperties(ElementDefinitionTreeRowViewModel elementDefinitionTreeRow)
         {
             ArgumentNullException.ThrowIfNull(elementDefinitionTreeRow);
@@ -90,13 +95,37 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.Rows
             base.UpdateProperties(elementDefinitionTreeRow);
             this.IsTopElement = elementDefinitionTreeRow.isTopElement;
 
-            this.Rows.Clear();
+            var containedElements = (elementDefinitionTreeRow.ElementBase as ElementDefinition)?.ContainedElement
+                                    ?? (IEnumerable<ElementUsage>)Array.Empty<ElementUsage>();
 
-            var elementUsages = (elementDefinitionTreeRow.ElementBase as ElementDefinition)?.ContainedElement;
+            var desiredIids = containedElements.Select(x => x.Iid).ToHashSet();
 
-            if (elementUsages != null)
+            for (var i = this.Rows.Count - 1; i >= 0; i--)
             {
-                this.Rows.AddRange(elementUsages.Select(x => new ElementUsageTreeRowViewModel(x)).OrderBy(x => x.ElementName));
+                if (!desiredIids.Contains(this.Rows[i].ElementBase.Iid))
+                {
+                    this.Rows.RemoveAt(i);
+                }
+            }
+
+            var existingIids = this.Rows.Select(r => r.ElementBase.Iid).ToHashSet();
+
+            var toAdd = containedElements
+                .Where(x => !existingIids.Contains(x.Iid))
+                .Select(x => new ElementUsageTreeRowViewModel(x))
+                .OrderBy(x => x.ElementName, StringComparer.InvariantCultureIgnoreCase);
+
+            foreach (var newRow in toAdd)
+            {
+                var insertAt = 0;
+
+                while (insertAt < this.Rows.Count
+                       && string.Compare(this.Rows[insertAt].ElementName, newRow.ElementName, StringComparison.InvariantCultureIgnoreCase) < 0)
+                {
+                    insertAt++;
+                }
+
+                this.Rows.Insert(insertAt, newRow);
             }
         }
     }
