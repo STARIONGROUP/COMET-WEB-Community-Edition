@@ -71,5 +71,11 @@ namespace COMET.Web.Common.Utilities
         /// multi-select filters such as the Parameter Editor's parameter-type filter.
         /// </summary>
         public const string ParametersKey = "parameters";
+
+        /// <summary>
+        /// The query key for a comma-delimited list of <see cref="Category" /> short-form GUIDs, used by the
+        /// Parameter Editor's category filter.
+        /// </summary>
+        public const string CategoriesKey = "categories";
     }
 }

@@ -98,6 +98,12 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public IMultiParameterTypeSelectorViewModel ParameterTypeSelector { get; private set; } = new MultiParameterTypeSelectorViewModel();
 
         /// <summary>
+        /// Gets the <see cref="IMultiCategorySelectorViewModel" /> driving the category filter on the building
+        /// blocks (<see cref="ElementBase" />). An empty selection means no category filtering is applied.
+        /// </summary>
+        public IMultiCategorySelectorViewModel CategorySelector { get; private set; } = new MultiCategorySelectorViewModel();
+
+        /// <summary>
         /// Sets if only parameters owned by the active domain are shown
         /// </summary>
         public bool IsOwnedParameters
@@ -124,7 +130,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             if (this.CurrentThing != null)
             {
                 this.ParameterTableViewModel.ApplyFilters(this.OptionSelector.SelectedOption, this.ElementSelector.SelectedElementBase,
-                    this.ParameterTypeSelector.SelectedParameterTypes, this.IsOwnedParameters);
+                    this.ParameterTypeSelector.SelectedParameterTypes, this.CategorySelector.SelectedCategories, this.IsOwnedParameters);
             }
         }
 
@@ -186,6 +192,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 this.ElementSelector.CurrentIteration = this.CurrentThing;
                 this.OptionSelector.CurrentIteration = this.CurrentThing;
                 this.ParameterTypeSelector.CurrentIteration = this.CurrentThing;
+                this.CategorySelector.CurrentIteration = this.CurrentThing;
                 this.BatchParameterEditorViewModel.CurrentIteration = this.CurrentThing;
             }
 

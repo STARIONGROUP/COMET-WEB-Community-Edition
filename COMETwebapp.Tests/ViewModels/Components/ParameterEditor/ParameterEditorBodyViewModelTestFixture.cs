@@ -199,8 +199,16 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 }
             };
 
+            var rdl = new SiteReferenceDataLibrary { ShortName = "siteRdl", Name = "Site RDL" };
+            var siteDirectory = new SiteDirectory { ShortName = "siteDir", SiteReferenceDataLibrary = { rdl } };
+            var modelSetup = new EngineeringModelSetup { ShortName = "model", RequiredRdl = { new ModelReferenceDataLibrary { RequiredRdl = rdl } } };
+            siteDirectory.Model.Add(modelSetup);
+            var iterationSetup = new IterationSetup();
+            modelSetup.IterationSetup.Add(iterationSetup);
+
             this.iteration = new Iteration();
             this.iteration.Iid = Guid.NewGuid();
+            this.iteration.IterationSetup = iterationSetup;
             this.iteration.TopElement = topElement;
             this.iteration.Element.AddRange(new List<ElementDefinition> { topElement, elementDefinition1, elementDefinition2, elementDefinition3, elementDefinition4 });
             this.iteration.Option.Add(new Option(Guid.NewGuid(), cache, uri));
@@ -246,7 +254,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             this.viewModel.ApplyFilters();
 
-            this.tableViewModel.Verify(x => x.ApplyFilters(It.IsAny<Option>(), It.IsAny<ElementBase>(), It.IsAny<IEnumerable<ParameterType>>(), It.IsAny<bool>()), Times.AtLeastOnce);
+            this.tableViewModel.Verify(x => x.ApplyFilters(It.IsAny<Option>(), It.IsAny<ElementBase>(), It.IsAny<IEnumerable<ParameterType>>(), It.IsAny<IEnumerable<Category>>(), It.IsAny<bool>()), Times.AtLeastOnce);
         }
 
         [Test]
@@ -257,6 +265,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 Assert.That(this.viewModel.SubscriptionService, Is.Not.Null);
                 Assert.That(this.viewModel.ElementSelector, Is.Not.Null);
                 Assert.That(this.viewModel.ParameterTypeSelector, Is.Not.Null);
+                Assert.That(this.viewModel.CategorySelector, Is.Not.Null);
+                Assert.That(this.viewModel.CategorySelector.CurrentIteration, Is.SameAs(this.viewModel.CurrentThing));
                 Assert.That(this.viewModel.OptionSelector, Is.Not.Null);
                 Assert.That(this.viewModel.OptionSelector.SelectedOption, Is.Not.Null);
                 Assert.That(this.viewModel.IsOwnedParameters, Is.True);
