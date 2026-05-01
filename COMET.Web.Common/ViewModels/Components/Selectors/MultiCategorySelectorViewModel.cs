@@ -31,23 +31,12 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
 
     /// <summary>
     /// Default <see cref="IMultiCategorySelectorViewModel" /> implementation. Mirrors the shape of
-    /// <see cref="MultiParameterTypeSelectorViewModel" /> but selects <see cref="Category" />s applicable to
-    /// <see cref="ElementBase" /> and its concrete subclasses.
+    /// <see cref="MultiParameterTypeSelectorViewModel" /> and lets callers tune the <see cref="ClassKind" />
+    /// scope via <see cref="ApplicableClassKinds" /> so the same view model drives Element-, ParameterType-,
+    /// Requirement- or unrestricted category pickers.
     /// </summary>
     public class MultiCategorySelectorViewModel : BelongsToIterationSelectorViewModel, IMultiCategorySelectorViewModel
     {
-        /// <summary>
-        /// The <see cref="ClassKind" />s for which a <see cref="Category" /> must be permissible to appear in
-        /// <see cref="AvailableCategories" />. Covers the abstract base and both concrete element types so that
-        /// categories defined for any of them are surfaced.
-        /// </summary>
-        private static readonly HashSet<ClassKind> ApplicableClassKinds =
-        [
-            ClassKind.ElementBase,
-            ClassKind.ElementDefinition,
-            ClassKind.ElementUsage
-        ];
-
         /// <summary>
         /// Backing field for <see cref="SelectedCategories" />.
         /// </summary>
@@ -65,11 +54,29 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
 
         /// <summary>
         /// Gets the collection of <see cref="Category" />s that the user can pick from. Populated from the
-        /// current <see cref="Iteration" />'s accessible reference data libraries and filtered to categories whose
-        /// <see cref="Category.PermissibleClass" /> covers <see cref="ElementBase" />,
-        /// <see cref="ElementDefinition" /> or <see cref="ElementUsage" />.
+        /// current <see cref="Iteration" />'s accessible reference data libraries and filtered to categories
+        /// whose <see cref="Category.PermissibleClass" /> intersects <see cref="ApplicableClassKinds" />.
+        /// When <see cref="ApplicableClassKinds" /> is empty or <see langword="null" />, no
+        /// <see cref="Category.PermissibleClass" /> filter is applied.
         /// </summary>
         public IEnumerable<Category> AvailableCategories { get; private set; } = Enumerable.Empty<Category>();
+
+        /// <summary>
+        /// Gets or sets the <see cref="ClassKind" />s a <see cref="Category" /> must be permissible for to
+        /// appear in <see cref="AvailableCategories" />. Defaults to <see cref="ClassKind.ElementBase" />,
+        /// <see cref="ClassKind.ElementDefinition" /> and <see cref="ClassKind.ElementUsage" /> so the
+        /// view model is drop-in usable as the Parameter Editor's element-row category filter. An empty or
+        /// <see langword="null" /> collection disables the <see cref="Category.PermissibleClass" /> filter
+        /// and surfaces every <see cref="Category" /> reachable from the current <see cref="Iteration" />'s
+        /// reference data libraries. Set this before assigning <see cref="BelongsToIterationSelectorViewModel.CurrentIteration" />;
+        /// the value is read on the next <see cref="UpdateProperties" /> pass.
+        /// </summary>
+        public IEnumerable<ClassKind> ApplicableClassKinds { get; set; } = new[]
+        {
+            ClassKind.ElementBase,
+            ClassKind.ElementDefinition,
+            ClassKind.ElementUsage
+        };
 
         /// <summary>
         /// Recomputes <see cref="AvailableCategories" /> from the <see cref="SiteDirectory" /> containing the
@@ -87,11 +94,20 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
 
             var siteDirectory = this.CurrentIteration.IterationSetup.GetContainerOfType<SiteDirectory>();
 
-            this.AvailableCategories = siteDirectory
+            var allowedClassKinds = (this.ApplicableClassKinds as ICollection<ClassKind>)
+                ?? this.ApplicableClassKinds?.ToList();
+
+            var query = siteDirectory
                 .AvailableReferenceDataLibraries()
                 .SelectMany(rdl => rdl.QueryCategoriesFromChainOfRdls())
-                .Distinct()
-                .Where(c => c.PermissibleClass.Any(ApplicableClassKinds.Contains))
+                .Distinct();
+
+            if (allowedClassKinds is { Count: > 0 })
+            {
+                query = query.Where(c => c.PermissibleClass.Any(allowedClassKinds.Contains));
+            }
+
+            this.AvailableCategories = query
                 .OrderBy(c => c.Name, StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
         }

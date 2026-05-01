@@ -167,5 +167,34 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Selectors
                 Assert.That(this.viewModel.SelectedCategories, Is.Empty);
             });
         }
+
+        [Test]
+        public void VerifyOverridingApplicableClassKindsExpandsScope()
+        {
+            this.viewModel.ApplicableClassKinds = new[] { ClassKind.ParameterType };
+            this.viewModel.CurrentIteration = this.iteration;
+
+            Assert.That(this.viewModel.AvailableCategories.Select(c => c.ShortName),
+                Is.EquivalentTo(new[] { "ptCat" }),
+                "Overriding ApplicableClassKinds to ParameterType must surface only ParameterType-permissible categories.");
+        }
+
+        [Test]
+        public void VerifyEmptyApplicableClassKindsDisablesPermissibleClassFilter()
+        {
+            this.viewModel.ApplicableClassKinds = Array.Empty<ClassKind>();
+            this.viewModel.CurrentIteration = this.iteration;
+
+            var available = this.viewModel.AvailableCategories.ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(available.Select(c => c.ShortName), Is.EquivalentTo(new[] { "edCat", "euCat", "ptCat" }),
+                    "An empty ApplicableClassKinds must disable the PermissibleClass filter and surface every Category.");
+                Assert.That(available.Select(c => c.Name).ToList(),
+                    Is.EqualTo(available.Select(c => c.Name).OrderBy(n => n, StringComparer.InvariantCultureIgnoreCase).ToList()),
+                    "AvailableCategories must remain alphabetically sorted regardless of the configured scope.");
+            });
+        }
     }
 }

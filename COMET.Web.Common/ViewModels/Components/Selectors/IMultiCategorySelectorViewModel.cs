@@ -23,12 +23,15 @@
 
 namespace COMET.Web.Common.ViewModels.Components.Selectors
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     /// <summary>
     /// View Model that enables the user to select one or more <see cref="Category" />s for use as a multi-select
     /// filter scoped to the current <see cref="CDP4Common.EngineeringModelData.Iteration" />'s reference data
-    /// libraries.
+    /// libraries. The set of <see cref="ClassKind" />s a <see cref="Category" /> must be permissible for is
+    /// configurable via <see cref="ApplicableClassKinds" />, so the same view model can drive Element-,
+    /// ParameterType-, Requirement- or unrestricted category pickers.
     /// </summary>
     public interface IMultiCategorySelectorViewModel : IBelongsToIterationSelectorViewModel
     {
@@ -41,11 +44,20 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         /// <summary>
         /// Gets the collection of <see cref="Category" />s that the user can pick from. Populated from the
         /// current <see cref="CDP4Common.EngineeringModelData.Iteration" />'s accessible reference data libraries
-        /// and filtered to categories whose <see cref="Category.PermissibleClass" /> covers
-        /// <see cref="CDP4Common.EngineeringModelData.ElementBase" />,
-        /// <see cref="CDP4Common.EngineeringModelData.ElementDefinition" /> or
-        /// <see cref="CDP4Common.EngineeringModelData.ElementUsage" />.
+        /// and filtered to categories whose <see cref="Category.PermissibleClass" /> intersects
+        /// <see cref="ApplicableClassKinds" />. When <see cref="ApplicableClassKinds" /> is empty or
+        /// <see langword="null" /> every <see cref="Category" /> reachable through the RDL chain is exposed.
         /// </summary>
         IEnumerable<Category> AvailableCategories { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ClassKind" />s a <see cref="Category" /> must be permissible for to appear
+        /// in <see cref="AvailableCategories" />. An empty or <see langword="null" /> collection disables the
+        /// <see cref="Category.PermissibleClass" /> filter and surfaces every <see cref="Category" /> reachable
+        /// from the current <see cref="CDP4Common.EngineeringModelData.Iteration" />'s reference data libraries.
+        /// Set this before assigning <see cref="IBelongsToIterationSelectorViewModel.CurrentIteration" />; the
+        /// value is read on the next <see cref="MultiCategorySelectorViewModel.UpdateProperties" /> pass.
+        /// </summary>
+        IEnumerable<ClassKind> ApplicableClassKinds { get; set; }
     }
 }
