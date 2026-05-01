@@ -24,6 +24,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
@@ -126,5 +127,47 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <param name="fromElementBase">The <see cref="ElementBase"/> to be added as <see cref="ElementUsage"/></param>
         /// <param name="toElementBase">The <see cref="ElementBase"/> where to add the new <see cref="ElementUsage"/> to</param>
         Task AddNewElementUsageAsync(ElementBase fromElementBase, ElementBase toElementBase);
+
+        /// <summary>
+        /// Gets the currently selected <see cref="ElementBase" /> — either an <see cref="ElementDefinition" /> or
+        /// an <see cref="ElementUsage" />. Mirrors <see cref="SelectedElementDefinition" /> for the
+        /// <see cref="ElementDefinition" /> case, but preserves the <see cref="ElementUsage" /> identity so the
+        /// delete affordance can target the usage rather than its containing definition.
+        /// </summary>
+        ElementBase SelectedElement { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user is currently confirming deletion of
+        /// <see cref="SelectedElement" />.
+        /// </summary>
+        bool IsOnDeletionMode { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the delete-confirmation popup.
+        /// </summary>
+        IConfirmCancelPopupViewModel DeleteElementPopupViewModel { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether <see cref="SelectedElement" /> is the iteration's
+        /// <see cref="Iteration.TopElement" />. The Delete affordance must be disabled in that case because
+        /// the iteration always requires a top element.
+        /// </summary>
+        bool IsSelectedElementTopElement { get; }
+
+        /// <summary>
+        /// Opens the delete-confirmation popup, composing a content message that names the selected
+        /// <see cref="ElementUsage" /> and its parent <see cref="ElementDefinition" />, or names the selected
+        /// <see cref="ElementDefinition" /> directly. No reference scan is performed: the COMET server
+        /// cascades cleanup of any referencing <see cref="ElementUsage" />s automatically when an
+        /// <see cref="ElementDefinition" /> is deleted.
+        /// </summary>
+        void OpenDeleteElementPopup();
+
+        /// <summary>
+        /// Performs the deletion of <see cref="SelectedElement" /> via the session service and clears the
+        /// selection on success.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
+        Task DeleteSelectedElementAsync();
     }
 }

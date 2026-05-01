@@ -102,6 +102,17 @@
                         }
 
                         <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
+
+                        @if (this.ViewModel.SelectedElement is not null)
+                        {
+                            <DxButton Id="deleteElement"
+                                      Text="Delete"
+                                      IconCssClass="oi oi-trash"
+                                      RenderStyle="ButtonRenderStyle.Danger"
+                                      Click="@this.ViewModel.OpenDeleteElementPopup"
+                                      Enabled="@(!this.ViewModel.IsSelectedElementTopElement)"
+                                      title="@(this.ViewModel.IsSelectedElementTopElement ? "The top element of the iteration cannot be deleted" : "Delete the selected element")"/>
+                        }
                     </div>
                 </div>
                 <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"/>
@@ -125,5 +136,7 @@
             <CopySettings ViewModel="this.ViewModel.CopySettingsViewModel" OnAfterSaveSettings="this.StateHasChanged"/>
         </BodyContentTemplate>
     </DxPopup>
+
+    <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteElementPopupViewModel"/>
 
 </LoadingComponent>

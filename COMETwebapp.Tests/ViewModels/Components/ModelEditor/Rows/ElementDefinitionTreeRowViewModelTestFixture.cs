@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor.Rows
 {
+    using System.Collections.Specialized;
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -142,6 +144,46 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor.Rows
         {
             Assert.That(() => new ElementDefinitionTreeRowViewModel(elementDefinition).UpdateProperties(null), Throws.ArgumentNullException);
             Assert.That(() => new ElementDefinitionTreeRowViewModel().UpdateProperties(null), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public void VerifyUpdatePropertiesEmitsItemChangesNotReset()
+        {
+            var testVM = new ElementDefinitionTreeRowViewModel(elementDefinition);
+
+            var actions = new List<NotifyCollectionChangedAction>();
+            testVM.Rows.CollectionChanged += (_, e) => actions.Add(e.Action);
+
+            elementDefinition.ContainedElement.Clear();
+            testVM.UpdateProperties(new ElementDefinitionTreeRowViewModel(elementDefinition));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(testVM.Rows.Count, Is.Zero, "Removing the last contained ElementUsage must clear Rows.");
+                Assert.That(actions, Does.Not.Contain(NotifyCollectionChangedAction.Reset),
+                    "UpdateProperties must not raise Reset on Rows — DevExpress's bound TreeView mishandles Reset and leaves the parent's expand-icon stale.");
+                Assert.That(actions, Does.Contain(NotifyCollectionChangedAction.Remove),
+                    "Removed usages must be reported as Remove notifications so the bound TreeView updates incrementally.");
+            });
+        }
+
+        [Test]
+        public void VerifyUpdatePropertiesAddsNewUsageInSortedOrder()
+        {
+            var testVM = new ElementDefinitionTreeRowViewModel(elementDefinition);
+
+            var newerUsage = new ElementUsage(Guid.NewGuid(), null, null) { Name = "AAA_FirstAlphabetically", Owner = owner };
+            elementDefinition.ContainedElement.Add(newerUsage);
+
+            testVM.UpdateProperties(new ElementDefinitionTreeRowViewModel(elementDefinition));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(testVM.Rows.Count, Is.EqualTo(2));
+                Assert.That(testVM.Rows[0].ElementName, Is.EqualTo("AAA_FirstAlphabetically"),
+                    "Newly added usages must be inserted alphabetically by ElementName.");
+                Assert.That(testVM.Rows[1].ElementName, Is.EqualTo(elementUsageName));
+            });
         }
     }
 }
