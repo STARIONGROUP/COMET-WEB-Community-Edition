@@ -28,6 +28,7 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.ViewModels.Shared.TopMenuEntry.PersonEdit;
 
     /// <summary>
     /// View model that handles the menu entry related to the <see cref="ISession" />
@@ -54,5 +55,26 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task RefreshSession();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the self-service "Edit my profile" popup is open.
+        /// Bound to the <see cref="DevExpress.Blazor.DxPopup" /> visibility from
+        /// <see cref="Shared.TopMenuEntry.SessionMenu" />.
+        /// </summary>
+        bool IsOnEditPersonMode { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="IPersonEditViewModel" /> driving the self-service "Edit my profile"
+        /// dialog. Initialized from the active session's <see cref="CDP4Common.SiteDirectoryData.Person" />
+        /// every time <see cref="OpenEditPersonPopup" /> is invoked.
+        /// </summary>
+        IPersonEditViewModel PersonEditViewModel { get; }
+
+        /// <summary>
+        /// Initializes <see cref="PersonEditViewModel" /> from
+        /// <c>SessionService.Session.ActivePerson</c> and opens the popup. No-op when there is no
+        /// active person (e.g. the session is not yet authenticated).
+        /// </summary>
+        void OpenEditPersonPopup();
     }
 }

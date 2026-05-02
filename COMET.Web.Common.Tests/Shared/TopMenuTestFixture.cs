@@ -43,6 +43,7 @@ namespace COMET.Web.Common.Tests.Shared
     using COMET.Web.Common.Shared.TopMenuEntry;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
+    using COMET.Web.Common.ViewModels.Shared.TopMenuEntry.PersonEdit;
 
     using DevExpress.Blazor;
 
@@ -106,6 +107,7 @@ namespace COMET.Web.Common.Tests.Shared
             this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton(this.authenticationService.Object);
             this.context.Services.AddSingleton(this.autoRefreshService.Object);
+            this.context.Services.AddSingleton<IPersonEditViewModel>(new Mock<IPersonEditViewModel>().Object);
             this.context.Services.AddSingleton<ISessionMenuViewModel, SessionMenuViewModel>();
             this.context.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
             this.context.Services.AddSingleton<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();

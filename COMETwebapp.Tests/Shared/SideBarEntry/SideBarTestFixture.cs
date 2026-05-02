@@ -42,6 +42,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
     using COMET.Web.Common.Shared.TopMenuEntry;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
+    using COMET.Web.Common.ViewModels.Shared.TopMenuEntry.PersonEdit;
 
     using COMETwebapp.Model;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
@@ -133,6 +134,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             this.context.Services.AddSingleton(this.autoRefreshService.Object);
             this.context.Services.AddSingleton(this.autoRefreshService.Object);
             this.context.Services.AddSingleton(this.showHideDeprecatedThingsViewModel.Object);
+            this.context.Services.AddSingleton<IPersonEditViewModel>(new Mock<IPersonEditViewModel>().Object);
             this.context.Services.AddSingleton<ISessionMenuViewModel, SessionMenuViewModel>();
             this.context.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
             this.context.Services.AddSingleton(this.authorizedMenuEntryViewModel.Object);
