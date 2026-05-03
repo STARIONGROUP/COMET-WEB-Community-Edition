@@ -84,6 +84,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
         private ElementUsage elementUsage;
 
         /// <summary>
+        /// A <see cref="Parameter" /> contained by <see cref="referencedElementDefinition" /> used to
+        /// exercise the parameter delete flow.
+        /// </summary>
+        private Parameter parameter;
+
+        /// <summary>
         /// Builds the iteration graph (TopElement, a referenced ElementDefinition, and a usage) and the
         /// view model with mocked dependencies.
         /// </summary>
@@ -123,6 +129,18 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 ShortName = "BOX",
                 Owner = domain
             };
+
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+            rdl.ParameterType.Add(parameterType);
+
+            this.parameter = new Parameter
+            {
+                Iid = Guid.NewGuid(),
+                Owner = domain,
+                ParameterType = parameterType
+            };
+
+            this.referencedElementDefinition.Parameter.Add(this.parameter);
 
             this.elementUsage = new ElementUsage
             {
@@ -267,6 +285,73 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 Assert.That(this.viewModel.IsOnDeletionMode, Is.False);
                 Assert.That(this.viewModel.DeleteElementPopupViewModel.IsVisible, Is.False);
             });
+        }
+
+        [Test]
+        public void VerifyOpenDeleteParameterPopupComposesContent()
+        {
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+            this.viewModel.OpenDeleteParameterPopup(this.parameter);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DeleteParameterPopupViewModel.IsVisible, Is.True);
+                Assert.That(this.viewModel.DeleteParameterPopupViewModel.ContentText, Does.Contain("Parameter"));
+                Assert.That(this.viewModel.DeleteParameterPopupViewModel.ContentText, Does.Contain(this.parameter.ParameterType.Name));
+                Assert.That(this.viewModel.DeleteParameterPopupViewModel.ContentText, Does.Contain(this.referencedElementDefinition.Name),
+                    "Popup must mention the containing ElementDefinition name.");
+            });
+        }
+
+        [Test]
+        public void VerifyOpenDeleteParameterPopupNullIsNoOp()
+        {
+            this.viewModel.OpenDeleteParameterPopup(null);
+
+            Assert.That(this.viewModel.DeleteParameterPopupViewModel.IsVisible, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyDeleteParameterCallsSessionServiceWithCorrectContainer()
+        {
+            this.sessionService
+                .Setup(x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Ok());
+
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+            this.viewModel.OpenDeleteParameterPopup(this.parameter);
+            await this.viewModel.DeleteSelectedParameterAsync();
+
+            this.sessionService.Verify(
+                x => x.DeleteThingsWithNotification(
+                    It.Is<Thing>(t => t is ElementDefinition && t.Iid == this.referencedElementDefinition.Iid),
+                    It.Is<IReadOnlyCollection<Thing>>(c => c.Count == 1 && c.Single() is Parameter && c.Single().Iid == this.parameter.Iid),
+                    It.IsAny<NotificationDescription>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyDeleteParameterClosesPopupOnSuccess()
+        {
+            this.sessionService
+                .Setup(x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Ok());
+
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+            this.viewModel.OpenDeleteParameterPopup(this.parameter);
+            await this.viewModel.DeleteSelectedParameterAsync();
+
+            Assert.That(this.viewModel.DeleteParameterPopupViewModel.IsVisible, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyDeleteParameterWithoutTargetIsNoOp()
+        {
+            await this.viewModel.DeleteSelectedParameterAsync();
+
+            this.sessionService.Verify(
+                x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()),
+                Times.Never);
         }
     }
 }

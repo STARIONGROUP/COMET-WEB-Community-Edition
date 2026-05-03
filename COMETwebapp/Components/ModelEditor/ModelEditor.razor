@@ -115,7 +115,8 @@
                         }
                     </div>
                 </div>
-                <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"/>
+                <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"
+                                    OnDeleteParameter="@(parameter => this.ViewModel.OpenDeleteParameterPopup(parameter))"/>
             </DataItemDetailsComponent>
         </div>
     </div>
@@ -138,5 +139,7 @@
     </DxPopup>
 
     <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteElementPopupViewModel"/>
+
+    <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteParameterPopupViewModel"/>
 
 </LoadingComponent>
