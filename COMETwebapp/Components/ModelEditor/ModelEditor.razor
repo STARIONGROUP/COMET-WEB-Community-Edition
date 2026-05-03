@@ -102,21 +102,13 @@
                         }
 
                         <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
-
-                        @if (this.ViewModel.SelectedElement is not null)
-                        {
-                            <DxButton Id="deleteElement"
-                                      Text="Delete"
-                                      IconCssClass="oi oi-trash"
-                                      RenderStyle="ButtonRenderStyle.Danger"
-                                      Click="@this.ViewModel.OpenDeleteElementPopup"
-                                      Enabled="@(!this.ViewModel.IsSelectedElementTopElement)"
-                                      title="@(this.ViewModel.IsSelectedElementTopElement ? "The top element of the iteration cannot be deleted" : "Delete the selected element")"/>
-                        }
                     </div>
                 </div>
                 <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"
-                                    OnDeleteParameter="@(parameter => this.ViewModel.OpenDeleteParameterPopup(parameter))"/>
+                                    OnDeleteParameter="@(parameter => this.ViewModel.OpenDeleteParameterPopup(parameter))"
+                                    OnEditElement="@this.ViewModel.OpenEditElementPopup"
+                                    OnDeleteElement="@this.ViewModel.OpenDeleteElementPopup"
+                                    DisableDelete="@this.ViewModel.IsSelectedElementTopElement"/>
             </DataItemDetailsComponent>
         </div>
     </div>
@@ -141,5 +133,21 @@
     <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteElementPopupViewModel"/>
 
     <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteParameterPopupViewModel"/>
+
+    <DxPopup CloseOnOutsideClick="false"
+             HeaderText="@(this.ViewModel.SelectedElement is ElementUsage ? "Edit Element Usage" : "Edit Element Definition")"
+             @bind-Visible="@this.ViewModel.IsOnEditMode"
+             Width="40vw">
+        <BodyContentTemplate>
+            @if (this.ViewModel.SelectedElement is ElementUsage)
+            {
+                <EditElementUsage ViewModel="@this.ViewModel.EditElementUsageViewModel"/>
+            }
+            else if (this.ViewModel.SelectedElement is ElementDefinition)
+            {
+                <EditElementDefinition ViewModel="@this.ViewModel.EditElementDefinitionViewModel"/>
+            }
+        </BodyContentTemplate>
+    </DxPopup>
 
 </LoadingComponent>

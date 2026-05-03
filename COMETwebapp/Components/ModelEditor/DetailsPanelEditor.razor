@@ -24,18 +24,38 @@
 {
     <div class="card cardview-detailspanel-summary mb-2" style="padding:8px;">
         <div class="row" style="margin-bottom:4px;">
-            <div class="col-9">
+            <div class="col-7">
                 <h6 title="@this.ViewModel.SelectedSystemNode.Name"
                     style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:0;">
                     @this.ViewModel.SelectedSystemNode.Name
                 </h6>
                 <small class="text-muted">@this.ViewModel.SelectedSystemNode.ShortName</small>
             </div>
-            <div class="col-3" align="right">
+            <div class="col-5" align="right">
                 <button class="starion-pill"
                         title="Owning Domain Of Expertise: @this.ViewModel.SelectedSystemNode.Owner.ShortName">
                     @this.ViewModel.SelectedSystemNode.Owner.ShortName
                 </button>
+                @if (this.OnEditElement.HasDelegate)
+                {
+                    <DxButton Id="editElement"
+                              IconCssClass="oi oi-pencil"
+                              RenderStyleMode="ButtonRenderStyleMode.Text"
+                              CssClass="ms-1"
+                              Click="@(() => this.OnEditElement.InvokeAsync())"
+                              title="Edit the selected element"/>
+                }
+                @if (this.OnDeleteElement.HasDelegate)
+                {
+                    <DxButton Id="deleteElement"
+                              IconCssClass="oi oi-trash"
+                              RenderStyle="ButtonRenderStyle.Danger"
+                              RenderStyleMode="ButtonRenderStyleMode.Text"
+                              CssClass="ms-1"
+                              Enabled="@(!this.DisableDelete)"
+                              Click="@(() => this.OnDeleteElement.InvokeAsync())"
+                              title="@(this.DisableDelete ? "The top element of the iteration cannot be deleted" : "Delete the selected element")"/>
+                }
             </div>
         </div>
         @{

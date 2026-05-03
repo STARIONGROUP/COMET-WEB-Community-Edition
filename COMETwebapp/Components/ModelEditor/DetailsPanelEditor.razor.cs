@@ -50,6 +50,28 @@ namespace COMETwebapp.Components.ModelEditor
 		public EventCallback<Parameter> OnDeleteParameter { get; set; }
 
 		/// <summary>
+		///     Optional callback invoked when the user clicks the Edit affordance on the summary card.
+		///     When unset, the Edit button is not rendered.
+		/// </summary>
+		[Parameter]
+		public EventCallback OnEditElement { get; set; }
+
+		/// <summary>
+		///     Optional callback invoked when the user clicks the Delete affordance on the summary card.
+		///     When unset, the Delete button is not rendered.
+		/// </summary>
+		[Parameter]
+		public EventCallback OnDeleteElement { get; set; }
+
+		/// <summary>
+		///     Disables the Delete button on the summary card. Set by the parent when the selected element
+		///     is the iteration's <see cref="Iteration.TopElement" /> — which the application forbids from
+		///     being deleted.
+		/// </summary>
+		[Parameter]
+		public bool DisableDelete { get; set; }
+
+		/// <summary>
 		///     Method invoked when the component is ready to start, having received its
 		///     initial parameters from its parent in the render tree.
 		///     Override this method if you will perform an asynchronous operation and

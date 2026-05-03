@@ -353,5 +353,200 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()),
                 Times.Never);
         }
+
+        [Test]
+        public void VerifyOpenEditElementPopupForDefinitionInitialisesEditViewModel()
+        {
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+            this.viewModel.OpenEditElementPopup();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsOnEditMode, Is.True);
+                Assert.That(this.viewModel.EditElementDefinitionViewModel.ElementDefinition, Is.Not.Null);
+                Assert.That(this.viewModel.EditElementDefinitionViewModel.ElementDefinition, Is.Not.SameAs(this.referencedElementDefinition),
+                    "OpenEditElementPopup must hand the form a clone, not the cached domain instance.");
+                Assert.That(this.viewModel.EditElementDefinitionViewModel.ElementDefinition.Iid, Is.EqualTo(this.referencedElementDefinition.Iid));
+                Assert.That(this.viewModel.EditElementDefinitionViewModel.IsTopElement, Is.False);
+            });
+        }
+
+        [Test]
+        public void VerifyOpenEditElementPopupForTopElementMarksTopElementFlag()
+        {
+            this.viewModel.SelectElement(this.topElement);
+            this.viewModel.OpenEditElementPopup();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsOnEditMode, Is.True);
+                Assert.That(this.viewModel.EditElementDefinitionViewModel.IsTopElement, Is.True);
+            });
+        }
+
+        [Test]
+        public void VerifyOpenEditElementPopupForUsageInitialisesUsageViewModel()
+        {
+            this.viewModel.SelectElement(this.elementUsage);
+            this.viewModel.OpenEditElementPopup();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsOnEditMode, Is.True);
+                Assert.That(this.viewModel.EditElementUsageViewModel.ElementUsage, Is.Not.Null);
+                Assert.That(this.viewModel.EditElementUsageViewModel.ElementUsage, Is.Not.SameAs(this.elementUsage),
+                    "OpenEditElementPopup must hand the form a clone, not the cached domain instance.");
+                Assert.That(this.viewModel.EditElementUsageViewModel.ElementUsage.Iid, Is.EqualTo(this.elementUsage.Iid));
+            });
+        }
+
+        [Test]
+        public void VerifyOpenEditElementPopupWithNoSelectionIsNoOp()
+        {
+            this.viewModel.OpenEditElementPopup();
+
+            Assert.That(this.viewModel.IsOnEditMode, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyEditElementDefinitionPromotesToTopElementWhenRequested()
+        {
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Ok());
+
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+            this.viewModel.OpenEditElementPopup();
+            this.viewModel.EditElementDefinitionViewModel.IsTopElement = true;
+
+            await this.viewModel.EditElementDefinitionAsync();
+
+            this.sessionService.Verify(
+                x => x.CreateOrUpdateThingsWithNotification(
+                    It.Is<Thing>(t => t is Iteration && ((Iteration)t).TopElement != null && ((Iteration)t).TopElement.Iid == this.referencedElementDefinition.Iid),
+                    It.Is<IReadOnlyCollection<Thing>>(c => c.OfType<Iteration>().Any() && c.OfType<ElementDefinition>().Any(d => d.Iid == this.referencedElementDefinition.Iid)),
+                    It.IsAny<NotificationDescription>()),
+                Times.Once);
+
+            Assert.That(this.viewModel.IsOnEditMode, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyEditElementDefinitionAppliesSelectedCategories()
+        {
+            var newCategory = new Category { Iid = Guid.NewGuid(), Name = "Sensor", ShortName = "SEN", PermissibleClass = { ClassKind.ElementDefinition } };
+
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Ok());
+
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+            this.viewModel.OpenEditElementPopup();
+            this.viewModel.EditElementDefinitionViewModel.SelectedCategories = new[] { newCategory };
+
+            await this.viewModel.EditElementDefinitionAsync();
+
+            this.sessionService.Verify(
+                x => x.CreateOrUpdateThingsWithNotification(
+                    It.IsAny<Thing>(),
+                    It.Is<IReadOnlyCollection<Thing>>(c => c.OfType<ElementDefinition>().Any(d => d.Iid == this.referencedElementDefinition.Iid && d.Category.Contains(newCategory))),
+                    It.IsAny<NotificationDescription>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyEditElementUsageCallsSessionServiceWithCorrectContainer()
+        {
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Ok());
+
+            this.viewModel.SelectElement(this.elementUsage);
+            this.viewModel.OpenEditElementPopup();
+
+            await this.viewModel.EditElementUsageAsync();
+
+            this.sessionService.Verify(
+                x => x.CreateOrUpdateThingsWithNotification(
+                    It.Is<Thing>(t => t is ElementDefinition && t.Iid == this.topElement.Iid),
+                    It.Is<IReadOnlyCollection<Thing>>(c => c.Count == 1 && c.Single() is ElementUsage && c.Single().Iid == this.elementUsage.Iid),
+                    It.IsAny<NotificationDescription>()),
+                Times.Once);
+
+            Assert.That(this.viewModel.IsOnEditMode, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyEditElementDefinitionWithoutTargetIsNoOp()
+        {
+            await this.viewModel.EditElementDefinitionAsync();
+
+            this.sessionService.Verify(
+                x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()),
+                Times.Never);
+
+            Assert.That(this.viewModel.IsOnEditMode, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyEditElementUsageWithoutTargetIsNoOp()
+        {
+            await this.viewModel.EditElementUsageAsync();
+
+            this.sessionService.Verify(
+                x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()),
+                Times.Never);
+
+            Assert.That(this.viewModel.IsOnEditMode, Is.False);
+        }
+
+        [Test]
+        public void VerifyOpenEditElementPopupHoldsOriginalIterationForSelectorResolution()
+        {
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+            this.viewModel.OpenEditElementPopup();
+
+            Assert.That(this.viewModel.EditElementDefinitionViewModel.Iteration, Is.SameAs(this.iteration),
+                "OpenEditElementPopup must hand the edit VM the original iteration. Cloning here breaks DomainOfExpertiseSelectorViewModel which resolves the iteration through the open session.");
+        }
+
+        [Test]
+        public async Task VerifyEditElementDefinitionClonesIterationAtSubmit()
+        {
+            Iteration capturedTopContainer = null;
+
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .Callback<Thing, IReadOnlyCollection<Thing>, NotificationDescription>((top, _, _) => capturedTopContainer = top as Iteration)
+                .ReturnsAsync(Result.Ok());
+
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+            this.viewModel.OpenEditElementPopup();
+
+            await this.viewModel.EditElementDefinitionAsync();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(capturedTopContainer, Is.Not.Null);
+                Assert.That(capturedTopContainer, Is.Not.SameAs(this.iteration),
+                    "EditElementDefinitionAsync must clone the iteration at submit time, not commit the cached instance.");
+                Assert.That(capturedTopContainer.Iid, Is.EqualTo(this.iteration.Iid));
+            });
+        }
+
+        [Test]
+        public async Task VerifyEditElementDefinitionExceptionIsCaughtAndPopupClosed()
+        {
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ThrowsAsync(new InvalidOperationException("boom"));
+
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+            this.viewModel.OpenEditElementPopup();
+
+            await this.viewModel.EditElementDefinitionAsync();
+
+            Assert.That(this.viewModel.IsOnEditMode, Is.False);
+        }
     }
 }

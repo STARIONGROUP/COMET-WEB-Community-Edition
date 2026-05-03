@@ -31,6 +31,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
     using COMETwebapp.ViewModels.Components.ModelEditor.CopySettings;
+    using COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionViewModel;
+    using COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewModel;
     using COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreationViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
@@ -193,5 +195,41 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// </summary>
         /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
         Task DeleteSelectedParameterAsync();
+
+        /// <summary>
+        /// Gets the <see cref="IEditElementDefinitionViewModel" /> driving the edit-Element-Definition popup.
+        /// </summary>
+        IEditElementDefinitionViewModel EditElementDefinitionViewModel { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IEditElementUsageViewModel" /> driving the edit-Element-Usage popup.
+        /// </summary>
+        IEditElementUsageViewModel EditElementUsageViewModel { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user is currently editing
+        /// <see cref="SelectedElement" /> through the edit-Element popup.
+        /// </summary>
+        bool IsOnEditMode { get; set; }
+
+        /// <summary>
+        /// Opens the edit-Element popup for <see cref="SelectedElement" />, initializing whichever child
+        /// view model corresponds to the kind of selection.
+        /// </summary>
+        void OpenEditElementPopup();
+
+        /// <summary>
+        /// Performs the edit of the selected <see cref="ElementDefinition" /> via the session service.
+        /// Always closes the popup.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous edit operation.</returns>
+        Task EditElementDefinitionAsync();
+
+        /// <summary>
+        /// Performs the edit of the selected <see cref="ElementUsage" /> via the session service. Always
+        /// closes the popup.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous edit operation.</returns>
+        Task EditElementUsageAsync();
     }
 }
