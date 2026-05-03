@@ -383,7 +383,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             }
             catch (Exception exception)
             {
-                this.logger?.LogError(exception, "An error occurred while deleting the {Kind} with iid {Iid}", thing.GetType().Name, thing.Iid);
+                this.logger.LogError(exception, "An error occurred while deleting the {Kind} with iid {Iid}", thing.GetType().Name, thing.Iid);
             }
             finally
             {
@@ -489,9 +489,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 
                 var result = await this.sessionService.DeleteThingsWithNotification(clonedContainer, new[] { clonedParameter }, GetParameterDeletionNotificationDescription(parameter));
 
-                if (result.IsSuccess)
+                if (result.IsSuccess && this.SelectedElementDefinition is not null)
                 {
-                    this.ElementDefinitionDetailsViewModel.Rows = this.SelectedElementDefinition?.Parameter
+                    this.ElementDefinitionDetailsViewModel.Rows = this.SelectedElementDefinition.Parameter
                         .Where(x => x.Iid != parameter.Iid)
                         .Select(x => new ElementDefinitionDetailsRowViewModel(x))
                         .ToList();
@@ -499,7 +499,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             }
             catch (Exception exception)
             {
-                this.logger?.LogError(exception, "An error occurred while deleting the Parameter with iid {Iid}", parameter.Iid);
+                this.logger.LogError(exception, "An error occurred while deleting the Parameter with iid {Iid}", parameter.Iid);
             }
             finally
             {
