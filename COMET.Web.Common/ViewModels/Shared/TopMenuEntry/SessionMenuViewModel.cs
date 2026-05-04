@@ -28,6 +28,11 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.ViewModels.Shared.TopMenuEntry.PersonEdit;
+
+    using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// View model that handles the menu entry related to the <see cref="ISession" />
@@ -35,17 +40,25 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
     public class SessionMenuViewModel : DisposableObject, ISessionMenuViewModel
     {
         /// <summary>
+        /// Backing field for <see cref="IsOnEditPersonMode" />.
+        /// </summary>
+        private bool isOnEditPersonMode;
+
+        /// <summary>
         /// Initializes a <see cref="SessionMenuViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionMenuViewModel" /></param>
         /// <param name="autoRefreshService">The <see cref="IAutoRefreshService" /></param>
         /// <param name="notificationService">The <see cref="INotificationService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
-        public SessionMenuViewModel(ISessionService sessionService, IAutoRefreshService autoRefreshService, INotificationService notificationService, ICDPMessageBus messageBus)
+        /// <param name="personEditViewModel">The <see cref="IPersonEditViewModel" /> driving the self-service profile dialog.</param>
+        public SessionMenuViewModel(ISessionService sessionService, IAutoRefreshService autoRefreshService, INotificationService notificationService, ICDPMessageBus messageBus, IPersonEditViewModel personEditViewModel)
         {
             this.SessionService = sessionService;
             this.AutoRefreshService = autoRefreshService;
             this.NotificationService = notificationService;
+            this.PersonEditViewModel = personEditViewModel;
+            this.PersonEditViewModel.OnSaved = EventCallback.Factory.Create(this, () => this.IsOnEditPersonMode = false);
         }
 
         /// <summary>
@@ -70,6 +83,38 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
         public Task RefreshSession()
         {
             return this.SessionService.RefreshSession();
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the self-service "Edit my profile" popup is open.
+        /// </summary>
+        public bool IsOnEditPersonMode
+        {
+            get => this.isOnEditPersonMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnEditPersonMode, value);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IPersonEditViewModel" /> driving the "Edit my profile" dialog.
+        /// </summary>
+        public IPersonEditViewModel PersonEditViewModel { get; }
+
+        /// <summary>
+        /// Initializes <see cref="PersonEditViewModel" /> from the active session's
+        /// <see cref="CDP4Common.SiteDirectoryData.Person" /> and opens the popup. No-op when no
+        /// person is active (the session is unauthenticated or the SDK has not yet populated it).
+        /// </summary>
+        public void OpenEditPersonPopup()
+        {
+            var activePerson = this.SessionService?.Session?.ActivePerson;
+
+            if (activePerson is null)
+            {
+                return;
+            }
+
+            this.PersonEditViewModel.Initialize(activePerson);
+            this.IsOnEditPersonMode = true;
         }
     }
 }

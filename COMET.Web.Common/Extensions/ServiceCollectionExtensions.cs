@@ -47,6 +47,7 @@ namespace COMET.Web.Common.Extensions
     using COMET.Web.Common.ViewModels.Components.Publications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
+    using COMET.Web.Common.ViewModels.Shared.TopMenuEntry.PersonEdit;
 
     using DevExpress.Blazor;
 
@@ -111,6 +112,7 @@ namespace COMET.Web.Common.Extensions
             serviceProvider.AddTransient<IIndexViewModel, IndexViewModel>();
             serviceProvider.AddScoped<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();
             serviceProvider.AddScoped<ISessionMenuViewModel, SessionMenuViewModel>();
+            serviceProvider.AddTransient<IPersonEditViewModel, PersonEditViewModel>();
             serviceProvider.AddScoped<IModelMenuViewModel, ModelMenuViewModel>();
             serviceProvider.AddTransient<IIterationSelectorViewModel, IterationSelectorViewModel>();
             serviceProvider.AddTransient<IEngineeringModelSelectorViewModel, EngineeringModelSelectorViewModel>();

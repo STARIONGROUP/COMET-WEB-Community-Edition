@@ -23,11 +23,14 @@
 
 namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
 {
+    using CDP4Common.SiteDirectoryData;
+
     using CDP4Dal;
 
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
+    using COMET.Web.Common.ViewModels.Shared.TopMenuEntry.PersonEdit;
 
     using Moq;
 
@@ -40,6 +43,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
         private Mock<ISessionService> sessionService;
         private Mock<IAutoRefreshService> autoRefreshService;
         private Mock<INotificationService> notificationService;
+        private Mock<IPersonEditViewModel> personEditViewModel;
         private CDPMessageBus messageBus;
 
         [SetUp]
@@ -48,9 +52,11 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
             this.sessionService = new Mock<ISessionService>();
             this.autoRefreshService = new Mock<IAutoRefreshService>();
             this.notificationService = new Mock<INotificationService>();
+            this.personEditViewModel = new Mock<IPersonEditViewModel>();
+            this.personEditViewModel.SetupAllProperties();
             this.messageBus = new CDPMessageBus();
 
-            this.viewModel = new SessionMenuViewModel(this.sessionService.Object, this.autoRefreshService.Object, this.notificationService.Object, this.messageBus);
+            this.viewModel = new SessionMenuViewModel(this.sessionService.Object, this.autoRefreshService.Object, this.notificationService.Object, this.messageBus, this.personEditViewModel.Object);
         }
 
         [TearDown]
@@ -68,6 +74,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
                 Assert.That(this.viewModel.AutoRefreshService, Is.EqualTo(this.autoRefreshService.Object));
                 Assert.That(this.viewModel.SessionService, Is.EqualTo(this.sessionService.Object));
                 Assert.That(this.viewModel.NotificationService, Is.EqualTo(this.notificationService.Object));
+                Assert.That(this.viewModel.PersonEditViewModel, Is.EqualTo(this.personEditViewModel.Object));
+                Assert.That(this.viewModel.IsOnEditPersonMode, Is.False);
             });
         }
 
@@ -76,6 +84,40 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry
         {
             await this.viewModel.RefreshSession();
             this.sessionService.Verify(x => x.RefreshSession(), Times.Once);
+        }
+
+        [Test]
+        public void VerifyOpenEditPersonPopupInitializesFromActivePerson()
+        {
+            var activePerson = new Person { Iid = Guid.NewGuid(), GivenName = "Alice", Surname = "Smith" };
+
+            var session = new Mock<ISession>();
+            session.Setup(x => x.ActivePerson).Returns(activePerson);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+
+            this.viewModel.OpenEditPersonPopup();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsOnEditPersonMode, Is.True);
+                this.personEditViewModel.Verify(x => x.Initialize(activePerson), Times.Once);
+            });
+        }
+
+        [Test]
+        public void VerifyOpenEditPersonPopupNoActivePersonIsNoOp()
+        {
+            var session = new Mock<ISession>();
+            session.Setup(x => x.ActivePerson).Returns((Person)null);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+
+            this.viewModel.OpenEditPersonPopup();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsOnEditPersonMode, Is.False);
+                this.personEditViewModel.Verify(x => x.Initialize(It.IsAny<Person>()), Times.Never);
+            });
         }
     }
 }

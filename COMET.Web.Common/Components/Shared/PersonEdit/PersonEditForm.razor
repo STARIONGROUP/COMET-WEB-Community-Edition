@@ -1,0 +1,144 @@
+<!------------------------------------------------------------------------------
+// Copyright (c) 2023-2026 Starion Group S.A.
+//
+//   This file is part of CDP4-COMET WEB Community Edition
+//   The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25
+//   Annex A and Annex C.
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+------------------------------------------------------------------------------->
+@namespace COMET.Web.Common.Components.Shared.PersonEdit
+@using CDP4Common.SiteDirectoryData
+@using COMET.Web.Common.ViewModels.Shared.TopMenuEntry.PersonEdit
+@inherits DisposableComponent
+
+@if (this.ViewModel is not null)
+{
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages>
+            <DxFormLayoutTabPage Caption="Basic">
+                <DxFormLayoutItem Caption="Given Name:" ColSpanMd="10">
+                    <DxTextBox Id="givenNameInput"
+                               Text="@(this.ViewModel.GivenName)"
+                               TextChanged="@((string newValue) => this.ViewModel.GivenName = newValue)"
+                               BindValueMode="BindValueMode.OnInput"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Surname:" ColSpanMd="10">
+                    <DxTextBox Id="surnameInput"
+                               Text="@(this.ViewModel.Surname)"
+                               TextChanged="@((string newValue) => this.ViewModel.Surname = newValue)"
+                               BindValueMode="BindValueMode.OnInput"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Organizational Unit:" ColSpanMd="10">
+                    <DxTextBox Id="organizationalUnitInput"
+                               Text="@(this.ViewModel.OrganizationalUnit)"
+                               TextChanged="@((string newValue) => this.ViewModel.OrganizationalUnit = newValue)"
+                               BindValueMode="BindValueMode.OnInput"/>
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="E-Mail">
+                @foreach (var email in this.ViewModel.EmailAddresses)
+                {
+                    <DxFormLayoutItem ColSpanMd="4" Caption="Kind:">
+                        <DxComboBox Data="@(Enum.GetValues(typeof(VcardEmailAddressKind)).Cast<VcardEmailAddressKind>())"
+                                    @bind-Value="@(email.VcardType)"/>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem ColSpanMd="5" Caption="E-mail:">
+                        <DxTextBox @bind-Text="@(email.Value)"
+                                   BindValueMode="BindValueMode.OnInput"/>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem ColSpanMd="2" Caption="Default:">
+                        <DxCheckBox @bind-Checked="@(email.IsDefault)"/>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem ColSpanMd="1">
+                        <DxButton IconCssClass="oi oi-trash"
+                                  RenderStyle="ButtonRenderStyle.Danger"
+                                  RenderStyleMode="ButtonRenderStyleMode.Text"
+                                  Click="@(() => this.ViewModel.RemoveEmail(email))"
+                                  title="Remove this e-mail"/>
+                    </DxFormLayoutItem>
+                }
+                <DxFormLayoutItem ColSpanMd="12">
+                    <DxButton Id="addEmailButton"
+                              Text="Add e-mail"
+                              IconCssClass="oi oi-plus"
+                              Click="@(this.ViewModel.AddEmail)"/>
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Telephone Number">
+                @foreach (var telephone in this.ViewModel.TelephoneNumbers)
+                {
+                    <DxFormLayoutItem ColSpanMd="4" Caption="Kinds:">
+                        <DxTagBox Data="@(Enum.GetValues(typeof(VcardTelephoneNumberKind)).Cast<VcardTelephoneNumberKind>())"
+                                  @bind-Values="@(telephone.VcardType)"/>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem ColSpanMd="5" Caption="Number:">
+                        <DxTextBox @bind-Text="@(telephone.Value)"
+                                   BindValueMode="BindValueMode.OnInput"/>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem ColSpanMd="2" Caption="Default:">
+                        <DxCheckBox @bind-Checked="@(telephone.IsDefault)"/>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem ColSpanMd="1">
+                        <DxButton IconCssClass="oi oi-trash"
+                                  RenderStyle="ButtonRenderStyle.Danger"
+                                  RenderStyleMode="ButtonRenderStyleMode.Text"
+                                  Click="@(() => this.ViewModel.RemoveTelephone(telephone))"
+                                  title="Remove this telephone"/>
+                    </DxFormLayoutItem>
+                }
+                <DxFormLayoutItem ColSpanMd="12">
+                    <DxButton Id="addTelephoneButton"
+                              Text="Add telephone"
+                              IconCssClass="oi oi-plus"
+                              Click="@(this.ViewModel.AddTelephone)"/>
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Password">
+                <DxFormLayoutItem Caption="Change my password:" ColSpanMd="10">
+                    <DxCheckBox Id="changePasswordCheckBox"
+                                @bind-Checked="@(this.ViewModel.IsPasswordEditEnabled)"/>
+                </DxFormLayoutItem>
+                @if (this.ViewModel.IsPasswordEditEnabled)
+                {
+                    <DxFormLayoutItem Caption="New password:" ColSpanMd="10">
+                        <DxTextBox Id="passwordInput"
+                                   Text="@(this.ViewModel.Password)"
+                                   TextChanged="@((string newValue) => this.ViewModel.Password = newValue)"
+                                   BindValueMode="BindValueMode.OnInput"
+                                   Password="true"/>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Confirm password:" ColSpanMd="10">
+                        <DxTextBox Id="passwordConfirmationInput"
+                                   Text="@(this.ViewModel.PasswordConfirmation)"
+                                   TextChanged="@((string newValue) => this.ViewModel.PasswordConfirmation = newValue)"
+                                   BindValueMode="BindValueMode.OnInput"
+                                   Password="true"/>
+                    </DxFormLayoutItem>
+                }
+            </DxFormLayoutTabPage>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+    <div class="modal-footer">
+        <DxButton Id="cancelPersonEdit"
+                  Text="Cancel"
+                  RenderStyle="ButtonRenderStyle.Secondary"
+                  Click="@(this.OnCancel)"
+                  Enabled="@(!this.ViewModel.IsLoading)"/>
+        <DxButton Id="savePersonEdit"
+                  Text="Save"
+                  RenderStyle="ButtonRenderStyle.Primary"
+                  Click="@(this.ViewModel.SaveAsync)"
+                  Enabled="@(this.ViewModel.IsValid && !this.ViewModel.IsLoading)"/>
+    </div>
+}

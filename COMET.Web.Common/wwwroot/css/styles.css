@@ -421,43 +421,50 @@
 
 .session__header {
     background: lightgray;
-    padding: 5px;
+    padding: 12px 16px;
     width: 100%;
     overflow: hidden;
 }
 
 .session_content {
     font-size: 12px;
-    display: table;
-    margin: 0 auto !important;
+    width: 280px;
+    padding-top: 4px;
 }
 
 .content__autorefresh {
     display: flex;
+    align-items: center;
     line-height: 30px;
-    margin: 20px;
-    text-indent: 5px;
-    width: max-content;
+    padding: 12px 16px 4px;
+    gap: 6px;
 }
 
 .content__spin {
     max-width: 85px;
     max-height: 30px;
-    margin-left: 5px;
 }
 
 .session__buttons {
-    margin: 0 auto !important;
-    display: table;
-    padding-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 16px 0;
 }
 
-.right-margin {
-    margin-right: 2px !important;
+.session__buttons:last-of-type {
+    padding-bottom: 16px;
 }
 
-.left-margin {
-    margin-left: 2px !important;
+.session__buttons--secondary {
+    margin-top: 14px;
+    padding-top: 16px;
+    border-top: 1px solid #d0d0d0;
+}
+
+.session__buttons .btn-connect {
+    width: 100%;
+    margin: 0 !important;
 }
 
 .notification {

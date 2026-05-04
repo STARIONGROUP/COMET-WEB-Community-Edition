@@ -18,6 +18,7 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMETwebapp.Shared.SideBarEntry
+@using COMET.Web.Common.Components.Shared.PersonEdit
 @inherits COMET.Web.Common.Shared.TopMenuEntry.SessionMenu
 
 <SideBarItem Text="Session"
@@ -56,9 +57,24 @@
                 sec
             </div>
             <div class="session__buttons">
-                <DxButton Id="refresh-button" CssClass="btn btn-connect right-margin" Text="@(this.RefreshButtonText)" Enabled="@(!this.IsRefreshing)" Click="@(this.OnRefreshClick)"/>
-                <DxButton Id="logout-button" CssClass="btn btn-connect left-margin" Text="Log out" Click="@(this.Logout)"/>
+                <DxButton Id="edit-profile-button" CssClass="btn btn-connect" Text="Edit my profile" IconCssClass="oi oi-person" Click="@(this.OnEditProfileClick)"/>
+            </div>
+
+            <div class="session__buttons session__buttons--secondary">
+                <DxButton Id="refresh-button" CssClass="btn btn-connect" Text="@(this.RefreshButtonText)" IconCssClass="oi oi-reload" Enabled="@(!this.IsRefreshing)" Click="@(this.OnRefreshClick)"/>
+                <DxButton Id="logout-button" CssClass="btn btn-connect" Text="Log out" IconCssClass="oi oi-account-logout" Click="@(this.Logout)"/>
             </div>
         </div>
     </BodyContentTemplate>
 </DxDropDown>
+
+<DxPopup @bind-Visible="@this.ViewModel.IsOnEditPersonMode"
+         CloseOnOutsideClick="false"
+         HeaderText="Edit my profile"
+         Width="50vw"
+         ShowCloseButton="true">
+    <BodyContentTemplate>
+        <PersonEditForm ViewModel="@this.ViewModel.PersonEditViewModel"
+                        OnCancel="@(() => this.ViewModel.IsOnEditPersonMode = false)"/>
+    </BodyContentTemplate>
+</DxPopup>

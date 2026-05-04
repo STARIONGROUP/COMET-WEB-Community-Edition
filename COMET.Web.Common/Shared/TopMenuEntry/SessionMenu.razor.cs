@@ -73,6 +73,15 @@ namespace COMET.Web.Common.Shared.TopMenuEntry
         }
 
         /// <summary>
+        /// Closes the dropdown and asks the view model to open the self-service "Edit my profile" popup.
+        /// </summary>
+        public void OnEditProfileClick()
+        {
+            this.Expanded = false;
+            this.ViewModel.OpenEditPersonPopup();
+        }
+
+        /// <summary>
         /// Method executed everytime the refresh button is clicked
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
