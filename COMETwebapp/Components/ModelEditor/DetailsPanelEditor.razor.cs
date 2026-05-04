@@ -50,6 +50,24 @@ namespace COMETwebapp.Components.ModelEditor
 		public EventCallback<Parameter> OnDeleteParameter { get; set; }
 
 		/// <summary>
+		///     Optional callback invoked when the user clicks the per-card subscribe affordance for a
+		///     <see cref="Parameter" /> not owned by the currently logged-in
+		///     <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" /> and not yet subscribed to by it.
+		///     When unset, the subscribe affordance is not rendered.
+		/// </summary>
+		[Parameter]
+		public EventCallback<Parameter> OnCreateSubscription { get; set; }
+
+		/// <summary>
+		///     Optional callback invoked when the user clicks the per-card unsubscribe affordance to remove
+		///     an existing <see cref="ParameterSubscription" /> belonging to the currently logged-in
+		///     <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" />. When unset, the unsubscribe
+		///     affordance is not rendered.
+		/// </summary>
+		[Parameter]
+		public EventCallback<ParameterSubscription> OnDeleteSubscription { get; set; }
+
+		/// <summary>
 		///     Optional callback invoked when the user clicks the Edit affordance on the summary card.
 		///     When unset, the Edit button is not rendered.
 		/// </summary>

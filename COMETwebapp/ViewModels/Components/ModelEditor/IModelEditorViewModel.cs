@@ -197,6 +197,54 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         Task DeleteSelectedParameterAsync();
 
         /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the create-confirmation popup for a
+        /// new <see cref="ParameterSubscription" /> by the currently logged-in
+        /// <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" />.
+        /// </summary>
+        IConfirmCancelPopupViewModel CreateSubscriptionPopupViewModel { get; }
+
+        /// <summary>
+        /// Opens the create-confirmation popup for a <see cref="ParameterSubscription" />. Composes a content
+        /// message that names the parameter and the current domain. No-op when no current domain is known
+        /// or the parameter is already owned by the current domain.
+        /// </summary>
+        /// <param name="parameter">The <see cref="Parameter" /> the user wants to subscribe to.</param>
+        void OpenCreateSubscriptionPopup(Parameter parameter);
+
+        /// <summary>
+        /// Performs the creation of the <see cref="ParameterSubscription" /> previously captured by
+        /// <see cref="OpenCreateSubscriptionPopup" /> via the session service. Always closes the popup.
+        /// The visible card refresh is driven by the existing message-bus end-update / session-refreshed
+        /// pipeline, not by mutating the rows here.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous create operation.</returns>
+        Task CreateSubscriptionAsync();
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the delete-confirmation popup for a
+        /// <see cref="ParameterSubscription" /> belonging to the currently logged-in
+        /// <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" />.
+        /// </summary>
+        IConfirmCancelPopupViewModel DeleteSubscriptionPopupViewModel { get; }
+
+        /// <summary>
+        /// Opens the delete-confirmation popup for a <see cref="ParameterSubscription" />. Composes a content
+        /// message that makes it explicit only the subscription is removed — the parent
+        /// <see cref="Parameter" /> is kept.
+        /// </summary>
+        /// <param name="subscription">The <see cref="ParameterSubscription" /> the user wants to delete.</param>
+        void OpenDeleteSubscriptionPopup(ParameterSubscription subscription);
+
+        /// <summary>
+        /// Performs the deletion of the <see cref="ParameterSubscription" /> previously captured by
+        /// <see cref="OpenDeleteSubscriptionPopup" /> via the session service. The parent
+        /// <see cref="Parameter" /> is used as the operation top container but is never included in the
+        /// things-to-delete collection, so the parameter itself stays. Always closes the popup.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
+        Task DeleteSelectedSubscriptionAsync();
+
+        /// <summary>
         /// Gets the <see cref="IEditElementDefinitionViewModel" /> driving the edit-Element-Definition popup.
         /// </summary>
         IEditElementDefinitionViewModel EditElementDefinitionViewModel { get; }

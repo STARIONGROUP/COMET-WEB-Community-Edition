@@ -43,9 +43,9 @@
             <ItemContent>
                 <div class="col" style="padding-left:0px;margin-left:0px;height:@(this.ItemSize)px;">
                     <div class="card @(this.GetSelectedClass(@context))"
-                         style="min-width:@(this.MinWidth)px"
+                         style="min-width:@(this.MinWidth)px;height:100%;max-height:100%;overflow:hidden;"
                          @onclick="@(() => this.SelectItem(@context))">
-                        <div class="card-body" style="overflow-y:hidden;overflow-x:hidden">
+                        <div class="card-body" style="height:100%;max-height:100%;overflow:hidden;">
                             <CascadingValue Name="CardView" Value = "this">
                                 <CascadingValue Name="SearchTerm" Value="this.SearchTerm">
                                     @this.ItemTemplate(@context)

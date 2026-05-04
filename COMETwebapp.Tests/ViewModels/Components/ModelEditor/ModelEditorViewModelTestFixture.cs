@@ -25,6 +25,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
 
@@ -90,6 +91,25 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
         private Parameter parameter;
 
         /// <summary>
+        /// The currently logged-in <see cref="DomainOfExpertise" /> against which the view model is
+        /// evaluated. Returned by the mocked <see cref="ISessionService.GetDomainOfExpertise" />.
+        /// </summary>
+        private DomainOfExpertise currentDomain;
+
+        /// <summary>
+        /// A foreign <see cref="DomainOfExpertise" /> — the owner of <see cref="foreignParameter" /> — used
+        /// to exercise the subscribe / unsubscribe flows from the perspective of
+        /// <see cref="currentDomain" />.
+        /// </summary>
+        private DomainOfExpertise foreignDomain;
+
+        /// <summary>
+        /// A <see cref="Parameter" /> owned by <see cref="foreignDomain" /> used to exercise the
+        /// subscription create flow.
+        /// </summary>
+        private Parameter foreignParameter;
+
+        /// <summary>
         /// Builds the iteration graph (TopElement, a referenced ElementDefinition, and a usage) and the
         /// view model with mocked dependencies.
         /// </summary>
@@ -105,9 +125,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
 
             var domain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
+            this.currentDomain = domain;
+            this.foreignDomain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "PWR", Name = "Power" };
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(domain);
             var rdl = new SiteReferenceDataLibrary { ShortName = "siteRdl", Name = "Site RDL" };
-            var siteDirectory = new SiteDirectory { Domain = { domain }, SiteReferenceDataLibrary = { rdl } };
-            var modelSetup = new EngineeringModelSetup { Name = "ModelName", ShortName = "ModelShortName", ActiveDomain = { domain }, RequiredRdl = { new ModelReferenceDataLibrary { RequiredRdl = rdl } } };
+            var siteDirectory = new SiteDirectory { Domain = { domain, this.foreignDomain }, SiteReferenceDataLibrary = { rdl } };
+            var modelSetup = new EngineeringModelSetup { Name = "ModelName", ShortName = "ModelShortName", ActiveDomain = { domain, this.foreignDomain }, RequiredRdl = { new ModelReferenceDataLibrary { RequiredRdl = rdl } } };
             siteDirectory.Model.Add(modelSetup);
             var iterationSetup = new IterationSetup { IterationNumber = 1 };
             modelSetup.IterationSetup.Add(iterationSetup);
@@ -141,6 +164,26 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             };
 
             this.referencedElementDefinition.Parameter.Add(this.parameter);
+
+            this.foreignParameter = new Parameter
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.foreignDomain,
+                ParameterType = parameterType
+            };
+
+            this.foreignParameter.ValueSet.Add(new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                Manual = new ValueArray<string>(["1"]),
+                Computed = new ValueArray<string>(["1"]),
+                Reference = new ValueArray<string>(["-"]),
+                Formula = new ValueArray<string>(["-"]),
+                Published = new ValueArray<string>(["1"]),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            });
+
+            this.referencedElementDefinition.Parameter.Add(this.foreignParameter);
 
             this.elementUsage = new ElementUsage
             {
@@ -547,6 +590,159 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             await this.viewModel.EditElementDefinitionAsync();
 
             Assert.That(this.viewModel.IsOnEditMode, Is.False);
+        }
+
+        [Test]
+        public void VerifyOpenCreateSubscriptionPopupComposesContent()
+        {
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+            this.viewModel.OpenCreateSubscriptionPopup(this.foreignParameter);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CreateSubscriptionPopupViewModel.IsVisible, Is.True);
+                Assert.That(this.viewModel.CreateSubscriptionPopupViewModel.ContentText, Does.Contain(this.foreignParameter.ParameterType.Name));
+                Assert.That(this.viewModel.CreateSubscriptionPopupViewModel.ContentText, Does.Contain(this.referencedElementDefinition.Name));
+                Assert.That(this.viewModel.CreateSubscriptionPopupViewModel.ContentText, Does.Contain(this.currentDomain.ShortName));
+            });
+        }
+
+        [Test]
+        public void VerifyOpenCreateSubscriptionPopupNullParameterIsNoOp()
+        {
+            this.viewModel.OpenCreateSubscriptionPopup(null);
+
+            Assert.That(this.viewModel.CreateSubscriptionPopupViewModel.IsVisible, Is.False);
+        }
+
+        [Test]
+        public void VerifyOpenCreateSubscriptionPopupForOwnedParameterIsNoOp()
+        {
+            this.viewModel.OpenCreateSubscriptionPopup(this.parameter);
+
+            Assert.That(this.viewModel.CreateSubscriptionPopupViewModel.IsVisible, Is.False,
+                "Subscribing to a Parameter the current domain already owns is meaningless and must not open the popup.");
+        }
+
+        [Test]
+        public async Task VerifyCreateSubscriptionCallsSessionServiceWithExpectedPayload()
+        {
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Ok());
+
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+            this.viewModel.OpenCreateSubscriptionPopup(this.foreignParameter);
+            await this.viewModel.CreateSubscriptionAsync();
+
+            this.sessionService.Verify(
+                x => x.CreateOrUpdateThingsWithNotification(
+                    It.Is<Thing>(t => t is Parameter && t.Iid == this.foreignParameter.Iid),
+                    It.Is<IReadOnlyCollection<Thing>>(c =>
+                        c.OfType<Parameter>().Any(p => p.Iid == this.foreignParameter.Iid)
+                        && c.OfType<ParameterSubscription>().Any(s => s.Owner != null && s.Owner.Iid == this.currentDomain.Iid)
+                        && c.OfType<ParameterSubscriptionValueSet>().Count() == this.foreignParameter.ValueSet.Count),
+                    It.IsAny<NotificationDescription>()),
+                Times.Once);
+
+            Assert.That(this.viewModel.CreateSubscriptionPopupViewModel.IsVisible, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyCreateSubscriptionWithoutTargetIsNoOp()
+        {
+            await this.viewModel.CreateSubscriptionAsync();
+
+            this.sessionService.Verify(
+                x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()),
+                Times.Never);
+        }
+
+        [Test]
+        public void VerifyOpenDeleteSubscriptionPopupComposesContent()
+        {
+            var subscription = new ParameterSubscription
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.currentDomain
+            };
+
+            this.foreignParameter.ParameterSubscription.Add(subscription);
+
+            this.viewModel.OpenDeleteSubscriptionPopup(subscription);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DeleteSubscriptionPopupViewModel.IsVisible, Is.True);
+                Assert.That(this.viewModel.DeleteSubscriptionPopupViewModel.ContentText, Does.Contain(this.foreignParameter.ParameterType.Name));
+                Assert.That(this.viewModel.DeleteSubscriptionPopupViewModel.ContentText, Does.Contain("not be removed"),
+                    "Popup must make it explicit that the parent Parameter is preserved.");
+            });
+        }
+
+        [Test]
+        public void VerifyOpenDeleteSubscriptionPopupNullIsNoOp()
+        {
+            this.viewModel.OpenDeleteSubscriptionPopup(null);
+
+            Assert.That(this.viewModel.DeleteSubscriptionPopupViewModel.IsVisible, Is.False);
+        }
+
+        [Test]
+        public void VerifyOpenDeleteSubscriptionPopupOrphanIsNoOp()
+        {
+            var orphanSubscription = new ParameterSubscription
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.currentDomain
+            };
+
+            this.viewModel.OpenDeleteSubscriptionPopup(orphanSubscription);
+
+            Assert.That(this.viewModel.DeleteSubscriptionPopupViewModel.IsVisible, Is.False,
+                "A subscription whose Container is not a Parameter cannot be safely deleted from this flow.");
+        }
+
+        [Test]
+        public async Task VerifyDeleteSubscriptionDoesNotIncludeParentParameterInDeleteList()
+        {
+            var subscription = new ParameterSubscription
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.currentDomain
+            };
+
+            this.foreignParameter.ParameterSubscription.Add(subscription);
+
+            this.sessionService
+                .Setup(x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Ok());
+
+            this.viewModel.OpenDeleteSubscriptionPopup(subscription);
+            await this.viewModel.DeleteSelectedSubscriptionAsync();
+
+            this.sessionService.Verify(
+                x => x.DeleteThingsWithNotification(
+                    It.Is<Thing>(t => t is Parameter && t.Iid == this.foreignParameter.Iid),
+                    It.Is<IReadOnlyCollection<Thing>>(c =>
+                        c.Count == 1
+                        && c.Single() is ParameterSubscription
+                        && c.Single().Iid == subscription.Iid
+                        && !c.OfType<Parameter>().Any()),
+                    It.IsAny<NotificationDescription>()),
+                Times.Once);
+
+            Assert.That(this.viewModel.DeleteSubscriptionPopupViewModel.IsVisible, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyDeleteSubscriptionWithoutTargetIsNoOp()
+        {
+            await this.viewModel.DeleteSelectedSubscriptionAsync();
+
+            this.sessionService.Verify(
+                x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()),
+                Times.Never);
         }
     }
 }
