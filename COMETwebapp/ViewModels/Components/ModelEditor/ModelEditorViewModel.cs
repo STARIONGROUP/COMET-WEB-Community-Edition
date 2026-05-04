@@ -25,6 +25,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Events;
@@ -129,6 +130,20 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         private Parameter selectedParameterToDelete;
 
         /// <summary>
+        /// The <see cref="Parameter" /> the user requested to subscribe to, captured when
+        /// <see cref="OpenCreateSubscriptionPopup" /> is invoked and consumed by
+        /// <see cref="CreateSubscriptionAsync" />.
+        /// </summary>
+        private Parameter selectedParameterToSubscribe;
+
+        /// <summary>
+        /// The <see cref="ParameterSubscription" /> the user requested to delete, captured when
+        /// <see cref="OpenDeleteSubscriptionPopup" /> is invoked and consumed by
+        /// <see cref="DeleteSelectedSubscriptionAsync" />.
+        /// </summary>
+        private ParameterSubscription selectedSubscriptionToDelete;
+
+        /// <summary>
         /// Creates a new instance of <see cref="ModelEditorViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
@@ -173,6 +188,24 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 CancelRenderStyle = ButtonRenderStyle.Secondary,
                 OnCancel = eventCallbackFactory.Create(this, this.OnDeleteParameterCancelled),
                 OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedParameterAsync)
+            };
+
+            this.CreateSubscriptionPopupViewModel = new ConfirmCancelPopupViewModel
+            {
+                HeaderText = "Create Parameter Subscription",
+                ConfirmRenderStyle = ButtonRenderStyle.Primary,
+                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                OnCancel = eventCallbackFactory.Create(this, this.OnCreateSubscriptionCancelled),
+                OnConfirm = eventCallbackFactory.Create(this, this.CreateSubscriptionAsync)
+            };
+
+            this.DeleteSubscriptionPopupViewModel = new ConfirmCancelPopupViewModel
+            {
+                HeaderText = "Delete Parameter Subscription",
+                ConfirmRenderStyle = ButtonRenderStyle.Danger,
+                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                OnCancel = eventCallbackFactory.Create(this, this.OnDeleteSubscriptionCancelled),
+                OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedSubscriptionAsync)
             };
 
             this.EditElementDefinitionViewModel = new EditElementDefinitionViewModel.EditElementDefinitionViewModel(sessionService, messageBus)
@@ -315,7 +348,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 _ => null
             };
 
-            this.ElementDefinitionDetailsViewModel.Rows = this.SelectedElementDefinition?.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList();
+            this.ElementDefinitionDetailsViewModel.Rows = this.SelectedElementDefinition?.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x, this.CurrentDomain)).ToList();
             this.AddParameterViewModel.SetSelectedElementDefinition(this.SelectedElementDefinition);
         }
 
@@ -530,7 +563,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 {
                     this.ElementDefinitionDetailsViewModel.Rows = this.SelectedElementDefinition.Parameter
                         .Where(x => x.Iid != parameter.Iid)
-                        .Select(x => new ElementDefinitionDetailsRowViewModel(x))
+                        .Select(x => new ElementDefinitionDetailsRowViewModel(x, this.CurrentDomain))
                         .ToList();
                 }
             }
@@ -577,6 +610,251 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             {
                 OnSuccess = $"Parameter '{label}' deleted",
                 OnError = $"Failed to delete Parameter '{label}'"
+            };
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the create-confirmation popup for a
+        /// new <see cref="ParameterSubscription" /> by the currently logged-in
+        /// <see cref="DomainOfExpertise" />.
+        /// </summary>
+        public IConfirmCancelPopupViewModel CreateSubscriptionPopupViewModel { get; }
+
+        /// <summary>
+        /// Opens the create-confirmation popup for the supplied <see cref="Parameter" />, captures the
+        /// parameter as the subscription target, and composes a content message that names the parameter,
+        /// its containing <see cref="ElementDefinition" /> and the current <see cref="DomainOfExpertise" />.
+        /// No-op when there is no current domain or when the parameter is already owned by the current
+        /// domain — neither case admits a subscription.
+        /// </summary>
+        /// <param name="parameter">The <see cref="Parameter" /> the user requested to subscribe to.</param>
+        public void OpenCreateSubscriptionPopup(Parameter parameter)
+        {
+            if (parameter is null || this.CurrentDomain is null)
+            {
+                return;
+            }
+
+            if (parameter.Owner != null && parameter.Owner.Iid == this.CurrentDomain.Iid)
+            {
+                return;
+            }
+
+            this.selectedParameterToSubscribe = parameter;
+
+            var parameterTypeName = parameter.ParameterType?.Name ?? "Parameter";
+            var containerName = parameter.Container is ElementDefinition containing ? containing.Name : null;
+
+            this.CreateSubscriptionPopupViewModel.ContentText = string.IsNullOrWhiteSpace(containerName)
+                ? $"You are about to subscribe to Parameter '{parameterTypeName}' as Domain '{this.CurrentDomain.ShortName}'."
+                : $"You are about to subscribe to Parameter '{parameterTypeName}' on Element Definition '{containerName}' as Domain '{this.CurrentDomain.ShortName}'.";
+
+            this.CreateSubscriptionPopupViewModel.IsVisible = true;
+        }
+
+        /// <summary>
+        /// Performs the creation of a new <see cref="ParameterSubscription" /> for the parameter captured by
+        /// <see cref="OpenCreateSubscriptionPopup" /> using
+        /// <see cref="ISessionService.CreateOrUpdateThingsWithNotification" />. The cloned parent
+        /// <see cref="Parameter" /> is the operation top container; the new subscription and a
+        /// <see cref="ParameterSubscriptionValueSet" /> per source <see cref="ParameterValueSet" /> are
+        /// included as things-to-create. The visible card refresh is driven by the existing
+        /// <see cref="ICDPMessageBus" /> end-update / session-refreshed pipeline that already reaches
+        /// <see cref="OnSessionRefreshed" />.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous create operation.</returns>
+        public async Task CreateSubscriptionAsync()
+        {
+            var parameter = this.selectedParameterToSubscribe;
+
+            if (parameter is null || this.CurrentDomain is null)
+            {
+                this.CloseCreateSubscriptionPopup();
+                return;
+            }
+
+            try
+            {
+                this.IsLoading = true;
+
+                var clonedParameter = parameter.Clone(false);
+
+                var subscription = new ParameterSubscription
+                {
+                    Iid = Guid.NewGuid(),
+                    Owner = this.CurrentDomain
+                };
+
+                var thingsToCreate = new List<Thing> { clonedParameter, subscription };
+
+                foreach (var sourceValueSet in parameter.ValueSet)
+                {
+                    var subscriptionValueSet = new ParameterSubscriptionValueSet
+                    {
+                        Iid = Guid.NewGuid(),
+                        SubscribedValueSet = sourceValueSet,
+                        ValueSwitch = sourceValueSet.ValueSwitch,
+                        Manual = new ValueArray<string>(["-"])
+                    };
+
+                    subscription.ValueSet.Add(subscriptionValueSet);
+                    thingsToCreate.Add(subscriptionValueSet);
+                }
+
+                clonedParameter.ParameterSubscription.Add(subscription);
+
+                await this.sessionService.CreateOrUpdateThingsWithNotification(clonedParameter, thingsToCreate, GetSubscriptionCreationNotificationDescription(parameter));
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while creating a ParameterSubscription on the Parameter with iid {Iid}", parameter.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
+                this.CloseCreateSubscriptionPopup();
+            }
+        }
+
+        /// <summary>
+        /// Closes the create-subscription popup and clears the captured target.
+        /// </summary>
+        private void CloseCreateSubscriptionPopup()
+        {
+            this.CreateSubscriptionPopupViewModel.IsVisible = false;
+            this.selectedParameterToSubscribe = null;
+        }
+
+        /// <summary>
+        /// Cancellation handler bound to <see cref="CreateSubscriptionPopupViewModel" />'s
+        /// <see cref="IConfirmCancelPopupViewModel.OnCancel" />.
+        /// </summary>
+        private void OnCreateSubscriptionCancelled()
+        {
+            this.CloseCreateSubscriptionPopup();
+        }
+
+        /// <summary>
+        /// Builds a <see cref="NotificationDescription" /> used to surface the success / failure of a
+        /// <see cref="ParameterSubscription" /> creation through the existing notification pipeline.
+        /// </summary>
+        /// <param name="parameter">The <see cref="Parameter" /> being subscribed to.</param>
+        /// <returns>The <see cref="NotificationDescription" /> describing the operation.</returns>
+        private static NotificationDescription GetSubscriptionCreationNotificationDescription(Parameter parameter)
+        {
+            var label = parameter.ParameterType?.Name ?? "Parameter";
+
+            return new NotificationDescription
+            {
+                OnSuccess = $"Subscribed to Parameter '{label}'",
+                OnError = $"Failed to subscribe to Parameter '{label}'"
+            };
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the delete-confirmation popup for a
+        /// <see cref="ParameterSubscription" /> belonging to the currently logged-in
+        /// <see cref="DomainOfExpertise" />.
+        /// </summary>
+        public IConfirmCancelPopupViewModel DeleteSubscriptionPopupViewModel { get; }
+
+        /// <summary>
+        /// Opens the delete-confirmation popup for the supplied <see cref="ParameterSubscription" />,
+        /// captures the subscription as the deletion target, and composes a content message that makes it
+        /// explicit only the subscription is removed — the parent <see cref="Parameter" /> is kept. No-op
+        /// when the subscription is null or its container is not a <see cref="Parameter" />.
+        /// </summary>
+        /// <param name="subscription">The <see cref="ParameterSubscription" /> the user requested to delete.</param>
+        public void OpenDeleteSubscriptionPopup(ParameterSubscription subscription)
+        {
+            if (subscription is null || subscription.Container is not Parameter parentParameter)
+            {
+                return;
+            }
+
+            this.selectedSubscriptionToDelete = subscription;
+
+            var parameterTypeName = parentParameter.ParameterType?.Name ?? "Parameter";
+
+            this.DeleteSubscriptionPopupViewModel.ContentText =
+                $"You are about to delete your subscription to Parameter '{parameterTypeName}'. The Parameter itself will not be removed.";
+
+            this.DeleteSubscriptionPopupViewModel.IsVisible = true;
+        }
+
+        /// <summary>
+        /// Performs the deletion of the <see cref="ParameterSubscription" /> captured by
+        /// <see cref="OpenDeleteSubscriptionPopup" /> using
+        /// <see cref="ISessionService.DeleteThingsWithNotification" />. The cloned parent
+        /// <see cref="Parameter" /> is the operation top container but is intentionally kept out of the
+        /// things-to-delete collection — only the cloned subscription is deleted, so the parameter itself
+        /// remains. The visible card refresh is driven by the existing message-bus end-update pipeline.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
+        public async Task DeleteSelectedSubscriptionAsync()
+        {
+            var subscription = this.selectedSubscriptionToDelete;
+
+            if (subscription is null || subscription.Container is not Parameter parentParameter)
+            {
+                this.CloseDeleteSubscriptionPopup();
+                return;
+            }
+
+            try
+            {
+                this.IsLoading = true;
+
+                var clonedParameter = parentParameter.Clone(false);
+                var clonedSubscription = subscription.Clone(false);
+
+                await this.sessionService.DeleteThingsWithNotification(clonedParameter, new[] { (Thing)clonedSubscription }, GetSubscriptionDeletionNotificationDescription(subscription));
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while deleting the ParameterSubscription with iid {Iid}", subscription.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
+                this.CloseDeleteSubscriptionPopup();
+            }
+        }
+
+        /// <summary>
+        /// Closes the delete-subscription popup and clears the captured target.
+        /// </summary>
+        private void CloseDeleteSubscriptionPopup()
+        {
+            this.DeleteSubscriptionPopupViewModel.IsVisible = false;
+            this.selectedSubscriptionToDelete = null;
+        }
+
+        /// <summary>
+        /// Cancellation handler bound to <see cref="DeleteSubscriptionPopupViewModel" />'s
+        /// <see cref="IConfirmCancelPopupViewModel.OnCancel" />.
+        /// </summary>
+        private void OnDeleteSubscriptionCancelled()
+        {
+            this.CloseDeleteSubscriptionPopup();
+        }
+
+        /// <summary>
+        /// Builds a <see cref="NotificationDescription" /> used to surface the success / failure of a
+        /// <see cref="ParameterSubscription" /> deletion through the existing notification pipeline.
+        /// </summary>
+        /// <param name="subscription">The <see cref="ParameterSubscription" /> being deleted.</param>
+        /// <returns>The <see cref="NotificationDescription" /> describing the operation.</returns>
+        private static NotificationDescription GetSubscriptionDeletionNotificationDescription(ParameterSubscription subscription)
+        {
+            var label = subscription.Container is Parameter parentParameter
+                ? parentParameter.ParameterType?.Name ?? "Parameter"
+                : "Parameter";
+
+            return new NotificationDescription
+            {
+                OnSuccess = $"Subscription to Parameter '{label}' deleted",
+                OnError = $"Failed to delete subscription to Parameter '{label}'"
             };
         }
 

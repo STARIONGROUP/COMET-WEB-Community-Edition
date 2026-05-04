@@ -89,18 +89,39 @@
 
     <CardView ScrollableAreaCssClass="cardview-detailspanel-scrollarea" Items="this.ViewModel.Rows" ItemSize="150" MinWidth="280">
         <ItemTemplate>
-            <div class="row">
-                <div class="col-8">
-                    <h6 title="@context.ParameterTypeName" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;"><CardField Context="@context" FieldName="ParameterTypeName"/></h6>
+            <div class="row flex-nowrap align-items-center" style="margin-bottom:2px;">
+                <div class="col-7" style="min-width:0;">
+                    <h6 title="@context.ParameterTypeName" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;margin-bottom:0;"><CardField Context="@context" FieldName="ParameterTypeName"/></h6>
                 </div>
-                <div class="col-4" align="right">
-                    <button class="starion-pill" title="Owning Domain Of Expertise: @context.Owner"><CardField Context="@context" FieldName="Owner" /></button>
+                <div class="col-5 d-flex align-items-center justify-content-end flex-nowrap" style="min-width:0;overflow:hidden;">
+                    <button class="starion-pill"
+                            title="Owning Domain Of Expertise: @context.Owner"
+                            style="min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:1;">
+                        <CardField Context="@context" FieldName="Owner" />
+                    </button>
+                    @if (this.OnCreateSubscription.HasDelegate && context.CanSubscribe)
+                    {
+                        <DxButton IconCssClass="oi oi-bell"
+                                  RenderStyleMode="ButtonRenderStyleMode.Text"
+                                  CssClass="ms-1 flex-shrink-0"
+                                  Click="@(() => this.OnCreateSubscription.InvokeAsync(context.Parameter))"
+                                  title="Subscribe to this Parameter as the current Domain of Expertise"/>
+                    }
+                    else if (this.OnDeleteSubscription.HasDelegate && context.HasCurrentDomainSubscription)
+                    {
+                        <DxButton IconCssClass="oi oi-bell"
+                                  RenderStyle="ButtonRenderStyle.Danger"
+                                  RenderStyleMode="ButtonRenderStyleMode.Text"
+                                  CssClass="ms-1 flex-shrink-0"
+                                  Click="@(() => this.OnDeleteSubscription.InvokeAsync(context.CurrentDomainSubscription))"
+                                  title="Remove this Domain's subscription to the Parameter (the Parameter itself is kept)"/>
+                    }
                     @if (this.OnDeleteParameter.HasDelegate)
                     {
                         <DxButton IconCssClass="oi oi-trash"
                                   RenderStyle="ButtonRenderStyle.Danger"
                                   RenderStyleMode="ButtonRenderStyleMode.Text"
-                                  CssClass="ms-1"
+                                  CssClass="ms-1 flex-shrink-0"
                                   Click="@(() => this.OnDeleteParameter.InvokeAsync(context.Parameter))"
                                   title="Delete this parameter"/>
                     }

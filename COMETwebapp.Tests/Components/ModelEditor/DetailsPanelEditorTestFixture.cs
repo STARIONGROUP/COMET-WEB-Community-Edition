@@ -251,6 +251,157 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         }
 
         [Test]
+        public void VerifySubscribeButtonRendersOnlyWhenCanSubscribeAndCallbackBound()
+        {
+            var element = BuildElementDefinitionWithEverything();
+            this.viewModel.Setup(x => x.SelectedSystemNode).Returns(element);
+
+            var currentDomain = BuildDomain("SYS");
+            var foreignDomain = BuildDomain("PWR");
+
+            var subscribableParameter = BuildParameterOwnedBy(foreignDomain);
+            var ownedParameter = BuildParameterOwnedBy(currentDomain);
+
+            var rowAllowingSubscribe = new ElementDefinitionDetailsRowViewModel(subscribableParameter, currentDomain);
+            var rowOwnedByCurrentDomain = new ElementDefinitionDetailsRowViewModel(ownedParameter, currentDomain);
+
+            this.viewModel.Setup(x => x.Rows).Returns(new List<ElementDefinitionDetailsRowViewModel> { rowAllowingSubscribe, rowOwnedByCurrentDomain });
+
+            Parameter capturedParameter = null;
+
+            var rendered = this.context.Render<DetailsPanelEditor>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.OnCreateSubscription, EventCallback.Factory.Create<Parameter>(this, p => capturedParameter = p)));
+
+            var subscribeButtons = rendered.FindAll(".oi-bell");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rowAllowingSubscribe.CanSubscribe, Is.True);
+                Assert.That(rowOwnedByCurrentDomain.CanSubscribe, Is.False);
+                Assert.That(subscribeButtons.Count, Is.EqualTo(1),
+                    "Exactly one subscribe button must render — only on the row whose current domain can subscribe.");
+            });
+
+            subscribeButtons[0].Click();
+            Assert.That(capturedParameter, Is.SameAs(subscribableParameter));
+        }
+
+        [Test]
+        public void VerifyUnsubscribeButtonRendersOnlyWhenSubscribedAndCallbackBound()
+        {
+            var element = BuildElementDefinitionWithEverything();
+            this.viewModel.Setup(x => x.SelectedSystemNode).Returns(element);
+
+            var currentDomain = BuildDomain("SYS");
+            var foreignDomain = BuildDomain("PWR");
+
+            var subscribedParameter = BuildParameterOwnedBy(foreignDomain);
+
+            var subscription = new ParameterSubscription { Iid = Guid.NewGuid(), Owner = currentDomain };
+            subscribedParameter.ParameterSubscription.Add(subscription);
+
+            var rowSubscribed = new ElementDefinitionDetailsRowViewModel(subscribedParameter, currentDomain);
+            var rowSubscribable = new ElementDefinitionDetailsRowViewModel(BuildParameterOwnedBy(foreignDomain), currentDomain);
+
+            this.viewModel.Setup(x => x.Rows).Returns(new List<ElementDefinitionDetailsRowViewModel> { rowSubscribed, rowSubscribable });
+
+            ParameterSubscription capturedSubscription = null;
+
+            var rendered = this.context.Render<DetailsPanelEditor>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.OnDeleteSubscription, EventCallback.Factory.Create<ParameterSubscription>(this, s => capturedSubscription = s)));
+
+            var bellButtons = rendered.FindAll(".oi-bell");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rowSubscribed.HasCurrentDomainSubscription, Is.True);
+                Assert.That(rowSubscribable.HasCurrentDomainSubscription, Is.False);
+                Assert.That(bellButtons.Count, Is.EqualTo(1),
+                    "Only the subscribed row must render an unsubscribe (bell) button when only OnDeleteSubscription is bound.");
+            });
+
+            bellButtons[0].Click();
+            Assert.That(capturedSubscription, Is.SameAs(subscription));
+        }
+
+        [Test]
+        public void VerifySubscribeAndUnsubscribeAreMutuallyExclusivePerCard()
+        {
+            var element = BuildElementDefinitionWithEverything();
+            this.viewModel.Setup(x => x.SelectedSystemNode).Returns(element);
+
+            var currentDomain = BuildDomain("SYS");
+            var foreignDomain = BuildDomain("PWR");
+
+            var subscribedParameter = BuildParameterOwnedBy(foreignDomain);
+            subscribedParameter.ParameterSubscription.Add(new ParameterSubscription { Iid = Guid.NewGuid(), Owner = currentDomain });
+
+            var rowSubscribed = new ElementDefinitionDetailsRowViewModel(subscribedParameter, currentDomain);
+
+            this.viewModel.Setup(x => x.Rows).Returns(new List<ElementDefinitionDetailsRowViewModel> { rowSubscribed });
+
+            var rendered = this.context.Render<DetailsPanelEditor>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.OnCreateSubscription, EventCallback.Factory.Create<Parameter>(this, _ => { }))
+                .Add(p => p.OnDeleteSubscription, EventCallback.Factory.Create<ParameterSubscription>(this, _ => { })));
+
+            var bellButtons = rendered.FindAll(".oi-bell");
+
+            Assert.That(bellButtons.Count, Is.EqualTo(1),
+                "Subscribe and unsubscribe affordances must never both render on the same card — the if/else if branch enforces this.");
+        }
+
+        /// <summary>
+        /// Builds a <see cref="DomainOfExpertise" /> with the supplied short name.
+        /// </summary>
+        private static DomainOfExpertise BuildDomain(string shortName)
+        {
+            return new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = shortName, Name = shortName };
+        }
+
+        /// <summary>
+        /// Builds a <see cref="Parameter" /> owned by the supplied <see cref="DomainOfExpertise" />. The
+        /// parameter is placed inside a fresh <see cref="ElementDefinition" /> container because
+        /// <see cref="Parameter.ModelCode" /> requires a container to be set.
+        /// </summary>
+        private static Parameter BuildParameterOwnedBy(DomainOfExpertise owner)
+        {
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+
+            var parameter = new Parameter
+            {
+                Iid = Guid.NewGuid(),
+                Owner = owner,
+                ParameterType = parameterType
+            };
+
+            parameter.ValueSet.Add(new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                Manual = new CDP4Common.Types.ValueArray<string>(["1"]),
+                Computed = new CDP4Common.Types.ValueArray<string>(["1"]),
+                Reference = new CDP4Common.Types.ValueArray<string>(["-"]),
+                Formula = new CDP4Common.Types.ValueArray<string>(["-"]),
+                Published = new CDP4Common.Types.ValueArray<string>(["1"]),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            });
+
+            var containingDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Container",
+                ShortName = "CONT",
+                Owner = owner
+            };
+
+            containingDefinition.Parameter.Add(parameter);
+
+            return parameter;
+        }
+
+        [Test]
         public void VerifyElementUsageInheritsCategoriesFromDefinition()
         {
             var owner = new DomainOfExpertise { ShortName = "SYS", Name = "System" };

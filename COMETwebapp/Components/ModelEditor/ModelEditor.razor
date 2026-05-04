@@ -106,6 +106,8 @@
                 </div>
                 <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"
                                     OnDeleteParameter="@(parameter => this.ViewModel.OpenDeleteParameterPopup(parameter))"
+                                    OnCreateSubscription="@(parameter => this.ViewModel.OpenCreateSubscriptionPopup(parameter))"
+                                    OnDeleteSubscription="@(subscription => this.ViewModel.OpenDeleteSubscriptionPopup(subscription))"
                                     OnEditElement="@this.ViewModel.OpenEditElementPopup"
                                     OnDeleteElement="@this.ViewModel.OpenDeleteElementPopup"
                                     DisableDelete="@this.ViewModel.IsSelectedElementTopElement"/>
@@ -133,6 +135,10 @@
     <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteElementPopupViewModel"/>
 
     <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteParameterPopupViewModel"/>
+
+    <ConfirmCancelPopup ViewModel="@this.ViewModel.CreateSubscriptionPopupViewModel"/>
+
+    <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteSubscriptionPopupViewModel"/>
 
     <DxPopup CloseOnOutsideClick="false"
              HeaderText="@(this.ViewModel.SelectedElement is ElementUsage ? "Edit Element Usage" : "Edit Element Definition")"
