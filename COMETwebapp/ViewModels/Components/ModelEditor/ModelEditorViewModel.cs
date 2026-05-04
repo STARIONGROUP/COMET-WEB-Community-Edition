@@ -42,6 +42,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
     using COMETwebapp.ViewModels.Components.ModelEditor.CopySettings;
+    using COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionViewModel;
+    using COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewModel;
     using COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreationViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
@@ -115,6 +117,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         private bool isOnDeletionMode;
 
         /// <summary>
+        /// Backing field for <see cref="IsOnEditMode" />.
+        /// </summary>
+        private bool isOnEditMode;
+
+        /// <summary>
         /// The <see cref="Parameter" /> the user requested to delete, captured when
         /// <see cref="OpenDeleteParameterPopup" /> is invoked and consumed by
         /// <see cref="DeleteSelectedParameterAsync" />.
@@ -168,6 +175,16 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedParameterAsync)
             };
 
+            this.EditElementDefinitionViewModel = new EditElementDefinitionViewModel.EditElementDefinitionViewModel(sessionService, messageBus)
+            {
+                OnValidSubmit = eventCallbackFactory.Create(this, this.EditElementDefinitionAsync)
+            };
+
+            this.EditElementUsageViewModel = new EditElementUsageViewModel.EditElementUsageViewModel(sessionService, messageBus)
+            {
+                OnValidSubmit = eventCallbackFactory.Create(this, this.EditElementUsageAsync)
+            };
+
             this.InitializeSubscriptions([typeof(ElementBase)]);
 
             this.Disposables.Add(
@@ -197,6 +214,16 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// Gets the <see cref="IElementDefinitionCreationViewModel" />
         /// </summary>
         public IElementDefinitionCreationViewModel ElementDefinitionCreationViewModel { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="IEditElementDefinitionViewModel" /> driving the edit-Element-Definition popup.
+        /// </summary>
+        public IEditElementDefinitionViewModel EditElementDefinitionViewModel { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IEditElementUsageViewModel" /> driving the edit-Element-Usage popup.
+        /// </summary>
+        public IEditElementUsageViewModel EditElementUsageViewModel { get; }
 
         /// <summary>
         /// Gets the <see cref="IAddParameterViewModel" />
@@ -310,6 +337,16 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         {
             get => this.isOnDeletionMode;
             set => this.RaiseAndSetIfChanged(ref this.isOnDeletionMode, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user is currently editing
+        /// <see cref="SelectedElement" /> through the edit-Element popup.
+        /// </summary>
+        public bool IsOnEditMode
+        {
+            get => this.isOnEditMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnEditMode, value);
         }
 
         /// <summary>
@@ -540,6 +577,152 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             {
                 OnSuccess = $"Parameter '{label}' deleted",
                 OnError = $"Failed to delete Parameter '{label}'"
+            };
+        }
+
+        /// <summary>
+        /// Opens the edit-Element popup for <see cref="SelectedElement" />, initializing whichever child
+        /// view model corresponds to the kind of selection (<see cref="ElementDefinition" /> or
+        /// <see cref="ElementUsage" />) with deep clones of the target so the form mutates a private copy.
+        /// </summary>
+        public void OpenEditElementPopup()
+        {
+            switch (this.SelectedElement)
+            {
+                case ElementDefinition elementDefinition:
+                {
+                    var iteration = elementDefinition.GetContainerOfType<Iteration>();
+                    this.EditElementDefinitionViewModel.InitializeViewModel((ElementDefinition)elementDefinition.Clone(true), iteration);
+                    this.IsOnEditMode = true;
+                    break;
+                }
+
+                case ElementUsage elementUsage:
+                {
+                    var iteration = elementUsage.GetContainerOfType<Iteration>();
+                    this.EditElementUsageViewModel.InitializeViewModel((ElementUsage)elementUsage.Clone(false), iteration);
+                    this.IsOnEditMode = true;
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Performs the edit of the selected <see cref="ElementDefinition" /> using the working clones held
+        /// by <see cref="EditElementDefinitionViewModel" />. Promotes the cloned definition to the
+        /// iteration's <see cref="Iteration.TopElement" /> when the user opted in via the popup. Always
+        /// closes the popup.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous edit operation.</returns>
+        public async Task EditElementDefinitionAsync()
+        {
+            var clonedElementDefinition = this.EditElementDefinitionViewModel.ElementDefinition;
+            var originalIteration = this.EditElementDefinitionViewModel.Iteration;
+
+            if (clonedElementDefinition is null || originalIteration is null)
+            {
+                this.CloseEditElementPopup();
+                return;
+            }
+
+            try
+            {
+                this.IsLoading = true;
+
+                clonedElementDefinition.Category = this.EditElementDefinitionViewModel.SelectedCategories.ToList();
+
+                var clonedIteration = originalIteration.Clone(false);
+
+                if (this.EditElementDefinitionViewModel.IsTopElement && clonedIteration.TopElement?.Iid != clonedElementDefinition.Iid)
+                {
+                    clonedIteration.TopElement = clonedElementDefinition;
+                }
+
+                var thingsToUpdate = new List<Thing> { clonedIteration, clonedElementDefinition };
+                thingsToUpdate.AddRange(clonedElementDefinition.Definition);
+
+                await this.sessionService.CreateOrUpdateThingsWithNotification(clonedIteration, thingsToUpdate, GetElementDefinitionEditNotificationDescription(clonedElementDefinition));
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while editing the Element Definition with iid {Iid}", clonedElementDefinition.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
+                this.CloseEditElementPopup();
+            }
+        }
+
+        /// <summary>
+        /// Performs the edit of the selected <see cref="ElementUsage" /> using the working clone held by
+        /// <see cref="EditElementUsageViewModel" />. Always closes the popup.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous edit operation.</returns>
+        public async Task EditElementUsageAsync()
+        {
+            var clonedElementUsage = this.EditElementUsageViewModel.ElementUsage;
+
+            if (clonedElementUsage is null || this.SelectedElement is not ElementUsage originalElementUsage)
+            {
+                this.CloseEditElementPopup();
+                return;
+            }
+
+            try
+            {
+                this.IsLoading = true;
+
+                var clonedContainer = originalElementUsage.Container.Clone(false);
+
+                await this.sessionService.CreateOrUpdateThingsWithNotification(clonedContainer, new[] { (Thing)clonedElementUsage }, GetElementUsageEditNotificationDescription(clonedElementUsage));
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while editing the Element Usage with iid {Iid}", clonedElementUsage.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
+                this.CloseEditElementPopup();
+            }
+        }
+
+        /// <summary>
+        /// Closes the edit-Element popup.
+        /// </summary>
+        private void CloseEditElementPopup()
+        {
+            this.IsOnEditMode = false;
+        }
+
+        /// <summary>
+        /// Builds a <see cref="NotificationDescription" /> used to surface the success / failure of an
+        /// <see cref="ElementDefinition" /> edit through the existing notification pipeline.
+        /// </summary>
+        /// <param name="elementDefinition">The <see cref="ElementDefinition" /> being edited.</param>
+        /// <returns>The <see cref="NotificationDescription" /> describing the operation.</returns>
+        private static NotificationDescription GetElementDefinitionEditNotificationDescription(ElementDefinition elementDefinition)
+        {
+            return new NotificationDescription
+            {
+                OnSuccess = $"Element Definition '{elementDefinition.Name}' updated",
+                OnError = $"Failed to update Element Definition '{elementDefinition.Name}'"
+            };
+        }
+
+        /// <summary>
+        /// Builds a <see cref="NotificationDescription" /> used to surface the success / failure of an
+        /// <see cref="ElementUsage" /> edit through the existing notification pipeline.
+        /// </summary>
+        /// <param name="elementUsage">The <see cref="ElementUsage" /> being edited.</param>
+        /// <returns>The <see cref="NotificationDescription" /> describing the operation.</returns>
+        private static NotificationDescription GetElementUsageEditNotificationDescription(ElementUsage elementUsage)
+        {
+            return new NotificationDescription
+            {
+                OnSuccess = $"Element Usage '{elementUsage.Name}' updated",
+                OnError = $"Failed to update Element Usage '{elementUsage.Name}'"
             };
         }
 

@@ -34,6 +34,8 @@ namespace COMETwebapp.Tests.Components.ModelEditor
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
+    using Microsoft.AspNetCore.Components;
+
     using Moq;
 
     using NUnit.Framework;
@@ -168,6 +170,83 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             {
                 Assert.That(markup, Does.Contain("cardview-detailspanel-summary"), "Summary card must still render.");
                 Assert.That(markup, Does.Not.Contain("border-top:1px dotted darkgray"), "Definition row marker must not appear when Definition is empty.");
+            });
+        }
+
+        [Test]
+        public void VerifyEditButtonRendersWhenCallbackBound()
+        {
+            var element = BuildElementDefinitionWithEverything();
+            this.viewModel.Setup(x => x.SelectedSystemNode).Returns(element);
+
+            var editInvoked = false;
+
+            var rendered = this.context.Render<DetailsPanelEditor>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.OnEditElement, EventCallback.Factory.Create(this, () => editInvoked = true)));
+
+            Assert.That(rendered.Markup, Does.Contain("oi-pencil"), "Edit button must render when OnEditElement is bound.");
+
+            rendered.Find("#editElement").Click();
+            Assert.That(editInvoked, Is.True, "Clicking Edit must invoke the OnEditElement callback.");
+        }
+
+        [Test]
+        public void VerifyDeleteButtonRendersWhenCallbackBound()
+        {
+            var element = BuildElementDefinitionWithEverything();
+            this.viewModel.Setup(x => x.SelectedSystemNode).Returns(element);
+
+            var deleteInvoked = false;
+
+            var rendered = this.context.Render<DetailsPanelEditor>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.OnDeleteElement, EventCallback.Factory.Create(this, () => deleteInvoked = true)));
+
+            Assert.That(rendered.Markup, Does.Contain("oi-trash"), "Delete button must render when OnDeleteElement is bound.");
+
+            rendered.Find("#deleteElement").Click();
+            Assert.That(deleteInvoked, Is.True, "Clicking Delete must invoke the OnDeleteElement callback.");
+        }
+
+        [Test]
+        public void VerifyDeleteButtonDisabledWhenDisableDeleteTrue()
+        {
+            var element = BuildElementDefinitionWithEverything();
+            this.viewModel.Setup(x => x.SelectedSystemNode).Returns(element);
+
+            var deleteInvoked = false;
+
+            var rendered = this.context.Render<DetailsPanelEditor>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.OnDeleteElement, EventCallback.Factory.Create(this, () => deleteInvoked = true))
+                .Add(p => p.DisableDelete, true));
+
+            var deleteButton = rendered.Find("#deleteElement");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(deleteButton.GetAttribute("disabled"), Is.Not.Null,
+                    "Delete button must render disabled when DisableDelete is true (e.g. selection is the top element).");
+                Assert.That(deleteButton.GetAttribute("title"), Does.Contain("top element"),
+                    "Tooltip must mention the top-element rule when delete is disabled.");
+            });
+
+            Assert.That(deleteInvoked, Is.False, "Disabled Delete button must not invoke the callback even if rendered.");
+        }
+
+        [Test]
+        public void VerifyEditAndDeleteButtonsHiddenWhenCallbacksUnbound()
+        {
+            var element = BuildElementDefinitionWithEverything();
+            this.viewModel.Setup(x => x.SelectedSystemNode).Returns(element);
+
+            var rendered = this.context.Render<DetailsPanelEditor>(parameters => parameters.Add(p => p.ViewModel, this.viewModel.Object));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rendered.Markup, Does.Not.Contain("oi-pencil"), "Edit button must not render when OnEditElement is unbound.");
+                Assert.That(rendered.Markup, Does.Not.Contain("id=\"deleteElement\""), "Delete button must not render when OnDeleteElement is unbound.");
             });
         }
 
