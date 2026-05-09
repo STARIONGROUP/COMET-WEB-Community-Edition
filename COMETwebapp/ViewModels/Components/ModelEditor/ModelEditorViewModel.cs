@@ -144,6 +144,35 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         private ParameterSubscription selectedSubscriptionToDelete;
 
         /// <summary>
+        /// The <see cref="ElementUsage" /> currently selected in the Model Editor tree (or <c>null</c> when
+        /// the selection is an <see cref="ElementDefinition" />). Captured during
+        /// <see cref="SelectElement" /> so that the rendered <see cref="ElementDefinitionDetailsRowViewModel" />
+        /// rows can compute override-related affordances against the host usage.
+        /// </summary>
+        private ElementUsage selectedHostElementUsage;
+
+        /// <summary>
+        /// The <see cref="Parameter" /> the user requested to override, captured when
+        /// <see cref="OpenCreateOverridePopup" /> is invoked and consumed by
+        /// <see cref="CreateOverrideAsync" />.
+        /// </summary>
+        private Parameter selectedParameterToOverride;
+
+        /// <summary>
+        /// The <see cref="ElementUsage" /> on which the user requested to create a
+        /// <see cref="ParameterOverride" />, captured alongside <see cref="selectedParameterToOverride" />
+        /// when <see cref="OpenCreateOverridePopup" /> is invoked.
+        /// </summary>
+        private ElementUsage selectedHostUsageForOverride;
+
+        /// <summary>
+        /// The <see cref="ParameterOverride" /> the user requested to delete, captured when
+        /// <see cref="OpenDeleteOverridePopup" /> is invoked and consumed by
+        /// <see cref="DeleteSelectedOverrideAsync" />.
+        /// </summary>
+        private ParameterOverride selectedOverrideToDelete;
+
+        /// <summary>
         /// Creates a new instance of <see cref="ModelEditorViewModel" />
         /// </summary>
         /// <param name="sessionService">the <see cref="ISessionService" /></param>
@@ -206,6 +235,24 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 CancelRenderStyle = ButtonRenderStyle.Secondary,
                 OnCancel = eventCallbackFactory.Create(this, this.OnDeleteSubscriptionCancelled),
                 OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedSubscriptionAsync)
+            };
+
+            this.CreateOverridePopupViewModel = new ConfirmCancelPopupViewModel
+            {
+                HeaderText = "Create Parameter Override",
+                ConfirmRenderStyle = ButtonRenderStyle.Primary,
+                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                OnCancel = eventCallbackFactory.Create(this, this.OnCreateOverrideCancelled),
+                OnConfirm = eventCallbackFactory.Create(this, this.CreateOverrideAsync)
+            };
+
+            this.DeleteOverridePopupViewModel = new ConfirmCancelPopupViewModel
+            {
+                HeaderText = "Delete Parameter Override",
+                ConfirmRenderStyle = ButtonRenderStyle.Danger,
+                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                OnCancel = eventCallbackFactory.Create(this, this.OnDeleteOverrideCancelled),
+                OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedOverrideAsync)
             };
 
             this.EditElementDefinitionViewModel = new EditElementDefinitionViewModel.EditElementDefinitionViewModel(sessionService, messageBus)
@@ -348,7 +395,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 _ => null
             };
 
-            this.ElementDefinitionDetailsViewModel.Rows = this.SelectedElementDefinition?.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x, this.CurrentDomain)).ToList();
+            this.selectedHostElementUsage = selectedElementBase as ElementUsage;
+
+            this.ElementDefinitionDetailsViewModel.Rows = this.SelectedElementDefinition?.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x, this.CurrentDomain, this.selectedHostElementUsage)).ToList();
             this.AddParameterViewModel.SetSelectedElementDefinition(this.SelectedElementDefinition);
         }
 
@@ -563,7 +612,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 {
                     this.ElementDefinitionDetailsViewModel.Rows = this.SelectedElementDefinition.Parameter
                         .Where(x => x.Iid != parameter.Iid)
-                        .Select(x => new ElementDefinitionDetailsRowViewModel(x, this.CurrentDomain))
+                        .Select(x => new ElementDefinitionDetailsRowViewModel(x, this.CurrentDomain, this.selectedHostElementUsage))
                         .ToList();
                 }
             }
@@ -855,6 +904,241 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             {
                 OnSuccess = $"Subscription to Parameter '{label}' deleted",
                 OnError = $"Failed to delete subscription to Parameter '{label}'"
+            };
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the create-confirmation popup for a
+        /// new <see cref="ParameterOverride" /> on the currently selected <see cref="ElementUsage" /> by the
+        /// currently logged-in <see cref="DomainOfExpertise" />.
+        /// </summary>
+        public IConfirmCancelPopupViewModel CreateOverridePopupViewModel { get; }
+
+        /// <summary>
+        /// Opens the create-confirmation popup for the supplied <see cref="Parameter" /> on the supplied
+        /// <see cref="ElementUsage" />, captures both as the override target, and composes a content message
+        /// that names the parameter, the host usage, and the current <see cref="DomainOfExpertise" />. No-op
+        /// when there is no current domain, no host usage, or no parameter — none of which admit override
+        /// creation.
+        /// </summary>
+        /// <param name="parameter">The <see cref="Parameter" /> the user requested to override.</param>
+        /// <param name="hostElementUsage">
+        /// The <see cref="ElementUsage" /> on which the new <see cref="ParameterOverride" /> will be created.
+        /// </param>
+        public void OpenCreateOverridePopup(Parameter parameter, ElementUsage hostElementUsage)
+        {
+            if (parameter is null || hostElementUsage is null || this.CurrentDomain is null)
+            {
+                return;
+            }
+
+            this.selectedParameterToOverride = parameter;
+            this.selectedHostUsageForOverride = hostElementUsage;
+
+            var parameterTypeName = parameter.ParameterType?.Name ?? "Parameter";
+            var usageLabel = string.IsNullOrWhiteSpace(hostElementUsage.Name) ? hostElementUsage.ShortName : hostElementUsage.Name;
+
+            this.CreateOverridePopupViewModel.ContentText =
+                $"You are about to override Parameter '{parameterTypeName}' on Element Usage '{usageLabel}' as Domain '{this.CurrentDomain.ShortName}'.";
+
+            this.CreateOverridePopupViewModel.IsVisible = true;
+        }
+
+        /// <summary>
+        /// Performs the creation of a new <see cref="ParameterOverride" /> for the parameter and host usage
+        /// captured by <see cref="OpenCreateOverridePopup" /> using
+        /// <see cref="ISessionService.CreateOrUpdateThingsWithNotification" />. The cloned host
+        /// <see cref="ElementUsage" /> is the operation top container; the new override is added to its
+        /// <see cref="ElementUsage.ParameterOverride" /> collection. Per the IME's flow, the matching
+        /// <see cref="ParameterOverrideValueSet" /> instances are generated server-side and are not included
+        /// in the things-to-create collection. The visible card refresh is driven by the existing
+        /// end-update / session-refreshed pipeline that already reaches <see cref="OnSessionRefreshed" />.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous create operation.</returns>
+        public async Task CreateOverrideAsync()
+        {
+            var parameter = this.selectedParameterToOverride;
+            var hostUsage = this.selectedHostUsageForOverride;
+
+            if (parameter is null || hostUsage is null || this.CurrentDomain is null)
+            {
+                this.CloseCreateOverridePopup();
+                return;
+            }
+
+            try
+            {
+                this.IsLoading = true;
+
+                var clonedUsage = hostUsage.Clone(false);
+
+                var parameterOverride = new ParameterOverride
+                {
+                    Iid = Guid.NewGuid(),
+                    Parameter = parameter,
+                    Owner = this.CurrentDomain
+                };
+
+                clonedUsage.ParameterOverride.Add(parameterOverride);
+
+                await this.sessionService.CreateOrUpdateThingsWithNotification(clonedUsage, new[] { (Thing)clonedUsage, parameterOverride }, GetOverrideCreationNotificationDescription(parameter, hostUsage));
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while creating a ParameterOverride on Element Usage with iid {Iid} for Parameter with iid {ParameterIid}", hostUsage.Iid, parameter.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
+                this.CloseCreateOverridePopup();
+            }
+        }
+
+        /// <summary>
+        /// Closes the create-override popup and clears the captured target.
+        /// </summary>
+        private void CloseCreateOverridePopup()
+        {
+            this.CreateOverridePopupViewModel.IsVisible = false;
+            this.selectedParameterToOverride = null;
+            this.selectedHostUsageForOverride = null;
+        }
+
+        /// <summary>
+        /// Cancellation handler bound to <see cref="CreateOverridePopupViewModel" />'s
+        /// <see cref="IConfirmCancelPopupViewModel.OnCancel" />.
+        /// </summary>
+        private void OnCreateOverrideCancelled()
+        {
+            this.CloseCreateOverridePopup();
+        }
+
+        /// <summary>
+        /// Builds a <see cref="NotificationDescription" /> used to surface the success / failure of a
+        /// <see cref="ParameterOverride" /> creation through the existing notification pipeline.
+        /// </summary>
+        /// <param name="parameter">The source <see cref="Parameter" /> being overridden.</param>
+        /// <param name="hostElementUsage">The host <see cref="ElementUsage" /> on which the override is created.</param>
+        /// <returns>The <see cref="NotificationDescription" /> describing the operation.</returns>
+        private static NotificationDescription GetOverrideCreationNotificationDescription(Parameter parameter, ElementUsage hostElementUsage)
+        {
+            var parameterLabel = parameter.ParameterType?.Name ?? "Parameter";
+            var usageLabel = string.IsNullOrWhiteSpace(hostElementUsage.Name) ? hostElementUsage.ShortName : hostElementUsage.Name;
+
+            return new NotificationDescription
+            {
+                OnSuccess = $"Override of Parameter '{parameterLabel}' created on Element Usage '{usageLabel}'",
+                OnError = $"Failed to create override of Parameter '{parameterLabel}' on Element Usage '{usageLabel}'"
+            };
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the delete-confirmation popup for a
+        /// <see cref="ParameterOverride" /> on the currently selected <see cref="ElementUsage" />.
+        /// </summary>
+        public IConfirmCancelPopupViewModel DeleteOverridePopupViewModel { get; }
+
+        /// <summary>
+        /// Opens the delete-confirmation popup for the supplied <see cref="ParameterOverride" />, captures
+        /// the override as the deletion target, and composes a content message that makes it explicit only
+        /// the override is removed — the source <see cref="Parameter" /> on the contained
+        /// <see cref="ElementDefinition" /> is kept. No-op when the override is null or its container is not
+        /// an <see cref="ElementUsage" />.
+        /// </summary>
+        /// <param name="parameterOverride">The <see cref="ParameterOverride" /> the user requested to delete.</param>
+        public void OpenDeleteOverridePopup(ParameterOverride parameterOverride)
+        {
+            if (parameterOverride is null || parameterOverride.Container is not ElementUsage hostUsage)
+            {
+                return;
+            }
+
+            this.selectedOverrideToDelete = parameterOverride;
+
+            var parameterTypeName = parameterOverride.Parameter?.ParameterType?.Name ?? "Parameter";
+            var usageLabel = string.IsNullOrWhiteSpace(hostUsage.Name) ? hostUsage.ShortName : hostUsage.Name;
+
+            this.DeleteOverridePopupViewModel.ContentText =
+                $"You are about to delete the override of Parameter '{parameterTypeName}' on Element Usage '{usageLabel}'. The Parameter on the Element Definition is not affected.";
+
+            this.DeleteOverridePopupViewModel.IsVisible = true;
+        }
+
+        /// <summary>
+        /// Performs the deletion of the <see cref="ParameterOverride" /> captured by
+        /// <see cref="OpenDeleteOverridePopup" /> using
+        /// <see cref="ISessionService.DeleteThingsWithNotification" />. The cloned parent
+        /// <see cref="ElementUsage" /> is the operation top container but is intentionally kept out of the
+        /// things-to-delete collection — only the cloned override is deleted, so the source
+        /// <see cref="Parameter" /> on the contained <see cref="ElementDefinition" /> remains. The visible
+        /// card refresh is driven by the existing message-bus end-update pipeline.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
+        public async Task DeleteSelectedOverrideAsync()
+        {
+            var parameterOverride = this.selectedOverrideToDelete;
+
+            if (parameterOverride is null || parameterOverride.Container is not ElementUsage hostUsage)
+            {
+                this.CloseDeleteOverridePopup();
+                return;
+            }
+
+            try
+            {
+                this.IsLoading = true;
+
+                var clonedUsage = hostUsage.Clone(false);
+                var clonedOverride = parameterOverride.Clone(false);
+
+                await this.sessionService.DeleteThingsWithNotification(clonedUsage, new[] { (Thing)clonedOverride }, GetOverrideDeletionNotificationDescription(parameterOverride));
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while deleting the ParameterOverride with iid {Iid}", parameterOverride.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
+                this.CloseDeleteOverridePopup();
+            }
+        }
+
+        /// <summary>
+        /// Closes the delete-override popup and clears the captured target.
+        /// </summary>
+        private void CloseDeleteOverridePopup()
+        {
+            this.DeleteOverridePopupViewModel.IsVisible = false;
+            this.selectedOverrideToDelete = null;
+        }
+
+        /// <summary>
+        /// Cancellation handler bound to <see cref="DeleteOverridePopupViewModel" />'s
+        /// <see cref="IConfirmCancelPopupViewModel.OnCancel" />.
+        /// </summary>
+        private void OnDeleteOverrideCancelled()
+        {
+            this.CloseDeleteOverridePopup();
+        }
+
+        /// <summary>
+        /// Builds a <see cref="NotificationDescription" /> used to surface the success / failure of a
+        /// <see cref="ParameterOverride" /> deletion through the existing notification pipeline.
+        /// </summary>
+        /// <param name="parameterOverride">The <see cref="ParameterOverride" /> being deleted.</param>
+        /// <returns>The <see cref="NotificationDescription" /> describing the operation.</returns>
+        private static NotificationDescription GetOverrideDeletionNotificationDescription(ParameterOverride parameterOverride)
+        {
+            var parameterLabel = parameterOverride.Parameter?.ParameterType?.Name ?? "Parameter";
+            var usageLabel = parameterOverride.Container is ElementUsage hostUsage
+                ? string.IsNullOrWhiteSpace(hostUsage.Name) ? hostUsage.ShortName : hostUsage.Name
+                : "Element Usage";
+
+            return new NotificationDescription
+            {
+                OnSuccess = $"Override of Parameter '{parameterLabel}' on Element Usage '{usageLabel}' deleted",
+                OnError = $"Failed to delete override of Parameter '{parameterLabel}' on Element Usage '{usageLabel}'"
             };
         }
 
@@ -1157,7 +1441,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed()
         {
-            this.SelectElement(this.SelectedElementDefinition);
+            this.SelectElement(this.SelectedElement ?? this.SelectedElementDefinition);
             return Task.CompletedTask;
         }
 

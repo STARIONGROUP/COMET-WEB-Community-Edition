@@ -116,6 +116,23 @@
                                   Click="@(() => this.OnDeleteSubscription.InvokeAsync(context.CurrentDomainSubscription))"
                                   title="Remove this Domain's subscription to the Parameter (the Parameter itself is kept)"/>
                     }
+                    @if (this.OnCreateOverride.HasDelegate && context.CanCreateOverride)
+                    {
+                        <DxButton IconCssClass="oi oi-fork"
+                                  RenderStyleMode="ButtonRenderStyleMode.Text"
+                                  CssClass="ms-1 flex-shrink-0"
+                                  Click="@(() => this.OnCreateOverride.InvokeAsync((context.Parameter, context.HostElementUsage)))"
+                                  title="Override this Parameter on the selected Element Usage"/>
+                    }
+                    else if (this.OnDeleteOverride.HasDelegate && context.HasOverride)
+                    {
+                        <DxButton IconCssClass="oi oi-fork"
+                                  RenderStyle="ButtonRenderStyle.Danger"
+                                  RenderStyleMode="ButtonRenderStyleMode.Text"
+                                  CssClass="ms-1 flex-shrink-0"
+                                  Click="@(() => this.OnDeleteOverride.InvokeAsync(context.CurrentOverride))"
+                                  title="Delete this override (the underlying Parameter is preserved)"/>
+                    }
                     @if (this.OnDeleteParameter.HasDelegate)
                     {
                         <DxButton IconCssClass="oi oi-trash"

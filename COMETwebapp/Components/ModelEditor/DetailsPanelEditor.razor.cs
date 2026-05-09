@@ -68,6 +68,26 @@ namespace COMETwebapp.Components.ModelEditor
 		public EventCallback<ParameterSubscription> OnDeleteSubscription { get; set; }
 
 		/// <summary>
+		///     Optional callback invoked when the user clicks the per-card create-override affordance for a
+		///     <see cref="Parameter" /> on the currently selected <see cref="ElementUsage" />. The tuple
+		///     payload carries both the source <see cref="Parameter" /> and the host
+		///     <see cref="ElementUsage" /> on which the new <see cref="ParameterOverride" /> is to be created.
+		///     When unset, the create-override affordance is not rendered.
+		/// </summary>
+		[Parameter]
+		public EventCallback<(Parameter Parameter, ElementUsage HostUsage)> OnCreateOverride { get; set; }
+
+		/// <summary>
+		///     Optional callback invoked when the user clicks the per-card delete-override affordance to
+		///     remove an existing <see cref="ParameterOverride" /> from the currently selected
+		///     <see cref="ElementUsage" />. The source <see cref="Parameter" /> on the contained
+		///     <see cref="ElementDefinition" /> is preserved by the consumer of this callback. When unset,
+		///     the delete-override affordance is not rendered.
+		/// </summary>
+		[Parameter]
+		public EventCallback<ParameterOverride> OnDeleteOverride { get; set; }
+
+		/// <summary>
 		///     Optional callback invoked when the user clicks the Edit affordance on the summary card.
 		///     When unset, the Edit button is not rendered.
 		/// </summary>

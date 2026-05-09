@@ -76,25 +76,45 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ElementDefinitionDetailsRowViewModel" /> class without
-        /// any subscription awareness. Used by callers that do not need to expose subscribe/unsubscribe
-        /// affordances on the rendered card.
+        /// any subscription or override awareness. Used by callers that do not need to expose
+        /// subscribe/unsubscribe or override affordances on the rendered card.
         /// </summary>
         /// <param name="parameter">The <see cref="Parameter" /> to project as a row.</param>
-        public ElementDefinitionDetailsRowViewModel(Parameter parameter) : this(parameter, null)
+        public ElementDefinitionDetailsRowViewModel(Parameter parameter) : this(parameter, null, null)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ElementDefinitionDetailsRowViewModel" /> class for the
         /// supplied <see cref="Parameter" />, computing subscription-related flags relative to
-        /// <paramref name="currentDomain" />.
+        /// <paramref name="currentDomain" />. The card has no override awareness.
         /// </summary>
         /// <param name="parameter">The <see cref="Parameter" /> to project as a row.</param>
         /// <param name="currentDomain">
         /// The currently logged-in <see cref="DomainOfExpertise" />, or <c>null</c> when subscription
         /// awareness is not required by the caller.
         /// </param>
-        public ElementDefinitionDetailsRowViewModel(Parameter parameter, DomainOfExpertise currentDomain)
+        public ElementDefinitionDetailsRowViewModel(Parameter parameter, DomainOfExpertise currentDomain) : this(parameter, currentDomain, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ElementDefinitionDetailsRowViewModel" /> class for the
+        /// supplied <see cref="Parameter" />, computing both subscription-related flags relative to
+        /// <paramref name="currentDomain" /> and override-related flags relative to
+        /// <paramref name="hostElementUsage" />.
+        /// </summary>
+        /// <param name="parameter">The <see cref="Parameter" /> to project as a row.</param>
+        /// <param name="currentDomain">
+        /// The currently logged-in <see cref="DomainOfExpertise" />, or <c>null</c> when subscription
+        /// awareness is not required by the caller.
+        /// </param>
+        /// <param name="hostElementUsage">
+        /// The <see cref="ElementUsage" /> currently selected in the Model Editor tree on which a
+        /// <see cref="ParameterOverride" /> may exist or be created, or <c>null</c> when the selected node is
+        /// the <see cref="ElementDefinition" /> itself (in which case override affordances are suppressed).
+        /// </param>
+        public ElementDefinitionDetailsRowViewModel(Parameter parameter, DomainOfExpertise currentDomain, ElementUsage hostElementUsage)
         {
             this.ParameterTypeName = parameter.ParameterType.Name;
             this.ShortName = parameter.ParameterType.ShortName;
@@ -106,12 +126,34 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
             this.HasCurrentDomainSubscription = this.CurrentDomainSubscription != null;
             this.CanSubscribe = currentDomain != null && !this.IsOwnedByCurrentDomain && !this.HasCurrentDomainSubscription;
 
+            this.HostElementUsage = hostElementUsage;
+            this.CurrentOverride = hostElementUsage?.ParameterOverride.FirstOrDefault(po => po.Parameter != null && po.Parameter.Iid == parameter.Iid);
+            this.HasOverride = this.CurrentOverride != null;
+            this.CanCreateOverride = hostElementUsage != null
+                                     && currentDomain != null
+                                     && !this.HasOverride
+                                     && (this.IsOwnedByCurrentDomain || parameter.AllowDifferentOwnerOfOverride);
+
             var sourceValueSet = parameter.ValueSet.FirstOrDefault();
             var subscriptionValueSet = this.HasCurrentDomainSubscription
                 ? this.CurrentDomainSubscription.ValueSet.FirstOrDefault()
                 : null;
+            var overrideValueSet = this.HasOverride
+                ? this.CurrentOverride.ValueSet.FirstOrDefault(ovs => sourceValueSet != null && ovs.ParameterValueSet != null && ovs.ParameterValueSet.Iid == sourceValueSet.Iid)
+                  ?? this.CurrentOverride.ValueSet.FirstOrDefault()
+                : null;
 
-            if (subscriptionValueSet != null)
+            if (overrideValueSet != null)
+            {
+                this.ActualValue = overrideValueSet.ActualValue.AsCommaSeparated();
+                this.SwitchValue = overrideValueSet.ValueSwitch.ToString();
+
+                if (overrideValueSet.ActualValue.Count > 1)
+                {
+                    this.ActualValue = "{" + this.ActualValue + "}";
+                }
+            }
+            else if (subscriptionValueSet != null)
             {
                 this.ActualValue = subscriptionValueSet.ActualValue.AsCommaSeparated();
                 this.SwitchValue = subscriptionValueSet.ValueSwitch.ToString();
@@ -145,7 +187,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
                 this.PublishedValue += " [" + parameter.Scale.ShortName + "]";
             }
 
-            this.Owner = parameter.Owner.ShortName;
+            this.Owner = this.HasOverride && this.CurrentOverride.Owner != null
+                ? this.CurrentOverride.Owner.ShortName
+                : parameter.Owner.ShortName;
 
             this.ModelCode = parameter.ModelCode();
             this.Parameter = parameter;
@@ -249,5 +293,35 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
         /// parameter is owned by another domain, and no subscription already exists for the current domain.
         /// </summary>
         public bool CanSubscribe { get; }
+
+        /// <summary>
+        /// Gets the <see cref="ElementUsage" /> currently selected in the Model Editor tree on which the
+        /// override affordances apply, or <c>null</c> when the selected node is the
+        /// <see cref="ElementDefinition" /> itself (in which case override affordances are suppressed).
+        /// </summary>
+        public ElementUsage HostElementUsage { get; }
+
+        /// <summary>
+        /// Gets the <see cref="ParameterOverride" /> on <see cref="HostElementUsage" /> whose
+        /// <see cref="ParameterOverride.Parameter" /> matches the row's underlying <see cref="Parameter" />,
+        /// or <c>null</c> when no such override exists. Surfaced so the rendering component can hand it to a
+        /// delete-override callback.
+        /// </summary>
+        public ParameterOverride CurrentOverride { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether a <see cref="ParameterOverride" /> for the underlying
+        /// <see cref="Parameter" /> already exists on the <see cref="HostElementUsage" />.
+        /// </summary>
+        public bool HasOverride { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the currently logged-in <see cref="DomainOfExpertise" /> can
+        /// create a <see cref="ParameterOverride" /> on <see cref="HostElementUsage" /> for the underlying
+        /// <see cref="Parameter" /> — i.e. a host usage and current domain are known, no override yet exists,
+        /// and either the current domain owns the parameter or
+        /// <see cref="ParameterBase.AllowDifferentOwnerOfOverride" /> is <c>true</c>.
+        /// </summary>
+        public bool CanCreateOverride { get; }
     }
 }
