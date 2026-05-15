@@ -744,5 +744,160 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()),
                 Times.Never);
         }
+
+        [Test]
+        public void VerifyOpenCreateOverridePopupComposesContent()
+        {
+            this.viewModel.OpenCreateOverridePopup(this.parameter, this.elementUsage);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CreateOverridePopupViewModel.IsVisible, Is.True);
+                Assert.That(this.viewModel.CreateOverridePopupViewModel.ContentText, Does.Contain(this.parameter.ParameterType.Name));
+                Assert.That(this.viewModel.CreateOverridePopupViewModel.ContentText, Does.Contain(this.elementUsage.Name));
+                Assert.That(this.viewModel.CreateOverridePopupViewModel.ContentText, Does.Contain(this.currentDomain.ShortName));
+            });
+        }
+
+        [Test]
+        public void VerifyOpenCreateOverridePopupNullParameterIsNoOp()
+        {
+            this.viewModel.OpenCreateOverridePopup(null, this.elementUsage);
+
+            Assert.That(this.viewModel.CreateOverridePopupViewModel.IsVisible, Is.False);
+        }
+
+        [Test]
+        public void VerifyOpenCreateOverridePopupNullHostUsageIsNoOp()
+        {
+            this.viewModel.OpenCreateOverridePopup(this.parameter, null);
+
+            Assert.That(this.viewModel.CreateOverridePopupViewModel.IsVisible, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyCreateOverrideCallsSessionServiceWithExpectedPayload()
+        {
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Ok());
+
+            this.viewModel.OpenCreateOverridePopup(this.parameter, this.elementUsage);
+            await this.viewModel.CreateOverrideAsync();
+
+            this.sessionService.Verify(
+                x => x.CreateOrUpdateThingsWithNotification(
+                    It.Is<Thing>(t => t is ElementUsage && t.Iid == this.elementUsage.Iid),
+                    It.Is<IReadOnlyCollection<Thing>>(c =>
+                        c.OfType<ElementUsage>().Any(u => u.Iid == this.elementUsage.Iid)
+                        && c.OfType<ParameterOverride>().Any(po => po.Owner != null && po.Owner.Iid == this.currentDomain.Iid && po.Parameter != null && po.Parameter.Iid == this.parameter.Iid)
+                        && !c.OfType<ParameterOverrideValueSet>().Any()),
+                    It.IsAny<NotificationDescription>()),
+                Times.Once);
+
+            Assert.That(this.viewModel.CreateOverridePopupViewModel.IsVisible, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyCreateOverrideWithoutTargetIsNoOp()
+        {
+            await this.viewModel.CreateOverrideAsync();
+
+            this.sessionService.Verify(
+                x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()),
+                Times.Never);
+        }
+
+        [Test]
+        public void VerifyOpenDeleteOverridePopupComposesContent()
+        {
+            var parameterOverride = new ParameterOverride
+            {
+                Iid = Guid.NewGuid(),
+                Parameter = this.parameter,
+                Owner = this.currentDomain
+            };
+
+            this.elementUsage.ParameterOverride.Add(parameterOverride);
+
+            this.viewModel.OpenDeleteOverridePopup(parameterOverride);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.DeleteOverridePopupViewModel.IsVisible, Is.True);
+                Assert.That(this.viewModel.DeleteOverridePopupViewModel.ContentText, Does.Contain(this.parameter.ParameterType.Name));
+                Assert.That(this.viewModel.DeleteOverridePopupViewModel.ContentText, Does.Contain(this.elementUsage.Name));
+                Assert.That(this.viewModel.DeleteOverridePopupViewModel.ContentText, Does.Contain("not affected"),
+                    "Popup must make it explicit that the source Parameter on the contained ElementDefinition is preserved.");
+            });
+        }
+
+        [Test]
+        public void VerifyOpenDeleteOverridePopupNullIsNoOp()
+        {
+            this.viewModel.OpenDeleteOverridePopup(null);
+
+            Assert.That(this.viewModel.DeleteOverridePopupViewModel.IsVisible, Is.False);
+        }
+
+        [Test]
+        public void VerifyOpenDeleteOverridePopupOrphanIsNoOp()
+        {
+            var orphanOverride = new ParameterOverride
+            {
+                Iid = Guid.NewGuid(),
+                Parameter = this.parameter,
+                Owner = this.currentDomain
+            };
+
+            this.viewModel.OpenDeleteOverridePopup(orphanOverride);
+
+            Assert.That(this.viewModel.DeleteOverridePopupViewModel.IsVisible, Is.False,
+                "An override whose Container is not an ElementUsage cannot be safely deleted from this flow.");
+        }
+
+        [Test]
+        public async Task VerifyDeleteOverrideDoesNotIncludeParentUsageOrSourceParameterInDeleteList()
+        {
+            var parameterOverride = new ParameterOverride
+            {
+                Iid = Guid.NewGuid(),
+                Parameter = this.parameter,
+                Owner = this.currentDomain
+            };
+
+            this.elementUsage.ParameterOverride.Add(parameterOverride);
+
+            this.sessionService
+                .Setup(x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Ok());
+
+            this.viewModel.OpenDeleteOverridePopup(parameterOverride);
+            await this.viewModel.DeleteSelectedOverrideAsync();
+
+            this.sessionService.Verify(
+                x => x.DeleteThingsWithNotification(
+                    It.Is<Thing>(t => t is ElementUsage && t.Iid == this.elementUsage.Iid),
+                    It.Is<IReadOnlyCollection<Thing>>(c =>
+                        c.Count == 1
+                        && c.Single() is ParameterOverride
+                        && c.Single().Iid == parameterOverride.Iid
+                        && !c.OfType<Parameter>().Any()
+                        && !c.OfType<ElementUsage>().Any()),
+                    It.IsAny<NotificationDescription>()),
+                Times.Once);
+
+            Assert.That(this.viewModel.DeleteOverridePopupViewModel.IsVisible, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyDeleteOverrideWithoutTargetIsNoOp()
+        {
+            await this.viewModel.DeleteSelectedOverrideAsync();
+
+            this.sessionService.Verify(
+                x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()),
+                Times.Never);
+        }
     }
 }

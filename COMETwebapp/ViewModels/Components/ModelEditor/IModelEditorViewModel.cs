@@ -245,6 +245,59 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         Task DeleteSelectedSubscriptionAsync();
 
         /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the create-confirmation popup for a
+        /// new <see cref="ParameterOverride" /> on the currently selected <see cref="ElementUsage" /> by the
+        /// currently logged-in <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" />.
+        /// </summary>
+        IConfirmCancelPopupViewModel CreateOverridePopupViewModel { get; }
+
+        /// <summary>
+        /// Opens the create-confirmation popup for a <see cref="ParameterOverride" /> on the supplied
+        /// <see cref="ElementUsage" /> for the supplied <see cref="Parameter" />. Composes a content message
+        /// that names the parameter, the host usage, and the current domain. No-op when no current domain,
+        /// host usage, or parameter is provided.
+        /// </summary>
+        /// <param name="parameter">The <see cref="Parameter" /> the user wants to override.</param>
+        /// <param name="hostElementUsage">
+        /// The <see cref="ElementUsage" /> on which the new <see cref="ParameterOverride" /> will be created.
+        /// </param>
+        void OpenCreateOverridePopup(Parameter parameter, ElementUsage hostElementUsage);
+
+        /// <summary>
+        /// Performs the creation of the <see cref="ParameterOverride" /> previously captured by
+        /// <see cref="OpenCreateOverridePopup" /> via the session service. Always closes the popup. The
+        /// matching <see cref="ParameterOverrideValueSet" /> instances are generated server-side, so they
+        /// are not included in the things-to-create collection. The visible card refresh is driven by the
+        /// existing message-bus end-update / session-refreshed pipeline, not by mutating the rows here.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous create operation.</returns>
+        Task CreateOverrideAsync();
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the delete-confirmation popup for a
+        /// <see cref="ParameterOverride" /> on the currently selected <see cref="ElementUsage" />.
+        /// </summary>
+        IConfirmCancelPopupViewModel DeleteOverridePopupViewModel { get; }
+
+        /// <summary>
+        /// Opens the delete-confirmation popup for a <see cref="ParameterOverride" />. Composes a content
+        /// message that makes it explicit only the override is removed — the source <see cref="Parameter" />
+        /// on the contained <see cref="ElementDefinition" /> is kept.
+        /// </summary>
+        /// <param name="parameterOverride">The <see cref="ParameterOverride" /> the user wants to delete.</param>
+        void OpenDeleteOverridePopup(ParameterOverride parameterOverride);
+
+        /// <summary>
+        /// Performs the deletion of the <see cref="ParameterOverride" /> previously captured by
+        /// <see cref="OpenDeleteOverridePopup" /> via the session service. The parent
+        /// <see cref="ElementUsage" /> is used as the operation top container but is never included in the
+        /// things-to-delete collection, so the source <see cref="Parameter" /> on the contained
+        /// <see cref="ElementDefinition" /> stays. Always closes the popup.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
+        Task DeleteSelectedOverrideAsync();
+
+        /// <summary>
         /// Gets the <see cref="IEditElementDefinitionViewModel" /> driving the edit-Element-Definition popup.
         /// </summary>
         IEditElementDefinitionViewModel EditElementDefinitionViewModel { get; }

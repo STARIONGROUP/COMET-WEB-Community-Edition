@@ -108,6 +108,8 @@
                                     OnDeleteParameter="@(parameter => this.ViewModel.OpenDeleteParameterPopup(parameter))"
                                     OnCreateSubscription="@(parameter => this.ViewModel.OpenCreateSubscriptionPopup(parameter))"
                                     OnDeleteSubscription="@(subscription => this.ViewModel.OpenDeleteSubscriptionPopup(subscription))"
+                                    OnCreateOverride="@(args => this.ViewModel.OpenCreateOverridePopup(args.Parameter, args.HostUsage))"
+                                    OnDeleteOverride="@(parameterOverride => this.ViewModel.OpenDeleteOverridePopup(parameterOverride))"
                                     OnEditElement="@this.ViewModel.OpenEditElementPopup"
                                     OnDeleteElement="@this.ViewModel.OpenDeleteElementPopup"
                                     DisableDelete="@this.ViewModel.IsSelectedElementTopElement"/>
@@ -139,6 +141,10 @@
     <ConfirmCancelPopup ViewModel="@this.ViewModel.CreateSubscriptionPopupViewModel"/>
 
     <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteSubscriptionPopupViewModel"/>
+
+    <ConfirmCancelPopup ViewModel="@this.ViewModel.CreateOverridePopupViewModel"/>
+
+    <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteOverridePopupViewModel"/>
 
     <DxPopup CloseOnOutsideClick="false"
              HeaderText="@(this.ViewModel.SelectedElement is ElementUsage ? "Edit Element Usage" : "Edit Element Definition")"

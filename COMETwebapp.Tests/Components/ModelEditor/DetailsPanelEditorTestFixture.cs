@@ -432,5 +432,154 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                     "ElementUsage must surface the referenced ElementDefinition's categories via GetAllCategories().");
             });
         }
+
+        [Test]
+        public void VerifyCreateOverrideButtonRendersOnlyWhenCanCreateOverrideAndCallbackBound()
+        {
+            var summary = BuildElementDefinitionWithEverything();
+            this.viewModel.Setup(x => x.SelectedSystemNode).Returns(summary);
+
+            var currentDomain = BuildDomain("SYS");
+            var hostUsage = BuildHostUsageOwnedBy(currentDomain);
+
+            var ownedParameter = BuildParameterOwnedBy(currentDomain);
+            var rowAllowingOverride = new ElementDefinitionDetailsRowViewModel(ownedParameter, currentDomain, hostUsage);
+            var rowWithoutHostUsage = new ElementDefinitionDetailsRowViewModel(ownedParameter, currentDomain);
+
+            this.viewModel.Setup(x => x.Rows).Returns(new List<ElementDefinitionDetailsRowViewModel> { rowAllowingOverride, rowWithoutHostUsage });
+
+            (Parameter Parameter, ElementUsage HostUsage) capturedArgs = default;
+
+            var rendered = this.context.Render<DetailsPanelEditor>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.OnCreateOverride, EventCallback.Factory.Create<(Parameter Parameter, ElementUsage HostUsage)>(this, args => capturedArgs = args)));
+
+            var forkButtons = rendered.FindAll(".oi-fork");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rowAllowingOverride.CanCreateOverride, Is.True);
+                Assert.That(rowWithoutHostUsage.CanCreateOverride, Is.False);
+                Assert.That(forkButtons.Count, Is.EqualTo(1),
+                    "Exactly one create-override button must render — only on the row whose host ElementUsage is known and override is allowed.");
+            });
+
+            forkButtons[0].Click();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(capturedArgs.Parameter, Is.SameAs(ownedParameter));
+                Assert.That(capturedArgs.HostUsage, Is.SameAs(hostUsage));
+            });
+        }
+
+        [Test]
+        public void VerifyDeleteOverrideButtonRendersOnlyWhenHasOverrideAndCallbackBound()
+        {
+            var summary = BuildElementDefinitionWithEverything();
+            this.viewModel.Setup(x => x.SelectedSystemNode).Returns(summary);
+
+            var currentDomain = BuildDomain("SYS");
+            var hostUsage = BuildHostUsageOwnedBy(currentDomain);
+
+            var ownedParameter = BuildParameterOwnedBy(currentDomain);
+
+            var parameterOverride = new ParameterOverride
+            {
+                Iid = Guid.NewGuid(),
+                Parameter = ownedParameter,
+                Owner = currentDomain
+            };
+
+            hostUsage.ParameterOverride.Add(parameterOverride);
+
+            var anotherParameter = BuildParameterOwnedBy(currentDomain);
+
+            var rowOverridden = new ElementDefinitionDetailsRowViewModel(ownedParameter, currentDomain, hostUsage);
+            var rowOverridable = new ElementDefinitionDetailsRowViewModel(anotherParameter, currentDomain, hostUsage);
+
+            this.viewModel.Setup(x => x.Rows).Returns(new List<ElementDefinitionDetailsRowViewModel> { rowOverridden, rowOverridable });
+
+            ParameterOverride capturedOverride = null;
+
+            var rendered = this.context.Render<DetailsPanelEditor>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.OnDeleteOverride, EventCallback.Factory.Create<ParameterOverride>(this, po => capturedOverride = po)));
+
+            var forkButtons = rendered.FindAll(".oi-fork");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rowOverridden.HasOverride, Is.True);
+                Assert.That(rowOverridable.HasOverride, Is.False);
+                Assert.That(forkButtons.Count, Is.EqualTo(1),
+                    "Only the overridden row must render a delete-override (fork) button when only OnDeleteOverride is bound.");
+            });
+
+            forkButtons[0].Click();
+            Assert.That(capturedOverride, Is.SameAs(parameterOverride));
+        }
+
+        [Test]
+        public void VerifyCreateOverrideAndDeleteOverrideAreMutuallyExclusivePerCard()
+        {
+            var summary = BuildElementDefinitionWithEverything();
+            this.viewModel.Setup(x => x.SelectedSystemNode).Returns(summary);
+
+            var currentDomain = BuildDomain("SYS");
+            var hostUsage = BuildHostUsageOwnedBy(currentDomain);
+
+            var ownedParameter = BuildParameterOwnedBy(currentDomain);
+
+            var parameterOverride = new ParameterOverride
+            {
+                Iid = Guid.NewGuid(),
+                Parameter = ownedParameter,
+                Owner = currentDomain
+            };
+
+            hostUsage.ParameterOverride.Add(parameterOverride);
+
+            var rowOverridden = new ElementDefinitionDetailsRowViewModel(ownedParameter, currentDomain, hostUsage);
+
+            this.viewModel.Setup(x => x.Rows).Returns(new List<ElementDefinitionDetailsRowViewModel> { rowOverridden });
+
+            var rendered = this.context.Render<DetailsPanelEditor>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.OnCreateOverride, EventCallback.Factory.Create<(Parameter Parameter, ElementUsage HostUsage)>(this, _ => { }))
+                .Add(p => p.OnDeleteOverride, EventCallback.Factory.Create<ParameterOverride>(this, _ => { })));
+
+            var forkButtons = rendered.FindAll(".oi-fork");
+
+            Assert.That(forkButtons.Count, Is.EqualTo(1),
+                "Create-override and delete-override affordances must never both render on the same card — the if/else if branch enforces this.");
+        }
+
+        /// <summary>
+        /// Builds an <see cref="ElementUsage" /> typed by a fresh <see cref="ElementDefinition" /> so it can
+        /// host <see cref="ParameterOverride" /> instances for tests that need a host usage with a known
+        /// owner.
+        /// </summary>
+        /// <param name="owner">The <see cref="DomainOfExpertise" /> that owns the usage.</param>
+        /// <returns>The built <see cref="ElementUsage" />.</returns>
+        private static ElementUsage BuildHostUsageOwnedBy(DomainOfExpertise owner)
+        {
+            var elementDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid(),
+                Name = "HostDef",
+                ShortName = "HDF",
+                Owner = owner
+            };
+
+            return new ElementUsage
+            {
+                Iid = Guid.NewGuid(),
+                Name = "HostUsage",
+                ShortName = "HUS",
+                Owner = owner,
+                ElementDefinition = elementDefinition
+            };
+        }
     }
 }
