@@ -1,27 +1,33 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2026 Starion Group S.A.
 //
-//     This file is part of CDP4-COMET WEB Community Edition
-//      The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//    This file is part of CDP4-COMET WEB Community Edition
+//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 //
-//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//     modify it under the terms of the GNU Affero General Public
-//     License as published by the Free Software Foundation; either
-//     version 3 of the License, or (at your option) any later version.
+//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
 //
-//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//     but WITHOUT ANY WARRANTY; without even the implied warranty of
-//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-//     Affero General Public License for more details.
+//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
 //
-//     You should have received a copy of the GNU Affero General Public License
-//     along with this program. If not, see http://www.gnu.org/licenses/.
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMET.Web.Common.Extensions
+@using CDP4Common.EngineeringModelData
+@using COMETwebapp.Components.Common
+@using COMETwebapp.Utilities
+@using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
+@using Microsoft.JSInterop
 @inherits DisposableComponent
 
 @if (this.ViewModel.SelectedSystemNode != null)
 {
+    @* ── Summary card ── *@
     <div class="card cardview-detailspanel-summary mb-2" style="padding:8px;">
         <div class="row" style="margin-bottom:4px;">
             <div class="col-7">
@@ -33,9 +39,19 @@
             </div>
             <div class="col-5" align="right">
                 <button class="starion-pill"
-                        title="Owning Domain Of Expertise: @this.ViewModel.SelectedSystemNode.Owner.ShortName">
+                        title="Owning Domain Of Expertise: @this.ViewModel.SelectedSystemNode.Owner.ShortName"
+                        style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{this.ViewModel.SelectedSystemNode.Owner.ShortName}") !important;">
                     @this.ViewModel.SelectedSystemNode.Owner.ShortName
                 </button>
+                @if (this.OnEditDefinition.HasDelegate && this.ViewModel.SelectedSystemNode is ElementUsage)
+                {
+                    <DxButton Id="editDefinition"
+                              IconCssClass="oi oi-box"
+                              RenderStyleMode="ButtonRenderStyleMode.Text"
+                              CssClass="ms-1"
+                              Click="@(() => this.OnEditDefinition.InvokeAsync())"
+                              title="Edit Element Definition"/>
+                }
                 @if (this.OnEditElement.HasDelegate)
                 {
                     <DxButton Id="editElement"
@@ -43,7 +59,7 @@
                               RenderStyleMode="ButtonRenderStyleMode.Text"
                               CssClass="ms-1"
                               Click="@(() => this.OnEditElement.InvokeAsync())"
-                              title="Edit the selected element"/>
+                              title="@(this.ViewModel.SelectedSystemNode is ElementUsage ? "Edit Element Usage" : "Edit Element Definition")"/>
                 }
                 @if (this.OnDeleteElement.HasDelegate)
                 {
@@ -67,7 +83,7 @@
                 <div class="col-12">
                     @foreach (var category in categories)
                     {
-                        <button class="starion-pill" title="Category: @category.Name" style="margin-right:4px;">
+                        <button class="starion-pill" title="Category: @category.Name" style="margin-right:4px; background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;">
                             @category.Name
                         </button>
                     }
@@ -87,85 +103,51 @@
         }
     </div>
 
-    <CardView ScrollableAreaCssClass="cardview-detailspanel-scrollarea" Items="this.ViewModel.Rows" ItemSize="150" MinWidth="280">
-        <ItemTemplate>
-            <div class="row flex-nowrap align-items-center" style="margin-bottom:2px;">
-                <div class="col-7" style="min-width:0;">
-                    <h6 title="@context.ParameterTypeName" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;margin-bottom:0;"><CardField Context="@context" FieldName="ParameterTypeName"/></h6>
-                </div>
-                <div class="col-5 d-flex align-items-center justify-content-end flex-nowrap" style="min-width:0;overflow:hidden;">
-                    <button class="starion-pill"
-                            title="Owning Domain Of Expertise: @context.Owner"
-                            style="min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:1;">
-                        <CardField Context="@context" FieldName="Owner" />
-                    </button>
-                    @if (this.OnCreateSubscription.HasDelegate && context.CanSubscribe)
-                    {
-                        <DxButton IconCssClass="oi oi-bell"
-                                  RenderStyleMode="ButtonRenderStyleMode.Text"
-                                  CssClass="ms-1 flex-shrink-0"
-                                  Click="@(() => this.OnCreateSubscription.InvokeAsync(context.Parameter))"
-                                  title="Subscribe to this Parameter as the current Domain of Expertise"/>
-                    }
-                    else if (this.OnDeleteSubscription.HasDelegate && context.HasCurrentDomainSubscription)
-                    {
-                        <DxButton IconCssClass="oi oi-bell"
-                                  RenderStyle="ButtonRenderStyle.Danger"
-                                  RenderStyleMode="ButtonRenderStyleMode.Text"
-                                  CssClass="ms-1 flex-shrink-0"
-                                  Click="@(() => this.OnDeleteSubscription.InvokeAsync(context.CurrentDomainSubscription))"
-                                  title="Remove this Domain's subscription to the Parameter (the Parameter itself is kept)"/>
-                    }
-                    @if (this.OnCreateOverride.HasDelegate && context.CanCreateOverride)
-                    {
-                        <DxButton IconCssClass="oi oi-fork"
-                                  RenderStyleMode="ButtonRenderStyleMode.Text"
-                                  CssClass="ms-1 flex-shrink-0"
-                                  Click="@(() => this.OnCreateOverride.InvokeAsync((context.Parameter, context.HostElementUsage)))"
-                                  title="Override this Parameter on the selected Element Usage"/>
-                    }
-                    else if (this.OnDeleteOverride.HasDelegate && context.HasOverride)
-                    {
-                        <DxButton IconCssClass="oi oi-fork"
-                                  RenderStyle="ButtonRenderStyle.Danger"
-                                  RenderStyleMode="ButtonRenderStyleMode.Text"
-                                  CssClass="ms-1 flex-shrink-0"
-                                  Click="@(() => this.OnDeleteOverride.InvokeAsync(context.CurrentOverride))"
-                                  title="Delete this override (the underlying Parameter is preserved)"/>
-                    }
-                    @if (this.OnDeleteParameter.HasDelegate)
-                    {
-                        <DxButton IconCssClass="oi oi-trash"
-                                  RenderStyle="ButtonRenderStyle.Danger"
-                                  RenderStyleMode="ButtonRenderStyleMode.Text"
-                                  CssClass="ms-1 flex-shrink-0"
-                                  Click="@(() => this.OnDeleteParameter.InvokeAsync(context.Parameter))"
-                                  title="Delete this parameter"/>
-                    }
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;" title="@context.ModelCode">
-                    <CardField Context="@context" FieldName="ModelCode" />
-                </div>
-            </div>
-            <div class="row" style="border-top:1px dotted darkgray;margin-top:8px;padding-top:8px;">
-                <div class="col-6">
-                    <span>
-                        <button class="starion-pill" title="Actual Value's Value Switch: @context.SwitchValue"><CardField Context="@context" FieldName="SwitchValue" /></button>
-                    </span>
-                    <span>Actual:</span>
-                </div>
-                <div class="col-6">
-                    Published:
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-6" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;" title="Actual Value: @context.ActualValue">
-                    <CardField Context="@context" FieldName="ActualValue" />
-                </div>
-                <div class="col-6" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;" title="Published Value: @context.PublishedValue"><CardField Context="@context" FieldName="PublishedValue" /></div>
-            </div>
-        </ItemTemplate>
-    </CardView>
+    @* ── Search toolbar ── *@
+    <div class="param-group-search-bar mb-2">
+        <span class="oi oi-magnifying-glass param-group-search-icon" aria-hidden="true"></span>
+        <DxTextBox @bind-Text="@this.SearchTerm"
+                   BindValueMode="BindValueMode.OnInput"
+                   NullText="Search parameters…"
+                   CssClass="param-group-search-input"/>
+    </div>
+
+    @* ── Collapsible grouped parameter sections ── *@
+    <div class="param-groups-container" @ref="this.groupsContainer">
+        @foreach (var group in this.TopLevelGroups)
+        {
+            <ParameterGroupSection Group="@group"
+                                   AllRows="@this.AllRows"
+                                   AllGroups="@this.AvailableParameterGroups"
+                                   SearchTerm="@this.SearchTerm"
+                                   Level="0"
+                                   OnDeleteParameter="this.OnDeleteParameter"
+                                   OnCreateSubscription="this.OnCreateSubscription"
+                                   OnDeleteSubscription="this.OnDeleteSubscription"
+                                   OnCreateOverride="this.OnCreateOverride"
+                                   OnDeleteOverride="this.OnDeleteOverride"
+                                   OnCardDragStart="this.OnCardDragStartCallback"
+                                   OnCardDragEnd="this.OnCardDragEndCallback"
+                                   OnSectionDrop="this.HandleSectionDrop"
+                                   OnEditGroup="this.OnEditParameterGroup"
+                                   OnDeleteGroup="this.OnDeleteParameterGroup"
+                                   OnGroupDragStart="this.OnGroupDragStartCallback"
+                                   OnGroupDragEnd="this.OnGroupDragEndCallback"/>
+        }
+        <ParameterGroupSection Group="@((ParameterGroup)null)"
+                               AllRows="@this.AllRows"
+                               AllGroups="@this.AvailableParameterGroups"
+                               SearchTerm="@this.SearchTerm"
+                               Level="0"
+                               OnDeleteParameter="this.OnDeleteParameter"
+                               OnCreateSubscription="this.OnCreateSubscription"
+                               OnDeleteSubscription="this.OnDeleteSubscription"
+                               OnCreateOverride="this.OnCreateOverride"
+                               OnDeleteOverride="this.OnDeleteOverride"
+                               OnCardDragStart="this.OnCardDragStartCallback"
+                               OnCardDragEnd="this.OnCardDragEndCallback"
+                               OnSectionDrop="this.HandleSectionDrop"
+                               OnGroupDragStart="this.OnGroupDragStartCallback"
+                               OnGroupDragEnd="this.OnGroupDragEndCallback"/>
+    </div>
 }

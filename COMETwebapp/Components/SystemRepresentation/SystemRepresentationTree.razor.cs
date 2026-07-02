@@ -53,6 +53,12 @@ namespace COMETwebapp.Components.SystemRepresentation
                     x => x.ViewModel.SelectedFilter,
                     x => x.ViewModel.SearchText)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(
+                    x => x.ViewModel.ShowName,
+                    x => x.ViewModel.ShowOwner,
+                    x => x.ViewModel.ShowCategories)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }
 }

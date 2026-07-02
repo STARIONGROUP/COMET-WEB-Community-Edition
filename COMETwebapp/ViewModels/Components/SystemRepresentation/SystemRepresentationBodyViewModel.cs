@@ -28,14 +28,16 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
-    using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+    using COMETwebapp.ViewModels.Components.Common;
 
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
 
     using ReactiveUI;
 
@@ -45,19 +47,37 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     public class SystemRepresentationBodyViewModel : SingleIterationApplicationBaseViewModel, ISystemRepresentationBodyViewModel
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SingleIterationApplicationBaseViewModel" /> class.
+        /// The <see cref="ILogger{T}" /> used to record exceptions thrown by the drag-and-drop create pipeline.
+        /// </summary>
+        private readonly ILogger<SystemRepresentationBodyViewModel> logger;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SystemRepresentationBodyViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
-        public SystemRepresentationBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
+        /// <param name="detailsPanelViewModel">The <see cref="IElementDetailsPanelViewModel" /> managing the editable element details panel.</param>
+        /// <param name="logger">The <see cref="ILogger{T}" /> used to record drag-and-drop create-pipeline exceptions.</param>
+        public SystemRepresentationBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IElementDetailsPanelViewModel detailsPanelViewModel, ILogger<SystemRepresentationBodyViewModel> logger) : base(sessionService, messageBus)
         {
+            this.logger = logger;
+            this.DetailsPanelViewModel = detailsPanelViewModel;
+            this.DetailsPanelViewModel.AutoAddCreatedDefinitionAsUsage = true;
+
             this.ProductTreeViewModel = new SystemRepresentationTreeViewModel
             {
-                OnClick = new EventCallbackFactory().Create<SystemNodeViewModel>(this, this.SelectElement)
+                OnClick = new EventCallbackFactory().Create<SystemNodeViewModel>(this, this.SelectElement),
+                OnDrop = new EventCallbackFactory().Create<(SystemNodeViewModel From, SystemNodeViewModel To)>(this, this.OnElementDroppedAsync)
             };
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption).Subscribe(_ => this.ApplyFilters()));
-            this.InitializeSubscriptions([typeof(ElementUsage)]);
+            this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption).Subscribe(option =>
+            {
+                this.DetailsPanelViewModel.CurrentOption = option;
+                this.ApplyFilters();
+                this.DetailsPanelViewModel.RefreshSelectedElement();
+            }));
+            this.Disposables.Add(this.WhenAnyValue(x => x.DetailsPanelViewModel.IsLoading).Subscribe(x => this.IsLoading = x));
+            this.InitializeSubscriptions([typeof(ElementUsage), typeof(Parameter), typeof(ParameterOverride), typeof(ParameterSubscription), typeof(ParameterGroup), typeof(ElementDefinition)]);
         }
 
         /// <summary>
@@ -76,30 +96,23 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         public SystemRepresentationTreeViewModel ProductTreeViewModel { get; }
 
         /// <summary>
-        /// The <see cref="IElementDefinitionDetailsViewModel" />
+        /// Gets the <see cref="IElementDetailsPanelViewModel" /> managing the editable element details panel.
         /// </summary>
-        public IElementDefinitionDetailsViewModel ElementDefinitionDetailsViewModel { get; } = new ElementDefinitionDetailsViewModel();
+        public IElementDetailsPanelViewModel DetailsPanelViewModel { get; }
 
         /// <summary>
         /// All <see cref="ElementBase" /> of the iteration
         /// </summary>
-        public List<ElementBase> Elements { get; set; } = new();
+        public List<ElementBase> Elements { get; set; } = [];
 
         /// <summary>
         /// set the selected <see cref="SystemNodeViewModel" />
         /// </summary>
         /// <param name="selectedNode">The selected <see cref="SystemNodeViewModel" /></param>
-        /// <returns>A <see cref="Task" /></returns>
         public void SelectElement(SystemNodeViewModel selectedNode)
         {
-            this.ElementDefinitionDetailsViewModel.SelectedSystemNode = this.Elements.Find(e => e.Iid == selectedNode.Thing.Iid);
-
-            this.ElementDefinitionDetailsViewModel.Rows = this.ElementDefinitionDetailsViewModel.SelectedSystemNode switch
-            {
-                ElementDefinition elementDefinition => elementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
-                ElementUsage elementUsage => elementUsage.ElementDefinition.Parameter.Select(x => new ElementDefinitionDetailsRowViewModel(x)).ToList(),
-                _ => null
-            };
+            var elementBase = this.Elements.Find(e => e.Iid == selectedNode.Thing.Iid);
+            this.DetailsPanelViewModel.SelectElement(elementBase);
         }
 
         /// <summary>
@@ -142,7 +155,45 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             this.Elements.RemoveAll(e => elementsToRemove.Contains(e));
 
             this.InitializeElements();
+            this.Elements = this.Elements.DistinctBy(e => e.Iid).ToList();
             this.ProductTreeViewModel.CreateTree(this.Elements, this.OptionSelector.SelectedOption, new List<ActualFiniteState>());
+        }
+
+        /// <summary>
+        /// Handles a drop event raised by the product tree: creates a new <see cref="ElementUsage" /> of the
+        /// dragged node's <see cref="ElementDefinition" /> under the target node's
+        /// <see cref="ElementDefinition" />.
+        /// </summary>
+        /// <param name="args">
+        /// A tuple whose <c>From</c> member is the dragged <see cref="SystemNodeViewModel" /> and whose
+        /// <c>To</c> member is the drop-target <see cref="SystemNodeViewModel" />.
+        /// </param>
+        /// <returns>A <see cref="Task" /> representing the asynchronous create operation.</returns>
+        private async Task OnElementDroppedAsync((SystemNodeViewModel From, SystemNodeViewModel To) args)
+        {
+            var fromDefinition = args.From.Thing as ElementDefinition ?? (args.From.Thing as ElementUsage)?.ElementDefinition;
+            var toDefinition = args.To.Thing as ElementDefinition ?? (args.To.Thing as ElementUsage)?.ElementDefinition;
+
+            if (fromDefinition is null || toDefinition is null || this.CurrentDomain is null)
+            {
+                return;
+            }
+
+            this.IsLoading = true;
+
+            try
+            {
+                var thingCreator = new ThingCreator();
+                await thingCreator.CreateElementUsageAsync(toDefinition, fromDefinition, this.CurrentDomain, this.SessionService.Session);
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while creating an Element Usage of '{From}' under '{To}' from a drag-and-drop operation", fromDefinition.ShortName, toDefinition.ShortName);
+            }
+            finally
+            {
+                this.IsLoading = false;
+            }
         }
 
         /// <summary>
@@ -158,6 +209,13 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             this.InitializeElements();
             this.ApplyFilters();
             this.IsLoading = false;
+
+            if (this.CurrentThing != null)
+            {
+                this.DetailsPanelViewModel.CurrentDomain = this.CurrentDomain;
+                this.DetailsPanelViewModel.CurrentOption = this.OptionSelector.SelectedOption;
+                this.DetailsPanelViewModel.Initialize(this.CurrentThing);
+            }
         }
 
         /// <summary>
@@ -174,6 +232,21 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
                 this.ApplyFilters();
                 this.IsLoading = false;
             }
+
+            this.DetailsPanelViewModel.CurrentDomain = this.CurrentDomain;
+            this.DetailsPanelViewModel.RefreshSelectedElement();
+        }
+
+        /// <summary>
+        /// Handles the <see cref="COMET.Web.Common.Enumerations.SessionStatus.EndUpdate" /> message received.
+        /// Refreshes the product tree so that a completed write (e.g. add Element Definition with its
+        /// auto-created usage) appears immediately, then refreshes the details panel.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnEndUpdate()
+        {
+            await this.OnSessionRefreshed();
+            this.DetailsPanelViewModel.RefreshSelectedElement();
         }
 
         /// <summary>
@@ -196,11 +269,31 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             this.Elements.AddRange(addedElements);
             this.Elements.RemoveMany(deletedElements);
 
-            this.ProductTreeViewModel.AddElementsToTree(addedElements, this.OptionSelector.SelectedOption, []);
-            this.ProductTreeViewModel.RemoveElementsFromTree(deletedElements);
-            this.ProductTreeViewModel.UpdateElementsFromTree(updatedElements);
+            var selectedOption = this.OptionSelector.SelectedOption;
+            var drawnUsageIids = this.ProductTreeViewModel.RootViewModel.GetFlatListOfDescendants(true)
+                .Where(node => node.Thing != null)
+                .Select(node => node.Thing.Iid)
+                .ToHashSet();
 
-            this.ProductTreeViewModel.RootViewModel.OrderAllDescendantsByShortName();
+            var optionMembershipChanged = updatedElements.Any(usage =>
+            {
+                var excluded = selectedOption != null && usage.ExcludeOption.Any(o => o.Iid == selectedOption.Iid);
+                return excluded == drawnUsageIids.Contains(usage.Iid);
+            });
+
+            if (optionMembershipChanged)
+            {
+                this.ApplyFilters();
+            }
+            else
+            {
+                this.ProductTreeViewModel.AddElementsToTree(addedElements, selectedOption, []);
+                this.ProductTreeViewModel.RemoveElementsFromTree(deletedElements);
+                this.ProductTreeViewModel.UpdateElementsFromTree(updatedElements);
+                this.ProductTreeViewModel.RootViewModel.OrderAllDescendantsByShortName();
+            }
+
+            this.DetailsPanelViewModel.RefreshSelectedElement();
 
             this.ClearRecordedChanges();
             this.IsLoading = false;

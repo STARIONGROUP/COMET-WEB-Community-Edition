@@ -20,20 +20,16 @@
 @inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.SystemRepresentation.ISystemRepresentationBodyViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <div class="row">
-        <div class="col">
-            <div class="width-fit-content">
-                <OptionSelector ViewModel="this.ViewModel.OptionSelector"></OptionSelector>
-            </div>
-        </div>
-    </div>
-
     <div id="gridParent">
         <div id="leftColumn">
+            <div id="option-filter">
+                <OptionSelector ViewModel="this.ViewModel.OptionSelector"/>
+            </div>
             <SystemRepresentationTree ViewModel="this.ViewModel.ProductTreeViewModel" />
         </div>
+        <div id="col-resizer" title="Drag to resize"></div>
         <div id="rightColumn">
-            <ElementDefinitionDetails ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"/>
+            <ElementDetailsPanel ViewModel="this.ViewModel.DetailsPanelViewModel" />
         </div>
     </div>
 </LoadingComponent>

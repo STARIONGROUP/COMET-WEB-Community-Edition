@@ -262,6 +262,44 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation.Rows
         }
 
         [Test]
+        public void VerifyHasOtherDomainSubscriptions()
+        {
+            // No subscriptions → false
+            var rowNoSubs = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain);
+
+            Assert.That(rowNoSubs.HasOtherDomainSubscriptions, Is.False,
+                "A parameter with no subscriptions at all must report HasOtherDomainSubscriptions = false.");
+
+            // Only a current-domain subscription → false (current domain is excluded by definition)
+            var ownSubscription = new ParameterSubscription
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.currentDomain
+            };
+
+            this.parameter.ParameterSubscription.Add(ownSubscription);
+
+            var rowOwnSub = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain);
+
+            Assert.That(rowOwnSub.HasOtherDomainSubscriptions, Is.False,
+                "A subscription owned by the current domain must not count as an 'other domain' subscription.");
+
+            // Add a foreign-domain subscription → true
+            var foreignSubscription = new ParameterSubscription
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.foreignDomain
+            };
+
+            this.parameter.ParameterSubscription.Add(foreignSubscription);
+
+            var rowForeignSub = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain);
+
+            Assert.That(rowForeignSub.HasOtherDomainSubscriptions, Is.True,
+                "A subscription owned by a different domain must cause HasOtherDomainSubscriptions to be true.");
+        }
+
+        [Test]
         public void VerifyOverrideStateWhenAlreadyOverridden()
         {
             this.parameter.Owner = this.currentDomain;
@@ -301,6 +339,232 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation.Rows
                     "ActualValue must come from the override value set when the host usage already has an override.");
                 Assert.That(row.Owner, Is.EqualTo(this.currentDomain.ShortName),
                     "Owner pill must reflect the override owner when an override exists.");
+            });
+        }
+
+        [Test]
+        public void VerifyOtherDomainSubscriptionOwners()
+        {
+            // No foreign subscriptions → empty string
+            var rowNoSubs = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain);
+
+            Assert.That(rowNoSubs.OtherDomainSubscriptionOwners, Is.Empty,
+                "OtherDomainSubscriptionOwners must be an empty string when the parameter has no foreign-domain subscriptions.");
+
+            // Only a current-domain subscription → empty string (own domain excluded)
+            var ownSubscription = new ParameterSubscription
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.currentDomain
+            };
+
+            this.parameter.ParameterSubscription.Add(ownSubscription);
+
+            var rowOwnSub = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain);
+
+            Assert.That(rowOwnSub.OtherDomainSubscriptionOwners, Is.Empty,
+                "OtherDomainSubscriptionOwners must be empty when only the current domain has subscribed.");
+
+            // Add a foreign-domain subscription → short name of that domain
+            var foreignSubscription = new ParameterSubscription
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.foreignDomain
+            };
+
+            this.parameter.ParameterSubscription.Add(foreignSubscription);
+
+            var rowForeignSub = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain);
+
+            Assert.That(rowForeignSub.OtherDomainSubscriptionOwners, Is.EqualTo(this.foreignDomain.ShortName),
+                "OtherDomainSubscriptionOwners must equal the foreign domain's ShortName when it has subscribed.");
+        }
+
+        [Test]
+        public void VerifyGroupName()
+        {
+            // Parameter without a group → GroupName is empty, Group is null
+            var rowNoGroup = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rowNoGroup.Group, Is.Null,
+                    "A parameter not assigned to any group must yield a null Group on the row.");
+                Assert.That(rowNoGroup.GroupName, Is.EqualTo(string.Empty),
+                    "GroupName must be an empty string when the parameter has no group.");
+            });
+
+            // Assign a ParameterGroup and rebuild the row
+            var group = new ParameterGroup { Iid = Guid.NewGuid(), Name = "Thermal" };
+            this.parameter.Group = group;
+
+            var rowWithGroup = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rowWithGroup.Group, Is.SameAs(group),
+                    "Group must be the ParameterGroup that was assigned to the parameter.");
+                Assert.That(rowWithGroup.GroupName, Is.EqualTo("Thermal"),
+                    "GroupName must equal the group's Name when one is assigned.");
+            });
+        }
+
+        [Test]
+        public void VerifyOptionDependentValueSelection()
+        {
+            // Arrange: mark the parameter as option-dependent and add a second value set for a different option.
+            this.parameter.IsOptionDependent = true;
+
+            var optionA = new Option { Iid = Guid.NewGuid(), Name = "Option A", ShortName = "OA" };
+            var optionB = new Option { Iid = Guid.NewGuid(), Name = "Option B", ShortName = "OB" };
+
+            // The existing value set is re-used for optionA.
+            var valueSetA = this.parameter.ValueSet[0];
+            valueSetA.ActualOption = optionA;
+            valueSetA.Manual = new ValueArray<string>(["10"]);
+
+            // Add a second value set for optionB.
+            var valueSetB = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ActualOption = optionB,
+                Manual = new ValueArray<string>(["20"]),
+                Computed = new ValueArray<string>(["20"]),
+                Reference = new ValueArray<string>(["-"]),
+                Formula = new ValueArray<string>(["-"]),
+                Published = new ValueArray<string>(["20"]),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            };
+
+            this.parameter.ValueSet.Add(valueSetB);
+
+            // Act: build the row with optionB selected.
+            var row = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain, null, optionB);
+
+            // Assert: ActualValue must come from valueSetB (value "20"), not valueSetA (value "10").
+            Assert.Multiple(() =>
+            {
+                Assert.That(row.ActualValue, Does.Contain("20"),
+                    "ActualValue must reflect the value set for the selected option (optionB).");
+                Assert.That(row.ActualValue, Does.Not.Contain("10"),
+                    "ActualValue must not show the value for optionA when optionB is selected.");
+            });
+        }
+
+        [Test]
+        public void VerifyIsOptionDependentReflectsParameter()
+        {
+            // Default parameter (IsOptionDependent = false)
+            var rowNotOptionDependent = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain);
+
+            Assert.That(rowNotOptionDependent.IsOptionDependent, Is.False,
+                "IsOptionDependent must be false when the parameter is not option-dependent.");
+
+            // Mark the parameter as option-dependent
+            this.parameter.IsOptionDependent = true;
+            var rowOptionDependent = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain);
+
+            Assert.That(rowOptionDependent.IsOptionDependent, Is.True,
+                "IsOptionDependent must be true when the underlying Parameter.IsOptionDependent is true.");
+        }
+
+        [Test]
+        public void VerifyStateDependentExposesStateValues()
+        {
+            // Arrange: make the parameter state-dependent.
+            // ActualFiniteState.Name is derived — wire PossibleFiniteState entries through
+            // a PossibleFiniteStateList so that GetDerivedName() can resolve them correctly.
+            var possibleStateAlpha = new PossibleFiniteState { Iid = Guid.NewGuid(), Name = "Alpha" };
+            var possibleStateBeta = new PossibleFiniteState { Iid = Guid.NewGuid(), Name = "Beta" };
+
+            var possibleStateList = new PossibleFiniteStateList { Iid = Guid.NewGuid() };
+            possibleStateList.PossibleState.Add(possibleStateAlpha);
+            possibleStateList.PossibleState.Add(possibleStateBeta);
+
+            var stateList = new ActualFiniteStateList { Iid = Guid.NewGuid() };
+            stateList.PossibleFiniteStateList.Add(possibleStateList);
+
+            var stateAlpha = new ActualFiniteState { Iid = Guid.NewGuid() };
+            stateAlpha.PossibleState.Add(possibleStateAlpha);
+            stateList.ActualState.Add(stateAlpha);
+
+            var stateBeta = new ActualFiniteState { Iid = Guid.NewGuid() };
+            stateBeta.PossibleState.Add(possibleStateBeta);
+            stateList.ActualState.Add(stateBeta);
+
+            this.parameter.StateDependence = stateList;
+
+            // Clear the single value set added in SetUp and replace with two state-specific ones.
+            this.parameter.ValueSet.Clear();
+
+            this.parameter.ValueSet.Add(new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ActualState = stateAlpha,
+                Manual = new ValueArray<string>(["1"]),
+                Computed = new ValueArray<string>(["1"]),
+                Reference = new ValueArray<string>(["-"]),
+                Formula = new ValueArray<string>(["-"]),
+                Published = new ValueArray<string>(["1"]),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            });
+
+            this.parameter.ValueSet.Add(new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ActualState = stateBeta,
+                Manual = new ValueArray<string>(["2"]),
+                Computed = new ValueArray<string>(["2"]),
+                Reference = new ValueArray<string>(["-"]),
+                Formula = new ValueArray<string>(["-"]),
+                Published = new ValueArray<string>(["2"]),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            });
+
+            // Act
+            var rowStateDependent = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain, null, null);
+
+            // Assert: IsStateDependent true, StateValues has one entry per state, ordered by name.
+            Assert.Multiple(() =>
+            {
+                Assert.That(rowStateDependent.IsStateDependent, Is.True,
+                    "IsStateDependent must be true when StateDependence is set and value sets carry ActualState.");
+                Assert.That(rowStateDependent.StateValues.Count, Is.EqualTo(2),
+                    "StateValues must contain one entry per ActualFiniteState.");
+                Assert.That(rowStateDependent.StateValues[0].StateName, Is.EqualTo("Alpha"),
+                    "StateValues must be ordered by StateName (Alpha < Beta).");
+                Assert.That(rowStateDependent.StateValues[1].StateName, Is.EqualTo("Beta"));
+            });
+
+            // Non-state-dependent parameter → IsStateDependent false, StateValues empty.
+            var plainParameter = new Parameter
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.foreignDomain,
+                ParameterType = this.parameter.ParameterType
+            };
+
+            plainParameter.ValueSet.Add(new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                Manual = new ValueArray<string>(["42"]),
+                Computed = new ValueArray<string>(["42"]),
+                Reference = new ValueArray<string>(["-"]),
+                Formula = new ValueArray<string>(["-"]),
+                Published = new ValueArray<string>(["42"]),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            });
+
+            this.containingDefinition.Parameter.Add(plainParameter);
+
+            var rowPlain = new ElementDefinitionDetailsRowViewModel(plainParameter, this.currentDomain);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rowPlain.IsStateDependent, Is.False,
+                    "IsStateDependent must be false for a parameter without StateDependence.");
+                Assert.That(rowPlain.StateValues, Is.Empty,
+                    "StateValues must be empty for a non-state-dependent parameter.");
             });
         }
     }

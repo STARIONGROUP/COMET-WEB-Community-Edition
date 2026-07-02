@@ -1,3 +1,61 @@
-﻿.sticky-scrollable-column {
-    max-height: 80vh;
+/* The Model Editor fills the height of the tab content and no longer scrolls as a whole page;
+   the two trees and the details panel each scroll internally (no vh — sized against the
+   #app -> .page (100%) -> #tabs-page-content (flex) chain). */
+.model-editor-root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+::deep .selected-data-item-page {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+::deep .selected-data-item-table {
+    height: 100%;
+    min-height: 0;
+}
+
+/* Tree scroll area fills its (flex-column) column instead of a fixed vh height. */
+::deep .treeview-scrollarea {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+}
+
+::deep .treeview-scrollarea .sticky-scrollable-column {
+    max-height: none;
+}
+
+/* Details panel: a fixed-height flex column so the Add buttons, element summary and parameter
+   search bar stay put and only the parameter groups scroll (mirrors the System Representation panel). */
+::deep .data-items-panel-container.model-editor-details {
+    height: 100%;
+    max-height: 100%;
+    position: static;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+::deep .model-editor-details .data-item-details-section {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+::deep .model-editor-details #panel-action-bar,
+::deep .model-editor-details .cardview-detailspanel-summary,
+::deep .model-editor-details .param-group-search-bar {
+    flex: 0 0 auto;
+}
+
+::deep .model-editor-details .param-groups-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
 }

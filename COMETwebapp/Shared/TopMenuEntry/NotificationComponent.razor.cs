@@ -83,6 +83,11 @@ namespace COMETwebapp.Shared.TopMenuEntry
         /// <returns>A <see cref="Task" /></returns>
         private void DisplayToastNotificationFromResult(ResultNotification resultNotification)
         {
+            if (resultNotification?.NotificationDescription is null)
+            {
+                return;
+            }
+
             var key = $"open{DateTime.Now}";
 
             var notificationConfig = new NotificationConfig { Key = key };

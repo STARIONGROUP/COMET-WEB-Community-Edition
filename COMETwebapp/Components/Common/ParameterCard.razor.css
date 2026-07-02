@@ -1,0 +1,60 @@
+/* ── Individual parameter card ── */
+.parameter-card {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    padding: 10px;
+    background: #ffffff;
+    cursor: grab;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.parameter-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: #adb5bd;
+}
+
+.parameter-card:active {
+    cursor: grabbing;
+}
+
+/* ── Passive "other domain subscribed" bell indicator ── */
+.other-sub-bell {
+    display: inline-flex;
+    align-items: center;
+    color: #d4a017;
+}
+
+.other-sub-bell .oi {
+    font-size: 0.8rem;
+}
+
+/* ── Option-dependent gear icon ── */
+.option-dep-icon {
+    color: #6b7280;
+    font-size: 0.8rem;
+    margin-left: 4px;
+}
+
+/* ── Per-state value breakdown ── */
+.state-values {
+    margin-top: 6px;
+    padding-left: 4px;
+}
+
+.state-value-block {
+    padding: 6px 4px;
+    border-top: 1px dashed #ced4da;
+}
+
+.state-value-block:first-child {
+    border-top: none;
+}
+
+.state-value-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 2px;
+}

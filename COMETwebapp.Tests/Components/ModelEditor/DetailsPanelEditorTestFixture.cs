@@ -61,6 +61,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
 
             this.viewModel = new Mock<IElementDefinitionDetailsViewModel>();
             this.viewModel.Setup(x => x.Rows).Returns(new List<ElementDefinitionDetailsRowViewModel>());
@@ -580,6 +581,72 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 Owner = owner,
                 ElementDefinition = elementDefinition
             };
+        }
+
+        [Test]
+        public void VerifyGroupedLayoutRendersGroupHeaderAndNoPerCardComboBox()
+        {
+            var element = BuildElementDefinitionWithEverything();
+            this.viewModel.Setup(x => x.SelectedSystemNode).Returns(element);
+
+            var owner = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
+
+            var group = new ParameterGroup { Iid = Guid.NewGuid(), Name = "Thermal" };
+
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Temperature", ShortName = "T" };
+
+            var groupedParameter = new Parameter
+            {
+                Iid = Guid.NewGuid(),
+                Owner = owner,
+                ParameterType = parameterType,
+                Group = group
+            };
+
+            groupedParameter.ValueSet.Add(new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                Manual = new CDP4Common.Types.ValueArray<string>(["20"]),
+                Computed = new CDP4Common.Types.ValueArray<string>(["20"]),
+                Reference = new CDP4Common.Types.ValueArray<string>(["-"]),
+                Formula = new CDP4Common.Types.ValueArray<string>(["-"]),
+                Published = new CDP4Common.Types.ValueArray<string>(["20"]),
+                ValueSwitch = CDP4Common.EngineeringModelData.ParameterSwitchKind.MANUAL
+            });
+
+            var ungroupedParameter = BuildParameterOwnedBy(owner);
+
+            var containingDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Parent",
+                ShortName = "PAR",
+                Owner = owner
+            };
+
+            containingDefinition.Parameter.Add(groupedParameter);
+
+            var rowGrouped = new ElementDefinitionDetailsRowViewModel(groupedParameter);
+            var rowUngrouped = new ElementDefinitionDetailsRowViewModel(ungroupedParameter);
+
+            this.viewModel.Setup(x => x.Rows).Returns(new List<ElementDefinitionDetailsRowViewModel> { rowGrouped, rowUngrouped });
+
+            var rendered = this.context.Render<DetailsPanelEditor>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.AvailableParameterGroups, new List<ParameterGroup> { group }));
+
+            var markup = rendered.Markup;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(markup, Does.Contain("Thermal"), "Group section header must render the group name.");
+                Assert.That(markup, Does.Contain("Ungrouped"), "Ungrouped section header must render.");
+                Assert.That(markup, Does.Contain("group-card"), "Group card wrapper must be present.");
+                Assert.That(markup, Does.Contain("group-card-header"), "Group card header element must be present.");
+                Assert.That(markup, Does.Contain("parameter-card"), "Parameter card must be present.");
+                Assert.That(markup, Does.Not.Contain("NullText=\"No group\""), "Per-card group dropdown must not appear.");
+                Assert.That(markup, Does.Not.Contain("cardview-detailspanel-scrollarea"), "Old CardView scroll area must not appear.");
+            });
         }
     }
 }

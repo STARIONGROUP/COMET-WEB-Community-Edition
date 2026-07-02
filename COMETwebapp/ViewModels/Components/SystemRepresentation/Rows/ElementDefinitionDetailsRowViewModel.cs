@@ -24,6 +24,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using COMET.Web.Common.Extensions;
 
@@ -80,7 +81,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
         /// subscribe/unsubscribe or override affordances on the rendered card.
         /// </summary>
         /// <param name="parameter">The <see cref="Parameter" /> to project as a row.</param>
-        public ElementDefinitionDetailsRowViewModel(Parameter parameter) : this(parameter, null, null)
+        public ElementDefinitionDetailsRowViewModel(Parameter parameter) : this(parameter, null, null, null)
         {
         }
 
@@ -94,7 +95,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
         /// The currently logged-in <see cref="DomainOfExpertise" />, or <c>null</c> when subscription
         /// awareness is not required by the caller.
         /// </param>
-        public ElementDefinitionDetailsRowViewModel(Parameter parameter, DomainOfExpertise currentDomain) : this(parameter, currentDomain, null)
+        public ElementDefinitionDetailsRowViewModel(Parameter parameter, DomainOfExpertise currentDomain) : this(parameter, currentDomain, null, null)
         {
         }
 
@@ -102,7 +103,8 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
         /// Initializes a new instance of the <see cref="ElementDefinitionDetailsRowViewModel" /> class for the
         /// supplied <see cref="Parameter" />, computing both subscription-related flags relative to
         /// <paramref name="currentDomain" /> and override-related flags relative to
-        /// <paramref name="hostElementUsage" />.
+        /// <paramref name="hostElementUsage" />. Option filtering is not applied (falls back to the first
+        /// value set), making this equivalent to passing <c>selectedOption: null</c>.
         /// </summary>
         /// <param name="parameter">The <see cref="Parameter" /> to project as a row.</param>
         /// <param name="currentDomain">
@@ -115,8 +117,37 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
         /// the <see cref="ElementDefinition" /> itself (in which case override affordances are suppressed).
         /// </param>
         public ElementDefinitionDetailsRowViewModel(Parameter parameter, DomainOfExpertise currentDomain, ElementUsage hostElementUsage)
+            : this(parameter, currentDomain, hostElementUsage, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ElementDefinitionDetailsRowViewModel" /> class for the
+        /// supplied <see cref="Parameter" />, computing subscription-related flags relative to
+        /// <paramref name="currentDomain" />, override-related flags relative to <paramref name="hostElementUsage" />,
+        /// and option-dependent value selection relative to <paramref name="selectedOption" />.
+        /// State-dependent value sets are exposed via <see cref="StateValues" /> when the parameter's
+        /// <see cref="Parameter.StateDependence" /> is set.
+        /// </summary>
+        /// <param name="parameter">The <see cref="Parameter" /> to project as a row.</param>
+        /// <param name="currentDomain">
+        /// The currently logged-in <see cref="DomainOfExpertise" />, or <c>null</c> when subscription
+        /// awareness is not required by the caller.
+        /// </param>
+        /// <param name="hostElementUsage">
+        /// The <see cref="ElementUsage" /> currently selected in the Model Editor tree on which a
+        /// <see cref="ParameterOverride" /> may exist or be created, or <c>null</c> when the selected node is
+        /// the <see cref="ElementDefinition" /> itself (in which case override affordances are suppressed).
+        /// </param>
+        /// <param name="selectedOption">
+        /// The <see cref="Option" /> currently selected in the product tree, or <c>null</c> when option-filtering
+        /// is not required (the first available value set is used in that case).
+        /// </param>
+        public ElementDefinitionDetailsRowViewModel(Parameter parameter, DomainOfExpertise currentDomain, ElementUsage hostElementUsage, Option selectedOption)
         {
             this.ParameterTypeName = parameter.ParameterType.Name;
+            this.Group = parameter.Group;
+            this.GroupName = parameter.Group?.Name ?? string.Empty;
             this.ShortName = parameter.ParameterType.ShortName;
 
             this.IsOwnedByCurrentDomain = currentDomain != null && parameter.Owner != null && parameter.Owner.Iid == currentDomain.Iid;
@@ -125,6 +156,11 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
                 : parameter.ParameterSubscription.FirstOrDefault(ps => ps.Owner != null && ps.Owner.Iid == currentDomain.Iid);
             this.HasCurrentDomainSubscription = this.CurrentDomainSubscription != null;
             this.CanSubscribe = currentDomain != null && !this.IsOwnedByCurrentDomain && !this.HasCurrentDomainSubscription;
+            this.HasOtherDomainSubscriptions = parameter.ParameterSubscription.Any(ps => ps.Owner != null && (currentDomain == null || ps.Owner.Iid != currentDomain.Iid));
+            this.OtherDomainSubscriptionOwners = string.Join(", ", parameter.ParameterSubscription
+                .Where(ps => ps.Owner != null && (currentDomain == null || ps.Owner.Iid != currentDomain.Iid))
+                .Select(ps => ps.Owner.ShortName)
+                .Distinct());
 
             this.HostElementUsage = hostElementUsage;
             this.CurrentOverride = hostElementUsage?.ParameterOverride.FirstOrDefault(po => po.Parameter != null && po.Parameter.Iid == parameter.Iid);
@@ -134,7 +170,14 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
                                      && !this.HasOverride
                                      && (this.IsOwnedByCurrentDomain || parameter.AllowDifferentOwnerOfOverride);
 
-            var sourceValueSet = parameter.ValueSet.FirstOrDefault();
+            // Filter value sets by the selected option when the parameter is option-dependent.
+            var optionValueSets = parameter.ValueSet
+                .Where(vs => !parameter.IsOptionDependent
+                             || selectedOption == null
+                             || (vs.ActualOption != null && vs.ActualOption.Iid == selectedOption.Iid))
+                .ToList();
+
+            var sourceValueSet = optionValueSets.FirstOrDefault();
             var subscriptionValueSet = this.HasCurrentDomainSubscription
                 ? this.CurrentDomainSubscription.ValueSet.FirstOrDefault()
                 : null;
@@ -145,54 +188,61 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
 
             if (overrideValueSet != null)
             {
-                this.ActualValue = overrideValueSet.ActualValue.AsCommaSeparated();
+                this.ActualValue = FormatValue(overrideValueSet.ActualValue, parameter.Scale);
                 this.SwitchValue = overrideValueSet.ValueSwitch.ToString();
-
-                if (overrideValueSet.ActualValue.Count > 1)
-                {
-                    this.ActualValue = "{" + this.ActualValue + "}";
-                }
             }
             else if (subscriptionValueSet != null)
             {
-                this.ActualValue = subscriptionValueSet.ActualValue.AsCommaSeparated();
+                this.ActualValue = FormatValue(subscriptionValueSet.ActualValue, parameter.Scale);
                 this.SwitchValue = subscriptionValueSet.ValueSwitch.ToString();
-
-                if (subscriptionValueSet.ActualValue.Count > 1)
-                {
-                    this.ActualValue = "{" + this.ActualValue + "}";
-                }
             }
             else
             {
-                this.ActualValue = sourceValueSet?.ActualValue.AsCommaSeparated() ?? string.Empty;
+                this.ActualValue = sourceValueSet != null ? FormatValue(sourceValueSet.ActualValue, parameter.Scale) : string.Empty;
                 this.SwitchValue = sourceValueSet?.ValueSwitch.ToString() ?? string.Empty;
-
-                if (sourceValueSet?.ActualValue.Count > 1)
-                {
-                    this.ActualValue = "{" + this.ActualValue + "}";
-                }
             }
 
-            this.PublishedValue = sourceValueSet?.Published.AsCommaSeparated() ?? string.Empty;
-
-            if (sourceValueSet?.Published.Count > 1)
-            {
-                this.PublishedValue = "{" + this.PublishedValue + "}";
-            }
-
-            if (parameter.Scale != null)
-            {
-                this.ActualValue += " [" + parameter.Scale.ShortName + "]";
-                this.PublishedValue += " [" + parameter.Scale.ShortName + "]";
-            }
+            this.PublishedValue = sourceValueSet != null ? FormatValue(sourceValueSet.Published, parameter.Scale) : string.Empty;
 
             this.Owner = this.HasOverride && this.CurrentOverride.Owner != null
                 ? this.CurrentOverride.Owner.ShortName
                 : parameter.Owner.ShortName;
 
+            // State-dependent value breakdown: one row per ActualState across the option-filtered value sets.
+            this.IsStateDependent = parameter.StateDependence != null && optionValueSets.Any(vs => vs.ActualState != null);
+
+            this.StateValues = this.IsStateDependent
+                ? optionValueSets
+                    .Where(vs => vs.ActualState != null)
+                    .OrderBy(vs => vs.ActualState.Name)
+                    .Select(vs => new ParameterStateValueRowViewModel(
+                        vs.ActualState.Name,
+                        FormatValue(vs.ActualValue, parameter.Scale),
+                        FormatValue(vs.Published, parameter.Scale),
+                        vs.ValueSwitch.ToString()))
+                    .ToList()
+                : [];
+
+            this.IsOptionDependent = parameter.IsOptionDependent;
             this.ModelCode = parameter.ModelCode();
             this.Parameter = parameter;
+        }
+
+        /// <summary>
+        /// Formats a <see cref="ValueArray{T}" /> of strings as a single display value: comma-separates the
+        /// entries, wraps them in braces when there is more than one, and appends a <c>[shortName]</c> scale
+        /// suffix when <paramref name="scale" /> is not <c>null</c>.
+        /// </summary>
+        /// <param name="values">The value array to format.</param>
+        /// <param name="scale">The <see cref="MeasurementScale" /> whose short name is appended as a unit suffix, or <c>null</c>.</param>
+        /// <returns>The formatted display string.</returns>
+        private static string FormatValue(IEnumerable<string> values, MeasurementScale scale)
+        {
+            var list = values.ToList();
+            var joined = string.Join(", ", list);
+            var display = list.Count > 1 ? "{" + joined + "}" : joined;
+
+            return scale != null ? display + " [" + scale.ShortName + "]" : display;
         }
 
         /// <summary>
@@ -295,6 +345,21 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
         public bool CanSubscribe { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the underlying <see cref="Parameter" /> has at least one
+        /// <see cref="ParameterSubscription" /> owned by a domain other than the currently logged-in one.
+        /// Useful to inform the owner of a parameter that other teams are tracking its value.
+        /// </summary>
+        public bool HasOtherDomainSubscriptions { get; }
+
+        /// <summary>
+        /// Gets a comma-separated string of the distinct short names of all
+        /// <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" />s that have a
+        /// <see cref="ParameterSubscription" /> on the underlying <see cref="Parameter" />, excluding the
+        /// currently logged-in domain. Empty when no such subscriptions exist.
+        /// </summary>
+        public string OtherDomainSubscriptionOwners { get; }
+
+        /// <summary>
         /// Gets the <see cref="ElementUsage" /> currently selected in the Model Editor tree on which the
         /// override affordances apply, or <c>null</c> when the selected node is the
         /// <see cref="ElementDefinition" /> itself (in which case override affordances are suppressed).
@@ -323,5 +388,40 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
         /// <see cref="ParameterBase.AllowDifferentOwnerOfOverride" /> is <c>true</c>.
         /// </summary>
         public bool CanCreateOverride { get; }
+
+        /// <summary>
+        /// Gets the <see cref="ParameterGroup" /> the underlying <see cref="Parameter" /> belongs to, or
+        /// <c>null</c> when the parameter is not assigned to any group.
+        /// </summary>
+        public ParameterGroup Group { get; }
+
+        /// <summary>
+        /// Gets the name of the <see cref="ParameterGroup" /> the underlying <see cref="Parameter" /> belongs
+        /// to, or an empty string when the parameter is not assigned to any group.
+        /// </summary>
+        public string GroupName { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the underlying <see cref="Parameter" /> is option-dependent —
+        /// i.e. different options may carry different values. When <c>true</c>, the card may display a gear
+        /// icon to signal the dependency.
+        /// </summary>
+        public bool IsOptionDependent { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the underlying <see cref="Parameter" /> is state-dependent — i.e.
+        /// its <see cref="Parameter.StateDependence" /> is set and at least one of the (option-filtered) value
+        /// sets carries an <see cref="CDP4Common.EngineeringModelData.ActualFiniteState" />.
+        /// When <c>true</c>, the card should render the per-state breakdown from <see cref="StateValues" />
+        /// instead of the single Actual / Published rows.
+        /// </summary>
+        public bool IsStateDependent { get; }
+
+        /// <summary>
+        /// Gets the per-state value rows for a state-dependent parameter, ordered by
+        /// <see cref="ParameterStateValueRowViewModel.StateName" />. Empty when <see cref="IsStateDependent" />
+        /// is <c>false</c>.
+        /// </summary>
+        public IReadOnlyList<ParameterStateValueRowViewModel> StateValues { get; }
     }
 }

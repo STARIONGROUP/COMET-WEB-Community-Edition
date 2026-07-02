@@ -41,6 +41,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
     using COMETwebapp.ViewModels.Components.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
+    using COMETwebapp.ViewModels.Components.Common;
     using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.CopySettings;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
@@ -104,6 +105,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<ICategoriesTableViewModel, CategoriesTableViewModel>();
             serviceCollection.AddTransient<ISystemRepresentationBodyViewModel, SystemRepresentationBodyViewModel>();
             serviceCollection.AddTransient<IElementDefinitionTreeViewModel, ElementDefinitionTreeViewModel>();
+            serviceCollection.AddTransient<IElementDetailsPanelViewModel, ElementDetailsPanelViewModel>();
             serviceCollection.AddTransient<IModelEditorViewModel, ModelEditorViewModel>();
             serviceCollection.AddTransient<ICopySettingsViewModel, CopySettingsViewModel>();
             serviceCollection.AddTransient<IBookEditorBodyViewModel, BookEditorBodyViewModel>();

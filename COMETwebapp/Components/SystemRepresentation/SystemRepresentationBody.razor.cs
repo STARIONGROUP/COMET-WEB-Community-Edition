@@ -29,6 +29,7 @@ namespace COMETwebapp.Components.SystemRepresentation
     using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.JSInterop;
 
     using ReactiveUI;
 
@@ -37,6 +38,34 @@ namespace COMETwebapp.Components.SystemRepresentation
     /// </summary>
     public partial class SystemRepresentationBody
     {
+        /// <summary>
+        /// Gets or sets the <see cref="IJSRuntime" /> used to initialise the column resizer.
+        /// </summary>
+        [Inject]
+        public IJSRuntime JsRuntime { get; set; }
+
+        /// <summary>
+        /// Initialises the column-resizer JS interop on first render.
+        /// </summary>
+        /// <param name="firstRender"><see langword="true" /> on the first render cycle.</param>
+        /// <returns>A <see cref="Task" />.</returns>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
+            {
+                try
+                {
+                    await this.JsRuntime.InvokeVoidAsync("cometResizer.init", "col-resizer", "leftColumn", 260, 640);
+                }
+                catch (Exception)
+                {
+                    // JS interop failures during pre-rendering or test environments are non-fatal.
+                }
+            }
+        }
+
         /// <summary>
         /// Handles the post-assignement flow of the <see cref="ApplicationBase{TViewModel}.ViewModel" /> property
         /// </summary>

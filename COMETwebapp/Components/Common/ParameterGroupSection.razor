@@ -1,0 +1,115 @@
+<!------------------------------------------------------------------------------
+// Copyright (c) 2023-2026 Starion Group S.A.
+//
+//    This file is part of CDP4-COMET WEB Community Edition
+//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@namespace COMETwebapp.Components.Common
+@using CDP4Common.EngineeringModelData
+@using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
+
+@if (this.HasVisibleContent)
+{
+    <div class="group-card @(this.Group is null ? "ungrouped" : "") @(this.IsDropTarget ? "drop-target" : "")"
+         @ondragover:preventDefault="true"
+         @ondragenter="@(() => this.OnDragEnter())"
+         @ondragleave="@(() => this.OnDragLeave())"
+         @ondrop="@(async _ => await this.HandleDrop())">
+
+        @if (this.Group is not null)
+        {
+            <div class="group-card-header group-card-header-draggable"
+                 @onclick="this.ToggleCollapsed"
+                 draggable="true"
+                 @ondragstart:stopPropagation="true"
+                 @ondragstart="@(() => this.OnGroupDragStart.InvokeAsync(this.Group))"
+                 @ondragend="@(() => this.OnGroupDragEnd.InvokeAsync())">
+                <span class="group-card-chevron @(this.IsExpanded ? "expanded" : "")">&#8250;</span>
+                <span class="group-card-name">@this.Name</span>
+                @if (this.OnEditGroup.HasDelegate)
+                {
+                    <span @onclick:stopPropagation="true">
+                        <DxButton IconCssClass="oi oi-pencil"
+                                  RenderStyleMode="ButtonRenderStyleMode.Text"
+                                  SizeMode="SizeMode.Small"
+                                  CssClass="ms-1"
+                                  title="Edit this Parameter Group"
+                                  Click="@(() => this.OnEditGroup.InvokeAsync(this.Group))"/>
+                    </span>
+                }
+                @if (this.OnDeleteGroup.HasDelegate)
+                {
+                    <span @onclick:stopPropagation="true">
+                        <DxButton IconCssClass="oi oi-trash"
+                                  RenderStyle="ButtonRenderStyle.Danger"
+                                  RenderStyleMode="ButtonRenderStyleMode.Text"
+                                  SizeMode="SizeMode.Small"
+                                  CssClass="ms-1"
+                                  title="Delete this Parameter Group"
+                                  Click="@(() => this.OnDeleteGroup.InvokeAsync(this.Group))"/>
+                    </span>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="group-card-header" @onclick="this.ToggleCollapsed">
+                <span class="group-card-chevron @(this.IsExpanded ? "expanded" : "")">&#8250;</span>
+                <span class="group-card-name">@this.Name</span>
+            </div>
+        }
+
+        @if (this.IsExpanded)
+        {
+            <div class="group-card-body">
+                @foreach (var child in this.ChildGroups)
+                {
+                    <ParameterGroupSection Group="@child"
+                                          AllRows="@this.AllRows"
+                                          AllGroups="@this.AllGroups"
+                                          SearchTerm="@this.SearchTerm"
+                                          Level="@(this.Level + 1)"
+                                          OnDeleteParameter="this.OnDeleteParameter"
+                                          OnCreateSubscription="this.OnCreateSubscription"
+                                          OnDeleteSubscription="this.OnDeleteSubscription"
+                                          OnCreateOverride="this.OnCreateOverride"
+                                          OnDeleteOverride="this.OnDeleteOverride"
+                                          OnCardDragStart="this.OnCardDragStart"
+                                          OnCardDragEnd="this.OnCardDragEnd"
+                                          OnSectionDrop="this.OnSectionDrop"
+                                          OnEditGroup="this.OnEditGroup"
+                                          OnDeleteGroup="this.OnDeleteGroup"
+                                          OnGroupDragStart="this.OnGroupDragStart"
+                                          OnGroupDragEnd="this.OnGroupDragEnd"/>
+                }
+                <div class="param-cards">
+                    @foreach (var row in this.DirectRows)
+                    {
+                        <ParameterCard Row="@row"
+                                       OnDeleteParameter="this.OnDeleteParameter"
+                                       OnCreateSubscription="this.OnCreateSubscription"
+                                       OnDeleteSubscription="this.OnDeleteSubscription"
+                                       OnCreateOverride="this.OnCreateOverride"
+                                       OnDeleteOverride="this.OnDeleteOverride"
+                                       OnCardDragStart="this.OnCardDragStart"
+                                       OnCardDragEnd="this.OnCardDragEnd"/>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
