@@ -1,0 +1,76 @@
+// --------------------------------------------------------------------------------------------------------------------
+//  <copyright file="RequirementsDocument.razor.cs" company="Starion Group S.A.">
+//     Copyright (c) 2023-2026 Starion Group S.A.
+//
+//     This file is part of COMET WEB Community Edition
+//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+//
+//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
+
+namespace COMETwebapp.Components.RequirementsEditor
+{
+    using CDP4Common.EngineeringModelData;
+
+    using COMETwebapp.ViewModels.Components.RequirementsEditor;
+
+    using Microsoft.AspNetCore.Components;
+
+    /// <summary>
+    /// Renders a <see cref="RequirementsSpecification" /> as a document: the specification header, its requirements,
+    /// and its <see cref="RequirementsGroup" /> hierarchy (recursively) with the requirements filed under each group.
+    /// </summary>
+    public partial class RequirementsDocument
+    {
+        /// <summary>
+        /// Gets or sets the <see cref="IRequirementsEditorBodyViewModel" />.
+        /// </summary>
+        [Parameter]
+        public IRequirementsEditorBodyViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="RequirementsContainer" /> rendered by this instance. When <c>null</c>, the
+        /// selected specification (the document root) is rendered.
+        /// </summary>
+        [Parameter]
+        public RequirementsContainer Container { get; set; }
+
+        /// <summary>
+        /// Gets or sets the nesting level of the current group, used to size its header (0 for the specification root).
+        /// </summary>
+        [Parameter]
+        public int Level { get; set; }
+
+        /// <summary>
+        /// Gets the HTML anchor id used to scroll to the given <paramref name="group" /> from the table of contents.
+        /// </summary>
+        /// <param name="group">The <see cref="RequirementsGroup" /></param>
+        /// <returns>The anchor id</returns>
+        public static string GroupAnchorId(RequirementsGroup group)
+        {
+            return $"req-group-{group.Iid}";
+        }
+
+        /// <summary>
+        /// Gets the definition text of the given <paramref name="requirement" />.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <returns>The first definition's content, or an empty string</returns>
+        private static string GetDefinition(Requirement requirement)
+        {
+            return requirement.Definition.FirstOrDefault()?.Content ?? string.Empty;
+        }
+    }
+}

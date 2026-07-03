@@ -1,0 +1,120 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.EngineeringModelData
+@using CDP4Common.SiteDirectoryData
+@using COMETwebapp.Utilities
+@using COMETwebapp.ViewModels.Components.RequirementsEditor
+
+@{
+    RenderFragment<(DomainOfExpertise Owner, IEnumerable<Category> Categories)> pills = context =>
+        @<span class="req-pills">
+            @if (this.ViewModel.ShowOwner && context.Owner != null)
+            {
+                <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{context.Owner.ShortName}") !important;" title="Owner: @context.Owner.Name">@context.Owner.ShortName</span>
+            }
+            @if (this.ViewModel.ShowCategory)
+            {
+                @foreach (var category in context.Categories)
+                {
+                    <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.Name">@category.ShortName</span>
+                }
+            }
+        </span>;
+
+    RenderFragment<Requirement> requirementRow = requirement =>
+        @<div class="req-row">
+            <div class="req-row-main">
+                @switch (this.ViewModel.DisplayMode)
+                {
+                    case RequirementRowDisplayMode.ShortNameAndDefinition:
+                        <p class="req-def"><strong class="req-id">@requirement.ShortName</strong> &#8211; @GetDefinition(requirement)</p>
+                        break;
+
+                    case RequirementRowDisplayMode.NameAndDefinition:
+                        <p class="req-def"><strong class="req-id">@requirement.Name</strong> &#8211; @GetDefinition(requirement)</p>
+                        break;
+
+                    default:
+                        <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
+                        <p class="req-def">@GetDefinition(requirement)</p>
+                        break;
+                }
+            </div>
+            <div class="req-row-pills">
+                @pills((requirement.Owner, requirement.Category))
+            </div>
+        </div>;
+}
+
+@if (this.ViewModel.SelectedSpecification == null)
+{
+    <div class="req-empty">Select a specification to view its requirements.</div>
+}
+else if (this.Container == null)
+{
+    var specification = this.ViewModel.SelectedSpecification;
+
+    <div class="req-spec-title">
+        <span class="req-spec-id">@specification.ShortName</span>
+        <span class="req-spec-name">@specification.Name</span>
+        @pills((specification.Owner, specification.Category))
+    </div>
+
+    @foreach (var requirement in this.ViewModel.GetRequirements(specification))
+    {
+        @requirementRow(requirement)
+    }
+
+    @foreach (var childGroup in this.ViewModel.GetGroups(specification))
+    {
+        <RequirementsDocument ViewModel="@this.ViewModel" Container="@childGroup" Level="1" />
+    }
+}
+else
+{
+    var group = (RequirementsGroup)this.Container;
+    var collapsed = this.ViewModel.IsDocumentGroupCollapsed(group.Iid);
+
+    <section class="req-group">
+        <div id="@GroupAnchorId(group)" class="req-group-header req-group-level-@Math.Min(this.Level, 4)">
+            <button type="button" class="req-collapse-btn" title="@(collapsed ? "Expand group" : "Collapse group")"
+                    @onclick="@(() => this.ViewModel.ToggleDocumentGroup(group.Iid))">
+                <img src="@(collapsed ? "images/Collapsed.svg" : "images/Expanded.svg")" alt="" />
+            </button>
+            <span class="req-group-id">@group.ShortName</span>
+            <span class="req-group-name">@group.Name</span>
+            @pills((group.Owner, group.Category))
+        </div>
+
+        @if (!collapsed)
+        {
+            foreach (var requirement in this.ViewModel.GetRequirements(group))
+            {
+                @requirementRow(requirement)
+            }
+
+            foreach (var childGroup in this.ViewModel.GetGroups(group))
+            {
+                <RequirementsDocument ViewModel="@this.ViewModel" Container="@childGroup" Level="@(this.Level + 1)" />
+            }
+        }
+    </section>
+}

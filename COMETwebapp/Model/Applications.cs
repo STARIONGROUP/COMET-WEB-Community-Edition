@@ -30,6 +30,7 @@ namespace COMETwebapp.Model
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.Components.ParameterEditor;
     using COMETwebapp.Components.ReferenceData;
+    using COMETwebapp.Components.RequirementsEditor;
     using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Components.SubscriptionDashboard;
     using COMETwebapp.Components.SystemRepresentation;
@@ -81,14 +82,14 @@ namespace COMETwebapp.Model
                     ComponentType = typeof(SubscriptionDashboardBody)
                 },
 
-                new Application
+                new TabbedApplication
                 {
                     Name = "Requirement Management",
                     Color = "#fda966",
-                    Icon = "link-intact",
-                    Description = $"Edit requirements in the model.{Environment.NewLine}Under Development",
-                    IsDisabled = true,
-                    Url = WebAppConstantValues.RequirementManagementPage
+                    IconType = typeof(FeatherFileText),
+                    Description = "View and edit requirements as documents.",
+                    Url = WebAppConstantValues.RequirementManagementPage,
+                    ComponentType = typeof(RequirementsEditorBody)
                 },
 
                 new TabbedApplication

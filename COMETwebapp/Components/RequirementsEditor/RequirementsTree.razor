@@ -1,0 +1,86 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using COMETwebapp.Utilities
+
+@if (this.Groups == null)
+{
+    <ul class="req-tree">
+        @foreach (var specification in this.ViewModel.AvailableSpecifications)
+        {
+            var isSelected = specification == this.ViewModel.SelectedSpecification;
+
+            <li class="req-tree-item">
+                <div class="req-tree-row req-tree-spec @(isSelected ? "selected" : string.Empty)"
+                     @onclick="@(() => this.ViewModel.SelectedSpecification = specification)">
+                    <span class="req-tree-label">@specification.ShortName</span>
+                </div>
+                @if (isSelected)
+                {
+                    <RequirementsTree ViewModel="@this.ViewModel" Groups="@this.ViewModel.GetGroups(specification)" />
+                }
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <ul class="req-tree-branch">
+        @foreach (var group in this.Groups)
+        {
+            var hasChildren = this.ViewModel.GetGroups(group).Any();
+            var collapsed = this.ViewModel.IsTreeNodeCollapsed(group.Iid);
+
+            <li class="req-tree-item">
+                <div class="req-tree-row">
+                    @if (hasChildren)
+                    {
+                        <button type="button" class="req-tree-chevron" title="@(collapsed ? "Expand" : "Collapse")"
+                                @onclick="@(() => this.ViewModel.ToggleTreeNode(group.Iid))" @onclick:stopPropagation="true">
+                            <img src="@(collapsed ? "images/Collapsed.svg" : "images/Expanded.svg")" alt="" />
+                        </button>
+                    }
+                    else
+                    {
+                        <span class="req-tree-chevron-placeholder"></span>
+                    }
+                    <a class="req-tree-group" href="#@RequirementsDocument.GroupAnchorId(group)" title="@group.Name">@group.ShortName</a>
+                    <span class="req-pills">
+                        @if (this.ViewModel.ShowOwner && group.Owner != null)
+                        {
+                            <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{group.Owner.ShortName}") !important;" title="Owner: @group.Owner.Name">@group.Owner.ShortName</span>
+                        }
+                        @if (this.ViewModel.ShowCategory)
+                        {
+                            @foreach (var category in group.Category)
+                            {
+                                <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.Name">@category.ShortName</span>
+                            }
+                        }
+                    </span>
+                </div>
+                @if (hasChildren && !collapsed)
+                {
+                    <RequirementsTree ViewModel="@this.ViewModel" Groups="@this.ViewModel.GetGroups(group)" />
+                }
+            </li>
+        }
+    </ul>
+}
