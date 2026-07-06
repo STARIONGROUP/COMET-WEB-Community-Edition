@@ -27,6 +27,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
+
     /// <summary>
     /// Interface for the <see cref="RequirementsEditorBodyViewModel" />, driving the Requirements Editor application.
     /// </summary>
@@ -61,6 +63,16 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// Gets or sets a value indicating whether the category pills are shown on specifications, groups and requirements.
         /// </summary>
         bool ShowCategory { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether groups are indented in the document.
+        /// </summary>
+        bool IndentGroups { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="IShowHideDeprecatedThingsService" /> that drives whether deprecated things are shown.
+        /// </summary>
+        IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
 
         /// <summary>
         /// Gets or sets the way each requirement is rendered as a row.

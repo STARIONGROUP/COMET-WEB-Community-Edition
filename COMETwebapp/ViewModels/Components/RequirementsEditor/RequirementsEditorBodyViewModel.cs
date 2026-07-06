@@ -30,6 +30,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
+
     using ReactiveUI;
 
     /// <summary>
@@ -65,6 +67,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private bool showCategory = true;
 
         /// <summary>
+        /// Backing field for <see cref="IndentGroups" />
+        /// </summary>
+        private bool indentGroups = true;
+
+        /// <summary>
         /// The <see cref="Guid" />s of the table-of-contents tree nodes that are currently collapsed.
         /// </summary>
         private readonly HashSet<Guid> collapsedTreeNodes = [];
@@ -94,14 +101,27 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
-        public RequirementsEditorBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus) : base(sessionService, messageBus)
+        /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
+        public RequirementsEditorBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IShowHideDeprecatedThingsService showHideDeprecatedThingsService) : base(sessionService, messageBus)
         {
+            this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
         }
 
         /// <summary>
-        /// Gets the non-deprecated <see cref="RequirementsSpecification" />s of the current iteration.
+        /// Gets the <see cref="IShowHideDeprecatedThingsService" /> that drives whether deprecated things are shown.
         /// </summary>
-        public IEnumerable<RequirementsSpecification> AvailableSpecifications { get; private set; } = [];
+        public IShowHideDeprecatedThingsService ShowHideDeprecatedThingsService { get; }
+
+        /// <summary>
+        /// Gets the <see cref="RequirementsSpecification" />s of the current iteration; deprecated ones are included
+        /// only when the global "Show Deprecated Things" toggle is on.
+        /// </summary>
+        public IEnumerable<RequirementsSpecification> AvailableSpecifications =>
+            this.CurrentThing == null
+                ? []
+                : this.CurrentThing.RequirementsSpecification
+                    .Where(x => this.ShowHideDeprecatedThingsService.ShowDeprecatedThings || !x.IsDeprecated)
+                    .OrderBy(x => x.ShortName);
 
         /// <summary>
         /// Gets or sets the <see cref="RequirementsSpecification" /> currently shown as a document.
@@ -146,6 +166,16 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         {
             get => this.showCategory;
             set => this.RaiseAndSetIfChanged(ref this.showCategory, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether groups are indented in the document. When off, groups and
+        /// requirements are rendered flush-left regardless of nesting depth.
+        /// </summary>
+        public bool IndentGroups
+        {
+            get => this.indentGroups;
+            set => this.RaiseAndSetIfChanged(ref this.indentGroups, value);
         }
 
         /// <summary>
@@ -205,7 +235,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var group = container as RequirementsGroup;
 
             return this.SelectedSpecification.Requirement
-                .Where(x => !x.IsDeprecated && ReferenceEquals(x.Group, group) && this.PassesFilter(x))
+                .Where(x => (this.ShowHideDeprecatedThingsService.ShowDeprecatedThings || !x.IsDeprecated) && ReferenceEquals(x.Group, group) && this.PassesFilter(x))
                 .OrderBy(x => x.ShortName);
         }
 
@@ -305,12 +335,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
             this.IsLoading = true;
 
-            this.AvailableSpecifications = this.CurrentThing.RequirementsSpecification
+            var allRequirements = this.CurrentThing.RequirementsSpecification
                 .Where(x => !x.IsDeprecated)
-                .OrderBy(x => x.ShortName)
-                .ToList();
-
-            var allRequirements = this.AvailableSpecifications
                 .SelectMany(x => x.Requirement)
                 .Where(x => !x.IsDeprecated)
                 .ToList();

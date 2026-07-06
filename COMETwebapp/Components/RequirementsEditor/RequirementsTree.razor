@@ -28,7 +28,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             var isSelected = specification == this.ViewModel.SelectedSpecification;
 
             <li class="req-tree-item">
-                <div class="req-tree-row req-tree-spec @(isSelected ? "selected" : string.Empty)"
+                <div class="req-tree-row req-tree-spec @(isSelected ? "selected" : string.Empty) @(specification.IsDeprecated ? "req-tree-deprecated" : string.Empty)"
                      @onclick="@(() => this.ViewModel.SelectedSpecification = specification)">
                     <span class="req-tree-label">@specification.ShortName</span>
                 </div>

@@ -40,7 +40,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         </span>;
 
     RenderFragment<Requirement> requirementRow = requirement =>
-        @<div class="req-row">
+        @<div class="req-row @(requirement.IsDeprecated ? "req-row-deprecated" : string.Empty)">
             <div class="req-row-main">
                 @switch (this.ViewModel.DisplayMode)
                 {
@@ -59,6 +59,10 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 }
             </div>
             <div class="req-row-pills">
+                @if (requirement.IsDeprecated)
+                {
+                    <span class="req-deprecated-badge" title="This requirement is deprecated">Deprecated</span>
+                }
                 @pills((requirement.Owner, requirement.Category))
             </div>
         </div>;
@@ -72,9 +76,13 @@ else if (this.Container == null)
 {
     var specification = this.ViewModel.SelectedSpecification;
 
-    <div class="req-spec-title">
+    <div class="req-spec-title @(specification.IsDeprecated ? "req-row-deprecated" : string.Empty)">
         <span class="req-spec-id">@specification.ShortName</span>
         <span class="req-spec-name">@specification.Name</span>
+        @if (specification.IsDeprecated)
+        {
+            <span class="req-deprecated-badge" title="This specification is deprecated">Deprecated</span>
+        }
         @pills((specification.Owner, specification.Category))
     </div>
 

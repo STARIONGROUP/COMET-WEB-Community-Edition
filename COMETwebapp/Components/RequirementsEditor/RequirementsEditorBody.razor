@@ -68,6 +68,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </div>
 
             <div class="req-toolbar-group req-toolbar-right">
+                <DxCheckBox @bind-Checked="@this.ViewModel.IndentGroups" CheckType="CheckType.Switch">Indent</DxCheckBox>
                 <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
                 <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategory" CheckType="CheckType.Switch">Category</DxCheckBox>
             </div>
@@ -77,7 +78,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <div class="req-toc">
                 <RequirementsTree ViewModel="@this.ViewModel" />
             </div>
-            <div class="req-document">
+            <div class="req-document @(this.ViewModel.IndentGroups ? string.Empty : "no-indent")">
                 <RequirementsDocument ViewModel="@this.ViewModel" />
             </div>
         </div>

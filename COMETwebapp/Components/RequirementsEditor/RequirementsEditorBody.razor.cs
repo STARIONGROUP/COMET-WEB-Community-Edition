@@ -57,6 +57,9 @@ namespace COMETwebapp.Components.RequirementsEditor
                     x => x.ViewModel.SelectedOwners,
                     x => x.ViewModel.SelectedCategories)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>

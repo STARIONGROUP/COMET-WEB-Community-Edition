@@ -33,6 +33,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using Moq;
@@ -55,6 +56,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         private DomainOfExpertise systemDomain;
         private DomainOfExpertise thermalDomain;
         private Category keyUserCategory;
+        private RequirementsSpecification deprecatedSpecification;
+        private Requirement deprecatedRequirement;
+        private ShowHideDeprecatedThingsService showHideService;
 
         [SetUp]
         public void SetUp()
@@ -90,22 +94,29 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             this.operateRequirement.Group = this.operateGroup;
             this.c4iRequirement.Group = this.c4iGroup;
 
+            this.deprecatedRequirement = new Requirement
+            {
+                Iid = Guid.NewGuid(), ShortName = "R00", Name = "Retired requirement", Owner = this.systemDomain, IsDeprecated = true,
+                Definition = { new Definition { LanguageCode = "en", Content = "This requirement is retired." } }
+            };
+
             this.specification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "KUR", Name = "Key-User Requirements", Owner = this.systemDomain };
             this.specification.Group.Add(this.operateGroup);
-            this.specification.Requirement.AddRange([this.topRequirement, this.operateRequirement, this.c4iRequirement]);
+            this.specification.Requirement.AddRange([this.topRequirement, this.operateRequirement, this.c4iRequirement, this.deprecatedRequirement]);
 
-            var deprecatedSpecification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "OLD", Name = "Deprecated", Owner = this.systemDomain, IsDeprecated = true };
+            this.deprecatedSpecification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "OLD", Name = "Deprecated", Owner = this.systemDomain, IsDeprecated = true };
 
             this.iteration = new Iteration { Iid = Guid.NewGuid() };
-            this.iteration.RequirementsSpecification.AddRange([this.specification, deprecatedSpecification]);
+            this.iteration.RequirementsSpecification.AddRange([this.specification, this.deprecatedSpecification]);
 
             var sessionService = new Mock<ISessionService>();
             this.session = new Mock<ISession>();
             sessionService.Setup(x => x.Session).Returns(this.session.Object);
             sessionService.Setup(x => x.GetDomainOfExpertise(this.iteration)).Returns(this.systemDomain);
             this.messageBus = new CDPMessageBus();
+            this.showHideService = new ShowHideDeprecatedThingsService();
 
-            this.viewModel = new RequirementsEditorBodyViewModel(sessionService.Object, this.messageBus)
+            this.viewModel = new RequirementsEditorBodyViewModel(sessionService.Object, this.messageBus, this.showHideService)
             {
                 CurrentThing = this.iteration
             };
@@ -261,6 +272,36 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.specification));
+        }
+
+        [Test]
+        public async Task VerifyIndentGroupsToggle()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.That(this.viewModel.IndentGroups, Is.True);
+            this.viewModel.IndentGroups = false;
+            Assert.That(this.viewModel.IndentGroups, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyDeprecatedThingsRespectGlobalToggle()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.AvailableSpecifications, Does.Not.Contain(this.deprecatedSpecification));
+                Assert.That(this.viewModel.GetRequirements(this.specification), Does.Not.Contain(this.deprecatedRequirement));
+            });
+
+            this.showHideService.ShowDeprecatedThings = true;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.AvailableSpecifications, Does.Contain(this.deprecatedSpecification));
+                Assert.That(this.viewModel.GetRequirements(this.specification), Does.Contain(this.deprecatedRequirement));
+            });
         }
     }
 }

@@ -361,3 +361,46 @@
     border-color: rgba(0, 0, 0, 0.15);
     color: #1f2937;
 }
+
+/* Indent toggle: when off, flatten the group indentation so headers and requirements sit flush-left. */
+.req-document.no-indent ::deep .req-group {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+}
+
+/* Deprecated things (rendered only when the global "Show Deprecated Things" toggle is on). */
+.req-document ::deep .req-row-deprecated {
+    opacity: 0.6;
+}
+
+.req-document ::deep .req-row-deprecated .req-id,
+.req-document ::deep .req-row-deprecated .req-name,
+.req-document ::deep .req-row-deprecated .req-spec-id,
+.req-document ::deep .req-row-deprecated .req-spec-name {
+    text-decoration: line-through;
+}
+
+.req-document ::deep .req-deprecated-badge,
+.req-toc ::deep .req-tree-deprecated .req-tree-label {
+    white-space: nowrap;
+}
+
+.req-document ::deep .req-deprecated-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 18px;
+    padding: 1px 8px;
+    margin: 1px 2px;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    border-radius: 30px;
+    background: #fde2e1;
+    color: #b42318;
+    border: 1px solid #f5c2c0;
+}
+
+.req-toc ::deep .req-tree-deprecated .req-tree-label {
+    text-decoration: line-through;
+    color: #98a2b3;
+}
