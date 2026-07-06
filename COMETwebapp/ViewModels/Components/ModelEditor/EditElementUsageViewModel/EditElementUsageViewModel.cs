@@ -65,6 +65,20 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewMode
         public ElementUsage ElementUsage { get; private set; }
 
         /// <summary>
+        /// Gets the full list of <see cref="Option" />s available in the iteration. Used to populate the
+        /// option-allocation multi-select. Only displayed when there are at least two options, since
+        /// allocation is meaningless in a single-option model.
+        /// </summary>
+        public IReadOnlyList<Option> AvailableOptions { get; private set; } = [];
+
+        /// <summary>
+        /// Gets or sets the <see cref="Option" />s the element usage is included in (the complement of
+        /// <see cref="ElementUsage.ExcludeOption" />). Updated by the multi-select in the form and applied
+        /// back to the clone before the save is committed.
+        /// </summary>
+        public IEnumerable<Option> SelectedOptions { get; set; } = [];
+
+        /// <summary>
         /// Gets the selector view model used by the form to pick the owning
         /// <see cref="DomainOfExpertise" />.
         /// </summary>
@@ -92,6 +106,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewMode
             this.DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
             this.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise = ((EngineeringModel)iteration.Container).EngineeringModelSetup.ActiveDomain.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
             this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(elementUsage.Owner is null, elementUsage.Owner);
+
+            this.AvailableOptions = iteration.Option.ToList();
+            this.SelectedOptions = this.AvailableOptions.Where(o => elementUsage.ExcludeOption.All(e => e.Iid != o.Iid)).ToList();
         }
     }
 }

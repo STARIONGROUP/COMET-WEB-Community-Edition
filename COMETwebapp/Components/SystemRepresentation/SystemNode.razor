@@ -18,6 +18,10 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.SystemRepresentation
+@using CDP4Common.EngineeringModelData
+@using COMET.Web.Common.Extensions
+@using COMETwebapp.Extensions
+@using COMETwebapp.Utilities
 @inherits DisposableComponent
 @{
     @if (this.ViewModel is null)
@@ -64,18 +68,51 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                 }
             }
 
-            <div class="node-inner-content" style="margin-left: calc(20px * @this.ViewModel.Level)">
+            <div class="node-inner-content @(this.IsValidDropTarget ? "drop-target" : string.Empty)" style="margin-left: calc(20px * @this.ViewModel.Level)"
+                 draggable="true"
+                 @ondragstart="this.HandleDragStart"
+                 @ondragend="this.HandleDragEnd"
+                 @ondragenter="this.HandleDragEnter"
+                 @ondragover:preventDefault="true"
+                 @ondrop="this.HandleDropAsync">
                 <hr>
                 @if (this.ViewModel.GetChildren().Count > 0)
                 {
                     var uri = this.ViewModel.IsExpanded ? "images/Expanded.svg" : "images/Collapsed.svg";
-                    <img class="expandIcon" alt="" src="@uri" @onclick="@(()=>{ this.ViewModel.IsExpanded = !this.ViewModel.IsExpanded; })" />
+                    <img class="expandIcon flex-shrink-0" alt="" src="@uri" @onclick="this.ToggleExpansion" />
                 }
 
-                <p class="node-text">@this.ViewModel.Title</p>
+                @{
+                    var elementBase = this.ViewModel.Thing as ElementBase;
+                    var label = this.TreeViewModel is { ShowName: false } ? elementBase?.ShortName : elementBase?.Name;
+                    label ??= this.ViewModel.Title;
+                }
+                <div class="node-label-tags">
+                    <p class="node-text">@label</p>
+
+                    @if (elementBase is not null)
+                    {
+                        @if (this.TreeViewModel?.ShowOwner != false && elementBase.Owner != null)
+                        {
+                            <button class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{elementBase.Owner.ShortName}") !important;" title="Owning Domain Of Expertise: @elementBase.Owner.ShortName">@elementBase.Owner.ShortName</button>
+                        }
+
+                        @if (this.TreeViewModel?.ShowCategories != false)
+                        {
+                            @foreach (var category in elementBase.GetDisplayCategories())
+                            {
+                                <button class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.ShortName">@category.ShortName</button>
+                            }
+                        }
+                    }
+                    @if (this.IsValidDropTarget)
+                    {
+                        <span class="drop-impact-badge" title="This usage and everything it brings">+@this.DraggedItemImpactCount</span>
+                    }
+                </div>
             </div>
         </div>
-    }    
+    }
 
     @if (this.ViewModel.GetChildren().Count > 0 && this.ViewModel.IsExpanded)
     {

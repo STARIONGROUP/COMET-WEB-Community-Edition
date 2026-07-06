@@ -1,0 +1,188 @@
+<!------------------------------------------------------------------------------
+// Copyright (c) 2023-2026 Starion Group S.A.
+//
+//    This file is part of CDP4-COMET WEB Community Edition
+//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@namespace COMETwebapp.Components.Common
+@using COMETwebapp.Utilities
+
+<div class="parameter-card"
+     draggable="true"
+     @ondragstart="@(() => this.OnCardDragStart.InvokeAsync(this.Row))"
+     @ondragend="@(() => this.OnCardDragEnd.InvokeAsync(this.Row))">
+
+    <div class="d-flex align-items-center" style="margin-bottom:2px;gap:6px;">
+        <h6 title="@this.Row.ParameterTypeName"
+            style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:0;">
+            @this.Row.ParameterTypeName
+            @if (this.Row.IsOptionDependent)
+            {
+                <span class="oi oi-cog option-dep-icon" title="Option dependent parameter"></span>
+            }
+        </h6>
+        <div class="d-flex align-items-center flex-nowrap" style="flex-shrink:0;">
+            <button class="starion-pill"
+                    title="Owning Domain Of Expertise: @this.Row.Owner"
+                    style="white-space:nowrap;flex-shrink:0;background-color:@TagColorGenerator.GetBackgroundColor($"owner:{this.Row.Owner}") !important;">
+                @this.Row.Owner
+            </button>
+            @if (this.OnCreateSubscription.HasDelegate && this.Row.CanSubscribe)
+            {
+                <DxButton IconCssClass="oi oi-bell"
+                          RenderStyleMode="ButtonRenderStyleMode.Text"
+                          CssClass="ms-1 flex-shrink-0"
+                          Click="@(() => this.OnCreateSubscription.InvokeAsync(this.Row.Parameter))"
+                          title="Subscribe to this Parameter as the current Domain of Expertise"/>
+            }
+            else if (this.OnDeleteSubscription.HasDelegate && this.Row.HasCurrentDomainSubscription)
+            {
+                <DxButton IconCssClass="oi oi-bell"
+                          RenderStyle="ButtonRenderStyle.Danger"
+                          RenderStyleMode="ButtonRenderStyleMode.Text"
+                          CssClass="ms-1 flex-shrink-0"
+                          Click="@(() => this.OnDeleteSubscription.InvokeAsync(this.Row.CurrentDomainSubscription))"
+                          title="Remove this Domain's subscription to the Parameter (the Parameter itself is kept)"/>
+            }
+            @if (this.OnCreateOverride.HasDelegate && this.Row.CanCreateOverride)
+            {
+                <DxButton IconCssClass="oi oi-fork"
+                          RenderStyleMode="ButtonRenderStyleMode.Text"
+                          CssClass="ms-1 flex-shrink-0"
+                          Click="@(() => this.OnCreateOverride.InvokeAsync((this.Row.Parameter, this.Row.HostElementUsage)))"
+                          title="Override this Parameter on the selected Element Usage"/>
+            }
+            else if (this.OnDeleteOverride.HasDelegate && this.Row.HasOverride)
+            {
+                <DxButton IconCssClass="oi oi-fork"
+                          RenderStyle="ButtonRenderStyle.Danger"
+                          RenderStyleMode="ButtonRenderStyleMode.Text"
+                          CssClass="ms-1 flex-shrink-0"
+                          Click="@(() => this.OnDeleteOverride.InvokeAsync(this.Row.CurrentOverride))"
+                          title="Delete this override (the underlying Parameter is preserved)"/>
+            }
+            @if (this.Row.HasOtherDomainSubscriptions)
+            {
+                <span class="other-sub-bell ms-1 flex-shrink-0"
+                      title="Subscribed by: @this.Row.OtherDomainSubscriptionOwners">
+                    <span class="oi oi-bell"></span>
+                </span>
+            }
+            @if (this.OnDeleteParameter.HasDelegate)
+            {
+                <DxButton IconCssClass="oi oi-trash"
+                          RenderStyle="ButtonRenderStyle.Danger"
+                          RenderStyleMode="ButtonRenderStyleMode.Text"
+                          CssClass="ms-1 flex-shrink-0"
+                          Click="@(() => this.OnDeleteParameter.InvokeAsync(this.Row.Parameter))"
+                          title="Delete this parameter"/>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12"
+             style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+             title="@this.Row.ModelCode">
+            @this.Row.ModelCode
+        </div>
+    </div>
+
+    @if (this.Row.IsStateDependent)
+    {
+        <div class="row" style="border-top:1px dotted darkgray;margin-top:8px;padding-top:8px;">
+            <div class="col d-flex align-items-center" style="gap:6px;">
+                <button class="starion-pill" style="white-space:nowrap;">
+                    @this.Row.StateValues.Count states
+                </button>
+                <button class="btn btn-sm btn-link p-0"
+                        title="@(this.statesExpanded ? "Collapse state values" : "Expand state values")"
+                        @onclick="this.ToggleStatesExpanded">
+                    <span class="oi @(this.statesExpanded ? "oi-chevron-top" : "oi-chevron-bottom")"></span>
+                </button>
+            </div>
+        </div>
+        @if (this.statesExpanded)
+        {
+            <div class="state-values">
+                @foreach (var stateRow in this.Row.StateValues)
+                {
+                    <div class="state-value-block">
+                        <div class="state-value-name">@stateRow.StateName</div>
+                        <div class="row" style="margin-top:4px;">
+                            <div class="col-6">
+                                <span>
+                                    <button class="starion-pill"
+                                            title="Value Switch: @stateRow.SwitchValue">
+                                        @stateRow.SwitchValue
+                                    </button>
+                                </span>
+                                <span>Actual:</span>
+                            </div>
+                            <div class="col-6">
+                                Published:
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6"
+                                 style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                                 title="Actual Value: @stateRow.ActualValue">
+                                @stateRow.ActualValue
+                            </div>
+                            <div class="col-6"
+                                 style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                                 title="Published Value: @stateRow.PublishedValue">
+                                @stateRow.PublishedValue
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="row" style="border-top:1px dotted darkgray;margin-top:8px;padding-top:8px;">
+            <div class="col-6">
+                <span>
+                    <button class="starion-pill"
+                            title="Actual Value's Value Switch: @this.Row.SwitchValue">
+                        @this.Row.SwitchValue
+                    </button>
+                </span>
+                <span>Actual:</span>
+            </div>
+            <div class="col-6">
+                Published:
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6"
+                 style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                 title="Actual Value: @this.Row.ActualValue">
+                @this.Row.ActualValue
+            </div>
+            <div class="col-6"
+                 style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                 title="Published Value: @this.Row.PublishedValue">
+                @this.Row.PublishedValue
+            </div>
+        </div>
+    }
+
+</div>

@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2026 Starion Group S.A.
 //
 //    This file is part of CDP4-COMET WEB Community Edition
@@ -23,6 +23,7 @@
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ModelEditor.IModelEditorViewModel>;
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <div class="model-editor-root">
     <div style="padding-bottom:5px;">
         @if (!this.ViewModel.IsSourceModelSameAsTargetModel)
         {
@@ -30,7 +31,7 @@
                 <DxButton Click="() => { this.ViewModel.OpenCopySettingsPopup(); }" CssClass="drop-area-background-color" title="Open drop settings" IconCssClass="oi oi-transfer"></DxButton>
             </span>
             <span title="Selected copy mode for copying ElementDefinitions to another Iteration">
-                Copy mode to different Iteration: @this.ViewModel.CopySettingsViewModel.SelectedOperationKindDescription, 
+                Copy mode to different Iteration: @this.ViewModel.CopySettingsViewModel.SelectedOperationKindDescription,
             </span>
         }
         <span title="Copy mode for copying ElementDefinitions inside the same Iteration">
@@ -40,17 +41,17 @@
     <ValidationMessageComponent ValidationMessage="@(this.ErrorMessage)" />
     <div class="selected-data-item-page" style="flex-wrap:nowrap!important;">
         <div class="selected-data-item-table d-flex" style="flex: 1 1 50%!important;gap: 10px;min-width:600px;">
-            <div style="width:50%; height:100%; border: dashed 1px;padding:15px;border-radius: 10px;max-width: fit-content;">
-                <ElementDefinitionTree 
+            <div style="width:50%; height:100%; border: dashed 1px;padding:15px;border-radius: 10px;max-width: fit-content;display:flex;flex-direction:column;min-height:0;">
+                <ElementDefinitionTree
                     @ref="this.SourceTree"
                     ScrollableAreaCssClass="treeview-scrollarea"
                     InitialIteration="@this.ViewModel.CurrentThing"
-                    SelectionChanged="model => 
-                    { 
-                        if (model != null) 
-                        { 
-                            this.TargetTree.ClearSelection(); 
-                        } 
+                    SelectionChanged="model =>
+                    {
+                        if (model != null)
+                        {
+                            this.TargetTree.ClearSelection();
+                        }
                         this.OnElementSelected(model);
                     }"
                     AllowDrag="true"
@@ -65,17 +66,17 @@
                     IsModelSelectionEnabled="true">
                 </ElementDefinitionTree>
             </div>
-            <div style="width:50%; height:100%; border: dashed 1px;padding:15px;border-radius: 10px;max-width: fit-content;">
-                <ElementDefinitionTree 
+            <div style="width:50%; height:100%; border: dashed 1px;padding:15px;border-radius: 10px;max-width: fit-content;display:flex;flex-direction:column;min-height:0;">
+                <ElementDefinitionTree
                     @ref="this.TargetTree"
                     ScrollableAreaCssClass="treeview-scrollarea"
                     InitialIteration="@this.ViewModel.CurrentThing"
-                    SelectionChanged="model => 
-                    { 
-                        if (model != null) 
-                        { 
-                            this.SourceTree.ClearSelection(); 
-                        } 
+                    SelectionChanged="model =>
+                    {
+                        if (model != null)
+                        {
+                            this.SourceTree.ClearSelection();
+                        }
                         this.OnElementSelected(model);
                     }"
                     AllowDrag="true"
@@ -90,75 +91,19 @@
                     IsModelSelectionEnabled="false">
                 </ElementDefinitionTree>
             </div>
-            <DataItemDetailsComponent IsSelected="@(this.ViewModel.SelectedElementDefinition is not null)"
+            <DataItemDetailsComponent IsSelected="@(this.ViewModel.DetailsPanelViewModel.SelectedElementDefinition is not null)"
                                       NotSelectedText="Select an item to view or edit"
                                       Width="100%"
                                       CssClass="model-editor-details">
-                <div class="mb-2 row">
-                    <div class="float-end">
-                        @if (this.ViewModel.SelectedElementDefinition is not null)
-                        {
-                            <DxButton Id="addParameter" Text="Add Parameter" IconCssClass="oi oi-plus" Click="@(this.ViewModel.OpenAddParameterPopup)"/>
-                        }
-
-                        <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
-                    </div>
-                </div>
-                <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"
-                                    OnDeleteParameter="@(parameter => this.ViewModel.OpenDeleteParameterPopup(parameter))"
-                                    OnCreateSubscription="@(parameter => this.ViewModel.OpenCreateSubscriptionPopup(parameter))"
-                                    OnDeleteSubscription="@(subscription => this.ViewModel.OpenDeleteSubscriptionPopup(subscription))"
-                                    OnCreateOverride="@(args => this.ViewModel.OpenCreateOverridePopup(args.Parameter, args.HostUsage))"
-                                    OnDeleteOverride="@(parameterOverride => this.ViewModel.OpenDeleteOverridePopup(parameterOverride))"
-                                    OnEditElement="@this.ViewModel.OpenEditElementPopup"
-                                    OnDeleteElement="@this.ViewModel.OpenDeleteElementPopup"
-                                    DisableDelete="@this.ViewModel.IsSelectedElementTopElement"/>
+                <ElementDetailsPanel ViewModel="this.ViewModel.DetailsPanelViewModel" />
             </DataItemDetailsComponent>
         </div>
     </div>
-    <DxPopup CloseOnOutsideClick="false" HeaderText="Create Element Definition" @bind-Visible="@this.ViewModel.IsOnCreationMode" Width="40vw">
-        <BodyContentTemplate>
-            <ElementDefinitionCreation ViewModel="@this.ViewModel.ElementDefinitionCreationViewModel"/>
-        </BodyContentTemplate>
-    </DxPopup>
-    
-    <DxPopup CloseOnOutsideClick="false" HeaderText="Add Parameter" @bind-Visible="@this.ViewModel.IsOnAddingParameterMode" Width="40vw">
-        <BodyContentTemplate>
-            <AddParameter ViewModel="@this.ViewModel.AddParameterViewModel"/>
-        </BodyContentTemplate>
-    </DxPopup>
-    
+    </div>
+
     <DxPopup CloseOnOutsideClick="false" HeaderText="Set Copy Settings" @bind-Visible="@this.ViewModel.IsOnCopySettingsMode" Width="40vw">
         <BodyContentTemplate>
             <CopySettings ViewModel="this.ViewModel.CopySettingsViewModel" OnAfterSaveSettings="this.StateHasChanged"/>
-        </BodyContentTemplate>
-    </DxPopup>
-
-    <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteElementPopupViewModel"/>
-
-    <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteParameterPopupViewModel"/>
-
-    <ConfirmCancelPopup ViewModel="@this.ViewModel.CreateSubscriptionPopupViewModel"/>
-
-    <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteSubscriptionPopupViewModel"/>
-
-    <ConfirmCancelPopup ViewModel="@this.ViewModel.CreateOverridePopupViewModel"/>
-
-    <ConfirmCancelPopup ViewModel="@this.ViewModel.DeleteOverridePopupViewModel"/>
-
-    <DxPopup CloseOnOutsideClick="false"
-             HeaderText="@(this.ViewModel.SelectedElement is ElementUsage ? "Edit Element Usage" : "Edit Element Definition")"
-             @bind-Visible="@this.ViewModel.IsOnEditMode"
-             Width="40vw">
-        <BodyContentTemplate>
-            @if (this.ViewModel.SelectedElement is ElementUsage)
-            {
-                <EditElementUsage ViewModel="@this.ViewModel.EditElementUsageViewModel"/>
-            }
-            else if (this.ViewModel.SelectedElement is ElementDefinition)
-            {
-                <EditElementDefinition ViewModel="@this.ViewModel.EditElementDefinitionViewModel"/>
-            }
         </BodyContentTemplate>
     </DxPopup>
 

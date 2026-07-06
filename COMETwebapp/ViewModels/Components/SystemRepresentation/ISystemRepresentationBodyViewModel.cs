@@ -27,6 +27,8 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
+    using COMETwebapp.ViewModels.Components.Common;
+
     /// <summary>
     /// View Model that handle the logic for the System Representation application
     /// </summary>
@@ -48,9 +50,9 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         SystemRepresentationTreeViewModel ProductTreeViewModel { get; }
 
         /// <summary>
-        /// The <see cref="IElementDefinitionDetailsViewModel" />
+        /// Gets the <see cref="IElementDetailsPanelViewModel" /> managing the editable element details panel.
         /// </summary>
-        IElementDefinitionDetailsViewModel ElementDefinitionDetailsViewModel { get; }
+        IElementDetailsPanelViewModel DetailsPanelViewModel { get; }
 
         /// <summary>
         /// All <see cref="ElementBase" /> of the iteration
@@ -61,7 +63,6 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// set the selected <see cref="SystemNodeViewModel" />
         /// </summary>
         /// <param name="selectedNode">The selected <see cref="SystemNodeViewModel" /></param>
-        /// <returns>A <see cref="Task" /></returns>
         void SelectElement(SystemNodeViewModel selectedNode);
 
         /// <summary>

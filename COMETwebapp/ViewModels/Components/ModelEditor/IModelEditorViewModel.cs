@@ -1,20 +1,20 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IModelEditorViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-// 
+//
 //     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
-// 
+//
 //     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-// 
+//
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
@@ -23,24 +23,23 @@
 namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
     using CDP4Common.EngineeringModelData;
-    using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
-    using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
+    using COMETwebapp.ViewModels.Components.Common;
     using COMETwebapp.ViewModels.Components.ModelEditor.CopySettings;
-    using COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionViewModel;
-    using COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewModel;
-    using COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreationViewModel;
-    using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
     /// <summary>
     /// Interface for the <see cref="ModelEditorViewModel" />
     /// </summary>
     public interface IModelEditorViewModel : ISingleIterationApplicationBaseViewModel
     {
+        /// <summary>
+        /// Gets the <see cref="IElementDetailsPanelViewModel" /> managing the editable element details panel.
+        /// </summary>
+        IElementDetailsPanelViewModel DetailsPanelViewModel { get; }
+
         /// <summary>
         /// Gets the target <see cref="Iteration"/> />
         /// </summary>
@@ -52,42 +51,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         Iteration SourceIteration { get; set; }
 
         /// <summary>
-        /// Value indicating the user is currently creating a new <see cref="ElementDefinition" />
-        /// </summary>
-        bool IsOnCreationMode { get; set; }
-
-        /// <summary>
-        /// Represents the selected ElementDefinitionRowViewModel
-        /// </summary>
-        ElementDefinition SelectedElementDefinition { get; set; }
-
-        /// <summary>
-        /// The <see cref="IElementDefinitionDetailsViewModel" />
-        /// </summary>
-        IElementDefinitionDetailsViewModel ElementDefinitionDetailsViewModel { get; }
-
-        /// <summary>
-        /// Gets the <see cref="IElementDefinitionCreationViewModel" />
-        /// </summary>
-        IElementDefinitionCreationViewModel ElementDefinitionCreationViewModel { get; set; }
-
-        /// <summary>
-        /// Gets the <see cref="IAddParameterViewModel" />
-        /// </summary>
-        IAddParameterViewModel AddParameterViewModel { get; set; }
-
-        /// <summary>
-        /// Gets the <see cref="ICopySettingsViewModel" />
-        /// </summary>
-        ICopySettingsViewModel CopySettingsViewModel { get; set; }
-
-        /// <summary>
-        /// Value indicating the user is currently adding a new <see cref="Parameter" /> to a <see cref="ElementDefinition" />
-        /// </summary>
-        bool IsOnAddingParameterMode { get; set; }
-
-        /// <summary>
-        /// Value indicating the user is currently setting the Copy settings that apply when a node is dropped 
+        /// Value indicating the user is currently setting the Copy settings that apply when a node is dropped
         /// </summary>
         bool IsOnCopySettingsMode { get; set; }
 
@@ -97,20 +61,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         bool IsSourceModelSameAsTargetModel { get; }
 
         /// <summary>
-        /// Opens the <see cref="ElementDefinitionCreation" /> popup
+        /// Gets the <see cref="ICopySettingsViewModel" />
         /// </summary>
-        void OpenCreateElementDefinitionCreationPopup();
-
-        /// <summary>
-        /// Set the selected <see cref="ElementDefinition" />
-        /// </summary>
-        /// <param name="selectedElementBase">The selected <see cref="ElementBase" /></param>
-        void SelectElement(ElementBase selectedElementBase);
-
-        /// <summary>
-        /// Opens the <see cref="AddParameter" /> popup
-        /// </summary>
-        void OpenAddParameterPopup();
+        ICopySettingsViewModel CopySettingsViewModel { get; set; }
 
         /// <summary>
         /// Opens the <see cref="COMETwebapp.Components.ModelEditor.CopySettings" /> popup
@@ -130,207 +83,5 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <param name="fromElementBase">The <see cref="ElementBase"/> to be added as <see cref="ElementUsage"/></param>
         /// <param name="toElementBase">The <see cref="ElementBase"/> where to add the new <see cref="ElementUsage"/> to</param>
         Task AddNewElementUsageAsync(ElementBase fromElementBase, ElementBase toElementBase);
-
-        /// <summary>
-        /// Gets the currently selected <see cref="ElementBase" /> — either an <see cref="ElementDefinition" /> or
-        /// an <see cref="ElementUsage" />. Mirrors <see cref="SelectedElementDefinition" /> for the
-        /// <see cref="ElementDefinition" /> case, but preserves the <see cref="ElementUsage" /> identity so the
-        /// delete affordance can target the usage rather than its containing definition.
-        /// </summary>
-        ElementBase SelectedElement { get; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the user is currently confirming deletion of
-        /// <see cref="SelectedElement" />.
-        /// </summary>
-        bool IsOnDeletionMode { get; set; }
-
-        /// <summary>
-        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the delete-confirmation popup.
-        /// </summary>
-        IConfirmCancelPopupViewModel DeleteElementPopupViewModel { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether <see cref="SelectedElement" /> is the iteration's
-        /// <see cref="Iteration.TopElement" />. The Delete affordance must be disabled in that case because
-        /// the iteration always requires a top element.
-        /// </summary>
-        bool IsSelectedElementTopElement { get; }
-
-        /// <summary>
-        /// Opens the delete-confirmation popup, composing a content message that names the selected
-        /// <see cref="ElementUsage" /> and its parent <see cref="ElementDefinition" />, or names the selected
-        /// <see cref="ElementDefinition" /> directly. No reference scan is performed: the COMET server
-        /// cascades cleanup of any referencing <see cref="ElementUsage" />s automatically when an
-        /// <see cref="ElementDefinition" /> is deleted.
-        /// </summary>
-        void OpenDeleteElementPopup();
-
-        /// <summary>
-        /// Performs the deletion of <see cref="SelectedElement" /> via the session service and clears the
-        /// selection on success.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
-        Task DeleteSelectedElementAsync();
-
-        /// <summary>
-        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the delete-confirmation popup for
-        /// a <see cref="Parameter" />. Kept separate from <see cref="DeleteElementPopupViewModel" /> so the
-        /// confirm callbacks remain unambiguous.
-        /// </summary>
-        IConfirmCancelPopupViewModel DeleteParameterPopupViewModel { get; }
-
-        /// <summary>
-        /// Opens the delete-confirmation popup for a <see cref="Parameter" />. Composes a content message
-        /// that names the parameter (its <see cref="ParameterType" />) and the containing
-        /// <see cref="ElementDefinition" />.
-        /// </summary>
-        /// <param name="parameter">The <see cref="Parameter" /> the user requested to delete.</param>
-        void OpenDeleteParameterPopup(Parameter parameter);
-
-        /// <summary>
-        /// Performs the deletion of the parameter previously passed to
-        /// <see cref="OpenDeleteParameterPopup" /> via the session service. Refreshes the details rows on
-        /// success and always closes the popup.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
-        Task DeleteSelectedParameterAsync();
-
-        /// <summary>
-        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the create-confirmation popup for a
-        /// new <see cref="ParameterSubscription" /> by the currently logged-in
-        /// <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" />.
-        /// </summary>
-        IConfirmCancelPopupViewModel CreateSubscriptionPopupViewModel { get; }
-
-        /// <summary>
-        /// Opens the create-confirmation popup for a <see cref="ParameterSubscription" />. Composes a content
-        /// message that names the parameter and the current domain. No-op when no current domain is known
-        /// or the parameter is already owned by the current domain.
-        /// </summary>
-        /// <param name="parameter">The <see cref="Parameter" /> the user wants to subscribe to.</param>
-        void OpenCreateSubscriptionPopup(Parameter parameter);
-
-        /// <summary>
-        /// Performs the creation of the <see cref="ParameterSubscription" /> previously captured by
-        /// <see cref="OpenCreateSubscriptionPopup" /> via the session service. Always closes the popup.
-        /// The visible card refresh is driven by the existing message-bus end-update / session-refreshed
-        /// pipeline, not by mutating the rows here.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing the asynchronous create operation.</returns>
-        Task CreateSubscriptionAsync();
-
-        /// <summary>
-        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the delete-confirmation popup for a
-        /// <see cref="ParameterSubscription" /> belonging to the currently logged-in
-        /// <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" />.
-        /// </summary>
-        IConfirmCancelPopupViewModel DeleteSubscriptionPopupViewModel { get; }
-
-        /// <summary>
-        /// Opens the delete-confirmation popup for a <see cref="ParameterSubscription" />. Composes a content
-        /// message that makes it explicit only the subscription is removed — the parent
-        /// <see cref="Parameter" /> is kept.
-        /// </summary>
-        /// <param name="subscription">The <see cref="ParameterSubscription" /> the user wants to delete.</param>
-        void OpenDeleteSubscriptionPopup(ParameterSubscription subscription);
-
-        /// <summary>
-        /// Performs the deletion of the <see cref="ParameterSubscription" /> previously captured by
-        /// <see cref="OpenDeleteSubscriptionPopup" /> via the session service. The parent
-        /// <see cref="Parameter" /> is used as the operation top container but is never included in the
-        /// things-to-delete collection, so the parameter itself stays. Always closes the popup.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
-        Task DeleteSelectedSubscriptionAsync();
-
-        /// <summary>
-        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the create-confirmation popup for a
-        /// new <see cref="ParameterOverride" /> on the currently selected <see cref="ElementUsage" /> by the
-        /// currently logged-in <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" />.
-        /// </summary>
-        IConfirmCancelPopupViewModel CreateOverridePopupViewModel { get; }
-
-        /// <summary>
-        /// Opens the create-confirmation popup for a <see cref="ParameterOverride" /> on the supplied
-        /// <see cref="ElementUsage" /> for the supplied <see cref="Parameter" />. Composes a content message
-        /// that names the parameter, the host usage, and the current domain. No-op when no current domain,
-        /// host usage, or parameter is provided.
-        /// </summary>
-        /// <param name="parameter">The <see cref="Parameter" /> the user wants to override.</param>
-        /// <param name="hostElementUsage">
-        /// The <see cref="ElementUsage" /> on which the new <see cref="ParameterOverride" /> will be created.
-        /// </param>
-        void OpenCreateOverridePopup(Parameter parameter, ElementUsage hostElementUsage);
-
-        /// <summary>
-        /// Performs the creation of the <see cref="ParameterOverride" /> previously captured by
-        /// <see cref="OpenCreateOverridePopup" /> via the session service. Always closes the popup. The
-        /// matching <see cref="ParameterOverrideValueSet" /> instances are generated server-side, so they
-        /// are not included in the things-to-create collection. The visible card refresh is driven by the
-        /// existing message-bus end-update / session-refreshed pipeline, not by mutating the rows here.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing the asynchronous create operation.</returns>
-        Task CreateOverrideAsync();
-
-        /// <summary>
-        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> driving the delete-confirmation popup for a
-        /// <see cref="ParameterOverride" /> on the currently selected <see cref="ElementUsage" />.
-        /// </summary>
-        IConfirmCancelPopupViewModel DeleteOverridePopupViewModel { get; }
-
-        /// <summary>
-        /// Opens the delete-confirmation popup for a <see cref="ParameterOverride" />. Composes a content
-        /// message that makes it explicit only the override is removed — the source <see cref="Parameter" />
-        /// on the contained <see cref="ElementDefinition" /> is kept.
-        /// </summary>
-        /// <param name="parameterOverride">The <see cref="ParameterOverride" /> the user wants to delete.</param>
-        void OpenDeleteOverridePopup(ParameterOverride parameterOverride);
-
-        /// <summary>
-        /// Performs the deletion of the <see cref="ParameterOverride" /> previously captured by
-        /// <see cref="OpenDeleteOverridePopup" /> via the session service. The parent
-        /// <see cref="ElementUsage" /> is used as the operation top container but is never included in the
-        /// things-to-delete collection, so the source <see cref="Parameter" /> on the contained
-        /// <see cref="ElementDefinition" /> stays. Always closes the popup.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing the asynchronous delete operation.</returns>
-        Task DeleteSelectedOverrideAsync();
-
-        /// <summary>
-        /// Gets the <see cref="IEditElementDefinitionViewModel" /> driving the edit-Element-Definition popup.
-        /// </summary>
-        IEditElementDefinitionViewModel EditElementDefinitionViewModel { get; }
-
-        /// <summary>
-        /// Gets the <see cref="IEditElementUsageViewModel" /> driving the edit-Element-Usage popup.
-        /// </summary>
-        IEditElementUsageViewModel EditElementUsageViewModel { get; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the user is currently editing
-        /// <see cref="SelectedElement" /> through the edit-Element popup.
-        /// </summary>
-        bool IsOnEditMode { get; set; }
-
-        /// <summary>
-        /// Opens the edit-Element popup for <see cref="SelectedElement" />, initializing whichever child
-        /// view model corresponds to the kind of selection.
-        /// </summary>
-        void OpenEditElementPopup();
-
-        /// <summary>
-        /// Performs the edit of the selected <see cref="ElementDefinition" /> via the session service.
-        /// Always closes the popup.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing the asynchronous edit operation.</returns>
-        Task EditElementDefinitionAsync();
-
-        /// <summary>
-        /// Performs the edit of the selected <see cref="ElementUsage" /> via the session service. Always
-        /// closes the popup.
-        /// </summary>
-        /// <returns>A <see cref="Task" /> representing the asynchronous edit operation.</returns>
-        Task EditElementUsageAsync();
     }
 }

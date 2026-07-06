@@ -44,6 +44,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Common;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -95,9 +96,6 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
             this.assembler = new Assembler(this.uri, this.messageBus);
             this.domain = new DomainOfExpertise(Guid.NewGuid(), this.assembler.Cache, this.uri);
-
-            this.viewModel = new SystemRepresentationBodyViewModel(this.sessionService.Object, this.messageBus);
-            this.context.Services.AddSingleton<ISystemRepresentationBodyViewModel>(this.viewModel);
 
             this.person = new Person(Guid.NewGuid(), this.assembler.Cache, this.uri);
 
@@ -243,6 +241,13 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.session.Setup(x => x.ActivePerson).Returns(this.person);
 
             this.sessionService.Setup(x => x.GetDomainOfExpertise(this.iteration)).Returns(this.domain);
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(this.siteDirectory);
+
+            var detailsPanelLogger = new Mock<ILogger<ElementDetailsPanelViewModel>>();
+            var detailsPanelViewModel = new ElementDetailsPanelViewModel(this.sessionService.Object, this.messageBus, detailsPanelLogger.Object);
+            var bodyLogger = new Mock<ILogger<SystemRepresentationBodyViewModel>>();
+            this.viewModel = new SystemRepresentationBodyViewModel(this.sessionService.Object, this.messageBus, detailsPanelViewModel, bodyLogger.Object);
+            this.context.Services.AddSingleton<ISystemRepresentationBodyViewModel>(this.viewModel);
         }
 
         [TearDown]
@@ -283,14 +288,14 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.SelectedSystemNode, Is.Not.Null);
-                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.Count, Is.EqualTo(1));
-                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ParameterTypeName, Is.EqualTo(this.iteration.Element[0].Parameter[0].ParameterType.Name));
-                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ShortName, Is.EqualTo(this.iteration.Element[0].Parameter[0].ParameterType.ShortName));
-                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().Owner, Is.EqualTo(this.iteration.Element[0].Parameter[0].Owner.ShortName));
-                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().PublishedValue, Is.Not.Null);
-                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().ActualValue, Is.Not.Null);
-                Assert.That(this.viewModel.ElementDefinitionDetailsViewModel.Rows.First().SwitchValue, Is.Not.Null);
+                Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.SelectedSystemNode, Is.Not.Null);
+                Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows.Count, Is.EqualTo(1));
+                Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows.First().ParameterTypeName, Is.EqualTo(this.iteration.Element[0].Parameter[0].ParameterType.Name));
+                Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows.First().ShortName, Is.EqualTo(this.iteration.Element[0].Parameter[0].ParameterType.ShortName));
+                Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows.First().Owner, Is.EqualTo(this.iteration.Element[0].Parameter[0].Owner.ShortName));
+                Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows.First().PublishedValue, Is.Not.Null);
+                Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows.First().ActualValue, Is.Not.Null);
+                Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows.First().SwitchValue, Is.Not.Null);
             });
         }
 
@@ -321,6 +326,11 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
             Assert.That(this.viewModel.ProductTreeViewModel.RootViewModel.GetChildren(), Has.Count.EqualTo(2));
 
+            // Re-sending the same Added event must NOT create a duplicate node.
+            this.messageBus.SendObjectChangeEvent(elementUsage, EventKind.Added);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+            Assert.That(this.viewModel.ProductTreeViewModel.RootViewModel.GetChildren(), Has.Count.EqualTo(2), "Re-adding the same ElementUsage must not duplicate the tree node.");
+
             elementUsage.Name = "updatedName";
             this.messageBus.SendObjectChangeEvent(elementUsage, EventKind.Updated);
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
@@ -336,7 +346,31 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             Assert.That(this.viewModel.ProductTreeViewModel.RootViewModel.GetChildren(), Has.Count.EqualTo(1));
 
             this.messageBus.SendMessage(new DomainChangedEvent(this.iteration, this.domain));
-            Assert.That(this.viewModel.CurrentDomain, Is.EqualTo(this.domain));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CurrentDomain, Is.EqualTo(this.domain));
+                Assert.That(this.viewModel.DetailsPanelViewModel.CurrentDomain, Is.EqualTo(this.domain));
+            });
+        }
+
+        [Test]
+        public void VerifyUsageExcludedFromSelectedOptionIsRemovedOnRefresh()
+        {
+            this.viewModel.OptionSelector.SelectedOption = this.iteration.DefaultOption;
+            this.viewModel.CurrentThing = this.iteration;
+
+            Assert.That(this.viewModel.ProductTreeViewModel.RootViewModel.GetChildren(), Has.Count.EqualTo(1));
+
+            // Editing a usage to exclude it from the selected option must remove it from the tree on refresh.
+            var usage = this.iteration.TopElement.ContainedElement[0];
+            usage.ExcludeOption.Add(this.iteration.DefaultOption);
+
+            this.messageBus.SendObjectChangeEvent(usage, EventKind.Updated);
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+
+            Assert.That(this.viewModel.ProductTreeViewModel.RootViewModel.GetChildren(), Has.Count.EqualTo(0),
+                "A usage excluded from the selected option must be removed from the product tree on refresh.");
         }
     }
 }

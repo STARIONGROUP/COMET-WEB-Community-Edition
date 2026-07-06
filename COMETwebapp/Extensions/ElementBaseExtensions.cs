@@ -23,12 +23,26 @@
 namespace COMETwebapp.Extensions
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     /// <summary>
     /// static extension methods for <see cref="ElementBase"/>
     /// </summary>
     public static class ElementBaseExtensions
     {
+        /// <summary>
+        /// Gets the categories to display for an <see cref="ElementBase"/>: for an <see cref="ElementUsage"/>
+        /// its own categories plus those of its <see cref="ElementDefinition"/>; otherwise the element's own.
+        /// </summary>
+        /// <param name="elementBase">the <see cref="ElementBase"/></param>
+        /// <returns>the distinct <see cref="Category"/> collection</returns>
+        public static IEnumerable<Category> GetDisplayCategories(this ElementBase elementBase)
+        {
+            return elementBase is ElementUsage usage
+                ? usage.Category.Concat(usage.ElementDefinition.Category).Distinct()
+                : elementBase.Category;
+        }
+
         /// <summary> 
         /// Gets the <see cref="ParameterBase"/> that an <see cref="ElementBase"/> uses 
         /// </summary> 

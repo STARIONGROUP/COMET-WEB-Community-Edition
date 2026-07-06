@@ -41,6 +41,19 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewMode
         ElementUsage ElementUsage { get; }
 
         /// <summary>
+        /// Gets the full list of <see cref="Option" />s available in the iteration, used to populate the
+        /// option-allocation multi-select in the edit form.
+        /// </summary>
+        IReadOnlyList<Option> AvailableOptions { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Option" />s the element usage is included in (the complement of
+        /// <see cref="ElementUsage.ExcludeOption" />). The form binds this to a multi-select; the calling
+        /// code derives the excluded options from the complement before writing.
+        /// </summary>
+        IEnumerable<Option> SelectedOptions { get; set; }
+
+        /// <summary>
         /// Gets the selector view model used by the form to pick the owning
         /// <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" />.
         /// </summary>

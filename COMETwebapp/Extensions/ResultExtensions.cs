@@ -22,7 +22,7 @@
 
 namespace COMETwebapp.Extensions
 {
-    using System.Text.RegularExpressions;
+    using System.Net;
 
     using AntDesign;
 
@@ -60,7 +60,7 @@ namespace COMETwebapp.Extensions
             {
                 errorLine = $"""
                              <a href="#errorDetails{errorId}" data-bs-toggle="collapse" aria-expanded="false" class="text-reset">{exceptionalError.Message}</a>
-                             <div class="collapse opacity-75" id="errorDetails{errorId}">{Regex.Unescape(exceptionalError.Exception.ToString())}</div>
+                             <div class="collapse opacity-75" id="errorDetails{errorId}">{WebUtility.HtmlEncode(exceptionalError.Exception.ToString())}</div>
                              """;
             }
             else
