@@ -17,12 +17,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.Components.RequirementsEditor
 @using COMETwebapp.Utilities
 @inherits COMET.Web.Common.Pages.SingleIterationPageTemplate
 @attribute [Route(WebAppConstantValues.RequirementManagementPage)]
 
-<SingleIterationApplicationTemplate ShowActiveModel="true">
+<SingleIterationApplicationTemplate IterationId="@this.RequestedIteration" ShowActiveModel="true">
     <Body>
-        Application in development.
+        <RequirementsEditorBody/>
     </Body>
 </SingleIterationApplicationTemplate>

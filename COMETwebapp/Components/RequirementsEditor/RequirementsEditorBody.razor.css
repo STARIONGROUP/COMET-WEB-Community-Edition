@@ -1,0 +1,406 @@
+/* Fills the tab height so the tree and document panels scroll independently. Works because the shared
+   TabsPanelComponent chain (.panel-view height:100% flex → #tabs-page-content flex:1) is definite. */
+.req-editor {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+.req-toolbar {
+    flex: 0 0 auto;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #eaecef;
+}
+
+.req-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+}
+
+.req-toolbar-right {
+    margin-left: auto;
+}
+
+.req-toolbar-label {
+    font-size: 0.8rem;
+    color: #667085;
+}
+
+.req-search {
+    flex: 1 1 220px;
+    min-width: 140px;
+    max-width: 360px;
+}
+
+.req-filter {
+    flex: 0 1 190px;
+    min-width: 130px;
+}
+
+.req-editor-layout {
+    display: flex;
+    gap: 16px;
+    flex: 1 1 auto;
+    min-height: 0;
+    align-items: stretch;
+}
+
+.req-toc {
+    flex: 0 0 300px;
+    min-height: 0;
+    overflow: auto;
+    border-right: 1px solid #eaecef;
+    padding-right: 8px;
+    transition: flex-basis 0.2s ease;
+}
+
+.req-editor-layout.toc-collapsed .req-toc {
+    flex-basis: 0;
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+    border: none;
+}
+
+.req-document {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    scroll-behavior: smooth;
+    padding-right: 8px;
+}
+
+/* --- table-of-contents tree (rendered by RequirementsTree) --- */
+
+.req-toc ::deep ul.req-tree {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.req-toc ::deep ul.req-tree-branch {
+    list-style: none;
+    margin: 0 0 0 9px;
+    padding-left: 0;
+}
+
+.req-toc ::deep ul.req-tree-branch > li {
+    position: relative;
+    padding-left: 14px;
+}
+
+/* vertical guide line: full height for a middle child, but the last child stops at the connector
+   so the line does not run past the final node to the bottom of the branch */
+.req-toc ::deep ul.req-tree-branch > li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #d6dae0;
+}
+
+.req-toc ::deep ul.req-tree-branch > li:last-child::before {
+    bottom: auto;
+    height: 13px;
+}
+
+/* horizontal connector from the vertical guide line to each node */
+.req-toc ::deep ul.req-tree-branch > li::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 13px;
+    width: 11px;
+    height: 1px;
+    background: #d6dae0;
+}
+
+.req-toc ::deep .req-tree-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.req-toc ::deep .req-tree-group {
+    flex: 0 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.req-toc ::deep .req-tree-row .req-pills {
+    margin-left: auto;
+    padding-left: 4px;
+}
+
+.req-toc ::deep .req-tree-row:hover {
+    background: #f2f5fa;
+}
+
+.req-toc ::deep .req-tree-spec {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.req-toc ::deep .req-tree-spec.selected {
+    background: #e7f1ff;
+}
+
+.req-toc ::deep .req-tree-chevron {
+    border: none;
+    background: none;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.req-toc ::deep .req-tree-chevron img {
+    width: 12px;
+    height: 12px;
+}
+
+.req-toc ::deep .req-tree-chevron-placeholder {
+    width: 16px;
+    flex-shrink: 0;
+}
+
+.req-toc ::deep .req-tree-group {
+    color: #344054;
+    text-decoration: none;
+}
+
+.req-toc ::deep .req-tree-group:hover {
+    text-decoration: underline;
+}
+
+.req-toc ::deep .req-tree-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- document (rendered by RequirementsDocument) --- */
+
+.req-document ::deep .req-spec-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid #2b3440;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+}
+
+.req-document ::deep .req-spec-id {
+    font-size: 1.7rem;
+    font-weight: 700;
+}
+
+.req-document ::deep .req-spec-name {
+    font-size: 1.4rem;
+    color: #475467;
+    flex: 1 1 auto;
+}
+
+.req-document ::deep .req-group {
+    margin-left: 14px;
+    padding-left: 14px;
+    border-left: 2px solid #eef0f3;
+}
+
+.req-document ::deep .req-group-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-weight: 700;
+    background: #f4f6f9;
+    border: 1px solid #e9edf2;
+    border-radius: 6px;
+    margin: 16px 0 8px;
+    padding: 6px 10px;
+}
+
+.req-document ::deep .req-group-level-1 {
+    font-size: 1.1rem;
+}
+
+.req-document ::deep .req-group-level-2 {
+    font-size: 1.02rem;
+}
+
+.req-document ::deep .req-group-level-3,
+.req-document ::deep .req-group-level-4 {
+    font-size: 0.96rem;
+}
+
+.req-document ::deep .req-collapse-btn {
+    border: none;
+    background: none;
+    padding: 0;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.req-document ::deep .req-collapse-btn img {
+    width: 13px;
+    height: 13px;
+}
+
+.req-document ::deep .req-group-id {
+    font-weight: 700;
+}
+
+.req-document ::deep .req-group-name {
+    color: #475467;
+    font-weight: 500;
+}
+
+.req-document ::deep .req-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 8px;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.req-document ::deep .req-row:hover {
+    background: #fafbfc;
+}
+
+.req-document ::deep .req-row-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.req-document ::deep .req-row-header .req-id {
+    margin-right: 8px;
+}
+
+.req-document ::deep .req-id {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.req-document ::deep .req-row-header .req-name {
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.req-document ::deep .req-def {
+    margin: 2px 0 0;
+    line-height: 1.5;
+    color: #1f2937;
+    white-space: pre-wrap;
+}
+
+.req-document ::deep .req-row-pills {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    text-align: end;
+}
+
+.req-document ::deep .req-pills {
+    display: inline-flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.req-document ::deep .req-spec-title .req-pills,
+.req-document ::deep .req-group-header .req-pills {
+    margin-left: auto;
+    padding-left: 8px;
+}
+
+.req-document ::deep .req-empty {
+    color: #98a2b3;
+    font-style: italic;
+    padding: 24px;
+}
+
+/* pill sizing: the shared .starion-pill is a fixed 19px with no horizontal padding, so text is
+   clipped. Give our pills real padding, centring and no-wrap so short names fit cleanly. */
+.req-toc ::deep .starion-pill,
+.req-document ::deep .starion-pill {
+    display: inline-flex;
+    align-items: center;
+    height: auto;
+    min-height: 18px;
+    padding: 1px 8px;
+    margin: 1px 0 1px 2px;
+    line-height: 1.2;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #1f2937;
+}
+
+/* Indent toggle: when off, flatten the group indentation so headers and requirements sit flush-left. */
+.req-document.no-indent ::deep .req-group {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+}
+
+/* Deprecated things (rendered only when the global "Show Deprecated Things" toggle is on). */
+.req-document ::deep .req-row-deprecated {
+    opacity: 0.6;
+}
+
+.req-document ::deep .req-row-deprecated .req-id,
+.req-document ::deep .req-row-deprecated .req-name,
+.req-document ::deep .req-row-deprecated .req-spec-id,
+.req-document ::deep .req-row-deprecated .req-spec-name {
+    text-decoration: line-through;
+}
+
+.req-document ::deep .req-deprecated-badge,
+.req-toc ::deep .req-tree-deprecated .req-tree-label {
+    white-space: nowrap;
+}
+
+.req-document ::deep .req-deprecated-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 18px;
+    padding: 1px 8px;
+    margin: 1px 2px;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    border-radius: 30px;
+    background: #fde2e1;
+    color: #b42318;
+    border: 1px solid #f5c2c0;
+}
+
+.req-toc ::deep .req-tree-deprecated .req-tree-label {
+    text-decoration: line-through;
+    color: #98a2b3;
+}

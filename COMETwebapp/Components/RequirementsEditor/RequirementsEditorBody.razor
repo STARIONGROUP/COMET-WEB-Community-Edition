@@ -1,0 +1,86 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.SiteDirectoryData
+@using COMETwebapp.Extensions
+@using COMETwebapp.Utilities
+@using COMETwebapp.ViewModels.Components.RequirementsEditor
+
+@inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.RequirementsEditor.IRequirementsEditorBodyViewModel>
+
+<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <div id="@WebAppConstantValues.RequirementManagementPage.QueryPageBodyName()" class="req-editor">
+        <div class="req-toolbar">
+            <DxButton RenderStyle="ButtonRenderStyle.Light"
+                      Text="@(this.ViewModel.IsTocCollapsed ? "»" : "«")"
+                      title="Toggle table of contents"
+                      Click="@(() => this.ViewModel.IsTocCollapsed = !this.ViewModel.IsTocCollapsed)"
+                      CssClass="req-collapse-toggle" />
+
+            <DxTextBox @bind-Text="@this.ViewModel.SearchText"
+                       BindValueMode="BindValueMode.OnDelayedInput"
+                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                       NullText="Search in definitions..."
+                       CssClass="req-search" />
+
+            <DxTagBox Data="@this.ViewModel.AvailableOwners"
+                      Values="@this.ViewModel.SelectedOwners"
+                      ValuesChanged="@((IEnumerable<DomainOfExpertise> values) => this.ViewModel.SelectedOwners = values.ToList())"
+                      TextFieldName="@nameof(DomainOfExpertise.ShortName)"
+                      NullText="Filter by owner..."
+                      CssClass="req-filter" />
+
+            <DxTagBox Data="@this.ViewModel.AvailableCategories"
+                      Values="@this.ViewModel.SelectedCategories"
+                      ValuesChanged="@((IEnumerable<Category> values) => this.ViewModel.SelectedCategories = values.ToList())"
+                      TextFieldName="@nameof(Category.ShortName)"
+                      NullText="Filter by category..."
+                      CssClass="req-filter" />
+
+            <div class="req-toolbar-group">
+                <span class="req-toolbar-label">Layout</span>
+                <div class="btn-group" role="group" aria-label="Requirement layout">
+                    @foreach (var mode in DisplayModes)
+                    {
+                        <DxButton RenderStyle="@(this.ViewModel.DisplayMode == mode ? ButtonRenderStyle.Primary : ButtonRenderStyle.Light)"
+                                  Text="@GetDisplayModeLabel(mode)"
+                                  title="@GetDisplayModeTitle(mode)"
+                                  Click="@(() => this.ViewModel.DisplayMode = mode)" />
+                    }
+                </div>
+            </div>
+
+            <div class="req-toolbar-group req-toolbar-right">
+                <DxCheckBox @bind-Checked="@this.ViewModel.IndentGroups" CheckType="CheckType.Switch">Indent</DxCheckBox>
+                <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
+                <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategory" CheckType="CheckType.Switch">Category</DxCheckBox>
+            </div>
+        </div>
+
+        <div class="req-editor-layout @(this.ViewModel.IsTocCollapsed ? "toc-collapsed" : string.Empty)">
+            <div class="req-toc">
+                <RequirementsTree ViewModel="@this.ViewModel" />
+            </div>
+            <div class="req-document @(this.ViewModel.IndentGroups ? string.Empty : "no-indent")">
+                <RequirementsDocument ViewModel="@this.ViewModel" />
+            </div>
+        </div>
+    </div>
+</LoadingComponent>
