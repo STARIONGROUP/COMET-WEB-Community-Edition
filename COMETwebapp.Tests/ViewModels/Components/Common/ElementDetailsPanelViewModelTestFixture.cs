@@ -238,6 +238,64 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
         }
 
         [Test]
+        public void VerifyOpenEditParameterPopup()
+        {
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+            this.viewModel.OpenEditParameterPopup(this.parameter);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsOnEditParameterMode, Is.True);
+                Assert.That(this.viewModel.EditParameterViewModel.Parameter, Is.Not.Null);
+                Assert.That(this.viewModel.EditParameterViewModel.Parameter.Iid, Is.EqualTo(this.parameter.Iid));
+                Assert.That(this.viewModel.EditParameterViewModel.Parameter, Is.Not.SameAs(this.parameter));
+            });
+
+            this.viewModel.IsOnEditParameterMode = false;
+            this.viewModel.OpenEditParameterPopup(null);
+
+            Assert.That(this.viewModel.IsOnEditParameterMode, Is.False, "A null parameter must not open the popup.");
+        }
+
+        [Test]
+        public void VerifyEditRoutesToSubscriptionWhenSubscribed()
+        {
+            var subscription = new ParameterSubscription { Iid = Guid.NewGuid(), Owner = this.currentDomain };
+
+            subscription.ValueSet.Add(new ParameterSubscriptionValueSet
+            {
+                Iid = Guid.NewGuid(),
+                SubscribedValueSet = this.foreignParameter.ValueSet[0],
+                Manual = new ValueArray<string>(["-"]),
+                ValueSwitch = ParameterSwitchKind.COMPUTED
+            });
+
+            this.foreignParameter.ParameterSubscription.Add(subscription);
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+
+            // Parameter the current domain subscribes to (but does not own) -> subscription dialog.
+            this.viewModel.OpenEditParameterPopup(this.foreignParameter);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsOnEditSubscriptionMode, Is.True);
+                Assert.That(this.viewModel.IsOnEditParameterMode, Is.False);
+                Assert.That(this.viewModel.EditParameterSubscriptionViewModel.Subscription, Is.Not.Null);
+            });
+
+            this.viewModel.IsOnEditSubscriptionMode = false;
+
+            // Parameter owned by the current domain -> parameter dialog.
+            this.viewModel.OpenEditParameterPopup(this.parameter);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsOnEditParameterMode, Is.True);
+                Assert.That(this.viewModel.IsOnEditSubscriptionMode, Is.False);
+            });
+        }
+
+        [Test]
         public void VerifyOpenDeleteElementPopupForDefinition()
         {
             this.viewModel.SelectElement(this.referencedElementDefinition);

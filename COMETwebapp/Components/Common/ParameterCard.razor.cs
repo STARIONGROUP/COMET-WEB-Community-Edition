@@ -58,6 +58,15 @@ namespace COMETwebapp.Components.Common
         public ElementDefinitionDetailsRowViewModel Row { get; set; }
 
         /// <summary>
+        ///     Optional callback invoked when the user clicks the edit affordance for the row's
+        ///     <see cref="ParameterOrOverrideBase" /> — the <see cref="ParameterOverride" /> when one exists on the
+        ///     selected usage, otherwise the underlying <see cref="Parameter" />. When unset, the edit affordance is
+        ///     not rendered.
+        /// </summary>
+        [Parameter]
+        public EventCallback<ParameterOrOverrideBase> OnEditParameter { get; set; }
+
+        /// <summary>
         ///     Optional callback invoked when the user clicks the delete affordance for a <see cref="Parameter" />.
         ///     When unset, the delete affordance is not rendered.
         /// </summary>

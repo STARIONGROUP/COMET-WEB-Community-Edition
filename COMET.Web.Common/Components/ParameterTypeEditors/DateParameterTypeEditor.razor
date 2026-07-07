@@ -22,11 +22,11 @@
 @inherits DisposableComponent
 
 @{
-    DateTime.TryParse(this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex], out var dateTime);
+    DateTime? dateTime = DateTime.TryParse(this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex], out var parsedDate) ? parsedDate : null;
 
     <DxDateEdit CssClass="date-parameter-type"
                 Date="dateTime"
-                DateChanged="@((DateTime date) => this.ViewModel.OnParameterValueChanged(date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)))"
+                DateChanged="@((DateTime? date) => this.ViewModel.OnParameterValueChanged(date?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? "-"))"
                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                 NullText="Select a date..."
                 ReadOnly="this.ViewModel.IsReadOnly"/>

@@ -33,6 +33,7 @@
 </div>
 
 <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"
+                    OnEditParameter="@(parameter => this.ViewModel.OpenEditParameterPopup(parameter))"
                     OnDeleteParameter="@(parameter => this.ViewModel.OpenDeleteParameterPopup(parameter))"
                     OnCreateSubscription="@(parameter => this.ViewModel.OpenCreateSubscriptionPopup(parameter))"
                     OnDeleteSubscription="@(subscription => this.ViewModel.OpenDeleteSubscriptionPopup(subscription))"
@@ -57,6 +58,18 @@
 <DxPopup CloseOnOutsideClick="false" HeaderText="Add Parameter" @bind-Visible="@this.ViewModel.IsOnAddingParameterMode" Width="40vw">
     <BodyContentTemplate>
         <AddParameter ViewModel="@this.ViewModel.AddParameterViewModel"/>
+    </BodyContentTemplate>
+</DxPopup>
+
+<DxPopup CloseOnOutsideClick="false" HeaderText="Edit Parameter" @bind-Visible="@this.ViewModel.IsOnEditParameterMode" Width="min(1150px, 90vw)">
+    <BodyContentTemplate>
+        <EditParameter ViewModel="@this.ViewModel.EditParameterViewModel"/>
+    </BodyContentTemplate>
+</DxPopup>
+
+<DxPopup CloseOnOutsideClick="false" HeaderText="Edit Parameter Subscription" @bind-Visible="@this.ViewModel.IsOnEditSubscriptionMode" Width="min(1000px, 90vw)">
+    <BodyContentTemplate>
+        <EditParameterSubscription ViewModel="@this.ViewModel.EditParameterSubscriptionViewModel"/>
     </BodyContentTemplate>
 </DxPopup>
 

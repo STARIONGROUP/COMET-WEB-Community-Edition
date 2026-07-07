@@ -82,6 +82,14 @@
                     <span class="oi oi-bell"></span>
                 </span>
             }
+            @if (this.OnEditParameter.HasDelegate)
+            {
+                <DxButton IconCssClass="oi oi-pencil"
+                          RenderStyleMode="ButtonRenderStyleMode.Text"
+                          CssClass="ms-1 flex-shrink-0"
+                          Click="@(() => this.OnEditParameter.InvokeAsync(this.Row.HasOverride ? this.Row.CurrentOverride : (ParameterOrOverrideBase)this.Row.Parameter))"
+                          title="Edit this parameter"/>
+            }
             @if (this.OnDeleteParameter.HasDelegate)
             {
                 <DxButton IconCssClass="oi oi-trash"

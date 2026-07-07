@@ -28,6 +28,8 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
 
     using COMET.Web.Common.Extensions;
 
+    using COMETwebapp.Utilities;
+
     using ReactiveUI;
 
     /// <summary>
@@ -178,71 +180,67 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
                 .ToList();
 
             var sourceValueSet = optionValueSets.FirstOrDefault();
-            var subscriptionValueSet = this.HasCurrentDomainSubscription
-                ? this.CurrentDomainSubscription.ValueSet.FirstOrDefault()
-                : null;
-            var overrideValueSet = this.HasOverride
-                ? this.CurrentOverride.ValueSet.FirstOrDefault(ovs => sourceValueSet != null && ovs.ParameterValueSet != null && ovs.ParameterValueSet.Iid == sourceValueSet.Iid)
-                  ?? this.CurrentOverride.ValueSet.FirstOrDefault()
-                : null;
+            
+            IValueSet EffectiveValueSet(ParameterValueSet valueSet)
+            {
+                if (this.HasOverride)
+                {
+                    var overrideValueSet = this.CurrentOverride.ValueSet.FirstOrDefault(ovs => ovs.ParameterValueSet != null && ovs.ParameterValueSet.Iid == valueSet.Iid)
+                                           ?? this.CurrentOverride.ValueSet.FirstOrDefault();
 
-            if (overrideValueSet != null)
-            {
-                this.ActualValue = FormatValue(overrideValueSet.ActualValue, parameter.Scale);
-                this.SwitchValue = overrideValueSet.ValueSwitch.ToString();
-            }
-            else if (subscriptionValueSet != null)
-            {
-                this.ActualValue = FormatValue(subscriptionValueSet.ActualValue, parameter.Scale);
-                this.SwitchValue = subscriptionValueSet.ValueSwitch.ToString();
-            }
-            else
-            {
-                this.ActualValue = sourceValueSet != null ? FormatValue(sourceValueSet.ActualValue, parameter.Scale) : string.Empty;
-                this.SwitchValue = sourceValueSet?.ValueSwitch.ToString() ?? string.Empty;
+                    if (overrideValueSet != null)
+                    {
+                        return overrideValueSet;
+                    }
+                }
+
+                if (this.HasCurrentDomainSubscription)
+                {
+                    var subscriptionValueSet = this.CurrentDomainSubscription.ValueSet.FirstOrDefault(svs => svs.SubscribedValueSet != null && svs.SubscribedValueSet.Iid == valueSet.Iid)
+                                               ?? this.CurrentDomainSubscription.ValueSet.FirstOrDefault();
+
+                    if (subscriptionValueSet != null)
+                    {
+                        return subscriptionValueSet;
+                    }
+                }
+
+                return valueSet;
             }
 
-            this.PublishedValue = sourceValueSet != null ? FormatValue(sourceValueSet.Published, parameter.Scale) : string.Empty;
+            var effectiveSource = sourceValueSet != null ? EffectiveValueSet(sourceValueSet) : null;
+            this.ActualValue = effectiveSource != null ? ParameterValueFormatter.Format(effectiveSource.ActualValue, parameter.ParameterType, parameter.Scale) : string.Empty;
+            this.SwitchValue = effectiveSource?.ValueSwitch.ToString() ?? string.Empty;
+
+            this.PublishedValue = sourceValueSet != null ? ParameterValueFormatter.Format(sourceValueSet.Published, parameter.ParameterType, parameter.Scale) : string.Empty;
 
             this.Owner = this.HasOverride && this.CurrentOverride.Owner != null
                 ? this.CurrentOverride.Owner.ShortName
                 : parameter.Owner.ShortName;
 
-            // State-dependent value breakdown: one row per ActualState across the option-filtered value sets.
+            // State-dependent value breakdown: one row per ActualState. The Actual / Switch reflect the current
+            // domain's effective value set (override or subscription); Published stays the owner's published value.
             this.IsStateDependent = parameter.StateDependence != null && optionValueSets.Any(vs => vs.ActualState != null);
 
             this.StateValues = this.IsStateDependent
                 ? optionValueSets
                     .Where(vs => vs.ActualState != null)
                     .OrderBy(vs => vs.ActualState.Name)
-                    .Select(vs => new ParameterStateValueRowViewModel(
-                        vs.ActualState.Name,
-                        FormatValue(vs.ActualValue, parameter.Scale),
-                        FormatValue(vs.Published, parameter.Scale),
-                        vs.ValueSwitch.ToString()))
+                    .Select(vs =>
+                    {
+                        var effective = EffectiveValueSet(vs);
+                        return new ParameterStateValueRowViewModel(
+                            vs.ActualState.Name,
+                            ParameterValueFormatter.Format(effective.ActualValue, parameter.ParameterType, parameter.Scale),
+                            ParameterValueFormatter.Format(vs.Published, parameter.ParameterType, parameter.Scale),
+                            effective.ValueSwitch.ToString());
+                    })
                     .ToList()
                 : [];
 
             this.IsOptionDependent = parameter.IsOptionDependent;
             this.ModelCode = parameter.ModelCode();
             this.Parameter = parameter;
-        }
-
-        /// <summary>
-        /// Formats a <see cref="ValueArray{T}" /> of strings as a single display value: comma-separates the
-        /// entries, wraps them in braces when there is more than one, and appends a <c>[shortName]</c> scale
-        /// suffix when <paramref name="scale" /> is not <c>null</c>.
-        /// </summary>
-        /// <param name="values">The value array to format.</param>
-        /// <param name="scale">The <see cref="MeasurementScale" /> whose short name is appended as a unit suffix, or <c>null</c>.</param>
-        /// <returns>The formatted display string.</returns>
-        private static string FormatValue(IEnumerable<string> values, MeasurementScale scale)
-        {
-            var list = values.ToList();
-            var joined = string.Join(", ", list);
-            var display = list.Count > 1 ? "{" + joined + "}" : joined;
-
-            return scale != null ? display + " [" + scale.ShortName + "]" : display;
         }
 
         /// <summary>

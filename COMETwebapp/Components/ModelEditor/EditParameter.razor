@@ -1,0 +1,214 @@
+<!------------------------------------------------------------------------------
+// Copyright (c) 2023-2026 Starion Group S.A.
+//
+//    This file is part of CDP4-COMET WEB Community Edition
+//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@namespace COMETwebapp.Components.ModelEditor
+@using CDP4Common.EngineeringModelData
+@using CDP4Common.SiteDirectoryData
+@using COMET.Web.Common.ViewModels.Components.ParameterEditors
+@using COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel
+@inherits DisposableComponent
+
+@if (this.ViewModel.Parameter is not null)
+{
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages>
+            <DxFormLayoutTabPage Caption="Basic">
+                @* The metadata fields stay fixed; only the values grid below scrolls (as in the desktop IME). *@
+                <div class="edit-parameter-tab">
+                    <div class="edit-parameter-fields">
+                        <DxFormLayout>
+                            <DxFormLayoutItem Caption="Owner:" ColSpanMd="12" ColSpanSm="6">
+                                <DomainOfExpertiseSelector ViewModel="@(this.ViewModel.DomainOfExpertiseSelectorViewModel)"
+                                                           DisplayText="@(string.Empty)"/>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12" ColSpanSm="6">
+                                <DxTextBox Text="@this.ViewModel.ParameterTypeName" ReadOnly="true"/>
+                            </DxFormLayoutItem>
+
+                            @if (this.ViewModel.Parameter.ParameterType is QuantityKind)
+                            {
+                                <DxFormLayoutItem Caption="Scale:" ColSpanMd="12" ColSpanSm="6">
+                                    <MeasurementScaleSelector ViewModel="@(this.ViewModel.MeasurementScaleSelectorViewModel)"/>
+                                </DxFormLayoutItem>
+                            }
+
+                            @if (this.ViewModel.IsParameter)
+                            {
+                                <DxFormLayoutItem Caption="State Dependence:" ColSpanMd="12" ColSpanSm="6">
+                                    <DxComboBox Data="@this.ViewModel.PossibleFiniteStates"
+                                                TextFieldName="@nameof(ActualFiniteStateList.Name)"
+                                                @bind-Value="@this.ViewModel.SelectedStateDependence"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"/>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Group:" ColSpanMd="12" ColSpanSm="6">
+                                    <DxComboBox Data="@this.ViewModel.ParameterGroups"
+                                                TextFieldName="@nameof(ParameterGroup.Name)"
+                                                @bind-Value="@this.ViewModel.ParameterAsParameter.Group"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"/>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Option Dependent:" ColSpanMd="12" ColSpanSm="6">
+                                    <DxCheckBox @bind-Checked="@this.ViewModel.IsOptionDependent"/>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Expects Override:" ColSpanMd="12" ColSpanSm="6">
+                                    <DxCheckBox @bind-Checked="@this.ViewModel.ParameterAsParameter.ExpectsOverride"/>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Different Owner on Override:" ColSpanMd="12" ColSpanSm="6">
+                                    <DxCheckBox @bind-Checked="@this.ViewModel.ParameterAsParameter.AllowDifferentOwnerOfOverride"/>
+                                </DxFormLayoutItem>
+                            }
+
+                            <DxFormLayoutItem Caption="Model Code:" ColSpanMd="12" ColSpanSm="6">
+                                <DxTextBox Text="@this.ViewModel.ModelCode" ReadOnly="true"/>
+                            </DxFormLayoutItem>
+                        </DxFormLayout>
+                    </div>
+
+                    <div class="edit-parameter-values-label">Values:</div>
+                    <div class="edit-parameter-values-area">
+                        @if (this.ViewModel.ValuesEditable)
+                        {
+                            <DxGrid Data="@this.ViewModel.ValueRows" CssClass="default-grid edit-parameter-values" Width="100%" ShowAllRows="true" VerticalScrollBarMode="ScrollBarMode.Auto" HorizontalScrollBarMode="ScrollBarMode.Auto">
+                                <Columns>
+                                    @if (this.IsCompound)
+                                    {
+                                        <DxGridDataColumn FieldName="@nameof(EditParameterValueSetRowViewModel.Name)" Caption="Name" MinWidth="90"/>
+                                    }
+                                    @if (this.HasOptionColumn)
+                                    {
+                                        <DxGridDataColumn FieldName="@nameof(EditParameterValueSetRowViewModel.OptionName)" Caption="Option" MinWidth="70"/>
+                                    }
+                                    @if (this.HasStateColumn)
+                                    {
+                                        <DxGridDataColumn FieldName="@nameof(EditParameterValueSetRowViewModel.StateName)" Caption="State" MinWidth="60"/>
+                                    }
+                                    <DxGridDataColumn FieldName="@nameof(EditParameterValueSetRowViewModel.ActualValue)" Caption="Actual Value" MinWidth="80"/>
+                                    <DxGridDataColumn Caption="Switch" MinWidth="110">
+                                        <CellDisplayTemplate Context="cell">
+                                            @if (cell.DataItem is EditParameterValueSetRowViewModel row)
+                                            {
+                                                <ParameterSwitchKindSelector ViewModel="@row.ParameterSwitchKindSelectorViewModel"/>
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(EditParameterValueSetRowViewModel.ComputedValue)" Caption="Computed" MinWidth="80"/>
+                                    <DxGridDataColumn Caption="Manual" MinWidth="130">
+                                        <CellDisplayTemplate Context="cell">
+                                            @if (cell.DataItem is EditParameterValueSetRowViewModel row)
+                                            {
+                                                <ParameterTypeEditorSelector ViewModel="@row.ManualEditorViewModel"
+                                                                             BindValueMode="BindValueMode.OnLostFocus"/>
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn Caption="Reference" MinWidth="130">
+                                        <CellDisplayTemplate Context="cell">
+                                            @if (cell.DataItem is EditParameterValueSetRowViewModel row)
+                                            {
+                                                <ParameterTypeEditorSelector ViewModel="@row.ReferenceEditorViewModel"
+                                                                             BindValueMode="BindValueMode.OnLostFocus"/>
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    @if (this.IsCompound)
+                                    {
+                                        <DxGridDataColumn FieldName="@nameof(EditParameterValueSetRowViewModel.ScaleShortName)" Caption="Scale" MinWidth="70"/>
+                                        <DxGridDataColumn FieldName="@nameof(EditParameterValueSetRowViewModel.ParameterTypeName)" Caption="Parameter Type" MinWidth="120"/>
+                                    }
+                                </Columns>
+                            </DxGrid>
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">@this.ViewModel.ValuesDisabledReason</p>
+                        }
+                    </div>
+                </div>
+            </DxFormLayoutTabPage>
+
+            <DxFormLayoutTabPage Caption="Subscriptions">
+                <div class="edit-parameter-tab">
+                    <div class="edit-parameter-values-area">
+                        @if (this.ViewModel.SubscriptionRows.Count == 0)
+                        {
+                            <p class="text-muted mb-0">No subscriptions.</p>
+                        }
+                        else
+                        {
+                            <DxGrid Data="@this.ViewModel.SubscriptionRows" CssClass="default-grid" ShowAllRows="true">
+                                <Columns>
+                                    <DxGridDataColumn FieldName="@nameof(ParameterSubscriptionInfoRowViewModel.OwnerShortName)" Caption="Owner"/>
+                                    @if (this.HasOptionColumn)
+                                    {
+                                        <DxGridDataColumn FieldName="@nameof(ParameterSubscriptionInfoRowViewModel.OptionName)" Caption="Option"/>
+                                    }
+                                    @if (this.HasStateColumn)
+                                    {
+                                        <DxGridDataColumn FieldName="@nameof(ParameterSubscriptionInfoRowViewModel.StateName)" Caption="State"/>
+                                    }
+                                    <DxGridDataColumn FieldName="@nameof(ParameterSubscriptionInfoRowViewModel.SwitchValue)" Caption="Switch"/>
+                                    <DxGridDataColumn FieldName="@nameof(ParameterSubscriptionInfoRowViewModel.Value)" Caption="Value"/>
+                                </Columns>
+                            </DxGrid>
+                        }
+                    </div>
+                </div>
+            </DxFormLayoutTabPage>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+
+    <div class="modal-footer m-top-10px">
+        <DxButton Text="Cancel" RenderStyle="ButtonRenderStyle.Secondary" Click="@(() => this.ViewModel.CancelAsync())"/>
+        <DxButton Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@(() => this.ViewModel.SaveAsync())"/>
+    </div>
+
+    @if (this.ViewModel.IsOnComponentEditMode)
+    {
+        var componentEditorParameters = new Dictionary<string, object>
+        {
+            { "ViewModel", this.ViewModel.HaveComponentParameterTypeEditorViewModel },
+            { "IsOnEditMode", true }
+        };
+
+        Type componentEditorType = null;
+        var componentHeaderText = string.Empty;
+        var isComponentCloseButtonAvailable = true;
+
+        switch (this.ViewModel.HaveComponentParameterTypeEditorViewModel)
+        {
+            case CompoundParameterTypeEditorViewModel:
+                componentEditorType = typeof(CompoundParameterTypeEditor);
+                componentHeaderText = "Edit Compound ParameterType";
+                break;
+
+            case SampledFunctionParameterTypeEditorViewModel:
+                componentEditorType = typeof(SampledFunctionParameterTypeEditor);
+                componentHeaderText = "Edit Sampled Function ParameterType";
+                componentEditorParameters["OnAfterCancel"] = this.closeComponentEditor;
+                componentEditorParameters["OnAfterEdit"] = this.closeComponentEditor;
+                isComponentCloseButtonAvailable = false;
+                break;
+        }
+
+        <DxPopup @bind-Visible="@this.ViewModel.IsOnComponentEditMode" HeaderText="@componentHeaderText" Width="auto" CloseOnOutsideClick="false"
+                 CloseOnEscape="@isComponentCloseButtonAvailable" ShowCloseButton="@isComponentCloseButtonAvailable">
+            <DynamicComponent Type="componentEditorType" Parameters="componentEditorParameters"/>
+        </DxPopup>
+    }
+}

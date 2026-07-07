@@ -29,6 +29,8 @@ namespace COMETwebapp.ViewModels.Components.Common
 
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
     using COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionViewModel;
+    using COMETwebapp.ViewModels.Components.ModelEditor.EditParameterSubscriptionViewModel;
+    using COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel;
     using COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewModel;
     using COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreationViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
@@ -86,6 +88,16 @@ namespace COMETwebapp.ViewModels.Components.Common
         /// Gets the <see cref="IAddParameterViewModel" /> that drives the add-parameter popup.
         /// </summary>
         IAddParameterViewModel AddParameterViewModel { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="IEditParameterViewModel" /> that drives the edit-parameter popup.
+        /// </summary>
+        IEditParameterViewModel EditParameterViewModel { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IEditParameterSubscriptionViewModel" /> that drives the edit-parameter-subscription popup.
+        /// </summary>
+        IEditParameterSubscriptionViewModel EditParameterSubscriptionViewModel { get; }
 
         /// <summary>
         /// Gets the <see cref="IEditElementDefinitionViewModel" /> that drives the edit-Element-Definition popup.
@@ -174,6 +186,18 @@ namespace COMETwebapp.ViewModels.Components.Common
         /// Gets or sets a value indicating whether the user is currently editing the selected element.
         /// </summary>
         bool IsOnEditMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user is currently editing a <see cref="Parameter" /> or
+        /// <see cref="ParameterOverride" /> through the edit-parameter popup.
+        /// </summary>
+        bool IsOnEditParameterMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user is currently editing a <see cref="ParameterSubscription" />
+        /// through the edit-parameter-subscription popup.
+        /// </summary>
+        bool IsOnEditSubscriptionMode { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the edit popup is currently targeting an
@@ -276,6 +300,12 @@ namespace COMETwebapp.ViewModels.Components.Common
         /// Opens the add-parameter popup.
         /// </summary>
         void OpenAddParameterPopup();
+
+        /// <summary>
+        /// Opens the edit-parameter popup for the supplied <see cref="ParameterOrOverrideBase" />.
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterOrOverrideBase" /> the user requested to edit.</param>
+        void OpenEditParameterPopup(ParameterOrOverrideBase parameter);
 
         /// <summary>
         /// Opens the create-element-definition popup.

@@ -36,6 +36,8 @@ namespace COMETwebapp.ViewModels.Components.Common
 
     using COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel;
     using COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionViewModel;
+    using COMETwebapp.ViewModels.Components.ModelEditor.EditParameterSubscriptionViewModel;
+    using COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel;
     using COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewModel;
     using COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreationViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
@@ -94,6 +96,16 @@ namespace COMETwebapp.ViewModels.Components.Common
         /// Backing field for <see cref="IsOnDeletionMode" />.
         /// </summary>
         private bool isOnDeletionMode;
+
+        /// <summary>
+        /// Backing field for <see cref="IsOnEditParameterMode" />.
+        /// </summary>
+        private bool isOnEditParameterMode;
+
+        /// <summary>
+        /// Backing field for <see cref="IsOnEditSubscriptionMode" />.
+        /// </summary>
+        private bool isOnEditSubscriptionMode;
 
         /// <summary>
         /// Backing field for <see cref="SelectedElement" />.
@@ -199,6 +211,16 @@ namespace COMETwebapp.ViewModels.Components.Common
             this.AddParameterViewModel = new COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel.AddParameterViewModel(sessionService, messageBus)
             {
                 OnParameterAdded = eventCallbackFactory.Create(this, () => this.IsOnAddingParameterMode = false)
+            };
+
+            this.EditParameterViewModel = new COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel.EditParameterViewModel(sessionService, messageBus)
+            {
+                OnParameterEdited = eventCallbackFactory.Create(this, () => this.IsOnEditParameterMode = false)
+            };
+
+            this.EditParameterSubscriptionViewModel = new COMETwebapp.ViewModels.Components.ModelEditor.EditParameterSubscriptionViewModel.EditParameterSubscriptionViewModel(sessionService, messageBus)
+            {
+                OnSubscriptionEdited = eventCallbackFactory.Create(this, () => this.IsOnEditSubscriptionMode = false)
             };
 
             this.DeleteElementPopupViewModel = new ConfirmCancelPopupViewModel
@@ -332,6 +354,16 @@ namespace COMETwebapp.ViewModels.Components.Common
         public IAddParameterViewModel AddParameterViewModel { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="IEditParameterViewModel" /> that drives the edit-parameter popup.
+        /// </summary>
+        public IEditParameterViewModel EditParameterViewModel { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IEditParameterSubscriptionViewModel" /> that drives the edit-parameter-subscription popup.
+        /// </summary>
+        public IEditParameterSubscriptionViewModel EditParameterSubscriptionViewModel { get; }
+
+        /// <summary>
         /// Gets the <see cref="IEditElementDefinitionViewModel" /> that drives the edit-Element-Definition popup.
         /// </summary>
         public IEditElementDefinitionViewModel EditElementDefinitionViewModel { get; }
@@ -456,6 +488,26 @@ namespace COMETwebapp.ViewModels.Components.Common
         {
             get => this.isOnEditMode;
             set => this.RaiseAndSetIfChanged(ref this.isOnEditMode, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user is currently editing a <see cref="Parameter" /> or
+        /// <see cref="ParameterOverride" /> through the edit-parameter popup.
+        /// </summary>
+        public bool IsOnEditParameterMode
+        {
+            get => this.isOnEditParameterMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnEditParameterMode, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user is currently editing a <see cref="ParameterSubscription" />
+        /// through the edit-parameter-subscription popup.
+        /// </summary>
+        public bool IsOnEditSubscriptionMode
+        {
+            get => this.isOnEditSubscriptionMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnEditSubscriptionMode, value);
         }
 
         /// <summary>
@@ -1396,6 +1448,36 @@ namespace COMETwebapp.ViewModels.Components.Common
         {
             this.AddParameterViewModel.ResetValues();
             this.IsOnAddingParameterMode = true;
+        }
+
+        /// <summary>
+        /// Opens the appropriate edit popup for the supplied <see cref="ParameterOrOverrideBase" />: when the current
+        /// domain does not own it but has a <see cref="ParameterSubscription" /> on it, the Edit Parameter Subscription
+        /// popup is opened (editing the subscription's values); otherwise the Edit Parameter popup is opened.
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterOrOverrideBase" /> the user requested to edit.</param>
+        public void OpenEditParameterPopup(ParameterOrOverrideBase parameter)
+        {
+            if (parameter is null)
+            {
+                return;
+            }
+
+            var currentDomainSubscription = this.CurrentDomain is null
+                ? null
+                : parameter.ParameterSubscription.FirstOrDefault(subscription => subscription.Owner != null && subscription.Owner.Iid == this.CurrentDomain.Iid);
+
+            var isOwnedByCurrentDomain = parameter.Owner != null && this.CurrentDomain != null && parameter.Owner.Iid == this.CurrentDomain.Iid;
+
+            if (currentDomainSubscription is not null && !isOwnedByCurrentDomain)
+            {
+                this.EditParameterSubscriptionViewModel.SetSubscription(currentDomainSubscription, this.CurrentIteration);
+                this.IsOnEditSubscriptionMode = true;
+                return;
+            }
+
+            this.EditParameterViewModel.SetParameter(parameter, this.CurrentIteration, this.CurrentDomain);
+            this.IsOnEditParameterMode = true;
         }
 
         /// <summary>

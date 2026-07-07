@@ -60,6 +60,12 @@ namespace COMETwebapp.Components.Common
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditMode)
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditParameterMode)
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditSubscriptionMode)
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnParameterGroupEditMode)
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
