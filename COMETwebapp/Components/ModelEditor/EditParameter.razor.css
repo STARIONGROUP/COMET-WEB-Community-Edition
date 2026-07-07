@@ -1,0 +1,64 @@
+/* -----------------------------------------------------------------------------
+   Copyright (c) 2023-2026 Starion Group S.A.
+
+   This file is part of CDP4-COMET WEB Community Edition
+   The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+   The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Affero General Public
+   License as published by the Free Software Foundation; either
+   version 3 of the License, or (at your option) any later version.
+
+   The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+   Affero General Public License for more details.
+
+   You should have received a copy of the GNU Affero General Public License
+   along with this program. If not, see http://www.gnu.org/licenses/.
+----------------------------------------------------------------------------- */
+
+/* The metadata fields keep their natural height; only the values grid is bounded and scrolls
+   (as in the desktop IME), so the dialog stays compact and never taller than the viewport. */
+.edit-parameter-tab {
+    padding-top: 8px;
+    min-width: 0;
+    min-height: 62vh;
+}
+
+.edit-parameter-fields {
+    min-width: 0;
+}
+
+.edit-parameter-values-label {
+    margin: 8px 0 4px 0;
+    font-weight: 600;
+}
+
+/* A fixed-height region holding the grid; the grid scrolls INSIDE it (DevExpress's own bounded
+   viewport), which keeps the header row sticky and puts a single horizontal scrollbar at the bottom of
+   the visible viewport (always reachable) instead of below all the rows. */
+.edit-parameter-values-area {
+    height: 34vh;
+    min-width: 0;
+}
+
+/* The grid fills the fixed-height area so DevExpress bounds its own scroll viewport. */
+.edit-parameter-values-area ::deep .edit-parameter-values {
+    height: 100%;
+}
+
+/* Make the Manual / Reference value editors fill their grid cell so there is no
+   empty space to the right of the input box. */
+.edit-parameter-values-area ::deep .edit-parameter-values .editor-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.edit-parameter-values-area ::deep .edit-parameter-values .parameter-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+}

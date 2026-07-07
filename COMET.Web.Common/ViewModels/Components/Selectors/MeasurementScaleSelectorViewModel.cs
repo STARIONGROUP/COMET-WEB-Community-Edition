@@ -49,7 +49,7 @@ namespace COMET.Web.Common.ViewModels.Components.Selectors
         public MeasurementScaleSelectorViewModel(ISessionService sessionService)
         {
             this.AvailableMeasurementScales = sessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.Scale).OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
-            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedMeasurementScale).SubscribeAsync(this.OnSelectedMeasurementScaleChange.InvokeAsync));
+            this.Disposables.Add(this.WhenAnyValue(x => x.SelectedMeasurementScale).SubscribeAsync(async scale => await this.OnSelectedMeasurementScaleChange.InvokeAsync(scale)));
         }
 
         /// <summary>

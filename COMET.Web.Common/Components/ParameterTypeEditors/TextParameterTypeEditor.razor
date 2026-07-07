@@ -42,29 +42,38 @@ else
         <DxTextBox Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
                    InputCssClass="text-prameter-editor"
                    CssClass="parameter-input"
-                   ReadOnly="true">
+                   BindValueMode="@this.BindValueMode"
+                   TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"
+                   ReadOnly="this.ViewModel.IsReadOnly">
             <Buttons>
                 <DxEditorButton IconCssClass="icon icon-edit"
                                 Tooltip="Open Multiline editor"
                                 Click="this.OpenMemoPopup" />
             </Buttons>
         </DxTextBox>
-    </Tooltip>   
+    </Tooltip>
 
     @if (this.ViewModel.Parameter?.Scale != null)
     {
         <span class="content-scale">[@this.ViewModel.Parameter.Scale.ShortName]</span>
     }
 
-    <DxPopup @bind-Visible="@this.IsOnEditMode" HeaderText="@this.ViewModel.ParameterType.Name" Shown="OnShown" Width="auto" CloseOnOutsideClick="true" MaxHeight="1000" MaxWidth="900" MinWidth="400">
-        <DxMemo @ref="this.multiLineEditor"
-                BindValueMode="@this.BindValueMode"
-                Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
-                TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"
-                NullText="Type text..."
-                ReadOnly="this.ViewModel.IsReadOnly"
-                CssClass="cw-480"
-                Rows="5" />
+    <DxPopup @bind-Visible="@this.IsOnEditMode" HeaderText="@this.ViewModel.ParameterType.Name" Shown="OnShown" Width="auto" CloseOnOutsideClick="true" MaxHeight="1000" MaxWidth="900" MinWidth="400" ShowFooter="true">
+        <Content>
+            <DxMemo @ref="this.multiLineEditor"
+                    BindValueMode="@this.BindValueMode"
+                    Text="@this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex]"
+                    TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"
+                    NullText="Type text..."
+                    ReadOnly="this.ViewModel.IsReadOnly"
+                    CssClass="cw-480"
+                    Rows="5" />
+        </Content>
+        <FooterTemplate>
+            <div class="modal-footer">
+                <DxButton Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@(() => this.IsOnEditMode = false)"/>
+            </div>
+        </FooterTemplate>
     </DxPopup>
 }
 

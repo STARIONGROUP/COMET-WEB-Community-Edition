@@ -24,28 +24,29 @@
 @{
     var dateTimeStringSplitted = this.ViewModel.ValueArray[this.ViewModel.ValueArrayIndex].Split('T');
     var timeSpan = TimeSpan.Zero;
+    DateTime? dateTime = null;
 
-    if (!DateTime.TryParse(dateTimeStringSplitted[0], out var dateTime))
+    if (DateTime.TryParse(dateTimeStringSplitted[0], out var parsedDateTime))
     {
-        dateTime = default;
-    }
-    else
-    {
-        var timeString = dateTimeStringSplitted[1];
+        dateTime = parsedDateTime;
+        var timeString = dateTimeStringSplitted.Length > 1 ? dateTimeStringSplitted[1] : string.Empty;
         var values = timeString.Split(':');
 
-        int.TryParse(values[0], out var hours);
-        int.TryParse(values[1], out var minutes);
-        int.TryParse(values[2], out var seconds);
+        if (values.Length == 3)
+        {
+            int.TryParse(values[0], out var hours);
+            int.TryParse(values[1], out var minutes);
+            int.TryParse(values[2], out var seconds);
 
-        timeSpan = new TimeSpan(hours, minutes, seconds);
+            timeSpan = new TimeSpan(hours, minutes, seconds);
+        }
     }
 
     <DxDateEdit CssClass="date-time-parameter-type cw-320"
                 Date="@dateTime"
                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                DateChanged="@((DateTime date) => this.ViewModel.OnParameterValueChanged(date))"
-                NullText="Select a date..." 
+                DateChanged="@((DateTime? date) => date.HasValue ? this.ViewModel.OnParameterValueChanged(date.Value) : Task.CompletedTask)"
+                NullText="Select a date..."
                 ReadOnly="this.ViewModel.IsReadOnly"/>
                 
     <DxTimeEdit Time="@timeSpan" CssClass="cw-320"

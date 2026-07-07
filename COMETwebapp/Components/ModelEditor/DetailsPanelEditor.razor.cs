@@ -51,6 +51,15 @@ namespace COMETwebapp.Components.ModelEditor
         public IElementDefinitionDetailsViewModel ViewModel { get; set; }
 
         /// <summary>
+        ///     Optional callback invoked when the user clicks the per-card edit affordance, carrying the row's
+        ///     <see cref="ParameterOrOverrideBase" /> (the <see cref="ParameterOverride" /> when one exists on the
+        ///     selected usage, otherwise the underlying <see cref="Parameter" />). When unset, the edit affordance
+        ///     is not rendered.
+        /// </summary>
+        [Parameter]
+        public EventCallback<ParameterOrOverrideBase> OnEditParameter { get; set; }
+
+        /// <summary>
         ///     Optional callback invoked when the user clicks the per-card delete affordance for a
         ///     <see cref="Parameter" />. When unset, the delete affordance is not rendered.
         /// </summary>

@@ -83,6 +83,7 @@
                                           AllGroups="@this.AllGroups"
                                           SearchTerm="@this.SearchTerm"
                                           Level="@(this.Level + 1)"
+                                          OnEditParameter="this.OnEditParameter"
                                           OnDeleteParameter="this.OnDeleteParameter"
                                           OnCreateSubscription="this.OnCreateSubscription"
                                           OnDeleteSubscription="this.OnDeleteSubscription"
@@ -100,6 +101,7 @@
                     @foreach (var row in this.DirectRows)
                     {
                         <ParameterCard Row="@row"
+                                       OnEditParameter="this.OnEditParameter"
                                        OnDeleteParameter="this.OnDeleteParameter"
                                        OnCreateSubscription="this.OnCreateSubscription"
                                        OnDeleteSubscription="this.OnDeleteSubscription"

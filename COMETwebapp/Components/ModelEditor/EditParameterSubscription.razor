@@ -1,0 +1,93 @@
+<!------------------------------------------------------------------------------
+// Copyright (c) 2023-2026 Starion Group S.A.
+//
+//    This file is part of CDP4-COMET WEB Community Edition
+//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+//
+//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//    modify it under the terms of the GNU Affero General Public
+//    License as published by the Free Software Foundation; either
+//    version 3 of the License, or (at your option) any later version.
+//
+//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+//    Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+
+@namespace COMETwebapp.Components.ModelEditor
+@using COMETwebapp.ViewModels.Components.ModelEditor.EditParameterSubscriptionViewModel
+@inherits DisposableComponent
+
+@if (this.ViewModel.Subscription is not null)
+{
+    <div class="edit-parameter-tab">
+        <div class="edit-parameter-fields">
+            <DxFormLayout>
+                <DxFormLayoutItem Caption="Subscribed Parameter:" ColSpanMd="12">
+                    <DxTextBox Text="@this.ViewModel.SubscribedParameterName" ReadOnly="true"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Owner:" ColSpanMd="12">
+                    <DxTextBox Text="@this.ViewModel.OwnerShortName" ReadOnly="true"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Model Code:" ColSpanMd="12">
+                    <DxTextBox Text="@this.ViewModel.ModelCode" ReadOnly="true"/>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </div>
+
+        <div class="edit-parameter-values-label">Subscription values:</div>
+        <div class="edit-parameter-values-area">
+            <DxGrid Data="@this.ViewModel.ValueRows" CssClass="default-grid edit-parameter-values" Width="100%" ShowAllRows="true" VerticalScrollBarMode="ScrollBarMode.Auto" HorizontalScrollBarMode="ScrollBarMode.Auto">
+                <Columns>
+                    <DxGridDataColumn FieldName="@nameof(EditParameterSubscriptionValueSetRowViewModel.OwnerShortName)" Caption="Owner" MinWidth="70"/>
+                    @if (this.IsCompound)
+                    {
+                        <DxGridDataColumn FieldName="@nameof(EditParameterSubscriptionValueSetRowViewModel.Name)" Caption="Name" MinWidth="90"/>
+                    }
+                    @if (this.HasOptionColumn)
+                    {
+                        <DxGridDataColumn FieldName="@nameof(EditParameterSubscriptionValueSetRowViewModel.OptionName)" Caption="Option" MinWidth="70"/>
+                    }
+                    @if (this.HasStateColumn)
+                    {
+                        <DxGridDataColumn FieldName="@nameof(EditParameterSubscriptionValueSetRowViewModel.StateName)" Caption="State" MinWidth="60"/>
+                    }
+                    <DxGridDataColumn FieldName="@nameof(EditParameterSubscriptionValueSetRowViewModel.ActualValue)" Caption="Actual Value" MinWidth="80"/>
+                    <DxGridDataColumn Caption="Switch" MinWidth="110">
+                        <CellDisplayTemplate Context="cell">
+                            @if (cell.DataItem is EditParameterSubscriptionValueSetRowViewModel row)
+                            {
+                                <ParameterSwitchKindSelector ViewModel="@row.ComponentRow.ParameterSwitchKindSelectorViewModel"/>
+                            }
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="@nameof(EditParameterSubscriptionValueSetRowViewModel.ComputedValue)" Caption="Computed" MinWidth="80"/>
+                    <DxGridDataColumn Caption="Manual" MinWidth="130">
+                        <CellDisplayTemplate Context="cell">
+                            @if (cell.DataItem is EditParameterSubscriptionValueSetRowViewModel row)
+                            {
+                                <ParameterTypeEditorSelector ViewModel="@row.ComponentRow.ManualEditorViewModel"
+                                                             BindValueMode="BindValueMode.OnLostFocus"/>
+                            }
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="@nameof(EditParameterSubscriptionValueSetRowViewModel.ReferenceValue)" Caption="Reference" MinWidth="80"/>
+                    @if (this.IsCompound)
+                    {
+                        <DxGridDataColumn FieldName="@nameof(EditParameterSubscriptionValueSetRowViewModel.ScaleShortName)" Caption="Scale" MinWidth="70"/>
+                        <DxGridDataColumn FieldName="@nameof(EditParameterSubscriptionValueSetRowViewModel.ParameterTypeName)" Caption="Parameter Type" MinWidth="120"/>
+                    }
+                </Columns>
+            </DxGrid>
+        </div>
+    </div>
+
+    <div class="modal-footer m-top-10px">
+        <DxButton Text="Cancel" RenderStyle="ButtonRenderStyle.Secondary" Click="@(() => this.ViewModel.CancelAsync())"/>
+        <DxButton Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@(() => this.ViewModel.SaveAsync())"/>
+    </div>
+}

@@ -94,6 +94,32 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation.Rows
             this.containingDefinition.Parameter.Add(this.parameter);
         }
 
+        [Test]
+        public void VerifyCardShowsCurrentDomainSubscriptionValueNotOwnerValue()
+        {
+            // The current domain (SYS) subscribes to the foreign-owned parameter with its own MANUAL value.
+            var subscription = new ParameterSubscription { Iid = Guid.NewGuid(), Owner = this.currentDomain };
+
+            subscription.ValueSet.Add(new ParameterSubscriptionValueSet
+            {
+                Iid = Guid.NewGuid(),
+                SubscribedValueSet = this.parameter.ValueSet[0],
+                Manual = new ValueArray<string>(["99"]),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            });
+
+            this.parameter.ParameterSubscription.Add(subscription);
+
+            var row = new ElementDefinitionDetailsRowViewModel(this.parameter, this.currentDomain);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(row.HasCurrentDomainSubscription, Is.True);
+                Assert.That(row.ActualValue, Is.EqualTo("99"), "The card must show the subscriber's value, not the owner's.");
+                Assert.That(row.SwitchValue, Is.EqualTo(nameof(ParameterSwitchKind.MANUAL)));
+            });
+        }
+
         /// <summary>
         /// Builds an <see cref="ElementUsage" /> typed by <see cref="containingDefinition" /> so it can host
         /// a <see cref="ParameterOverride" /> on <see cref="parameter" />.

@@ -76,6 +76,14 @@ namespace COMETwebapp.Components.Common
 
         /// <summary>
         ///     Optional callback forwarded to each <see cref="ParameterCard" /> rendered inside this section.
+        ///     Invoked when the user clicks the edit affordance on a card, carrying the row's
+        ///     <see cref="ParameterOrOverrideBase" />.
+        /// </summary>
+        [Parameter]
+        public EventCallback<ParameterOrOverrideBase> OnEditParameter { get; set; }
+
+        /// <summary>
+        ///     Optional callback forwarded to each <see cref="ParameterCard" /> rendered inside this section.
         ///     Invoked when the user clicks the delete affordance on a <see cref="Parameter" /> card.
         /// </summary>
         [Parameter]
