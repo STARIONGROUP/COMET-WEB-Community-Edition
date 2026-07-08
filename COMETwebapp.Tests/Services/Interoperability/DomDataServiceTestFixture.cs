@@ -50,6 +50,7 @@ namespace COMETwebapp.Tests.Services.Interoperability
 
             this.context.JSInterop.SetupVoid("setDotNetHelper");
             this.context.JSInterop.SetupVoid("SubscribeToResizeEvent");
+            this.context.JSInterop.SetupVoid("ScrollElementIntoView");
             this.context.JSInterop.Setup<float[]>("GetElementSizeAndPosition").SetResult(new float[] { 1, 2, 3, 4 });
             
             this.service = new DomDataService(jsRuntime.Object);
@@ -65,6 +66,7 @@ namespace COMETwebapp.Tests.Services.Interoperability
                 Assert.That(() => this.service.LoadDotNetHelper(dotnet), Throws.Nothing);
                 Assert.That(async () => await this.service.GetElementSizeAndPosition(0, "node", true), Throws.Nothing);
                 Assert.That(() => this.service.SubscribeToResizeEvent("resize"), Throws.Nothing);
+                Assert.That(() => this.service.ScrollElementIntoView("req-x"), Throws.Nothing);
             });
         }
     }

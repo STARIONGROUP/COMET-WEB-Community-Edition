@@ -70,5 +70,15 @@ namespace COMETwebapp.Services.Interoperability
         {
             await this.JsRuntime.InvokeVoidAsync("SubscribeToResizeEvent", callbackMethodName);
         }
+
+        /// <summary>
+        /// Smooth-scrolls the element with the given id into view, if it exists
+        /// </summary>
+        /// <param name="elementId">the id of the element to scroll to</param>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task ScrollElementIntoView(string elementId)
+        {
+            await this.JsRuntime.InvokeVoidAsync("ScrollElementIntoView", elementId);
+        }
     }
 }

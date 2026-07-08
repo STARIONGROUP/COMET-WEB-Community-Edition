@@ -12,10 +12,11 @@
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     padding-bottom: 10px;
     margin-bottom: 8px;
     border-bottom: 1px solid #eaecef;
+    overflow-x: auto;
 }
 
 .req-toolbar-group {
@@ -35,14 +36,14 @@
 }
 
 .req-search {
-    flex: 1 1 220px;
-    min-width: 140px;
-    max-width: 360px;
+    flex: 1 1 130px;
+    min-width: 90px;
+    max-width: 260px;
 }
 
 .req-filter {
-    flex: 0 1 190px;
-    min-width: 130px;
+    flex: 1 1 100px;
+    min-width: 78px;
 }
 
 .req-editor-layout {
@@ -79,6 +80,24 @@
 }
 
 /* --- table-of-contents tree (rendered by RequirementsTree) --- */
+
+.req-toc ::deep .req-tree-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 0 2px 6px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #eaecef;
+}
+
+.req-toc ::deep .req-tree-header-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #667085;
+}
 
 .req-toc ::deep ul.req-tree {
     list-style: none;
@@ -283,14 +302,24 @@
 
 .req-document ::deep .req-row {
     display: flex;
-    justify-content: space-between;
-    gap: 12px;
+    flex-direction: column;
+    gap: 6px;
     padding: 9px 8px;
     border-bottom: 1px solid #f1f3f5;
+    /* keep a navigated-to requirement clear of the sticky specification header instead of landing behind it */
+    scroll-margin-top: 60px;
 }
 
 .req-document ::deep .req-row:hover {
     background: #fafbfc;
+}
+
+/* the header strip: definition (grows) | owner/category pills | value columns pinned to the right so they
+   line up vertically across every requirement regardless of the pill widths to their left */
+.req-document ::deep .req-row-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
 }
 
 .req-document ::deep .req-row-main {
@@ -326,7 +355,28 @@
     text-align: end;
 }
 
+/* with values open the pills sit at the far right in a fixed-width column so the value columns to their left
+   stay vertically aligned across rows: the owner pill on top, the category pills as one wrapping row below */
+.req-document ::deep .req-row-pills.req-pills-stacked {
+    flex: 0 0 130px;
+    white-space: normal;
+}
+
+.req-document ::deep .req-row-pills.req-pills-stacked .req-pills {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
 .req-document ::deep .req-pills {
+    display: inline-flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* the category pills always share one (wrapping) row, whether the block is inline or stacked under the owner */
+.req-document ::deep .req-pill-categories {
     display: inline-flex;
     gap: 3px;
     flex-wrap: wrap;
@@ -367,6 +417,326 @@
     margin-left: 0;
     padding-left: 0;
     border-left: none;
+}
+
+/* --- requirement detail sections (rendered by RequirementDetails) --- */
+
+/* constraints + traceability sit side by side to use the horizontal space; they wrap on a narrow row */
+.req-document ::deep .req-details {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.req-document ::deep .req-details > .req-section {
+    flex: 1 1 260px;
+    min-width: 0;
+}
+
+/* DOORS-like value columns: fixed-width cells on the right of every requirement row, one per visible
+   parameter type in a fixed order, so the cells line up vertically across requirements. */
+.req-document ::deep .req-row-values {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding-left: 8px;
+}
+
+.req-document ::deep .req-value-cell {
+    display: flex;
+    flex-direction: column;
+    width: 130px;
+    padding: 3px 8px;
+    background: #f8fafc;
+    border: 1px solid #e9edf2;
+    border-radius: 6px;
+}
+
+.req-document ::deep .req-value-cell-empty {
+    background: repeating-linear-gradient(135deg, #fbfcfd, #fbfcfd 6px, #f3f5f8 6px, #f3f5f8 12px);
+    border-style: dashed;
+}
+
+/* an editing cell grows to fit the (wider) date/combo editor instead of cramping it into the column width */
+.req-document ::deep .req-value-cell:has(.req-value-editor) {
+    width: auto;
+    min-width: 160px;
+}
+
+.req-document ::deep .req-value-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #667085;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.req-document ::deep .req-value-display {
+    border: 1px solid transparent;
+    background: none;
+    padding: 1px 3px;
+    text-align: left;
+    font-size: 0.88rem;
+    color: #1f2937;
+    cursor: pointer;
+    border-radius: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.req-document ::deep .req-value-display:hover {
+    border-color: #d6dae0;
+    background: #fff;
+}
+
+/* empty cell: an obviously-different "+ add" affordance so a missing value never looks like a set one */
+.req-document ::deep .req-value-add {
+    border: none;
+    background: none;
+    padding: 1px 3px;
+    text-align: left;
+    font-size: 0.8rem;
+    font-style: italic;
+    color: #98a2b3;
+    cursor: pointer;
+}
+
+.req-document ::deep .req-value-add:hover {
+    color: #0d6efd;
+    text-decoration: underline;
+}
+
+/* actions sit on a row ABOVE the editor so the value/date stays fully readable before confirming */
+.req-document ::deep .req-value-editor {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    border-radius: 4px;
+    padding: 1px;
+}
+
+/* clearly show an unsaved edit */
+.req-document ::deep .req-value-editor-dirty {
+    outline: 2px solid #ffd666;
+    background: #fffbe6;
+}
+
+.req-document ::deep .req-value-editor-actions {
+    display: flex;
+    gap: 2px;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+}
+
+.req-document ::deep .req-value-save,
+.req-document ::deep .req-value-cancel {
+    border: none;
+    background: none;
+    padding: 0 3px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+.req-document ::deep .req-value-save {
+    color: #12805c;
+}
+
+.req-document ::deep .req-value-cancel {
+    color: #b42318;
+}
+
+/* shared shell for the Constraints and Traceability sections */
+.req-document ::deep .req-section {
+    padding: 5px 10px 7px;
+    background: #fbfcfe;
+    border: 1px solid #eef0f3;
+    border-left: 3px solid #d8e3f4;
+    border-radius: 6px;
+}
+
+.req-document ::deep .req-section-title {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #667085;
+    margin-bottom: 3px;
+}
+
+/* constraint expression tree */
+.req-document ::deep .req-constraint + .req-constraint {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed #e5e9ee;
+}
+
+/* a non-leaf node: collapse toggle + operator chip + one-line summary of the whole subtree */
+.req-document ::deep .req-expr-node {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 1px 0;
+}
+
+.req-document ::deep .req-expr-toggle {
+    border: none;
+    background: none;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.req-document ::deep .req-expr-toggle img {
+    width: 11px;
+    height: 11px;
+}
+
+.req-document ::deep .req-expr-operator {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #3b5b8c;
+    background: #e7f0fd;
+    border-radius: 4px;
+    padding: 0 6px;
+}
+
+.req-document ::deep .req-expr-summary {
+    font-size: 0.82rem;
+    color: #667085;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* neutral violet: the published value is informational, not a pass/fail — green/red/amber all carry a
+   validation meaning in the IME, so they are deliberately avoided here */
+.req-document ::deep .req-expr-published {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.75rem;
+    color: #5b4bb0;
+    background: #f1eefb;
+    border: 1px solid #ddd4f4;
+    border-radius: 4px;
+    padding: 0 5px;
+}
+
+.req-document ::deep .req-expr-children {
+    margin-left: 9px;
+    padding-left: 12px;
+    border-left: 1px solid #d8e3f4;
+}
+
+.req-document ::deep .req-expr-leaf {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 1px 0;
+    font-size: 0.88rem;
+}
+
+.req-document ::deep .req-expr-pt {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.req-document ::deep .req-expr-op {
+    color: #3b5b8c;
+    font-weight: 600;
+}
+
+.req-document ::deep .req-expr-scale {
+    color: #667085;
+    font-size: 0.8rem;
+}
+
+.req-document ::deep .req-expr-binding {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.75rem;
+    color: #475467;
+    background: #eef2f6;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 0 5px;
+}
+
+/* traceability rows */
+.req-document ::deep .req-link-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 2px 0;
+    font-size: 0.88rem;
+}
+
+.req-document ::deep .req-link-direction {
+    flex: 0 0 auto;
+    color: #3b5b8c;
+    font-weight: 700;
+}
+
+.req-document ::deep .req-link-targets {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+}
+
+.req-document ::deep .req-link-req {
+    border: none;
+    background: none;
+    padding: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #0d6efd;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.req-document ::deep .req-link-req:hover {
+    text-decoration: underline;
+}
+
+.req-document ::deep .req-link-thing {
+    color: #344054;
+}
+
+.req-document ::deep .req-link-row .req-pills {
+    margin-left: auto;
+    padding-left: 6px;
+}
+
+.req-document ::deep .req-link-rule {
+    display: inline-flex;
+    align-items: center;
+    min-height: 18px;
+    padding: 1px 8px;
+    margin: 1px 0 1px 2px;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    border-radius: 30px;
+    background: #eef2f6;
+    color: #475467;
+    border: 1px solid #dbe2ea;
+    white-space: nowrap;
 }
 
 /* Deprecated things (rendered only when the global "Show Deprecated Things" toggle is on). */

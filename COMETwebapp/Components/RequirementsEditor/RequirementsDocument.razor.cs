@@ -64,6 +64,16 @@ namespace COMETwebapp.Components.RequirementsEditor
         }
 
         /// <summary>
+        /// Gets the HTML anchor id used to scroll to the given <paramref name="requirement" /> from a traceability link.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <returns>The anchor id</returns>
+        public static string RequirementAnchorId(Requirement requirement)
+        {
+            return $"req-{requirement.Iid}";
+        }
+
+        /// <summary>
         /// Gets the definition text of the given <paramref name="requirement" />.
         /// </summary>
         /// <param name="requirement">The <see cref="Requirement" /></param>
