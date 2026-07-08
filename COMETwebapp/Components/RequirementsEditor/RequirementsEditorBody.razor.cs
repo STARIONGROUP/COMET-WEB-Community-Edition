@@ -22,7 +22,11 @@
 
 namespace COMETwebapp.Components.RequirementsEditor
 {
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
+
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.JSInterop;
 
     using ReactiveUI;
 
@@ -42,6 +46,12 @@ namespace COMETwebapp.Components.RequirementsEditor
         ];
 
         /// <summary>
+        /// Gets or sets the <see cref="IDomDataService" /> used to scroll a navigated-to requirement into view.
+        /// </summary>
+        [Inject]
+        public IDomDataService DomDataService { get; set; }
+
+        /// <summary>
         /// Handles the post-assignment flow of the <see cref="COMET.Web.Common.Components.Applications.ApplicationBase{TViewModel}.ViewModel" /> property.
         /// A single subscription re-renders the whole body (tree + document) whenever the selection, search or filters change.
         /// </summary>
@@ -55,7 +65,8 @@ namespace COMETwebapp.Components.RequirementsEditor
                     x => x.ViewModel.IsTocCollapsed,
                     x => x.ViewModel.DisplayMode,
                     x => x.ViewModel.SelectedOwners,
-                    x => x.ViewModel.SelectedCategories)
+                    x => x.ViewModel.SelectedCategories,
+                    x => x.ViewModel.ScrollTarget)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
@@ -66,6 +77,35 @@ namespace COMETwebapp.Components.RequirementsEditor
                     x => x.ViewModel.IsLoading,
                     x => x.ViewModel.ConfirmCancelPopupViewModel.IsVisible)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
+
+        /// <summary>
+        /// Scrolls the document to the <see cref="IRequirementsEditorBodyViewModel.ScrollTarget" /> once it has been
+        /// rendered, after a traceability link navigated to it.
+        /// </summary>
+        /// <param name="firstRender">true on the first render of the component</param>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            var target = this.ViewModel?.ScrollTarget;
+
+            if (target != null)
+            {
+                this.ViewModel.ScrollTarget = null;
+
+                try
+                {
+                    await this.DomDataService.ScrollElementIntoView(RequirementsDocument.RequirementAnchorId(target));
+                }
+                catch (Exception exception) when (exception is JSException or JSDisconnectedException)
+                {
+                    // The scroll is purely cosmetic; a stale cached DomData.js (missing ScrollElementIntoView) or a
+                    // circuit that disconnected mid-render must never kill the page. Navigation already switched the
+                    // specification and expanded the target's groups.
+                }
+            }
         }
 
         /// <summary>

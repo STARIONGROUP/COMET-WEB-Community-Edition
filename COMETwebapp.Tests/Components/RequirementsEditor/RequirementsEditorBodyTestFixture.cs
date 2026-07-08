@@ -27,6 +27,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Permission;
@@ -37,6 +38,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
@@ -77,18 +79,27 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 Group = group
             };
 
+            var massParameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "m", Name = "mass" };
+            var kilogramScale = new RatioScale { Iid = Guid.NewGuid(), ShortName = "kg", Name = "kilogram" };
+            requirement.ParameterValue.Add(new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = massParameterType, Scale = kilogramScale, Value = new ValueArray<string>(["100"]) });
+
+            var relationalExpression = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = massParameterType, RelationalOperator = RelationalOperatorKind.LE, Scale = kilogramScale, Value = new ValueArray<string>(["100"]) };
+            requirement.ParametricConstraint.Add(new ParametricConstraint { Iid = Guid.NewGuid(), Expression = { relationalExpression }, TopExpression = relationalExpression });
+
             var specification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "KUR", Name = "Key-User Requirements", Owner = domain };
             specification.Group.Add(group);
             specification.Requirement.Add(requirement);
 
             var iteration = new Iteration { Iid = Guid.NewGuid() };
             iteration.RequirementsSpecification.Add(specification);
+            iteration.Relationship.Add(new BinaryRelationship { Iid = Guid.NewGuid(), Source = requirement, Target = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT", Name = "Satellite" } });
 
             var sessionService = new Mock<ISessionService>();
             var session = new Mock<ISession>();
             var permissionService = new Mock<IPermissionService>();
             permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             session.Setup(x => x.PermissionService).Returns(permissionService.Object);
+            session.Setup(x => x.OpenReferenceDataLibraries).Returns([]);
             sessionService.Setup(x => x.Session).Returns(session.Object);
             sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(domain);
 
@@ -101,6 +112,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             };
 
             this.context.Services.AddSingleton(configuration.Object);
+            this.context.Services.AddSingleton(new Mock<IDomDataService>().Object);
+            this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.context.Services.AddSingleton<IRequirementsEditorBodyViewModel>(this.viewModel);
 
             this.renderedComponent = this.context.Render<RequirementsEditorBody>();
@@ -166,6 +179,34 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.renderedComponent.Find(".req-def-editor").KeyDown(new KeyboardEventArgs { Key = "Escape" });
 
             Assert.That(this.renderedComponent.Markup, Does.Not.Contain("req-def-editor"), "Escape closes the inline editor without saving.");
+        }
+
+        [Test]
+        public void VerifyDetailTogglesRevealSections()
+        {
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderedComponent.Markup, Does.Not.Contain("req-row-values"));
+                Assert.That(this.renderedComponent.Markup, Does.Not.Contain("req-section"));
+            });
+
+            this.viewModel.ShowSimpleParameterValues = true;
+            this.viewModel.ShowParametricConstraints = true;
+            this.viewModel.ShowTraceability = true;
+
+            var document = this.context.Render<RequirementsDocument>(parameters => parameters.Add(p => p.ViewModel, this.viewModel));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(document.Markup, Does.Contain("req-row-values"), "the value columns must be on the requirement row");
+                Assert.That(document.Markup, Does.Contain("req-value-display"), "the existing value must be shown and clickable");
+                Assert.That(document.Markup, Does.Contain("Constraints"));
+                Assert.That(document.Markup, Does.Contain("req-expr-leaf"));
+                Assert.That(document.Markup, Does.Contain("Traceability"));
+                Assert.That(document.Markup, Does.Contain("Satellite"), "the related element definition must be listed");
+            });
         }
     }
 }

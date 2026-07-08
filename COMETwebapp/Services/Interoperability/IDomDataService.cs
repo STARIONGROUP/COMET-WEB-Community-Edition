@@ -53,5 +53,12 @@ namespace COMETwebapp.Services.Interoperability
         /// <param name="dotNetHelper">the dotnet helper</param>
         /// <returns>A <see cref="Task" /></returns>
         Task LoadDotNetHelper<TItem>(DotNetObjectReference<BookEditorColumn<TItem>> dotNetHelper);
+
+        /// <summary>
+        /// Smooth-scrolls the element with the given id into view, if it exists
+        /// </summary>
+        /// <param name="elementId">the id of the element to scroll to</param>
+        /// <returns>A <see cref="Task" /></returns>
+        Task ScrollElementIntoView(string elementId);
     }
 }

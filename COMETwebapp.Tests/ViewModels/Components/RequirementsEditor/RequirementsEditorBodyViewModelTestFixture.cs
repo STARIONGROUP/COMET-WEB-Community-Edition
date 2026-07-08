@@ -25,16 +25,20 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
 
     using CDP4Web.Enumerations;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
+
+    using FluentResults;
 
     using Microsoft.Extensions.Logging;
 
@@ -61,6 +65,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         private RequirementsSpecification deprecatedSpecification;
         private Requirement deprecatedRequirement;
         private ShowHideDeprecatedThingsService showHideService;
+        private Mock<ISessionService> sessionService;
+        private SimpleQuantityKind massParameterType;
+        private SimpleQuantityKind lengthParameterType;
+        private SimpleParameterValue massValue;
 
         [SetUp]
         public void SetUp()
@@ -108,17 +116,26 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
             this.deprecatedSpecification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "OLD", Name = "Deprecated", Owner = this.systemDomain, IsDeprecated = true };
 
+            this.massParameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "m", Name = "mass" };
+            this.lengthParameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "l", Name = "length" };
+            this.massValue = new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = this.massParameterType, Value = new ValueArray<string>(["100"]) };
+            this.topRequirement.ParameterValue.Add(this.massValue);
+            this.c4iRequirement.ParameterValue.Add(new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = this.lengthParameterType, Value = new ValueArray<string>(["2"]) });
+            this.c4iRequirement.ParameterValue.Add(new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = this.massParameterType, Value = new ValueArray<string>(["5"]) });
+
             this.iteration = new Iteration { Iid = Guid.NewGuid() };
             this.iteration.RequirementsSpecification.AddRange([this.specification, this.deprecatedSpecification]);
 
-            var sessionService = new Mock<ISessionService>();
+            this.sessionService = new Mock<ISessionService>();
             this.session = new Mock<ISession>();
-            sessionService.Setup(x => x.Session).Returns(this.session.Object);
-            sessionService.Setup(x => x.GetDomainOfExpertise(this.iteration)).Returns(this.systemDomain);
+            this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(this.iteration)).Returns(this.systemDomain);
+            this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>())).ReturnsAsync(Result.Ok());
             this.messageBus = new CDPMessageBus();
             this.showHideService = new ShowHideDeprecatedThingsService();
 
             this.viewModel = new RequirementsEditorBodyViewModel(sessionService.Object, this.messageBus, this.showHideService, new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object)
+            this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, this.showHideService)
             {
                 CurrentThing = this.iteration
             };
@@ -277,6 +294,24 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         }
 
         [Test]
+        public async Task VerifySessionRefreshWithNullIterationDoesNotThrow()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.CurrentThing = null;
+
+            Assert.DoesNotThrow(() => this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.session.Object));
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SelectedSpecification, Is.Null);
+                Assert.That(this.viewModel.AvailableSpecifications, Is.Empty);
+            });
+        }
+
+        [Test]
         public async Task VerifyIndentGroupsToggle()
         {
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
@@ -303,6 +338,289 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             {
                 Assert.That(this.viewModel.AvailableSpecifications, Does.Contain(this.deprecatedSpecification));
                 Assert.That(this.viewModel.GetRequirements(this.specification), Does.Contain(this.deprecatedRequirement));
+            });
+        }
+
+        [Test]
+        public async Task VerifyDetailToggleDefaults()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ShowSimpleParameterValues, Is.False);
+                Assert.That(this.viewModel.ShowParametricConstraints, Is.False);
+                Assert.That(this.viewModel.ShowTraceability, Is.False);
+            });
+
+            this.viewModel.ShowSimpleParameterValues = true;
+            this.viewModel.ShowParametricConstraints = true;
+            this.viewModel.ShowTraceability = true;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ShowSimpleParameterValues, Is.True);
+                Assert.That(this.viewModel.ShowParametricConstraints, Is.True);
+                Assert.That(this.viewModel.ShowTraceability, Is.True);
+            });
+        }
+
+        [Test]
+        public async Task VerifyGetSpecificationParameterTypes()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            // distinct over all requirements of the selected specification, ordered by short name
+            Assert.That(this.viewModel.GetSpecificationParameterTypes(), Is.EqualTo(new ParameterType[] { this.lengthParameterType, this.massParameterType }));
+
+            this.viewModel.SelectedSpecification = null;
+            Assert.That(this.viewModel.GetSpecificationParameterTypes(), Is.Empty);
+        }
+
+        [Test]
+        public async Task VerifyGetSimpleParameterValue()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.GetSimpleParameterValue(this.topRequirement, this.massParameterType), Is.EqualTo(this.massValue));
+                Assert.That(this.viewModel.GetSimpleParameterValue(this.topRequirement, this.lengthParameterType), Is.Null);
+                Assert.That(this.viewModel.GetSimpleParameterValue(this.operateRequirement, this.massParameterType), Is.Null);
+            });
+        }
+
+        [Test]
+        public async Task VerifyUpdateSimpleParameterValue()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            await this.viewModel.UpdateSimpleParameterValue(this.massValue, ["100"]);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Never);
+
+            await this.viewModel.UpdateSimpleParameterValue(this.massValue, ["250"]);
+
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(
+                It.IsAny<Thing>(),
+                It.Is<IReadOnlyCollection<Thing>>(things => things.OfType<SimpleParameterValue>().Single().Value.Single() == "250"),
+                It.IsAny<NotificationDescription>()), Times.Once);
+
+            Assert.That(this.massValue.Value.Single(), Is.EqualTo("100"), "the original must not be mutated, only its clone");
+        }
+
+        [Test]
+        public async Task VerifyCreateSimpleParameterValue()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            await this.viewModel.CreateSimpleParameterValue(this.operateRequirement, this.massParameterType);
+
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(
+                It.IsAny<Thing>(),
+                It.Is<IReadOnlyCollection<Thing>>(things =>
+                    things.OfType<SimpleParameterValue>().Single().ParameterType == this.massParameterType
+                    && things.OfType<SimpleParameterValue>().Single().Value.Single() == "-"
+                    && things.OfType<Requirement>().Single().ParameterValue.Count == 1),
+                It.IsAny<NotificationDescription>()), Times.Once);
+
+            Assert.That(this.operateRequirement.ParameterValue, Is.Empty, "the original requirement must not be mutated, only its clone");
+        }
+
+        [Test]
+        public async Task VerifyGetVisibleParameterTypes()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.That(this.viewModel.GetVisibleParameterTypes(), Is.EqualTo(new ParameterType[] { this.lengthParameterType, this.massParameterType }), "no picker selection shows all");
+
+            this.viewModel.SelectedParameterTypeColumns = [this.massParameterType];
+            Assert.That(this.viewModel.GetVisibleParameterTypes(), Is.EqualTo(new ParameterType[] { this.massParameterType }));
+        }
+
+        [Test]
+        public async Task VerifyExpressionCollapseState()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var iid = Guid.NewGuid();
+            Assert.That(this.viewModel.IsExpressionCollapsed(iid), Is.False);
+
+            this.viewModel.ToggleExpression(iid);
+            Assert.That(this.viewModel.IsExpressionCollapsed(iid), Is.True);
+
+            this.viewModel.ToggleExpression(iid);
+            Assert.That(this.viewModel.IsExpressionCollapsed(iid), Is.False);
+        }
+
+        [Test]
+        public async Task VerifyGetTopExpressionsAndTerms()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var firstRelational = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = this.massParameterType, RelationalOperator = RelationalOperatorKind.LE, Value = new ValueArray<string>(["100"]) };
+            var secondRelational = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = this.lengthParameterType, RelationalOperator = RelationalOperatorKind.GT, Value = new ValueArray<string>(["2"]) };
+            var andExpression = new AndExpression { Iid = Guid.NewGuid(), Term = { firstRelational, secondRelational } };
+            var notExpression = new NotExpression { Iid = Guid.NewGuid(), Term = firstRelational };
+            var constraint = new ParametricConstraint { Iid = Guid.NewGuid(), Expression = { andExpression, firstRelational, secondRelational } };
+
+            Assert.Multiple(() =>
+            {
+                // no TopExpression set: fall back to the expressions that are not a term of another expression
+                Assert.That(this.viewModel.GetTopExpressions(constraint), Is.EqualTo(new BooleanExpression[] { andExpression }));
+                Assert.That(this.viewModel.GetTerms(andExpression), Is.EqualTo(new BooleanExpression[] { firstRelational, secondRelational }));
+                Assert.That(this.viewModel.GetTerms(notExpression), Is.EqualTo(new BooleanExpression[] { firstRelational }));
+                Assert.That(this.viewModel.GetTerms(firstRelational), Is.Empty);
+            });
+
+            constraint.TopExpression = firstRelational;
+            Assert.That(this.viewModel.GetTopExpressions(constraint), Is.EqualTo(new BooleanExpression[] { firstRelational }));
+        }
+
+        [Test]
+        public async Task VerifyGetBoundParameterModelCode()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var relationalExpression = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = this.massParameterType };
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT" };
+            var parameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = this.massParameterType };
+            parameter.ValueSet.Add(new ParameterValueSet { Iid = Guid.NewGuid(), Published = new ValueArray<string>(["42"]) });
+            elementDefinition.Parameter.Add(parameter);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.GetBoundParameter(relationalExpression), Is.Null);
+                Assert.That(this.viewModel.GetBoundParameterModelCode(relationalExpression), Is.Null);
+                Assert.That(this.viewModel.GetBoundParameterPublishedValue(relationalExpression), Is.Null);
+            });
+
+            this.iteration.Relationship.Add(new BinaryRelationship { Iid = Guid.NewGuid(), Source = parameter, Target = relationalExpression });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.GetBoundParameter(relationalExpression), Is.EqualTo(parameter));
+                Assert.That(this.viewModel.GetBoundParameterModelCode(relationalExpression), Is.EqualTo(parameter.ModelCode()));
+                Assert.That(this.viewModel.GetBoundParameterPublishedValue(relationalExpression), Is.EqualTo("42"));
+            });
+
+            // a second value set (e.g. option/state-dependent) makes the published value ambiguous, so none is shown
+            parameter.ValueSet.Add(new ParameterValueSet { Iid = Guid.NewGuid(), Published = new ValueArray<string>(["7"]) });
+            Assert.That(this.viewModel.GetBoundParameterPublishedValue(relationalExpression), Is.Null);
+        }
+
+        [Test]
+        public async Task VerifyGetExpressionSummary()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var relational = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = this.massParameterType, RelationalOperator = RelationalOperatorKind.LE, Value = new ValueArray<string>(["100"]) };
+            var notExpression = new NotExpression { Iid = Guid.NewGuid(), Term = relational };
+            var andExpression = new AndExpression { Iid = Guid.NewGuid(), Term = { notExpression, relational } };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.GetExpressionSummary(relational), Is.EqualTo("m ≤ 100"));
+                Assert.That(this.viewModel.GetExpressionSummary(notExpression), Does.Contain("NOT"), "the NOT operator must not be dropped from the summary");
+                Assert.That(this.viewModel.GetExpressionSummary(andExpression), Does.Contain("NOT").And.Contain("AND"));
+            });
+        }
+
+        [Test]
+        public async Task VerifyTreeUsesShortNameToggle()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.That(this.viewModel.TreeUsesShortName, Is.True);
+            this.viewModel.TreeUsesShortName = false;
+            Assert.That(this.viewModel.TreeUsesShortName, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyGetTraceability()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var verifiesCategory = new Category { Iid = Guid.NewGuid(), ShortName = "verifies", Name = "verifies" };
+            var strictlyVerifiesCategory = new Category { Iid = Guid.NewGuid(), ShortName = "strictVerifies", Name = "strictly verifies", SuperCategory = { verifiesCategory } };
+            var rule = new BinaryRelationshipRule { Iid = Guid.NewGuid(), Name = "Requirement verification", RelationshipCategory = verifiesCategory };
+            var rdl = new SiteReferenceDataLibrary { Iid = Guid.NewGuid() };
+            rdl.Rule.Add(rule);
+            this.session.Setup(x => x.OpenReferenceDataLibraries).Returns([rdl]);
+
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT" };
+
+            // the relationship carries a SUB-category of the rule's category; the rule must still apply
+            var outgoing = new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.topRequirement, Target = elementDefinition, Category = { strictlyVerifiesCategory } };
+            var incoming = new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.c4iRequirement, Target = this.topRequirement };
+            var multi = new MultiRelationship { Iid = Guid.NewGuid(), RelatedThing = { this.topRequirement, this.operateRequirement, elementDefinition } };
+            var unrelated = new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.c4iRequirement, Target = elementDefinition };
+            this.iteration.Relationship.AddRange([outgoing, incoming, multi, unrelated]);
+
+            var rows = this.viewModel.GetTraceability(this.topRequirement);
+
+            Assert.That(rows, Has.Count.EqualTo(3));
+
+            var outgoingRow = rows.Single(x => x.Relationship == outgoing);
+            var incomingRow = rows.Single(x => x.Relationship == incoming);
+            var multiRow = rows.Single(x => x.Relationship == multi);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(outgoingRow.Direction, Is.EqualTo(RelationshipDirection.Outgoing));
+                Assert.That(outgoingRow.RelatedThings, Is.EqualTo(new Thing[] { elementDefinition }));
+                Assert.That(outgoingRow.RuleNames, Is.EqualTo(new[] { "Requirement verification" }));
+                Assert.That(incomingRow.Direction, Is.EqualTo(RelationshipDirection.Incoming));
+                Assert.That(incomingRow.RelatedThings, Is.EqualTo(new Thing[] { this.c4iRequirement }));
+                Assert.That(incomingRow.RuleNames, Is.Empty);
+                Assert.That(multiRow.Direction, Is.EqualTo(RelationshipDirection.Bidirectional));
+                Assert.That(multiRow.RelatedThings, Is.EqualTo(new Thing[] { this.operateRequirement, elementDefinition }));
+            });
+        }
+
+        [Test]
+        public async Task VerifyNavigateToRequirement()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.ToggleDocumentGroup(this.operateGroup.Iid);
+            this.viewModel.ToggleDocumentGroup(this.c4iGroup.Iid);
+            this.viewModel.SelectedSpecification = this.deprecatedSpecification;
+            this.viewModel.SearchText = "nomatch";
+            this.viewModel.SelectedOwners = [this.thermalDomain];
+            this.viewModel.SelectedCategories = [this.keyUserCategory];
+
+            this.viewModel.NavigateToRequirement(this.c4iRequirement);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.specification));
+                Assert.That(this.viewModel.ScrollTarget, Is.EqualTo(this.c4iRequirement));
+                Assert.That(this.viewModel.IsDocumentGroupCollapsed(this.c4iGroup.Iid), Is.False);
+                Assert.That(this.viewModel.IsDocumentGroupCollapsed(this.operateGroup.Iid), Is.False);
+
+                // filters are cleared so the target renders (its anchor exists to scroll to)
+                Assert.That(this.viewModel.SearchText, Is.Null);
+                Assert.That(this.viewModel.SelectedOwners, Is.Empty);
+                Assert.That(this.viewModel.SelectedCategories, Is.Empty);
+                Assert.That(this.viewModel.GetRequirements(this.c4iGroup), Does.Contain(this.c4iRequirement));
+                Assert.That(this.showHideService.ShowDeprecatedThings, Is.False, "a non-deprecated target does not flip the global toggle");
+            });
+        }
+
+        [Test]
+        public async Task VerifyNavigateToDeprecatedRequirementShowsDeprecated()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.That(this.showHideService.ShowDeprecatedThings, Is.False);
+
+            this.viewModel.NavigateToRequirement(this.deprecatedRequirement);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.showHideService.ShowDeprecatedThings, Is.True, "navigating to a deprecated target reveals deprecated things so its anchor renders");
+                Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.specification));
+                Assert.That(this.viewModel.ScrollTarget, Is.EqualTo(this.deprecatedRequirement));
             });
         }
     }

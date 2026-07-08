@@ -54,6 +54,17 @@ Copyright (c) 2023-2026 Starion Group S.A.
                       NullText="Filter by category..."
                       CssClass="req-filter" />
 
+            @if (this.ViewModel.ShowSimpleParameterValues && this.ViewModel.GetSpecificationParameterTypes().Count > 0)
+            {
+                <DxTagBox Data="@this.ViewModel.GetSpecificationParameterTypes()"
+                          Values="@this.ViewModel.SelectedParameterTypeColumns"
+                          ValuesChanged="@((IEnumerable<ParameterType> values) => this.ViewModel.SelectedParameterTypeColumns = values.ToList())"
+                          TextFieldName="@nameof(ParameterType.ShortName)"
+                          NullText="All value columns..."
+                          title="Choose which simple parameter value columns to show"
+                          CssClass="req-filter" />
+            }
+
             <div class="req-toolbar-group">
                 <span class="req-toolbar-label">Layout</span>
                 <div class="btn-group" role="group" aria-label="Requirement layout">
@@ -76,6 +87,9 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <DxCheckBox @bind-Checked="@this.ViewModel.IndentGroups" CheckType="CheckType.Switch">Indent</DxCheckBox>
                 <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
                 <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategory" CheckType="CheckType.Switch">Category</DxCheckBox>
+                <DxCheckBox @bind-Checked="@this.ViewModel.ShowSimpleParameterValues" CheckType="CheckType.Switch" title="Show the simple parameter values of each requirement as editable columns">Values</DxCheckBox>
+                <DxCheckBox @bind-Checked="@this.ViewModel.ShowParametricConstraints" CheckType="CheckType.Switch" title="Show the parametric constraints of each requirement">Constraints</DxCheckBox>
+                <DxCheckBox @bind-Checked="@this.ViewModel.ShowTraceability" CheckType="CheckType.Switch" title="Show the relationships to and from each requirement">Traceability</DxCheckBox>
             </div>
         </div>
 

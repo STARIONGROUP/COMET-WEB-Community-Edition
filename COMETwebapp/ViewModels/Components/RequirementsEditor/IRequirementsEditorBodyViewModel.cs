@@ -31,6 +31,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
 
+    using FluentResults;
+
     /// <summary>
     /// Interface for the <see cref="RequirementsEditorBodyViewModel" />, driving the Requirements Editor application.
     /// </summary>
@@ -80,6 +82,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// Gets or sets the way each requirement is rendered as a row.
         /// </summary>
         RequirementRowDisplayMode DisplayMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the table-of-contents tree labels specifications and groups by their
+        /// short name (true) or their name (false).
+        /// </summary>
+        bool TreeUsesShortName { get; set; }
 
         /// <summary>
         /// Gets the distinct <see cref="DomainOfExpertise" /> owners available to filter on.
@@ -135,6 +143,151 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="iid">The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the specification or group node</param>
         void ToggleTreeNode(Guid iid);
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the <see cref="SimpleParameterValue" /> columns are shown under each requirement.
+        /// </summary>
+        bool ShowSimpleParameterValues { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the <see cref="ParametricConstraint" /> trees are shown under each requirement.
+        /// </summary>
+        bool ShowParametricConstraints { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the relationships to and from each requirement are shown under it.
+        /// </summary>
+        bool ShowTraceability { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Requirement" /> the document should scroll to on the next render, set by
+        /// <see cref="NavigateToRequirement" /> and cleared by the component once the scroll has happened.
+        /// </summary>
+        Requirement ScrollTarget { get; set; }
+
+        /// <summary>
+        /// Gets the distinct <see cref="ParameterType" />s used by the <see cref="SimpleParameterValue" />s of the
+        /// non-deprecated requirements of the selected specification, ordered by short name. The columns are stable
+        /// across search and owner/category filtering.
+        /// </summary>
+        /// <returns>The parameter types, or an empty list when no specification is selected</returns>
+        IReadOnlyList<ParameterType> GetSpecificationParameterTypes();
+
+        /// <summary>
+        /// Gets or sets the <see cref="ParameterType" /> value columns the user chose to show; an empty selection shows
+        /// every parameter type used in the specification.
+        /// </summary>
+        IEnumerable<ParameterType> SelectedParameterTypeColumns { get; set; }
+
+        /// <summary>
+        /// Gets the parameter-type value columns to render: <see cref="GetSpecificationParameterTypes" /> narrowed to
+        /// <see cref="SelectedParameterTypeColumns" />, or all of them when the user has not picked any.
+        /// </summary>
+        /// <returns>The columns to show, in short-name order</returns>
+        IReadOnlyList<ParameterType> GetVisibleParameterTypes();
+
+        /// <summary>
+        /// Gets the <see cref="SimpleParameterValue" /> of the given <paramref name="requirement" /> for the given
+        /// <paramref name="parameterType" />.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <param name="parameterType">The <see cref="ParameterType" /></param>
+        /// <returns>The value, or null when the requirement has no value for that parameter type</returns>
+        SimpleParameterValue GetSimpleParameterValue(Requirement requirement, ParameterType parameterType);
+
+        /// <summary>
+        /// Updates the given <see cref="SimpleParameterValue" /> on the server with the given <paramref name="newValue" />;
+        /// the original is never mutated, a clone is sent, and the outcome (including a concurrency conflict) is surfaced
+        /// as a toast.
+        /// </summary>
+        /// <param name="value">The <see cref="SimpleParameterValue" /> to update</param>
+        /// <param name="newValue">The new value (one entry per component)</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the write</returns>
+        Task<Result> UpdateSimpleParameterValue(SimpleParameterValue value, IEnumerable<string> newValue);
+
+        /// <summary>
+        /// Creates a new, empty <see cref="SimpleParameterValue" /> of the given <paramref name="parameterType" /> on the
+        /// given <paramref name="requirement" /> so the parameter becomes available to edit.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /> the value is added to</param>
+        /// <param name="parameterType">The <see cref="ParameterType" /> of the new value</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the write</returns>
+        Task<Result> CreateSimpleParameterValue(Requirement requirement, ParameterType parameterType);
+
+        /// <summary>
+        /// Gets the root <see cref="BooleanExpression" />s of the given <paramref name="constraint" />: its
+        /// <see cref="ParametricConstraint.TopExpression" /> when set, otherwise the expressions that are not a term
+        /// of any other expression.
+        /// </summary>
+        /// <param name="constraint">The <see cref="ParametricConstraint" /></param>
+        /// <returns>The root expressions to render the constraint tree from</returns>
+        IEnumerable<BooleanExpression> GetTopExpressions(ParametricConstraint constraint);
+
+        /// <summary>
+        /// Gets the child terms of the given <paramref name="expression" />; relational expressions are leaves.
+        /// </summary>
+        /// <param name="expression">The <see cref="BooleanExpression" /></param>
+        /// <returns>The child expressions</returns>
+        IReadOnlyList<BooleanExpression> GetTerms(BooleanExpression expression);
+
+        /// <summary>
+        /// Gets the <see cref="ParameterOrOverrideBase" /> bound to the given <paramref name="expression" /> through a
+        /// <see cref="BinaryRelationship" />.
+        /// </summary>
+        /// <param name="expression">The <see cref="RelationalExpression" /></param>
+        /// <returns>The bound parameter, or null when none is bound</returns>
+        ParameterOrOverrideBase GetBoundParameter(RelationalExpression expression);
+
+        /// <summary>
+        /// Gets the model code of the <see cref="ParameterOrOverrideBase" /> bound to the given
+        /// <paramref name="expression" /> through a <see cref="BinaryRelationship" />.
+        /// </summary>
+        /// <param name="expression">The <see cref="RelationalExpression" /></param>
+        /// <returns>The model code, or null when no parameter is bound</returns>
+        string GetBoundParameterModelCode(RelationalExpression expression);
+
+        /// <summary>
+        /// Gets the published value of the <see cref="ParameterOrOverrideBase" /> bound to the given
+        /// <paramref name="expression" />.
+        /// </summary>
+        /// <param name="expression">The <see cref="RelationalExpression" /></param>
+        /// <returns>The formatted published value, or null when no parameter is bound</returns>
+        string GetBoundParameterPublishedValue(RelationalExpression expression);
+
+        /// <summary>
+        /// Gets a one-line human-readable summary of the given <paramref name="expression" /> tree.
+        /// </summary>
+        /// <param name="expression">The <see cref="BooleanExpression" /></param>
+        /// <returns>The summary string</returns>
+        string GetExpressionSummary(BooleanExpression expression);
+
+        /// <summary>
+        /// Gets whether the constraint expression tree node with the given <paramref name="iid" /> is collapsed.
+        /// </summary>
+        /// <param name="iid">The identifier of the <see cref="BooleanExpression" /></param>
+        /// <returns>true if collapsed</returns>
+        bool IsExpressionCollapsed(Guid iid);
+
+        /// <summary>
+        /// Toggles the collapsed state of the constraint expression tree node with the given <paramref name="iid" />.
+        /// </summary>
+        /// <param name="iid">The identifier of the <see cref="BooleanExpression" /></param>
+        void ToggleExpression(Guid iid);
+
+        /// <summary>
+        /// Gets a display row for every <see cref="BinaryRelationship" /> and <see cref="MultiRelationship" /> of the
+        /// iteration the given <paramref name="requirement" /> participates in.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <returns>The traceability rows</returns>
+        IReadOnlyList<RequirementRelationshipRow> GetTraceability(Requirement requirement);
+
+        /// <summary>
+        /// Navigates the document to the given <paramref name="requirement" />: selects its specification, expands
+        /// its ancestor groups and flags it as the <see cref="ScrollTarget" />.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /> to navigate to</param>
+        void NavigateToRequirement(Requirement requirement);
 
         /// <summary>
         /// Gets whether the group with the given <paramref name="iid" /> is collapsed in the document panel.

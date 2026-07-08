@@ -32,58 +32,77 @@ Copyright (c) 2023-2026 Starion Group S.A.
             }
             @if (this.ViewModel.ShowCategory)
             {
-                @foreach (var category in context.Categories)
-                {
-                    <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.Name">@category.ShortName</span>
-                }
+                <span class="req-pill-categories">
+                    @foreach (var category in context.Categories)
+                    {
+                        <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.Name">@category.ShortName</span>
+                    }
+                </span>
             }
         </span>;
 
+    IReadOnlyList<ParameterType> visibleParameterTypes = this.ViewModel.ShowSimpleParameterValues ? this.ViewModel.GetVisibleParameterTypes() : [];
+
     RenderFragment<Requirement> requirementRow = requirement =>
-        @<div class="req-row @(requirement.IsDeprecated ? "req-row-deprecated" : string.Empty)">
-            <div class="req-row-main">
-                @if (this.IsEditingDefinition(requirement))
-                {
-                    <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
-                    <div class="req-def-editor" @onkeydown="this.OnDefinitionEditorKeyDown">
-                        <div class="req-def-editor-actions">
-                            <button type="button" class="req-def-save" title="Save" @onclick="@(() => this.ConfirmDefinitionEdit(requirement))">&#10003;</button>
-                            <button type="button" class="req-def-cancel" title="Cancel (Esc)" @onclick="this.CancelDefinitionEdit">&#10007;</button>
+        @<div @key="requirement.Iid" id="@RequirementAnchorId(requirement)" class="req-row @(requirement.IsDeprecated ? "req-row-deprecated" : string.Empty)">
+            <div class="req-row-top">
+                <div class="req-row-main">
+                    @if (this.IsEditingDefinition(requirement))
+                    {
+                        <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
+                        <div class="req-def-editor" @onkeydown="this.OnDefinitionEditorKeyDown">
+                            <div class="req-def-editor-actions">
+                                <button type="button" class="req-def-save" title="Save" @onclick="@(() => this.ConfirmDefinitionEdit(requirement))">&#10003;</button>
+                                <button type="button" class="req-def-cancel" title="Cancel (Esc)" @onclick="this.CancelDefinitionEdit">&#10007;</button>
+                            </div>
+                            <DxMemo @bind-Text="this.editingDefinition" Rows="3" CssClass="req-def-memo" />
                         </div>
-                        <DxMemo @bind-Text="this.editingDefinition" Rows="3" CssClass="req-def-memo" />
+                    }
+                    else
+                    {
+                        @switch (this.ViewModel.DisplayMode)
+                        {
+                            case RequirementRowDisplayMode.ShortNameAndDefinition:
+                                <p class="req-def"><strong class="req-id">@requirement.ShortName</strong> &#8211; @GetDefinition(requirement)</p>
+                                break;
+
+                            case RequirementRowDisplayMode.NameAndDefinition:
+                                <p class="req-def"><strong class="req-id">@requirement.Name</strong> &#8211; @GetDefinition(requirement)</p>
+                                break;
+
+                            default:
+                                <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
+                                <p class="req-def"><span class="req-def-display" title="Click to edit" @onclick="@(() => this.StartDefinitionEdit(requirement))">@GetDefinitionDisplay(requirement)</span></p>
+                                break;
+                        }
+                    }
+                </div>
+                @if (this.ViewModel.ShowSimpleParameterValues)
+                {
+                    <div class="req-row-values">
+                        @foreach (var parameterType in visibleParameterTypes)
+                        {
+                            <RequirementValueCell @key="parameterType.Iid" ViewModel="@this.ViewModel" Requirement="@requirement" ParameterType="@parameterType" />
+                        }
                     </div>
                 }
-                else
-                {
-                    switch (this.ViewModel.DisplayMode)
+                <div class="req-row-pills @(this.ViewModel.ShowSimpleParameterValues ? "req-pills-stacked" : string.Empty)">
+                    @if (requirement.IsDeprecated)
                     {
-                        case RequirementRowDisplayMode.ShortNameAndDefinition:
-                            <p class="req-def"><strong class="req-id">@requirement.ShortName</strong> &#8211; <span class="req-def-display" title="Click to edit" @onclick="@(() => this.StartDefinitionEdit(requirement))">@GetDefinitionDisplay(requirement)</span></p>
-                            break;
-
-                        case RequirementRowDisplayMode.NameAndDefinition:
-                            <p class="req-def"><strong class="req-id">@requirement.Name</strong> &#8211; <span class="req-def-display" title="Click to edit" @onclick="@(() => this.StartDefinitionEdit(requirement))">@GetDefinitionDisplay(requirement)</span></p>
-                            break;
-
-                        default:
-                            <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
-                            <p class="req-def"><span class="req-def-display" title="Click to edit" @onclick="@(() => this.StartDefinitionEdit(requirement))">@GetDefinitionDisplay(requirement)</span></p>
-                            break;
+                        <span class="req-deprecated-badge" title="This requirement is deprecated">Deprecated</span>
                     }
-                }
+                    @pills((requirement.Owner, requirement.Category))
+                    <span class="req-actions">
+                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-pencil" title="Edit requirement" Click="@(() => this.ViewModel.OpenEdit(requirement))" />
+                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@(requirement.IsDeprecated ? "oi oi-action-undo" : "oi oi-ban")" title="@(requirement.IsDeprecated ? "Restore requirement" : "Deprecate requirement")" Click="@(() => this.ViewModel.ConfirmDeprecation(requirement))" />
+                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-trash" title="Delete requirement" Click="@(() => this.ViewModel.ConfirmDeletion(requirement))" />
+                    </span>
+                </div>
             </div>
-            <div class="req-row-pills">
-                @if (requirement.IsDeprecated)
-                {
-                    <span class="req-deprecated-badge" title="This requirement is deprecated">Deprecated</span>
-                }
-                @pills((requirement.Owner, requirement.Category))
-                <span class="req-actions">
-                    <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-pencil" title="Edit requirement" Click="@(() => this.ViewModel.OpenEdit(requirement))" />
-                    <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@(requirement.IsDeprecated ? "oi oi-action-undo" : "oi oi-ban")" title="@(requirement.IsDeprecated ? "Restore requirement" : "Deprecate requirement")" Click="@(() => this.ViewModel.ConfirmDeprecation(requirement))" />
-                    <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-trash" title="Delete requirement" Click="@(() => this.ViewModel.ConfirmDeletion(requirement))" />
-                </span>
-            </div>
+            @if (this.ViewModel.ShowParametricConstraints || this.ViewModel.ShowTraceability)
+            {
+                <RequirementDetails ViewModel="@this.ViewModel" Requirement="@requirement" />
+            }
         </div>;
 }
 

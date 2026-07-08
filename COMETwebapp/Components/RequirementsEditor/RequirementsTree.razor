@@ -18,10 +18,40 @@ Copyright (c) 2023-2026 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
+@using CDP4Common.SiteDirectoryData
 @using COMETwebapp.Utilities
+
+@{
+    RenderFragment<(DomainOfExpertise Owner, IEnumerable<Category> Categories)> pills = context =>
+        @<span class="req-pills">
+            @if (this.ViewModel.ShowOwner && context.Owner != null)
+            {
+                <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{context.Owner.ShortName}") !important;" title="Owner: @context.Owner.Name">@context.Owner.ShortName</span>
+            }
+            @if (this.ViewModel.ShowCategory)
+            {
+                @foreach (var category in context.Categories)
+                {
+                    <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.Name">@category.ShortName</span>
+                }
+            }
+        </span>;
+}
 
 @if (this.Groups == null)
 {
+    <div class="req-tree-header">
+        <span class="req-tree-header-title">Contents</span>
+        <div class="btn-group" role="group" aria-label="Table of contents label">
+            <DxButton RenderStyle="@(this.ViewModel.TreeUsesShortName ? ButtonRenderStyle.Primary : ButtonRenderStyle.Light)"
+                      Text="ID" title="Label by short name"
+                      Click="@(() => this.ViewModel.TreeUsesShortName = true)" />
+            <DxButton RenderStyle="@(this.ViewModel.TreeUsesShortName ? ButtonRenderStyle.Light : ButtonRenderStyle.Primary)"
+                      Text="Name" title="Label by name"
+                      Click="@(() => this.ViewModel.TreeUsesShortName = false)" />
+        </div>
+    </div>
+
     <ul class="req-tree">
         @foreach (var specification in this.ViewModel.AvailableSpecifications)
         {
@@ -30,7 +60,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <li class="req-tree-item">
                 <div class="req-tree-row req-tree-spec @(isSelected ? "selected" : string.Empty) @(specification.IsDeprecated ? "req-tree-deprecated" : string.Empty)"
                      @onclick="@(() => this.ViewModel.SelectedSpecification = specification)">
-                    <span class="req-tree-label">@specification.ShortName</span>
+                    <span class="req-tree-label">@(this.ViewModel.TreeUsesShortName ? specification.ShortName : specification.Name)</span>
+                    @pills((specification.Owner, specification.Category))
                 </div>
                 @if (isSelected)
                 {
@@ -61,20 +92,8 @@ else
                     {
                         <span class="req-tree-chevron-placeholder"></span>
                     }
-                    <a class="req-tree-group" href="#@RequirementsDocument.GroupAnchorId(group)" title="@group.Name">@group.ShortName</a>
-                    <span class="req-pills">
-                        @if (this.ViewModel.ShowOwner && group.Owner != null)
-                        {
-                            <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{group.Owner.ShortName}") !important;" title="Owner: @group.Owner.Name">@group.Owner.ShortName</span>
-                        }
-                        @if (this.ViewModel.ShowCategory)
-                        {
-                            @foreach (var category in group.Category)
-                            {
-                                <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.Name">@category.ShortName</span>
-                            }
-                        }
-                    </span>
+                    <a class="req-tree-group" href="#@RequirementsDocument.GroupAnchorId(group)" title="@group.Name">@(this.ViewModel.TreeUsesShortName ? group.ShortName : group.Name)</a>
+                    @pills((group.Owner, group.Category))
                 </div>
                 @if (hasChildren && !collapsed)
                 {

@@ -65,6 +65,16 @@ namespace COMETwebapp.Components.RequirementsEditor
         }
 
         /// <summary>
+        /// Gets the HTML anchor id used to scroll to the given <paramref name="requirement" /> from a traceability link.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <returns>The anchor id</returns>
+        public static string RequirementAnchorId(Requirement requirement)
+        {
+            return $"req-{requirement.Iid}";
+        }
+
+        /// <summary>
         /// The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the requirement whose definition is currently being edited inline, or null.
         /// </summary>
         private Guid? editingRequirementIid;

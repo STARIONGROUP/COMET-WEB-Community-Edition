@@ -33,6 +33,25 @@ namespace COMETwebapp.Utilities
     public static class ParameterValueFormatter
     {
         /// <summary>
+        /// Gets the mathematical symbol for the given relational <paramref name="operatorKind" />.
+        /// </summary>
+        /// <param name="operatorKind">The <see cref="RelationalOperatorKind" />.</param>
+        /// <returns>The symbol.</returns>
+        public static string RelationalOperatorSymbol(RelationalOperatorKind operatorKind)
+        {
+            return operatorKind switch
+            {
+                RelationalOperatorKind.EQ => "=",
+                RelationalOperatorKind.NE => "≠",
+                RelationalOperatorKind.LT => "<",
+                RelationalOperatorKind.GT => ">",
+                RelationalOperatorKind.LE => "≤",
+                RelationalOperatorKind.GE => "≥",
+                _ => operatorKind.ToString()
+            };
+        }
+
+        /// <summary>
         /// Formats a value array as a single display string: comma-separates the entries, wraps them in braces when
         /// there is more than one, and appends a <c>[shortName]</c> scale suffix when <paramref name="scale" /> is set.
         /// </summary>
