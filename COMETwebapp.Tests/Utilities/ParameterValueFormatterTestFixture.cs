@@ -22,6 +22,7 @@
 
 namespace COMETwebapp.Tests.Utilities
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
@@ -72,6 +73,20 @@ namespace COMETwebapp.Tests.Utilities
                 // Any other parameter type falls back to the flat formatting.
                 Assert.That(ParameterValueFormatter.Format(new ValueArray<string>(["1", "2", "3"]), new SimpleQuantityKind()),
                     Is.EqualTo("{1, 2, 3}"));
+            });
+        }
+
+        [Test]
+        public void VerifyRelationalOperatorSymbol()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(ParameterValueFormatter.RelationalOperatorSymbol(RelationalOperatorKind.EQ), Is.EqualTo("="));
+                Assert.That(ParameterValueFormatter.RelationalOperatorSymbol(RelationalOperatorKind.NE), Is.EqualTo("≠"));
+                Assert.That(ParameterValueFormatter.RelationalOperatorSymbol(RelationalOperatorKind.LT), Is.EqualTo("<"));
+                Assert.That(ParameterValueFormatter.RelationalOperatorSymbol(RelationalOperatorKind.GT), Is.EqualTo(">"));
+                Assert.That(ParameterValueFormatter.RelationalOperatorSymbol(RelationalOperatorKind.LE), Is.EqualTo("≤"));
+                Assert.That(ParameterValueFormatter.RelationalOperatorSymbol(RelationalOperatorKind.GE), Is.EqualTo("≥"));
             });
         }
     }
