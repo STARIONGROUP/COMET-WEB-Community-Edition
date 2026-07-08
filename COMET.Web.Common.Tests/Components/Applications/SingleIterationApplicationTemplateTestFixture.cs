@@ -175,11 +175,8 @@ namespace COMET.Web.Common.Tests.Components.Applications
 
             var navigationManager = this.context.Services.GetService<NavigationManager>();
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(navigationManager.Uri, Is.EqualTo("http://localhost/"));
-                this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items[0]), Times.Exactly(2));
-            });
+            renderer.WaitForAssertion(() => Assert.That(navigationManager.Uri, Is.EqualTo("http://localhost/")));
+            this.viewModel.Verify(x => x.OnThingSelect(this.openIterations.Items[0]), Times.Exactly(2));
 
             this.viewModel.Setup(x => x.SelectedThing).Returns(this.openIterations.Items[0]);
             renderer.Instance.SetCorrectUrl();
@@ -220,9 +217,10 @@ namespace COMET.Web.Common.Tests.Components.Applications
             this.viewModel.Setup(x => x.SelectedThing).Returns((Iteration)null);
             renderer.Instance.SetCorrectUrl();
 
+            renderer.WaitForAssertion(() => Assert.That(navigationManager.Uri, Is.EqualTo("http://localhost/")));
+
             Assert.Multiple(() =>
             {
-                Assert.That(navigationManager.Uri, Is.EqualTo("http://localhost/"));
                 Assert.That(() => renderer.FindComponent<OpenModel>(), Throws.Nothing);
                 Assert.That(() => this.messageBus.SendMessage(new DomainChangedEvent(null, null)), Throws.Nothing);
             });
