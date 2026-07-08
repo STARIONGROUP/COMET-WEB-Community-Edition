@@ -46,12 +46,15 @@
     min-width: 78px;
 }
 
+/* the table of contents keeps a fixed, readable width and the document a readable minimum; when they don't
+   both fit on a narrow panel the layout scrolls horizontally rather than squeezing the TOC to uselessness */
 .req-editor-layout {
     display: flex;
     gap: 16px;
     flex: 1 1 auto;
     min-height: 0;
     align-items: stretch;
+    overflow-x: auto;
 }
 
 .req-toc {
@@ -71,12 +74,19 @@
     border: none;
 }
 
+/* only ever scroll vertically: horizontal overflow would leave a dangling scrollbar, make the sticky
+   specification header stop short of the right edge, and (with both side menus open on a tiny screen) trap
+   the document so it can't be scrolled at all. Everything inside wraps, so nothing needs horizontal scroll. */
+/* a readable minimum width; when the TOC + this minimum exceed the panel the layout gets a horizontal
+   scrollbar (above) rather than squeezing the document to one word per line. Content still wraps within this
+   width, so the document itself never needs its own horizontal scrollbar. */
 .req-document {
     flex: 1 1 auto;
+    min-width: 400px;
     min-height: 0;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     scroll-behavior: smooth;
-    padding-right: 8px;
 }
 
 /* --- table-of-contents tree (rendered by RequirementsTree) --- */
@@ -314,17 +324,19 @@
     background: #fafbfc;
 }
 
-/* the header strip: definition (grows) | owner/category pills | value columns pinned to the right so they
-   line up vertically across every requirement regardless of the pill widths to their left */
+/* the header strip: definition (grows) | value columns | owner/category pills. On a wide row everything sits
+   on one line and the value columns line up across requirements; on a narrow panel the strip wraps so the
+   value columns and pills drop below the definition instead of squeezing it to one word per line. */
 .req-document ::deep .req-row-top {
     display: flex;
     align-items: flex-start;
+    flex-wrap: wrap;
     gap: 12px;
 }
 
 .req-document ::deep .req-row-main {
-    flex: 1 1 auto;
-    min-width: 0;
+    flex: 1 1 240px;
+    min-width: 200px;
 }
 
 .req-document ::deep .req-row-header .req-id {
@@ -439,8 +451,9 @@
 /* DOORS-like value columns: fixed-width cells on the right of every requirement row, one per visible
    parameter type in a fixed order, so the cells line up vertically across requirements. */
 .req-document ::deep .req-row-values {
-    flex: 0 0 auto;
+    flex: 0 1 auto;
     display: flex;
+    flex-wrap: wrap;
     align-items: flex-start;
     gap: 6px;
     padding-left: 8px;
@@ -450,6 +463,7 @@
     display: flex;
     flex-direction: column;
     width: 130px;
+    max-width: 100%;
     padding: 3px 8px;
     background: #f8fafc;
     border: 1px solid #e9edf2;
@@ -634,6 +648,7 @@
     border: 1px solid #ddd4f4;
     border-radius: 4px;
     padding: 0 5px;
+    overflow-wrap: anywhere;
 }
 
 .req-document ::deep .req-expr-children {
@@ -642,8 +657,11 @@
     border-left: 1px solid #d8e3f4;
 }
 
+/* wrap so the bound-parameter model code and its published value drop to the next line inside the constraint
+   card on a narrow panel instead of spilling past its right edge */
 .req-document ::deep .req-expr-leaf {
     display: inline-flex;
+    flex-wrap: wrap;
     align-items: baseline;
     gap: 5px;
     padding: 1px 0;
@@ -676,9 +694,10 @@
     padding: 0 5px;
 }
 
-/* traceability rows */
+/* traceability rows: wrap so the linked things and the rule pills stay inside the card on a narrow panel */
 .req-document ::deep .req-link-row {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     gap: 8px;
     padding: 2px 0;
@@ -709,6 +728,8 @@
     color: #0d6efd;
     cursor: pointer;
     text-decoration: none;
+    text-align: left;
+    overflow-wrap: anywhere;
 }
 
 .req-document ::deep .req-link-req:hover {
@@ -717,6 +738,7 @@
 
 .req-document ::deep .req-link-thing {
     color: #344054;
+    overflow-wrap: anywhere;
 }
 
 .req-document ::deep .req-link-row .req-pills {
