@@ -5,10 +5,6 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG DEVEXPRESS_NUGET_KEY
 ARG PACKAGE_TOKEN
 
-# Workaround for NU3012: the ReactiveUI/Splat NuGet signing certificate has been revoked.
-# Disable enforced package signature verification until the packages are updated. See issue for the long-term fix.
-ENV DOTNET_NUGET_SIGNATURE_VERIFICATION=false
-
 COPY COMET.Web.Common COMET.Web.Common
 COPY COMETwebapp COMETwebapp
 
