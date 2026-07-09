@@ -27,6 +27,7 @@ namespace COMETwebapp.Components.RequirementsEditor
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Web;
 
     /// <summary>
     /// Renders a <see cref="RequirementsSpecification" /> as a document: the specification header, its requirements,
@@ -64,13 +65,88 @@ namespace COMETwebapp.Components.RequirementsEditor
         }
 
         /// <summary>
-        /// Gets the definition text of the given <paramref name="requirement" />.
+        /// The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the requirement whose definition is currently being edited inline, or null.
+        /// </summary>
+        private Guid? editingRequirementIid;
+
+        /// <summary>
+        /// The staged definition text of the requirement currently being edited inline.
+        /// </summary>
+        private string editingDefinition;
+
+        /// <summary>
+        /// Gets the definition text of the given <paramref name="requirement" /> (its first definition).
         /// </summary>
         /// <param name="requirement">The <see cref="Requirement" /></param>
         /// <returns>The first definition's content, or an empty string</returns>
         private static string GetDefinition(Requirement requirement)
         {
             return requirement.Definition.FirstOrDefault()?.Content ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the definition text of the given <paramref name="requirement" /> for display, or a placeholder when empty.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <returns>The definition content, or a click-to-add placeholder</returns>
+        private static string GetDefinitionDisplay(Requirement requirement)
+        {
+            var content = GetDefinition(requirement);
+            return string.IsNullOrWhiteSpace(content) ? "Click to add a definition" : content;
+        }
+
+        /// <summary>
+        /// Gets whether the given <paramref name="requirement" />'s definition is currently being edited inline.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <returns>true if it is being edited</returns>
+        private bool IsEditingDefinition(Requirement requirement)
+        {
+            return this.editingRequirementIid == requirement.Iid;
+        }
+
+        /// <summary>
+        /// Starts the inline edit of the given <paramref name="requirement" />'s definition.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        private void StartDefinitionEdit(Requirement requirement)
+        {
+            this.editingRequirementIid = requirement.Iid;
+            this.editingDefinition = GetDefinition(requirement);
+        }
+
+        /// <summary>
+        /// Cancels the current inline definition edit without saving.
+        /// </summary>
+        private void CancelDefinitionEdit()
+        {
+            this.editingRequirementIid = null;
+            this.editingDefinition = null;
+        }
+
+        /// <summary>
+        /// Commits the current inline definition edit.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /> being edited</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task ConfirmDefinitionEdit(Requirement requirement)
+        {
+            var content = this.editingDefinition;
+            this.editingRequirementIid = null;
+            this.editingDefinition = null;
+            await this.ViewModel.SaveInlineDefinitionAsync(requirement, content);
+        }
+
+        /// <summary>
+        /// Cancels the inline definition edit when the Escape key is pressed.
+        /// </summary>
+        /// <param name="eventArgs">The <see cref="KeyboardEventArgs" /></param>
+        private void OnDefinitionEditorKeyDown(KeyboardEventArgs eventArgs)
+        {
+            if (eventArgs.Key == "Escape")
+            {
+                this.CancelDefinitionEdit();
+            }
         }
     }
 }

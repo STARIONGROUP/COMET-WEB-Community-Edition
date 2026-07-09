@@ -23,6 +23,7 @@
 namespace COMETwebapp.Components.Common
 {
     using CDP4Common.CommonData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Components;
 
@@ -51,6 +52,14 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         [Parameter]
         public EventCallback<DefinedThing> ThingChanged { get; set; }
+
+        /// <summary>
+        /// The <see cref="NaturalLanguage" />s the user may pick from. When empty, the language is edited as free text
+        /// (backward-compatible); when provided, the language is a dropdown that excludes languages already used by the
+        /// parent so a <see cref="DefinedThing" /> keeps at most one <see cref="Definition" /> per language.
+        /// </summary>
+        [Parameter]
+        public IEnumerable<NaturalLanguage> AvailableLanguages { get; set; } = [];
 
         /// <summary>
         /// True when the popup edit form is creating a new <see cref="Definition" /> rather than editing an existing one.
@@ -113,6 +122,22 @@ namespace COMETwebapp.Components.Common
             }
 
             this.ThingChanged.InvokeAsync(this.Thing);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="NaturalLanguage" />s selectable for the definition currently being edited: every
+        /// <see cref="AvailableLanguages" /> entry except those already used by another definition of the parent (the
+        /// edited definition's own language stays selectable so an existing definition can keep its language).
+        /// </summary>
+        /// <returns>The selectable languages.</returns>
+        public IEnumerable<NaturalLanguage> GetSelectableLanguages()
+        {
+            var usedLanguages = this.Thing.Definition
+                .Where(x => x.Iid != this.Item?.Iid)
+                .Select(x => x.LanguageCode)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            return this.AvailableLanguages.Where(x => !usedLanguages.Contains(x.LanguageCode));
         }
 
         /// <summary>

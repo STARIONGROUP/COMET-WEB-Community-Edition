@@ -60,6 +60,12 @@ namespace COMETwebapp.Components.RequirementsEditor
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(
+                    x => x.ViewModel.IsOnEditMode,
+                    x => x.ViewModel.IsLoading,
+                    x => x.ViewModel.ConfirmCancelPopupViewModel.IsVisible)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>

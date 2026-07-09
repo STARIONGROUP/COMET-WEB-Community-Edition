@@ -22,9 +22,11 @@
 
 namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
@@ -146,5 +148,68 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="iid">The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the group</param>
         void ToggleDocumentGroup(Guid iid);
+
+        /// <summary>
+        /// Gets the view model driving the confirm dialog used for deprecate, restore and delete actions.
+        /// </summary>
+        IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; }
+
+        /// <summary>
+        /// Gets the view model driving the create/edit form.
+        /// </summary>
+        IEditRequirementThingViewModel EditViewModel { get; }
+
+        /// <summary>
+        /// Gets the header text shown on the create/edit popup.
+        /// </summary>
+        string EditPopupHeader { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the create/edit popup is open.
+        /// </summary>
+        bool IsOnEditMode { get; set; }
+
+        /// <summary>
+        /// Opens the create form for a new <see cref="RequirementsSpecification" />.
+        /// </summary>
+        void OpenCreateSpecification();
+
+        /// <summary>
+        /// Opens the create form for a new <see cref="RequirementsGroup" /> under the given <paramref name="parent" />.
+        /// </summary>
+        /// <param name="parent">The specification or group the new group is placed under.</param>
+        void OpenCreateGroup(RequirementsContainer parent);
+
+        /// <summary>
+        /// Opens the create form for a new <see cref="Requirement" /> under the given <paramref name="parent" />.
+        /// </summary>
+        /// <param name="parent">The specification or group the new requirement is filed under.</param>
+        void OpenCreateRequirement(RequirementsContainer parent);
+
+        /// <summary>
+        /// Opens the edit form for the given <paramref name="thing" />.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> to edit.</param>
+        void OpenEdit(Thing thing);
+
+        /// <summary>
+        /// Opens the confirm dialog to toggle the deprecation of the given deprecatable <paramref name="thing" />.
+        /// </summary>
+        /// <param name="thing">The deprecatable <see cref="Thing" />.</param>
+        void ConfirmDeprecation(Thing thing);
+
+        /// <summary>
+        /// Opens the confirm dialog to permanently delete the given <paramref name="thing" />.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> to delete.</param>
+        void ConfirmDeletion(Thing thing);
+
+        /// <summary>
+        /// Persists an inline edit of the first definition of the given <paramref name="requirement" />.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /> whose definition changed.</param>
+        /// <param name="content">The new definition content.</param>
+        /// <returns>A <see cref="Task" /></returns>
+        Task SaveInlineDefinitionAsync(Requirement requirement, string content);
     }
 }

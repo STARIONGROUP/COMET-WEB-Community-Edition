@@ -107,5 +107,22 @@ namespace COMETwebapp.Tests.Components.Common
 
             Assert.That(this.parameterType.Definition, Is.Empty);
         }
+
+        [Test]
+        public async Task VerifyGetSelectableLanguagesExcludesUsedLanguages()
+        {
+            var english = new NaturalLanguage { LanguageCode = "en-GB", Name = "English" };
+            var french = new NaturalLanguage { LanguageCode = "fr", Name = "French" };
+
+            var languageRenderer = this.context.Render<DefinitionsTable>(parameters => parameters
+                .Add(p => p.Thing, this.parameterType)
+                .Add(p => p.AvailableLanguages, new[] { english, french }));
+
+            var addButton = languageRenderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addDefinitionButton");
+            await languageRenderer.InvokeAsync(addButton.Instance.Click.InvokeAsync);
+
+            // The parent already holds an en-GB definition, so only the unused French language may be selected for the new one.
+            Assert.That(languageRenderer.Instance.GetSelectableLanguages().Select(x => x.LanguageCode), Is.EqualTo(new[] { "fr" }));
+        }
     }
 }

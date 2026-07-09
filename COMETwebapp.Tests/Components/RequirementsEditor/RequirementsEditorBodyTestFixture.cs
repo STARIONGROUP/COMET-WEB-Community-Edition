@@ -41,6 +41,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
 
     using Moq;
 
@@ -93,7 +94,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
 
-            this.viewModel = new RequirementsEditorBodyViewModel(sessionService.Object, this.messageBus, new ShowHideDeprecatedThingsService())
+            this.viewModel = new RequirementsEditorBodyViewModel(sessionService.Object, this.messageBus, new ShowHideDeprecatedThingsService(), new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object)
             {
                 CurrentThing = iteration
             };

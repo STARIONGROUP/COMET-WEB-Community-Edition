@@ -404,3 +404,69 @@
     text-decoration: line-through;
     color: #98a2b3;
 }
+
+.req-document ::deep .req-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    margin-left: 4px;
+}
+
+.req-document ::deep .req-actions .dxbl-btn {
+    padding: 2px 5px;
+    line-height: 1;
+    opacity: 0.45;
+    transition: opacity 0.15s ease;
+}
+
+.req-document ::deep .req-row:hover .req-actions .dxbl-btn,
+.req-document ::deep .req-spec-title:hover .req-actions .dxbl-btn,
+.req-document ::deep .req-group-header:hover .req-actions .dxbl-btn {
+    opacity: 1;
+}
+
+.req-document ::deep .req-def-display {
+    cursor: text;
+    border-radius: 3px;
+    padding: 1px 3px;
+    transition: background-color 0.15s ease;
+}
+
+.req-document ::deep .req-def-display:hover {
+    background-color: #eef2ff;
+    box-shadow: inset 0 0 0 1px #c7d2fe;
+}
+
+.req-document ::deep .req-def-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.req-document ::deep .req-def-editor-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.req-document ::deep .req-def-save,
+.req-document ::deep .req-def-cancel {
+    border: 1px solid #d0d5dd;
+    background: #fff;
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.req-document ::deep .req-def-save {
+    color: #067647;
+}
+
+.req-document ::deep .req-def-cancel {
+    color: #b42318;
+}
+
+.req-document ::deep .req-def-memo {
+    width: 100%;
+}
