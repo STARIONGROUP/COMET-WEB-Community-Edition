@@ -180,6 +180,22 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         public IReadOnlyList<NaturalLanguage> AvailableLanguages { get; private set; } = [];
 
         /// <summary>
+        /// Gets a value indicating whether the edited <see cref="Thing" /> is a <see cref="Requirement" /> (so the Simple
+        /// Parameter Values and Parametric Constraints tabs apply).
+        /// </summary>
+        public bool IsRequirement => this.Thing is Requirement;
+
+        /// <summary>
+        /// Gets the edited <see cref="Thing" /> as a <see cref="Requirement" />, or null when it is not one.
+        /// </summary>
+        public Requirement RequirementThing => this.Thing as Requirement;
+
+        /// <summary>
+        /// Gets the <see cref="ParameterType" />s available to add a simple parameter value, from the open reference data libraries.
+        /// </summary>
+        public IReadOnlyList<ParameterType> AvailableParameterTypes { get; private set; } = [];
+
+        /// <summary>
         /// Gets the <see cref="Category" />s applicable to the <see cref="Thing" />'s class kind.
         /// </summary>
         public IEnumerable<Category> AvailableCategories { get; private set; } = [];
@@ -211,6 +227,13 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             this.AvailableLanguages = this.GetAvailableLanguages();
 
             this.selectedLanguageCode = this.DefinedThing.Definition.FirstOrDefault()?.LanguageCode ?? this.GetDirectoryDefaultLanguageCode();
+
+            this.AvailableParameterTypes = this.sessionService.Session.RetrieveSiteDirectory()
+                .AvailableReferenceDataLibraries()
+                .SelectMany(x => x.ParameterType)
+                .DistinctBy(x => x.Iid)
+                .OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)
+                .ToList();
 
             var owner = (thing as IOwnedThing)?.Owner;
 

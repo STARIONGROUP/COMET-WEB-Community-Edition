@@ -207,6 +207,48 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
+        /// Creates or updates <see cref="Thing" />s and deletes <see cref="Thing" />s within a single transaction, and adds a
+        /// new notification to the <see cref="INotificationService" />
+        /// </summary>
+        /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
+        /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
+        /// <param name="toDelete">
+        /// A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to delete, each with its
+        /// <see cref="Thing.Container" /> set to the cloned container it is removed from
+        /// </param>
+        /// <param name="notificationDescription">The notification description to be displayed</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        /// <remarks>The <paramref name="topContainer" /> have to be a cloned <see cref="Thing" /></remarks>
+        /// <exception cref="InvalidOperationException">When the <see cref="ISession" /> is not open</exception>
+        public async Task<Result> CreateUpdateAndDeleteThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, IReadOnlyCollection<Thing> toDelete, NotificationDescription notificationDescription = null)
+        {
+            Guard.ThrowIfNotValidForTransaction(topContainer);
+            Guard.ThrowIfNullOrEmpty(toUpdateOrCreate, nameof(toUpdateOrCreate));
+
+            if (!this.IsSessionOpen)
+            {
+                this.logger.LogError("Trying to Create, update or delete Thing(s) while the Session is not open");
+                throw new InvalidOperationException("Cannot Create, update or delete Thing(s) while the Session is not open");
+            }
+
+            var transaction = new ThingTransaction(TransactionContextResolver.ResolveContext(topContainer));
+
+            foreach (var thing in toUpdateOrCreate)
+            {
+                transaction.CreateOrUpdate(thing);
+            }
+
+            foreach (var thing in toDelete)
+            {
+                transaction.Delete(thing, thing.Container);
+            }
+
+            var result = await this.WriteTransaction(transaction.FinalizeTransaction(), []);
+            this.notificationService.Results.Add(new ResultNotification(result, notificationDescription));
+            return result;
+        }
+
+        /// <summary>
         /// Deletes <see cref="Thing" />s
         /// </summary>
         /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>

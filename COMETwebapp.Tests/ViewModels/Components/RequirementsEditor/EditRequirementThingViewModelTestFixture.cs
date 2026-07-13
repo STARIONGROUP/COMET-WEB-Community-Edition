@@ -51,6 +51,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         private RequirementsGroup group;
         private NaturalLanguage english;
         private NaturalLanguage french;
+        private TextParameterType textParameterType;
 
         [SetUp]
         public void SetUp()
@@ -64,7 +65,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             this.requirementCategory = new Category { Iid = Guid.NewGuid(), ShortName = "REQ", Name = "Requirement", PermissibleClass = { ClassKind.Requirement } };
             this.groupCategory = new Category { Iid = Guid.NewGuid(), ShortName = "GRP", Name = "Group", PermissibleClass = { ClassKind.RequirementsGroup } };
 
-            var rdl = new SiteReferenceDataLibrary { ShortName = "siteRdl", Name = "Site RDL", DefinedCategory = { this.requirementCategory, this.groupCategory } };
+            this.textParameterType = new TextParameterType { Iid = Guid.NewGuid(), ShortName = "txt", Name = "Text" };
+            var rdl = new SiteReferenceDataLibrary { ShortName = "siteRdl", Name = "Site RDL", DefinedCategory = { this.requirementCategory, this.groupCategory }, ParameterType = { this.textParameterType } };
 
             this.english = new NaturalLanguage { LanguageCode = "en-GB", Name = "English" };
             this.french = new NaturalLanguage { LanguageCode = "fr", Name = "French" };
@@ -126,6 +128,28 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 Assert.That(this.viewModel.AvailableGroups, Is.EqualTo(new[] { this.group }));
                 Assert.That(this.viewModel.AvailableCategories, Is.EqualTo(new[] { this.requirementCategory }));
                 Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise, Is.EqualTo(this.otherDomain));
+            });
+        }
+
+        [Test]
+        public void VerifyRequirementExposesParameterTypesAndItself()
+        {
+            var requirement = new Requirement { Iid = Guid.NewGuid(), Owner = this.domain };
+            this.viewModel.InitializeViewModel(requirement, this.iteration, []);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsRequirement, Is.True);
+                Assert.That(this.viewModel.RequirementThing, Is.SameAs(requirement));
+                Assert.That(this.viewModel.AvailableParameterTypes, Does.Contain(this.textParameterType));
+            });
+
+            this.viewModel.InitializeViewModel(this.group, this.iteration, []);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsRequirement, Is.False);
+                Assert.That(this.viewModel.RequirementThing, Is.Null);
             });
         }
 

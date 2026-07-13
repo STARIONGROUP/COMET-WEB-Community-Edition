@@ -23,6 +23,8 @@
 
 namespace COMET.Web.Common.Tests.Services.SessionManagement
 {
+    using System;
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -84,6 +86,21 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
                 Assert.That(async () => await this.sessionService.CreateOrUpdateThings(siteDirectory, [domain], ["file A"]), Throws.InvalidOperationException);
                 Assert.That(async () => await this.sessionService.CreateOrUpdateThingsWithNotification(siteDirectory, [domain], ["file A"]), Throws.InvalidOperationException);
                 Assert.That(async () => await this.sessionService.CreateOrUpdateThingsWithNotification(siteDirectory, [domain]), Throws.InvalidOperationException);
+            });
+        }
+
+        [Test]
+        public void VerifyCreateUpdateAndDeleteThingsWithNotification()
+        {
+            var siteDirectory = new SiteDirectory();
+            var domain = new DomainOfExpertise();
+            var obsoleteDomain = new DomainOfExpertise { Container = siteDirectory };
+            siteDirectory.Domain.Add(domain);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(async () => await this.sessionService.CreateUpdateAndDeleteThingsWithNotification(siteDirectory, [domain], [obsoleteDomain]), Throws.InvalidOperationException);
+                Assert.That(async () => await this.sessionService.CreateUpdateAndDeleteThingsWithNotification(siteDirectory, [], []), Throws.TypeOf<ArgumentOutOfRangeException>());
             });
         }
 

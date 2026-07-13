@@ -105,7 +105,30 @@ namespace COMETwebapp.Tests.Components.Common
             var removeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeDefinitionButton");
             await this.renderer.InvokeAsync(removeButton.Instance.Click.InvokeAsync);
 
-            Assert.That(this.parameterType.Definition, Is.Empty);
+            var removalPopup = this.renderer.Instance.RemovalPopup;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(removalPopup.IsVisible, Is.True, "The removal asks for confirmation first.");
+                Assert.That(this.parameterType.Definition, Has.Count.EqualTo(1), "Nothing is removed before the user confirms.");
+            });
+
+            await this.renderer.InvokeAsync(removalPopup.Cancel);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(removalPopup.IsVisible, Is.False);
+                Assert.That(this.parameterType.Definition, Has.Count.EqualTo(1), "Cancelling keeps the definition.");
+            });
+
+            await this.renderer.InvokeAsync(removeButton.Instance.Click.InvokeAsync);
+            await this.renderer.InvokeAsync(removalPopup.Confirm);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.parameterType.Definition, Is.Empty, "Confirming removes the definition.");
+                Assert.That(removalPopup.IsVisible, Is.False);
+            });
         }
 
         [Test]

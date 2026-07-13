@@ -635,7 +635,21 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
                 thingsToWrite.AddRange(((DefinedThing)thing).Definition);
 
-                var result = await this.SessionService.CreateOrUpdateThingsWithNotification(topContainer, thingsToWrite, BuildNotification(thing, this.isCreating ? "created" : "updated", this.isCreating ? "create" : "update"));
+                var expressionsToDelete = new List<Thing>();
+
+                if (thing is Requirement requirementThing)
+                {
+                    thingsToWrite.AddRange(requirementThing.ParameterValue);
+
+                    foreach (ParametricConstraint constraint in requirementThing.ParametricConstraint)
+                    {
+                        thingsToWrite.AddRange(constraint.Expression);
+                        thingsToWrite.Add(constraint);
+                        expressionsToDelete.AddRange(GetDiscardedExpressions(constraint));
+                    }
+                }
+
+                var result = await this.SessionService.CreateUpdateAndDeleteThingsWithNotification(topContainer, thingsToWrite, expressionsToDelete, BuildNotification(thing, this.isCreating ? "created" : "updated", this.isCreating ? "create" : "update"));
 
                 if (result.IsSuccess)
                 {
@@ -739,6 +753,31 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 this.SelectedSpecification = previouslySelected;
             }
+        }
+
+        /// <summary>
+        /// Gets the clones of the <see cref="BooleanExpression" />s the given <paramref name="constraint" /> held before it was
+        /// edited and that its rebuilt expression tree no longer contains, so that they are deleted rather than left orphaned
+        /// inside the constraint. An expression is discarded either because the user removed it, or because it had to be
+        /// re-created under a new identity to keep the write acceptable to the server.
+        /// </summary>
+        /// <param name="constraint">The edited <see cref="ParametricConstraint" /> clone.</param>
+        /// <returns>The <see cref="BooleanExpression" /> clones to delete.</returns>
+        private static IEnumerable<Thing> GetDiscardedExpressions(ParametricConstraint constraint)
+        {
+            if (constraint.Original is not ParametricConstraint original)
+            {
+                return [];
+            }
+
+            return original.Expression
+                .Where(expression => constraint.Expression.All(x => x.Iid != expression.Iid))
+                .Select(expression =>
+                {
+                    var clone = expression.Clone(false);
+                    clone.Container = constraint;
+                    return (Thing)clone;
+                });
         }
 
         /// <summary>

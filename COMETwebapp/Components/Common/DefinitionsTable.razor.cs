@@ -48,6 +48,11 @@ namespace COMETwebapp.Components.Common
         public DefinedThing Thing { get; set; }
 
         /// <summary>
+        /// The popup that asks the user to confirm the removal of a <see cref="Definition" /> before it is applied.
+        /// </summary>
+        public ConfirmRemovalPopup<DefinitionRowViewModel> RemovalPopup { get; private set; }
+
+        /// <summary>
         /// Notifies the surrounding form that the parent <see cref="DefinedThing" />'s definition collection has changed.
         /// </summary>
         [Parameter]
@@ -141,7 +146,8 @@ namespace COMETwebapp.Components.Common
         }
 
         /// <summary>
-        /// Removes the underlying <see cref="Definition" /> from the parent's collection.
+        /// Removes the underlying <see cref="Definition" /> from the parent's collection, once the user has confirmed the
+        /// removal in the <see cref="RemovalPopup" />.
         /// </summary>
         /// <param name="row">The row whose <see cref="Definition" /> should be removed.</param>
         /// <returns>A <see cref="Task" />.</returns>

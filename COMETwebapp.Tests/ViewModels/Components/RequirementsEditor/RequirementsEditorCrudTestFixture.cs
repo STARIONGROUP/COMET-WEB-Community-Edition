@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
 
@@ -37,6 +38,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
+    using COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstraints;
 
     using FluentResults;
 
@@ -60,6 +62,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         private Category requirementCategory;
         private List<Thing> capturedCreateOrUpdate;
         private List<Thing> capturedDelete;
+        private List<Thing> capturedDiscardedExpressions;
 
         [SetUp]
         public void SetUp()
@@ -89,10 +92,20 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
             this.capturedCreateOrUpdate = null;
             this.capturedDelete = null;
+            this.capturedDiscardedExpressions = null;
 
             this.sessionService
                 .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
                 .Callback<Thing, IReadOnlyCollection<Thing>, NotificationDescription>((_, things, _) => this.capturedCreateOrUpdate = things.ToList())
+                .ReturnsAsync(Result.Ok());
+
+            this.sessionService
+                .Setup(x => x.CreateUpdateAndDeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .Callback<Thing, IReadOnlyCollection<Thing>, IReadOnlyCollection<Thing>, NotificationDescription>((_, things, discarded, _) =>
+                {
+                    this.capturedCreateOrUpdate = things.ToList();
+                    this.capturedDiscardedExpressions = discarded.ToList();
+                })
                 .ReturnsAsync(Result.Ok());
 
             this.sessionService
@@ -196,7 +209,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
             Assert.Multiple(() =>
             {
-                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
+                this.sessionService.Verify(x => x.CreateUpdateAndDeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
                 Assert.That(this.capturedCreateOrUpdate, Does.Contain(newSpecification));
                 Assert.That(this.capturedCreateOrUpdate.OfType<Iteration>().Single().RequirementsSpecification, Does.Contain(newSpecification));
                 Assert.That(this.viewModel.IsOnEditMode, Is.False);
@@ -220,6 +233,101 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 Assert.That(this.capturedCreateOrUpdate, Does.Contain(newRequirement));
                 Assert.That(newRequirement.Group, Is.EqualTo(this.group));
                 Assert.That(this.capturedCreateOrUpdate.OfType<RequirementsSpecification>().Single().Requirement, Does.Contain(newRequirement));
+            });
+        }
+
+        [Test]
+        public async Task VerifyEditWritesSimpleParameterValues()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.OpenEdit(this.requirement);
+
+            var parameterType = new TextParameterType { Iid = Guid.NewGuid(), ShortName = "txt", Name = "Text" };
+
+            this.viewModel.EditViewModel.RequirementThing.ParameterValue.Add(new SimpleParameterValue
+            {
+                Iid = Guid.NewGuid(),
+                ParameterType = parameterType,
+                Value = new ValueArray<string>(["5"])
+            });
+
+            await this.viewModel.EditViewModel.OnValidSubmit.InvokeAsync();
+
+            Assert.That(this.capturedCreateOrUpdate.OfType<SimpleParameterValue>().Select(x => x.ParameterType), Does.Contain(parameterType));
+        }
+
+        [Test]
+        public async Task VerifyEditWritesParametricConstraints()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.OpenEdit(this.requirement);
+
+            var parameterType = new TextParameterType { Iid = Guid.NewGuid(), ShortName = "a", Name = "Acceleration" };
+            var constraintEditor = new EditParametricConstraintViewModel();
+            constraintEditor.InitializeForNew();
+            constraintEditor.AddNode(null, new RelationalExpressionRow { ParameterType = parameterType, Value = "5" });
+            constraintEditor.AddNode(null, new RelationalExpressionRow { ParameterType = parameterType, Value = "6" });
+
+            var constraint = new ParametricConstraint { Iid = Guid.NewGuid() };
+            constraintEditor.BuildInto(constraint);
+            this.viewModel.EditViewModel.RequirementThing.ParametricConstraint.Add(constraint);
+
+            await this.viewModel.EditViewModel.OnValidSubmit.InvokeAsync();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.capturedCreateOrUpdate.OfType<ParametricConstraint>().Select(x => x.Iid), Does.Contain(constraint.Iid));
+                Assert.That(this.capturedCreateOrUpdate.OfType<RelationalExpression>().Count(), Is.EqualTo(2), "The constraint's expressions must be written too.");
+                Assert.That(this.capturedCreateOrUpdate.OfType<AndExpression>().Count(), Is.EqualTo(1));
+            });
+        }
+
+        [Test]
+        public async Task VerifyNegatingAnExpressionOfAPersistedConstraintDiscardsTheReplacedExpressions()
+        {
+            var parameterType = new TextParameterType { Iid = Guid.NewGuid(), ShortName = "a", Name = "Acceleration" };
+
+            // A constraint already on the server: (a = 5) AND (a = 6).
+            var relationalA = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = parameterType, Value = new ValueArray<string>(["5"]) };
+            var relationalB = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = parameterType, Value = new ValueArray<string>(["6"]) };
+            var andExpression = new AndExpression { Iid = Guid.NewGuid() };
+            andExpression.Term.Add(relationalA);
+            andExpression.Term.Add(relationalB);
+
+            var persistedConstraint = new ParametricConstraint { Iid = Guid.NewGuid() };
+            persistedConstraint.Expression.AddRange([relationalA, relationalB, andExpression]);
+            persistedConstraint.TopExpression = andExpression;
+            this.requirement.ParametricConstraint.Add(persistedConstraint);
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.OpenEdit(this.requirement);
+
+            var constraintClone = this.viewModel.EditViewModel.RequirementThing.ParametricConstraint.Single();
+            var constraintEditor = new EditParametricConstraintViewModel();
+            constraintEditor.LoadFrom(constraintClone);
+
+            // Negate one leaf: this mints a NotExpression, so the AndExpression that must reference it can no longer be
+            // updated in place and is re-created too.
+            var root = (CompositeExpressionRow)constraintEditor.RootExpression;
+            constraintEditor.ToggleNot(root.Terms[0]);
+            constraintEditor.BuildInto(constraintClone);
+
+            await this.viewModel.EditViewModel.OnValidSubmit.InvokeAsync();
+
+            Assert.Multiple(() =>
+            {
+                // The replaced AndExpression is deleted rather than left orphaned inside the constraint.
+                Assert.That(this.capturedDiscardedExpressions.Select(x => x.Iid), Does.Contain(andExpression.Iid));
+
+                // The relational expressions keep their identity, so their history is preserved.
+                Assert.That(this.capturedDiscardedExpressions.Select(x => x.Iid), Does.Not.Contain(relationalA.Iid));
+                Assert.That(this.capturedCreateOrUpdate.OfType<RelationalExpression>().Select(x => x.Iid), Does.Contain(relationalA.Iid));
+
+                // Each discarded expression is a clone whose container is the constraint clone, so the transaction can route the delete.
+                Assert.That(this.capturedDiscardedExpressions, Is.All.Matches<Thing>(x => ReferenceEquals(x.Container, constraintClone)));
             });
         }
 

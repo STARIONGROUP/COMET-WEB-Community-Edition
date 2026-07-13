@@ -80,6 +80,19 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     <DefinitionsTable Thing="@this.ViewModel.DefinedThing"
                                       AvailableLanguages="@this.ViewModel.AvailableLanguages" />
                 </DxFormLayoutTabPage>
+
+                @if (this.ViewModel.IsRequirement)
+                {
+                    <DxFormLayoutTabPage Caption="Simple Parameter Values">
+                        <SimpleParameterValuesTable Requirement="@this.ViewModel.RequirementThing"
+                                                    AvailableParameterTypes="@this.ViewModel.AvailableParameterTypes" />
+                    </DxFormLayoutTabPage>
+
+                    <DxFormLayoutTabPage Caption="Parametric Constraints">
+                        <ParametricConstraintsTable Requirement="@this.ViewModel.RequirementThing"
+                                                    AvailableParameterTypes="@this.ViewModel.AvailableParameterTypes" />
+                    </DxFormLayoutTabPage>
+                }
             </DxFormLayoutTabPages>
         </DxFormLayout>
         <ValidationSummary />

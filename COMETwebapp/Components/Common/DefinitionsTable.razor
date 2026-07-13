@@ -42,7 +42,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                     <DxButton Id="removeDefinitionButton"
                               IconCssClass="oi oi-trash"
-                              Click="() => this.RemoveItem(row)"/>
+                              Click="() => this.RemovalPopup.Request(row)"/>
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
@@ -76,3 +76,9 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <ValidationSummary/>
     </EditFormTemplate>
 </DxGrid>
+
+<ConfirmRemovalPopup TItem="DefinitionRowViewModel"
+                     @ref="this.RemovalPopup"
+                     HeaderText="Delete definition"
+                     ContentText="Are you sure you want to delete this definition?"
+                     OnRemove="@(row => this.RemoveItem(row))"/>

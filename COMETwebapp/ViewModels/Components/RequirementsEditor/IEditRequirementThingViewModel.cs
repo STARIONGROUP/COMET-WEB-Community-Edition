@@ -84,6 +84,21 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         IReadOnlyList<NaturalLanguage> AvailableLanguages { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the edited <see cref="Thing" /> is a <see cref="Requirement" />.
+        /// </summary>
+        bool IsRequirement { get; }
+
+        /// <summary>
+        /// Gets the edited <see cref="Thing" /> as a <see cref="Requirement" />, or null when it is not one.
+        /// </summary>
+        Requirement RequirementThing { get; }
+
+        /// <summary>
+        /// Gets the <see cref="ParameterType" />s available to add a simple parameter value.
+        /// </summary>
+        IReadOnlyList<ParameterType> AvailableParameterTypes { get; }
+
+        /// <summary>
         /// Gets or sets the language code of the primary (first) definition shown on the Basic tab.
         /// </summary>
         string PrimaryDefinitionLanguageCode { get; set; }
