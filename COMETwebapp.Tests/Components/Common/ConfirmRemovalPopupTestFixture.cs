@@ -33,6 +33,8 @@ namespace COMETwebapp.Tests.Components.Common
     [TestFixture]
     public class ConfirmRemovalPopupTestFixture
     {
+        private static readonly string[] RemovedItems = ["item"];
+
         private BunitContext context;
         private IRenderedComponent<ConfirmRemovalPopup<string>> renderer;
         private readonly List<string> removed = [];
@@ -92,7 +94,7 @@ namespace COMETwebapp.Tests.Components.Common
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.removed, Is.EqualTo(new[] { "item" }), "Confirming hands the requested item to OnRemove.");
+                Assert.That(this.removed, Is.EqualTo(RemovedItems), "Confirming hands the requested item to OnRemove.");
                 Assert.That(this.renderer.Instance.IsVisible, Is.False, "The popup closes after confirming.");
             });
         }

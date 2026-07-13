@@ -33,8 +33,8 @@ namespace COMETwebapp.Components.Common
     /// Gates the removal of a table row behind the shared <see cref="ConfirmCancelPopup" />: the host asks for a removal
     /// with <see cref="Request" /> and only gets its <see cref="OnRemove" /> callback once the user confirms.
     /// </summary>
-    /// <typeparam name="TItem">The type of the item being removed.</typeparam>
-    public partial class ConfirmRemovalPopup<TItem> : DisposableComponent
+    /// <typeparam name="TItem">The reference type of the item being removed.</typeparam>
+    public partial class ConfirmRemovalPopup<TItem> : DisposableComponent where TItem : class
     {
         /// <summary>
         /// The item whose removal is pending the user's confirmation, or null when no removal is pending.
@@ -102,7 +102,7 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         public void Cancel()
         {
-            this.itemToRemove = default;
+            this.itemToRemove = null;
             this.ViewModel.IsVisible = false;
         }
 

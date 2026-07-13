@@ -464,7 +464,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 this.IsLoading = true;
 
-                var clone = (Requirement)requirement.Clone(true);
+                var clone = requirement.Clone(true);
                 var definition = clone.Definition.FirstOrDefault();
 
                 if (definition == null)
@@ -570,84 +570,16 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 this.IsLoading = true;
 
-                Thing topContainer;
                 var thingsToWrite = new List<Thing> { thing };
+                var topContainer = this.PrepareTopContainer(thing, thingsToWrite);
 
-                switch (thing)
+                if (topContainer == null)
                 {
-                    case RequirementsSpecification specification:
-                    {
-                        var iterationClone = this.CurrentThing.Clone(false);
-
-                        if (this.isCreating)
-                        {
-                            specification.Container = this.CurrentThing;
-                            iterationClone.RequirementsSpecification.Add(specification);
-                        }
-
-                        topContainer = iterationClone;
-                        thingsToWrite.Add(iterationClone);
-                        break;
-                    }
-
-                    case RequirementsGroup group:
-                    {
-                        if (this.isCreating)
-                        {
-                            group.Container = this.creationParent;
-                            var parentClone = this.creationParent.Clone(false);
-                            ((RequirementsContainer)parentClone).Group.Add(group);
-                            topContainer = parentClone;
-                            thingsToWrite.Add(parentClone);
-                        }
-                        else
-                        {
-                            var containerClone = group.Container.Clone(false);
-                            topContainer = containerClone;
-                            thingsToWrite.Add(containerClone);
-                        }
-
-                        break;
-                    }
-
-                    case Requirement requirement:
-                    {
-                        var requirementSpecification = this.isCreating
-                            ? this.creationParent as RequirementsSpecification ?? this.creationParent.GetContainerOfType<RequirementsSpecification>()
-                            : requirement.GetContainerOfType<RequirementsSpecification>();
-
-                        var specificationClone = (RequirementsSpecification)requirementSpecification.Clone(false);
-
-                        if (this.isCreating)
-                        {
-                            requirement.Container = requirementSpecification;
-                            specificationClone.Requirement.Add(requirement);
-                        }
-
-                        topContainer = specificationClone;
-                        thingsToWrite.Add(specificationClone);
-                        break;
-                    }
-
-                    default:
-                        return;
+                    return;
                 }
 
                 thingsToWrite.AddRange(((DefinedThing)thing).Definition);
-
-                var expressionsToDelete = new List<Thing>();
-
-                if (thing is Requirement requirementThing)
-                {
-                    thingsToWrite.AddRange(requirementThing.ParameterValue);
-
-                    foreach (ParametricConstraint constraint in requirementThing.ParametricConstraint)
-                    {
-                        thingsToWrite.AddRange(constraint.Expression);
-                        thingsToWrite.Add(constraint);
-                        expressionsToDelete.AddRange(GetDiscardedExpressions(constraint));
-                    }
-                }
+                var expressionsToDelete = CollectRequirementThings(thing, thingsToWrite);
 
                 var result = await this.SessionService.CreateUpdateAndDeleteThingsWithNotification(topContainer, thingsToWrite, expressionsToDelete, BuildNotification(thing, this.isCreating ? "created" : "updated", this.isCreating ? "create" : "update"));
 
@@ -665,6 +597,125 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 this.IsLoading = false;
             }
+        }
+
+        /// <summary>
+        /// Clones the container the given <paramref name="thing" /> is written into, appending the clones to
+        /// <paramref name="thingsToWrite" />.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> being created or updated.</param>
+        /// <param name="thingsToWrite">The things to create or update, extended with the container clone.</param>
+        /// <returns>The top container of the write, or null when the <paramref name="thing" /> is not supported.</returns>
+        private Thing PrepareTopContainer(Thing thing, List<Thing> thingsToWrite)
+        {
+            return thing switch
+            {
+                RequirementsSpecification specification => this.PrepareSpecificationWrite(specification, thingsToWrite),
+                RequirementsGroup group => this.PrepareGroupWrite(group, thingsToWrite),
+                Requirement requirement => this.PrepareRequirementWrite(requirement, thingsToWrite),
+                _ => null
+            };
+        }
+
+        /// <summary>
+        /// Clones the <see cref="Iteration" /> a <see cref="RequirementsSpecification" /> is written into, adding the
+        /// specification to it when it is being created.
+        /// </summary>
+        /// <param name="specification">The <see cref="RequirementsSpecification" /> being created or updated.</param>
+        /// <param name="thingsToWrite">The things to create or update, extended with the iteration clone.</param>
+        /// <returns>The iteration clone.</returns>
+        private Thing PrepareSpecificationWrite(RequirementsSpecification specification, List<Thing> thingsToWrite)
+        {
+            var iterationClone = this.CurrentThing.Clone(false);
+
+            if (this.isCreating)
+            {
+                specification.Container = this.CurrentThing;
+                iterationClone.RequirementsSpecification.Add(specification);
+            }
+
+            thingsToWrite.Add(iterationClone);
+            return iterationClone;
+        }
+
+        /// <summary>
+        /// Clones the <see cref="RequirementsContainer" /> a <see cref="RequirementsGroup" /> is written into, adding the
+        /// group to it when it is being created.
+        /// </summary>
+        /// <param name="group">The <see cref="RequirementsGroup" /> being created or updated.</param>
+        /// <param name="thingsToWrite">The things to create or update, extended with the container clone.</param>
+        /// <returns>The container clone.</returns>
+        private Thing PrepareGroupWrite(RequirementsGroup group, List<Thing> thingsToWrite)
+        {
+            Thing containerClone;
+
+            if (this.isCreating)
+            {
+                var parentClone = this.creationParent.Clone(false);
+                group.Container = this.creationParent;
+                parentClone.Group.Add(group);
+                containerClone = parentClone;
+            }
+            else
+            {
+                containerClone = group.Container.Clone(false);
+            }
+
+            thingsToWrite.Add(containerClone);
+            return containerClone;
+        }
+
+        /// <summary>
+        /// Clones the <see cref="RequirementsSpecification" /> a <see cref="Requirement" /> is written into, adding the
+        /// requirement to it when it is being created.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /> being created or updated.</param>
+        /// <param name="thingsToWrite">The things to create or update, extended with the specification clone.</param>
+        /// <returns>The specification clone.</returns>
+        private Thing PrepareRequirementWrite(Requirement requirement, List<Thing> thingsToWrite)
+        {
+            var specification = this.isCreating
+                ? this.creationParent as RequirementsSpecification ?? this.creationParent.GetContainerOfType<RequirementsSpecification>()
+                : requirement.GetContainerOfType<RequirementsSpecification>();
+
+            var specificationClone = specification.Clone(false);
+
+            if (this.isCreating)
+            {
+                requirement.Container = specification;
+                specificationClone.Requirement.Add(requirement);
+            }
+
+            thingsToWrite.Add(specificationClone);
+            return specificationClone;
+        }
+
+        /// <summary>
+        /// Adds the simple parameter values, parametric constraints and their expressions of a <see cref="Requirement" />
+        /// to <paramref name="thingsToWrite" />, and collects the expressions the rebuilt constraints no longer reference.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> being created or updated.</param>
+        /// <param name="thingsToWrite">The things to create or update, extended with the requirement's contained things.</param>
+        /// <returns>The expressions to delete; empty when the <paramref name="thing" /> is not a <see cref="Requirement" />.</returns>
+        private static List<Thing> CollectRequirementThings(Thing thing, List<Thing> thingsToWrite)
+        {
+            var expressionsToDelete = new List<Thing>();
+
+            if (thing is not Requirement requirement)
+            {
+                return expressionsToDelete;
+            }
+
+            thingsToWrite.AddRange(requirement.ParameterValue);
+
+            foreach (ParametricConstraint constraint in requirement.ParametricConstraint)
+            {
+                thingsToWrite.AddRange(constraint.Expression);
+                thingsToWrite.Add(constraint);
+                expressionsToDelete.AddRange(GetDiscardedExpressions(constraint));
+            }
+
+            return expressionsToDelete;
         }
 
         /// <summary>

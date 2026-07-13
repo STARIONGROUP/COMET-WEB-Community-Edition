@@ -65,8 +65,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
         /// <param name="constraint">The <see cref="ParametricConstraint" /> to edit.</param>
         public void LoadFrom(ParametricConstraint constraint)
         {
-            var top = constraint.TopExpression ?? constraint.Expression.GetTopLevelExpressions().FirstOrDefault();
-            this.RootExpression = top == null ? null : this.ConvertToRow(top, null, false);
+            var topLevelExpressions = constraint.Expression.GetTopLevelExpressions();
+            var top = constraint.TopExpression ?? (topLevelExpressions.Count == 0 ? null : topLevelExpressions[0]);
+            this.RootExpression = top == null ? null : ConvertToRow(top, null, false);
         }
 
         /// <summary>
@@ -182,7 +183,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
             }
             else if (parent.Parent != null)
             {
-                this.PromoteOut(node, parent, before: true);
+                PromoteOut(node, parent, before: true);
             }
             else
             {
@@ -225,7 +226,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
             }
             else if (parent.Parent != null)
             {
-                this.PromoteOut(node, parent, before: false);
+                PromoteOut(node, parent, before: false);
             }
             else
             {
@@ -239,7 +240,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
         /// Toggles the negation (NOT) of the given <paramref name="node" />.
         /// </summary>
         /// <param name="node">The node to negate.</param>
-        public void ToggleNot(BooleanExpressionRow node)
+        public static void ToggleNot(BooleanExpressionRow node)
         {
             node.IsNegated = !node.IsNegated;
         }
@@ -249,7 +250,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
         /// </summary>
         /// <param name="group">The group.</param>
         /// <param name="operatorKind">The operator to set.</param>
-        public void SetOperator(CompositeExpressionRow group, LogicalOperatorKind operatorKind)
+        public static void SetOperator(CompositeExpressionRow group, LogicalOperatorKind operatorKind)
         {
             group.Operator = operatorKind;
         }
@@ -316,7 +317,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
             }
 
             var created = new List<BooleanExpression>();
-            var top = this.BuildExpression(this.RootExpression, created, existing, []);
+            var top = BuildExpression(this.RootExpression, created, existing, []);
 
             foreach (var expression in created)
             {
@@ -334,7 +335,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
         /// <param name="node">The node to move out.</param>
         /// <param name="parent">The group the node currently belongs to.</param>
         /// <param name="before">True to place the node before the parent group, false to place it after.</param>
-        private void PromoteOut(BooleanExpressionRow node, CompositeExpressionRow parent, bool before)
+        private static void PromoteOut(BooleanExpressionRow node, CompositeExpressionRow parent, bool before)
         {
             var grandparent = parent.Parent;
             var parentIndex = grandparent.Terms.IndexOf(parent);
@@ -387,7 +388,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
         /// <param name="existing">The expressions the constraint held before the rebuild.</param>
         /// <param name="fresh">The identifiers of the expressions minted during this rebuild.</param>
         /// <returns>The created (possibly negated) expression.</returns>
-        private BooleanExpression BuildExpression(BooleanExpressionRow row, List<BooleanExpression> created, Dictionary<Guid, BooleanExpression> existing, HashSet<Guid> fresh)
+        private static BooleanExpression BuildExpression(BooleanExpressionRow row, List<BooleanExpression> created, Dictionary<Guid, BooleanExpression> existing, HashSet<Guid> fresh)
         {
             BooleanExpression expression;
 
@@ -403,7 +404,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
             else
             {
                 var group = (CompositeExpressionRow)row;
-                var terms = group.Terms.Select(x => this.BuildExpression(x, created, existing, fresh)).ToList();
+                var terms = group.Terms.Select(x => BuildExpression(x, created, existing, fresh)).ToList();
                 var reusable = terms.TrueForAll(x => !fresh.Contains(x.Iid));
 
                 expression = group.Operator switch
@@ -492,12 +493,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
         /// <param name="negated">Whether the produced row is negated.</param>
         /// <param name="notIid">The identifier of the wrapping <see cref="NotExpression" /> when negated, else null.</param>
         /// <returns>The produced row.</returns>
-        private BooleanExpressionRow ConvertToRow(BooleanExpression expression, CompositeExpressionRow parent, bool negated, Guid? notIid = null)
+        private static BooleanExpressionRow ConvertToRow(BooleanExpression expression, CompositeExpressionRow parent, bool negated, Guid? notIid = null)
         {
             switch (expression)
             {
                 case NotExpression { Term: not null } notExpression:
-                    return this.ConvertToRow(notExpression.Term, parent, true, notExpression.Iid);
+                    return ConvertToRow(notExpression.Term, parent, true, notExpression.Iid);
 
                 case RelationalExpression relationalExpression:
                     return new RelationalExpressionRow
@@ -524,7 +525,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
 
                     foreach (var term in GetTerms(expression))
                     {
-                        group.Terms.Add(this.ConvertToRow(term, group, false));
+                        group.Terms.Add(ConvertToRow(term, group, false));
                     }
 
                     return group;
@@ -536,7 +537,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
         /// </summary>
         /// <param name="expression">The expression.</param>
         /// <returns>The child expressions.</returns>
-        private static IReadOnlyList<BooleanExpression> GetTerms(BooleanExpression expression)
+        private static List<BooleanExpression> GetTerms(BooleanExpression expression)
         {
             return expression switch
             {

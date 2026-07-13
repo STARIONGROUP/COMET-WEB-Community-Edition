@@ -248,7 +248,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// de-duplicated by language code and ordered by name.
         /// </summary>
         /// <returns>The available languages.</returns>
-        private IReadOnlyList<NaturalLanguage> GetAvailableLanguages()
+        private List<NaturalLanguage> GetAvailableLanguages()
         {
             var languagesByCode = new Dictionary<string, NaturalLanguage>(StringComparer.OrdinalIgnoreCase);
 

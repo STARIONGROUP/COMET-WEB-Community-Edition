@@ -39,6 +39,8 @@ namespace COMETwebapp.Tests.Components.Common
     [TestFixture]
     public class DefinitionsTableTestFixture
     {
+        private static readonly string[] FrenchLanguageCode = ["fr"];
+
         private BunitContext context;
         private IRenderedComponent<DefinitionsTable> renderer;
         private TextParameterType parameterType;
@@ -145,7 +147,7 @@ namespace COMETwebapp.Tests.Components.Common
             await languageRenderer.InvokeAsync(addButton.Instance.Click.InvokeAsync);
 
             // The parent already holds an en-GB definition, so only the unused French language may be selected for the new one.
-            Assert.That(languageRenderer.Instance.GetSelectableLanguages().Select(x => x.LanguageCode), Is.EqualTo(new[] { "fr" }));
+            Assert.That(languageRenderer.Instance.GetSelectableLanguages().Select(x => x.LanguageCode), Is.EqualTo(FrenchLanguageCode));
         }
     }
 }

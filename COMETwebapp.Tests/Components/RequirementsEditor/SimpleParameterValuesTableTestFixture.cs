@@ -206,5 +206,54 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             // Committing an edit without changing the value keeps the single existing value.
             Assert.That(this.requirement.ParameterValue, Has.Count.EqualTo(1));
         }
+
+        [Test]
+        public async Task VerifyQuantityKindSelectionBuildsScaleAndEditor()
+        {
+            var scale = new RatioScale { Iid = Guid.NewGuid(), ShortName = "m", Name = "metre" };
+
+            var quantityKind = new SimpleQuantityKind
+            {
+                Iid = Guid.NewGuid(),
+                ShortName = "len",
+                Name = "Length",
+                PossibleScale = { scale },
+                DefaultScale = scale
+            };
+
+            this.renderer.Render(parameters => parameters
+                .Add(p => p.AvailableParameterTypes, new[] { (ParameterType)this.textParameterType, this.unusedParameterType, quantityKind }));
+
+            await this.renderer.InvokeAsync(this.renderer.Instance.OpenAdd);
+            await this.renderer.InvokeAsync(() => this.renderer.Instance.OnParameterTypeSelected(quantityKind));
+            this.renderer.Render();
+
+            Assert.That(this.renderer.Markup, Does.Contain(scale.ShortName), "The scale combo renders the quantity kind's possible scale.");
+
+            var valueTextBox = this.renderer.FindComponents<DxTextBox>().First(x => x.Instance.InputCssClass == "quantity-kind-parameter");
+            await this.renderer.InvokeAsync(() => valueTextBox.Instance.TextChanged.InvokeAsync("42"));
+            await this.renderer.InvokeAsync(this.renderer.Instance.Confirm);
+
+            var added = this.requirement.ParameterValue.Single(x => x.ParameterType == quantityKind);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(added.Value[0], Is.EqualTo("42"), "The value staged through the shared editor is committed.");
+                Assert.That(added.Scale, Is.SameAs(scale));
+            });
+        }
+
+        [Test]
+        public async Task VerifyClosingThePopupClosesThePanel()
+        {
+            await this.renderer.InvokeAsync(this.renderer.Instance.OpenAdd);
+            this.renderer.Render();
+            Assert.That(this.renderer.Instance.IsPanelOpen, Is.True);
+
+            var popup = this.renderer.FindComponents<DxPopup>().First(x => x.Instance.HeaderText.Contains("Simple Parameter Value"));
+            await this.renderer.InvokeAsync(() => popup.Instance.VisibleChanged.InvokeAsync(false));
+
+            Assert.That(this.renderer.Instance.IsPanelOpen, Is.False, "Closing the popup (e.g. via its close button) closes the panel.");
+        }
     }
 }

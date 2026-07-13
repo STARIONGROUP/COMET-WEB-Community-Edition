@@ -40,6 +40,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
+    using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
 
@@ -144,6 +145,27 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.renderedComponent.InvokeAsync(() => this.viewModel.DisplayMode = RequirementRowDisplayMode.ShortNameAndDefinition);
 
             this.renderedComponent.WaitForAssertion(() => Assert.That(this.renderedComponent.Markup, Does.Not.Contain("req-row-header")));
+        }
+
+        [Test]
+        public void VerifyInlineDefinitionEdit()
+        {
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
+
+            this.renderedComponent.Find(".req-def-display").Click();
+
+            Assert.That(this.renderedComponent.Markup, Does.Contain("req-def-editor"), "Clicking the definition opens the inline editor.");
+
+            this.renderedComponent.Find(".req-def-cancel").Click();
+
+            Assert.That(this.renderedComponent.Markup, Does.Not.Contain("req-def-editor"), "Cancel closes the inline editor without saving.");
+
+            this.renderedComponent.Find(".req-def-display").Click();
+            Assert.That(this.renderedComponent.Markup, Does.Contain("req-def-editor"));
+
+            this.renderedComponent.Find(".req-def-editor").KeyDown(new KeyboardEventArgs { Key = "Escape" });
+
+            Assert.That(this.renderedComponent.Markup, Does.Not.Contain("req-def-editor"), "Escape closes the inline editor without saving.");
         }
     }
 }

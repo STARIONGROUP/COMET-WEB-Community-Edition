@@ -44,6 +44,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     [TestFixture]
     public class ParametricConstraintWriteOrderTestFixture
     {
+        private static readonly string[] ValueOne = ["1"];
+        private static readonly string[] ValueNine = ["9"];
+
         private readonly Uri uri = new("https://example.com");
         private CDPMessageBus messageBus;
         private Assembler assembler;
@@ -133,8 +136,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         public void VerifyAddingANotNeverUpdatesAPersistedExpressionWithANewTerm()
         {
             // Existing constraint: A AND B (T root), all in the cache as if from the server.
-            var relationalA = new RelationalExpression(Guid.NewGuid(), this.cache, this.uri) { ParameterType = this.parameterType, RelationalOperator = RelationalOperatorKind.GT, Value = new ValueArray<string>(new[] { "1" }) };
-            var relationalB = new RelationalExpression(Guid.NewGuid(), this.cache, this.uri) { ParameterType = this.parameterType, RelationalOperator = RelationalOperatorKind.LT, Value = new ValueArray<string>(new[] { "9" }) };
+            var relationalA = new RelationalExpression(Guid.NewGuid(), this.cache, this.uri) { ParameterType = this.parameterType, RelationalOperator = RelationalOperatorKind.GT, Value = new ValueArray<string>(ValueOne) };
+            var relationalB = new RelationalExpression(Guid.NewGuid(), this.cache, this.uri) { ParameterType = this.parameterType, RelationalOperator = RelationalOperatorKind.LT, Value = new ValueArray<string>(ValueNine) };
             var andExpression = new AndExpression(Guid.NewGuid(), this.cache, this.uri);
             andExpression.Term.Add(relationalA);
             andExpression.Term.Add(relationalB);
@@ -157,7 +160,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
             // Toggle NOT on the first leaf (A).
             var root = (CompositeExpressionRow)viewModel.RootExpression;
-            viewModel.ToggleNot(root.Terms[0]);
+            EditParametricConstraintViewModel.ToggleNot(root.Terms[0]);
 
             viewModel.BuildInto(constraintClone);
 
@@ -222,7 +225,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         public void VerifyEditingAConstraintWithRelationalAboveComposite()
         {
             // An existing constraint (one relational) already on the requirement and in the cache.
-            var oldRelational = new RelationalExpression(Guid.NewGuid(), this.cache, this.uri) { ParameterType = this.parameterType, RelationalOperator = RelationalOperatorKind.EQ, Value = new ValueArray<string>(new[] { "1" }) };
+            var oldRelational = new RelationalExpression(Guid.NewGuid(), this.cache, this.uri) { ParameterType = this.parameterType, RelationalOperator = RelationalOperatorKind.EQ, Value = new ValueArray<string>(ValueOne) };
             var existingConstraint = new ParametricConstraint(Guid.NewGuid(), this.cache, this.uri);
             existingConstraint.Expression.Add(oldRelational);
             existingConstraint.TopExpression = oldRelational;

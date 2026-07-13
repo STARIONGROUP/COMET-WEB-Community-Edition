@@ -180,6 +180,21 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         }
 
         [Test]
+        public async Task VerifyOpenCreateGroupUnderSpecification()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.OpenCreateGroup(this.specification);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsOnEditMode, Is.True);
+                Assert.That(this.viewModel.EditPopupHeader, Is.EqualTo("Create Requirement Group"));
+                Assert.That(this.viewModel.EditViewModel.Thing, Is.InstanceOf<RequirementsGroup>());
+            });
+        }
+
+        [Test]
         public async Task VerifyOpenEditClonesTarget()
         {
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
@@ -233,6 +248,65 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 Assert.That(this.capturedCreateOrUpdate, Does.Contain(newRequirement));
                 Assert.That(newRequirement.Group, Is.EqualTo(this.group));
                 Assert.That(this.capturedCreateOrUpdate.OfType<RequirementsSpecification>().Single().Requirement, Does.Contain(newRequirement));
+            });
+        }
+
+        [Test]
+        public async Task VerifyCreateGroupUnderSpecificationSaves()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.OpenCreateGroup(this.specification);
+            var newGroup = (RequirementsGroup)this.viewModel.EditViewModel.Thing;
+            newGroup.ShortName = "NEWGRP";
+
+            await this.viewModel.EditViewModel.OnValidSubmit.InvokeAsync();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.capturedCreateOrUpdate, Does.Contain(newGroup));
+                Assert.That(this.capturedCreateOrUpdate.OfType<RequirementsSpecification>().Single().Group, Does.Contain(newGroup));
+                Assert.That(this.viewModel.IsOnEditMode, Is.False);
+            });
+        }
+
+        [Test]
+        public async Task VerifyCreateSubGroupUnderGroupSaves()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.OpenCreateGroup(this.group);
+            var newSubGroup = (RequirementsGroup)this.viewModel.EditViewModel.Thing;
+            newSubGroup.ShortName = "SUBGRP";
+
+            await this.viewModel.EditViewModel.OnValidSubmit.InvokeAsync();
+
+            var parentGroupClone = this.capturedCreateOrUpdate.OfType<RequirementsGroup>().Single(x => x.Iid == this.group.Iid);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.capturedCreateOrUpdate, Does.Contain(newSubGroup));
+                Assert.That(parentGroupClone.Group, Does.Contain(newSubGroup));
+            });
+        }
+
+        [Test]
+        public async Task VerifyEditGroupSaves()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.OpenEdit(this.group);
+            var editedGroup = (RequirementsGroup)this.viewModel.EditViewModel.Thing;
+            editedGroup.Name = "Updated group name";
+
+            await this.viewModel.EditViewModel.OnValidSubmit.InvokeAsync();
+
+            var specificationClone = this.capturedCreateOrUpdate.OfType<RequirementsSpecification>().Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.capturedCreateOrUpdate.OfType<RequirementsGroup>().Single().Name, Is.EqualTo("Updated group name"));
+                Assert.That(specificationClone.Group, Has.Count.EqualTo(1), "Editing an existing group does not duplicate it in its container.");
             });
         }
 
@@ -312,7 +386,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             // Negate one leaf: this mints a NotExpression, so the AndExpression that must reference it can no longer be
             // updated in place and is re-created too.
             var root = (CompositeExpressionRow)constraintEditor.RootExpression;
-            constraintEditor.ToggleNot(root.Terms[0]);
+            EditParametricConstraintViewModel.ToggleNot(root.Terms[0]);
             constraintEditor.BuildInto(constraintClone);
 
             await this.viewModel.EditViewModel.OnValidSubmit.InvokeAsync();

@@ -53,7 +53,7 @@ namespace COMETwebapp.Utilities
         /// Parses the embedded resource into <see cref="NaturalLanguage" />s.
         /// </summary>
         /// <returns>The default languages.</returns>
-        private static IReadOnlyList<NaturalLanguage> Load()
+        private static List<NaturalLanguage> Load()
         {
             using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(ResourceName) ?? throw new MissingManifestResourceException($"The embedded resource '{ResourceName}' was not found.");
             using var reader = new StreamReader(stream);

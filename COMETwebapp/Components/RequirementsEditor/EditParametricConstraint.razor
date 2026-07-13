@@ -40,8 +40,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
                                OnRemove="@((BooleanExpressionRow row) => this.viewModel.Remove(row))"
                                OnMoveUp="@((BooleanExpressionRow row) => this.viewModel.MoveUp(row))"
                                OnMoveDown="@((BooleanExpressionRow row) => this.viewModel.MoveDown(row))"
-                               OnToggleNot="@((BooleanExpressionRow row) => this.viewModel.ToggleNot(row))"
-                               OnSetOperator="@(((CompositeExpressionRow Group, LogicalOperatorKind Operator) args) => this.viewModel.SetOperator(args.Group, args.Operator))" />
+                               OnToggleNot="@((BooleanExpressionRow row) => EditParametricConstraintViewModel.ToggleNot(row))"
+                               OnSetOperator="@(((CompositeExpressionRow Group, LogicalOperatorKind Operator) args) => EditParametricConstraintViewModel.SetOperator(args.Group, args.Operator))" />
 
         @if (this.viewModel.RootExpression is RelationalExpressionRow)
         {

@@ -196,8 +196,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             var second = this.NewRelational("6");
             this.viewModel.AddNode(null, first);
             this.viewModel.AddNode(null, second);
-            this.viewModel.ToggleNot(second);
-            this.viewModel.SetOperator((CompositeExpressionRow)this.viewModel.RootExpression, LogicalOperatorKind.Or);
+            EditParametricConstraintViewModel.ToggleNot(second);
+            EditParametricConstraintViewModel.SetOperator((CompositeExpressionRow)this.viewModel.RootExpression, LogicalOperatorKind.Or);
 
             var constraint = new ParametricConstraint { Iid = Guid.NewGuid() };
             this.viewModel.BuildInto(constraint);
@@ -218,7 +218,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             var negated = this.NewRelational("6");
             this.viewModel.AddNode(null, source);
             this.viewModel.AddNode(null, negated);
-            this.viewModel.ToggleNot(negated);
+            EditParametricConstraintViewModel.ToggleNot(negated);
 
             var constraint = new ParametricConstraint { Iid = Guid.NewGuid() };
             this.viewModel.BuildInto(constraint);
@@ -243,7 +243,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             var second = this.NewRelational("6");
             this.viewModel.AddNode(null, first);
             this.viewModel.AddNode(null, second);
-            this.viewModel.ToggleNot(second);
+            EditParametricConstraintViewModel.ToggleNot(second);
 
             Assert.That(this.viewModel.GetSummary(this.viewModel.RootExpression), Is.EqualTo("(a = 5) AND (NOT (a = 6))"));
         }

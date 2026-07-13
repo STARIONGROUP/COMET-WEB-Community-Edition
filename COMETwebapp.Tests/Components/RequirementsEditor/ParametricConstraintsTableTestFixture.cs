@@ -147,5 +147,33 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             // Editing keeps the same constraint (a real update), not a delete-and-recreate.
             Assert.That(this.requirement.ParametricConstraint.Single(), Is.SameAs(original));
         }
+
+        [Test]
+        public async Task VerifyHandleCancelledClosesTheEditorWithoutSaving()
+        {
+            await this.renderer.InvokeAsync(this.renderer.Instance.OpenAdd);
+            Assert.That(this.renderer.Instance.IsEditorOpen, Is.True);
+
+            await this.renderer.InvokeAsync(this.renderer.Instance.HandleCancelled);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.IsEditorOpen, Is.False);
+                Assert.That(this.requirement.ParametricConstraint, Has.Count.EqualTo(1), "A cancelled add is not appended to the requirement.");
+            });
+        }
+
+        [Test]
+        public async Task VerifyClosingTheEditorPopupClosesIt()
+        {
+            await this.renderer.InvokeAsync(this.renderer.Instance.OpenAdd);
+            this.renderer.Render();
+            Assert.That(this.renderer.Instance.IsEditorOpen, Is.True);
+
+            var popup = this.renderer.FindComponents<DxPopup>().First(x => x.Instance.HeaderText.Contains("Parametric Constraint"));
+            await this.renderer.InvokeAsync(() => popup.Instance.VisibleChanged.InvokeAsync(false));
+
+            Assert.That(this.renderer.Instance.IsEditorOpen, Is.False, "Closing the popup (e.g. via its close button) closes the editor.");
+        }
     }
 }
