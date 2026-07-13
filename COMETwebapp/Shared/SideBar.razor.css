@@ -1,5 +1,12 @@
 .main-side-bar {
     height: 100vh;
     background-color: var(--colors-primary-25);
-    padding: 10px 20px 30px 20px;
+    padding: 10px 20px 10px 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.main-side-bar ::deep > * {
+    flex-shrink: 0;
 }

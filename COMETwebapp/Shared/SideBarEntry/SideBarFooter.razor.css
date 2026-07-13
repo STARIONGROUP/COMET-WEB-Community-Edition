@@ -1,0 +1,7 @@
+.side-bar-footer {
+    display: flex;
+    align-items: center;
+    margin-top: auto;
+    margin-left: 5px;
+    padding-top: 10px;
+}
