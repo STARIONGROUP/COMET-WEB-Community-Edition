@@ -149,6 +149,14 @@ namespace COMET.Web.Common.ViewModels.Components
         }
 
         /// <summary>
+        /// Gets a value indicating whether an <see cref="Iteration" /> that is already open may still be selected.
+        /// Opening a model can only ever open an iteration that is not open yet, so this is false here. Opening a tab, on the
+        /// other hand, legitimately targets an already open iteration, to show it in another view - see the override in the
+        /// OpenTabViewModel.
+        /// </summary>
+        protected virtual bool CanSelectAlreadyOpenIteration => false;
+
+        /// <summary>
         /// Initializes this view model properties
         /// </summary>
         public void InitializesProperties()
@@ -165,7 +173,13 @@ namespace COMET.Web.Common.ViewModels.Components
 
             if (this.cacheService.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, out var iterationData))
             {
-                this.selectedIterationSetup = iterationData as IterationData;
+                // The last used iteration is typically the one that is currently open, and an open iteration cannot be opened
+                // again, so it is only restored when it is still available.
+                var lastUsedIterationData = iterationData as IterationData;
+
+                this.selectedIterationSetup = this.AvailableIterationSetups?.Any(x => x.IterationSetupId == lastUsedIterationData?.IterationSetupId) == true
+                    ? lastUsedIterationData
+                    : null;
             }
 
             if (this.cacheService.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedDomainOfExpertise, out var domainOfExpertise))
@@ -276,27 +290,21 @@ namespace COMET.Web.Common.ViewModels.Components
 
                 this.SetAvailableDomainOfEpertiseAndIterationSetups();
 
+                // Deliberately left null when every iteration of the model is already open: an open iteration must not be
+                // selectable, since opening it again does nothing.
                 this.SelectedIterationSetup = this.AvailableIterationSetups.LastOrDefault();
-
-                if (this.SelectedIterationSetup != null)
-                {
-                    return;
-                }
-
-                var currentModelIteration = this.SelectedEngineeringModel.IterationSetup.Find(x => x == this.sessionService.OpenIterations.Items.FirstOrDefault(i => i.Iid == x.IterationIid)?.IterationSetup);
-                this.SelectedIterationSetup = new IterationData(currentModelIteration);
             }
         }
 
         /// <summary>
-        /// Sets the <see cref="AvailablesDomainOfExpertises"/> and <see cref="AvailableIterationSetups"/> 
+        /// Sets the <see cref="AvailablesDomainOfExpertises"/> and <see cref="AvailableIterationSetups"/>
         /// </summary>
         private void SetAvailableDomainOfEpertiseAndIterationSetups()
         {
             this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
 
             this.AvailableIterationSetups = this.SelectedEngineeringModel.IterationSetup
-                .Where(x => this.sessionService.OpenIterations.Items.All(i => i.Iid != x.IterationIid))
+                .Where(x => this.CanSelectAlreadyOpenIteration || this.sessionService.OpenIterations.Items.All(i => i.Iid != x.IterationIid))
                 .OrderBy(x => x.IterationNumber)
                 .Select(x => new IterationData(x));
         }

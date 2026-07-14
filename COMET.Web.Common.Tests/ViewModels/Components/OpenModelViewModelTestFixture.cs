@@ -136,6 +136,44 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             Assert.That(this.viewModel.SelectedDomainOfExpertise, Is.EqualTo(domainOfExpertise));
         }
 
+        /// <summary>
+        /// Verifies that when the cached <see cref="BrowserSessionSettingKey.LastUsedIterationData" /> refers to an
+        /// <see cref="Iteration" /> that is already open, it is not restored into <see cref="OpenModelViewModel.SelectedIterationSetup" />,
+        /// since an already-open iteration cannot be selected/opened again.
+        /// </summary>
+        [Test]
+        public void VerifyInitializePropertiesDoesNotRestoreAlreadyOpenIteration()
+        {
+            var preselectedEngineeringModel = this.models.First();
+            var alreadyOpenIterationSetup = preselectedEngineeringModel.IterationSetup.First();
+            var alreadyOpenIterationId = Guid.NewGuid();
+            alreadyOpenIterationSetup.IterationIid = alreadyOpenIterationId;
+
+            var alreadyOpenIteration = new Iteration
+            {
+                Iid = alreadyOpenIterationId,
+                IterationSetup = alreadyOpenIterationSetup
+            };
+
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(alreadyOpenIteration);
+            this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
+
+            object engineeringModelSetup = preselectedEngineeringModel;
+            object iterationData = new IterationData(alreadyOpenIterationSetup);
+
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedEngineeringModel, out engineeringModelSetup)).Returns(true);
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, out iterationData)).Returns(true);
+
+            this.viewModel.InitializesProperties();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SelectedIterationSetup, Is.Null);
+                Assert.That(this.viewModel.AvailableIterationSetups.Any(x => x.IterationSetupId == alreadyOpenIterationSetup.Iid), Is.False);
+            });
+        }
+
         private static List<EngineeringModelSetup> CreateData()
         {
             var rdl1 = new ModelReferenceDataLibrary(Guid.NewGuid(), null, null)

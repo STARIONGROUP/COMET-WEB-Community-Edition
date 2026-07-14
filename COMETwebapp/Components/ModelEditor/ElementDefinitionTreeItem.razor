@@ -17,21 +17,37 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
+@using COMETwebapp.Extensions
+@using COMETwebapp.Utilities
+
 <div class="@this.CssClass" style="display: flex; justify-content: space-between; align-items: center;" @attributes="this.AdditionalAttributes">
     <span>
         <CardField Context="@this.ElementBaseTreeRowViewModel" FieldName="ElementName" />
     </span>
     <span style="text-align: end;">
-        <span>
-            <button class="starion-pill" title="Owning Domain Of Expertise: @this.ElementBaseTreeRowViewModel.OwnerShortName"><CardField Context="@this.ElementBaseTreeRowViewModel" FieldName="OwnerShortName" /></button>
-        </span>
-        @foreach (var categoryShortName in this.ElementBaseTreeRowViewModel.ElementBase.GetAllCategories().Select(x => x.ShortName))
+        @if (this.ShowOwner)
         {
             <span>
-                <button class="starion-pill" style="background-color:aliceblue !important;" title="Category: @categoryShortName">
-                    <CardField Context="@categoryShortName" />
+                <button class="starion-pill"
+                        title="Owning Domain Of Expertise: @this.ElementBaseTreeRowViewModel.OwnerShortName"
+                        style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{this.ElementBaseTreeRowViewModel.OwnerShortName}") !important;">
+                    <CardField Context="@this.ElementBaseTreeRowViewModel" FieldName="OwnerShortName"/>
                 </button>
             </span>
+        }
+     
+        @if (this.ShowCategories)
+        {
+            @foreach (var categoryShortName in this.ElementBaseTreeRowViewModel.ElementBase.GetDisplayCategories().Select(x => x.ShortName))
+            {
+                <span>
+                    <button class="starion-pill"
+                            title="Category: @categoryShortName"
+                            style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{categoryShortName}") !important;">
+                        <CardField Context="@categoryShortName"/>
+                    </button>
+                </span>
+            }
         }
     </span>
 </div>

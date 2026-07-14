@@ -38,26 +38,20 @@ else
     <h6>@this.ViewModel.Description</h6>
 }
 </div>
-<p>
-    <table>
-        <tr>
-            <td id="search-textbox" style="visibility:@(this.AllowSearch ? "block": "hidden");">
-                <DxTextBox CssClass="inline-search-icon" SizeMode="SizeMode.Medium" BindValueMode="BindValueMode.OnDelayedInput" InputDelay="500" @bind-Text="this.SearchTerm" NullText="Search..." ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
-                </DxTextBox>
-            </td>
-        </tr>
-    </table>
-</p>
+<div id="search-textbox" style="visibility:@(this.AllowSearch ? "visible" : "hidden");">
+    <DxTextBox CssClass="inline-search-icon" SizeMode="SizeMode.Medium" BindValueMode="BindValueMode.OnDelayedInput" InputDelay="500" @bind-Text="this.SearchTerm" NullText="Search..." ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+    </DxTextBox>
+</div>
 <div class="drop-area-color @(this.dragOverNode == this.TreeView && this.AllowNodeDrop && this.AllowDrop ? "treeview-drag-over" : "")"
      dropzone="@(this.AllowDrop ? "move" : "")"
      ondragover="@(this.AllowDrop ? "event.preventDefault();" : "")"
      @ondragenter="@(() => this.DragEnterAsync(this.TreeView))"
      @ondragleave="@(() => this.DragLeaveAsync(this.TreeView))"
-     @ondrop="@(() => this.DropAsync(null))"
+     @ondrop="@(async (DragEventArgs e) => await this.DropAsync(null, e))"
      style="padding:2px;border:dotted 1px;border-radius: 5px;height:25px;@(this.AllowDrop ? "" : "visibility:hidden;")">
     Drop here to create new element...
 </div>
-<div class="@this.ScrollableAreaCssClass" style="overflow-y:auto;">
+<div class="@this.ScrollableAreaCssClass" style="overflow:auto;">
     <DxTreeView @ref="this.TreeView" Data="@this.ViewModel.Rows"
                 FilterString="@this.SearchTerm"
                 FilterMinLength="1"
@@ -81,6 +75,8 @@ else
                     <ElementDefinitionTreeItem
                         CssClass="@($"{cssClass} {(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "treeview-item-drag-over" : "")}")"
                         ElementBaseTreeRowViewModel="@dataItem"
+                        ShowOwner="@this.ShowOwner"
+                        ShowCategories="@this.ShowCategories"
                         draggable="@(this.AllowDrag ? "true" : "false")"
                         dropzone="@(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "move" : "")"
                         @ondragstart="@(async () => await this.DragStartAsync(dataItem))"
@@ -88,11 +84,15 @@ else
                         ondragover="@(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "event.preventDefault();" : "")"
                         @ondragenter="@(async () => await this.DragEnterAsync(dataItem))"
                         @ondragleave="@(async () => await this.DragLeaveAsync(dataItem))"
-                        @ondrop="@(async () => await this.DropAsync(dataItem))"/>
+                        @ondrop="@(async (DragEventArgs e) => await this.DropAsync(dataItem, e))"/>
                 }
                 else
                 {
-                    <ElementDefinitionTreeItem CssClass="@cssClass" ElementBaseTreeRowViewModel="@dataItem"/>
+                    <ElementDefinitionTreeItem
+                        CssClass="@cssClass"
+                        ElementBaseTreeRowViewModel="@dataItem"
+                        ShowOwner="@this.ShowOwner"
+                        ShowCategories="@this.ShowCategories"/>
                 }
             </CascadingValue>
 

@@ -38,8 +38,49 @@ namespace COMETwebapp.Shared
         public IRegistrationService RegistrationService { get; set; }
 
         /// <summary>
-        /// Gets or sets the value to check if the sidebar is collapsed
+        /// Backing field for <see cref="IsNarrowViewport" />
         /// </summary>
-        public bool Collapsed { get; private set; }
+        private bool isNarrowViewport;
+
+        /// <summary>
+        /// The collapsed state that the user explicitly chose with the toggle, or null while they have not overruled the state
+        /// that the viewport width implies
+        /// </summary>
+        private bool? userCollapsed;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the viewport is too narrow to afford the full width menu, for instance when
+        /// the browser only takes a quarter of the screen. Crossing that threshold drops any earlier manual override, so that
+        /// the side bar collapses on its own when the window shrinks and expands again when it grows.
+        /// </summary>
+        public bool IsNarrowViewport
+        {
+            get => this.isNarrowViewport;
+
+            set
+            {
+                if (this.isNarrowViewport == value)
+                {
+                    return;
+                }
+
+                this.isNarrowViewport = value;
+                this.userCollapsed = null;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the sidebar is rendered collapsed. A narrow viewport collapses it by default, but the
+        /// user can always overrule that with the toggle, in either direction (issue #742)
+        /// </summary>
+        public bool IsCollapsed => this.userCollapsed ?? this.IsNarrowViewport;
+
+        /// <summary>
+        /// Toggles the collapsed state of the side bar
+        /// </summary>
+        public void ToggleCollapsed()
+        {
+            this.userCollapsed = !this.IsCollapsed;
+        }
     }
 }

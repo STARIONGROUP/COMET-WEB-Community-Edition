@@ -121,6 +121,11 @@ namespace COMET.Web.Common.Tests.Components
         {
             this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
             this.sessionService.Setup(x => x.GetParticipantModels()).Returns(this.engineeringModels);
+
+            // Without this the mock returns a null Task, and awaiting it throws inside the click handler.
+            this.sessionService.Setup(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>()))
+                .ReturnsAsync(FluentResults.Result.Ok(new Iteration()));
+
             var renderer = this.context.Render<OpenModel>();
             var layoutItems = renderer.FindComponents<DxFormLayoutItem>();
 
@@ -201,6 +206,41 @@ namespace COMET.Web.Common.Tests.Components
                 Assert.That(result.IsFailed, Is.True);
                 Assert.That(result.Errors[0].Message, Is.EqualTo("The selected iteration is already openened"));
             });
+        }
+
+        /// <summary>
+        /// Verifies that invoking <see cref="OpenModel.OpenSessionAsync" /> surfaces a failed
+        /// <see cref="OpenModelViewModel.OpenSession" /> result to the user, instead of silently discarding it as it did
+        /// when the button was bound directly to <see cref="OpenModelViewModel.OpenSession" />.
+        /// </summary>
+        [Test]
+        public async Task VerifyOpenSessionAsyncSetsErrorMessageOnFailure()
+        {
+            this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
+            this.sessionService.Setup(x => x.GetParticipantModels()).Returns(this.engineeringModels);
+            this.sessionService.Setup(x => x.GetModelDomains(It.IsAny<EngineeringModelSetup>()))
+                .Returns(new List<DomainOfExpertise> { new() { Name = "Thermodynamic" } });
+
+            var renderer = this.context.Render<OpenModel>();
+
+            this.viewModel.SelectedEngineeringModel = this.viewModel.AvailableEngineeringModelSetups.First();
+            this.viewModel.SelectedDomainOfExpertise = this.viewModel.AvailablesDomainOfExpertises.First();
+            this.viewModel.SelectedIterationSetup = this.viewModel.AvailableIterationSetups.First();
+
+            var alreadyOpenIteration = new Iteration(Guid.NewGuid(), null, null)
+            {
+                IterationSetup = this.engineeringModels.SelectMany(x => x.IterationSetup).Single(x => x.Iid == this.viewModel.SelectedIterationSetup.IterationSetupId)
+            };
+
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(alreadyOpenIteration);
+            this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
+
+            Assert.That(renderer.Instance.ErrorMessage, Is.Null.Or.Empty);
+
+            await renderer.InvokeAsync(renderer.Instance.OpenSessionAsync);
+
+            Assert.That(renderer.Instance.ErrorMessage, Is.EqualTo("The selected iteration is already openened"));
         }
     }
 }

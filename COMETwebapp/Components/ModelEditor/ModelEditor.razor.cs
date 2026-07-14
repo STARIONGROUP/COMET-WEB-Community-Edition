@@ -24,12 +24,19 @@
 
 namespace COMETwebapp.Components.ModelEditor
 {
+    using System.ComponentModel;
+
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Extensions;
 
+    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
+
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Web;
+    using Microsoft.JSInterop;
 
     using ReactiveUI;
 
@@ -38,6 +45,16 @@ namespace COMETwebapp.Components.ModelEditor
     /// </summary>
     public partial class ModelEditor
     {
+        /// <summary>
+        /// The minimum width, in pixels, that a panel can be dragged down to
+        /// </summary>
+        private const int MinimumPanelWidth = 260;
+
+        /// <summary>
+        /// The maximum width, in pixels, that a panel can be dragged up to
+        /// </summary>
+        private const int MaximumPanelWidth = 900;
+
         /// <summary>
         /// Holds a reference to the data of the node where another node is dragged over
         /// </summary>
@@ -64,6 +81,95 @@ namespace COMETwebapp.Components.ModelEditor
         public ElementDefinitionTree TargetTree { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the source model panel is minimized, so that the target model tree gets more space
+        /// </summary>
+        public bool IsSourcePanelCollapsed { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the details panel is minimized, so that the trees get more space
+        /// </summary>
+        public bool IsDetailsPanelCollapsed { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the owning domain of expertise pill is shown on the nodes of both trees.
+        /// The setting is held here, and not per tree, so that the source and the target panel always show the same thing.
+        /// </summary>
+        public bool ShowOwner { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the category pills are shown on the nodes of both trees
+        /// </summary>
+        public bool ShowCategories { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the <see cref="IJSRuntime" /> used to initialise the column resizers
+        /// </summary>
+        [Inject]
+        public IJSRuntime JsRuntime { get; set; }
+
+        /// <summary>
+        /// Subscribes to the iteration of both trees and initialises the drag-to-resize handles that sit between the source tree,
+        /// the target tree and the details panel, on first render
+        /// </summary>
+        /// <param name="firstRender"><see langword="true" /> on the first render cycle.</param>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (!firstRender)
+            {
+                return;
+            }
+
+            this.SubscribeToTreeIterations();
+
+            await this.InitialiseResizerAsync("source-resizer", "sourcePanel");
+            await this.InitialiseResizerAsync("target-resizer", "targetPanel");
+        }
+
+        /// <summary>
+        /// Subscribes to the <see cref="IElementDefinitionTreeViewModel.Iteration" /> of both trees, so that the ViewModel knows
+        /// which iteration each panel shows and can tell whether a copy between the panels crosses iterations.
+        /// This has to happen on the first render and not in <see cref="OnViewModelAssigned" />: the trees are captured with
+        /// @ref, so they are still null while the parameters are set, and a component is not an
+        /// <see cref="INotifyPropertyChanged" />, which means a WhenAnyValue over this.SourceTree would read that null once and
+        /// never see the tree appear.
+        /// </summary>
+        private void SubscribeToTreeIterations()
+        {
+            this.Disposables.Add(this.SourceTree.ViewModel.WhenAnyValue(x => x.Iteration).SubscribeAsync(x =>
+            {
+                this.ViewModel.SourceIteration = x;
+                return this.InvokeAsync(this.StateHasChanged);
+            }));
+
+            this.Disposables.Add(this.TargetTree.ViewModel.WhenAnyValue(x => x.Iteration).SubscribeAsync(x =>
+            {
+                this.ViewModel.TargetIteration = x;
+                return this.InvokeAsync(this.StateHasChanged);
+            }));
+        }
+
+        /// <summary>
+        /// Initialises a single drag-to-resize handle, tolerating the JS interop being unavailable
+        /// </summary>
+        /// <param name="resizerId">The id of the resize handle</param>
+        /// <param name="panelId">The id of the panel that the handle resizes</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task InitialiseResizerAsync(string resizerId, string panelId)
+        {
+            try
+            {
+                await this.JsRuntime.InvokeVoidAsync("cometResizer.init", resizerId, panelId, MinimumPanelWidth, MaximumPanelWidth);
+            }
+            catch (Exception)
+            {
+                // JS interop failures during pre-rendering or test environments are non-fatal.
+            }
+        }
+
+        /// <summary>
         /// Handles the post-assignement flow of the <see cref="ApplicationBase{TViewModel}.ViewModel" /> property
         /// </summary>
         protected override void OnViewModelAssigned()
@@ -72,18 +178,6 @@ namespace COMETwebapp.Components.ModelEditor
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnCopySettingsMode).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsSourceModelSameAsTargetModel).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.SourceTree.ViewModel.Iteration).SubscribeAsync(x =>
-            {
-                this.ViewModel.SourceIteration = x;
-                return this.InvokeAsync(this.StateHasChanged);
-            }));
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.TargetTree.ViewModel.Iteration).SubscribeAsync(x =>
-            {
-                this.ViewModel.TargetIteration = x;
-                return this.InvokeAsync(this.StateHasChanged);
-            }));
         }
 
         /// <summary>
@@ -127,9 +221,12 @@ namespace COMETwebapp.Components.ModelEditor
         /// <summary>
         /// Is executed when a dragged node (<see cref="ElementBaseTreeRowViewModel"/>) has been dropped onto another element in a specific <see cref="ElementDefinitionTree"/>
         /// </summary>
-        /// <param name="nodeData">A <see cref="Tuple"/> that contains the specific <see cref="ElementDefinitionTree"/> and the specific node (<see cref="ElementBaseTreeRowViewModel"/>)</param>
+        /// <param name="nodeData">
+        /// A <see cref="Tuple"/> that contains the specific <see cref="ElementDefinitionTree"/>, the specific node
+        /// (<see cref="ElementBaseTreeRowViewModel"/>) and the <see cref="DragEventArgs"/> of the drop
+        /// </param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private async Task OnDropAsync((ElementDefinitionTree, ElementBaseTreeRowViewModel) nodeData)
+        private async Task OnDropAsync((ElementDefinitionTree, ElementBaseTreeRowViewModel, DragEventArgs) nodeData)
         {
             this.ErrorMessage = string.Empty;
 
@@ -143,7 +240,7 @@ namespace COMETwebapp.Components.ModelEditor
                 if (nodeData.Item2 == null)
                 {
                     // Drop in the same model
-                    await this.ViewModel.CopyAndAddNewElementAsync(nodeData.Item1, elementDefinitionTreeRowViewModel.ElementBase);
+                    await this.ViewModel.CopyAndAddNewElementAsync(nodeData.Item1, elementDefinitionTreeRowViewModel.ElementBase, nodeData.Item3.GetCopyOperationKind());
                 }
                 else
                 {

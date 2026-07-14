@@ -55,7 +55,8 @@
 		</DxFormLayoutItem>
 	}
 </DxFormLayout>
+<ValidationMessageComponent ValidationMessage="@this.ErrorMessage" />
 <div class="modal-footer">
 	<DxButton Id="openmodel__button" CssClass="btn btn-connect"
-	          Text="@this.ButtonText" Enabled="@this.ButtonEnabled" Click="@(this.ViewModel.OpenSession)" />
+	          Text="@this.ButtonText" Enabled="@this.ButtonEnabled" Click="@this.OpenSessionAsync" />
 </div>

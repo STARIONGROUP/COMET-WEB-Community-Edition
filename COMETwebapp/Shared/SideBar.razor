@@ -19,13 +19,15 @@
 ------------------------------------------------------------------------------->
 @using COMET.Web.Common.Shared.TopMenuEntry
 
-<nav class="@($"{(this.Collapsed ? "collapsed" : "")} main-side-bar")">
-    <div class="@(this.Collapsed ? "text-center" : "text-end")">
+<DxLayoutBreakpoint MaxWidth="1200" @bind-IsActive="@this.IsNarrowViewport"/>
+
+<nav class="@($"{(this.IsCollapsed ? "collapsed" : "")} main-side-bar")">
+    <div class="@(this.IsCollapsed ? "text-center" : "text-end")">
         <DxButton Text="Collapse"
-                  Click="@(() => this.Collapsed = !this.Collapsed)"
+                  Click="@this.ToggleCollapsed"
                   RenderStyle="ButtonRenderStyle.None"
                   Id="side-bar-collapse-button">
-            @if (this.Collapsed)
+            @if (this.IsCollapsed)
             {
                 <FeatherArrowRight Size="24"
                                    Color="currentColor"

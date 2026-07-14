@@ -77,7 +77,6 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         {
             this.sessionService = sessionService;
             this.RegisterViewModelWithReusableRows(this);
-            this.Iterations.Add(null);
 
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedIterationData).Subscribe(x => this.Iteration = this.sessionService.OpenIterations.Items.SingleOrDefault(y => y.IterationSetup.Iid == x?.IterationSetupId)));
 
