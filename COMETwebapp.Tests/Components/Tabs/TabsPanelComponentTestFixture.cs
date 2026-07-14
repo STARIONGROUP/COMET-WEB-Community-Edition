@@ -76,6 +76,7 @@ namespace COMETwebapp.Tests.Components.Tabs
             optionsTableViewModel.Setup(x => x.Rows).Returns(new SourceList<OptionRowViewModel>());
             optionsTableViewModel.Setup(x => x.CurrentThing).Returns(new Option());
             this.engineeringModelBodyViewModel = new Mock<IEngineeringModelBodyViewModel>();
+            this.engineeringModelBodyViewModel.SetupProperty(x => x.IsAllowedToDispose, false);
             this.engineeringModelBodyViewModel.Setup(x => x.OptionsTableViewModel).Returns(optionsTableViewModel.Object);
 
             var engineeringModelSetup = new EngineeringModelSetup();
@@ -96,15 +97,11 @@ namespace COMETwebapp.Tests.Components.Tabs
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
 
             this.viewModel = new Mock<ITabsViewModel>();
-            var openTabs = new SourceList<TabbedApplicationInformation>();
-            openTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
             this.sidePanel = new TabPanelInformation();
 
-            this.mainPanel = new TabPanelInformation
-            {
-                OpenTabs = openTabs,
-                CurrentTab = openTabs.Items.First()
-            };
+            this.mainPanel = new TabPanelInformation();
+            this.mainPanel.OpenTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
+            this.mainPanel.CurrentTab = this.mainPanel.OpenTabs.Items.First();
 
             this.viewModel.Setup(x => x.MainPanel).Returns(this.mainPanel);
             this.viewModel.Setup(x => x.SidePanel).Returns(this.sidePanel);
@@ -145,6 +142,7 @@ namespace COMETwebapp.Tests.Components.Tabs
                 Assert.That(this.viewModel.Object.SidePanel.OpenTabs, Has.Count.GreaterThan(0));
                 Assert.That(this.viewModel.Object.SidePanel.CurrentTab, Is.Not.Null);
                 Assert.That(this.viewModel.Object.MainPanel.OpenTabs, Has.Count.EqualTo(0));
+                Assert.That(this.engineeringModelBodyViewModel.Object.IsAllowedToDispose, Is.False);
             });
         }
 

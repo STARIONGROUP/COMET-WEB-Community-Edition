@@ -130,10 +130,14 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <param name="addedThings">A collection of added <see cref="Thing" /></param>
         public void AddRows(IEnumerable<Thing> addedThings)
         {
-            var listOfAddedElementBases = addedThings.OfType<ElementDefinition>().Where(x => this.Iteration?.Element.Contains(x) ?? false).ToList();
+            var things = addedThings.ToList();
+
+            var listOfAddedElementBases = things.OfType<ElementDefinition>().Where(x => this.Iteration?.Element.Contains(x) ?? false).ToList();
             this.Rows.AddRange(listOfAddedElementBases.Select(e => new ElementDefinitionTreeRowViewModel(e)));
 
-            if (listOfAddedElementBases.Count > 0)
+            var refreshedContainers = this.RefreshRowsContaining(things.OfType<ElementUsage>());
+
+            if (listOfAddedElementBases.Count > 0 || refreshedContainers)
             {
                 this.SortRows();
             }
@@ -145,9 +149,10 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <param name="updatedThings">A collection of updated <see cref="ElementDefinition" /></param>
         public void UpdateRows(IEnumerable<Thing> updatedThings)
         {
+            var things = updatedThings.ToList();
             var sortCollection = false;
 
-            foreach (var element in updatedThings.OfType<ElementDefinition>().Where(x => this.Iteration?.Element.Contains(x) ?? false).ToList())
+            foreach (var element in things.OfType<ElementDefinition>().Where(x => this.Iteration?.Element.Contains(x) ?? false).ToList())
             {
                 var row = this.Rows.FirstOrDefault(x => x.ElementBase.Iid == element.Iid);
 
@@ -157,6 +162,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                     row.UpdateProperties(new ElementDefinitionTreeRowViewModel(element));
                 }
             }
+
+            sortCollection |= this.RefreshRowsContaining(things.OfType<ElementUsage>());
 
             if (sortCollection)
             {
@@ -170,9 +177,10 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <param name="deletedThings">A collection of deleted <see cref="ElementDefinition" /></param>
         public void RemoveRows(IEnumerable<Thing> deletedThings)
         {
+            var things = deletedThings.ToList();
             var sortCollection = false;
 
-            foreach (var elementId in deletedThings.OfType<ElementDefinition>().Select(x => x.Iid))
+            foreach (var elementId in things.OfType<ElementDefinition>().Select(x => x.Iid))
             {
                 var row = this.Rows.FirstOrDefault(x => x.ElementBase.Iid == elementId);
 
@@ -183,10 +191,47 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 }
             }
 
+            sortCollection |= this.RefreshRowsContaining(things.OfType<ElementUsage>());
+
             if (sortCollection)
             {
                 this.SortRows();
             }
+        }
+
+        /// <summary>
+        /// Refreshes the rows of the <see cref="ElementDefinition" />s that contain the supplied
+        /// <see cref="ElementUsage" />s
+        /// </summary>
+        /// <param name="elementUsages">A collection of <see cref="ElementUsage" /> that has changed</param>
+        /// <returns>A value asserting whether at least one row was refreshed</returns>
+        /// <remarks>
+        /// An <see cref="ElementUsage" /> is rendered as a nested row rather than as a top level one, so a change to
+        /// one is applied by re-diffing the row of its containing <see cref="ElementDefinition" /> against the live
+        /// object graph. Without this, every usage add, rename and delete is recorded and then silently discarded.
+        /// </remarks>
+        private bool RefreshRowsContaining(IEnumerable<ElementUsage> elementUsages)
+        {
+            var containers = elementUsages
+                .Select(x => x.Container as ElementDefinition)
+                .Where(x => x != null && (this.Iteration?.Element.Contains(x) ?? false))
+                .DistinctBy(x => x.Iid)
+                .ToList();
+
+            var refreshed = false;
+
+            foreach (var container in containers)
+            {
+                var row = this.Rows.FirstOrDefault(x => x.ElementBase.Iid == container.Iid);
+
+                if (row != null)
+                {
+                    row.UpdateProperties(new ElementDefinitionTreeRowViewModel(container));
+                    refreshed = true;
+                }
+            }
+
+            return refreshed;
         }
 
         /// <summary>

@@ -581,18 +581,25 @@ namespace COMETwebapp.ViewModels.Components.Common
         /// in-place mutations (e.g. a newly-added <see cref="Parameter" />) are reflected. When the element
         /// no longer exists in the iteration (e.g. because another user deleted it) the selection is cleared.
         /// </summary>
+        /// <remarks>
+        /// <see cref="IsLoading" /> is toggled around the refresh because the hosting application component only
+        /// re-renders when it changes. Without it the rows are rebuilt but the panel keeps showing stale content,
+        /// which is what made changes written by another open application invisible in this one.
+        /// </remarks>
         public void RefreshSelectedElement()
         {
-            var current = this.SelectedElement ?? this.SelectedElementDefinition;
+            this.IsLoading = true;
 
-            if (current is null)
+            try
             {
-                this.SelectElement(null);
-                return;
+                var current = this.SelectedElement ?? this.SelectedElementDefinition;
+                var fresh = current is null ? null : this.ResolveFromIteration(current);
+                this.SelectElement(fresh);
             }
-
-            var fresh = this.ResolveFromIteration(current);
-            this.SelectElement(fresh);
+            finally
+            {
+                this.IsLoading = false;
+            }
         }
 
         /// <summary>

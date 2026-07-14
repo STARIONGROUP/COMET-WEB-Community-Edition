@@ -108,6 +108,16 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.Rows
                 }
             }
 
+            foreach (var survivingRow in this.Rows)
+            {
+                var liveUsage = containedElements.FirstOrDefault(x => x.Iid == survivingRow.ElementBase.Iid);
+
+                if (liveUsage != null)
+                {
+                    survivingRow.UpdateProperties(new ElementUsageTreeRowViewModel(liveUsage));
+                }
+            }
+
             var existingIids = this.Rows.Select(r => r.ElementBase.Iid).ToHashSet();
 
             var toAdd = containedElements

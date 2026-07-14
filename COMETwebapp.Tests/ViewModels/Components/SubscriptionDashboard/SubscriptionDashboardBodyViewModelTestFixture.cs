@@ -41,6 +41,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
 
     using NUnit.Framework;
 
+    using ReactiveUI;
+
     [TestFixture]
     public class SubscriptionDashboardBodyViewModelTestFixture
     {
@@ -92,6 +94,45 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
 
             this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
                 It.IsAny<IEnumerable<Option>>(), null), Times.Once);
+        }
+        
+        [Test]
+        public async Task VerifyExternalParameterChangeIsReflectedAfterEndUpdate()
+        {
+            var domain = new DomainOfExpertise();
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(domain);
+            this.viewModel.CurrentThing = new Iteration();
+
+            var elementDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            this.viewModel.CurrentThing.Element.Add(elementDefinition);
+
+            // Clear the invocation recorded by the initial CurrentThing assignment above, so that Verify below
+            // proves a NEW refresh happened in reaction to EndUpdate, not the one from initialisation.
+            this.subscribedTableViewModel.Invocations.Clear();
+
+            var isLoadingValues = new List<bool>();
+            this.viewModel.WhenAnyValue(x => x.IsLoading).Subscribe(isLoadingValues.Add);
+
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            this.messageBus.SendMessage(new SessionEvent(this.sessionService.Object.Session, SessionStatus.EndUpdate));
+
+            Assert.That(() => isLoadingValues.Contains(true) && !this.viewModel.IsLoading, Is.True.After(2000, 25),
+                "the view model never signalled a re-render in reaction to the external write");
+
+            Assert.Multiple(() =>
+            {
+                this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
+                        It.IsAny<IEnumerable<Option>>(), It.IsAny<Iteration>()), Times.AtLeastOnce,
+                    "SubscriptionDashboardBodyViewModel has no OnEndUpdate override, so a cross-panel write's EndUpdate " +
+                    "never reaches OnSessionRefreshed/UpdateTables.");
+
+                Assert.That(isLoadingValues, Has.Some.EqualTo(true),
+                    "IsLoading must toggle so the Subscription Dashboard re-renders.");
+            });
         }
     }
 }

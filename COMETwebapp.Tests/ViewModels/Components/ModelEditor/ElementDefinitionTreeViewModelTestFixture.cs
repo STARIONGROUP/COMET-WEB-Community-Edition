@@ -42,6 +42,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 
     using NUnit.Framework;
 
+    using ReactiveUI;
+
     [TestFixture]
     public class ElementDefinitionTreeViewModelTestFixture
     {
@@ -239,6 +241,63 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
 
             Assert.That(this.viewModel.Rows.Single(x => x.IsTopElement).ElementName, Is.EqualTo(this.topElement.Name));
+        }
+
+        [Test]
+        public async Task VerifyExternalRemovalOfRowElementPropagatesAfterEndUpdate()
+        {
+            this.viewModel.Iteration = this.iteration;
+
+            Assert.That(this.viewModel.Rows.Any(x => x.ElementBase.Iid == this.topElement.Iid), Is.True);
+
+            var isLoadingValues = new List<bool>();
+            this.viewModel.WhenAnyValue(x => x.IsLoading).Subscribe(isLoadingValues.Add);
+
+            // Simulate the other panel's write: the ElementDefinition is removed from the iteration and the
+            // corresponding events reach this session's message bus.
+            this.iteration.Element.Remove(this.topElement);
+            this.messageBus.SendObjectChangeEvent(this.topElement, EventKind.Removed);
+            this.messageBus.SendMessage(new SessionEvent(this.sessionService.Object.Session, SessionStatus.EndUpdate));
+
+            Assert.That(() => isLoadingValues.Contains(true) && !this.viewModel.IsLoading, Is.True.After(2000, 25),
+                "the view model never signalled a re-render in reaction to the external removal");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows.Any(x => x.ElementBase.Iid == this.topElement.Iid), Is.False,
+                    "A Removed ObjectChangedEvent for a row's ElementDefinition, followed by EndUpdate, must remove the row.");
+
+                Assert.That(isLoadingValues, Has.Some.EqualTo(true),
+                    "IsLoading must toggle so the tree component re-renders.");
+            });
+        }
+
+        /// <summary>
+        /// Regression test for GH799 symptom B: renaming an <see cref="ElementUsage" /> nested under a row must be
+        /// reflected in the tree. <see cref="ElementDefinitionTreeViewModel.AddRows" />,
+        /// <see cref="ElementDefinitionTreeViewModel.UpdateRows" /> and <see cref="ElementDefinitionTreeViewModel.RemoveRows" />
+        /// all filter their input to <c>.OfType&lt;ElementDefinition&gt;()</c>, so an <see cref="ObjectChangedEvent" />
+        /// for a renamed <see cref="ElementUsage" /> is recorded but silently discarded when the rows are refreshed.
+        /// </summary>
+        [Test]
+        public void VerifyExternalRenameOfElementUsagePropagatesAfterEndUpdate()
+        {
+            this.viewModel.Iteration = this.iteration;
+            var usage = this.topElement.ContainedElement.Single();
+
+            Assert.That(this.viewModel.Rows.Single(x => x.IsTopElement).Rows.Single(x => x.ElementBase.Iid == usage.Iid).ElementName,
+                Is.EqualTo("Box1"));
+
+            // Simulate another panel's write: the usage is renamed and the corresponding events reach this
+            // session's message bus.
+            usage.Name = "Renamed";
+            this.messageBus.SendObjectChangeEvent(usage, EventKind.Updated);
+            this.messageBus.SendMessage(new SessionEvent(this.sessionService.Object.Session, SessionStatus.EndUpdate));
+
+            Assert.That(() => this.viewModel.Rows.Single(x => x.IsTopElement).Rows.Single(x => x.ElementBase.Iid == usage.Iid).ElementName == "Renamed",
+                Is.True.After(2000, 25),
+                "An ElementUsage rename followed by EndUpdate must be reflected in its nested tree row, " +
+                "but AddRows/UpdateRows/RemoveRows only handle ElementDefinition changes.");
         }
     }
 }

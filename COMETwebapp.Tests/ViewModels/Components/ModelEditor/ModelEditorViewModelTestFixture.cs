@@ -24,8 +24,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
+
+    using CDP4Web.Enumerations;
 
     using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.SessionManagement;
@@ -40,6 +44,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
     using Moq;
 
     using NUnit.Framework;
+
+    using ReactiveUI;
 
     [TestFixture]
     public class ModelEditorViewModelTestFixture
@@ -204,6 +210,55 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 
                 Assert.That(async () => await this.viewModel.AddNewElementUsageAsync(elementDefinition, null),
                     Throws.TypeOf<ArgumentNullException>());
+            });
+        }
+
+        [Test]
+        public async Task VerifyExternalParameterChangeIsReflectedAfterEndUpdate()
+        {
+            this.viewModel.DetailsPanelViewModel.SelectElement(this.topElement);
+
+            var isLoadingValues = new List<bool>();
+            this.viewModel.WhenAnyValue(x => x.IsLoading).Subscribe(isLoadingValues.Add);
+
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+
+            var newParameter = new Parameter
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.currentDomain,
+                ParameterType = parameterType
+            };
+
+            newParameter.ValueSet.Add(new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                Manual = new ValueArray<string>(["-"]),
+                Computed = new ValueArray<string>(["-"]),
+                Reference = new ValueArray<string>(["-"]),
+                Formula = new ValueArray<string>(["-"]),
+                Published = new ValueArray<string>(["-"]),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            });
+
+            this.topElement.Parameter.Add(newParameter);
+
+            // Simulate the other panel's write reaching this session's message bus.
+            this.messageBus.SendObjectChangeEvent(this.topElement, EventKind.Updated);
+            this.messageBus.SendMessage(new SessionEvent(this.sessionService.Object.Session, SessionStatus.EndUpdate));
+
+            Assert.That(() => isLoadingValues.Contains(true) && !this.viewModel.IsLoading, Is.True.After(2000, 25),
+                "the view model never signalled a re-render in reaction to the external write");
+
+            var rows = this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rows.Any(r => r.Parameter.Iid == newParameter.Iid), Is.True,
+                    "ModelEditorViewModel.OnEndUpdate must refresh the details panel so a cross-panel Parameter write becomes visible.");
+
+                Assert.That(isLoadingValues, Has.Some.EqualTo(true),
+                    "IsLoading must toggle so that the Blazor component subscribed to it knows to re-render.");
             });
         }
     }

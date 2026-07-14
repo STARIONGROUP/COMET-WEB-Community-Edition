@@ -23,6 +23,7 @@
 namespace COMETwebapp.Model
 {
     using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using DynamicData;
 
@@ -58,7 +59,37 @@ namespace COMETwebapp.Model
         /// <summary>
         /// Gets the collection of all <see cref="TabbedApplicationInformation" /> contained by the panel
         /// </summary>
-        public SourceList<TabbedApplicationInformation> OpenTabs { get; set; } = new();
+        public SourceList<TabbedApplicationInformation> OpenTabs { get; } = new();
+
+        /// <summary>
+        /// Closes the provided tab, allowing its <see cref="IApplicationBaseViewModel" /> to be disposed
+        /// </summary>
+        /// <param name="tab">The <see cref="TabbedApplicationInformation" /> to close</param>
+        /// <remarks>
+        /// Removing a tab from <see cref="OpenTabs" /> without going through this method only moves it out of the panel and
+        /// keeps its <see cref="IApplicationBaseViewModel" /> alive, which is required when the tab is moved to another panel
+        /// </remarks>
+        public void CloseTab(TabbedApplicationInformation tab)
+        {
+            tab.ApplicationBaseViewModel.IsAllowedToDispose = true;
+            this.OpenTabs.Remove(tab);
+        }
+
+        /// <summary>
+        /// Closes the provided tabs, allowing their <see cref="IApplicationBaseViewModel" /> to be disposed
+        /// </summary>
+        /// <param name="tabs">The collection of <see cref="TabbedApplicationInformation" /> to close</param>
+        public void CloseTabs(IEnumerable<TabbedApplicationInformation> tabs)
+        {
+            var tabsToClose = tabs.ToList();
+
+            foreach (var tab in tabsToClose)
+            {
+                tab.ApplicationBaseViewModel.IsAllowedToDispose = true;
+            }
+
+            this.OpenTabs.RemoveMany(tabsToClose);
+        }
 
         /// <summary>
         /// Method executed when one or more open tabs are removed
@@ -66,26 +97,11 @@ namespace COMETwebapp.Model
         /// <param name="changeSet">The change set containing the removed <see cref="TabbedApplicationInformation" /></param>
         private void OnOpenTabRemoved(IChangeSet<TabbedApplicationInformation> changeSet)
         {
-            foreach (var result in changeSet.ToList())
-            {
-                if (result.Range.Count > 0)
-                {
-                    foreach (var tabToRemove in result.Range)
-                    {
-                        tabToRemove.ApplicationBaseViewModel.IsAllowedToDispose = true;
-                    }
-                }
-                else
-                {
-                    result.Item.Current.ApplicationBaseViewModel.IsAllowedToDispose = true;
-                }
-            }
+            var removedTabs = changeSet
+                .SelectMany(change => change.Range.Count > 0 ? change.Range.ToList() : [change.Item.Current])
+                .ToList();
 
-            var wasCurrentTabRemoved = changeSet
-                .Select(x => x.Item.Current)
-                .Contains(this.CurrentTab);
-
-            if (wasCurrentTabRemoved)
+            if (removedTabs.Contains(this.CurrentTab))
             {
                 this.CurrentTab = this.OpenTabs.Items.FirstOrDefault();
             }
