@@ -346,6 +346,20 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         }
 
         [Test]
+        public void VerifySideBarFooterIsInFlow()
+        {
+            var renderer = this.context.Render<SideBar>();
+            var footer = renderer.FindComponent<SideBarFooter>();
+            var footerElement = footer.Find("div");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(footerElement.ClassList, Does.Contain("side-bar-footer"));
+                Assert.That(footerElement.GetAttribute("style"), Is.Null.Or.Empty);
+            });
+        }
+
+        [Test]
         public void VerifySideBarEntryRegistration()
         {
             var renderer = this.context.Render<SideBar>();
