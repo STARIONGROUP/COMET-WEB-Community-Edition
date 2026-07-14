@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="OrientationViewModelTestFixture.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -117,6 +117,24 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
                 Assert.That(this.viewModel.Orientation.Z, Is.Not.EqualTo(0));
                 Assert.That(this.viewModel.Orientation.Matrix, Is.Not.EquivalentTo(previousMatrix));
             });
+        }
+
+        [Test]
+        public void VerifyOnMatrixValuesChangedWithUninitializedValueSet()
+        {
+            var valueSet = new ParameterValueSet()
+            {
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(new List<string>() { "-" })
+            };
+
+            var localViewModel = new OrientationViewModel(valueSet, this.onParameterValueSetChanged);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(() => localViewModel.OnMatrixValuesChanged(0, "1.0"), Throws.Nothing);
+                Assert.That(localViewModel.Orientation.Matrix[0], Is.EqualTo(1.0));
+            }
         }
     }
 }

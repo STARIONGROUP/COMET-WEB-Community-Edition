@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="BatchParameterEditorViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -74,6 +74,17 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 }
             };
 
+            var compoundParameterType = new CompoundParameterType
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Orientation",
+                ShortName = "orientation",
+                Category =
+                {
+                    new Category()
+                }
+            };
+
             var scale = new RatioScale
             {
                 Name = "kilogram",
@@ -116,11 +127,29 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 }
             };
 
+            var parameter2 = new Parameter
+            {
+                Iid = Guid.NewGuid(),
+                Owner = domain,
+                ParameterType = compoundParameterType,
+                ValueSet =
+                {
+                    new ParameterValueSet
+                    {
+                        Iid = Guid.NewGuid(),
+                        Manual = new ValueArray<string>(Enumerable.Repeat("-", 9)),
+                        Published = new ValueArray<string>(Enumerable.Repeat("-", 9)),
+                        ValueSwitch = ParameterSwitchKind.MANUAL,
+                        ActualOption = new Option()
+                    }
+                }
+            };
+
             var elementDefinition = new ElementDefinition
             {
                 Iid = Guid.NewGuid(),
                 Name = "Box",
-                Parameter = { parameter1 }
+                Parameter = { parameter1, parameter2 }
             };
 
             this.iteration = new Iteration
@@ -204,6 +233,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             this.viewModel.SelectedCategory = new Category();
             Assert.That(this.viewModel.Rows.Items.Count(), Is.EqualTo(0));
+
+            var secondTopElementParameter = this.iteration.TopElement.Parameter[1];
+            this.viewModel.SelectedCategory = null;
+            this.viewModel.OptionSelectorViewModel.SelectedOption = null;
+            this.viewModel.FiniteStateSelectorViewModel.SelectedActualFiniteState = null;
+            this.viewModel.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise = null;
+            this.viewModel.ParameterTypeSelectorViewModel.SelectedParameterType = secondTopElementParameter.ParameterType;
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.Rows.Items, Has.Count.EqualTo(1));
+                Assert.That(this.viewModel.ParameterTypeSelectorViewModel.AvailableParameterTypes.Select(x => x.Iid), Does.Contain(secondTopElementParameter.ParameterType.Iid));
+            }
         }
 
         [Test]
