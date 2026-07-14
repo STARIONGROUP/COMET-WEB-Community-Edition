@@ -802,7 +802,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 case RelationalExpression relational:
                     var scale = relational.Scale == null ? string.Empty : $" {relational.Scale.ShortName}";
-                    return $"{relational.ParameterType?.ShortName} {ParameterValueFormatter.RelationalOperatorSymbol(relational.RelationalOperator)} {string.Join(", ", relational.Value)}{scale}";
+                    return $"{relational.ParameterType?.ShortName} {relational.RelationalOperator.ToScientificNotationString()} {string.Join(", ", relational.Value)}{scale}";
 
                 case NotExpression { Term: not null } not:
                     return $"NOT ({this.GetExpressionSummary(not.Term)})";

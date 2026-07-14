@@ -34,7 +34,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                 <span class="req-expr-leaf">
                     <span class="req-expr-pt" title="@relational.ParameterType?.Name">@relational.ParameterType?.ShortName</span>
-                    <span class="req-expr-op">@ParameterValueFormatter.RelationalOperatorSymbol(relational.RelationalOperator)</span>
+                    <span class="req-expr-op">@relational.RelationalOperator.ToScientificNotationString()</span>
                     <span class="req-expr-value">@string.Join(", ", relational.Value)</span>
                     @if (relational.Scale != null)
                     {
