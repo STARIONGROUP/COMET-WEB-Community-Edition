@@ -44,7 +44,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// The available relational operators, paired with their display symbol.
         /// </summary>
         private static readonly OperatorOption[] OperatorOptions = Enum.GetValues<RelationalOperatorKind>()
-            .Select(x => new OperatorOption(x, ParameterValueFormatter.RelationalOperatorSymbol(x)))
+            .Select(x => new OperatorOption(x, x.ToScientificNotationString()))
             .ToArray();
 
         /// <summary>

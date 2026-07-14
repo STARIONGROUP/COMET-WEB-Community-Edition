@@ -274,7 +274,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstra
                 var scale = relational.Scale == null ? string.Empty : $" {relational.Scale.ShortName}";
                 var parameterType = relational.ParameterType?.ShortName ?? "?";
                 var value = string.IsNullOrWhiteSpace(relational.Value) ? "?" : relational.Value;
-                inner = $"{parameterType} {ParameterValueFormatter.RelationalOperatorSymbol(relational.Operator)} {value}{scale}";
+                inner = $"{parameterType} {relational.Operator.ToScientificNotationString()} {value}{scale}";
             }
             else
             {

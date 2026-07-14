@@ -82,25 +82,6 @@ namespace COMETwebapp.Utilities
         }
 
         /// <summary>
-        /// Gets the display symbol of the given <see cref="RelationalOperatorKind" /> (e.g. <c>=</c>, <c>&lt;=</c>).
-        /// </summary>
-        /// <param name="relationalOperator">The <see cref="RelationalOperatorKind" />.</param>
-        /// <returns>The operator symbol.</returns>
-        public static string RelationalOperatorSymbol(RelationalOperatorKind relationalOperator)
-        {
-            return relationalOperator switch
-            {
-                RelationalOperatorKind.EQ => "=",
-                RelationalOperatorKind.NE => "≠",
-                RelationalOperatorKind.LT => "<",
-                RelationalOperatorKind.GT => ">",
-                RelationalOperatorKind.LE => "≤",
-                RelationalOperatorKind.GE => "≥",
-                _ => relationalOperator.ToString()
-            };
-        }
-
-        /// <summary>
         /// Returns the value at <paramref name="index" /> of the supplied array, or an empty string when out of range.
         /// </summary>
         /// <param name="values">The value array.</param>
