@@ -39,6 +39,20 @@ function GetElementSizeAndPosition(index, cssSelector, useScroll)
 }
 
 /**
+ * Smooth-scrolls the element with the given id into view, if it exists
+ * @param {string} elementId
+ */
+function ScrollElementIntoView(elementId)
+{
+    let element = document.getElementById(elementId);
+
+    if (element != null)
+    {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+}
+
+/**
  * Subscribes to the resize event of the window and use a callback method to alert
  * @param {string} callbackMethodName
  */

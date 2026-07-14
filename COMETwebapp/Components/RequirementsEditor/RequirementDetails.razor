@@ -1,0 +1,137 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.EngineeringModelData
+@using COMETwebapp.Utilities
+@using COMETwebapp.ViewModels.Components.RequirementsEditor
+
+@{
+    RenderFragment<BooleanExpression> expressionNode = null;
+
+    expressionNode = expression =>
+        @<div class="req-expr">
+            @if (expression is RelationalExpression relational)
+            {
+                var boundModelCode = this.ViewModel.GetBoundParameterModelCode(relational);
+                var publishedValue = this.ViewModel.GetBoundParameterPublishedValue(relational);
+
+                <span class="req-expr-leaf">
+                    <span class="req-expr-pt" title="@relational.ParameterType?.Name">@relational.ParameterType?.ShortName</span>
+                    <span class="req-expr-op">@relational.RelationalOperator.ToScientificNotationString()</span>
+                    <span class="req-expr-value">@string.Join(", ", relational.Value)</span>
+                    @if (relational.Scale != null)
+                    {
+                        <span class="req-expr-scale" title="@relational.Scale.Name">@relational.Scale.ShortName</span>
+                    }
+                    @if (boundModelCode != null)
+                    {
+                        <span class="req-expr-binding" title="Bound parameter">@boundModelCode</span>
+                        @if (publishedValue != null)
+                        {
+                            <span class="req-expr-published" title="Published value of the bound parameter">= @publishedValue</span>
+                        }
+                    }
+                </span>
+            }
+            else
+            {
+                var collapsed = this.ViewModel.IsExpressionCollapsed(expression.Iid);
+                var summary = this.ViewModel.GetExpressionSummary(expression);
+
+                <div class="req-expr-node">
+                    <button type="button" class="req-expr-toggle" title="@(collapsed ? "Expand" : "Collapse")"
+                            @onclick="@(() => this.ViewModel.ToggleExpression(expression.Iid))">
+                        <img src="@(collapsed ? "images/Collapsed.svg" : "images/Expanded.svg")" alt="" />
+                    </button>
+                    <span class="req-expr-operator">@GetExpressionLabel(expression)</span>
+                    <span class="req-expr-summary" title="@summary">@summary</span>
+                </div>
+
+                @if (!collapsed)
+                {
+                    <div class="req-expr-children">
+                        @foreach (var term in this.ViewModel.GetTerms(expression))
+                        {
+                            @expressionNode(term)
+                        }
+                    </div>
+                }
+            }
+        </div>;
+}
+
+<div class="req-details">
+    @if (this.ViewModel.ShowParametricConstraints && this.Requirement.ParametricConstraint.Count > 0)
+    {
+        <div class="req-section">
+            <span class="req-section-title">Constraints</span>
+            @foreach (ParametricConstraint constraint in this.Requirement.ParametricConstraint)
+            {
+                <div class="req-constraint">
+                    @foreach (var topExpression in this.ViewModel.GetTopExpressions(constraint))
+                    {
+                        @expressionNode(topExpression)
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    @if (this.ViewModel.ShowTraceability)
+    {
+        var traceabilityRows = this.ViewModel.GetTraceability(this.Requirement);
+
+        @if (traceabilityRows.Count > 0)
+        {
+            <div class="req-section">
+                <span class="req-section-title">Traceability</span>
+                @foreach (var row in traceabilityRows)
+                {
+                    <div class="req-link-row">
+                        <span class="req-link-direction" title="@GetDirectionTitle(row.Direction)">@GetDirectionSymbol(row.Direction)</span>
+                        <span class="req-link-targets">
+                            @foreach (var relatedThing in row.RelatedThings)
+                            {
+                                @if (relatedThing is Requirement linkedRequirement)
+                                {
+                                    <button type="button" class="req-link-req @(linkedRequirement.IsDeprecated ? "req-row-deprecated" : string.Empty)"
+                                            title="@linkedRequirement.Name"
+                                            @onclick="@(() => this.ViewModel.NavigateToRequirement(linkedRequirement))">
+                                        @GetRequirementLabel(linkedRequirement)
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="req-link-thing">@GetThingLabel(relatedThing)</span>
+                                }
+                            }
+                        </span>
+                        <span class="req-pills">
+                            @foreach (var ruleName in row.RuleNames)
+                            {
+                                <span class="req-link-rule" title="Relationship rule">@ruleName</span>
+                            }
+                        </span>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>

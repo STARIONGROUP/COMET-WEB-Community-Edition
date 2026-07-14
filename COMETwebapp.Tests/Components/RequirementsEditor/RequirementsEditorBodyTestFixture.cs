@@ -27,6 +27,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Permission;
@@ -37,6 +38,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
@@ -53,6 +55,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         private IRenderedComponent<RequirementsEditorBody> renderedComponent;
         private CDPMessageBus messageBus;
         private RequirementsEditorBodyViewModel viewModel;
+        private Mock<IDomDataService> domDataService;
+        private Requirement requirement;
 
         [SetUp]
         public void SetUp()
@@ -67,7 +71,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             var group = new RequirementsGroup { Iid = Guid.NewGuid(), ShortName = "OPERATE", Name = "Operate", Owner = domain };
 
-            var requirement = new Requirement
+            this.requirement = new Requirement
             {
                 Iid = Guid.NewGuid(), ShortName = "R24", Name = "Provide user with sensor information", Owner = domain,
                 Definition = { new Definition { LanguageCode = "en", Content = "The USV SHALL provide sensor information." } },
@@ -75,18 +79,27 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 Group = group
             };
 
+            var massParameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "m", Name = "mass" };
+            var kilogramScale = new RatioScale { Iid = Guid.NewGuid(), ShortName = "kg", Name = "kilogram" };
+            this.requirement.ParameterValue.Add(new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = massParameterType, Scale = kilogramScale, Value = new ValueArray<string>(["100"]) });
+
+            var relationalExpression = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = massParameterType, RelationalOperator = RelationalOperatorKind.LE, Scale = kilogramScale, Value = new ValueArray<string>(["100"]) };
+            this.requirement.ParametricConstraint.Add(new ParametricConstraint { Iid = Guid.NewGuid(), Expression = { relationalExpression }, TopExpression = relationalExpression });
+
             var specification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "KUR", Name = "Key-User Requirements", Owner = domain };
             specification.Group.Add(group);
-            specification.Requirement.Add(requirement);
+            specification.Requirement.Add(this.requirement);
 
             var iteration = new Iteration { Iid = Guid.NewGuid() };
             iteration.RequirementsSpecification.Add(specification);
+            iteration.Relationship.Add(new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.requirement, Target = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT", Name = "Satellite" } });
 
             var sessionService = new Mock<ISessionService>();
             var session = new Mock<ISession>();
             var permissionService = new Mock<IPermissionService>();
             permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             session.Setup(x => x.PermissionService).Returns(permissionService.Object);
+            session.Setup(x => x.OpenReferenceDataLibraries).Returns([]);
             sessionService.Setup(x => x.Session).Returns(session.Object);
             sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(domain);
 
@@ -98,7 +111,11 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 CurrentThing = iteration
             };
 
+            this.domDataService = new Mock<IDomDataService>();
+
             this.context.Services.AddSingleton(configuration.Object);
+            this.context.Services.AddSingleton(this.domDataService.Object);
+            this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.context.Services.AddSingleton<IRequirementsEditorBodyViewModel>(this.viewModel);
 
             this.renderedComponent = this.context.Render<RequirementsEditorBody>();
@@ -134,6 +151,32 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         }
 
         [Test]
+        public void VerifyScrollTargetIsScrolledIntoViewAndCleared()
+        {
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
+
+            this.renderedComponent.InvokeAsync(() => this.viewModel.ScrollTarget = this.requirement);
+
+            this.renderedComponent.WaitForAssertion(() =>
+            {
+                this.domDataService.Verify(x => x.ScrollElementIntoView(RequirementsDocument.RequirementAnchorId(this.requirement)), Times.Once);
+                Assert.That(this.viewModel.ScrollTarget, Is.Null, "the target is cleared once scrolled");
+            });
+        }
+
+        [Test]
+        public void VerifyTreeNameToggle()
+        {
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
+
+            Assert.That(this.renderedComponent.Markup, Does.Contain("KUR"), "the tree labels by short name by default");
+
+            this.renderedComponent.InvokeAsync(() => this.viewModel.TreeUsesShortName = false);
+
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.renderedComponent.Markup, Does.Contain("Key-User Requirements"), "the tree labels by name when toggled"));
+        }
+
+        [Test]
         public void VerifyDisplayModeChangesLayout()
         {
             this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
@@ -143,6 +186,34 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.renderedComponent.InvokeAsync(() => this.viewModel.DisplayMode = RequirementRowDisplayMode.ShortNameAndDefinition);
 
             this.renderedComponent.WaitForAssertion(() => Assert.That(this.renderedComponent.Markup, Does.Not.Contain("req-row-header")));
+        }
+
+        [Test]
+        public void VerifyDetailTogglesRevealSections()
+        {
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderedComponent.Markup, Does.Not.Contain("req-row-values"));
+                Assert.That(this.renderedComponent.Markup, Does.Not.Contain("req-section"));
+            });
+
+            this.viewModel.ShowSimpleParameterValues = true;
+            this.viewModel.ShowParametricConstraints = true;
+            this.viewModel.ShowTraceability = true;
+
+            var document = this.context.Render<RequirementsDocument>(parameters => parameters.Add(p => p.ViewModel, this.viewModel));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(document.Markup, Does.Contain("req-row-values"), "the value columns must be on the requirement row");
+                Assert.That(document.Markup, Does.Contain("req-value-display"), "the existing value must be shown and clickable");
+                Assert.That(document.Markup, Does.Contain("Constraints"));
+                Assert.That(document.Markup, Does.Contain("req-expr-leaf"));
+                Assert.That(document.Markup, Does.Contain("Traceability"));
+                Assert.That(document.Markup, Does.Contain("Satellite"), "the related element definition must be listed");
+            });
         }
     }
 }
