@@ -204,9 +204,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 
             try
             {
-                var targetIteration = elementDefinitionTree.ViewModel.Iteration;
-                
-                if (elementBase.GetContainerOfType<Iteration>() == targetIteration)
+                var iterationOfTargetTree = elementDefinitionTree.ViewModel.Iteration;
+
+                if (elementBase.GetContainerOfType<Iteration>() == iterationOfTargetTree)
                 {
                     var copyElementDefinitionCreator = new CopyElementDefinitionCreator(this.sessionService.Session);
                     await copyElementDefinitionCreator.CopyAsync((ElementDefinition)elementBase, true);
@@ -215,7 +215,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 {
                     var copyCreator = new CopyCreator(this.sessionService.Session);
 
-                    await copyCreator.CopyAsync((ElementDefinition)elementBase, targetIteration, requestedOperationKind ?? this.GetSelectedCopyOperationKind());
+                    await copyCreator.CopyAsync((ElementDefinition)elementBase, iterationOfTargetTree, requestedOperationKind ?? this.GetSelectedCopyOperationKind());
                 }
             }
             finally

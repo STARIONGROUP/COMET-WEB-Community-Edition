@@ -103,7 +103,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
         [Test]
         public void VerifyAlreadyOpenIterationCanStillBeSelectedForANewTab()
         {
-            var alreadyOpenIteration = this.alreadyOpenIterations.Items.First();
+            var alreadyOpenIteration = this.alreadyOpenIterations.Items[0];
             var engineeringModelSetup = ((EngineeringModel)alreadyOpenIteration.Container).EngineeringModelSetup;
 
             // The "is this iteration already open" check matches IterationSetup.IterationIid against Iteration.Iid, so the
@@ -131,7 +131,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
         [Test]
         public void VerifyInitializesPropertiesRestoresTheAlreadyOpenIteration()
         {
-            var alreadyOpenIteration = this.alreadyOpenIterations.Items.First();
+            var alreadyOpenIteration = this.alreadyOpenIterations.Items[0];
             var engineeringModelSetup = ((EngineeringModel)alreadyOpenIteration.Container).EngineeringModelSetup;
 
             alreadyOpenIteration.IterationSetup.IterationIid = alreadyOpenIteration.Iid;

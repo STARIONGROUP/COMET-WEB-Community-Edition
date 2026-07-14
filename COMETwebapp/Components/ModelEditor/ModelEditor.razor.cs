@@ -32,6 +32,7 @@ namespace COMETwebapp.Components.ModelEditor
     using COMET.Web.Common.Extensions;
 
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
 
     using Microsoft.AspNetCore.Components;

@@ -36,7 +36,9 @@ namespace COMETwebapp.Tests.Components.ModelEditor
     using COMETwebapp.ViewModels.Components.Common;
     using COMETwebapp.ViewModels.Components.ModelEditor;
     using COMETwebapp.ViewModels.Components.ModelEditor.CopySettings;
+    using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
 
+    using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -193,6 +195,108 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 this.viewModel.VerifySet(x => x.SourceIteration = this.iteration, Times.AtLeastOnce);
                 this.viewModel.VerifySet(x => x.TargetIteration = this.iteration, Times.AtLeastOnce);
             });
+        }
+        
+        [Test]
+        public async Task VerifyDragAndDropUsesTheModifierKeyOperationKind()
+        {
+            var owner = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS" };
+            var draggedElement = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Dragged", Owner = owner };
+            var targetElement = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Target", Owner = owner };
+            this.iteration.Element.Add(draggedElement);
+            this.iteration.Element.Add(targetElement);
+
+            var draggedRow = new ElementDefinitionTreeRowViewModel(draggedElement);
+            var targetRow = new ElementDefinitionTreeRowViewModel(targetElement);
+
+            this.elementDefinitionTreeViewModel.Setup(x => x.Iteration).Returns(this.iteration);
+
+            var renderedComponent = this.RenderModelEditor();
+            var trees = renderedComponent.FindComponents<ElementDefinitionTree>();
+            var sourceTree = trees[0].Instance;
+            var targetTree = trees[1].Instance;
+
+            // Nothing is being dragged yet, so no drop is allowed.
+            await renderedComponent.InvokeAsync(() => targetTree.OnCalculateDropIsAllowed.InvokeAsync(targetTree));
+            Assert.That(targetTree.AllowNodeDrop, Is.False);
+
+            await renderedComponent.InvokeAsync(() => sourceTree.OnDragStart.InvokeAsync((sourceTree, draggedRow)));
+            await renderedComponent.InvokeAsync(() => targetTree.OnDragEnter.InvokeAsync((targetTree, null)));
+            await renderedComponent.InvokeAsync(() => targetTree.OnCalculateDropIsAllowed.InvokeAsync(targetTree));
+
+            Assert.That(targetTree.AllowNodeDrop, Is.True, "Dragging an ElementDefinition over the target tree must allow the drop.");
+
+            // Ctrl + Shift maps to CopyKeepValues: keep the parameter values and the original owner.
+            await renderedComponent.InvokeAsync(() => targetTree.OnDrop.InvokeAsync((targetTree, null, new DragEventArgs { CtrlKey = true, ShiftKey = true })));
+
+            this.viewModel.Verify(x => x.CopyAndAddNewElementAsync(targetTree, draggedElement, OperationKind.CopyKeepValues), Times.Once);
+
+            // Without a modifier key the copy mode selected in the copy settings applies, which the ViewModel resolves itself.
+            await renderedComponent.InvokeAsync(() => sourceTree.OnDragStart.InvokeAsync((sourceTree, draggedRow)));
+            await renderedComponent.InvokeAsync(() => targetTree.OnDrop.InvokeAsync((targetTree, null, new DragEventArgs())));
+
+            this.viewModel.Verify(x => x.CopyAndAddNewElementAsync(targetTree, draggedElement, null), Times.Once);
+
+            // Dropping onto a node adds an ElementUsage rather than copying.
+            await renderedComponent.InvokeAsync(() => sourceTree.OnDragStart.InvokeAsync((sourceTree, draggedRow)));
+            await renderedComponent.InvokeAsync(() => targetTree.OnDrop.InvokeAsync((targetTree, targetRow, new DragEventArgs())));
+
+            this.viewModel.Verify(x => x.AddNewElementUsageAsync(draggedElement, targetElement), Times.Once);
+
+            await renderedComponent.InvokeAsync(() => targetTree.OnDragLeave.InvokeAsync((targetTree, null)));
+            await renderedComponent.InvokeAsync(() => sourceTree.OnDragEnd.InvokeAsync((sourceTree, draggedRow)));
+
+            // The drag is over, so a drop is no longer allowed.
+            await renderedComponent.InvokeAsync(() => targetTree.OnCalculateDropIsAllowed.InvokeAsync(targetTree));
+            Assert.That(targetTree.AllowNodeDrop, Is.False);
+        }
+
+        /// <summary>
+        /// Verifies that a failing copy is reported to the user instead of being swallowed
+        /// </summary>
+        [Test]
+        public async Task VerifyDropReportsAFailingCopy()
+        {
+            var owner = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS" };
+            var draggedElement = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Dragged", Owner = owner };
+            this.iteration.Element.Add(draggedElement);
+            var draggedRow = new ElementDefinitionTreeRowViewModel(draggedElement);
+
+            this.elementDefinitionTreeViewModel.Setup(x => x.Iteration).Returns(this.iteration);
+
+            this.viewModel.Setup(x => x.CopyAndAddNewElementAsync(It.IsAny<ElementDefinitionTree>(), It.IsAny<ElementBase>(), It.IsAny<OperationKind?>()))
+                .ThrowsAsync(new InvalidOperationException("copy refused"));
+
+            var renderedComponent = this.RenderModelEditor();
+            var trees = renderedComponent.FindComponents<ElementDefinitionTree>();
+            var sourceTree = trees[0].Instance;
+            var targetTree = trees[1].Instance;
+
+            await renderedComponent.InvokeAsync(() => sourceTree.OnDragStart.InvokeAsync((sourceTree, draggedRow)));
+            await renderedComponent.InvokeAsync(() => targetTree.OnDrop.InvokeAsync((targetTree, null, new DragEventArgs())));
+
+            renderedComponent.WaitForAssertion(() => Assert.That(renderedComponent.Markup, Does.Contain("copy refused")));
+        }
+
+        /// <summary>
+        /// Verifies that selecting a node in either tree drives the details panel, and clears the selection of the other tree
+        /// </summary>
+        [Test]
+        public async Task VerifySelectingANodeDrivesTheDetailsPanel()
+        {
+            var owner = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS" };
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Selected", Owner = owner };
+            this.iteration.Element.Add(elementDefinition);
+            var row = new ElementDefinitionTreeRowViewModel(elementDefinition);
+
+            var renderedComponent = this.RenderModelEditor();
+            var trees = renderedComponent.FindComponents<ElementDefinitionTree>();
+
+            await renderedComponent.InvokeAsync(() => trees[0].Instance.SelectionChanged.InvokeAsync(row));
+            this.detailsPanelViewModel.Verify(x => x.SelectElement(elementDefinition), Times.Once);
+
+            await renderedComponent.InvokeAsync(() => trees[1].Instance.SelectionChanged.InvokeAsync(null));
+            this.detailsPanelViewModel.Verify(x => x.SelectElement(null), Times.Once);
         }
 
         [Test]

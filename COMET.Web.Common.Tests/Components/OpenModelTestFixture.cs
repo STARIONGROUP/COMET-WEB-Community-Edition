@@ -242,5 +242,27 @@ namespace COMET.Web.Common.Tests.Components
 
             Assert.That(renderer.Instance.ErrorMessage, Is.EqualTo("The selected iteration is already openened"));
         }
+
+        [Test]
+        public async Task VerifyOpenSessionAsyncClearsTheErrorMessageOnSuccess()
+        {
+            this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
+            this.sessionService.Setup(x => x.GetParticipantModels()).Returns(this.engineeringModels);
+            this.sessionService.Setup(x => x.GetModelDomains(It.IsAny<EngineeringModelSetup>()))
+                .Returns(new List<DomainOfExpertise> { new() { Name = "Thermodynamic" } });
+
+            this.sessionService.Setup(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>()))
+                .ReturnsAsync(FluentResults.Result.Ok(new Iteration()));
+
+            var renderer = this.context.Render<OpenModel>();
+
+            this.viewModel.SelectedEngineeringModel = this.viewModel.AvailableEngineeringModelSetups.First();
+            this.viewModel.SelectedDomainOfExpertise = this.viewModel.AvailablesDomainOfExpertises.First();
+            this.viewModel.SelectedIterationSetup = this.viewModel.AvailableIterationSetups.First();
+
+            await renderer.InvokeAsync(renderer.Instance.OpenSessionAsync);
+
+            Assert.That(renderer.Instance.ErrorMessage, Is.Empty);
+        }
     }
 }

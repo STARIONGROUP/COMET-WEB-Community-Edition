@@ -391,6 +391,13 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             renderer.Render();
 
             renderer.WaitForAssertion(() => Assert.That(sideBar.IsCollapsed, Is.True, "Shrinking the window collapses the side bar again."));
+
+            // Re-assigning the same viewport state is a no-op, and must not drop a preference the user has meanwhile set.
+            await renderer.InvokeAsync(sideBar.ToggleCollapsed);
+            await renderer.InvokeAsync(() => sideBar.IsNarrowViewport = true);
+            renderer.Render();
+
+            renderer.WaitForAssertion(() => Assert.That(sideBar.IsCollapsed, Is.False, "Re-setting the same viewport state must keep the user's own choice."));
         }
 
         [Test]
