@@ -46,6 +46,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
     using NUnit.Framework;
 
+    using ReactiveUI;
+
     [TestFixture]
     public class ParameterEditorBodyViewModelTestFixture
     {
@@ -318,6 +320,35 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
             this.tableViewModel.Verify(x => x.RemoveRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyExternalElementChangeIsReflectedAfterEndUpdateOnly()
+        {
+            var elementDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            this.iteration.Element.Add(elementDefinition);
+
+            var isLoadingValues = new List<bool>();
+            this.viewModel.WhenAnyValue(x => x.IsLoading).Subscribe(isLoadingValues.Add);
+
+            this.messageBus.SendObjectChangeEvent(elementDefinition, EventKind.Added);
+            this.messageBus.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.Multiple(() =>
+            {
+                this.tableViewModel.Verify(x => x.AddRows(It.Is<IEnumerable<Thing>>(c => c.Any())), Times.Once,
+                    "ParameterEditorBodyViewModel has no OnEndUpdate override, so it only refreshes on " +
+                    "SessionServiceEvent.SessionRefreshed — a cross-panel write's EndUpdate is silently ignored.");
+
+                Assert.That(isLoadingValues, Has.Some.EqualTo(true),
+                    "IsLoading must toggle so the Parameter Editor re-renders.");
+            });
         }
     }
 }

@@ -109,7 +109,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             this.viewModel.CreateNewTab(engineeringModelApplication1, Guid.Empty, this.viewModel.MainPanel);
             this.viewModel.CreateNewTab(engineeringModelApplication2, Guid.Empty, this.viewModel.MainPanel);
 
-            var removedTab = this.viewModel.MainPanel.OpenTabs.Items.ElementAt(1);
+            var removedTab = this.viewModel.MainPanel.OpenTabs.Items[1];
 
             Assert.That(this.viewModel.MainPanel.CurrentTab, Is.EqualTo(removedTab));
             this.viewModel.MainPanel.OpenTabs.Remove(removedTab);

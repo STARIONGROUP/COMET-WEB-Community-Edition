@@ -238,15 +238,13 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         }
 
         /// <summary>
-        /// Handles the <see cref="COMET.Web.Common.Enumerations.SessionStatus.EndUpdate" /> message received.
-        /// Refreshes the product tree so that a completed write (e.g. add Element Definition with its
-        /// auto-created usage) appears immediately, then refreshes the details panel.
+        /// Handles the <c>SessionStatus.EndUpdate</c> message received, so that a change written by this or another
+        /// open application is reflected here as well
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnEndUpdate()
+        protected override Task OnEndUpdate()
         {
-            await this.OnSessionRefreshed();
-            this.DetailsPanelViewModel.RefreshSelectedElement();
+            return this.OnSessionRefreshed();
         }
 
         /// <summary>
@@ -255,16 +253,27 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <returns>A <see cref="Task" /></returns>
         protected override Task OnSessionRefreshed()
         {
-            if (this.AddedThings.Count == 0 && this.UpdatedThings.Count == 0 && this.DeletedThings.Count == 0)
+            if (this.AddedThings.Count != 0 || this.UpdatedThings.Count != 0 || this.DeletedThings.Count != 0)
             {
-                return Task.CompletedTask;
+                this.RefreshProductTree();
             }
+            
+            this.DetailsPanelViewModel.RefreshSelectedElement();
 
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Applies the recorded <see cref="ElementUsage" /> changes to the product tree
+        /// </summary>
+        private void RefreshProductTree()
+        {
             this.IsLoading = true;
 
             var addedElements = this.AddedThings.OfType<ElementUsage>().ToList();
             var deletedElements = this.DeletedThings.OfType<ElementUsage>().ToList();
             var updatedElements = this.UpdatedThings.OfType<ElementUsage>().ToList();
+            var updatedElementBases = this.UpdatedThings.OfType<ElementBase>().ToList();
 
             this.Elements.AddRange(addedElements);
             this.Elements.RemoveMany(deletedElements);
@@ -289,16 +298,12 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             {
                 this.ProductTreeViewModel.AddElementsToTree(addedElements, selectedOption, []);
                 this.ProductTreeViewModel.RemoveElementsFromTree(deletedElements);
-                this.ProductTreeViewModel.UpdateElementsFromTree(updatedElements);
+                this.ProductTreeViewModel.UpdateElementsFromTree(updatedElementBases);
                 this.ProductTreeViewModel.RootViewModel.OrderAllDescendantsByShortName();
             }
 
-            this.DetailsPanelViewModel.RefreshSelectedElement();
-
             this.ClearRecordedChanges();
             this.IsLoading = false;
-
-            return Task.CompletedTask;
         }
 
         /// <summary>

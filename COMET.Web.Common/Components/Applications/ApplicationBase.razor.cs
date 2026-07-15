@@ -81,15 +81,16 @@ namespace COMET.Web.Common.Components.Applications
         {
             base.OnParametersSet();
 
-            if (this.ViewModel != null && this.ParameterizedViewModel == null)
+            if (this.ViewModel != null && (this.ParameterizedViewModel == null || ReferenceEquals(this.ViewModel, this.ParameterizedViewModel)))
             {
                 return;
             }
 
             this.ViewModel = this.ParameterizedViewModel ?? this.InjectedViewModel;
 
-            if (this.ParameterizedViewModel != null && this.InjectedViewModel != null)
+            if (this.InjectedViewModel != null && !ReferenceEquals(this.InjectedViewModel, this.ViewModel))
             {
+                this.InjectedViewModel.IsAllowedToDispose = true;
                 this.InjectedViewModel.Dispose();
                 this.InjectedViewModel = default;
             }

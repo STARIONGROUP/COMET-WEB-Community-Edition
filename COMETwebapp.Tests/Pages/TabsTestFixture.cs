@@ -92,14 +92,9 @@ namespace COMETwebapp.Tests.Pages
             this.engineeringModelBodyViewModel = new Mock<IEngineeringModelBodyViewModel>();
             this.engineeringModelBodyViewModel.Setup(x => x.OptionsTableViewModel).Returns(optionsTableViewModel.Object);
 
-            var openTabs = new SourceList<TabbedApplicationInformation>();
-            openTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
-
-            this.mainPanel = new TabPanelInformation
-            {
-                OpenTabs = openTabs,
-                CurrentTab = openTabs.Items.First()
-            };
+            this.mainPanel = new TabPanelInformation();
+            this.mainPanel.OpenTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
+            this.mainPanel.CurrentTab = this.mainPanel.OpenTabs.Items[0];
 
             this.viewModel = new Mock<ITabsViewModel>();
             this.viewModel.Setup(x => x.MainPanel).Returns(this.mainPanel);
@@ -131,24 +126,41 @@ namespace COMETwebapp.Tests.Pages
         }
 
         [Test]
+        public void VerifySidePanelIsOnlyAvailableWithMoreThanOneOpenTab()
+        {
+            Assert.That(this.renderer.FindComponents<DxButton>().Any(x => x.Instance.Id == "new-side-panel-button"), Is.False);
+
+            this.mainPanel.OpenTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
+            this.renderer.Render();
+
+            Assert.That(this.renderer.FindComponents<DxButton>().Any(x => x.Instance.Id == "new-side-panel-button"), Is.True);
+        }
+
+        [Test]
         public async Task VerifyTabComponents()
         {
             var tabComponents = this.renderer.FindComponents<TabComponent>();
             var firstTab = tabComponents[0];
+            var selectModelTab = tabComponents[1];
 
             await this.renderer.InvokeAsync(firstTab.Instance.OnClick.Invoke);
-            Assert.That(this.viewModel.Object.MainPanel.CurrentTab, Is.EqualTo(this.mainPanel.OpenTabs.Items.First()));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Object.MainPanel.CurrentTab, Is.EqualTo(this.mainPanel.OpenTabs.Items[0]));
+                Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.False);
+            });
+
+            await this.renderer.InvokeAsync(selectModelTab.Instance.OnClick.Invoke);
+            Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.True);
+
             await this.renderer.InvokeAsync(firstTab.Instance.OnIconClick.Invoke);
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Object.MainPanel.OpenTabs, Has.Count.EqualTo(0));
-                Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.False);
+                Assert.That(this.viewModel.Object.MainPanel.CurrentTab, Is.Null);
             });
-
-            var secondTab = tabComponents[1];
-            await this.renderer.InvokeAsync(secondTab.Instance.OnClick.Invoke);
-            Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.True);
         }
 
         [Test]
