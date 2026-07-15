@@ -1,5 +1,13 @@
-﻿.sticky-scrollable-column {
+/* ::deep is required: the class sits on DxTreeView, which is a child component, so a plain scoped
+   rule would never reach it. */
+::deep .sticky-scrollable-column {
     position: sticky;
     top: 0px;
-    overflow: hidden;
+    /* Lay the tree out at its natural width so that a deeply nested or long-named node overflows the
+       panel and the scroll area scrolls to it, rather than being squeezed into the panel width (issue #742). */
+    min-width: max-content;
+}
+
+::deep .sticky-scrollable-column .dxbl-treeview-item-text {
+    white-space: nowrap;
 }

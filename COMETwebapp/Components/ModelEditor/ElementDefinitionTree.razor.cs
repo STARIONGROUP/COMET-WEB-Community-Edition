@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ElementDefinitionTable.razor.cs" company="Starion Group S.A.">
+//  <copyright file="ElementDefinitionTree.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
 //     This file is part of COMET WEB Community Edition
@@ -30,6 +30,7 @@ namespace COMETwebapp.Components.ModelEditor
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Web;
 
     /// <summary>
     /// Support class for the <see cref="ElementDefinitionTree" /> component
@@ -61,6 +62,18 @@ namespace COMETwebapp.Components.ModelEditor
         public bool IsModelSelectionEnabled { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the owning domain of expertise pill is shown on each node
+        /// </summary>
+        [Parameter]
+        public bool ShowOwner { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the category pills are shown on each node
+        /// </summary>
+        [Parameter]
+        public bool ShowCategories { get; set; } = true;
+
+        /// <summary>
         /// Fires after node selection has been changed for a specific item.
         /// </summary>
         [Parameter]
@@ -79,10 +92,11 @@ namespace COMETwebapp.Components.ModelEditor
         public EventCallback<(ElementDefinitionTree, ElementBaseTreeRowViewModel)> OnDragEnd { get; set; } = new();
 
         /// <summary>
-        /// Fires after node drop has been executed on a specific item.
+        /// Fires after node drop has been executed on a specific item. The <see cref="DragEventArgs" /> is passed along so that
+        /// the handler can read the modifier keys that were held, which select the copy mode.
         /// </summary>
         [Parameter]
-        public EventCallback<(ElementDefinitionTree, ElementBaseTreeRowViewModel)> OnDrop { get; set; } = new();
+        public EventCallback<(ElementDefinitionTree, ElementBaseTreeRowViewModel, DragEventArgs)> OnDrop { get; set; } = new();
 
         /// <summary>
         /// Fires after node drag-over has been started for a specific item.
@@ -234,14 +248,15 @@ namespace COMETwebapp.Components.ModelEditor
         /// Is executed when a node has been dropped onto another node
         /// </summary>
         /// <param name="node">The node where the dragged node has been dropped onto</param>
+        /// <param name="eventArgs">The <see cref="DragEventArgs"/> of the drop, which carries the modifier keys that were held</param>
         /// <returns>an awaitable <see cref="Task"/></returns>
-        private async Task DropAsync(ElementBaseTreeRowViewModel node)
+        private async Task DropAsync(ElementBaseTreeRowViewModel node, DragEventArgs eventArgs)
         {
             this.dragOverNode = null;
 
             if (this.AllowDrop)
             {
-                await this.OnDrop.InvokeAsync((this, node));
+                await this.OnDrop.InvokeAsync((this, node, eventArgs));
                 await this.OnCalculateDropIsAllowed.InvokeAsync(this);
                 this.Logger.LogDebug("Drop");
             }

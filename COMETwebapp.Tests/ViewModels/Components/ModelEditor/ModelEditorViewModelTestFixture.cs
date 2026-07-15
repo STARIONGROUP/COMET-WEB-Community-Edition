@@ -73,6 +73,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
         /// The currently logged-in <see cref="DomainOfExpertise" />.
         /// </summary>
         private DomainOfExpertise currentDomain;
+        private Mock<ISession> session;
 
         /// <summary>
         /// Builds the iteration graph and the view model with mocked dependencies.
@@ -84,8 +85,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             this.sessionService = new Mock<ISessionService>();
             var cacheService = new Mock<ICacheService>();
 
-            var session = new Mock<ISession>();
-            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+            this.session = new Mock<ISession>();
+            this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
 
             var domain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
@@ -99,7 +100,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             var iterationSetup = new IterationSetup { IterationNumber = 1 };
             modelSetup.IterationSetup.Add(iterationSetup);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
-            session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
+            this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
 
             this.topElement = new ElementDefinition
             {
@@ -161,6 +162,49 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             this.viewModel.TargetIteration = this.iteration;
 
             Assert.That(this.viewModel.IsSourceModelSameAsTargetModel, Is.True);
+        }
+        
+        [Test]
+        public void VerifyIsSourceModelSameAsTargetModel()
+        {
+            var otherIteration = new Iteration { Iid = Guid.NewGuid() };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsSourceModelSameAsTargetModel, Is.False, "No source iteration is selected yet.");
+
+                this.viewModel.SourceIteration = otherIteration;
+                this.viewModel.TargetIteration = this.iteration;
+                Assert.That(this.viewModel.IsSourceModelSameAsTargetModel, Is.False);
+
+                this.viewModel.SourceIteration = this.iteration;
+                Assert.That(this.viewModel.IsSourceModelSameAsTargetModel, Is.True);
+
+                this.viewModel.SourceIteration = null;
+                Assert.That(this.viewModel.IsSourceModelSameAsTargetModel, Is.False);
+            });
+        }
+
+        /// <summary>
+        /// Verifies that the copy and the element usage entry points refuse null arguments, rather than failing later inside the
+        /// SDK copy machinery where the cause would be much harder to see
+        /// </summary>
+        [Test]
+        public void VerifyCopyAndAddNewElementAsyncGuardsItsArguments()
+        {
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), Owner = this.currentDomain };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(async () => await this.viewModel.CopyAndAddNewElementAsync(null, elementDefinition),
+                    Throws.TypeOf<ArgumentNullException>());
+
+                Assert.That(async () => await this.viewModel.AddNewElementUsageAsync(null, elementDefinition),
+                    Throws.TypeOf<ArgumentNullException>());
+
+                Assert.That(async () => await this.viewModel.AddNewElementUsageAsync(elementDefinition, null),
+                    Throws.TypeOf<ArgumentNullException>());
+            });
         }
     }
 }

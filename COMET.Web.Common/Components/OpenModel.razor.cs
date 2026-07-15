@@ -85,6 +85,23 @@ namespace COMET.Web.Common.Components
         public string ButtonText => this.ViewModel.IsOpeningSession ? "Opening" : "Open";
 
         /// <summary>
+        /// The message to display when opening the <see cref="Iteration" /> failed
+        /// </summary>
+        public string ErrorMessage { get; private set; }
+
+        /// <summary>
+        /// Opens the selected <see cref="Iteration" /> and reports the reason to the user when that fails, instead of
+        /// leaving the user with a button that appears to do nothing
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task OpenSessionAsync()
+        {
+            var result = await this.ViewModel.OpenSession();
+
+            this.ErrorMessage = result.IsFailed ? string.Join(", ", result.Errors.Select(x => x.Message)) : string.Empty;
+        }
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>

@@ -25,23 +25,43 @@
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <div class="model-editor-root">
     <div style="padding-bottom:5px;">
-        @if (!this.ViewModel.IsSourceModelSameAsTargetModel)
+        @if (this.ViewModel.IsSourceModelSameAsTargetModel)
+        {
+            <span title="Copy mode for copying ElementDefinitions inside the same Iteration. The modifier keys do not apply here: the SDK cannot copy an ElementDefinition into its own Iteration, so this copy always resets the parameter values and keeps the original owner.">
+                Copy mode to same Iteration: @(new CopyOperationKinds().CopyToSameModelDefaultText)
+            </span>
+        }
+        else
         {
             <span title="Select copy mode settings for copying ElementDefinitions from one model to the other">
                 <DxButton Click="() => { this.ViewModel.OpenCopySettingsPopup(); }" CssClass="drop-area-background-color" title="Open drop settings" IconCssClass="oi oi-transfer"></DxButton>
             </span>
-            <span title="Selected copy mode for copying ElementDefinitions to another Iteration">
-                Copy mode to different Iteration: @this.ViewModel.CopySettingsViewModel.SelectedOperationKindDescription,
+            <span title="Selected copy mode for copying ElementDefinitions to another Iteration. Hold Ctrl while dropping to keep the parameter values and take ownership, Shift to keep the original owner, or Ctrl+Shift for both.">
+                Copy mode to different Iteration: @this.ViewModel.CopySettingsViewModel.SelectedOperationKindDescription
+                <span class="model-editor-modifier-hint">(hold Ctrl / Shift / Ctrl+Shift while dropping to override)</span>
             </span>
         }
-        <span title="Copy mode for copying ElementDefinitions inside the same Iteration">
-            Copy mode to same Iteration: @(new CopyOperationKinds().CopyToSameModelDefaultText)
+        @* One setting for both trees, so that the two panels always show the same kind of node. *@
+        <span class="model-editor-display-options">
+            <DxCheckBox @bind-Checked="@this.ShowOwner">Owner</DxCheckBox>
+            <DxCheckBox @bind-Checked="@this.ShowCategories">Categories</DxCheckBox>
         </span>
     </div>
     <ValidationMessageComponent ValidationMessage="@(this.ErrorMessage)" />
     <div class="selected-data-item-page" style="flex-wrap:nowrap!important;">
-        <div class="selected-data-item-table d-flex" style="flex: 1 1 50%!important;gap: 10px;min-width:600px;">
-            <div style="width:50%; height:100%; border: dashed 1px;padding:15px;border-radius: 10px;max-width: fit-content;display:flex;flex-direction:column;min-height:0;">
+        <div class="selected-data-item-table d-flex" style="flex: 1 1 50%!important;gap: 10px;">
+            @* The panels are hidden with CSS rather than removed from the render tree: ElementDefinitionTree
+               injects a transient ViewModel that it never disposes, so unmounting it would leak that
+               ViewModel's message bus and DynamicData subscriptions on every collapse. *@
+            <div id="sourcePanel" class="model-editor-panel @(this.IsSourcePanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)">
+                <div class="model-editor-panel-header">
+                    <DxButton Id="collapseSourcePanel"
+                              IconCssClass="oi oi-chevron-left"
+                              RenderStyle="ButtonRenderStyle.Link"
+                              SizeMode="SizeMode.Small"
+                              Click="@(() => this.IsSourcePanelCollapsed = true)"
+                              title="Minimize the source model panel"/>
+                </div>
                 <ElementDefinitionTree
                     @ref="this.SourceTree"
                     ScrollableAreaCssClass="treeview-scrollarea"
@@ -62,11 +82,21 @@
                     OnDragStart="@(async x => await this.OnDragStartAsync(x))"
                     OnDragEnd="@(async x => await this.OnDragEndAsync())"
                     OnDrop="@(async x => await this.OnDropAsync(x))"
+                    ShowOwner="@this.ShowOwner"
+                    ShowCategories="@this.ShowCategories"
                     AllowNodeDrag="(_, model) => model is ElementDefinitionTreeRowViewModel"
                     IsModelSelectionEnabled="true">
                 </ElementDefinitionTree>
             </div>
-            <div style="width:50%; height:100%; border: dashed 1px;padding:15px;border-radius: 10px;max-width: fit-content;display:flex;flex-direction:column;min-height:0;">
+            @if (this.IsSourcePanelCollapsed)
+            {
+                <div id="expandSourcePanel" class="model-editor-collapsed-strip" title="Restore the source model panel" @onclick="@(() => this.IsSourcePanelCollapsed = false)">
+                    <span class="oi oi-chevron-right"></span>
+                    <span class="model-editor-collapsed-strip-text">Source model</span>
+                </div>
+            }
+            <div id="source-resizer" class="model-editor-resizer @(this.IsSourcePanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)" title="Drag to resize"></div>
+            <div id="targetPanel" class="model-editor-panel">
                 <ElementDefinitionTree
                     @ref="this.TargetTree"
                     ScrollableAreaCssClass="treeview-scrollarea"
@@ -87,16 +117,36 @@
                     OnDragStart="@(async x => await this.OnDragStartAsync(x))"
                     OnDragEnd="@(async x => await this.OnDragEndAsync())"
                     OnDrop="@(async x => await this.OnDropAsync(x))"
+                    ShowOwner="@this.ShowOwner"
+                    ShowCategories="@this.ShowCategories"
                     AllowNodeDrag="(_, model) => model is ElementDefinitionTreeRowViewModel"
                     IsModelSelectionEnabled="false">
                 </ElementDefinitionTree>
             </div>
-            <DataItemDetailsComponent IsSelected="@(this.ViewModel.DetailsPanelViewModel.SelectedElementDefinition is not null)"
-                                      NotSelectedText="Select an item to view or edit"
-                                      Width="100%"
-                                      CssClass="model-editor-details">
-                <ElementDetailsPanel ViewModel="this.ViewModel.DetailsPanelViewModel" />
-            </DataItemDetailsComponent>
+            <div id="target-resizer" class="model-editor-resizer @(this.IsDetailsPanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)" title="Drag to resize"></div>
+            <div id="detailsPanel" class="model-editor-panel model-editor-panel-borderless @(this.IsDetailsPanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)">
+                <div class="model-editor-panel-header model-editor-panel-header-end">
+                    <DxButton Id="collapseDetailsPanel"
+                              IconCssClass="oi oi-chevron-right"
+                              RenderStyle="ButtonRenderStyle.Link"
+                              SizeMode="SizeMode.Small"
+                              Click="@(() => this.IsDetailsPanelCollapsed = true)"
+                              title="Minimize the details panel"/>
+                </div>
+                <DataItemDetailsComponent IsSelected="@(this.ViewModel.DetailsPanelViewModel.SelectedElementDefinition is not null)"
+                                          NotSelectedText="Select an item to view or edit"
+                                          Width="100%"
+                                          CssClass="model-editor-details">
+                    <ElementDetailsPanel ViewModel="this.ViewModel.DetailsPanelViewModel"/>
+                </DataItemDetailsComponent>
+            </div>
+            @if (this.IsDetailsPanelCollapsed)
+            {
+                <div id="expandDetailsPanel" class="model-editor-collapsed-strip" title="Restore the details panel" @onclick="@(() => this.IsDetailsPanelCollapsed = false)">
+                    <span class="oi oi-chevron-left"></span>
+                    <span class="model-editor-collapsed-strip-text">Details</span>
+                </div>
+            }
         </div>
     </div>
     </div>

@@ -44,6 +44,18 @@ namespace COMETwebapp.Components.ModelEditor
         public ElementBaseTreeRowViewModel ElementBaseTreeRowViewModel { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the owning domain of expertise pill is shown
+        /// </summary>
+        [Parameter]
+        public bool ShowOwner { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the category pills are shown
+        /// </summary>
+        [Parameter]
+        public bool ShowCategories { get; set; } = true;
+
+        /// <summary>
         /// Handle unmatched values, like "draggable" html attribute, so no error is thrown
         /// </summary>
         [Parameter(CaptureUnmatchedValues = true)]

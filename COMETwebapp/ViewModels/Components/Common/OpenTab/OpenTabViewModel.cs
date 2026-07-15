@@ -88,6 +88,13 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         public bool IsCurrentModelOpened => this.sessionService.OpenEngineeringModels.Any(x => x.EngineeringModelSetup == this.SelectedEngineeringModel);
 
         /// <summary>
+        /// Gets a value indicating that an already open <see cref="Iteration" /> may be selected. Opening a tab on an iteration
+        /// that is already open is the normal way to show that same iteration in another view, for instance the Model Editor and
+        /// the System Representation side by side, so the iteration is not opened again, only a new tab is created.
+        /// </summary>
+        protected override bool CanSelectAlreadyOpenIteration => true;
+
+        /// <summary>
         /// Gets the <see cref="DomainOfExpertise" /> from the <see cref="OpenModelViewModel.SelectedIterationSetup" />
         /// </summary>
         public DomainOfExpertise SelectedIterationDomainOfExpertise => this.sessionService.GetDomainOfExpertise(this.SelectedEngineeringModelIteration);
