@@ -1,4 +1,4 @@
-﻿// -------------------------------------------------------------------------------------------------------------------- 
+// -------------------------------------------------------------------------------------------------------------------- 
 // <copyright file="CanvasViewModelTestFixture.cs" company="Starion Group S.A."> 
 //    Copyright (c) 2023-2026 Starion Group S.A. 
 // 
@@ -110,6 +110,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             var result = this.viewModel.GetSceneObjectById(sceneObject1.ID);
 
             Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        public void VerifyInitializeViewModel()
+        {
+            Assert.DoesNotThrow(() => this.viewModel.InitializeViewModel());
         }
     }
 }

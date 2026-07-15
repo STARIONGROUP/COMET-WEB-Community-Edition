@@ -1,4 +1,4 @@
-﻿// -------------------------------------------------------------------------------------------------------------------- 
+// -------------------------------------------------------------------------------------------------------------------- 
 // <copyright file="ViewerProductTreeViewModelTestFixture.cs" company="Starion Group S.A."> 
 //    Copyright (c) 2023-2026 Starion Group S.A. 
 //
@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 {
+    using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.Model;
     using COMETwebapp.Model.Viewer.Primitives;
 
@@ -123,6 +125,59 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
                 Assert.That(this.node4.IsDrawn, Is.False);
                 Assert.That(this.node5.IsDrawn, Is.True);
             });
+        }
+
+        [Test]
+        public void VerifyOnParameterSubmitted()
+        {
+            this.selectionMediator.Setup(m => m.SelectedSceneObject).Returns(this.node2.SceneObject);
+            var propertyChanged = false;
+
+            this.node2.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(this.node2.SceneObject))
+                {
+                    propertyChanged = true;
+                }
+            };
+
+            this.selectionMediator.Raise(m => m.OnParameterSubmitted += null);
+            Assert.That(propertyChanged, Is.True);
+        }
+
+        [Test]
+        public void VerifyAddElementsToTree()
+        {
+            var elementUsage = new ElementUsage { Iid = Guid.NewGuid(), Name = "New Element" };
+            elementUsage.ElementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Def" };
+            
+            var addedNodes = this.viewModel.AddElementsToTree([elementUsage], null, null);
+            Assert.That(addedNodes, Is.Not.Null);
+        }
+
+        [Test]
+        public void VerifyRemoveElementsFromTree()
+        {
+            var elementToRemove = new ElementUsage { Iid = Guid.NewGuid() };
+            elementToRemove.ElementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Def" };
+
+            var so = SceneObject.Create(elementToRemove, null, null);
+            this.node2 = new ViewerNodeViewModel(so);
+            this.rootNode.AddChild(this.node2);
+
+            var removedNodes = this.viewModel.RemoveElementsFromTree([elementToRemove]);
+            
+            Assert.That(removedNodes, Is.Not.Null);
+        }
+
+        [Test]
+        public void VerifyUpdateElementsFromTree()
+        {
+            var elementToUpdate = new ElementUsage { Iid = Guid.NewGuid() };
+            
+            var updated = this.viewModel.UpdateElementsFromTree([elementToUpdate], null, null);
+            
+            Assert.That(updated, Is.Not.Null);
         }
     }
 }

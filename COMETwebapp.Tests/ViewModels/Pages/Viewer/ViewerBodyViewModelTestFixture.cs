@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ViewerBodyViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -27,6 +27,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
 
     using CDP4Dal;
 
+    using CDP4Web.Enumerations;
+
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
@@ -43,11 +45,12 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
     {
         private ViewerBodyViewModel viewModel;
         private CDPMessageBus messageBus;
+        private Mock<ISessionService> sessionServiceMock;
 
         [SetUp]
         public void SetUp()
         {
-            var sessionServiceMock = new Mock<ISessionService>();
+            this.sessionServiceMock = new Mock<ISessionService>();
 
             var elementUsage1 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element1" };
             var elementUsage2 = new ElementUsage { Iid = Guid.NewGuid(), Name = "element2" };
@@ -170,7 +173,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
             var babylonInterop = new Mock<IBabylonInterop>();
             this.messageBus = new CDPMessageBus();
 
-            this.viewModel = new ViewerBodyViewModel(sessionServiceMock.Object, selectionMediatorMock.Object, babylonInterop.Object, this.messageBus)
+            this.viewModel = new ViewerBodyViewModel(this.sessionServiceMock.Object, selectionMediatorMock.Object, babylonInterop.Object, this.messageBus)
             {
                 CurrentThing = iteration
             };
@@ -227,6 +230,17 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
             var previousOption = this.viewModel.OptionSelector.SelectedOption;
             this.viewModel.OptionSelector.SelectedOption = this.viewModel.OptionSelector.AvailableOptions.Last();
             Assert.That(previousOption, Is.Not.EqualTo(this.viewModel.OptionSelector.SelectedOption));
+        }
+
+        [Test]
+        public async Task VerifyOnSessionRefreshed()
+        {
+            await this.viewModel.InitializeViewModel();
+            
+            // Trigger the OnSessionRefreshed execution via MessageBus
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionServiceMock.Object.Session);
+            
+            Assert.Pass();
         }
     }
 }
