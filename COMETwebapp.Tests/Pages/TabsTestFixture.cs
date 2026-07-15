@@ -94,7 +94,7 @@ namespace COMETwebapp.Tests.Pages
 
             this.mainPanel = new TabPanelInformation();
             this.mainPanel.OpenTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
-            this.mainPanel.CurrentTab = this.mainPanel.OpenTabs.Items.First();
+            this.mainPanel.CurrentTab = this.mainPanel.OpenTabs.Items[0];
 
             this.viewModel = new Mock<ITabsViewModel>();
             this.viewModel.Setup(x => x.MainPanel).Returns(this.mainPanel);
@@ -147,7 +147,7 @@ namespace COMETwebapp.Tests.Pages
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Object.MainPanel.CurrentTab, Is.EqualTo(this.mainPanel.OpenTabs.Items.First()));
+                Assert.That(this.viewModel.Object.MainPanel.CurrentTab, Is.EqualTo(this.mainPanel.OpenTabs.Items[0]));
                 Assert.That(this.renderer.Instance.IsOpenTabVisible, Is.False);
             });
 

@@ -101,7 +101,7 @@ namespace COMETwebapp.Tests.Components.Tabs
 
             this.mainPanel = new TabPanelInformation();
             this.mainPanel.OpenTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
-            this.mainPanel.CurrentTab = this.mainPanel.OpenTabs.Items.First();
+            this.mainPanel.CurrentTab = this.mainPanel.OpenTabs.Items[0];
 
             this.viewModel.Setup(x => x.MainPanel).Returns(this.mainPanel);
             this.viewModel.Setup(x => x.SidePanel).Returns(this.sidePanel);
@@ -167,8 +167,8 @@ namespace COMETwebapp.Tests.Components.Tabs
             {
                 Assert.That(this.mainPanel.OpenTabs, Has.Count.EqualTo(2));
                 Assert.That(this.sidePanel.OpenTabs, Has.Count.EqualTo(0));
-                Assert.That(this.mainPanel.OpenTabs.Items.First(), Is.Not.EqualTo(newTab));
-                Assert.That(this.mainPanel.OpenTabs.Items.ElementAt(1), Is.EqualTo(newTab));
+                Assert.That(this.mainPanel.OpenTabs.Items[0], Is.Not.EqualTo(newTab));
+                Assert.That(this.mainPanel.OpenTabs.Items[1], Is.EqualTo(newTab));
             });
 
             var sortableList = this.renderer.FindComponent<SortableList<TabbedApplicationInformation>>();
@@ -177,19 +177,19 @@ namespace COMETwebapp.Tests.Components.Tabs
             Assert.Multiple(() =>
             {
                 Assert.That(this.mainPanel.OpenTabs, Has.Count.EqualTo(2));
-                Assert.That(this.mainPanel.OpenTabs.Items.First(), Is.EqualTo(newTab));
-                Assert.That(this.mainPanel.OpenTabs.Items.ElementAt(1), Is.Not.EqualTo(newTab));
+                Assert.That(this.mainPanel.OpenTabs.Items[0], Is.EqualTo(newTab));
+                Assert.That(this.mainPanel.OpenTabs.Items[1], Is.Not.EqualTo(newTab));
             });
 
             await this.renderer.InvokeAsync(() => sortableList.Instance.OnRemove.InvokeAsync((0, 0)));
-            this.sidePanel.CurrentTab = this.sidePanel.OpenTabs.Items.First();
+            this.sidePanel.CurrentTab = this.sidePanel.OpenTabs.Items[0];
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.mainPanel.OpenTabs, Has.Count.EqualTo(1));
                 Assert.That(this.sidePanel.OpenTabs, Has.Count.EqualTo(1));
-                Assert.That(this.mainPanel.OpenTabs.Items.First(), Is.Not.EqualTo(newTab));
-                Assert.That(this.sidePanel.OpenTabs.Items.First(), Is.EqualTo(newTab));
+                Assert.That(this.mainPanel.OpenTabs.Items[0], Is.Not.EqualTo(newTab));
+                Assert.That(this.sidePanel.OpenTabs.Items[0], Is.EqualTo(newTab));
             });
 
             this.renderer.Render(parameters =>
@@ -204,7 +204,7 @@ namespace COMETwebapp.Tests.Components.Tabs
             {
                 Assert.That(this.mainPanel.OpenTabs, Has.Count.EqualTo(2));
                 Assert.That(this.sidePanel.OpenTabs, Has.Count.EqualTo(0));
-                Assert.That(this.mainPanel.OpenTabs.Items.First(), Is.EqualTo(newTab));
+                Assert.That(this.mainPanel.OpenTabs.Items[0], Is.EqualTo(newTab));
             });
         }
     }

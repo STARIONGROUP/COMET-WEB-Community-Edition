@@ -596,6 +596,10 @@ namespace COMETwebapp.ViewModels.Components.Common
                 var fresh = current is null ? null : this.ResolveFromIteration(current);
                 this.SelectElement(fresh);
             }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while refreshing the selected element");
+            }
             finally
             {
                 this.IsLoading = false;
