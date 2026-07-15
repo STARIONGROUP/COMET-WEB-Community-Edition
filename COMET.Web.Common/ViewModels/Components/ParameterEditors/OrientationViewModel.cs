@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="OrientationViewModel.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -174,7 +174,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <returns>A <see cref="Task" /></returns>
         private async Task SendMatrixBack()
         {
-            var modifiedValueArray = new ValueArray<string>(this.CurrentValueSet.ActualValue);
+            var modifiedValueArray = new ValueArray<string>(Enumerable.Repeat("-", this.Orientation.Matrix.Length));
 
             for (var i = 0; i < this.Orientation.Matrix.Length; i++)
             {
@@ -193,7 +193,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         {
             if (this.CurrentValueSet is ParameterValueSetBase parameterValueSetBase)
             {
-                var sendingParameterValueSetBase = parameterValueSetBase.Clone(false);
+                var sendingParameterValueSetBase = parameterValueSetBase.Clone(true);
                 sendingParameterValueSetBase.Manual = modifiedValueArray;
                 sendingParameterValueSetBase.ValueSwitch = ParameterSwitchKind.MANUAL;
 

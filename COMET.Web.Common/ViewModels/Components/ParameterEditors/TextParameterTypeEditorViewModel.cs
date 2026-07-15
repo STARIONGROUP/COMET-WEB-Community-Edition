@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TextParameterTypeEditorViewModel.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -50,7 +50,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <returns>A <see cref="Task" /></returns>
         public override async Task OnParameterValueChanged(object value)
         {
-            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString && this.AreChangesValid(value))
+            if (this.ValueSet is ParameterValueSetBase parameterValueSetBase && value is string valueString && this.AreChangesValid(valueString))
             {
                 var modifiedValueArray = new ValueArray<string>(this.ValueArray)
                 {
