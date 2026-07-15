@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="CanvasViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -22,8 +22,14 @@
 
 namespace COMETwebapp.ViewModels.Components.Viewer
 {
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components;
+
+    using System.Reactive;
+    using System.Reactive.Linq;
+    using System.Reactive.Subjects;
+    using System.Threading.Tasks;
 
     using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
@@ -83,6 +89,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         private bool isOnChangePrimitiveMode;
 
         /// <summary>
+        /// Subject for debouncing parameter changes
+        /// </summary>
+        private readonly Subject<Unit> parameterChangedSubject = new();
+
+        /// <summary>
         /// Gets or sets if the user is about to change the selected primitive
         /// </summary>
         public bool IsOnChangePrimitiveMode
@@ -122,8 +133,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             this.SelectionMediator.SceneObjectHasChanges = false;
             this.SelectionMediator.OnTreeSelectionChanged += async (nodeViewModel) => await this.OnTreeSelectionChanged(nodeViewModel);
             this.SelectionMediator.OnTreeVisibilityChanged += async (nodeViewModel) => await this.OnTreeVisibilityChanged(nodeViewModel);
-            this.SelectionMediator.OnParameterChanged += async () => await this.OnParameterChanged();
+            this.SelectionMediator.OnParameterChanged += () => this.parameterChangedSubject.OnNext(Unit.Default);
             this.SelectionMediator.OnParameterSubmitted += async () => await this.OnParameterSubmitted();
+
+            this.parameterChangedSubject
+                .Throttle(TimeSpan.FromMilliseconds(50))
+                .SubscribeAsync(async _ => await this.OnParameterChanged());
         }
 
         /// <summary>

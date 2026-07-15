@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ViewerNodeViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -118,6 +118,14 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public override int GetHashCode()
         {
             return this.SceneObject.ID.GetHashCode();
+        }
+
+        /// <summary>
+        /// Raises a property changed event for the <see cref="SceneObject"/> property to force a UI re-render.
+        /// </summary>
+        public void UpdateSceneObjectProperty()
+        {
+            this.RaisePropertyChanged(nameof(this.SceneObject));
         }
     }
 }

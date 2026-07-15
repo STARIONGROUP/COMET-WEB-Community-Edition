@@ -48,6 +48,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             this.SelectedFilter = TreeFilter.ShowFullTree;
 
             this.SelectionMediator.OnModelSelectionChanged += this.OnModelSelectionChanged;
+            this.SelectionMediator.OnParameterSubmitted += this.OnParameterSubmitted;
             this.Disposables.Add(this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange()));
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged()));
         }
@@ -347,6 +348,20 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             {
                 node.IsSelected = true;
             }
+        }
+
+        /// <summary>
+        /// Callback for when a parameter has been submitted
+        /// </summary>
+        private void OnParameterSubmitted()
+        {
+            if (this.RootViewModel is null || this.SelectionMediator.SelectedSceneObject is null)
+            {
+                return;
+            }
+
+            var node = this.RootViewModel.GetFlatListOfDescendants(true).FirstOrDefault(x => x.SceneObject == this.SelectionMediator.SelectedSceneObject);
+            node?.UpdateSceneObjectProperty();
         }
     }
 }
