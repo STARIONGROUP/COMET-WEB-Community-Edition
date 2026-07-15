@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <LangVersion>Latest</LangVersion>
-    <Version>7.0.0</Version>
+    <Version>8.0.0</Version>
     <AssemblyVersion>6.3.0</AssemblyVersion>
     <FileVersion>6.3.0</FileVersion>
     <Title>CDP4 WEB Common</Title>
@@ -23,18 +23,6 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>
-        [Update] System.Formats.Asn1 to version 10.0.1
-        [Update] System.Linq.Dynamic.Core to version 1.6.8
-        [Update] System.Drawing.Common to version 10.0.1
-        [Update] System.Linq.Dynamic.Core to version 1.7.1
-        [Update] CDP4ServicesDal-CE to version 29.0.0
-        [Update] CDP4Web-CE to version 29.0.0
-        [Update] FluentResults to version 4.0.0
-        [Update] Microsoft.AspNetCore.Components.Authorization to version 9.0.11
-        [Update] Microsoft.AspNetCore.WebUtilities to version 9.0.11
-        [Update] Microsoft.Extensions.Configuration.Abstractions to version 10.0.1
-        [Update] Microsoft.Extensions.Configuration.Binder to version 10.0.1
-        [Update] ReactiveUI to version 22.3.1
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
