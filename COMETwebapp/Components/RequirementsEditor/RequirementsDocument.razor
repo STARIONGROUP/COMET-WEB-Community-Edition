@@ -47,20 +47,34 @@ Copyright (c) 2023-2026 Starion Group S.A.
         @<div @key="requirement.Iid" id="@RequirementAnchorId(requirement)" class="req-row @(requirement.IsDeprecated ? "req-row-deprecated" : string.Empty)">
             <div class="req-row-top">
                 <div class="req-row-main">
-                    @switch (this.ViewModel.DisplayMode)
+                    @if (this.IsEditingDefinition(requirement))
                     {
-                        case RequirementRowDisplayMode.ShortNameAndDefinition:
-                            <p class="req-def"><strong class="req-id">@requirement.ShortName</strong> &#8211; @GetDefinition(requirement)</p>
-                            break;
+                        <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
+                        <div class="req-def-editor" @onkeydown="this.OnDefinitionEditorKeyDown">
+                            <div class="req-def-editor-actions">
+                                <button type="button" class="req-def-save" title="Save" @onclick="@(() => this.ConfirmDefinitionEdit(requirement))">&#10003;</button>
+                                <button type="button" class="req-def-cancel" title="Cancel (Esc)" @onclick="this.CancelDefinitionEdit">&#10007;</button>
+                            </div>
+                            <DxMemo @bind-Text="this.editingDefinition" Rows="3" CssClass="req-def-memo" />
+                        </div>
+                    }
+                    else
+                    {
+                        @switch (this.ViewModel.DisplayMode)
+                        {
+                            case RequirementRowDisplayMode.ShortNameAndDefinition:
+                                <p class="req-def"><strong class="req-id">@requirement.ShortName</strong> &#8211; @GetDefinition(requirement)</p>
+                                break;
 
-                        case RequirementRowDisplayMode.NameAndDefinition:
-                            <p class="req-def"><strong class="req-id">@requirement.Name</strong> &#8211; @GetDefinition(requirement)</p>
-                            break;
+                            case RequirementRowDisplayMode.NameAndDefinition:
+                                <p class="req-def"><strong class="req-id">@requirement.Name</strong> &#8211; @GetDefinition(requirement)</p>
+                                break;
 
-                        default:
-                            <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
-                            <p class="req-def">@GetDefinition(requirement)</p>
-                            break;
+                            default:
+                                <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
+                                <p class="req-def"><span class="req-def-display" title="Click to edit" @onclick="@(() => this.StartDefinitionEdit(requirement))">@GetDefinitionDisplay(requirement)</span></p>
+                                break;
+                        }
                     }
                 </div>
                 @if (this.ViewModel.ShowSimpleParameterValues)
@@ -78,6 +92,11 @@ Copyright (c) 2023-2026 Starion Group S.A.
                         <span class="req-deprecated-badge" title="This requirement is deprecated">Deprecated</span>
                     }
                     @pills((requirement.Owner, requirement.Category))
+                    <span class="req-actions">
+                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-pencil" title="Edit requirement" Click="@(() => this.ViewModel.OpenEdit(requirement))" />
+                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@(requirement.IsDeprecated ? "oi oi-action-undo" : "oi oi-ban")" title="@(requirement.IsDeprecated ? "Restore requirement" : "Deprecate requirement")" Click="@(() => this.ViewModel.ConfirmDeprecation(requirement))" />
+                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-trash" title="Delete requirement" Click="@(() => this.ViewModel.ConfirmDeletion(requirement))" />
+                    </span>
                 </div>
             </div>
             @if (this.ViewModel.ShowParametricConstraints || this.ViewModel.ShowTraceability)
@@ -103,6 +122,13 @@ else if (this.Container == null)
             <span class="req-deprecated-badge" title="This specification is deprecated">Deprecated</span>
         }
         @pills((specification.Owner, specification.Category))
+        <span class="req-actions">
+            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-plus" title="Add requirement" Click="@(() => this.ViewModel.OpenCreateRequirement(specification))" />
+            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-folder" title="Add group" Click="@(() => this.ViewModel.OpenCreateGroup(specification))" />
+            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-pencil" title="Edit specification" Click="@(() => this.ViewModel.OpenEdit(specification))" />
+            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@(specification.IsDeprecated ? "oi oi-action-undo" : "oi oi-ban")" title="@(specification.IsDeprecated ? "Restore specification" : "Deprecate specification")" Click="@(() => this.ViewModel.ConfirmDeprecation(specification))" />
+            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-trash" title="Delete specification" Click="@(() => this.ViewModel.ConfirmDeletion(specification))" />
+        </span>
     </div>
 
     @foreach (var requirement in this.ViewModel.GetRequirements(specification))
@@ -129,6 +155,12 @@ else
             <span class="req-group-id">@group.ShortName</span>
             <span class="req-group-name">@group.Name</span>
             @pills((group.Owner, group.Category))
+            <span class="req-actions">
+                <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-plus" title="Add requirement" Click="@(() => this.ViewModel.OpenCreateRequirement(group))" />
+                <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-folder" title="Add sub-group" Click="@(() => this.ViewModel.OpenCreateGroup(group))" />
+                <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-pencil" title="Edit group" Click="@(() => this.ViewModel.OpenEdit(group))" />
+                <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-trash" title="Delete group" Click="@(() => this.ViewModel.ConfirmDeletion(group))" />
+            </span>
         </div>
 
         @if (!collapsed)

@@ -1,0 +1,121 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.EngineeringModelData
+@using CDP4Common.SiteDirectoryData
+@using COMET.Web.Common.Components.ParameterTypeEditors
+@using Microsoft.AspNetCore.Components.Forms
+@inherits COMET.Web.Common.Components.DisposableComponent
+
+<CascadingValue TValue="EditContext" Value="null" IsFixed="true">
+    <DxGrid Data="@this.GetRows()" ShowAllRows="true" CssClass="cw-480">
+        <Columns>
+            <DxGridDataColumn Caption="Type" MinWidth="80">
+                <CellDisplayTemplate>
+                    @(((SimpleParameterValue)context.DataItem).ParameterType?.ShortName)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn Caption="Value" MinWidth="120">
+                <CellDisplayTemplate>
+                    @FormatValue((SimpleParameterValue)context.DataItem)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn Caption="Scale" MinWidth="80">
+                <CellDisplayTemplate>
+                    @(((SimpleParameterValue)context.DataItem).Scale?.ShortName)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn Caption="Type Name" MinWidth="140">
+                <CellDisplayTemplate>
+                    @(((SimpleParameterValue)context.DataItem).ParameterType?.Name)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridCommandColumn Width="90px">
+                <HeaderTemplate>
+                    <DxButton Id="addSimpleParameterValueButton" Text="Add" IconCssClass="oi oi-plus" Click="@(() => this.OpenAdd())" />
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var value = (SimpleParameterValue)context.DataItem;
+                    }
+                    <DxButton IconCssClass="oi oi-pencil" Click="@(() => this.OpenEdit(value))" />
+                    <DxButton Id="removeSimpleParameterValueButton" IconCssClass="oi oi-trash" Click="@(() => this.RemovalPopup.Request(value))" />
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
+        </Columns>
+    </DxGrid>
+
+    <DxPopup CloseOnOutsideClick="false"
+             ShowCloseButton="true"
+             HeaderText="@(this.IsAddMode ? "Create Simple Parameter Value" : "Edit Simple Parameter Value")"
+             Visible="@this.IsPanelOpen"
+             VisibleChanged="@((bool visible) => this.OnPopupVisibleChanged(visible))"
+             Width="min(560px, 92vw)">
+        <BodyContentTemplate Context="popupContext">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12">
+                    @if (this.IsAddMode)
+                    {
+                        <DxComboBox Data="@this.GetSelectableParameterTypes()"
+                                    Value="@this.selectedParameterType"
+                                    ValueChanged="@((ParameterType parameterType) => this.OnParameterTypeSelected(parameterType))"
+                                    TextFieldName="@nameof(ParameterType.Name)"
+                                    AllowUserInput="true"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    NullText="Select a Parameter Type" />
+                    }
+                    else
+                    {
+                        <DxTextBox Text="@this.selectedParameterType?.Name" ReadOnly="true" />
+                    }
+                </DxFormLayoutItem>
+
+                @if (this.selectedParameterType is QuantityKind && this.AvailableScales.Any())
+                {
+                    <DxFormLayoutItem Caption="Scale:" ColSpanMd="12">
+                        <DxComboBox Data="@this.AvailableScales"
+                                    @bind-Value="@this.selectedScale"
+                                    TextFieldName="@nameof(MeasurementScale.ShortName)"
+                                    AllowUserInput="true"
+                                    FilteringMode="DataGridFilteringMode.Contains" />
+                    </DxFormLayoutItem>
+                }
+
+                @if (this.editorSelectorViewModel != null)
+                {
+                    <DxFormLayoutItem Caption="Value:" ColSpanMd="12">
+                        <ParameterTypeEditorSelector ViewModel="@this.editorSelectorViewModel" BindValueMode="BindValueMode.OnInput" />
+                    </DxFormLayoutItem>
+                }
+            </DxFormLayout>
+
+            <div class="modal-footer m-top-10px">
+                <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="@(() => this.ClosePanel())" />
+                <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="OK" Click="@(() => this.Confirm())" Enabled="@(this.selectedParameterType != null)" />
+            </div>
+        </BodyContentTemplate>
+    </DxPopup>
+
+    <ConfirmRemovalPopup TItem="SimpleParameterValue"
+                         @ref="this.RemovalPopup"
+                         HeaderText="Delete simple parameter value"
+                         ContentText="Are you sure you want to delete this simple parameter value?"
+                         OnRemove="@(value => this.Remove(value))" />
+</CascadingValue>

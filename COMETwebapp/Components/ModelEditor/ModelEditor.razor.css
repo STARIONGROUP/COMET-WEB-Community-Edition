@@ -18,6 +18,128 @@
     min-height: 0;
 }
 
+.model-editor-modifier-hint {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+/* The Owner / Categories check boxes sit inline in the toolbar, next to the copy mode text. */
+.model-editor-display-options {
+    display: inline-flex;
+    gap: 8px;
+    margin-left: 16px;
+    font-size: 0.875rem;
+    vertical-align: middle;
+}
+
+/* The source tree, the target tree and the details panel are equal-share flex columns, so that
+   minimizing one of them hands its space to the ones that stay open (see issue #742). */
+.model-editor-panel {
+    flex: 1 1 0;
+    min-width: 260px;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: dashed 1px;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.model-editor-panel-borderless {
+    border: none;
+    padding: 0;
+}
+
+/* A minimized panel stays mounted (its ViewModel owns subscriptions that nothing would dispose on
+   unmount) and is only hidden, so its space goes to the panels that are still open. */
+.model-editor-panel-collapsed {
+    display: none;
+}
+
+.model-editor-panel-header {
+    flex: 0 0 auto;
+    display: flex;
+}
+
+.model-editor-panel-header-end {
+    justify-content: flex-end;
+}
+
+/* A minimized panel collapses to a clickable vertical strip that restores it. */
+.model-editor-collapsed-strip {
+    flex: 0 0 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 4px;
+    cursor: pointer;
+    border: dashed 1px;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.model-editor-collapsed-strip:hover {
+    background: #e2e8f0;
+}
+
+.model-editor-collapsed-strip-text {
+    writing-mode: vertical-rl;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    color: #475569;
+}
+
+/* Drag-to-resize handle between two panels, driven by wwwroot/js/columnResizer.js — the same handle the
+   System Representation page uses between the product tree and the details panel. */
+.model-editor-resizer {
+    flex: 0 0 6px;
+    align-self: stretch;
+    cursor: col-resize;
+    background: #e2e8f0;
+    border-radius: 3px;
+}
+
+.model-editor-resizer:hover {
+    background: #94a3b8;
+}
+
+/* Narrow window (a half or quarter-screen browser): three side-by-side panels no longer fit, so they stack
+   vertically and the whole row scrolls, instead of being squeezed past the point of usability. */
+@media (max-width: 1200px) {
+    ::deep .selected-data-item-table {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .model-editor-panel {
+        /* !important is needed because columnResizer.js writes flex and max-width as inline styles on the
+           panel, and an inline style would otherwise win over this rule once the panels stack. */
+        flex: 0 0 auto !important;
+        max-width: none !important;
+        width: 100%;
+        min-width: 0;
+        height: auto;
+        min-height: 320px;
+    }
+
+    .model-editor-resizer {
+        display: none;
+    }
+
+    .model-editor-collapsed-strip {
+        flex-direction: row;
+        width: 100%;
+        justify-content: flex-start;
+        gap: 6px;
+    }
+
+    .model-editor-collapsed-strip-text {
+        writing-mode: horizontal-tb;
+    }
+}
+
 /* Tree scroll area fills its (flex-column) column instead of a fixed vh height. */
 ::deep .treeview-scrollarea {
     flex: 1 1 auto;
@@ -32,8 +154,8 @@
 /* Details panel: a fixed-height flex column so the Add buttons, element summary and parameter
    search bar stay put and only the parameter groups scroll (mirrors the System Representation panel). */
 ::deep .data-items-panel-container.model-editor-details {
-    height: 100%;
-    max-height: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
     position: static;
     display: flex;
     flex-direction: column;

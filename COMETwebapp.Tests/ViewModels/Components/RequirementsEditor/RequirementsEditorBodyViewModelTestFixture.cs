@@ -40,6 +40,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
     using FluentResults;
 
+    using Microsoft.Extensions.Logging;
+
     using Moq;
 
     using NUnit.Framework;
@@ -132,7 +134,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             this.messageBus = new CDPMessageBus();
             this.showHideService = new ShowHideDeprecatedThingsService();
 
-            this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, this.showHideService)
+            this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, this.showHideService, new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object)
             {
                 CurrentThing = this.iteration
             };

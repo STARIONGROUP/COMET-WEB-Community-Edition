@@ -1,0 +1,71 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.EngineeringModelData
+@using Microsoft.AspNetCore.Components.Forms
+@inherits COMET.Web.Common.Components.DisposableComponent
+
+<CascadingValue TValue="EditContext" Value="null" IsFixed="true">
+    <DxGrid Data="@this.GetRows()" ShowAllRows="true" CssClass="cw-480">
+        <Columns>
+            <DxGridDataColumn Caption="Expression" MinWidth="240">
+                <CellDisplayTemplate>
+                    @GetSummary((ParametricConstraint)context.DataItem)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridCommandColumn Width="90px">
+                <HeaderTemplate>
+                    <DxButton Id="addParametricConstraintButton" Text="Add" IconCssClass="oi oi-plus" Click="@(() => this.OpenAdd())" />
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var constraint = (ParametricConstraint)context.DataItem;
+                    }
+                    <DxButton IconCssClass="oi oi-pencil" Click="@(() => this.OpenEdit(constraint))" />
+                    <DxButton Id="removeParametricConstraintButton" IconCssClass="oi oi-trash" Click="@(() => this.RemovalPopup.Request(constraint))" />
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
+        </Columns>
+    </DxGrid>
+
+    <DxPopup CloseOnOutsideClick="false"
+             ShowCloseButton="true"
+             HeaderText="@(this.EditingConstraint != null && this.Requirement.ParametricConstraint.Contains(this.EditingConstraint) ? "Edit Parametric Constraint" : "Add Parametric Constraint")"
+             Visible="@this.IsEditorOpen"
+             VisibleChanged="@((bool visible) => this.OnEditorVisibleChanged(visible))"
+             Width="min(760px, 94vw)">
+        <BodyContentTemplate Context="editorPopupContext">
+            @if (this.EditingConstraint != null)
+            {
+                <EditParametricConstraint @key="this.EditingConstraint.Iid"
+                                          Constraint="@this.EditingConstraint"
+                                          AvailableParameterTypes="@this.AvailableParameterTypes"
+                                          OnSaved="@(() => this.HandleSaved())"
+                                          OnCancelled="@(() => this.HandleCancelled())" />
+            }
+        </BodyContentTemplate>
+    </DxPopup>
+
+    <ConfirmRemovalPopup TItem="ParametricConstraint"
+                         @ref="this.RemovalPopup"
+                         HeaderText="Delete parametric constraint"
+                         ContentText="Are you sure you want to delete this parametric constraint?"
+                         OnRemove="@(constraint => this.Remove(constraint))" />
+</CascadingValue>

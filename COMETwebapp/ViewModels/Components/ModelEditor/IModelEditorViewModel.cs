@@ -24,6 +24,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
     using CDP4Common.EngineeringModelData;
 
+    using CDP4DalCommon.Protocol.Operations;
+
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.ModelEditor;
@@ -75,7 +77,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// </summary>
         /// <param name="elementDefinitionTree">The <see cref="ElementDefinitionTree"/> to copy the node to</param>
         /// <param name="elementBase">The <see cref="ElementBase"/> to copy</param>
-        Task CopyAndAddNewElementAsync(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase);
+        /// <param name="operationKind">
+        /// The <see cref="OperationKind"/> requested by the modifier keys that were held during the drop, or null to use the
+        /// copy mode that the user selected in the copy settings
+        /// </param>
+        Task CopyAndAddNewElementAsync(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase, OperationKind? operationKind = null);
 
         /// <summary>
         /// Add a new <see cref="ElementUsage"/> based on an existing <see cref="ElementBase"/>

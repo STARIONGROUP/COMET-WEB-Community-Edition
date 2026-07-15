@@ -39,6 +39,8 @@ namespace COMETwebapp.Tests.Components.Common
     [TestFixture]
     public class DefinitionsTableTestFixture
     {
+        private static readonly string[] FrenchLanguageCode = ["fr"];
+
         private BunitContext context;
         private IRenderedComponent<DefinitionsTable> renderer;
         private TextParameterType parameterType;
@@ -105,7 +107,47 @@ namespace COMETwebapp.Tests.Components.Common
             var removeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeDefinitionButton");
             await this.renderer.InvokeAsync(removeButton.Instance.Click.InvokeAsync);
 
-            Assert.That(this.parameterType.Definition, Is.Empty);
+            var removalPopup = this.renderer.Instance.RemovalPopup;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(removalPopup.IsVisible, Is.True, "The removal asks for confirmation first.");
+                Assert.That(this.parameterType.Definition, Has.Count.EqualTo(1), "Nothing is removed before the user confirms.");
+            });
+
+            await this.renderer.InvokeAsync(removalPopup.Cancel);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(removalPopup.IsVisible, Is.False);
+                Assert.That(this.parameterType.Definition, Has.Count.EqualTo(1), "Cancelling keeps the definition.");
+            });
+
+            await this.renderer.InvokeAsync(removeButton.Instance.Click.InvokeAsync);
+            await this.renderer.InvokeAsync(removalPopup.Confirm);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.parameterType.Definition, Is.Empty, "Confirming removes the definition.");
+                Assert.That(removalPopup.IsVisible, Is.False);
+            });
+        }
+
+        [Test]
+        public async Task VerifyGetSelectableLanguagesExcludesUsedLanguages()
+        {
+            var english = new NaturalLanguage { LanguageCode = "en-GB", Name = "English" };
+            var french = new NaturalLanguage { LanguageCode = "fr", Name = "French" };
+
+            var languageRenderer = this.context.Render<DefinitionsTable>(parameters => parameters
+                .Add(p => p.Thing, this.parameterType)
+                .Add(p => p.AvailableLanguages, new[] { english, french }));
+
+            var addButton = languageRenderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addDefinitionButton");
+            await languageRenderer.InvokeAsync(addButton.Instance.Click.InvokeAsync);
+
+            // The parent already holds an en-GB definition, so only the unused French language may be selected for the new one.
+            Assert.That(languageRenderer.Instance.GetSelectableLanguages().Select(x => x.LanguageCode), Is.EqualTo(FrenchLanguageCode));
         }
     }
 }

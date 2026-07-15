@@ -44,6 +44,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
 
     using NUnit.Framework;
 
+    using ReactiveUI;
+
     [TestFixture]
     public class ElementDetailsPanelViewModelTestFixture
     {
@@ -1092,6 +1094,21 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
 
             Assert.That(this.viewModel.SelectedElement, Is.SameAs(this.referencedElementDefinition),
                 "When the selected element still exists, RefreshSelectedElement must keep it selected.");
+        }
+        
+        [Test]
+        public void VerifyRefreshSelectedElementRaisesIsLoading()
+        {
+            this.viewModel.SelectElement(this.referencedElementDefinition);
+
+            var isLoadingValues = new List<bool>();
+            this.viewModel.WhenAnyValue(x => x.IsLoading).Subscribe(isLoadingValues.Add);
+
+            this.viewModel.RefreshSelectedElement();
+
+            Assert.That(isLoadingValues, Has.Some.EqualTo(true),
+                "RefreshSelectedElement rebuilds the rows but never toggles IsLoading, so a host mirroring this " +
+                "property (e.g. ModelEditorViewModel.IsLoading) never receives a re-render signal.");
         }
 
         [Test]

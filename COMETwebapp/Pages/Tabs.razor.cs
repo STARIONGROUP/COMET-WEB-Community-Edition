@@ -113,7 +113,7 @@ namespace COMETwebapp.Pages
         /// <param name="panel">The tab panel to handle the tab click</param>
         private static void OnRemoveTabClick(TabbedApplicationInformation tabbedApplicationInformation, TabPanelInformation panel)
         {
-            panel.OpenTabs.Remove(tabbedApplicationInformation);
+            panel.CloseTab(tabbedApplicationInformation);
         }
 
         /// <summary>

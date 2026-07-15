@@ -217,6 +217,26 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             Assert.That(renderedComponent.Instance.InitialIteration, Is.EqualTo(iteration2));
         }
 
+        /// <summary>
+        /// Verifies that the owner and the category pills can each be toggled off on the tree nodes, the way the product tree
+        /// of the System Representation allows it
+        /// </summary>
+        [Test]
+        public void VerifyOwnerAndCategoryPillsCanBeToggled()
+        {
+            // The pills are shown by default.
+            Assert.That(renderedComponent.FindAll(".starion-pill"), Is.Not.Empty);
+
+            renderedComponent = context.Render<ElementDefinitionTree>(parameters =>
+            {
+                parameters
+                    .Add(p => p.ShowOwner, false)
+                    .Add(p => p.ShowCategories, false);
+            });
+
+            Assert.That(renderedComponent.FindAll(".starion-pill"), Is.Empty, "Unchecking both options must hide every pill.");
+        }
+
         [Test]
         public void VerifyDragIsNotAllowed()
         {

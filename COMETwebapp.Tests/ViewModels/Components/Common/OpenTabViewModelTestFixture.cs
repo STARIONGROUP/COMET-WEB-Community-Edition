@@ -25,6 +25,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
@@ -92,6 +93,63 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
         {
             this.viewModel?.Dispose();
             this.alreadyOpenIterations?.Dispose();
+        }
+
+        /// <summary>
+        /// Verifies that an <see cref="Iteration" /> that is already open can still be selected when opening a tab, so that the
+        /// same iteration can be shown in several views at once, for instance the Model Editor next to the System
+        /// Representation. Only opening a <i>model</i> refuses an already open iteration.
+        /// </summary>
+        [Test]
+        public void VerifyAlreadyOpenIterationCanStillBeSelectedForANewTab()
+        {
+            var alreadyOpenIteration = this.alreadyOpenIterations.Items[0];
+            var engineeringModelSetup = ((EngineeringModel)alreadyOpenIteration.Container).EngineeringModelSetup;
+
+            // The "is this iteration already open" check matches IterationSetup.IterationIid against Iteration.Iid, so the
+            // setup has to point back at its iteration for the iteration to count as open at all.
+            alreadyOpenIteration.IterationSetup.IterationIid = alreadyOpenIteration.Iid;
+
+            this.viewModel.SelectedEngineeringModel = engineeringModelSetup;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.AvailableIterationSetups.Select(x => x.IterationSetupId),
+                    Does.Contain(alreadyOpenIteration.IterationSetup.Iid),
+                    "An already open iteration must remain selectable when opening a new tab on it.");
+
+                Assert.That(this.viewModel.SelectedIterationSetup, Is.Not.Null,
+                    "Without a selected iteration the Open Tab button stays disabled, which would block opening a second view on the iteration.");
+            });
+        }
+
+        /// <summary>
+        /// Verifies the path that the Open Tab component actually takes: it calls <c>InitializesProperties</c>, which restores the
+        /// last used iteration from the browser session cache. That iteration is normally the one that is currently open, and it
+        /// must still be restored here, otherwise the Open Tab button stays disabled and no second view can be opened on it.
+        /// </summary>
+        [Test]
+        public void VerifyInitializesPropertiesRestoresTheAlreadyOpenIteration()
+        {
+            var alreadyOpenIteration = this.alreadyOpenIterations.Items[0];
+            var engineeringModelSetup = ((EngineeringModel)alreadyOpenIteration.Container).EngineeringModelSetup;
+
+            alreadyOpenIteration.IterationSetup.IterationIid = alreadyOpenIteration.Iid;
+
+            var cachedIterationData = new IterationData(alreadyOpenIteration.IterationSetup);
+
+            this.sessionService.Setup(x => x.GetParticipantModels()).Returns([engineeringModelSetup]);
+
+            object engineeringModelSetting = engineeringModelSetup;
+            object iterationSetting = cachedIterationData;
+
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedEngineeringModel, out engineeringModelSetting)).Returns(true);
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, out iterationSetting)).Returns(true);
+
+            this.viewModel.InitializesProperties();
+
+            Assert.That(this.viewModel.SelectedIterationSetup?.IterationSetupId, Is.EqualTo(cachedIterationData.IterationSetupId),
+                "The already open iteration must be restored, so that another view can be opened on it.");
         }
 
         [Test]

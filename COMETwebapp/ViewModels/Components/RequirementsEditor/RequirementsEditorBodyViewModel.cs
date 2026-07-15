@@ -32,12 +32,16 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Utilities;
 
     using FluentResults;
+
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
 
     using ReactiveUI;
 
@@ -119,6 +123,26 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private IEnumerable<Category> selectedCategories = [];
 
         /// <summary>
+        /// Backing field for <see cref="IsOnEditMode" />
+        /// </summary>
+        private bool isOnEditMode;
+
+        /// <summary>
+        /// The <see cref="ILogger{TCategoryName}" /> used to log CRUD failures.
+        /// </summary>
+        private readonly ILogger<RequirementsEditorBodyViewModel> logger;
+
+        /// <summary>
+        /// True when the create/edit form holds a fresh instance to add, false when it holds a clone to update.
+        /// </summary>
+        private bool isCreating;
+
+        /// <summary>
+        /// The <see cref="RequirementsContainer" /> a newly-created group or requirement is placed under.
+        /// </summary>
+        private RequirementsContainer creationParent;
+
+        /// <summary>
         /// Backing field for <see cref="ShowSimpleParameterValues" />
         /// </summary>
         private bool showSimpleParameterValues;
@@ -150,9 +174,40 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
-        public RequirementsEditorBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IShowHideDeprecatedThingsService showHideDeprecatedThingsService) : base(sessionService, messageBus)
+        /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
+        public RequirementsEditorBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ILogger<RequirementsEditorBodyViewModel> logger) : base(sessionService, messageBus)
         {
             this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
+            this.logger = logger;
+
+            this.ConfirmCancelPopupViewModel = new ConfirmCancelPopupViewModel
+            {
+                OnCancel = new EventCallbackFactory().Create(this, () => this.ConfirmCancelPopupViewModel.IsVisible = false)
+            };
+        }
+
+        /// <summary>
+        /// Gets the view model driving the confirm dialog used for deprecate, restore and delete actions.
+        /// </summary>
+        public IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; }
+
+        /// <summary>
+        /// Gets the view model driving the create/edit form, built lazily the first time a dialog is opened.
+        /// </summary>
+        public IEditRequirementThingViewModel EditViewModel { get; private set; }
+
+        /// <summary>
+        /// Gets the header text shown on the create/edit popup.
+        /// </summary>
+        public string EditPopupHeader { get; private set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the create/edit popup is open.
+        /// </summary>
+        public bool IsOnEditMode
+        {
+            get => this.isOnEditMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnEditMode, value);
         }
 
         /// <summary>
@@ -412,6 +467,135 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             if (!this.collapsedDocumentGroups.Add(iid))
             {
                 this.collapsedDocumentGroups.Remove(iid);
+            }
+        }
+
+        /// <summary>
+        /// Opens the create form for a new <see cref="RequirementsSpecification" /> directly under the iteration.
+        /// </summary>
+        public void OpenCreateSpecification()
+        {
+            this.OpenForCreate(new RequirementsSpecification { Iid = Guid.NewGuid() }, null, "Create Specification");
+        }
+
+        /// <summary>
+        /// Opens the create form for a new <see cref="RequirementsGroup" /> under the given <paramref name="parent" />.
+        /// </summary>
+        /// <param name="parent">The specification or group the new group is placed under.</param>
+        public void OpenCreateGroup(RequirementsContainer parent)
+        {
+            this.OpenForCreate(new RequirementsGroup { Iid = Guid.NewGuid() }, parent, "Create Requirement Group");
+        }
+
+        /// <summary>
+        /// Opens the create form for a new <see cref="Requirement" /> under the given <paramref name="parent" />.
+        /// </summary>
+        /// <param name="parent">The specification or group the new requirement is filed under.</param>
+        public void OpenCreateRequirement(RequirementsContainer parent)
+        {
+            var requirement = new Requirement { Iid = Guid.NewGuid(), Group = parent as RequirementsGroup };
+            this.OpenForCreate(requirement, parent, "Create Requirement");
+        }
+
+        /// <summary>
+        /// Opens the edit form for the given <paramref name="thing" /> (a specification, group or requirement).
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> to edit.</param>
+        public void OpenEdit(Thing thing)
+        {
+            this.EnsureEditViewModel();
+            this.isCreating = false;
+            this.creationParent = null;
+
+            this.EditPopupHeader = thing switch
+            {
+                RequirementsSpecification => "Edit Specification",
+                RequirementsGroup => "Edit Requirement Group",
+                _ => "Edit Requirement"
+            };
+
+            this.EditViewModel.InitializeViewModel(thing.Clone(true), this.CurrentThing, this.GetSelectedSpecificationGroups());
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Opens the confirm dialog to toggle the deprecation of the given deprecatable <paramref name="thing" />.
+        /// </summary>
+        /// <param name="thing">The <see cref="Requirement" /> or <see cref="RequirementsSpecification" /> to deprecate or restore.</param>
+        public void ConfirmDeprecation(Thing thing)
+        {
+            if (thing is not IDeprecatableThing deprecatable)
+            {
+                return;
+            }
+
+            var willDeprecate = !deprecatable.IsDeprecated;
+            var label = GetLabel(thing);
+
+            this.ConfirmCancelPopupViewModel.HeaderText = willDeprecate ? "Confirm deprecation" : "Confirm restore";
+            this.ConfirmCancelPopupViewModel.ContentText = $"Are you sure you want to {(willDeprecate ? "deprecate" : "restore")} the {GetKindLabel(thing)} '{label}'?";
+            this.ConfirmCancelPopupViewModel.OnConfirm = new EventCallbackFactory().Create(this, () => this.SetDeprecationAsync(thing, willDeprecate));
+            this.ConfirmCancelPopupViewModel.IsVisible = true;
+        }
+
+        /// <summary>
+        /// Opens the confirm dialog to permanently delete the given <paramref name="thing" />.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> to delete.</param>
+        public void ConfirmDeletion(Thing thing)
+        {
+            this.ConfirmCancelPopupViewModel.HeaderText = "Confirm deletion";
+            this.ConfirmCancelPopupViewModel.ContentText = $"Are you sure you want to permanently delete the {GetKindLabel(thing)} '{GetLabel(thing)}'?";
+            this.ConfirmCancelPopupViewModel.OnConfirm = new EventCallbackFactory().Create(this, () => this.DeleteAsync(thing));
+            this.ConfirmCancelPopupViewModel.IsVisible = true;
+        }
+
+        /// <summary>
+        /// Persists an inline edit of the first <see cref="Definition" /> of the given <paramref name="requirement" />.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /> whose definition changed.</param>
+        /// <param name="content">The new definition content.</param>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task SaveInlineDefinitionAsync(Requirement requirement, string content)
+        {
+            if (requirement == null || string.Equals(requirement.Definition.FirstOrDefault()?.Content ?? string.Empty, content ?? string.Empty, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            try
+            {
+                this.IsLoading = true;
+
+                var clone = requirement.Clone(true);
+                var definition = clone.Definition.FirstOrDefault();
+
+                if (definition == null)
+                {
+                    definition = new Definition { Iid = Guid.NewGuid(), LanguageCode = "en-GB" };
+                    clone.Definition.Add(definition);
+                }
+
+                definition.Content = content;
+
+                var specificationClone = requirement.GetContainerOfType<RequirementsSpecification>().Clone(false);
+                var thingsToWrite = new List<Thing> { specificationClone, clone };
+                thingsToWrite.AddRange(clone.Definition);
+
+                var result = await this.SessionService.CreateOrUpdateThingsWithNotification(specificationClone, thingsToWrite, BuildNotification(requirement, "updated", "update"));
+
+                if (result.IsSuccess)
+                {
+                    await this.ReloadPreservingSelection();
+                }
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while editing the definition of the Requirement with iid {Iid}", requirement.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
             }
         }
 
@@ -737,7 +921,302 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// Handles the refresh of the current session by reloading the specifications while preserving the selection.
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnSessionRefreshed()
+        protected override Task OnSessionRefreshed()
+        {
+            return this.ReloadPreservingSelection();
+        }
+
+        /// <summary>
+        /// Builds the flattened list of every <see cref="RequirementsGroup" /> of the selected specification, used to file a requirement.
+        /// </summary>
+        /// <returns>All groups of the selected specification, or an empty list when none is selected.</returns>
+        private List<RequirementsGroup> GetSelectedSpecificationGroups()
+        {
+            var result = new List<RequirementsGroup>();
+
+            if (this.SelectedSpecification == null)
+            {
+                return result;
+            }
+
+            void Collect(RequirementsContainer container)
+            {
+                foreach (var group in container.Group.OrderBy(x => x.ShortName))
+                {
+                    result.Add(group);
+                    Collect(group);
+                }
+            }
+
+            Collect(this.SelectedSpecification);
+            return result;
+        }
+
+        /// <summary>
+        /// Builds the <see cref="EditViewModel" /> on first use so the existing session mocks are not touched until a dialog opens.
+        /// </summary>
+        private void EnsureEditViewModel()
+        {
+            this.EditViewModel ??= new EditRequirementThingViewModel(this.SessionService, this.MessageBus)
+            {
+                OnValidSubmit = new EventCallbackFactory().Create(this, this.OnEditValidSubmitAsync)
+            };
+        }
+
+        /// <summary>
+        /// Configures the create form with a fresh <paramref name="thing" /> and opens the popup.
+        /// </summary>
+        /// <param name="thing">The fresh instance to create.</param>
+        /// <param name="parent">The container the group or requirement is placed under; null for a specification.</param>
+        /// <param name="header">The popup header.</param>
+        private void OpenForCreate(Thing thing, RequirementsContainer parent, string header)
+        {
+            this.EnsureEditViewModel();
+            this.isCreating = true;
+            this.creationParent = parent;
+            this.EditPopupHeader = header;
+            this.EditViewModel.InitializeViewModel(thing, this.CurrentThing, this.GetSelectedSpecificationGroups());
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Commits the create or edit held by <see cref="EditViewModel" /> to the session.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task OnEditValidSubmitAsync()
+        {
+            var thing = this.EditViewModel.Thing;
+
+            try
+            {
+                this.IsLoading = true;
+
+                var thingsToWrite = new List<Thing> { thing };
+                var topContainer = this.PrepareTopContainer(thing, thingsToWrite);
+
+                if (topContainer == null)
+                {
+                    return;
+                }
+
+                thingsToWrite.AddRange(((DefinedThing)thing).Definition);
+                var expressionsToDelete = CollectRequirementThings(thing, thingsToWrite);
+
+                var result = await this.SessionService.CreateUpdateAndDeleteThingsWithNotification(topContainer, thingsToWrite, expressionsToDelete, BuildNotification(thing, this.isCreating ? "created" : "updated", this.isCreating ? "create" : "update"));
+
+                if (result.IsSuccess)
+                {
+                    this.IsOnEditMode = false;
+                    await this.ReloadPreservingSelection();
+                }
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while saving the {ClassKind} with iid {Iid}", thing.ClassKind, thing.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
+            }
+        }
+
+        /// <summary>
+        /// Clones the container the given <paramref name="thing" /> is written into, appending the clones to
+        /// <paramref name="thingsToWrite" />.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> being created or updated.</param>
+        /// <param name="thingsToWrite">The things to create or update, extended with the container clone.</param>
+        /// <returns>The top container of the write, or null when the <paramref name="thing" /> is not supported.</returns>
+        private Thing PrepareTopContainer(Thing thing, List<Thing> thingsToWrite)
+        {
+            return thing switch
+            {
+                RequirementsSpecification specification => this.PrepareSpecificationWrite(specification, thingsToWrite),
+                RequirementsGroup group => this.PrepareGroupWrite(group, thingsToWrite),
+                Requirement requirement => this.PrepareRequirementWrite(requirement, thingsToWrite),
+                _ => null
+            };
+        }
+
+        /// <summary>
+        /// Clones the <see cref="Iteration" /> a <see cref="RequirementsSpecification" /> is written into, adding the
+        /// specification to it when it is being created.
+        /// </summary>
+        /// <param name="specification">The <see cref="RequirementsSpecification" /> being created or updated.</param>
+        /// <param name="thingsToWrite">The things to create or update, extended with the iteration clone.</param>
+        /// <returns>The iteration clone.</returns>
+        private Thing PrepareSpecificationWrite(RequirementsSpecification specification, List<Thing> thingsToWrite)
+        {
+            var iterationClone = this.CurrentThing.Clone(false);
+
+            if (this.isCreating)
+            {
+                specification.Container = this.CurrentThing;
+                iterationClone.RequirementsSpecification.Add(specification);
+            }
+
+            thingsToWrite.Add(iterationClone);
+            return iterationClone;
+        }
+
+        /// <summary>
+        /// Clones the <see cref="RequirementsContainer" /> a <see cref="RequirementsGroup" /> is written into, adding the
+        /// group to it when it is being created.
+        /// </summary>
+        /// <param name="group">The <see cref="RequirementsGroup" /> being created or updated.</param>
+        /// <param name="thingsToWrite">The things to create or update, extended with the container clone.</param>
+        /// <returns>The container clone.</returns>
+        private Thing PrepareGroupWrite(RequirementsGroup group, List<Thing> thingsToWrite)
+        {
+            Thing containerClone;
+
+            if (this.isCreating)
+            {
+                var parentClone = this.creationParent.Clone(false);
+                group.Container = this.creationParent;
+                parentClone.Group.Add(group);
+                containerClone = parentClone;
+            }
+            else
+            {
+                containerClone = group.Container.Clone(false);
+            }
+
+            thingsToWrite.Add(containerClone);
+            return containerClone;
+        }
+
+        /// <summary>
+        /// Clones the <see cref="RequirementsSpecification" /> a <see cref="Requirement" /> is written into, adding the
+        /// requirement to it when it is being created.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /> being created or updated.</param>
+        /// <param name="thingsToWrite">The things to create or update, extended with the specification clone.</param>
+        /// <returns>The specification clone.</returns>
+        private Thing PrepareRequirementWrite(Requirement requirement, List<Thing> thingsToWrite)
+        {
+            var specification = this.isCreating
+                ? this.creationParent as RequirementsSpecification ?? this.creationParent.GetContainerOfType<RequirementsSpecification>()
+                : requirement.GetContainerOfType<RequirementsSpecification>();
+
+            var specificationClone = specification.Clone(false);
+
+            if (this.isCreating)
+            {
+                requirement.Container = specification;
+                specificationClone.Requirement.Add(requirement);
+            }
+
+            thingsToWrite.Add(specificationClone);
+            return specificationClone;
+        }
+
+        /// <summary>
+        /// Adds the simple parameter values, parametric constraints and their expressions of a <see cref="Requirement" />
+        /// to <paramref name="thingsToWrite" />, and collects the expressions the rebuilt constraints no longer reference.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> being created or updated.</param>
+        /// <param name="thingsToWrite">The things to create or update, extended with the requirement's contained things.</param>
+        /// <returns>The expressions to delete; empty when the <paramref name="thing" /> is not a <see cref="Requirement" />.</returns>
+        private static List<Thing> CollectRequirementThings(Thing thing, List<Thing> thingsToWrite)
+        {
+            var expressionsToDelete = new List<Thing>();
+
+            if (thing is not Requirement requirement)
+            {
+                return expressionsToDelete;
+            }
+
+            thingsToWrite.AddRange(requirement.ParameterValue);
+
+            foreach (ParametricConstraint constraint in requirement.ParametricConstraint)
+            {
+                thingsToWrite.AddRange(constraint.Expression);
+                thingsToWrite.Add(constraint);
+                expressionsToDelete.AddRange(GetDiscardedExpressions(constraint));
+            }
+
+            return expressionsToDelete;
+        }
+
+        /// <summary>
+        /// Persists a deprecation toggle for the given <paramref name="thing" />.
+        /// </summary>
+        /// <param name="thing">The deprecatable <see cref="Thing" />.</param>
+        /// <param name="deprecate">True to deprecate, false to restore.</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task SetDeprecationAsync(Thing thing, bool deprecate)
+        {
+            this.ConfirmCancelPopupViewModel.IsVisible = false;
+
+            try
+            {
+                this.IsLoading = true;
+
+                var clone = thing.Clone(false);
+                ((IDeprecatableThing)clone).IsDeprecated = deprecate;
+                var containerClone = thing.Container.Clone(false);
+
+                var result = await this.SessionService.CreateOrUpdateThingsWithNotification(containerClone, [containerClone, clone], BuildNotification(thing, deprecate ? "deprecated" : "restored", deprecate ? "deprecate" : "restore"));
+
+                if (result.IsSuccess)
+                {
+                    await this.ReloadPreservingSelection();
+                }
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while changing the deprecation of the {ClassKind} with iid {Iid}", thing.ClassKind, thing.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
+            }
+        }
+
+        /// <summary>
+        /// Permanently deletes the given <paramref name="thing" />.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> to delete.</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task DeleteAsync(Thing thing)
+        {
+            this.ConfirmCancelPopupViewModel.IsVisible = false;
+
+            try
+            {
+                this.IsLoading = true;
+
+                var containerClone = thing.Container.Clone(false);
+                var clone = thing.Clone(false);
+
+                var result = await this.SessionService.DeleteThingsWithNotification(containerClone, [clone], BuildNotification(thing, "deleted", "delete"));
+
+                if (result.IsSuccess)
+                {
+                    if (ReferenceEquals(this.SelectedSpecification, thing))
+                    {
+                        this.SelectedSpecification = null;
+                    }
+
+                    await this.ReloadPreservingSelection();
+                }
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while deleting the {ClassKind} with iid {Iid}", thing.ClassKind, thing.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
+            }
+        }
+
+        /// <summary>
+        /// Reloads the specifications while preserving the current selection when still present.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task ReloadPreservingSelection()
         {
             var previouslySelected = this.SelectedSpecification;
             await this.OnThingChanged();
@@ -746,6 +1225,81 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 this.SelectedSpecification = previouslySelected;
             }
+        }
+
+        /// <summary>
+        /// Gets the clones of the <see cref="BooleanExpression" />s the given <paramref name="constraint" /> held before it was
+        /// edited and that its rebuilt expression tree no longer contains, so that they are deleted rather than left orphaned
+        /// inside the constraint. An expression is discarded either because the user removed it, or because it had to be
+        /// re-created under a new identity to keep the write acceptable to the server.
+        /// </summary>
+        /// <param name="constraint">The edited <see cref="ParametricConstraint" /> clone.</param>
+        /// <returns>The <see cref="BooleanExpression" /> clones to delete.</returns>
+        private static IEnumerable<Thing> GetDiscardedExpressions(ParametricConstraint constraint)
+        {
+            if (constraint.Original is not ParametricConstraint original)
+            {
+                return [];
+            }
+
+            return original.Expression
+                .Where(expression => constraint.Expression.All(x => x.Iid != expression.Iid))
+                .Select(expression =>
+                {
+                    var clone = expression.Clone(false);
+                    clone.Container = constraint;
+                    return (Thing)clone;
+                });
+        }
+
+        /// <summary>
+        /// Builds the notification shown after a CRUD operation.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> operated on.</param>
+        /// <param name="pastVerb">The past-tense verb for the success message (e.g. "created").</param>
+        /// <param name="actionVerb">The infinitive verb for the failure message (e.g. "create").</param>
+        /// <returns>The <see cref="NotificationDescription" />.</returns>
+        private static NotificationDescription BuildNotification(Thing thing, string pastVerb, string actionVerb)
+        {
+            var kind = GetKindLabel(thing);
+            var label = GetLabel(thing);
+
+            return new NotificationDescription
+            {
+                OnSuccess = $"{kind} '{label}' {pastVerb}",
+                OnError = $"Could not {actionVerb} the {kind} '{label}'"
+            };
+        }
+
+        /// <summary>
+        /// Gets the human-readable label of the given <paramref name="thing" />.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" />.</param>
+        /// <returns>The name, or the short name when the name is empty.</returns>
+        private static string GetLabel(Thing thing)
+        {
+            if (thing is not DefinedThing defined)
+            {
+                return thing.ClassKind.ToString();
+            }
+
+            return string.IsNullOrWhiteSpace(defined.Name) ? defined.ShortName : defined.Name;
+        }
+
+        /// <summary>
+        /// Gets the human-readable kind label of the given <paramref name="thing" />.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" />.</param>
+        /// <returns>The kind label.</returns>
+        private static string GetKindLabel(Thing thing)
+        {
+            return thing switch
+            {
+                RequirementsSpecification => "Specification",
+                RequirementsGroup => "Requirement group",
+                Requirement => "Requirement",
+                _ => "item"
+            };
         }
 
         /// <summary>

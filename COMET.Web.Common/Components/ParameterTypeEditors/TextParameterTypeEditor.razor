@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2026 Starion Group S.A.
 //
 //   This file is part of CDP4-COMET WEB Community Edition
@@ -31,7 +31,7 @@
                name="color" 
                value="@colorValue" 
                readonly="@this.ViewModel.IsReadOnly"
-               onchange="@((ChangeEventArgs value) => this.ViewModel.OnParameterValueChanged(value))">
+               onchange="@((ChangeEventArgs value) => this.ViewModel.OnParameterValueChanged(value.Value?.ToString()))">
         <label for="color-picker" id="color-text">Color</label>
     </div>
 }

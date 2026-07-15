@@ -79,6 +79,11 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </div>
 
             <div class="req-toolbar-group req-toolbar-right">
+                <DxButton RenderStyle="ButtonRenderStyle.Primary"
+                          IconCssClass="oi oi-plus"
+                          Text="Specification"
+                          title="Create a new specification"
+                          Click="@(() => this.ViewModel.OpenCreateSpecification())" />
                 <DxCheckBox @bind-Checked="@this.ViewModel.IndentGroups" CheckType="CheckType.Switch">Indent</DxCheckBox>
                 <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
                 <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategory" CheckType="CheckType.Switch">Category</DxCheckBox>
@@ -87,6 +92,14 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <DxCheckBox @bind-Checked="@this.ViewModel.ShowTraceability" CheckType="CheckType.Switch" title="Show the relationships to and from each requirement">Traceability</DxCheckBox>
             </div>
         </div>
+
+        <DxPopup CloseOnOutsideClick="false" HeaderText="@this.ViewModel.EditPopupHeader" @bind-Visible="@this.ViewModel.IsOnEditMode" Width="min(700px, 90vw)">
+            <BodyContentTemplate>
+                <EditRequirementThing ViewModel="@this.ViewModel.EditViewModel" />
+            </BodyContentTemplate>
+        </DxPopup>
+
+        <ConfirmCancelPopup ViewModel="@this.ViewModel.ConfirmCancelPopupViewModel" />
 
         <div class="req-editor-layout @(this.ViewModel.IsTocCollapsed ? "toc-collapsed" : string.Empty)">
             <div class="req-toc">

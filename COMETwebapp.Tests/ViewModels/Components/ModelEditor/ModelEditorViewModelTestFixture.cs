@@ -24,8 +24,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 {
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+    using CDP4Common.Types;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
+
+    using CDP4Web.Enumerations;
 
     using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.SessionManagement;
@@ -40,6 +44,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
     using Moq;
 
     using NUnit.Framework;
+
+    using ReactiveUI;
 
     [TestFixture]
     public class ModelEditorViewModelTestFixture
@@ -73,6 +79,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
         /// The currently logged-in <see cref="DomainOfExpertise" />.
         /// </summary>
         private DomainOfExpertise currentDomain;
+        private Mock<ISession> session;
 
         /// <summary>
         /// Builds the iteration graph and the view model with mocked dependencies.
@@ -84,8 +91,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             this.sessionService = new Mock<ISessionService>();
             var cacheService = new Mock<ICacheService>();
 
-            var session = new Mock<ISession>();
-            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+            this.session = new Mock<ISession>();
+            this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
 
             var domain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
@@ -99,7 +106,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             var iterationSetup = new IterationSetup { IterationNumber = 1 };
             modelSetup.IterationSetup.Add(iterationSetup);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
-            session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
+            this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
 
             this.topElement = new ElementDefinition
             {
@@ -161,6 +168,98 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             this.viewModel.TargetIteration = this.iteration;
 
             Assert.That(this.viewModel.IsSourceModelSameAsTargetModel, Is.True);
+        }
+        
+        [Test]
+        public void VerifyIsSourceModelSameAsTargetModel()
+        {
+            var otherIteration = new Iteration { Iid = Guid.NewGuid() };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsSourceModelSameAsTargetModel, Is.False, "No source iteration is selected yet.");
+
+                this.viewModel.SourceIteration = otherIteration;
+                this.viewModel.TargetIteration = this.iteration;
+                Assert.That(this.viewModel.IsSourceModelSameAsTargetModel, Is.False);
+
+                this.viewModel.SourceIteration = this.iteration;
+                Assert.That(this.viewModel.IsSourceModelSameAsTargetModel, Is.True);
+
+                this.viewModel.SourceIteration = null;
+                Assert.That(this.viewModel.IsSourceModelSameAsTargetModel, Is.False);
+            });
+        }
+
+        /// <summary>
+        /// Verifies that the copy and the element usage entry points refuse null arguments, rather than failing later inside the
+        /// SDK copy machinery where the cause would be much harder to see
+        /// </summary>
+        [Test]
+        public void VerifyCopyAndAddNewElementAsyncGuardsItsArguments()
+        {
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), Owner = this.currentDomain };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(async () => await this.viewModel.CopyAndAddNewElementAsync(null, elementDefinition),
+                    Throws.TypeOf<ArgumentNullException>());
+
+                Assert.That(async () => await this.viewModel.AddNewElementUsageAsync(null, elementDefinition),
+                    Throws.TypeOf<ArgumentNullException>());
+
+                Assert.That(async () => await this.viewModel.AddNewElementUsageAsync(elementDefinition, null),
+                    Throws.TypeOf<ArgumentNullException>());
+            });
+        }
+
+        [Test]
+        public async Task VerifyExternalParameterChangeIsReflectedAfterEndUpdate()
+        {
+            this.viewModel.DetailsPanelViewModel.SelectElement(this.topElement);
+
+            var isLoadingValues = new List<bool>();
+            this.viewModel.WhenAnyValue(x => x.IsLoading).Subscribe(isLoadingValues.Add);
+
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+
+            var newParameter = new Parameter
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.currentDomain,
+                ParameterType = parameterType
+            };
+
+            newParameter.ValueSet.Add(new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                Manual = new ValueArray<string>(["-"]),
+                Computed = new ValueArray<string>(["-"]),
+                Reference = new ValueArray<string>(["-"]),
+                Formula = new ValueArray<string>(["-"]),
+                Published = new ValueArray<string>(["-"]),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            });
+
+            this.topElement.Parameter.Add(newParameter);
+
+            // Simulate the other panel's write reaching this session's message bus.
+            this.messageBus.SendObjectChangeEvent(this.topElement, EventKind.Updated);
+            this.messageBus.SendMessage(new SessionEvent(this.sessionService.Object.Session, SessionStatus.EndUpdate));
+
+            Assert.That(() => isLoadingValues.Contains(true) && !this.viewModel.IsLoading, Is.True.After(2000, 25),
+                "the view model never signalled a re-render in reaction to the external write");
+
+            var rows = this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rows.Any(r => r.Parameter.Iid == newParameter.Iid), Is.True,
+                    "ModelEditorViewModel.OnEndUpdate must refresh the details panel so a cross-panel Parameter write becomes visible.");
+
+                Assert.That(isLoadingValues, Has.Some.EqualTo(true),
+                    "IsLoading must toggle so that the Blazor component subscribed to it knows to re-render.");
+            });
         }
     }
 }

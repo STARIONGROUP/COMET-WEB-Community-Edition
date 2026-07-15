@@ -113,7 +113,7 @@ namespace COMETwebapp.Components.Tabs
         /// <param name="newIndex">The dragged tab new panel index</param>
         private void OnMovedTab(int oldIndex, int newIndex)
         {
-            var tab = this.Panel.OpenTabs.Items.ElementAt(oldIndex);
+            var tab = this.Panel.OpenTabs.Items[oldIndex];
 
             if (this.Panel == this.ViewModel.MainPanel)
             {

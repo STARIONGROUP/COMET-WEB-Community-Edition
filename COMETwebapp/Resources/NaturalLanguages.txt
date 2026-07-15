@@ -1,0 +1,284 @@
+sma|Southern Sami|Åarjelsaemien gïele
+aa|Afar|Afar
+af|Afrikaans|Afrikaans
+agq|Aghem|Aghem
+ak|Akan|Akan
+smn|Inari Sami|anarâškielâ
+ast|Asturian|asturianu
+gn|Guarani|avañe’ẽ
+az|Azerbaijani|azərbaycan
+az-Latn|Azerbaijani (Latin)|azərbaycan (latın)
+bm|Bamanankan|bamanakan
+su|Sundanese|Basa Sunda
+su-Latn|Sundanese (Latin)|Basa Sunda (Latin)
+byn|Blin|Blin
+bs|Bosnian|bosanski
+bs-Latn|Bosnian (Latin)|bosanski (latinica)
+br|Breton|brezhoneg
+bas|Basaa|Ɓàsàa
+ca|Catalan|català
+ceb|Cebuano|Cebuano
+tzm-Arab|Central Atlas Tamazight (Arabic)|Central Atlas Tamazight (Arabic)
+tzm-Tfng|Central Atlas Tamazight (Tifinagh)|Central Atlas Tamazight (Tifinagh)
+cs|Czech|čeština
+kde|Makonde|Chimakonde
+sn|Shona|chiShona
+cu|Church Slavic|Church Slavic
+co|Corsican|corsu
+cy|Welsh|Cymraeg
+da|Danish|dansk
+se|Northern Sami|davvisámegiella
+de|German|Deutsch
+luo|Luo|Dholuo
+dv|Divehi|Divehi
+dsb|Lower Sorbian|dolnoserbšćina
+dua|Duala|duálá
+yo|Yoruba|Èdè Yorùbá
+bin|Edo|Ẹ̀dó
+et|Estonian|eesti
+guz|Gusii|Ekegusii
+en|English|English
+es|Spanish|español
+eo|Esperanto|esperanto
+eu|Basque|euskara
+ee|Ewe|Eʋegbe
+ewo|Ewondo|ewondo
+fil|Filipino|Filipino
+fo|Faroese|føroyskt
+fr|French|français
+fy|Western Frisian|Frysk
+ff-Latn|Fula (Latin)|Fula (Latin)
+fur|Friulian|furlan
+ga|Irish|Gaeilge
+gv|Manx|Gaelg
+gd|Scottish Gaelic|Gàidhlig
+gl|Galician|galego
+ki|Kikuyu|Gikuyu
+ha|Hausa|Hausa
+bez|Bena|Hibena
+hi-Latn|Hindi (Latin)|Hindi (Latin)
+hsb|Upper Sorbian|hornjoserbšćina
+hr|Croatian|hrvatski
+haw|Hawaiian|ʻŌlelo Hawaiʻi
+ibb|Ibibio|Ibibio-Efik
+bem|Bemba|Ichibemba
+ig|Igbo|Igbo
+rn|Rundi|Ikirundi
+id|Indonesian|Indonesia
+ia|Interlingua|interlingua
+iu|Inuktitut|Inuktitut
+iu-Latn|Inuktitut (Latin)|Inuktitut (Latin)
+sbp|Sangu|Ishisangu
+nd|North Ndebele|isiNdebele
+xh|isiXhosa|IsiXhosa
+zu|isiZulu|isiZulu
+is|Icelandic|íslenska
+it|Italian|italiano
+jv-Java|Javanese (Javanese)|Javanese (Javanese)
+jv|Javanese|Jawa
+dyo|Jola-Fonyi|joola
+smj|Lule Sami|julevsámegiella
+kea|Kabuverdianu|kabuverdianu
+kkj|Kako|kakɔ
+kl|Kalaallisut|kalaallisut
+kln|Kalenjin|Kalenjin
+kgp|Kaingang|kanhgág
+moh|Mohawk|Kanienʼkéha
+kr|Kanuri|Kanuri
+kr-Latn|Kanuri (Latin)|Kanuri (Latin)
+kw|Cornish|kernewek
+naq|Nama|Khoekhoegowab
+ebu|Embu|Kĩembu
+rof|Rombo|Kihorombo
+kam|Kamba|Kikamba
+jmc|Machame|Kimachame
+mer|Meru|Kĩmĩrũ
+rw|Kinyarwanda|Kinyarwanda
+asa|Asu|Kipare
+rwk|Rwa|Kiruwa
+saq|Samburu|Kisampur
+ksb|Shambala|Kishambaa
+sw|Kiswahili|Kiswahili
+dav|Taita|Kitaita
+teo|Teso|Kiteso
+lag|Langi|Kɨlaangi
+ksh|Colognian|Kölsch
+khq|Koyra Chiini|Koyra ciini
+ses|Koyraboro Senni|Koyraboro senni
+mfe|Morisyen|kreol morisien
+nmg|Kwasio|Kwasio
+vun|Vunjo|Kyivunjo
+quc|Kʼicheʼ|Kʼicheʼ
+lkt|Lakota|Lakȟólʼiyapi
+la|Latin|Latin
+lv|Latvian|latviešu
+to|Tongan|lea fakatonga
+lb|Luxembourgish|Lëtzebuergesch
+lt|Lithuanian|lietuvių
+ln|Lingala|lingála
+nds|Low German|Low German
+lg|Ganda|Luganda
+luy|Luyia|Luluhia
+mas|Masai|Maa
+hu|Hungarian|magyar
+mgh|Makhuwa-Meetto|Makua
+mg|Malagasy|Malagasy
+mt|Maltese|Malti
+mi|Māori|Māori
+arn|Mapuche|Mapudungun
+ms|Malay|Melayu
+mgo|Metaʼ|metaʼ
+mn-Mong|Mongolian (Mongolian)|Mongolian (Mongolian)
+mua|Mundang|MUNDAŊ
+pcm|Nigerian Pidgin|Naijíriá Píjin
+jgo|Ngomba|Ndaꞌa
+nl|Dutch|Nederlands
+yrl|Nheengatu|nheẽgatu
+no|Norwegian|norsk
+nb|Norwegian Bokmål|norsk bokmål
+nn|Norwegian Nynorsk|norsk nynorsk
+yav|Yangben|nuasue
+uz|Uzbek|o‘zbek
+uz-Latn|Uzbek (Latin)|o‘zbek (lotin)
+oc|Occitan|Occitan
+xog|Soga|Olusoga
+om|Oromo|Oromoo
+pap|Papiamento|Papiamentu
+pl|Polish|polski
+pt|Portuguese|português
+prg|Prussian|prūsiskan
+ff|Fula|Pulaar
+ksf|Bafia|rikpa
+ro|Romanian|română
+cgg|Chiga|Rukiga
+rm|Romansh|rumantsch
+qu|Quechua|Runasimi
+nyn|Nyankole|Runyankore
+ssy|Saho|Saho
+sg|Sango|Sängö
+sc|Sardinian|sardu
+gsw|Swiss German|Schwiizertüütsch
+seh|Sena|sena
+st|Sesotho|Sesotho
+nso|Sesotho sa Leboa|Sesotho sa Leboa
+tn|Setswana|Setswana
+sq|Albanian|shqip
+nnh|Ngiemboon|Shwóŋò ngiembɔɔn
+ss|siSwati|siSwati
+sms|Skolt Sami|Skolt Sami
+sk|Slovak|slovenčina
+sl|Slovenian|slovenščina
+so|Somali|Soomaali
+nr|South Ndebele|South Ndebele
+sr-Latn|Serbian (Latin)|srpski (latinica)
+fi|Finnish|suomi
+sv|Swedish|svenska
+shi-Latn|Tachelhit (Latin)|Tachelhit (Latin)
+shi-Tfng|Tachelhit (Tifinagh)|Tachelhit (Tifinagh)
+tzm|Central Atlas Tamazight|Tamaziɣt n laṭlaṣ
+kab|Kabyle|Taqbaylit
+twq|Tasawaq|Tasawaq senni
+nus|Nuer|Thok Nath
+vi|Vietnamese|Tiếng Việt
+tig|Tigre|Tigre
+lu|Luba-Katanga|Tshiluba
+tr|Turkish|Türkçe
+tk|Turkmen|türkmen dili
+vai-Latn|Vai (Latin)|Vai (Latin)
+vai-Vaii|Vai (Vai)|Vai (Vai)
+ve|Venda|Venda
+vo|Volapük|Volapük
+wae|Walser|Walser
+wal|Wolaytta|Wolaytta
+wo|Wolof|Wolof
+ts|Xitsonga|Xitsonga
+dje|Zarma|Zarmaciine
+el|Greek|Ελληνικά
+az-Cyrl|Azerbaijani (Cyrillic)|азәрбајҹан (Кирил)
+ba|Bashkir|башҡорт теле
+be|Belarusian|беларуская
+bs-Cyrl|Bosnian (Cyrillic)|босански (ћирилица)
+bg|Bulgarian|български
+os|Ossetic|ирон
+ky|Kyrgyz|кыргызча
+kk|Kazakh|қазақ тілі
+mk|Macedonian|македонски
+mn|Mongolian|монгол
+ce|Chechen|нохчийн
+ru|Russian|русский
+sah|Yakut|саха тыла
+sr|Serbian|српски
+sr-Cyrl|Serbian (Cyrillic)|српски (ћирилица)
+tt|Tatar|татар
+tg|Tajik|тоҷикӣ
+uz-Cyrl|Uzbek (Cyrillic)|ўзбекча (Кирил)
+uk|Ukrainian|українська
+cv|Chuvash|чӑваш
+ka|Georgian|ქართული
+hy|Armenian|հայերեն
+yi|Yiddish|ייִדיש
+he|Hebrew|עברית
+ug|Uyghur|ئۇيغۇرچە
+ur|Urdu|اردو
+ar|Arabic|العربية
+uz-Arab|Uzbek (Arabic)|اوزبیک (عربی)
+ps|Pashto|پښتو
+pa-Arab|Punjabi (Arabic)|پنجابی (عربی)
+sd|Sindhi|سنڌي
+sd-Arab|Sindhi (Arabic)|سنڌي (عربي)
+fa|Persian|فارسی
+ks|Kashmiri|کٲشُر
+ks-Arab|Kashmiri (Arabic)|کٲشُر (عربی)
+ckb|Central Kurdish|کوردیی ناوەندی
+lrc|Northern Luri|لۊری شومالی
+mzn|Mazanderani|مازرونی
+syr|Syriac|ܣܘܪܝܝܐ
+nqo|N’Ko|ߒߞߏ
+zgh|Standard Moroccan Tamazight|ⵜⴰⵎⴰⵣⵉⵖⵜ
+shi|Tachelhit|ⵜⴰⵛⵍⵃⵉⵜ
+ti|Tigrinya|ትግርኛ
+am|Amharic|አማርኛ
+ks-Deva|Kashmiri (Devanagari)|कॉशुर (देवनागरी)
+kok|Konkani|कोंकणी
+doi|Dogri|डोगरी
+ne|Nepali|नेपाली
+brx|Bodo|बर’
+bho|Bhojpuri|भोजपुरी
+mr|Marathi|मराठी
+mai|Maithili|मैथिली
+raj|Rajasthani|राजस्थानी
+sa|Sanskrit|संस्कृत भाषा
+sd-Deva|Sindhi (Devanagari)|सिन्धी (देवनागिरी)
+bgc|Haryanvi|हरियाणवी
+hi|Hindi|हिन्दी
+as|Assamese|অসমীয়া
+bn|Bangla|বাংলা
+mni|Manipuri|মৈতৈলোন্
+mni-Beng|Manipuri (Bangla)|মৈতৈলোন্ (বাংলা)
+pa|Punjabi|ਪੰਜਾਬੀ
+pa-Guru|Punjabi (Gurmukhi)|ਪੰਜਾਬੀ (ਗੁਰਮੁਖੀ)
+gu|Gujarati|ગુજરાતી
+or|Odia|ଓଡ଼ିଆ
+ta|Tamil|தமிழ்
+te|Telugu|తెలుగు
+kn|Kannada|ಕನ್ನಡ
+ml|Malayalam|മലയാളം
+si|Sinhala|සිංහල
+th|Thai|ไทย
+lo|Lao|ລາວ
+bo|Tibetan|བོད་སྐད་
+dz|Dzongkha|རྫོང་ཁ
+my|Burmese|မြန်မာ
+ccp|Chakma|𑄌𑄋𑄴𑄟𑄳𑄦
+km|Khmer|ខ្មែរ
+sat|Santali|ᱥᱟᱱᱛᱟᱲᱤ
+sat-Olck|Santali (Ol Chiki)|ᱥᱟᱱᱛᱟᱲᱤ (ᱚᱞ ᱪᱤᱠᱤ)
+chr|Cherokee|ᏣᎳᎩ
+vai|Vai|ꕙꔤ
+ff-Adlm|Fula (Adlam)|𞤆𞤵𞤤𞤢𞤪 (𞤀𞤁𞤂𞤢𞤃)
+ko|Korean|한국어
+ii|Yi|ꆈꌠꉙ
+zh|Chinese|中文
+zh-Hans|Chinese (Simplified)|中文（简体）
+zh-Hant|Chinese (Traditional)|中文（繁體）
+ja|Japanese|日本語

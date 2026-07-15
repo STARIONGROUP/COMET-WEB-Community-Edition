@@ -1,0 +1,151 @@
+.pc-editor {
+    max-height: 46vh;
+    overflow: auto;
+    padding: 4px 2px;
+}
+
+.pc-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 18px;
+    color: #475467;
+    background: #eff8ff;
+    border: 1px solid #b2ddff;
+    border-radius: 6px;
+}
+
+.pc-empty p {
+    margin: 0;
+}
+
+::deep .pc-node {
+    margin: 3px 0;
+}
+
+::deep .pc-leaf,
+::deep .pc-group-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 4px 6px;
+    border-radius: 5px;
+    background: #f8f9fb;
+    border: 1px solid #e4e7ec;
+}
+
+::deep .pc-summary {
+    flex: 1 1 auto;
+    min-width: 60px;
+    color: #1d2939;
+    overflow-wrap: anywhere;
+}
+
+::deep .pc-actions {
+    display: inline-flex;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+::deep .pc-node button,
+::deep .pc-root-add button {
+    border: 1px solid #d0d5dd;
+    background: #fff;
+    border-radius: 4px;
+    min-width: 26px;
+    height: 26px;
+    line-height: 1;
+    padding: 0 6px;
+    cursor: pointer;
+    color: #344054;
+}
+
+::deep .pc-node button:hover,
+::deep .pc-root-add button:hover {
+    background: #f2f4f7;
+}
+
+::deep .pc-not {
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+/* Segmented toggle groups (AND/OR/XOR); the buttons are joined into one control. */
+::deep .pc-toggle-group {
+    display: inline-flex;
+}
+
+::deep .pc-toggle-group .pc-toggle {
+    border-radius: 0;
+    margin-left: -1px;
+}
+
+::deep .pc-toggle-group .pc-toggle:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    margin-left: 0;
+}
+
+::deep .pc-toggle-group .pc-toggle:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+/* Selected toggle (AND/OR/XOR and NOT) in the application's primary blue. */
+::deep .pc-toggle-on,
+::deep .pc-toggle-on:hover {
+    background: var(--bs-primary, #0d6efd) !important;
+    color: #fff !important;
+    border-color: var(--bs-primary, #0d6efd) !important;
+    z-index: 1;
+}
+
+::deep .pc-root-add {
+    margin-top: 8px;
+}
+
+/* Split "Add" button: the main part adds an expression, the arrow opens the dropdown. The two-class selector
+   outranks the later `.pc-add { gap }` rule so the main and arrow buttons sit flush against each other. */
+::deep .pc-add.pc-split {
+    display: inline-flex;
+    gap: 0;
+}
+
+::deep .pc-split-main {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+::deep .pc-split-arrow {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    margin-left: -1px;
+    min-width: 22px !important;
+    padding: 0 6px !important;
+}
+
+::deep .pc-children {
+    margin-left: 18px;
+    padding-left: 10px;
+    border-left: 2px solid #e4e7ec;
+    margin-top: 3px;
+}
+
+::deep .pc-add {
+    display: inline-flex;
+    gap: 4px;
+    margin-top: 3px;
+}
+
+::deep .pc-invalid {
+    border-color: #fda29b;
+    background: #fef3f2;
+}
+
+::deep .pc-warn {
+    color: #b42318;
+    font-size: 0.78rem;
+    margin: 2px 0 2px 18px;
+}

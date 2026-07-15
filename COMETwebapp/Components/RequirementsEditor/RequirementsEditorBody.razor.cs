@@ -71,6 +71,41 @@ namespace COMETwebapp.Components.RequirementsEditor
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(
+                    x => x.ViewModel.IsOnEditMode,
+                    x => x.ViewModel.IsLoading,
+                    x => x.ViewModel.ConfirmCancelPopupViewModel.IsVisible)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
+
+        /// <summary>
+        /// Scrolls the document to the <see cref="IRequirementsEditorBodyViewModel.ScrollTarget" /> once it has been
+        /// rendered, after a traceability link navigated to it.
+        /// </summary>
+        /// <param name="firstRender">true on the first render of the component</param>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            var target = this.ViewModel?.ScrollTarget;
+
+            if (target != null)
+            {
+                this.ViewModel.ScrollTarget = null;
+
+                try
+                {
+                    await this.DomDataService.ScrollElementIntoView(RequirementsDocument.RequirementAnchorId(target));
+                }
+                catch (Exception exception) when (exception is JSException or JSDisconnectedException)
+                {
+                    // The scroll is purely cosmetic; a stale cached DomData.js (missing ScrollElementIntoView) or a
+                    // circuit that disconnected mid-render must never kill the page. Navigation already switched the
+                    // specification and expanded the target's groups.
+                }
+            }
         }
 
         /// <summary>

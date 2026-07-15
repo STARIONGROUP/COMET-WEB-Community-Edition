@@ -135,6 +135,16 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         }
 
         /// <summary>
+        /// Handles the <c>SessionStatus.EndUpdate</c> message received, so that a change written by another open
+        /// application is reflected here as well
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override Task OnEndUpdate()
+        {
+            return this.OnSessionRefreshed();
+        }
+
+        /// <summary>
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>

@@ -345,6 +345,75 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             });
         }
 
+        /// <summary>
+        /// Verifies that a narrow viewport collapses the side bar by default, that the user can still expand it again while the
+        /// viewport stays narrow, and that resizing the window drops that manual override (issue GH742)
+        /// </summary>
+        [Test]
+        public async Task VerifySideBarCollapsesOnNarrowViewport()
+        {
+            var renderer = this.context.Render<SideBar>();
+            var sideBar = renderer.Instance;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(sideBar.IsCollapsed, Is.False);
+                Assert.That(renderer.Find("nav").ClassList, Does.Not.Contain("collapsed"));
+            });
+
+            // A narrow viewport collapses the side bar. In the running app the DxLayoutBreakpoint two-way binding both assigns
+            // the property and triggers the re-render.
+            await renderer.InvokeAsync(() => sideBar.IsNarrowViewport = true);
+            renderer.Render();
+
+            renderer.WaitForAssertion(() =>
+            {
+                Assert.That(sideBar.IsCollapsed, Is.True);
+                Assert.That(renderer.Find("nav").ClassList, Does.Contain("collapsed"));
+            });
+
+            // The toggle remains available on a narrow viewport, so the user can expand the side bar anyway.
+            await renderer.InvokeAsync(() => renderer.Find("#side-bar-collapse-button").Click());
+
+            renderer.WaitForAssertion(() =>
+            {
+                Assert.That(sideBar.IsCollapsed, Is.False, "The user must be able to expand the side bar on a small screen.");
+                Assert.That(renderer.Find("nav").ClassList, Does.Not.Contain("collapsed"));
+            });
+
+            // Widening the window drops the manual override, so the side bar follows the viewport again.
+            await renderer.InvokeAsync(() => sideBar.IsNarrowViewport = false);
+            renderer.Render();
+
+            renderer.WaitForAssertion(() => Assert.That(sideBar.IsCollapsed, Is.False));
+
+            await renderer.InvokeAsync(() => sideBar.IsNarrowViewport = true);
+            renderer.Render();
+
+            renderer.WaitForAssertion(() => Assert.That(sideBar.IsCollapsed, Is.True, "Shrinking the window collapses the side bar again."));
+
+            // Re-assigning the same viewport state is a no-op, and must not drop a preference the user has meanwhile set.
+            await renderer.InvokeAsync(sideBar.ToggleCollapsed);
+            await renderer.InvokeAsync(() => sideBar.IsNarrowViewport = true);
+            renderer.Render();
+
+            renderer.WaitForAssertion(() => Assert.That(sideBar.IsCollapsed, Is.False, "Re-setting the same viewport state must keep the user's own choice."));
+        }
+
+        [Test]
+        public void VerifySideBarFooterIsInFlow()
+        {
+            var renderer = this.context.Render<SideBar>();
+            var footer = renderer.FindComponent<SideBarFooter>();
+            var footerElement = footer.Find("div");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(footerElement.ClassList, Does.Contain("side-bar-footer"));
+                Assert.That(footerElement.GetAttribute("style"), Is.Null.Or.Empty);
+            });
+        }
+
         [Test]
         public void VerifySideBarEntryRegistration()
         {
@@ -380,12 +449,12 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             Assert.Multiple(() =>
             {
                 Assert.That(fakeNavigationManager.Uri, Does.Contain(this.registeredApplications[1].Url));
-                Assert.That(renderer.Instance.Collapsed, Is.False);
+                Assert.That(renderer.Instance.IsCollapsed, Is.False);
             });
-            
+
             var sideBarCollapseButton = renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "side-bar-collapse-button");
             await renderer.InvokeAsync(sideBarCollapseButton.Instance.Click.InvokeAsync);
-            Assert.That(renderer.Instance.Collapsed, Is.True);
+            Assert.That(renderer.Instance.IsCollapsed, Is.True);
         }
     }
 }

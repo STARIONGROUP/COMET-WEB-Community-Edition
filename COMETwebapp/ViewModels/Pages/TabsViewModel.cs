@@ -193,8 +193,8 @@ namespace COMETwebapp.ViewModels.Pages
                 .ToList();
 
             List<TabbedApplicationInformation> thingTabsToClose = [.. iterationTabsToClose, .. engineeringModelTabsToClose];
-            this.MainPanel.OpenTabs.RemoveMany(thingTabsToClose);
-            this.SidePanel.OpenTabs.RemoveMany(thingTabsToClose);
+            this.MainPanel.CloseTabs(thingTabsToClose);
+            this.SidePanel.CloseTabs(thingTabsToClose);
         }
     }
 }

@@ -140,6 +140,21 @@ namespace COMET.Web.Common.Services.SessionManagement
         Task<Result> CreateOrUpdateThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, IReadOnlyCollection<string> files, NotificationDescription notificationDescription = null);
 
         /// <summary>
+        /// Creates or updates <see cref="Thing" />s and deletes <see cref="Thing" />s within a single transaction, add new
+        /// notifications to the <see cref="INotificationService"/>
+        /// </summary>
+        /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
+        /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
+        /// <param name="toDelete">
+        /// A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to delete, each with its
+        /// <see cref="Thing.Container" /> set to the cloned container it is removed from
+        /// </param>
+        /// <param name="notificationDescription">The notification description to be displayed</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        /// <remarks>The <paramref name="topContainer" /> have to be a cloned <see cref="Thing" /></remarks>
+        Task<Result> CreateUpdateAndDeleteThingsWithNotification(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, IReadOnlyCollection<Thing> toDelete, NotificationDescription notificationDescription = null);
+
+        /// <summary>
         /// Deletes <see cref="Thing" />s
         /// </summary>
         /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>

@@ -32,7 +32,7 @@
                             OnCreateTabForModel="@(tab => this.OnCreateTabForModel(tab))"
                             OnRemoveTabClick="@(tab => OnRemoveTabClick(tab, this.ViewModel.MainPanel))"
                             OnOpenTabClick="@(() => this.OnOpenTabClick(this.ViewModel.MainPanel))"
-                            IsSidePanelAvailable="@(this.ViewModel.SidePanel.OpenTabs.Count == 0)"/>
+                            IsSidePanelAvailable="@(this.ViewModel.SidePanel.OpenTabs.Count == 0 && this.ViewModel.MainPanel.OpenTabs.Count > 1)"/>
 
         @if (this.ViewModel.SidePanel.CurrentTab is not null)
         {

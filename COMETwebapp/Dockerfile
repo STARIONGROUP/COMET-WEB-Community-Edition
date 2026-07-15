@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.4
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0.10 AS build
 
 ARG DEVEXPRESS_NUGET_KEY
 ARG PACKAGE_TOKEN
@@ -20,7 +20,7 @@ RUN dotnet build COMETwebapp -c Release -o /app/build --no-restore
 FROM build AS publish
 RUN dotnet publish COMETwebapp -c Release -o /app/publish --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.5-alpine3.23 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.10-alpine3.24 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 

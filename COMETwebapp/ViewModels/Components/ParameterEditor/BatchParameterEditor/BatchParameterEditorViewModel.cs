@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="BatchParameterEditorViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -31,6 +31,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -194,6 +195,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             this.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise = null;
             this.SelectedCategory = null;
             this.SelectedValueSetsRowsToUpdate = [];
+            this.UpdateProperties();
             this.IsVisible = true;
         }
 
@@ -210,7 +212,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             var availableParameterTypeIids = this.CurrentIteration?
                 .QueryParameterAndOverrideBases()
                 .Select(x => x.ParameterType)
-                .Where(x => !this.excludedParameterTypes.Contains(x.ClassKind))
+                .Where(x => !this.excludedParameterTypes.Contains(x.ClassKind) ||
+                            (x.ClassKind == ClassKind.CompoundParameterType && string.Equals(x.ShortName, ConstantValues.OrientationShortName, StringComparison.InvariantCultureIgnoreCase)))
                 .Select(x => x.Iid);
 
             this.ParameterTypeSelectorViewModel.FilterAvailableParameterTypes(availableParameterTypeIids);
@@ -241,6 +244,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             {
                 var valueSetClone = parameterValueSetRow.ParameterValueSetBase.Clone(true);
                 valueSetClone.Manual = this.ParameterTypeEditorSelectorViewModel.ValueSet.Manual;
+                valueSetClone.ValueSwitch = this.ParameterTypeEditorSelectorViewModel.ValueSet.ValueSwitch;
                 thingsToUpdate.Add(valueSetClone);
             }
 
@@ -255,10 +259,14 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
         /// <param name="selectedParameterType">The newly selected parameter type</param>
         private void OnSelectedParameterTypeChange(ParameterType selectedParameterType)
         {
+            var componentsCount = selectedParameterType is CompoundParameterType compoundParameterType
+                ? compoundParameterType.Component.Count
+                : 1;
+
             var defaultParameterValueSet = new ParameterValueSet
             {
                 ValueSwitch = ParameterSwitchKind.MANUAL,
-                Manual = new ValueArray<string>(["-"])
+                Manual = new ValueArray<string>(Enumerable.Repeat("-", componentsCount))
             };
 
             this.ApplyFilters();

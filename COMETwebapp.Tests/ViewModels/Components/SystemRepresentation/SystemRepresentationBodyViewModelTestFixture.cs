@@ -22,6 +22,7 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
@@ -31,6 +32,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
 
     using CDP4Web.Enumerations;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.Common;
@@ -38,11 +40,15 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
 
     using DynamicData;
 
+    using FluentResults;
+
     using Microsoft.Extensions.Logging;
 
     using Moq;
 
     using NUnit.Framework;
+
+    using ReactiveUI;
 
     [TestFixture]
     public class SystemRepresentationBodyViewModelTestFixture
@@ -197,6 +203,221 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
             Assert.That(rows.Any(r => r.Parameter.Iid == newParameter.Iid), Is.True,
                 "After EndUpdate the panel's rows must include the newly-added parameter, " +
                 "proving OnEndUpdate → OnSessionRefreshed → RefreshSelectedElement re-resolves from the live cache.");
+        }
+        
+        [Test]
+        public async Task VerifyOwnParameterOverrideWritePropagatesToOwnPanelAfterEndUpdate()
+        {
+            var referencedElementDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Box",
+                ShortName = "BOX",
+                Owner = this.currentDomain
+            };
+
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+
+            var parameter = new Parameter
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.currentDomain,
+                ParameterType = parameterType
+            };
+
+            parameter.ValueSet.Add(new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                Manual = new ValueArray<string>(["1"]),
+                Computed = new ValueArray<string>(["1"]),
+                Reference = new ValueArray<string>(["-"]),
+                Formula = new ValueArray<string>(["-"]),
+                Published = new ValueArray<string>(["1"]),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            });
+
+            referencedElementDefinition.Parameter.Add(parameter);
+
+            var elementUsage = new ElementUsage
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Box1",
+                ShortName = "BOX1",
+                ElementDefinition = referencedElementDefinition,
+                Owner = this.currentDomain
+            };
+
+            this.topElement.ContainedElement.Add(elementUsage);
+            this.iteration.Element.Add(referencedElementDefinition);
+
+            var option = new Option { Iid = Guid.NewGuid(), Name = "Option 1", ShortName = "OPT1" };
+            this.iteration.Option.Add(option);
+            this.iteration.DefaultOption = option;
+
+            // Genuinely load the iteration, as the real application does, so RefreshProductTree runs for real
+            // instead of being skipped because CurrentThing is null.
+            this.viewModel.CurrentThing = this.iteration;
+
+            Assert.That(() => this.viewModel.Elements.Any(e => e.Iid == elementUsage.Iid), Is.True.After(2000, 25),
+                "the initial load never finished building the product tree");
+
+            var usageNode = this.viewModel.ProductTreeViewModel.RootViewModel.GetFlatListOfDescendants(true)
+                .Single(n => n.Thing.Iid == elementUsage.Iid);
+
+            // Select the ElementUsage, as the System Representation product tree does.
+            this.viewModel.SelectElement(usageNode);
+
+            Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.SelectedSystemNode,
+                Is.SameAs(elementUsage),
+                "Panel must have the ElementUsage selected before the write.");
+
+            Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows.Single(r => r.Parameter.Iid == parameter.Iid).HasOverride,
+                Is.False,
+                "The row must not report an override before one is created.");
+
+            var isLoadingValues = new List<bool>();
+            this.viewModel.WhenAnyValue(x => x.IsLoading).Subscribe(isLoadingValues.Add);
+
+            // Simulate the write performed by this panel's own "Create Override" popup: the session updates the
+            // live, already-selected ElementUsage in place and notifies the message bus.
+            var parameterOverride = new ParameterOverride
+            {
+                Iid = Guid.NewGuid(),
+                Parameter = parameter,
+                Owner = this.currentDomain
+            };
+
+            elementUsage.ParameterOverride.Add(parameterOverride);
+
+            this.messageBus.SendObjectChangeEvent(parameterOverride, EventKind.Added);
+            this.messageBus.SendObjectChangeEvent(elementUsage, EventKind.Updated);
+            this.messageBus.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
+
+            Assert.That(() => isLoadingValues.Contains(true) && !this.viewModel.IsLoading, Is.True.After(2000, 25),
+                "the view model never signalled a re-render in reaction to its own write");
+
+            Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows.Single(r => r.Parameter.Iid == parameter.Iid).HasOverride,
+                Is.True,
+                "After EndUpdate, the panel that performed the ParameterOverride write must show the override on its own rows.");
+        }
+        
+        [Test]
+        public async Task VerifyCreateOverrideAsyncOwnFinallyDoesNotClobberEndUpdateRefresh()
+        {
+            var referencedElementDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Box",
+                ShortName = "BOX",
+                Owner = this.currentDomain
+            };
+
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+
+            var parameter = new Parameter
+            {
+                Iid = Guid.NewGuid(),
+                Owner = this.currentDomain,
+                ParameterType = parameterType
+            };
+
+            parameter.ValueSet.Add(new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                Manual = new ValueArray<string>(["1"]),
+                Computed = new ValueArray<string>(["1"]),
+                Reference = new ValueArray<string>(["-"]),
+                Formula = new ValueArray<string>(["-"]),
+                Published = new ValueArray<string>(["1"]),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            });
+
+            referencedElementDefinition.Parameter.Add(parameter);
+
+            var elementUsage = new ElementUsage
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Box1",
+                ShortName = "BOX1",
+                ElementDefinition = referencedElementDefinition,
+                Owner = this.currentDomain
+            };
+
+            this.topElement.ContainedElement.Add(elementUsage);
+            this.iteration.Element.Add(referencedElementDefinition);
+
+            var option = new Option { Iid = Guid.NewGuid(), Name = "Option 1", ShortName = "OPT1" };
+            this.iteration.Option.Add(option);
+            this.iteration.DefaultOption = option;
+
+            this.viewModel.CurrentThing = this.iteration;
+
+            Assert.That(() => this.viewModel.Elements.Any(e => e.Iid == elementUsage.Iid), Is.True.After(2000, 25),
+                "the initial load never finished building the product tree");
+
+            var usageNode = this.viewModel.ProductTreeViewModel.RootViewModel.GetFlatListOfDescendants(true)
+                .Single(n => n.Thing.Iid == elementUsage.Iid);
+
+            this.viewModel.SelectElement(usageNode);
+
+            var parameterOverride = new ParameterOverride
+            {
+                Iid = Guid.NewGuid(),
+                Parameter = parameter,
+                Owner = this.currentDomain
+            };
+
+            // The mocked write performs its side effects — and publishes the events a real ISession.Write would —
+            // from inside the callback, i.e. before CreateOverrideAsync's own await resumes.
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .Callback(() =>
+                {
+                    elementUsage.ParameterOverride.Add(parameterOverride);
+                    this.messageBus.SendObjectChangeEvent(parameterOverride, EventKind.Added);
+                    this.messageBus.SendObjectChangeEvent(elementUsage, EventKind.Updated);
+                    this.messageBus.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
+                })
+                .ReturnsAsync(Result.Ok());
+
+            this.viewModel.DetailsPanelViewModel.OpenCreateOverridePopup(parameter, elementUsage);
+            await this.viewModel.DetailsPanelViewModel.CreateOverridePopupViewModel.OnConfirm.InvokeAsync();
+
+            Assert.That(() => this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows.Single(r => r.Parameter.Iid == parameter.Iid).HasOverride,
+                Is.True.After(2000, 25),
+                "After CreateOverrideAsync's own write-and-close sequence completes, the panel that performed it must show the override on its own rows.");
+        }
+        
+        [Test]
+        public void VerifyRefreshProductTreeUpdatesRootNodeOnTopElementRename()
+        {
+            var option = new Option { Iid = Guid.NewGuid(), Name = "Option 1", ShortName = "OPT1" };
+            this.iteration.Option.Add(option);
+            this.iteration.DefaultOption = option;
+
+            this.viewModel.CurrentThing = this.iteration;
+
+            Assert.That(() => this.viewModel.ProductTreeViewModel.RootViewModel != null, Is.True.After(2000, 25),
+                "the initial load never finished building the product tree");
+
+            var rootNode = this.viewModel.ProductTreeViewModel.RootViewModel;
+            var originalTitle = rootNode.Title;
+
+            var isLoadingValues = new List<bool>();
+            this.viewModel.WhenAnyValue(x => x.IsLoading).Subscribe(isLoadingValues.Add);
+
+            // Rename the top ElementDefinition, as a rename performed by this or another panel would.
+            this.topElement.Name = "Renamed Container";
+
+            this.messageBus.SendObjectChangeEvent(this.topElement, EventKind.Updated);
+            this.messageBus.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
+
+            Assert.That(() => isLoadingValues.Contains(true) && !this.viewModel.IsLoading, Is.True.After(2000, 25),
+                "the view model never signalled a re-render in reaction to the rename");
+
+            Assert.That(() => rootNode.Title != originalTitle && rootNode.Title == this.topElement.UserFriendlyName, Is.True.After(2000, 25),
+                "After EndUpdate, the ROOT node must reflect the renamed top ElementDefinition, " +
+                "not just the ElementUsage nodes below it.");
         }
     }
 }

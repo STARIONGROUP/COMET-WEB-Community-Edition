@@ -237,6 +237,10 @@ namespace COMETwebapp.ViewModels.Components.Common
         /// Re-selects the currently selected element, refreshing the details rows. Typically called when the
         /// session is refreshed.
         /// </summary>
+        /// <remarks>
+        /// This toggles <see cref="IsLoading" /> so that the hosting application component re-renders. A caller that
+        /// mirrors <see cref="IsLoading" /> onto its own must not invoke this from inside its own loading bracket.
+        /// </remarks>
         void RefreshSelectedElement();
 
         /// <summary>

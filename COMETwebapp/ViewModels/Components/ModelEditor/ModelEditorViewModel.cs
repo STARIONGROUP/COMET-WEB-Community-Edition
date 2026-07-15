@@ -177,12 +177,16 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// </summary>
         /// <param name="elementDefinitionTree">The <see cref="ElementDefinitionTree"/> to copy the node to</param>
         /// <param name="elementBase">The <see cref="ElementBase"/> to copy</param>
-        public Task CopyAndAddNewElementAsync(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase)
+        /// <param name="operationKind">
+        /// The <see cref="OperationKind"/> requested by the modifier keys that were held during the drop, or null to use the
+        /// copy mode that the user selected in the copy settings
+        /// </param>
+        public Task CopyAndAddNewElementAsync(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase, OperationKind? operationKind = null)
         {
             ArgumentNullException.ThrowIfNull(elementDefinitionTree);
             ArgumentNullException.ThrowIfNull(elementBase);
 
-            return this.CopyAndAddNewElementImplAsync(elementDefinitionTree, elementBase);
+            return this.CopyAndAddNewElementImplAsync(elementDefinitionTree, elementBase, operationKind);
         }
 
         /// <summary>
@@ -190,30 +194,46 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// </summary>
         /// <param name="elementDefinitionTree">The <see cref="ElementDefinitionTree"/> to copy the node to</param>
         /// <param name="elementBase">The <see cref="ElementBase"/> to copy</param>
-        private async Task CopyAndAddNewElementImplAsync(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase)
+        /// <param name="requestedOperationKind">
+        /// The <see cref="OperationKind"/> requested by the modifier keys that were held during the drop, or null to use the
+        /// copy mode that the user selected in the copy settings
+        /// </param>
+        private async Task CopyAndAddNewElementImplAsync(ElementDefinitionTree elementDefinitionTree, ElementBase elementBase, OperationKind? requestedOperationKind)
         {
             this.IsLoading = true;
 
             try
             {
-                if (elementBase.GetContainerOfType<Iteration>() == elementDefinitionTree.ViewModel.Iteration)
+                var iterationOfTargetTree = elementDefinitionTree.ViewModel.Iteration;
+
+                if (elementBase.GetContainerOfType<Iteration>() == iterationOfTargetTree)
                 {
-                    var copyCreator = new CopyElementDefinitionCreator(this.sessionService.Session);
-                    await copyCreator.CopyAsync((ElementDefinition)elementBase, true);
+                    var copyElementDefinitionCreator = new CopyElementDefinitionCreator(this.sessionService.Session);
+                    await copyElementDefinitionCreator.CopyAsync((ElementDefinition)elementBase, true);
                 }
                 else
                 {
                     var copyCreator = new CopyCreator(this.sessionService.Session);
 
-                    this.cacheService.TryGetOrAddBrowserSessionSetting(BrowserSessionSettingKey.CopyElementDefinitionOperationKind, OperationKind.Copy, out var selectedOperationKind);
-
-                    await copyCreator.CopyAsync((ElementDefinition)elementBase, elementDefinitionTree.ViewModel.Iteration, selectedOperationKind is OperationKind operationKind ? operationKind : OperationKind.Copy);
+                    await copyCreator.CopyAsync((ElementDefinition)elementBase, iterationOfTargetTree, requestedOperationKind ?? this.GetSelectedCopyOperationKind());
                 }
             }
             finally
             {
                 this.IsLoading = false;
             }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="OperationKind"/> that the user selected in the copy settings, which applies when a drop is
+        /// performed without holding any modifier key
+        /// </summary>
+        /// <returns>The selected <see cref="OperationKind"/></returns>
+        private OperationKind GetSelectedCopyOperationKind()
+        {
+            this.cacheService.TryGetOrAddBrowserSessionSetting(BrowserSessionSettingKey.CopyElementDefinitionOperationKind, OperationKind.Copy, out var selectedOperationKind);
+
+            return selectedOperationKind is OperationKind operationKind ? operationKind : OperationKind.Copy;
         }
 
         /// <summary>

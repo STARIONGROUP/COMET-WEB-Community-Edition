@@ -40,11 +40,13 @@ jobs:
 
     - name: Checking NuGet vulnerabilites
       run: |
+        # informational only — don't fail the job on tooling hiccups
+        # (e.g. "Sequence contains no matching element" from --outdated)
+        dotnet list COMETwebapp.sln package --outdated --include-transitive || true
+
+        dotnet list COMETwebapp.sln package --deprecated --include-transitive || true
+
         set -e
-        dotnet list COMETwebapp.sln package --outdated --include-transitive
-
-        dotnet list COMETwebapp.sln package --deprecated --include-transitive
-
         dotnet list COMETwebapp.sln package --vulnerable --include-transitive 2>&1 | tee vulnerabilities.log
 
         echo "Analyze dotnet list package command log output..."
