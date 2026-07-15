@@ -40,7 +40,7 @@
         {
             @foreach (var categoryShortName in this.ElementBaseTreeRowViewModel.ElementBase.GetDisplayCategories().Select(x => x.ShortName))
             {
-                <span>
+                <span @key="categoryShortName">
                     <button class="starion-pill"
                             title="Category: @categoryShortName"
                             style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{categoryShortName}") !important;">

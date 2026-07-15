@@ -57,16 +57,23 @@ namespace COMETwebapp.Shared
         {
             get => this.isNarrowViewport;
 
-            set
-            {
-                if (this.isNarrowViewport == value)
-                {
-                    return;
-                }
+            set => this.SetNarrowViewport(value);
+        }
 
-                this.isNarrowViewport = value;
-                this.userCollapsed = null;
+        /// <summary>
+        /// Sets the <see cref="IsNarrowViewport" /> backing field. Crossing the threshold drops any earlier manual
+        /// override so that the side bar follows the viewport width again.
+        /// </summary>
+        /// <param name="value">The new narrow-viewport state</param>
+        private void SetNarrowViewport(bool value)
+        {
+            if (this.isNarrowViewport == value)
+            {
+                return;
             }
+
+            this.isNarrowViewport = value;
+            this.userCollapsed = null;
         }
 
         /// <summary>
