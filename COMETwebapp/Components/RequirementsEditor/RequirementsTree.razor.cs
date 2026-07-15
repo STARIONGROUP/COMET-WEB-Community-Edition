@@ -46,5 +46,51 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// </summary>
         [Parameter]
         public IEnumerable<RequirementsGroup> Groups { get; set; }
+
+        /// <summary>
+        /// Records the <paramref name="group" /> being dragged so a subsequent drop can re-parent it.
+        /// </summary>
+        /// <param name="group">The dragged <see cref="RequirementsGroup" />.</param>
+        private void OnGroupDragStart(RequirementsGroup group)
+        {
+            this.ViewModel.DraggedGroup = group;
+        }
+
+        /// <summary>
+        /// Marks the given <paramref name="target" /> as the hovered container so it is highlighted while the drag is
+        /// over it (only the hovered target is highlighted, and only the invalid-target check gates the highlight).
+        /// </summary>
+        /// <param name="target">The <see cref="RequirementsContainer" /> the drag entered.</param>
+        private void OnDragEnter(RequirementsContainer target)
+        {
+            this.ViewModel.DragOverContainer = target;
+        }
+
+        /// <summary>
+        /// Clears the drag state when the drag ends (whether or not it resulted in a drop).
+        /// </summary>
+        private void OnGroupDragEnd()
+        {
+            this.ViewModel.DraggedGroup = null;
+            this.ViewModel.DragOverContainer = null;
+        }
+
+        /// <summary>
+        /// Drops the dragged group onto the given <paramref name="target" /> container, re-parenting it (the move is
+        /// validated and silently ignored when it is not allowed, e.g. onto itself or a descendant).
+        /// </summary>
+        /// <param name="target">The target <see cref="RequirementsContainer" /> (a specification or a group).</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task OnDropOnContainer(RequirementsContainer target)
+        {
+            var dragged = this.ViewModel.DraggedGroup;
+            this.ViewModel.DraggedGroup = null;
+            this.ViewModel.DragOverContainer = null;
+
+            if (dragged != null && this.ViewModel.CanMoveGroup(dragged, target))
+            {
+                await this.ViewModel.MoveGroupAsync(dragged, target);
+            }
+        }
     }
 }

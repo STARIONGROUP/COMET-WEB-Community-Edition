@@ -29,9 +29,6 @@ Copyright (c) 2023-2026 Starion Group S.A.
         @<div class="req-expr">
             @if (expression is RelationalExpression relational)
             {
-                var boundModelCode = this.ViewModel.GetBoundParameterModelCode(relational);
-                var publishedValue = this.ViewModel.GetBoundParameterPublishedValue(relational);
-
                 <span class="req-expr-leaf">
                     <span class="req-expr-pt" title="@relational.ParameterType?.Name">@relational.ParameterType?.ShortName</span>
                     <span class="req-expr-op">@relational.RelationalOperator.ToScientificNotationString()</span>
@@ -40,14 +37,20 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     {
                         <span class="req-expr-scale" title="@relational.Scale.Name">@relational.Scale.ShortName</span>
                     }
-                    @if (boundModelCode != null)
+                    @foreach (var boundParameter in this.ViewModel.GetBoundParameters(relational))
                     {
-                        <span class="req-expr-binding" title="Bound parameter">@boundModelCode</span>
+                        <span class="req-expr-binding" title="Bound parameter">@boundParameter.ModelCode()</span>
+                        var publishedValue = this.ViewModel.GetPublishedValue(boundParameter);
+
                         @if (publishedValue != null)
                         {
                             <span class="req-expr-published" title="Published value of the bound parameter">= @publishedValue</span>
                         }
                     }
+                    <button type="button" class="req-expr-link" title="Link to a parameter of an element"
+                            @onclick="@(() => this.OpenLinkDialog(relational))">
+                        <span class="oi oi-link-intact"></span>
+                    </button>
                 </span>
             }
             else
@@ -135,3 +138,36 @@ Copyright (c) 2023-2026 Starion Group S.A.
         }
     }
 </div>
+
+<DxPopup CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         HeaderText="Link to a Parameter"
+         Visible="@this.IsLinkDialogOpen"
+         VisibleChanged="@((bool visible) => this.OnLinkDialogVisibleChanged(visible))"
+         Width="min(420px, 92vw)">
+    <BodyContentTemplate>
+        @if (this.linkCandidates.Count == 0)
+        {
+            <p>No element has a parameter of this type.</p>
+        }
+        else
+        {
+            <div class="req-link-picker-list">
+                @foreach (var candidate in this.linkCandidates)
+                {
+                    <div class="req-link-picker-item">
+                        <DxCheckBox Checked="@this.IsStaged(candidate)"
+                                    CheckedChanged="@((bool isChecked) => this.ToggleStaged(candidate, isChecked))">
+                            @candidate.ModelCode() (@GetOwningElementName(candidate))
+                        </DxCheckBox>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="modal-footer m-top-10px">
+            <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="@(() => this.CancelLinks())" />
+            <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="OK" Click="@(() => this.ConfirmLinksAsync())" />
+        </div>
+    </BodyContentTemplate>
+</DxPopup>

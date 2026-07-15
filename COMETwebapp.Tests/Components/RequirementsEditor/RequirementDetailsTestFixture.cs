@@ -37,6 +37,10 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
+    using DevExpress.Blazor;
+
+    using FluentResults;
+
     using Microsoft.Extensions.Logging;
 
     using Moq;
@@ -58,6 +62,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         public void SetUp()
         {
             this.context = new BunitContext();
+            this.context.ConfigureDevExpressBlazor();
+
             this.messageBus = new CDPMessageBus();
 
             var domain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
@@ -194,6 +200,52 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             component.Find(".req-link-req").Click();
 
             Assert.That(this.viewModel.ScrollTarget, Is.Not.Null, "clicking a requirement link navigates to it");
+        }
+
+        [Test]
+        public async Task VerifyParameterLinkPicker()
+        {
+            var massType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "m", Name = "mass" };
+            var relational = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = massType, RelationalOperator = RelationalOperatorKind.LE, Value = new ValueArray<string>(["100"]) };
+            var constraint = new ParametricConstraint { Iid = Guid.NewGuid(), TopExpression = relational };
+            constraint.Expression.Add(relational);
+
+            var linkedRequirement = new Requirement { Iid = Guid.NewGuid(), ShortName = "R3", Name = "Third requirement" };
+            linkedRequirement.ParametricConstraint.Add(constraint);
+
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT", Name = "Satellite" };
+            var boundParameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = massType };
+            var unboundParameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = massType };
+            elementDefinition.Parameter.AddRange([boundParameter, unboundParameter]);
+
+            var mockedViewModel = new Mock<IRequirementsEditorBodyViewModel>();
+            mockedViewModel.Setup(x => x.ShowParametricConstraints).Returns(true);
+            mockedViewModel.Setup(x => x.GetTopExpressions(constraint)).Returns([relational]);
+            mockedViewModel.Setup(x => x.GetBoundParameters(relational)).Returns([boundParameter]);
+            mockedViewModel.Setup(x => x.GetPublishedValue(It.IsAny<ParameterOrOverrideBase>())).Returns((string)null);
+            mockedViewModel.Setup(x => x.GetLinkableParameters(relational)).Returns([boundParameter, unboundParameter]);
+            mockedViewModel.Setup(x => x.UpdateParameterLinksAsync(relational, It.IsAny<IReadOnlyCollection<ParameterOrOverrideBase>>())).Returns(Task.FromResult(Result.Ok()));
+
+            var component = this.context.Render<RequirementDetails>(parameters => parameters
+                .Add(p => p.ViewModel, mockedViewModel.Object)
+                .Add(p => p.Requirement, linkedRequirement));
+
+            var linkButton = component.Find("button.req-expr-link");
+            linkButton.Click();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(component.Instance.IsLinkDialogOpen, Is.True);
+                Assert.That(component.FindComponents<DxCheckBox<bool>>(), Has.Count.EqualTo(2), "both candidates are offered by the picker");
+                Assert.That(component.FindComponents<DxCheckBox<bool>>()[0].Instance.Checked, Is.True, "the already-bound parameter is pre-checked");
+                Assert.That(component.FindComponents<DxCheckBox<bool>>()[1].Instance.Checked, Is.False, "the unbound candidate is not pre-checked");
+            });
+
+            var okButton = component.FindComponents<DxButton>().First(x => x.Instance.Text == "OK");
+            await component.InvokeAsync(okButton.Instance.Click.InvokeAsync);
+
+            mockedViewModel.Verify(x => x.UpdateParameterLinksAsync(relational, It.IsAny<IReadOnlyCollection<ParameterOrOverrideBase>>()), Times.Once);
+            Assert.That(component.Instance.IsLinkDialogOpen, Is.False, "confirming closes the picker");
         }
     }
 }

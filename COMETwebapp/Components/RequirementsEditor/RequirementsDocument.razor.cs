@@ -36,6 +36,14 @@ namespace COMETwebapp.Components.RequirementsEditor
     public partial class RequirementsDocument
     {
         /// <summary>
+        /// The number of simple-parameter-value columns that still fit inline beside the definition and pills; above
+        /// this the value grid drops to its own full-width line below the row. A count heuristic — it does not measure
+        /// the actual panel width — tuned to 5 so the common case stays inline even with the table of contents open.
+        /// The grid also wraps at 5 columns per line (see .req-row-values max-width) so it never runs off the row.
+        /// </summary>
+        private const int MaxInlineValueColumns = 5;
+
+        /// <summary>
         /// Gets or sets the <see cref="IRequirementsEditorBodyViewModel" />.
         /// </summary>
         [Parameter]
@@ -113,6 +121,17 @@ namespace COMETwebapp.Components.RequirementsEditor
         private bool IsEditingDefinition(Requirement requirement)
         {
             return this.editingRequirementIid == requirement.Iid;
+        }
+
+        /// <summary>
+        /// Gets whether the inline definition edit of the given <paramref name="requirement" /> has an unsaved change,
+        /// so the editor can show the same "dirty" highlight as the simple-parameter-value editor.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <returns>true when the staged text differs from the saved definition</returns>
+        private bool IsDefinitionDirty(Requirement requirement)
+        {
+            return !string.Equals(this.editingDefinition ?? string.Empty, GetDefinition(requirement), StringComparison.Ordinal);
         }
 
         /// <summary>

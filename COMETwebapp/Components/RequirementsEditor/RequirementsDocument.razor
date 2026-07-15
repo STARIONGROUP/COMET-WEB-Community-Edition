@@ -24,38 +24,69 @@ Copyright (c) 2023-2026 Starion Group S.A.
 @using COMETwebapp.ViewModels.Components.RequirementsEditor
 
 @{
-    RenderFragment<(DomainOfExpertise Owner, IEnumerable<Category> Categories)> pills = context =>
-        @<span class="req-pills">
-            @if (this.ViewModel.ShowOwner && context.Owner != null)
+    RenderFragment<DomainOfExpertise> ownerPill = owner =>
+        @<text>
+            @if (this.ViewModel.ShowOwner && owner != null)
             {
-                <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{context.Owner.ShortName}") !important;" title="Owner: @context.Owner.Name">@context.Owner.ShortName</span>
+                <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{owner.ShortName}") !important;" title="Owner: @owner.Name">@owner.ShortName</span>
             }
+        </text>;
+
+    RenderFragment<IEnumerable<Category>> categoryPills = categories =>
+        @<span class="req-pill-categories">
             @if (this.ViewModel.ShowCategory)
             {
-                <span class="req-pill-categories">
-                    @foreach (var category in context.Categories)
-                    {
-                        <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.Name">@category.ShortName</span>
-                    }
-                </span>
+                @foreach (var category in categories)
+                {
+                    <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.Name">@category.ShortName</span>
+                }
             }
         </span>;
 
+    RenderFragment<(DomainOfExpertise Owner, IEnumerable<Category> Categories)> pills = context =>
+        @<span class="req-pills">
+            @ownerPill(context.Owner)
+            @categoryPills(context.Categories)
+        </span>;
+
+    RenderFragment<Requirement> editButton = requirement =>
+        @<DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-pencil" title="Edit requirement" Click="@(() => this.ViewModel.OpenEdit(requirement))" />;
+
+    RenderFragment<Requirement> deprecateButton = requirement =>
+        @<DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@(requirement.IsDeprecated ? "oi oi-action-undo" : "oi oi-ban")" title="@(requirement.IsDeprecated ? "Restore requirement" : "Deprecate requirement")" Click="@(() => this.ViewModel.ConfirmDeprecation(requirement))" />;
+
+    RenderFragment<Requirement> pillsAndActions = requirement =>
+        @<text>
+            @if (requirement.IsDeprecated)
+            {
+                <span class="req-deprecated-badge" title="This requirement is deprecated">Deprecated</span>
+            }
+            <div class="req-pill-action-row">
+                @ownerPill(requirement.Owner)
+                <span class="req-actions">@editButton(requirement)</span>
+            </div>
+            <div class="req-pill-action-row">
+                @categoryPills(requirement.Category)
+                <span class="req-actions">@deprecateButton(requirement)</span>
+            </div>
+        </text>;
+
     IReadOnlyList<ParameterType> visibleParameterTypes = this.ViewModel.ShowSimpleParameterValues ? this.ViewModel.GetVisibleParameterTypes() : [];
+    var valuesBelow = visibleParameterTypes.Count > MaxInlineValueColumns;
 
     RenderFragment<Requirement> requirementRow = requirement =>
         @<div @key="requirement.Iid" id="@RequirementAnchorId(requirement)" class="req-row @(requirement.IsDeprecated ? "req-row-deprecated" : string.Empty)">
-            <div class="req-row-top">
+            <div class="req-row-top @(valuesBelow ? "req-values-below" : string.Empty)">
                 <div class="req-row-main">
                     @if (this.IsEditingDefinition(requirement))
                     {
                         <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
-                        <div class="req-def-editor" @onkeydown="this.OnDefinitionEditorKeyDown">
+                        <div class="req-def-editor @(this.IsDefinitionDirty(requirement) ? "req-def-editor-dirty" : string.Empty)" @onkeydown="this.OnDefinitionEditorKeyDown">
                             <div class="req-def-editor-actions">
                                 <button type="button" class="req-def-save" title="Save" @onclick="@(() => this.ConfirmDefinitionEdit(requirement))">&#10003;</button>
                                 <button type="button" class="req-def-cancel" title="Cancel (Esc)" @onclick="this.CancelDefinitionEdit">&#10007;</button>
                             </div>
-                            <DxMemo @bind-Text="this.editingDefinition" Rows="3" CssClass="req-def-memo" />
+                            <DxMemo @bind-Text="this.editingDefinition" BindValueMode="BindValueMode.OnInput" Rows="3" CssClass="req-def-memo" />
                         </div>
                     }
                     else
@@ -77,8 +108,11 @@ Copyright (c) 2023-2026 Starion Group S.A.
                         }
                     }
                 </div>
-                @if (this.ViewModel.ShowSimpleParameterValues)
+                @if (this.ViewModel.ShowSimpleParameterValues && valuesBelow)
                 {
+                    <div class="req-row-pills req-pills-corner">
+                        @pillsAndActions(requirement)
+                    </div>
                     <div class="req-row-values">
                         @foreach (var parameterType in visibleParameterTypes)
                         {
@@ -86,18 +120,32 @@ Copyright (c) 2023-2026 Starion Group S.A.
                         }
                     </div>
                 }
-                <div class="req-row-pills @(this.ViewModel.ShowSimpleParameterValues ? "req-pills-stacked" : string.Empty)">
-                    @if (requirement.IsDeprecated)
-                    {
-                        <span class="req-deprecated-badge" title="This requirement is deprecated">Deprecated</span>
-                    }
-                    @pills((requirement.Owner, requirement.Category))
-                    <span class="req-actions">
-                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-pencil" title="Edit requirement" Click="@(() => this.ViewModel.OpenEdit(requirement))" />
-                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@(requirement.IsDeprecated ? "oi oi-action-undo" : "oi oi-ban")" title="@(requirement.IsDeprecated ? "Restore requirement" : "Deprecate requirement")" Click="@(() => this.ViewModel.ConfirmDeprecation(requirement))" />
-                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-trash" title="Delete requirement" Click="@(() => this.ViewModel.ConfirmDeletion(requirement))" />
-                    </span>
-                </div>
+                else if (this.ViewModel.ShowSimpleParameterValues)
+                {
+                    <div class="req-row-values">
+                        @foreach (var parameterType in visibleParameterTypes)
+                        {
+                            <RequirementValueCell @key="parameterType.Iid" ViewModel="@this.ViewModel" Requirement="@requirement" ParameterType="@parameterType" />
+                        }
+                        <div class="req-pills-cell">
+                            @pillsAndActions(requirement)
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="req-row-pills">
+                        @if (requirement.IsDeprecated)
+                        {
+                            <span class="req-deprecated-badge" title="This requirement is deprecated">Deprecated</span>
+                        }
+                        @pills((requirement.Owner, requirement.Category))
+                        <span class="req-actions">
+                            @editButton(requirement)
+                            @deprecateButton(requirement)
+                        </span>
+                    </div>
+                }
             </div>
             @if (this.ViewModel.ShowParametricConstraints || this.ViewModel.ShowTraceability)
             {
@@ -127,7 +175,6 @@ else if (this.Container == null)
             <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-folder" title="Add group" Click="@(() => this.ViewModel.OpenCreateGroup(specification))" />
             <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-pencil" title="Edit specification" Click="@(() => this.ViewModel.OpenEdit(specification))" />
             <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@(specification.IsDeprecated ? "oi oi-action-undo" : "oi oi-ban")" title="@(specification.IsDeprecated ? "Restore specification" : "Deprecate specification")" Click="@(() => this.ViewModel.ConfirmDeprecation(specification))" />
-            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-trash" title="Delete specification" Click="@(() => this.ViewModel.ConfirmDeletion(specification))" />
         </span>
     </div>
 

@@ -508,6 +508,163 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         }
 
         [Test]
+        public async Task VerifyGetBoundParameters()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var relationalExpression = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = this.massParameterType };
+            Assert.That(this.viewModel.GetBoundParameters(relationalExpression), Is.Empty);
+
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT" };
+            var parameterA = new Parameter { Iid = Guid.NewGuid(), ParameterType = this.massParameterType };
+            var parameterB = new Parameter { Iid = Guid.NewGuid(), ParameterType = this.massParameterType };
+            elementDefinition.Parameter.AddRange([parameterA, parameterB]);
+
+            this.iteration.Relationship.AddRange([
+                new BinaryRelationship { Iid = Guid.NewGuid(), Source = relationalExpression, Target = parameterA },
+                new BinaryRelationship { Iid = Guid.NewGuid(), Source = parameterB, Target = relationalExpression }
+            ]);
+
+            Assert.That(this.viewModel.GetBoundParameters(relationalExpression), Is.EquivalentTo(new ParameterOrOverrideBase[] { parameterA, parameterB }));
+
+            this.viewModel.CurrentThing = null;
+            Assert.That(this.viewModel.GetBoundParameters(relationalExpression), Is.Empty);
+        }
+
+        [Test]
+        public async Task VerifyGetLinkableParameters()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var relationalExpression = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = this.massParameterType };
+            Assert.That(this.viewModel.GetLinkableParameters(new RelationalExpression { Iid = Guid.NewGuid() }), Is.Empty, "a null parameter type yields no candidates");
+
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT" };
+            var matchingParameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = this.massParameterType };
+            var otherParameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = this.lengthParameterType };
+            elementDefinition.Parameter.AddRange([matchingParameter, otherParameter]);
+
+            var elementUsage = new ElementUsage { Iid = Guid.NewGuid(), ShortName = "sat_1", ElementDefinition = elementDefinition };
+            var matchingOverride = new ParameterOverride { Iid = Guid.NewGuid(), Parameter = matchingParameter };
+            elementUsage.ParameterOverride.Add(matchingOverride);
+            elementDefinition.ContainedElement.Add(elementUsage);
+
+            this.iteration.Element.Add(elementDefinition);
+
+            Assert.That(this.viewModel.GetLinkableParameters(relationalExpression), Is.EqualTo(new ParameterOrOverrideBase[] { matchingParameter, matchingOverride }));
+
+            this.viewModel.CurrentThing = null;
+            Assert.That(this.viewModel.GetLinkableParameters(relationalExpression), Is.Empty);
+        }
+
+        [Test]
+        public async Task VerifyUpdateParameterLinksAsync()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.sessionService.Setup(x => x.CreateUpdateAndDeleteThingsWithNotification(
+                It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>())).ReturnsAsync(Result.Ok());
+
+            var relationalExpression = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = this.massParameterType };
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT" };
+            var parameterA = new Parameter { Iid = Guid.NewGuid(), ParameterType = this.massParameterType };
+            var parameterB = new Parameter { Iid = Guid.NewGuid(), ParameterType = this.massParameterType };
+            elementDefinition.Parameter.AddRange([parameterA, parameterB]);
+            this.iteration.Element.Add(elementDefinition);
+
+            // Case A: expression currently unbound, select parameterA -> one create, no delete
+            var resultA = await this.viewModel.UpdateParameterLinksAsync(relationalExpression, [parameterA]);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultA.IsSuccess, Is.True);
+
+                this.sessionService.Verify(x => x.CreateUpdateAndDeleteThingsWithNotification(
+                    It.IsAny<Thing>(),
+                    It.Is<IReadOnlyCollection<Thing>>(things => things.OfType<BinaryRelationship>().Count() == 1
+                        && things.OfType<Iteration>().Count() == 1
+                        && things.OfType<BinaryRelationship>().Single().Source == parameterA
+                        && things.OfType<BinaryRelationship>().Single().Target == relationalExpression
+                        && things.OfType<BinaryRelationship>().Single().Owner == this.systemDomain),
+                    It.Is<IReadOnlyCollection<Thing>>(things => things.Count == 0),
+                    It.IsAny<NotificationDescription>()), Times.Once);
+            });
+
+            // simulate the created relationship now existing so the next calls diff against it
+            this.iteration.Relationship.Add(new BinaryRelationship { Iid = Guid.NewGuid(), Source = relationalExpression, Target = parameterA });
+            this.sessionService.Invocations.Clear();
+
+            // Case B: unchanged selection must not call the session
+            var resultB = await this.viewModel.UpdateParameterLinksAsync(relationalExpression, [parameterA]);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultB.IsSuccess, Is.True);
+
+                this.sessionService.Verify(x => x.CreateUpdateAndDeleteThingsWithNotification(
+                    It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Never);
+            });
+
+            // Case C: swap parameterA for parameterB -> one create, one delete
+            var resultC = await this.viewModel.UpdateParameterLinksAsync(relationalExpression, [parameterB]);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultC.IsSuccess, Is.True);
+
+                this.sessionService.Verify(x => x.CreateUpdateAndDeleteThingsWithNotification(
+                    It.IsAny<Thing>(),
+                    It.Is<IReadOnlyCollection<Thing>>(things => things.OfType<BinaryRelationship>().Count() == 1
+                        && things.OfType<BinaryRelationship>().Single().Source == parameterB),
+                    It.Is<IReadOnlyCollection<Thing>>(things => things.Count == 1),
+                    It.IsAny<NotificationDescription>()), Times.Once);
+            });
+        }
+
+        [Test]
+        public void VerifyCanMoveGroup()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CanMoveGroup(this.c4iGroup, this.specification), Is.True, "a nested group can be promoted to the specification");
+                Assert.That(this.viewModel.CanMoveGroup(this.c4iGroup, this.operateGroup), Is.False, "moving onto the current parent is a no-op");
+                Assert.That(this.viewModel.CanMoveGroup(this.operateGroup, this.specification), Is.False, "the group is already directly under the specification");
+                Assert.That(this.viewModel.CanMoveGroup(this.operateGroup, this.c4iGroup), Is.False, "a group cannot be nested under its own descendant");
+                Assert.That(this.viewModel.CanMoveGroup(this.c4iGroup, this.c4iGroup), Is.False, "a group cannot be nested under itself");
+                Assert.That(this.viewModel.CanMoveGroup(null, this.specification), Is.False);
+            });
+        }
+
+        [Test]
+        public async Task VerifyMoveGroupAsync()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var invalid = await this.viewModel.MoveGroupAsync(this.operateGroup, this.c4iGroup);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(invalid.IsSuccess, Is.False, "a cyclic move is rejected");
+                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Never);
+            });
+
+            var result = await this.viewModel.MoveGroupAsync(this.c4iGroup, this.specification);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsSuccess, Is.True);
+
+                // mirrors the IME: only the new container (the specification) is written, with the moved group added
+                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(
+                    It.IsAny<Thing>(),
+                    It.Is<IReadOnlyCollection<Thing>>(things =>
+                        things.OfType<RequirementsSpecification>().Single(s => s.Iid == this.specification.Iid).Group.Any(g => g.Iid == this.c4iGroup.Iid)
+                        && things.All(t => t.Iid != this.operateGroup.Iid)),
+                    It.IsAny<NotificationDescription>()), Times.Once);
+            });
+        }
+
+        [Test]
         public async Task VerifyGetExpressionSummary()
         {
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
@@ -604,6 +761,27 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 Assert.That(this.viewModel.GetRequirements(this.c4iGroup), Does.Contain(this.c4iRequirement));
                 Assert.That(this.showHideService.ShowDeprecatedThings, Is.False, "a non-deprecated target does not flip the global toggle");
             });
+        }
+
+        [Test]
+        public async Task VerifySaveInlineDefinitionUsesDefaultLanguage()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var requirementWithoutDefinition = new Requirement { Iid = Guid.NewGuid(), ShortName = "R99", Name = "No definition yet", Owner = this.systemDomain };
+            this.specification.Requirement.Add(requirementWithoutDefinition);
+
+            var siteDirectory = new SiteDirectory { Iid = Guid.NewGuid(), NaturalLanguage = { new NaturalLanguage { LanguageCode = "fr", Name = "French" } } };
+            this.session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
+
+            Assert.That(requirementWithoutDefinition.Definition, Is.Empty);
+
+            await this.viewModel.SaveInlineDefinitionAsync(requirementWithoutDefinition, "Some new definition text.");
+
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(
+                It.IsAny<Thing>(),
+                It.Is<IReadOnlyCollection<Thing>>(things => things.OfType<Definition>().Any(d => d.LanguageCode == "fr" && d.Content == "Some new definition text.")),
+                It.IsAny<NotificationDescription>()), Times.Once);
         }
 
         [Test]

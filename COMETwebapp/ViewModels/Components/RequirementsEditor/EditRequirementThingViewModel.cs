@@ -206,6 +206,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         public IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the form can be saved. A <see cref="Requirement" /> must carry at least one
+        /// non-empty <see cref="Definition" /> (in any language); groups and specifications are always saveable.
+        /// </summary>
+        public bool CanSave => !this.IsRequirement || this.DefinedThing.Definition.Any(x => !string.IsNullOrWhiteSpace(x.Content));
+
+        /// <summary>
         /// Gets or sets the callback invoked when the user submits a valid edit.
         /// </summary>
         public EventCallback OnValidSubmit { get; set; }
