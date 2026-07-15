@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.4
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0.10 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 ARG DEVEXPRESS_NUGET_KEY
 ARG PACKAGE_TOKEN
