@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="CanvasViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -174,13 +174,32 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <returns>an asynchronous operation</returns>
         private async Task OnParameterSubmitted()
         {
-            await this.ClearTemporarySceneObjects();
             var originalObj = this.SelectionMediator.SelectedSceneObject;
+            var clone = this.SelectionMediator.SelectedSceneObjectClone;
 
-            if (originalObj != null)
+            var shapeTypeChanged = originalObj?.Primitive?.GetType() != clone?.Primitive?.GetType();
+
+            if (originalObj != null && clone != null)
             {
-                await this.BabylonInterop.RegenerateMesh(originalObj);
+                originalObj.ApplySubmittedPrimitive(clone.Primitive);
+                originalObj.Primitive?.HasHalo = false;
             }
+
+            await this.ClearTemporarySceneObjects();
+
+            if (originalObj?.Primitive == null)
+            {
+                return;
+            }
+
+            if (shapeTypeChanged)
+            {
+                await this.RemoveSceneObject(originalObj);
+                await this.AddSceneObject(originalObj);
+                return;
+            }
+            
+            await this.BabylonInterop.RegenerateMesh(originalObj);
         }
 
         /// <summary>

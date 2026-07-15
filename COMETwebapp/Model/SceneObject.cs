@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SceneObject.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -262,6 +262,17 @@ namespace COMETwebapp.Model
                     this.ParseParameter(parameter);
                 }
             }
+        }
+
+        /// <summary>
+        /// Directly assigns the submitted <see cref="Primitive" /> onto this <see cref="SceneObject" />, reflecting the
+        /// state that was just confirmed by the user. Used after a parameter submission to synchronize the original
+        /// object with the changes made on the preview clone.
+        /// </summary>
+        /// <param name="primitive">the submitted primitive to apply</param>
+        public void ApplySubmittedPrimitive(Primitive primitive)
+        {
+            this.Primitive = primitive;
         }
 
         /// <summary>
