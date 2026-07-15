@@ -63,14 +63,19 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public ISelectionMediator SelectionMediator { get; set; }
 
         /// <summary>
+        /// The collection of hidden original objects
+        /// </summary>
+        private readonly List<SceneObject> hiddenOriginalObjects = [];
+
+        /// <summary>
         /// Collection of scene objects in the scene.
         /// </summary>
-        private readonly List<SceneObject> sceneObjects = new();
+        private readonly List<SceneObject> sceneObjects = [];
 
         /// <summary>
         /// Collection of temporary scene objects in scene.
         /// </summary>
-        private readonly List<SceneObject> temporarySceneObjects = new();
+        private readonly List<SceneObject> temporarySceneObjects = [];
 
         /// <summary>
         /// Backing field for the <see cref="IsOnChangePrimitiveMode"/> property
@@ -117,6 +122,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             this.SelectionMediator.SceneObjectHasChanges = false;
             this.SelectionMediator.OnTreeSelectionChanged += async (nodeViewModel) => await this.OnTreeSelectionChanged(nodeViewModel);
             this.SelectionMediator.OnTreeVisibilityChanged += async (nodeViewModel) => await this.OnTreeVisibilityChanged(nodeViewModel);
+            this.SelectionMediator.OnParameterChanged += async () => await this.OnParameterChanged();
+            this.SelectionMediator.OnParameterSubmitted += async () => await this.OnParameterSubmitted();
         }
 
         /// <summary>
@@ -128,9 +135,51 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         {
             await this.ClearTemporarySceneObjects();
 
-            if (nodeViewModel.SceneObject?.Primitive != null)
+            if (this.SelectionMediator.SceneObjectHasChanges && nodeViewModel.IsSelected && nodeViewModel.IsSceneObjectVisible && nodeViewModel.SceneObject?.Primitive != null)
             {
                 await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);
+            }
+        }
+
+        /// <summary>
+        /// Callback method for when a parameter value has changed
+        /// </summary>
+        /// <returns>an asynchronous operation</returns>
+        private async Task OnParameterChanged()
+        {
+            await this.ClearTemporarySceneObjects();
+
+            var clone = this.SelectionMediator.SelectedSceneObjectClone;
+
+            if (clone?.Primitive == null)
+            {
+                return;
+            }
+            
+            await this.AddTemporarySceneObject(clone);
+
+            // Hide the original object to prevent z-fighting with the temporary preview object
+            var originalObj = this.SelectionMediator.SelectedSceneObject;
+
+            if (originalObj != null && !this.hiddenOriginalObjects.Contains(originalObj))
+            {
+                this.hiddenOriginalObjects.Add(originalObj);
+                await this.BabylonInterop.SetVisibility(originalObj, false);
+            }
+        }
+
+        /// <summary>
+        /// Callback method for when the parameter is submitted
+        /// </summary>
+        /// <returns>an asynchronous operation</returns>
+        private async Task OnParameterSubmitted()
+        {
+            await this.ClearTemporarySceneObjects();
+            var originalObj = this.SelectionMediator.SelectedSceneObject;
+
+            if (originalObj != null)
+            {
+                await this.BabylonInterop.RegenerateMesh(originalObj);
             }
         }
 
@@ -141,14 +190,45 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <returns>an asynchronous operation</returns>
         private async Task OnTreeVisibilityChanged(ViewerNodeViewModel nodeViewModel)
         {
-            await this.ClearTemporarySceneObjects();
-
             var nodesAffected = nodeViewModel.GetFlatListOfDescendants(true)
                 .Where(x => x.SceneObject.Primitive is not null).ToList();
 
-            foreach (var sceneObject in nodesAffected.Select(x => x.SceneObject))
+            var isSelectedNodeAffected = this.SelectionMediator.SelectedSceneObject != null && nodesAffected.Any(x => x.SceneObject.ID == this.SelectionMediator.SelectedSceneObject.ID);
+
+            if (isSelectedNodeAffected && !nodeViewModel.IsSceneObjectVisible)
             {
-                await this.SetSceneObjectVisibility(sceneObject, nodeViewModel.IsSceneObjectVisible);
+                await this.ClearTemporarySceneObjects();
+            }
+
+            foreach (var node in nodesAffected)
+            {
+                if (!Equals(node, nodeViewModel))
+                {
+                    node.IsSceneObjectVisible = nodeViewModel.IsSceneObjectVisible;
+                }
+                
+                await this.SetSceneObjectVisibility(node.SceneObject, nodeViewModel.IsSceneObjectVisible);
+            }
+
+            if (!this.SelectionMediator.SceneObjectHasChanges || !isSelectedNodeAffected || !nodeViewModel.IsSceneObjectVisible)
+            {
+                return;
+            }
+            
+            var clone = this.SelectionMediator.SelectedSceneObjectClone;
+
+            if (clone?.Primitive == null)
+            {
+                return;
+            }
+
+            await this.AddTemporarySceneObject(clone);
+            var originalObj = this.SelectionMediator.SelectedSceneObject;
+
+            if (originalObj != null && !this.hiddenOriginalObjects.Contains(originalObj))
+            {
+                this.hiddenOriginalObjects.Add(originalObj);
+                await this.BabylonInterop.SetVisibility(originalObj, false);
             }
         }
 
@@ -159,12 +239,23 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         private async Task SelectSceneObjectUnderMouse()
         {
             this.SelectionMediator.SceneObjectHasChanges = false;
+
+            if (this.hiddenOriginalObjects.Count != 0)
+            {
+                foreach (var obj in this.hiddenOriginalObjects)
+                {
+                    await this.BabylonInterop.SetVisibility(obj, true);
+                }
+
+                this.hiddenOriginalObjects.Clear();
+            }
+
             var sceneObject = await this.GetSceneObjectUnderMouseAsync();
             this.SelectionMediator.RaiseOnModelSelectionChanged(sceneObject);
 
             await this.ClearTemporarySceneObjects();
             
-            if (this.SelectionMediator.SelectedSceneObjectClone is not null && this.SelectionMediator.SelectedSceneObjectClone.Primitive is not null)
+            if (this.SelectionMediator.SceneObjectHasChanges && this.SelectionMediator.SelectedSceneObjectClone?.Primitive != null)
             {
                 await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);
             }
@@ -197,11 +288,28 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// <summary>
         /// Adds a selectable scene object into scene that contains a primitive
         /// </summary>
-        /// <param name="sceneObject"></param>
+        /// <param name="sceneObject">the scene object to add</param>
+        /// <returns>an asynchronous task</returns>
         public async Task AddSceneObject(SceneObject sceneObject)
         {
             this.sceneObjects.Add(sceneObject);
             await this.BabylonInterop.AddSceneObject(sceneObject);
+        }
+
+        /// <summary>
+        /// Removes a selectable scene object from scene
+        /// </summary>
+        /// <param name="sceneObject">the scene object to remove</param>
+        /// <returns>an asynchronous task</returns>
+        public async Task RemoveSceneObject(SceneObject sceneObject)
+        {
+            if (sceneObject == null)
+            {
+                return;
+            }
+
+            this.sceneObjects.Remove(sceneObject);
+            await this.BabylonInterop.ClearSceneObject(sceneObject);
         }
 
         /// <summary>
@@ -242,8 +350,23 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// </summary>
         public async Task ClearTemporarySceneObjects()
         {
+            foreach (var tempObj in this.temporarySceneObjects)
+            {
+                tempObj.Primitive?.HasHalo = false;
+            }
+
             await this.BabylonInterop.ClearSceneObjects(this.temporarySceneObjects);
             this.temporarySceneObjects.Clear();
+            
+            if (this.hiddenOriginalObjects.Count != 0)
+            {
+                foreach (var obj in this.hiddenOriginalObjects.ToList())
+                {
+                    await this.BabylonInterop.SetVisibility(obj, true);
+                }
+
+                this.hiddenOriginalObjects.Clear();
+            }
         }
 
         /// <summary>

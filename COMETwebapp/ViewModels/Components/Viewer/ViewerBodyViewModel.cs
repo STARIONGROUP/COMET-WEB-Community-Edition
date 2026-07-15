@@ -34,6 +34,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
+    using DynamicData;
+
     using ReactiveUI;
 
     /// <summary>
@@ -135,9 +137,88 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// Handles the refresh of the current <see cref="ISession" />
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override Task OnSessionRefreshed()
+        protected override async Task OnSessionRefreshed()
         {
-            return this.OnThingChanged();
+            if (this.AddedThings.Count == 0 && this.UpdatedThings.Count == 0 && this.DeletedThings.Count == 0)
+            {
+                return;
+            }
+
+            this.IsLoading = true;
+
+            this.OptionSelector.CurrentIteration = this.CurrentThing;
+            this.MultipleFiniteStateSelector.CurrentIteration = this.CurrentThing;
+
+            var addedElements = this.AddedThings.OfType<ElementUsage>().ToList();
+            var deletedElements = this.DeletedThings.OfType<ElementUsage>().ToList();
+            var updatedElements = this.UpdatedThings.OfType<ElementUsage>().ToList();
+
+            this.Elements.AddRange(addedElements);
+            this.Elements.RemoveMany(deletedElements);
+
+            var selectedOption = this.OptionSelector.SelectedOption;
+
+            var drawnUsageIids = this.ProductTreeViewModel.RootViewModel?.GetFlatListOfDescendants(true)
+                .Where(node => node.SceneObject?.ElementBase != null)
+                .Select(node => node.SceneObject.ElementBase.Iid)
+                .ToHashSet() ?? [];
+
+            var optionMembershipChanged = updatedElements.Any(usage =>
+            {
+                var excluded = selectedOption != null && usage.ExcludeOption.Any(o => o.Iid == selectedOption.Iid);
+                return excluded == drawnUsageIids.Contains(usage.Iid);
+            });
+
+            if (optionMembershipChanged || this.ProductTreeViewModel.RootViewModel == null)
+            {
+                this.InitializeElementsAndCreateTree();
+            }
+            else
+            {
+                var finiteStates = this.MultipleFiniteStateSelector.SelectedFiniteStates.ToList();
+                var addedNodes = this.ProductTreeViewModel.AddElementsToTree(addedElements, selectedOption, finiteStates);
+                var removedNodes = this.ProductTreeViewModel.RemoveElementsFromTree(deletedElements);
+                var updatedNodes = this.ProductTreeViewModel.UpdateElementsFromTree(updatedElements, selectedOption, finiteStates);
+
+                foreach (var node in addedNodes.Where(node => node.SceneObject.Primitive != null))
+                {
+                    await this.CanvasViewModel.AddSceneObject(node.SceneObject);
+                }
+
+                foreach (var node in removedNodes.Where(node => node.SceneObject.Primitive != null))
+                {
+                    await this.CanvasViewModel.RemoveSceneObject(node.SceneObject);
+                }
+
+                foreach (var (oldSceneObject, newSceneObject) in updatedNodes)
+                {
+                    if (oldSceneObject.Primitive != null)
+                    {
+                        await this.CanvasViewModel.RemoveSceneObject(oldSceneObject);
+                    }
+
+                    if (newSceneObject.Primitive == null)
+                    {
+                        continue;
+                    }
+
+                    await this.CanvasViewModel.AddSceneObject(newSceneObject);
+                        
+                    var node = this.ProductTreeViewModel.RootViewModel.GetFlatListOfDescendants(true).FirstOrDefault(n => n.SceneObject == newSceneObject);
+                    
+                    if (node is { IsSceneObjectVisible: false })
+                    {
+                        await this.CanvasViewModel.SetSceneObjectVisibility(newSceneObject, false);
+                    }
+                }
+
+                this.ProductTreeViewModel.RootViewModel.OrderAllDescendantsByShortName();
+                this.ProductTreeViewModel.OnFilterChanged();
+                this.ProductTreeViewModel.OnSearchFilterChange();
+            }
+
+            this.ClearRecordedChanges();
+            this.IsLoading = false;
         }
 
         /// <summary>
@@ -149,7 +230,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             await base.OnThingChanged();
             this.OptionSelector.CurrentIteration = this.CurrentThing;
             this.MultipleFiniteStateSelector.CurrentIteration = this.CurrentThing;
-
+            
             await this.InitializeViewModel();
         }
     }

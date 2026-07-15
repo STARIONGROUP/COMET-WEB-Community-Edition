@@ -61,6 +61,16 @@ namespace COMETwebapp.Utilities
         event Action<SceneObject> OnModelSelectionChanged;
 
         /// <summary>
+        /// Event for when a parameter value has changed
+        /// </summary>
+        event Action OnParameterChanged;
+
+        /// <summary>
+        /// Event for when a parameter value change has been submitted
+        /// </summary>
+        event Action OnParameterSubmitted;
+
+        /// <summary>
         /// Raises the <see cref="OnTreeSelectionChanged"/> event
         /// </summary>
         /// <param name="baseNodeViewModel">the node that raised the event</param>
@@ -77,5 +87,15 @@ namespace COMETwebapp.Utilities
         /// </summary>
         /// <param name="sceneObject">the <see cref="SceneObject"/> that raised the event</param>
         void RaiseOnModelSelectionChanged(SceneObject sceneObject);
+
+        /// <summary>
+        /// Raises the <see cref="OnParameterChanged"/> event
+        /// </summary>
+        void RaiseOnParameterChanged();
+
+        /// <summary>
+        /// Raises the <see cref="OnParameterSubmitted"/> event
+        /// </summary>
+        void RaiseOnParameterSubmitted();
     }
 }

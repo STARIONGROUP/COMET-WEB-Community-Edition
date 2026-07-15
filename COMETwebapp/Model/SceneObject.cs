@@ -177,6 +177,27 @@ namespace COMETwebapp.Model
         }
 
         /// <summary>
+        /// Parses all parameters associated with the <see cref="SceneObject" /> and resets the <see cref="Primitive" /> properties.
+        /// </summary>
+        public void ParseAllParameters()
+        {
+            var shapeKindParameter = this.ParametersAsociated?.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName);
+
+            if (shapeKindParameter == null)
+            {
+                return;
+            }
+
+            this.ParseParameter(shapeKindParameter);
+            var restOfParameters = this.ParametersAsociated.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
+            
+            foreach (var parameter in restOfParameters)
+            {
+                this.ParseParameter(parameter);
+            }
+        }
+
+        /// <summary>
         /// Updates the properties of <see cref="SceneObject" /> that are related to the <paramref name="parameterBase" />
         /// </summary>
         /// <param name="parameterBase">the parameter base used for updating the values</param>

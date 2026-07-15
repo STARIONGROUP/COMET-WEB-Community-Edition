@@ -56,6 +56,11 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         private ValueArray<string> valueArray;
 
         /// <summary>
+        /// Backing field for <see cref="ValueArrayIndex" />
+        /// </summary>
+        private int valueArrayIndex;
+
+        /// <summary>
         /// Creates a new instance of type <see cref="ParameterTypeEditorBaseViewModel{T}" />
         /// </summary>
         /// <param name="parameterType">the parameter type of this view model</param>
@@ -64,9 +69,14 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <param name="valueArrayIndex">the index of the value changed in the value sets</param>
         protected ParameterTypeEditorBaseViewModel(T parameterType, IValueSet valueSet, bool isReadOnly, int valueArrayIndex)
         {
+            this.ParameterType = parameterType;
             this.ValueSet = valueSet;
             this.ValueArrayIndex = valueArrayIndex;
-            this.ParameterType = parameterType;
+
+            this.Disposables.Add(this.WhenAnyValue(
+                x => x.ValueArray, 
+                x => x.ValueArrayIndex)
+                .Subscribe(_ => this.PadValueArray()));
 
             if (this.ValueSet is ParameterValueSetBase valueSetBase)
             {
@@ -122,7 +132,11 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <summary>
         /// Gets the index of the value changed in the value sets
         /// </summary>
-        public int ValueArrayIndex { get; set; }
+        public int ValueArrayIndex
+        {
+            get => this.valueArrayIndex;
+            set => this.RaiseAndSetIfChanged(ref this.valueArrayIndex, value);
+        }
 
         /// <summary>
         /// The current <see cref="ParameterSwitchKind" />
@@ -222,6 +236,26 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
             this.initialReadOnlyValue = readOnly;
 
             this.UpdateParameterSwitchKind(this.ValueSet.ValueSwitch);
+        }
+
+        /// <summary>
+        /// Pads the ValueArray to ensure it can be safely accessed at the current ValueArrayIndex
+        /// </summary>
+        private void PadValueArray()
+        {
+            if (this.valueArray == null || this.valueArray.Count > this.ValueArrayIndex)
+            {
+                return;
+            }
+
+            var list = this.valueArray.ToList();
+
+            while (list.Count <= this.ValueArrayIndex)
+            {
+                list.Add(string.Empty);
+            }
+
+            this.ValueArray = new ValueArray<string>(list);
         }
     }
 }
