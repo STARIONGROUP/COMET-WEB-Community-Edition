@@ -109,35 +109,6 @@ namespace COMETwebapp.Components.RequirementsEditor
         }
 
         /// <summary>
-        /// Scrolls the document to the <see cref="IRequirementsEditorBodyViewModel.ScrollTarget" /> once it has been
-        /// rendered, after a traceability link navigated to it.
-        /// </summary>
-        /// <param name="firstRender">true on the first render of the component</param>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            await base.OnAfterRenderAsync(firstRender);
-
-            var target = this.ViewModel?.ScrollTarget;
-
-            if (target != null)
-            {
-                this.ViewModel.ScrollTarget = null;
-
-                try
-                {
-                    await this.DomDataService.ScrollElementIntoView(RequirementsDocument.RequirementAnchorId(target));
-                }
-                catch (Exception exception) when (exception is JSException or JSDisconnectedException)
-                {
-                    // The scroll is purely cosmetic; a stale cached DomData.js (missing ScrollElementIntoView) or a
-                    // circuit that disconnected mid-render must never kill the page. Navigation already switched the
-                    // specification and expanded the target's groups.
-                }
-            }
-        }
-
-        /// <summary>
         /// Initializes values of the component and of the ViewModel based on parameters provided from the URL.
         /// The Requirements Editor does not yet take any URL parameters.
         /// </summary>
