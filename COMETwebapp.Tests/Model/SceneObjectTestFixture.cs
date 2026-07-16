@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SceneObjectTestFixture.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -366,6 +366,35 @@ namespace COMETwebapp.Tests.Model
                 Assert.That(primitive.Y, Is.EqualTo(1.0).Within(Delta));
                 Assert.That(primitive.Z, Is.EqualTo(1.0).Within(Delta));
             }
+        }
+
+        [Test]
+        public void VerifyParseAllParameters()
+        {
+            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            
+            sceneObject.Primitive.X = 100.0;
+            
+            sceneObject.ParseAllParameters();
+            
+            Assert.That(sceneObject.Primitive.X, Is.EqualTo(0.0).Within(Delta));
+            
+            var emptyElementDef = new ElementDefinition(Guid.NewGuid(), this.cache, this.uri) { Owner = this.domain };
+            var emptyElementUsage = new ElementUsage(Guid.NewGuid(), this.cache, this.uri) { ElementDefinition = emptyElementDef, Owner = this.domain };
+            var emptySceneObject = SceneObject.Create(emptyElementUsage, this.option, new List<ActualFiniteState>());
+            
+            Assert.That(emptySceneObject.ParseAllParameters, Throws.Nothing);
+        }
+
+        [Test]
+        public void VerifyApplySubmittedPrimitive()
+        {
+            var sceneObject = SceneObject.Create(this.elementUsage, this.option, new List<ActualFiniteState>());
+            var newPrimitive = new Cube(5, 5, 5);
+            
+            sceneObject.ApplySubmittedPrimitive(newPrimitive);
+            
+            Assert.That(sceneObject.Primitive, Is.EqualTo(newPrimitive));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ViewerNodeViewModelTestFixture.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -140,6 +140,23 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
                 Assert.That(descendants.Contains(this.node4), Is.True);
                 Assert.That(descendants.Contains(this.node5), Is.True);
             });
+        }
+
+        [Test]
+        public void VerifyUpdateSceneObjectProperty()
+        {
+            var propertyChanged = false;
+
+            this.rootNode.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == nameof(this.rootNode.SceneObject))
+                {
+                    propertyChanged = true;
+                }
+            };
+
+            this.rootNode.UpdateSceneObjectProperty();
+            Assert.That(propertyChanged, Is.True);
         }
     }
 }

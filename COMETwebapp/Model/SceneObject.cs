@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SceneObject.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -177,6 +177,27 @@ namespace COMETwebapp.Model
         }
 
         /// <summary>
+        /// Parses all parameters associated with the <see cref="SceneObject" /> and resets the <see cref="Primitive" /> properties.
+        /// </summary>
+        public void ParseAllParameters()
+        {
+            var shapeKindParameter = this.ParametersAsociated?.FirstOrDefault(x => x.ParameterType.ShortName == SceneSettings.ShapeKindShortName);
+
+            if (shapeKindParameter == null)
+            {
+                return;
+            }
+
+            this.ParseParameter(shapeKindParameter);
+            var restOfParameters = this.ParametersAsociated.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
+            
+            foreach (var parameter in restOfParameters)
+            {
+                this.ParseParameter(parameter);
+            }
+        }
+
+        /// <summary>
         /// Updates the properties of <see cref="SceneObject" /> that are related to the <paramref name="parameterBase" />
         /// </summary>
         /// <param name="parameterBase">the parameter base used for updating the values</param>
@@ -241,6 +262,17 @@ namespace COMETwebapp.Model
                     this.ParseParameter(parameter);
                 }
             }
+        }
+
+        /// <summary>
+        /// Directly assigns the submitted <see cref="Primitive" /> onto this <see cref="SceneObject" />, reflecting the
+        /// state that was just confirmed by the user. Used after a parameter submission to synchronize the original
+        /// object with the changes made on the preview clone.
+        /// </summary>
+        /// <param name="primitive">the submitted primitive to apply</param>
+        public void ApplySubmittedPrimitive(Primitive primitive)
+        {
+            this.Primitive = primitive;
         }
 
         /// <summary>

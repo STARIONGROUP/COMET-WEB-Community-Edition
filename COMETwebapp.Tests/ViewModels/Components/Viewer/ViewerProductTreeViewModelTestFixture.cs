@@ -1,4 +1,4 @@
-﻿// -------------------------------------------------------------------------------------------------------------------- 
+// -------------------------------------------------------------------------------------------------------------------- 
 // <copyright file="ViewerProductTreeViewModelTestFixture.cs" company="Starion Group S.A."> 
 //    Copyright (c) 2023-2026 Starion Group S.A. 
 //
@@ -22,16 +22,25 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 {
+    using System.Collections.Concurrent;
+
+    using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.Types;
+
+    using COMETwebapp.Enumerations;
     using COMETwebapp.Model;
     using COMETwebapp.Model.Viewer.Primitives;
-
-    using NUnit.Framework;
-
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
 
     using Moq;
 
+    using NUnit.Framework;
+
+    /// <summary>
+    /// Test fixture for <see cref="ViewerProductTreeViewModel" />.
+    /// </summary>
     [TestFixture]
     public class ViewerProductTreeViewModelTestFixture
     {
@@ -43,10 +52,18 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         private ViewerNodeViewModel node3;
         private ViewerNodeViewModel node4;
         private ViewerNodeViewModel node5;
+        private ConcurrentDictionary<CacheKey, Lazy<Thing>> cache;
+        private Uri uri;
 
+        /// <summary>
+        /// Set up the test run.
+        /// </summary>
         [SetUp]
         public void SetUp()
         {
+            this.cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            this.uri = new Uri("http://test.com");
+
             this.selectionMediator = new Mock<ISelectionMediator>();
             this.viewModel = new ViewerProductTreeViewModel(this.selectionMediator.Object);
 
@@ -67,54 +84,113 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             this.viewModel.RootViewModel = this.rootNode;
         }
 
+        /// <summary>
+        /// Verifies the AddElementsToTree method.
+        /// </summary>
+        [Test]
+        public void VerifyAddElementsToTree()
+        {
+            var parentDef = new ElementDefinition(Guid.NewGuid(), this.cache, this.uri) { Name = "Parent" };
+            var parentNode = new ViewerNodeViewModel(SceneObject.Create(parentDef, null, []));
+            this.rootNode.AddChild(parentNode);
+
+            var childUsage = new ElementUsage(Guid.NewGuid(), this.cache, this.uri)
+            {
+                Name = "Child",
+                Container = parentDef
+            };
+
+            childUsage.ElementDefinition = new ElementDefinition(Guid.NewGuid(), this.cache, this.uri) { Name = "ChildDef" };
+
+            var addedNodes = this.viewModel.AddElementsToTree([childUsage], null, []);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(addedNodes, Is.Not.Null);
+                Assert.That(addedNodes, Has.Count.EqualTo(1));
+                Assert.That(parentNode.GetChildren(), Has.Count.EqualTo(1));
+                Assert.That(parentNode.GetChildren().First().SceneObject.ElementBase, Is.EqualTo(childUsage));
+            }
+        }
+
+        /// <summary>
+        /// Verifies the Initialization.
+        /// </summary>
         [Test]
         public void VerifyInitialization()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.viewModel.TreeFilters, Has.Count.EqualTo(2));
-                Assert.That(this.viewModel.SelectedFilter, Is.EqualTo(Enumerations.TreeFilter.ShowFullTree));
+                Assert.That(this.viewModel.SelectedFilter, Is.EqualTo(TreeFilter.ShowFullTree));
                 Assert.That(this.viewModel.SearchText, Is.Empty);
                 Assert.That(this.viewModel.RootViewModel, Is.Not.Null);
-            });
+            }
         }
 
+        /// <summary>
+        /// Verifies the OnFilterChanged method.
+        /// </summary>
         [Test]
         public void VerifyOnFilterChanged()
         {
-            this.viewModel.SelectedFilter = Enumerations.TreeFilter.ShowNodesWithGeometry;
+            this.viewModel.SelectedFilter = TreeFilter.ShowNodesWithGeometry;
             this.viewModel.OnFilterChanged();
             var fullTree = this.viewModel.RootViewModel.GetFlatListOfDescendants(true);
 
             var nodesDrawn = fullTree.Where(x => x.IsDrawn).ToList();
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(fullTree, Is.Not.Null);
                 Assert.That(fullTree, Has.Count.EqualTo(6));
                 Assert.That(nodesDrawn, Has.Count.EqualTo(4));
-            });
+            }
 
-            this.viewModel.SelectedFilter = Enumerations.TreeFilter.ShowFullTree;
+            this.viewModel.SelectedFilter = TreeFilter.ShowFullTree;
             this.viewModel.OnFilterChanged();
             fullTree = this.viewModel.RootViewModel.GetFlatListOfDescendants(true);
             nodesDrawn = fullTree.Where(x => x.IsDrawn).ToList();
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(fullTree, Is.Not.Null);
                 Assert.That(fullTree, Has.Count.EqualTo(6));
                 Assert.That(nodesDrawn, Has.Count.EqualTo(6));
-            });
+            }
         }
 
+        /// <summary>
+        /// Verifies the OnParameterSubmitted callback.
+        /// </summary>
+        [Test]
+        public void VerifyOnParameterSubmitted()
+        {
+            this.selectionMediator.SetupGet(m => m.SelectedSceneObject).Returns(this.node2.SceneObject);
+            var propertyChanged = false;
+
+            this.node2.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(this.node2.SceneObject))
+                {
+                    propertyChanged = true;
+                }
+            };
+
+            this.selectionMediator.Raise(m => m.OnParameterSubmitted += null);
+            Assert.That(propertyChanged, Is.True);
+        }
+
+        /// <summary>
+        /// Verifies the OnSearchFilterChange method.
+        /// </summary>
         [Test]
         public void VerifyOnSearchFilterChange()
         {
             this.viewModel.SearchText = "de";
             this.viewModel.OnSearchFilterChange();
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.rootNode.IsDrawn, Is.False);
                 Assert.That(this.node1.IsDrawn, Is.False);
@@ -122,7 +198,56 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
                 Assert.That(this.node3.IsDrawn, Is.False);
                 Assert.That(this.node4.IsDrawn, Is.False);
                 Assert.That(this.node5.IsDrawn, Is.True);
-            });
+            }
+        }
+
+        /// <summary>
+        /// Verifies the RemoveElementsFromTree method.
+        /// </summary>
+        [Test]
+        public void VerifyRemoveElementsFromTree()
+        {
+            var elementToRemove = new ElementUsage(Guid.NewGuid(), this.cache, this.uri) { Name = "ToRemove" };
+            elementToRemove.ElementDefinition = new ElementDefinition(Guid.NewGuid(), this.cache, this.uri) { Name = "Def" };
+
+            var so = SceneObject.Create(elementToRemove, null, []);
+            this.node2 = new ViewerNodeViewModel(so);
+            this.rootNode.AddChild(this.node2);
+
+            var removedNodes = this.viewModel.RemoveElementsFromTree([elementToRemove]);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(removedNodes, Is.Not.Null);
+                Assert.That(removedNodes, Has.Count.EqualTo(1));
+                Assert.That(removedNodes.First().SceneObject.ElementBase, Is.EqualTo(elementToRemove));
+                Assert.That(this.rootNode.GetChildren(), Does.Not.Contain(this.node2));
+            }
+        }
+
+        /// <summary>
+        /// Verifies the UpdateElementsFromTree method.
+        /// </summary>
+        [Test]
+        public void VerifyUpdateElementsFromTree()
+        {
+            var elementToUpdate = new ElementUsage(Guid.NewGuid(), this.cache, this.uri) { Name = "ToUpdate" };
+            elementToUpdate.ElementDefinition = new ElementDefinition(Guid.NewGuid(), this.cache, this.uri) { Name = "Def" };
+
+            var oldSceneObject = SceneObject.Create(elementToUpdate, null, []);
+            this.node2 = new ViewerNodeViewModel(oldSceneObject);
+            this.rootNode.AddChild(this.node2);
+
+            var updated = this.viewModel.UpdateElementsFromTree([elementToUpdate], null, []);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(updated, Is.Not.Null);
+                Assert.That(updated, Has.Count.EqualTo(1));
+                Assert.That(updated.First().oldSceneObject, Is.EqualTo(oldSceneObject));
+                Assert.That(updated.First().newSceneObject.ElementBase, Is.EqualTo(elementToUpdate));
+                Assert.That(this.rootNode.GetChildren().Any(x => x.SceneObject == updated.First().newSceneObject), Is.True);
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="PropertiesComponentViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -182,6 +182,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
             }
 
             this.ParameterHaveChanges = false;
+            this.SelectionMediator.RaiseOnParameterSubmitted();
         }
 
         /// <summary>
@@ -269,7 +270,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                         }
                     }
 
-                    return this.BabylonInterop.RegenerateMesh(this.SelectionMediator?.SelectedSceneObjectClone);
+                    this.SelectionMediator.RaiseOnParameterChanged();
                 }
             }
 

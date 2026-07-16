@@ -61,11 +61,27 @@ namespace COMETwebapp.Utilities
         public event Action<SceneObject> OnModelSelectionChanged;
 
         /// <summary>
+        /// Event for when a parameter value has changed
+        /// </summary>
+        public event Action OnParameterChanged;
+
+        /// <summary>
+        /// Event for when a parameter value change has been submitted
+        /// </summary>
+        public event Action OnParameterSubmitted;
+
+        /// <summary>
         /// Raises the <see cref="OnTreeSelectionChanged"/> event
         /// </summary>
         /// <param name="baseNodeViewModel">the node that raised the event</param>
         public void RaiseOnTreeSelectionChanged(ViewerNodeViewModel baseNodeViewModel)
         {
+            if (this.SelectedSceneObject != null && this.SceneObjectHasChanges)
+            {
+                this.SelectedSceneObject.ParseAllParameters();
+            }
+
+            this.SceneObjectHasChanges = false;
             this.SelectedSceneObject = baseNodeViewModel.SceneObject;
             this.SelectedSceneObjectClone = baseNodeViewModel.SceneObject?.Clone();
             this.OnTreeSelectionChanged?.Invoke(baseNodeViewModel);
@@ -78,7 +94,7 @@ namespace COMETwebapp.Utilities
         public void RaiseOnTreeVisibilityChanged(ViewerNodeViewModel baseNodeViewModel)
         {
             this.OnTreeVisibilityChanged?.Invoke(baseNodeViewModel);
-  }
+        }
 
         /// <summary>
         /// Raises the <see cref="OnModelSelectionChanged"/> event
@@ -86,9 +102,31 @@ namespace COMETwebapp.Utilities
         /// <param name="sceneObject">the <see cref="SceneObject"/> that raised the event</param>
         public void RaiseOnModelSelectionChanged(SceneObject sceneObject)
         {
+            if (this.SelectedSceneObject != null && this.SceneObjectHasChanges)
+            {
+                this.SelectedSceneObject.ParseAllParameters();
+            }
+
+            this.SceneObjectHasChanges = false;
             this.SelectedSceneObject = sceneObject;
             this.SelectedSceneObjectClone = sceneObject?.Clone();
             this.OnModelSelectionChanged?.Invoke(sceneObject);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="OnParameterChanged"/> event
+        /// </summary>
+        public void RaiseOnParameterChanged()
+        {
+            this.OnParameterChanged?.Invoke();
+        }
+
+        /// <summary>
+        /// Raises the <see cref="OnParameterSubmitted"/> event
+        /// </summary>
+        public void RaiseOnParameterSubmitted()
+        {
+            this.OnParameterSubmitted?.Invoke();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ICanvasViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -27,7 +27,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
-    
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -41,18 +41,18 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         ElementReference CanvasReference { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="IBabylonInterop"/>
+        /// Gets or sets the <see cref="IBabylonInterop" />
         /// </summary>
         public IBabylonInterop BabylonInterop { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ISelectionMediator"/>
+        /// Gets or sets the <see cref="ISelectionMediator" />
         /// </summary>
         ISelectionMediator SelectionMediator { get; set; }
 
-        /// <summary> 
-        /// Gets or sets the PopUp that ask the user if he wants to change the selected primitive before submiting changes 
-        /// </summary> 
+        /// <summary>
+        /// Gets or sets the PopUp that ask the user if he wants to change the selected primitive before submiting changes
+        /// </summary>
         IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; set; }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public bool IsOnChangePrimitiveMode { get; set; }
 
         /// <summary>
-        /// Initiliazes this <see cref="CanvasViewModel"/>
+        /// Initiliazes this <see cref="CanvasViewModel" />
         /// </summary>
         void InitializeViewModel();
 
@@ -77,15 +77,22 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         Task AddSceneObject(SceneObject sceneObject);
 
         /// <summary>
+        /// Removes a selectable scene object from scene
+        /// </summary>
+        /// <param name="sceneObject">the scene object to remove</param>
+        /// <returns>an asynchronous task</returns>
+        Task RemoveSceneObject(SceneObject sceneObject);
+
+        /// <summary>
         /// Adds a selectable temporary scene object into scene that contains a primitive
         /// </summary>
         /// <param name="sceneObject"></param>
         Task AddTemporarySceneObject(SceneObject sceneObject);
 
-        /// <summary> 
-        /// Clears the scene deleting the all the <see cref="SceneObject"/>
-        /// </summary> 
-        /// <returns>an asynchronous task</returns> 
+        /// <summary>
+        /// Clears the scene deleting the all the <see cref="SceneObject" />
+        /// </summary>
+        /// <returns>an asynchronous task</returns>
         Task ClearScene();
 
         /// <summary>
@@ -120,21 +127,21 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         SceneObject GetSceneObjectById(Guid id);
 
         /// <summary>
-        /// Gets all the <see cref="SceneObject"/> in the scene
+        /// Gets all the <see cref="SceneObject" /> in the scene
         /// </summary>
-        /// <returns>the <see cref="SceneObject"/></returns>
+        /// <returns>the <see cref="SceneObject" /></returns>
         IReadOnlyList<SceneObject> GetAllSceneObjects();
 
         /// <summary>
-        /// Gets all the temporary <see cref="SceneObject"/> in the scene
+        /// Gets all the temporary <see cref="SceneObject" /> in the scene
         /// </summary>
-        /// <returns>the temporary <see cref="SceneObject"/></returns>
+        /// <returns>the temporary <see cref="SceneObject" /></returns>
         IReadOnlyList<SceneObject> GetAllTemporarySceneObjects();
 
         /// <summary>
         /// Handles the mouse up in the Canvas
         /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         Task HandleMouseUp();
     }
 }
