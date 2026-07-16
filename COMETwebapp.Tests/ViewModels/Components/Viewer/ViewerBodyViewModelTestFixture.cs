@@ -156,10 +156,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             elementDefWithShape.ContainedElement.Add(deletedElementUsage);
 
             this.viewModel.CurrentThing = iteration;
-            this.viewModel.OptionSelector.SelectedOption = new Option(Guid.NewGuid(), cache, uri);
-            this.viewModel.InitializeElementsAndCreateTree();
-
             await this.viewModel.InitializeViewModel();
+
+            this.viewModel.OptionSelector.SelectedOption = new Option(Guid.NewGuid(), cache, uri);
 
             var childDefNew = new ElementDefinition(Guid.NewGuid(), cache, uri) { Owner = domain };
             var newElementUsage = new ElementUsage { Iid = Guid.NewGuid(), ElementDefinition = childDefNew, Container = elementDefWithShape };
@@ -179,9 +178,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             this.messageBus.SendMessage(new ObjectChangedEvent(updatedElementWithShape, EventKind.Updated), typeof(ElementBase));
             this.messageBus.SendMessage(new ObjectChangedEvent(updatedElementWithoutShape, EventKind.Updated), typeof(ElementBase));
 
+            this.babylonInterop.Invocations.Clear();
+
             // Trigger OnSessionRefreshed
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-            await Task.Delay(100);
+            await Task.Delay(200);
 
             Assert.Multiple(() =>
             {

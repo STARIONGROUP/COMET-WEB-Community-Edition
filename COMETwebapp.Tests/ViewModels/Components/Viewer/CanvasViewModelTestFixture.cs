@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CanvasViewModelTestFixture.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -22,7 +22,6 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 {
-    using System.Linq;
     using System.Threading.Tasks;
 
     using COMETwebapp.Model;
@@ -30,6 +29,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
+
+    using Microsoft.AspNetCore.Components;
 
     using Moq;
 
@@ -53,6 +54,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         {
             this.babylonInterop = new Mock<IBabylonInterop>();
             this.selectionMediator = new Mock<ISelectionMediator>();
+
+            this.babylonInterop.Setup(x => x.InitCanvas(It.IsAny<ElementReference>(), It.IsAny<bool>())).Returns(Task.CompletedTask);
+            this.babylonInterop.Setup(x => x.AddSceneObject(It.IsAny<SceneObject>())).Returns(Task.CompletedTask);
+            this.babylonInterop.Setup(x => x.ClearSceneObject(It.IsAny<SceneObject>())).Returns(Task.CompletedTask);
+            this.babylonInterop.Setup(x => x.ClearSceneObjects(It.IsAny<IEnumerable<SceneObject>>())).Returns(Task.CompletedTask);
+            this.babylonInterop.Setup(x => x.SetVisibility(It.IsAny<SceneObject>(), It.IsAny<bool>())).Returns(Task.CompletedTask);
+            this.babylonInterop.Setup(x => x.RegenerateMesh(It.IsAny<SceneObject>())).Returns(Task.CompletedTask);
 
             this.viewModel = new CanvasViewModel(this.babylonInterop.Object, this.selectionMediator.Object);
         }
@@ -195,6 +203,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             this.viewModel.InitializeViewModel();
 
             await this.selectionMediator.RaiseAsync(x => x.OnParameterSubmitted += null);
+            await Task.Delay(100);
 
             using (Assert.EnterMultipleScope())
             {
@@ -207,6 +216,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             this.selectionMediator.SetupGet(x => x.SelectedSceneObjectClone).Returns(newClone);
 
             await this.selectionMediator.RaiseAsync(x => x.OnParameterSubmitted += null);
+            await Task.Delay(100);
 
             using (Assert.EnterMultipleScope())
             {
@@ -234,8 +244,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
                 IsSelected = true,
                 IsSceneObjectVisible = true
             };
-
+            
             await this.selectionMediator.RaiseAsync(x => x.OnTreeSelectionChanged += null, nodeViewModel);
+            await Task.Delay(100);
 
             using (Assert.EnterMultipleScope())
             {
@@ -262,8 +273,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             {
                 IsSceneObjectVisible = true
             };
-
+           
             await this.selectionMediator.RaiseAsync(x => x.OnTreeVisibilityChanged += null, nodeViewModel);
+            await Task.Delay(100);
 
             using (Assert.EnterMultipleScope())
             {
