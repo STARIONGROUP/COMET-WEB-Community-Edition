@@ -40,9 +40,11 @@ namespace COMETwebapp.Validators.SiteDirectory.EngineeringModel
         /// <param name="validationService">The <see cref="IValidationService" /></param>
         public IterationSetupValidator(IValidationService validationService)
         {
+            // When the iteration number is 0, i.e., we are creating a new iteration setup, the source iteration setup is mandatory. Otherwise, it can be empty.
             this.RuleFor(x => x.SourceIterationSetup)
                 .NotEmpty()
                 .WithMessage("Source is mandatory")
+                .When(x => x.IterationNumber == 0)
                 .Validate(validationService, nameof(IterationSetup.SourceIterationSetup));
 
             this.RuleFor(x => x.Description)

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IterationsTableViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -93,24 +93,8 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 
                 if (shouldCreate)
                 {
-                    IterationSetup previousIteration = null;
-
-                    if (this.CurrentThing.SourceIterationSetup != null)
-                    {
-                        previousIteration = modelClone.IterationSetup.FirstOrDefault(x => x.Iid == this.CurrentThing.SourceIterationSetup.Iid);
-                    }
-                    else if (modelClone.IterationSetup.Any())
-                    {
-                        previousIteration = modelClone.IterationSetup.OrderByDescending(x => x.IterationNumber).First();
-                    }
-
-                    if (previousIteration != null)
-                    {
-                        previousIteration.FrozenOn = DateTime.UtcNow;
-                        thingsToUpdateOrCreate.Add(previousIteration);
-                    }
-
                     this.CurrentThing.Iid = Guid.NewGuid();
+                    this.CurrentThing.IterationIid = Guid.NewGuid();
                     this.CurrentThing.IterationNumber = (modelClone.IterationSetup.Max(x => (int?)x.IterationNumber) ?? 0) + 1;
 
                     modelClone.IterationSetup.Add(this.CurrentThing);
@@ -133,7 +117,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <returns>A list of things</returns>
         protected override List<IterationSetup> QueryListOfThings()
         {
-            return this.CurrentModel?.IterationSetup;
+            return this.CurrentModel?.IterationSetup.Where(x => !x.IsDeleted).ToList() ?? [];
         }
 
         /// <summary>
@@ -145,8 +129,8 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         {
             return new NotificationDescription
             {
-                OnSuccess = $"The Iteration {this.CurrentThing.IterationNumber} was {(created ? "created" : "updated")}",
-                OnError = $"Error while {(created ? "creating" : "updating")} the Iteration {this.CurrentThing.IterationNumber}"
+                OnSuccess = $"The Iteration was {(created ? "created" : "updated")}",
+                OnError = $"Error while {(created ? "creating" : "updating")} the Iteration"
             };
         }
 
@@ -161,6 +145,23 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
                 OnSuccess = $"The Iteration {this.CurrentThing.IterationNumber} was deleted!",
                 OnError = $"Error while deleting The Iteration {this.CurrentThing.IterationNumber}"
             };
+        }
+
+        /// <summary>
+        /// Handles the refresh of the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnSessionRefreshed()
+        {
+            // If an iteration from this model was created, update the model
+            var createdIterationSetup = this.AddedThings.OfType<IterationSetup>().FirstOrDefault(x => x.Container?.Iid == this.CurrentModel.Iid);
+
+            if (createdIterationSetup is { Container: EngineeringModelSetup updatedModel })
+            {
+                this.CurrentModel = updatedModel;
+            }
+
+            await base.OnSessionRefreshed();
         }
     }
 }

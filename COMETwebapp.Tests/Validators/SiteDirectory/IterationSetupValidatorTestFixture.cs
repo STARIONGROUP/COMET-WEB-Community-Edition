@@ -44,16 +44,33 @@ namespace COMETwebapp.Tests.Validators.SiteDirectory
         [Test]
         public void VerifyValidationScenarios()
         {
-            var iterationSetup = new IterationSetup();
+            // Creation mode (IterationNumber == 0): should be invalid since both Description and SourceIterationSetup are missing
+            var iterationSetup = new IterationSetup { IterationNumber = 0 };
             Assert.That(this.validator.Validate(iterationSetup).IsValid, Is.EqualTo(false));
 
+            // Creation mode (IterationNumber == 0) with all fields filled: should be valid
             iterationSetup = new IterationSetup
             {
+                IterationNumber = 0,
                 SourceIterationSetup = new IterationSetup(),
                 Description = "A valid description"
             };
 
             Assert.That(this.validator.Validate(iterationSetup).IsValid, Is.EqualTo(true));
+
+            // Edit mode (IterationNumber != 0) with no source iteration: should be valid if Description is present
+            var editIterationSetup = new IterationSetup
+            {
+                IterationNumber = 1,
+                SourceIterationSetup = null,
+                Description = "Editing description"
+            };
+
+            Assert.That(this.validator.Validate(editIterationSetup).IsValid, Is.EqualTo(true));
+
+            // Edit mode (IterationNumber != 0) with empty description: should be invalid
+            editIterationSetup.Description = "";
+            Assert.That(this.validator.Validate(editIterationSetup).IsValid, Is.EqualTo(false));
         }
     }
 }

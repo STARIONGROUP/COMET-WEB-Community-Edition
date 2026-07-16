@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IterationsTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -70,6 +70,27 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
             }
 
             e.EditModel = this.ViewModel.CurrentThing;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether deprecate is enabled for a row
+        /// </summary>
+        /// <param name="row">The row view model</param>
+        /// <returns>True if allowed to deprecate</returns>
+        private bool IsDeleteEnabled(IterationSetupRowViewModel row)
+        {
+            if (row.Thing.IsDeleted || !row.IsAllowedToWrite)
+            {
+                return false;
+            }
+
+            var maxIterationNumber = this.ViewModel.SourceIterations
+                .Where(x => !x.IsDeleted)
+                .Select(x => x.IterationNumber)
+                .DefaultIfEmpty(0)
+                .Max();
+
+            return row.Thing.IterationNumber != maxIterationNumber;
         }
 
         /// <summary>

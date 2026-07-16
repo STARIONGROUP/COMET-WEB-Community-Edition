@@ -51,5 +51,10 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
             get;
             set => this.RaiseAndSetIfChanged(ref field, value);
         }
+
+        /// <summary>
+        /// Gets a value indicating whether the iteration setup is deleted
+        /// </summary>
+        public bool IsDeleted => this.Thing.IsDeleted;
     }
 }

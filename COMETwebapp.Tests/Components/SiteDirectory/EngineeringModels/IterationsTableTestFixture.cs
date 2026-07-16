@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.SiteDirectory.EngineeringModel;
+    using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
@@ -70,13 +71,15 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             };
 
             var rows = new SourceList<IterationSetupRowViewModel>();
-            rows.Add(new IterationSetupRowViewModel(this.iteration1));
-            rows.Add(new IterationSetupRowViewModel(this.iteration2));
+            rows.Add(new IterationSetupRowViewModel(this.iteration1) { IsAllowedToWrite = true });
+            rows.Add(new IterationSetupRowViewModel(this.iteration2) { IsAllowedToWrite = true });
 
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.CurrentThing).Returns(new IterationSetup());
             this.viewModel.Setup(x => x.CanCreateIteration).Returns(true);
+            this.viewModel.Setup(x => x.SourceIterations).Returns(new List<IterationSetup> { this.iteration1, this.iteration2 });
 
+            this.context.Services.AddSingleton<IShowHideDeprecatedThingsService>(new ShowHideDeprecatedThingsService());
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
 
@@ -119,8 +122,15 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         [Test]
         public async Task VerifyDeleteIteration()
         {
-            var deleteIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deleteIterationButton");
-            await this.renderer.InvokeAsync(deleteIterationButton.Instance.Click.InvokeAsync);
+            var deleteButtons = this.renderer.FindComponents<DxButton>().Where(x => x.Instance.Id == "deleteIterationButton").ToList();
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(deleteButtons[0].Instance.Enabled, Is.True);
+                Assert.That(deleteButtons[1].Instance.Enabled, Is.False);
+            });
+
+            await this.renderer.InvokeAsync(deleteButtons[0].Instance.Click.InvokeAsync);
             this.viewModel.Verify(x => x.OnDeleteButtonClick(It.IsAny<IterationSetupRowViewModel>()), Times.Once);
         }
 
