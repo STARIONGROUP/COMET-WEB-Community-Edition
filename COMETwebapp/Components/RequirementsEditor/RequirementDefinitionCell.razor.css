@@ -1,0 +1,60 @@
+.req-def-display {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: pre-wrap;
+    cursor: text;
+    border-radius: 3px;
+    padding: 1px 3px;
+    transition: background-color 0.15s ease;
+}
+
+.req-def-display:hover {
+    background-color: #eef2ff;
+    box-shadow: inset 0 0 0 1px #c7d2fe;
+}
+
+.req-def-editor {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: flex-start;
+    gap: 4px;
+    max-width: 100%;
+}
+
+.req-def-editor-dirty {
+    outline: 2px solid #b9d0f0;
+    background: #e7f1ff;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.req-def-editor-actions {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 0 0 auto;
+}
+
+.req-def-save,
+.req-def-cancel {
+    border: none;
+    background: none;
+    padding: 0 3px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+.req-def-save {
+    color: #12805c;
+}
+
+.req-def-cancel {
+    color: #b42318;
+}
+
+::deep .req-def-memo {
+    flex: 1 1 auto;
+    min-width: 0;
+}

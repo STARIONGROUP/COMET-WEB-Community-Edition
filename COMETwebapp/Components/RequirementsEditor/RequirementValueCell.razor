@@ -36,8 +36,6 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <button type="button" class="req-value-save" title="Save (Enter)" @onclick="this.CommitAsync">&#10003;</button>
                 <button type="button" class="req-value-cancel" title="Cancel (Esc)" @onclick="this.Cancel">&#10007;</button>
             </div>
-            @* IsOnEditMode renders compound/array parameter types as an inline component form; without it the shared
-               editor only shows an "Edit" button that broadcasts an event no host in the Requirements Editor handles *@
             <ParameterTypeEditorSelector ViewModel="@this.editorSelectorViewModel" BindValueMode="BindValueMode.OnInput" IsOnEditMode="true" />
         </div>
     }

@@ -247,5 +247,150 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             mockedViewModel.Verify(x => x.UpdateParameterLinksAsync(relational, It.IsAny<IReadOnlyCollection<ParameterOrOverrideBase>>()), Times.Once);
             Assert.That(component.Instance.IsLinkDialogOpen, Is.False, "confirming closes the picker");
         }
+
+        [Test]
+        public async Task VerifyTogglingACandidateStagesAndUnstagesIt()
+        {
+            var massType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "m", Name = "mass" };
+            var relational = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = massType, RelationalOperator = RelationalOperatorKind.LE, Value = new ValueArray<string>(["100"]) };
+            var constraint = new ParametricConstraint { Iid = Guid.NewGuid(), TopExpression = relational };
+            constraint.Expression.Add(relational);
+
+            var linkedRequirement = new Requirement { Iid = Guid.NewGuid(), ShortName = "R3", Name = "Third requirement" };
+            linkedRequirement.ParametricConstraint.Add(constraint);
+
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT", Name = "Satellite" };
+            var boundParameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = massType };
+            var unboundParameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = massType };
+            elementDefinition.Parameter.AddRange([boundParameter, unboundParameter]);
+
+            IReadOnlyCollection<ParameterOrOverrideBase> capturedSelection = null;
+
+            var mockedViewModel = new Mock<IRequirementsEditorBodyViewModel>();
+            mockedViewModel.Setup(x => x.ShowParametricConstraints).Returns(true);
+            mockedViewModel.Setup(x => x.GetTopExpressions(constraint)).Returns([relational]);
+            mockedViewModel.Setup(x => x.GetBoundParameters(relational)).Returns([boundParameter]);
+            mockedViewModel.Setup(x => x.GetPublishedValue(It.IsAny<ParameterOrOverrideBase>())).Returns((string)null);
+            mockedViewModel.Setup(x => x.GetLinkableParameters(relational)).Returns([boundParameter, unboundParameter]);
+            mockedViewModel.Setup(x => x.UpdateParameterLinksAsync(relational, It.IsAny<IReadOnlyCollection<ParameterOrOverrideBase>>()))
+                .Callback<RelationalExpression, IReadOnlyCollection<ParameterOrOverrideBase>>((_, selected) => capturedSelection = selected)
+                .Returns(Task.FromResult(Result.Ok()));
+
+            var component = this.context.Render<RequirementDetails>(parameters => parameters
+                .Add(p => p.ViewModel, mockedViewModel.Object)
+                .Add(p => p.Requirement, linkedRequirement));
+
+            component.Find("button.req-expr-link").Click();
+
+            Assert.That(component.Markup, Does.Contain("(Satellite)"), "the picker labels each candidate with its owning element");
+
+            await component.InvokeAsync(() => component.FindComponents<DxCheckBox<bool>>()[1].Instance.CheckedChanged.InvokeAsync(true));
+            Assert.That(component.FindComponents<DxCheckBox<bool>>()[1].Instance.Checked, Is.True, "checking a candidate stages it");
+
+            await component.InvokeAsync(() => component.FindComponents<DxCheckBox<bool>>()[1].Instance.CheckedChanged.InvokeAsync(false));
+            Assert.That(component.FindComponents<DxCheckBox<bool>>()[1].Instance.Checked, Is.False, "unchecking a candidate unstages it");
+
+            var okButton = component.FindComponents<DxButton>().First(x => x.Instance.Text == "OK");
+            await component.InvokeAsync(okButton.Instance.Click.InvokeAsync);
+
+            Assert.That(capturedSelection, Is.EquivalentTo(new ParameterOrOverrideBase[] { boundParameter }), "only the still-bound parameter is submitted after staging then unstaging the other candidate");
+        }
+
+        [Test]
+        public async Task VerifyCancelLinksClosesPickerWithoutSaving()
+        {
+            var massType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "m", Name = "mass" };
+            var relational = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = massType, RelationalOperator = RelationalOperatorKind.LE, Value = new ValueArray<string>(["100"]) };
+            var constraint = new ParametricConstraint { Iid = Guid.NewGuid(), TopExpression = relational };
+            constraint.Expression.Add(relational);
+
+            var linkedRequirement = new Requirement { Iid = Guid.NewGuid(), ShortName = "R3", Name = "Third requirement" };
+            linkedRequirement.ParametricConstraint.Add(constraint);
+
+            var mockedViewModel = new Mock<IRequirementsEditorBodyViewModel>();
+            mockedViewModel.Setup(x => x.ShowParametricConstraints).Returns(true);
+            mockedViewModel.Setup(x => x.GetTopExpressions(constraint)).Returns([relational]);
+            mockedViewModel.Setup(x => x.GetBoundParameters(relational)).Returns([]);
+            mockedViewModel.Setup(x => x.GetPublishedValue(It.IsAny<ParameterOrOverrideBase>())).Returns((string)null);
+            mockedViewModel.Setup(x => x.GetLinkableParameters(relational)).Returns([]);
+
+            var component = this.context.Render<RequirementDetails>(parameters => parameters
+                .Add(p => p.ViewModel, mockedViewModel.Object)
+                .Add(p => p.Requirement, linkedRequirement));
+
+            component.Find("button.req-expr-link").Click();
+            Assert.That(component.Instance.IsLinkDialogOpen, Is.True);
+
+            var cancelButton = component.FindComponents<DxButton>().First(x => x.Instance.Text == "Cancel");
+            await component.InvokeAsync(cancelButton.Instance.Click.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(component.Instance.IsLinkDialogOpen, Is.False, "cancelling closes the picker");
+                mockedViewModel.Verify(x => x.UpdateParameterLinksAsync(It.IsAny<RelationalExpression>(), It.IsAny<IReadOnlyCollection<ParameterOrOverrideBase>>()), Times.Never);
+            });
+        }
+
+        [Test]
+        public async Task VerifyClosingPickerViaPopupVisibleChanged()
+        {
+            var massType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "m", Name = "mass" };
+            var relational = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = massType, RelationalOperator = RelationalOperatorKind.LE, Value = new ValueArray<string>(["100"]) };
+            var constraint = new ParametricConstraint { Iid = Guid.NewGuid(), TopExpression = relational };
+            constraint.Expression.Add(relational);
+
+            var linkedRequirement = new Requirement { Iid = Guid.NewGuid(), ShortName = "R3", Name = "Third requirement" };
+            linkedRequirement.ParametricConstraint.Add(constraint);
+
+            var mockedViewModel = new Mock<IRequirementsEditorBodyViewModel>();
+            mockedViewModel.Setup(x => x.ShowParametricConstraints).Returns(true);
+            mockedViewModel.Setup(x => x.GetTopExpressions(constraint)).Returns([relational]);
+            mockedViewModel.Setup(x => x.GetBoundParameters(relational)).Returns([]);
+            mockedViewModel.Setup(x => x.GetPublishedValue(It.IsAny<ParameterOrOverrideBase>())).Returns((string)null);
+            mockedViewModel.Setup(x => x.GetLinkableParameters(relational)).Returns([]);
+
+            var component = this.context.Render<RequirementDetails>(parameters => parameters
+                .Add(p => p.ViewModel, mockedViewModel.Object)
+                .Add(p => p.Requirement, linkedRequirement));
+
+            component.Find("button.req-expr-link").Click();
+            Assert.That(component.Instance.IsLinkDialogOpen, Is.True);
+
+            var popup = component.FindComponent<DxPopup>();
+            await component.InvokeAsync(() => popup.Instance.VisibleChanged.InvokeAsync(false));
+
+            Assert.That(component.Instance.IsLinkDialogOpen, Is.False, "closing the popup via its close button closes the picker");
+        }
+
+        [Test]
+        public void VerifyEmptyCandidatesShowsPlaceholder()
+        {
+            var massType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "m", Name = "mass" };
+            var relational = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = massType, RelationalOperator = RelationalOperatorKind.LE, Value = new ValueArray<string>(["100"]) };
+            var constraint = new ParametricConstraint { Iid = Guid.NewGuid(), TopExpression = relational };
+            constraint.Expression.Add(relational);
+
+            var linkedRequirement = new Requirement { Iid = Guid.NewGuid(), ShortName = "R3", Name = "Third requirement" };
+            linkedRequirement.ParametricConstraint.Add(constraint);
+
+            var mockedViewModel = new Mock<IRequirementsEditorBodyViewModel>();
+            mockedViewModel.Setup(x => x.ShowParametricConstraints).Returns(true);
+            mockedViewModel.Setup(x => x.GetTopExpressions(constraint)).Returns([relational]);
+            mockedViewModel.Setup(x => x.GetBoundParameters(relational)).Returns([]);
+            mockedViewModel.Setup(x => x.GetPublishedValue(It.IsAny<ParameterOrOverrideBase>())).Returns((string)null);
+            mockedViewModel.Setup(x => x.GetLinkableParameters(relational)).Returns([]);
+
+            var component = this.context.Render<RequirementDetails>(parameters => parameters
+                .Add(p => p.ViewModel, mockedViewModel.Object)
+                .Add(p => p.Requirement, linkedRequirement));
+
+            component.Find("button.req-expr-link").Click();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(component.Markup, Does.Contain("No element has a parameter of this type."));
+                Assert.That(component.FindComponents<DxCheckBox<bool>>(), Is.Empty);
+            });
+        }
     }
 }
