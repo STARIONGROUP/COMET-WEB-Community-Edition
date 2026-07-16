@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2026 Starion Group S.A.
 //
 //   This file is part of CDP4-COMET WEB Community Edition
@@ -59,7 +59,7 @@
                         NullText="Select a Domain of Expertise"
                         Enabled="@(this.DomainId == Guid.Empty)">
                 <ItemTemplate Context="ctx">
-                    @if (this.ViewModel.IsCurrentModelOpened)
+                    @if (this.ViewModel.IsCurrentIterationOpened)
                     {
                         <span class="@(this.ViewModel.SelectedIterationDomainOfExpertise == ctx ? "font-weight-bold" : "")">@(ctx.Name)</span>
                     }
@@ -79,15 +79,14 @@
                             TextFieldName="@nameof(IterationData.IterationName)"
                             @bind-Value="@(this.ViewModel.SelectedIterationSetup)"
                             NullText="Select an Iteration"
-                            ReadOnly="@(this.ViewModel.IsCurrentModelOpened)"
                             Enabled="@(this.IterationId == Guid.Empty)" />
             </DxFormLayoutItem>
         }
 
-        @if (this.ViewModel.IsCurrentModelOpened)
+        @if (this.ViewModel.IsCurrentIterationOpened)
         {
             <DxFormLayoutItem ColSpanLg="12">
-                <sub class="my-1">Model already opened</sub>
+                <sub class="my-1">Iteration already opened</sub>
             </DxFormLayoutItem>
         }
     }

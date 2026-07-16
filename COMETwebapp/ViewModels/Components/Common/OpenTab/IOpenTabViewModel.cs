@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IOpenTabViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -45,9 +45,9 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         IEnumerable<EngineeringModelSetup> EngineeringModelSetups { get; }
 
         /// <summary>
-        /// Gets the condition to check if the current selected model is already opened
+        /// Gets the condition to check if the current selected iteration is already opened
         /// </summary>
-        bool IsCurrentModelOpened { get; }
+        bool IsCurrentIterationOpened { get; }
 
         /// <summary>
         /// Gets the <see cref="DomainOfExpertise" /> from the <see cref="OpenModelViewModel.SelectedIterationSetup" />

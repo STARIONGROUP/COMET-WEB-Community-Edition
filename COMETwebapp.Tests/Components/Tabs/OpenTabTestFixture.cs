@@ -42,7 +42,6 @@ namespace COMETwebapp.Tests.Components.Tabs
 
     using NUnit.Framework;
 
-
     [TestFixture]
     public class OpenTabTestFixture
     {
@@ -57,7 +56,7 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.context.ConfigureDevExpressBlazor();
 
             this.viewModel = new Mock<IOpenTabViewModel>();
-            this.viewModel.Setup(x => x.IsCurrentModelOpened).Returns(true);
+            this.viewModel.Setup(x => x.IsCurrentIterationOpened).Returns(true);
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(new Mock<IOpenModelViewModel>().Object);

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="OpenTabViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -206,6 +206,49 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
 
             await this.viewModel.OpenTab(panel);
             this.sessionService.Verify(x => x.SwitchDomain(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>()), Times.Once);
+        }
+
+        /// <summary>
+        /// Verifies that multiple iterations of the same engineering model can be opened.
+        /// </summary>
+        [Test]
+        public async Task VerifyOpenMultipleIterationsOfSameModel()
+        {
+            var panel = new TabPanelInformation();
+            var firstIteration = this.alreadyOpenIterations.Items[0];
+            var engineeringModelSetup = ((EngineeringModel)firstIteration.Container).EngineeringModelSetup;
+
+            var secondIterationSetup = new IterationSetup { Iid = Guid.NewGuid(), IterationIid = Guid.NewGuid() };
+            engineeringModelSetup.IterationSetup.Add(secondIterationSetup);
+
+            var secondIteration = new Iteration
+            {
+                Container = firstIteration.Container,
+                Iid = secondIterationSetup.IterationIid,
+                IterationSetup = secondIterationSetup
+            };
+
+            var engineeringModelBodyApplication = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
+            this.viewModel.SelectedApplication = engineeringModelBodyApplication;
+            this.viewModel.SelectedEngineeringModel = engineeringModelSetup;
+            this.viewModel.SelectedIterationSetup = new IterationData(secondIterationSetup);
+            this.viewModel.SelectedDomainOfExpertise = new DomainOfExpertise();
+
+            this.sessionService.Setup(x => x.ReadIteration(secondIterationSetup, It.IsAny<DomainOfExpertise>()))
+                .Returns(Task.FromResult(new Result<Iteration>()))
+                .Callback(() =>
+                {
+                    this.alreadyOpenIterations.Add(secondIteration);
+                });
+
+            await this.viewModel.OpenTab(panel);
+
+            using (Assert.EnterMultipleScope())
+            {
+                this.sessionService.Verify(x => x.ReadIteration(secondIterationSetup, It.IsAny<DomainOfExpertise>()), Times.Once);
+                this.sessionService.Verify(x => x.SwitchDomain(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>()), Times.Never);
+                this.tabsViewModel.Verify(x => x.CreateNewTab(engineeringModelBodyApplication, secondIteration.Iid, panel), Times.Once);
+            }
         }
     }
 }

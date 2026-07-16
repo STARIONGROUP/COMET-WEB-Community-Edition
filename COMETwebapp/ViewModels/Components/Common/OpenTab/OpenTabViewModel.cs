@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="OpenTabViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -75,7 +75,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// <summary>
         /// Gets the <see cref="Iteration" /> from the <see cref="OpenModelViewModel.SelectedEngineeringModel" />
         /// </summary>
-        private Iteration SelectedEngineeringModelIteration => this.sessionService.OpenIterations.Items.FirstOrDefault(x => ((EngineeringModel)x.Container).EngineeringModelSetup == this.SelectedEngineeringModel);
+        private Iteration SelectedEngineeringModelIteration => this.sessionService.OpenIterations.Items.FirstOrDefault(x => x.IterationSetup.Iid == this.SelectedIterationSetup?.IterationSetupId);
 
         /// <summary>
         /// Gets the collection of participant models
@@ -83,9 +83,9 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         public IEnumerable<EngineeringModelSetup> EngineeringModelSetups => this.sessionService.GetParticipantModels().OrderBy(x => x.Name);
 
         /// <summary>
-        /// Gets the condition to check if the current selected model is already opened
+        /// Gets the condition to check if the current selected iteration is already opened
         /// </summary>
-        public bool IsCurrentModelOpened => this.sessionService.OpenEngineeringModels.Any(x => x.EngineeringModelSetup == this.SelectedEngineeringModel);
+        public bool IsCurrentIterationOpened => this.SelectedEngineeringModelIteration != null;
 
         /// <summary>
         /// Gets a value indicating that an already open <see cref="Iteration" /> may be selected. Opening a tab on an iteration
@@ -115,7 +115,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// <returns>A <see cref="Task" /></returns>
         public async Task OpenTab(TabPanelInformation panel)
         {
-            var result = new Result<Iteration>();
+            Result<Iteration> result;
             var isIteration = this.SelectedApplication?.ThingTypeOfInterest == typeof(Iteration);
 
             if (this.SelectedApplication?.ThingTypeOfInterest is null)
@@ -124,7 +124,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
                 return;
             }
 
-            if (!this.IsCurrentModelOpened)
+            if (!this.IsCurrentIterationOpened)
             {
                 result = await base.OpenSession();
             }
@@ -134,6 +134,8 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
                 {
                     this.sessionService.SwitchDomain(this.SelectedEngineeringModelIteration, this.SelectedDomainOfExpertise);
                 }
+
+                result = Result.Ok(this.SelectedEngineeringModelIteration);
             }
 
             this.cacheService.AddOrUpdateBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, this.SelectedIterationSetup);
