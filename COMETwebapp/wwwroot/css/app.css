@@ -239,16 +239,26 @@ div[id^="dropdown-customization-target-container-"] { display: flex; }
 }
 
 .collapsed .application-item-container {
-    width: 40px !important;
+    width: 32px !important;
     padding: 4px;
-    margin: 0 4px;
+    margin: 2px 0;
     justify-content: center;
 }
 
+.collapsed #side-bar-collapse-button {
+    padding: 4px !important;
+    min-width: 0 !important;
+}
+
 .collapsed .side-bar-section-header {
-    text-align: center;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding: 0 !important;
+    min-height: 0;
+}
+
+.collapsed .side-bar-section-divider {
+    align-self: stretch;
+    border-top: 1px solid var(--colors-gray-300);
+    margin: 6px 4px;
 }
 
 sub {

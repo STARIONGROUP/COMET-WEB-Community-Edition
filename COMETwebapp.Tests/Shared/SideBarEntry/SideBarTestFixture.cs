@@ -401,8 +401,8 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         }
 
         /// <summary>
-        /// Verifies the markup hooks that keep the collapsed side bar narrow (issue GH806): the footer logo is dropped on
-        /// collapse and the "Model"/"General" section headers carry the class that centers them in the narrow view.
+        /// Verifies the markup hooks that keep the collapsed side bar narrow (issue GH806): the footer logo and both
+        /// section-header labels are dropped on collapse, and the "General" header doubles as a horizontal divider.
         /// </summary>
         [Test]
         public void VerifyCollapsedSideBarIconOnlyLayout()
@@ -414,11 +414,14 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
 
             var applicationsSideBar = renderer.FindComponent<ApplicationsSideBar>();
             var sectionHeaders = applicationsSideBar.FindAll(".side-bar-section-header");
+            var dividers = applicationsSideBar.FindAll(".side-bar-section-divider");
 
             Assert.Multiple(() =>
             {
                 Assert.That(logo.ClassList, Does.Contain("not-displayed-on-collapse"));
                 Assert.That(sectionHeaders, Has.Count.EqualTo(2));
+                Assert.That(dividers, Has.Count.EqualTo(1));
+                Assert.That(sectionHeaders.All(header => header.QuerySelector(".not-displayed-on-collapse") is not null), Is.True);
             });
         }
 
