@@ -400,6 +400,28 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             renderer.WaitForAssertion(() => Assert.That(sideBar.IsCollapsed, Is.False, "Re-setting the same viewport state must keep the user's own choice."));
         }
 
+        /// <summary>
+        /// Verifies the markup hooks that keep the collapsed side bar narrow (issue GH806): the footer logo is dropped on
+        /// collapse and the "Model"/"General" section headers carry the class that centers them in the narrow view.
+        /// </summary>
+        [Test]
+        public void VerifyCollapsedSideBarIconOnlyLayout()
+        {
+            var renderer = this.context.Render<SideBar>();
+
+            var footer = renderer.FindComponent<SideBarFooter>();
+            var logo = footer.Find("img");
+
+            var applicationsSideBar = renderer.FindComponent<ApplicationsSideBar>();
+            var sectionHeaders = applicationsSideBar.FindAll(".side-bar-section-header");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(logo.ClassList, Does.Contain("not-displayed-on-collapse"));
+                Assert.That(sectionHeaders, Has.Count.EqualTo(2));
+            });
+        }
+
         [Test]
         public void VerifySideBarFooterIsInFlow()
         {

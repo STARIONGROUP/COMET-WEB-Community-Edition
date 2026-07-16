@@ -10,3 +10,8 @@
 .main-side-bar ::deep > * {
     flex-shrink: 0;
 }
+
+.main-side-bar.collapsed {
+    padding-left: 4px;
+    padding-right: 4px;
+}
