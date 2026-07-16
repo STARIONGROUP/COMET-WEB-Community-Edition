@@ -678,15 +678,33 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 return Result.Fail("The group cannot be moved to that location.");
             }
 
-            // mirrors the desktop IME (RequirementsSpecificationRowViewModel.MoveGroup): only the NEW container is
-            // updated, with the moved group added to its Group list — the server re-parents it and removes it from its
-            // old container. Sending the old container or the group as separate updates trips the server's acyclic
-            // check (NullReferenceException in RequirementsGroupSideEffect) because it then sees inconsistent state.
-            var newContainerClone = (RequirementsContainer)target.Clone(false);
-            newContainerClone.Group.Add(group.Clone(false));
+            try
+            {
+                // toggling IsLoading is what makes the body (tree AND document) re-render with the new nesting once the
+                // write returns — every other write in this VM follows the same IsLoading + ReloadPreservingSelection pattern
+                this.IsLoading = true;
 
-            return await this.SessionService.CreateOrUpdateThingsWithNotification(newContainerClone, [newContainerClone],
-                BuildNotification(group, "moved", "move"));
+                // mirrors the desktop IME (RequirementsSpecificationRowViewModel.MoveGroup): only the NEW container is
+                // updated, with the moved group added to its Group list — the server re-parents it and removes it from
+                // its old container. Sending the old container or the group as separate updates trips the server's
+                // acyclic check (NullReferenceException in RequirementsGroupSideEffect) because it sees inconsistent state.
+                var newContainerClone = (RequirementsContainer)target.Clone(false);
+                newContainerClone.Group.Add(group.Clone(false));
+
+                var result = await this.SessionService.CreateOrUpdateThingsWithNotification(newContainerClone, [newContainerClone],
+                    BuildNotification(group, "moved", "move"));
+
+                if (result.IsSuccess)
+                {
+                    await this.ReloadPreservingSelection();
+                }
+
+                return result;
+            }
+            finally
+            {
+                this.IsLoading = false;
+            }
         }
 
         /// <summary>
