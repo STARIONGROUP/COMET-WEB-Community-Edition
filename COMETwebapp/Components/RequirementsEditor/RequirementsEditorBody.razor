@@ -34,11 +34,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
                       Click="@(() => this.ViewModel.IsTocCollapsed = !this.ViewModel.IsTocCollapsed)"
                       CssClass="req-collapse-toggle" />
 
-            <DxTextBox @bind-Text="@this.ViewModel.SearchText"
-                       BindValueMode="BindValueMode.OnDelayedInput"
-                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                       NullText="Search in definitions..."
-                       CssClass="req-search" />
+            <div class="req-search">
+                <DxTextBox @bind-Text="@this.ViewModel.SearchText"
+                           BindValueMode="BindValueMode.OnDelayedInput"
+                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                           NullText="Search in definitions..."
+                           CssClass="req-search-input" />
+            </div>
 
             <DxTagBox Data="@this.ViewModel.AvailableOwners"
                       Values="@this.ViewModel.SelectedOwners"
@@ -65,31 +67,58 @@ Copyright (c) 2023-2026 Starion Group S.A.
                           CssClass="req-filter" />
             }
 
-            <div class="req-toolbar-group">
-                <span class="req-toolbar-label">Layout</span>
-                <div class="btn-group" role="group" aria-label="Requirement layout">
-                    @foreach (var mode in DisplayModes)
-                    {
-                        <DxButton RenderStyle="@(this.ViewModel.DisplayMode == mode ? ButtonRenderStyle.Primary : ButtonRenderStyle.Light)"
-                                  Text="@GetDisplayModeLabel(mode)"
-                                  title="@GetDisplayModeTitle(mode)"
-                                  Click="@(() => this.ViewModel.DisplayMode = mode)" />
-                    }
-                </div>
-            </div>
-
             <div class="req-toolbar-group req-toolbar-right">
                 <DxButton RenderStyle="ButtonRenderStyle.Primary"
                           IconCssClass="oi oi-plus"
                           Text="Specification"
                           title="Create a new specification"
                           Click="@(() => this.ViewModel.OpenCreateSpecification())" />
-                <DxCheckBox @bind-Checked="@this.ViewModel.IndentGroups" CheckType="CheckType.Switch">Indent</DxCheckBox>
-                <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
-                <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategory" CheckType="CheckType.Switch">Category</DxCheckBox>
-                <DxCheckBox @bind-Checked="@this.ViewModel.ShowSimpleParameterValues" CheckType="CheckType.Switch" title="Show the simple parameter values of each requirement as editable columns">Values</DxCheckBox>
-                <DxCheckBox @bind-Checked="@this.ViewModel.ShowParametricConstraints" CheckType="CheckType.Switch" title="Show the parametric constraints of each requirement">Constraints</DxCheckBox>
-                <DxCheckBox @bind-Checked="@this.ViewModel.ShowTraceability" CheckType="CheckType.Switch" title="Show the relationships to and from each requirement">Traceability</DxCheckBox>
+
+                <DxButton Id="reqViewMenuButton"
+                          RenderStyle="ButtonRenderStyle.Light"
+                          IconCssClass="oi oi-cog"
+                          Text="View"
+                          title="Layout and display options"
+                          Click="@(() => this.viewMenuOpen = !this.viewMenuOpen)" />
+
+                <DxDropDown @bind-IsOpen="@this.viewMenuOpen"
+                            PositionMode="DropDownPositionMode.Bottom"
+                            PositionTarget="#reqViewMenuButton"
+                            CloseMode="DropDownCloseMode.Close"
+                            HeaderVisible="false"
+                            FooterVisible="false">
+                    <BodyTemplate>
+                        <div class="req-view-menu">
+                            <div class="req-view-section">
+                                <span class="req-toolbar-label">Layout</span>
+                                <div class="btn-group" role="group" aria-label="Requirement layout">
+                                    @foreach (var mode in DisplayModes)
+                                    {
+                                        <DxButton RenderStyle="ButtonRenderStyle.Light"
+                                                  CssClass="@(this.ViewModel.DisplayMode == mode ? "req-view-toggle-on" : string.Empty)"
+                                                  Text="@GetDisplayModeLabel(mode)"
+                                                  title="@GetDisplayModeTitle(mode)"
+                                                  Click="@(() => this.ViewModel.DisplayMode = mode)" />
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="req-view-section">
+                                <span class="req-toolbar-label">Show</span>
+                                <DxCheckBox Checked="@(!this.ViewModel.TreeUsesShortName)"
+                                            CheckedChanged="@((bool value) => this.ViewModel.TreeUsesShortName = !value)"
+                                            CheckType="CheckType.Switch"
+                                            title="Label the table of contents and traceability by full name instead of short name">Full names</DxCheckBox>
+                                <DxCheckBox @bind-Checked="@this.ViewModel.IndentGroups" CheckType="CheckType.Switch">Indent groups</DxCheckBox>
+                                <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
+                                <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategory" CheckType="CheckType.Switch">Category</DxCheckBox>
+                                <DxCheckBox @bind-Checked="@this.ViewModel.ShowSimpleParameterValues" CheckType="CheckType.Switch" title="Show the simple parameter values of each requirement as editable columns">Values</DxCheckBox>
+                                <DxCheckBox @bind-Checked="@this.ViewModel.ShowParametricConstraints" CheckType="CheckType.Switch" title="Show the parametric constraints of each requirement">Constraints</DxCheckBox>
+                                <DxCheckBox @bind-Checked="@this.ViewModel.ShowTraceability" CheckType="CheckType.Switch" title="Show the relationships to and from each requirement">Traceability</DxCheckBox>
+                            </div>
+                        </div>
+                    </BodyTemplate>
+                </DxDropDown>
             </div>
         </div>
 

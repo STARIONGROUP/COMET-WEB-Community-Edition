@@ -1,0 +1,77 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using COMETwebapp.ViewModels.Components.RequirementsEditor
+
+<div id="@RequirementsDocument.RequirementAnchorId(this.Requirement)" class="req-row @(this.Requirement.IsDeprecated ? "req-row-deprecated" : string.Empty)">
+    <div class="req-row-top @(this.ValuesBelow ? "req-values-below" : string.Empty)">
+        <div class="req-row-main">
+            @switch (this.ViewModel.DisplayMode)
+            {
+                case RequirementRowDisplayMode.ShortNameAndDefinition:
+                    <div class="req-def"><strong class="req-id">@this.Requirement.ShortName</strong> &#8211; <RequirementDefinitionCell ViewModel="@this.ViewModel" Requirement="@this.Requirement" /></div>
+                    break;
+
+                case RequirementRowDisplayMode.NameAndDefinition:
+                    <div class="req-def"><strong class="req-id">@this.Requirement.Name</strong> &#8211; <RequirementDefinitionCell ViewModel="@this.ViewModel" Requirement="@this.Requirement" /></div>
+                    break;
+
+                default:
+                    <div class="req-row-header"><strong class="req-id">@this.Requirement.ShortName</strong> <span class="req-name">@this.Requirement.Name</span></div>
+                    <div class="req-def"><RequirementDefinitionCell ViewModel="@this.ViewModel" Requirement="@this.Requirement" /></div>
+                    break;
+            }
+        </div>
+        @if (this.ViewModel.ShowSimpleParameterValues && this.ValuesBelow)
+        {
+            <div class="req-row-pills req-pills-corner">
+                <RequirementRowActions ViewModel="@this.ViewModel" Requirement="@this.Requirement" />
+            </div>
+            <div class="req-row-values">
+                @foreach (var parameterType in this.VisibleParameterTypes)
+                {
+                    <RequirementValueCell @key="parameterType.Iid" ViewModel="@this.ViewModel" Requirement="@this.Requirement" ParameterType="@parameterType" />
+                }
+            </div>
+        }
+        else if (this.ViewModel.ShowSimpleParameterValues)
+        {
+            <div class="req-row-values">
+                @foreach (var parameterType in this.VisibleParameterTypes)
+                {
+                    <RequirementValueCell @key="parameterType.Iid" ViewModel="@this.ViewModel" Requirement="@this.Requirement" ParameterType="@parameterType" />
+                }
+                <div class="req-pills-cell">
+                    <RequirementRowActions ViewModel="@this.ViewModel" Requirement="@this.Requirement" />
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="req-row-pills">
+                <RequirementRowActions ViewModel="@this.ViewModel" Requirement="@this.Requirement" Inline="true" />
+            </div>
+        }
+    </div>
+    @if (this.ViewModel.ShowParametricConstraints || this.ViewModel.ShowTraceability)
+    {
+        <RequirementDetails ViewModel="@this.ViewModel" Requirement="@this.Requirement" />
+    }
+</div>

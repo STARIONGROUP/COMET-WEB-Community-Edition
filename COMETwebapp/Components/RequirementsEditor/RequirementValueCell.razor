@@ -36,7 +36,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <button type="button" class="req-value-save" title="Save (Enter)" @onclick="this.CommitAsync">&#10003;</button>
                 <button type="button" class="req-value-cancel" title="Cancel (Esc)" @onclick="this.Cancel">&#10007;</button>
             </div>
-            <ParameterTypeEditorSelector ViewModel="@this.editorSelectorViewModel" BindValueMode="BindValueMode.OnInput" />
+            <ParameterTypeEditorSelector ViewModel="@this.editorSelectorViewModel" BindValueMode="BindValueMode.OnInput" IsOnEditMode="true" />
         </div>
     }
     else if (currentValue == null)

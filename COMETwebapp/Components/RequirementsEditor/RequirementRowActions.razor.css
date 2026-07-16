@@ -1,0 +1,7 @@
+.req-pill-action-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 6px;
+    width: 100%;
+}

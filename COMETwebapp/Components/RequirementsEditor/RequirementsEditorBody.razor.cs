@@ -46,6 +46,11 @@ namespace COMETwebapp.Components.RequirementsEditor
         ];
 
         /// <summary>
+        /// Whether the "View" layout-and-display-options dropdown is open.
+        /// </summary>
+        private bool viewMenuOpen;
+
+        /// <summary>
         /// Gets or sets the <see cref="IDomDataService" /> used to scroll a navigated-to requirement into view.
         /// </summary>
         [Inject]
@@ -70,6 +75,9 @@ namespace COMETwebapp.Components.RequirementsEditor
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.DraggedGroup, x => x.ViewModel.DragOverContainer)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.WhenAnyValue(

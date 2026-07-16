@@ -1,5 +1,3 @@
-/* Fills the tab height so the tree and document panels scroll independently. Works because the shared
-   TabsPanelComponent chain (.panel-view height:100% flex → #tabs-page-content flex:1) is definite. */
 .req-editor {
     display: flex;
     flex-direction: column;
@@ -36,9 +34,34 @@
 }
 
 .req-search {
-    flex: 1 1 130px;
-    min-width: 90px;
-    max-width: 260px;
+    flex: 1 0 220px;
+    min-width: 200px;
+    max-width: 420px;
+}
+
+.req-search ::deep .req-search-input {
+    width: 100%;
+}
+
+.req-view-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    min-width: 200px;
+}
+
+.req-view-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.req-view-menu ::deep .req-view-toggle-on {
+    background-color: #e7f1ff !important;
+    border-color: #b9d0f0 !important;
+    color: #3b5b8c !important;
+    font-weight: 600;
 }
 
 .req-filter {
@@ -46,8 +69,6 @@
     min-width: 78px;
 }
 
-/* the table of contents keeps a fixed, readable width and the document a readable minimum; when they don't
-   both fit on a narrow panel the layout scrolls horizontally rather than squeezing the TOC to uselessness */
 .req-editor-layout {
     display: flex;
     gap: 16px;
@@ -74,12 +95,6 @@
     border: none;
 }
 
-/* only ever scroll vertically: horizontal overflow would leave a dangling scrollbar, make the sticky
-   specification header stop short of the right edge, and (with both side menus open on a tiny screen) trap
-   the document so it can't be scrolled at all. Everything inside wraps, so nothing needs horizontal scroll. */
-/* a readable minimum width; when the TOC + this minimum exceed the panel the layout gets a horizontal
-   scrollbar (above) rather than squeezing the document to one word per line. Content still wraps within this
-   width, so the document itself never needs its own horizontal scrollbar. */
 .req-document {
     flex: 1 1 auto;
     min-width: 400px;
@@ -126,8 +141,6 @@
     padding-left: 14px;
 }
 
-/* vertical guide line: full height for a middle child, but the last child stops at the connector
-   so the line does not run past the final node to the bottom of the branch */
 .req-toc ::deep ul.req-tree-branch > li::before {
     content: "";
     position: absolute;
@@ -143,7 +156,6 @@
     height: 13px;
 }
 
-/* horizontal connector from the vertical guide line to each node */
 .req-toc ::deep ul.req-tree-branch > li::after {
     content: "";
     position: absolute;
@@ -167,6 +179,16 @@
     flex: 0 1 auto;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.req-toc ::deep .req-tree-group-row {
+    cursor: grab;
+}
+
+.req-toc ::deep .req-tree-droptarget {
+    outline: 2px dashed #4096ff;
+    outline-offset: -2px;
+    background: #e6f4ff;
 }
 
 .req-toc ::deep .req-tree-row .req-pills {
@@ -316,17 +338,13 @@
     gap: 6px;
     padding: 9px 8px;
     border-bottom: 1px solid #f1f3f5;
-    /* keep a navigated-to requirement clear of the sticky specification header instead of landing behind it */
-    scroll-margin-top: 60px;
+     scroll-margin-top: 60px;
 }
 
 .req-document ::deep .req-row:hover {
     background: #fafbfc;
 }
 
-/* the header strip: definition (grows) | value columns | owner/category pills. On a wide row everything sits
-   on one line and the value columns line up across requirements; on a narrow panel the strip wraps so the
-   value columns and pills drop below the definition instead of squeezing it to one word per line. */
 .req-document ::deep .req-row-top {
     display: flex;
     align-items: flex-start;
@@ -355,10 +373,13 @@
 }
 
 .req-document ::deep .req-def {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    column-gap: 4px;
     margin: 2px 0 0;
     line-height: 1.5;
     color: #1f2937;
-    white-space: pre-wrap;
 }
 
 .req-document ::deep .req-row-pills {
@@ -367,27 +388,28 @@
     text-align: end;
 }
 
-/* with values open the pills sit at the far right in a fixed-width column so the value columns to their left
-   stay vertically aligned across rows: the owner pill on top, the category pills as one wrapping row below */
-.req-document ::deep .req-row-pills.req-pills-stacked {
+.req-document ::deep .req-pills-cell {
     flex: 0 0 130px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-end;
+}
+
+.req-document ::deep .req-row-pills.req-pills-corner {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-end;
     white-space: normal;
 }
 
-.req-document ::deep .req-row-pills.req-pills-stacked .req-pills {
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-}
-
-.req-document ::deep .req-pills {
-    display: inline-flex;
-    gap: 3px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-}
-
-/* the category pills always share one (wrapping) row, whether the block is inline or stacked under the owner */
+/* shared pill layout used by RequirementPills (tree + document) and RequirementRowActions — kept once here,
+   in both the tree and document scopes, rather than duplicated in each component's scoped stylesheet */
+.req-toc ::deep .req-pills,
+.req-document ::deep .req-pills,
+.req-toc ::deep .req-pill-categories,
 .req-document ::deep .req-pill-categories {
     display: inline-flex;
     gap: 3px;
@@ -407,8 +429,6 @@
     padding: 24px;
 }
 
-/* pill sizing: the shared .starion-pill is a fixed 19px with no horizontal padding, so text is
-   clipped. Give our pills real padding, centring and no-wrap so short names fit cleanly. */
 .req-toc ::deep .starion-pill,
 .req-document ::deep .starion-pill {
     display: inline-flex;
@@ -424,7 +444,6 @@
     color: #1f2937;
 }
 
-/* Indent toggle: when off, flatten the group indentation so headers and requirements sit flush-left. */
 .req-document.no-indent ::deep .req-group {
     margin-left: 0;
     padding-left: 0;
@@ -433,7 +452,6 @@
 
 /* --- requirement detail sections (rendered by RequirementDetails) --- */
 
-/* constraints + traceability sit side by side to use the horizontal space; they wrap on a narrow row */
 .req-document ::deep .req-details {
     margin-top: 6px;
     display: flex;
@@ -448,8 +466,6 @@
     min-width: 0;
 }
 
-/* DOORS-like value columns: fixed-width cells on the right of every requirement row, one per visible
-   parameter type in a fixed order, so the cells line up vertically across requirements. */
 .req-document ::deep .req-row-values {
     flex: 0 1 auto;
     display: flex;
@@ -457,6 +473,12 @@
     align-items: flex-start;
     gap: 6px;
     padding-left: 8px;
+}
+
+.req-document ::deep .req-row-top.req-values-below .req-row-values {
+    order: 3;
+    flex: 1 1 100%;
+    padding-left: 0;
 }
 
 .req-document ::deep .req-value-cell {
@@ -475,7 +497,6 @@
     border-style: dashed;
 }
 
-/* an editing cell grows to fit the (wider) date/combo editor instead of cramping it into the column width */
 .req-document ::deep .req-value-cell:has(.req-value-editor) {
     width: auto;
     min-width: 160px;
@@ -510,7 +531,6 @@
     background: #fff;
 }
 
-/* empty cell: an obviously-different "+ add" affordance so a missing value never looks like a set one */
 .req-document ::deep .req-value-add {
     border: none;
     background: none;
@@ -527,7 +547,6 @@
     text-decoration: underline;
 }
 
-/* actions sit on a row ABOVE the editor so the value/date stays fully readable before confirming */
 .req-document ::deep .req-value-editor {
     display: flex;
     flex-direction: column;
@@ -537,10 +556,9 @@
     padding: 1px;
 }
 
-/* clearly show an unsaved edit */
 .req-document ::deep .req-value-editor-dirty {
-    outline: 2px solid #ffd666;
-    background: #fffbe6;
+    outline: 2px solid #b9d0f0;
+    background: #e7f1ff;
 }
 
 .req-document ::deep .req-value-editor-actions {
@@ -568,7 +586,6 @@
     color: #b42318;
 }
 
-/* shared shell for the Constraints and Traceability sections */
 .req-document ::deep .req-section {
     padding: 5px 10px 7px;
     background: #fbfcfe;
@@ -594,7 +611,6 @@
     border-top: 1px dashed #e5e9ee;
 }
 
-/* a non-leaf node: collapse toggle + operator chip + one-line summary of the whole subtree */
 .req-document ::deep .req-expr-node {
     display: flex;
     align-items: center;
@@ -638,8 +654,6 @@
     white-space: nowrap;
 }
 
-/* neutral violet: the published value is informational, not a pass/fail — green/red/amber all carry a
-   validation meaning in the IME, so they are deliberately avoided here */
 .req-document ::deep .req-expr-published {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.75rem;
@@ -657,8 +671,6 @@
     border-left: 1px solid #d8e3f4;
 }
 
-/* wrap so the bound-parameter model code and its published value drop to the next line inside the constraint
-   card on a narrow panel instead of spilling past its right edge */
 .req-document ::deep .req-expr-leaf {
     display: inline-flex;
     flex-wrap: wrap;
@@ -694,7 +706,6 @@
     padding: 0 5px;
 }
 
-/* traceability rows: wrap so the linked things and the rule pills stay inside the card on a narrow panel */
 .req-document ::deep .req-link-row {
     display: flex;
     flex-wrap: wrap;
@@ -741,8 +752,18 @@
     overflow-wrap: anywhere;
 }
 
+.req-document ::deep .req-link-def {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #98a2b3;
+    font-size: 0.82rem;
+}
+
 .req-document ::deep .req-link-row .req-pills {
-    margin-left: auto;
+    flex: 0 0 auto;
     padding-left: 6px;
 }
 
@@ -761,7 +782,6 @@
     white-space: nowrap;
 }
 
-/* Deprecated things (rendered only when the global "Show Deprecated Things" toggle is on). */
 .req-document ::deep .req-row-deprecated {
     opacity: 0.6;
 }
@@ -815,50 +835,4 @@
 .req-document ::deep .req-spec-title:hover .req-actions .dxbl-btn,
 .req-document ::deep .req-group-header:hover .req-actions .dxbl-btn {
     opacity: 1;
-}
-
-.req-document ::deep .req-def-display {
-    cursor: text;
-    border-radius: 3px;
-    padding: 1px 3px;
-    transition: background-color 0.15s ease;
-}
-
-.req-document ::deep .req-def-display:hover {
-    background-color: #eef2ff;
-    box-shadow: inset 0 0 0 1px #c7d2fe;
-}
-
-.req-document ::deep .req-def-editor {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.req-document ::deep .req-def-editor-actions {
-    display: flex;
-    gap: 4px;
-}
-
-.req-document ::deep .req-def-save,
-.req-document ::deep .req-def-cancel {
-    border: 1px solid #d0d5dd;
-    background: #fff;
-    border-radius: 4px;
-    width: 24px;
-    height: 24px;
-    line-height: 1;
-    cursor: pointer;
-}
-
-.req-document ::deep .req-def-save {
-    color: #067647;
-}
-
-.req-document ::deep .req-def-cancel {
-    color: #b42318;
-}
-
-.req-document ::deep .req-def-memo {
-    width: 100%;
 }

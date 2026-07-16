@@ -132,6 +132,24 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         }
 
         [Test]
+        public void VerifyCanSaveRequiresADefinitionForRequirements()
+        {
+            var requirement = new Requirement { Iid = Guid.NewGuid(), Owner = this.domain };
+            this.viewModel.InitializeViewModel(requirement, this.iteration, []);
+
+            Assert.That(this.viewModel.CanSave, Is.False, "A requirement without a definition cannot be saved.");
+
+            this.viewModel.PrimaryDefinitionContent = "The system shall do something.";
+            Assert.That(this.viewModel.CanSave, Is.True, "A requirement with a non-empty definition can be saved.");
+
+            this.viewModel.PrimaryDefinitionContent = "   ";
+            Assert.That(this.viewModel.CanSave, Is.False, "A whitespace-only definition does not count.");
+
+            this.viewModel.InitializeViewModel(this.group, this.iteration, []);
+            Assert.That(this.viewModel.CanSave, Is.True, "A group is always saveable without a definition.");
+        }
+
+        [Test]
         public void VerifyRequirementExposesParameterTypesAndItself()
         {
             var requirement = new Requirement { Iid = Guid.NewGuid(), Owner = this.domain };

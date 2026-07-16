@@ -20,90 +20,11 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
 @using CDP4Common.EngineeringModelData
 @using CDP4Common.SiteDirectoryData
-@using COMETwebapp.Utilities
 @using COMETwebapp.ViewModels.Components.RequirementsEditor
 
 @{
-    RenderFragment<(DomainOfExpertise Owner, IEnumerable<Category> Categories)> pills = context =>
-        @<span class="req-pills">
-            @if (this.ViewModel.ShowOwner && context.Owner != null)
-            {
-                <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{context.Owner.ShortName}") !important;" title="Owner: @context.Owner.Name">@context.Owner.ShortName</span>
-            }
-            @if (this.ViewModel.ShowCategory)
-            {
-                <span class="req-pill-categories">
-                    @foreach (var category in context.Categories)
-                    {
-                        <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.Name">@category.ShortName</span>
-                    }
-                </span>
-            }
-        </span>;
-
     IReadOnlyList<ParameterType> visibleParameterTypes = this.ViewModel.ShowSimpleParameterValues ? this.ViewModel.GetVisibleParameterTypes() : [];
-
-    RenderFragment<Requirement> requirementRow = requirement =>
-        @<div @key="requirement.Iid" id="@RequirementAnchorId(requirement)" class="req-row @(requirement.IsDeprecated ? "req-row-deprecated" : string.Empty)">
-            <div class="req-row-top">
-                <div class="req-row-main">
-                    @if (this.IsEditingDefinition(requirement))
-                    {
-                        <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
-                        <div class="req-def-editor" @onkeydown="this.OnDefinitionEditorKeyDown">
-                            <div class="req-def-editor-actions">
-                                <button type="button" class="req-def-save" title="Save" @onclick="@(() => this.ConfirmDefinitionEdit(requirement))">&#10003;</button>
-                                <button type="button" class="req-def-cancel" title="Cancel (Esc)" @onclick="this.CancelDefinitionEdit">&#10007;</button>
-                            </div>
-                            <DxMemo @bind-Text="this.editingDefinition" Rows="3" CssClass="req-def-memo" />
-                        </div>
-                    }
-                    else
-                    {
-                        @switch (this.ViewModel.DisplayMode)
-                        {
-                            case RequirementRowDisplayMode.ShortNameAndDefinition:
-                                <p class="req-def"><strong class="req-id">@requirement.ShortName</strong> &#8211; @GetDefinition(requirement)</p>
-                                break;
-
-                            case RequirementRowDisplayMode.NameAndDefinition:
-                                <p class="req-def"><strong class="req-id">@requirement.Name</strong> &#8211; @GetDefinition(requirement)</p>
-                                break;
-
-                            default:
-                                <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
-                                <p class="req-def"><span class="req-def-display" title="Click to edit" @onclick="@(() => this.StartDefinitionEdit(requirement))">@GetDefinitionDisplay(requirement)</span></p>
-                                break;
-                        }
-                    }
-                </div>
-                @if (this.ViewModel.ShowSimpleParameterValues)
-                {
-                    <div class="req-row-values">
-                        @foreach (var parameterType in visibleParameterTypes)
-                        {
-                            <RequirementValueCell @key="parameterType.Iid" ViewModel="@this.ViewModel" Requirement="@requirement" ParameterType="@parameterType" />
-                        }
-                    </div>
-                }
-                <div class="req-row-pills @(this.ViewModel.ShowSimpleParameterValues ? "req-pills-stacked" : string.Empty)">
-                    @if (requirement.IsDeprecated)
-                    {
-                        <span class="req-deprecated-badge" title="This requirement is deprecated">Deprecated</span>
-                    }
-                    @pills((requirement.Owner, requirement.Category))
-                    <span class="req-actions">
-                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-pencil" title="Edit requirement" Click="@(() => this.ViewModel.OpenEdit(requirement))" />
-                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@(requirement.IsDeprecated ? "oi oi-action-undo" : "oi oi-ban")" title="@(requirement.IsDeprecated ? "Restore requirement" : "Deprecate requirement")" Click="@(() => this.ViewModel.ConfirmDeprecation(requirement))" />
-                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-trash" title="Delete requirement" Click="@(() => this.ViewModel.ConfirmDeletion(requirement))" />
-                    </span>
-                </div>
-            </div>
-            @if (this.ViewModel.ShowParametricConstraints || this.ViewModel.ShowTraceability)
-            {
-                <RequirementDetails ViewModel="@this.ViewModel" Requirement="@requirement" />
-            }
-        </div>;
+    var valuesBelow = visibleParameterTypes.Count > MaxInlineValueColumns;
 }
 
 @if (this.ViewModel.SelectedSpecification == null)
@@ -121,19 +42,18 @@ else if (this.Container == null)
         {
             <span class="req-deprecated-badge" title="This specification is deprecated">Deprecated</span>
         }
-        @pills((specification.Owner, specification.Category))
+        <RequirementPills ViewModel="@this.ViewModel" Owner="@specification.Owner" Categories="@specification.Category" />
         <span class="req-actions">
             <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-plus" title="Add requirement" Click="@(() => this.ViewModel.OpenCreateRequirement(specification))" />
             <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-folder" title="Add group" Click="@(() => this.ViewModel.OpenCreateGroup(specification))" />
-            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-pencil" title="Edit specification" Click="@(() => this.ViewModel.OpenEdit(specification))" />
-            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@(specification.IsDeprecated ? "oi oi-action-undo" : "oi oi-ban")" title="@(specification.IsDeprecated ? "Restore specification" : "Deprecate specification")" Click="@(() => this.ViewModel.ConfirmDeprecation(specification))" />
-            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-trash" title="Delete specification" Click="@(() => this.ViewModel.ConfirmDeletion(specification))" />
+            <EditThingButton ViewModel="@this.ViewModel" Thing="@specification" />
+            <DeprecateThingButton ViewModel="@this.ViewModel" Thing="@specification" />
         </span>
     </div>
 
     @foreach (var requirement in this.ViewModel.GetRequirements(specification))
     {
-        @requirementRow(requirement)
+        <RequirementRow @key="requirement.Iid" ViewModel="@this.ViewModel" Requirement="@requirement" VisibleParameterTypes="@visibleParameterTypes" ValuesBelow="@valuesBelow" />
     }
 
     @foreach (var childGroup in this.ViewModel.GetGroups(specification))
@@ -154,11 +74,11 @@ else
             </button>
             <span class="req-group-id">@group.ShortName</span>
             <span class="req-group-name">@group.Name</span>
-            @pills((group.Owner, group.Category))
+            <RequirementPills ViewModel="@this.ViewModel" Owner="@group.Owner" Categories="@group.Category" />
             <span class="req-actions">
                 <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-plus" title="Add requirement" Click="@(() => this.ViewModel.OpenCreateRequirement(group))" />
                 <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-folder" title="Add sub-group" Click="@(() => this.ViewModel.OpenCreateGroup(group))" />
-                <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-pencil" title="Edit group" Click="@(() => this.ViewModel.OpenEdit(group))" />
+                <EditThingButton ViewModel="@this.ViewModel" Thing="@group" />
                 <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-trash" title="Delete group" Click="@(() => this.ViewModel.ConfirmDeletion(group))" />
             </span>
         </div>
@@ -167,7 +87,7 @@ else
         {
             foreach (var requirement in this.ViewModel.GetRequirements(group))
             {
-                @requirementRow(requirement)
+                <RequirementRow @key="requirement.Iid" ViewModel="@this.ViewModel" Requirement="@requirement" VisibleParameterTypes="@visibleParameterTypes" ValuesBelow="@valuesBelow" />
             }
 
             foreach (var childGroup in this.ViewModel.GetGroups(group))
