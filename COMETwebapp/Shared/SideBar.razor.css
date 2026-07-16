@@ -1,12 +1,21 @@
 .main-side-bar {
     height: 100vh;
     background-color: var(--colors-primary-25);
-    padding: 10px 20px 10px 20px;
+    padding: 4px 20px 4px 20px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    scrollbar-width: thin;
 }
 
 .main-side-bar ::deep > * {
     flex-shrink: 0;
+}
+
+.main-side-bar.collapsed {
+    width: 36px;
+    padding-left: 2px;
+    padding-right: 2px;
+    align-items: center;
+    overflow-x: hidden;
 }
