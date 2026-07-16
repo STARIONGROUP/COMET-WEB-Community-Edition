@@ -71,6 +71,24 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </div>
         </text>;
 
+    RenderFragment<Requirement> definitionPart = requirement =>
+        @<text>
+            @if (this.IsEditingDefinition(requirement))
+            {
+                <span class="req-def-editor @(this.IsDefinitionDirty(requirement) ? "req-def-editor-dirty" : string.Empty)" @onkeydown="this.OnDefinitionEditorKeyDown">
+                    <DxMemo @bind-Text="this.editingDefinition" BindValueMode="BindValueMode.OnInput" Rows="2" CssClass="req-def-memo" />
+                    <span class="req-def-editor-actions">
+                        <button type="button" class="req-def-save" title="Save" @onclick="@(() => this.ConfirmDefinitionEdit(requirement))">&#10003;</button>
+                        <button type="button" class="req-def-cancel" title="Cancel (Esc)" @onclick="this.CancelDefinitionEdit">&#10007;</button>
+                    </span>
+                </span>
+            }
+            else
+            {
+                <span class="req-def-display" title="Click to edit" @onclick="@(() => this.StartDefinitionEdit(requirement))">@GetDefinitionDisplay(requirement)</span>
+            }
+        </text>;
+
     IReadOnlyList<ParameterType> visibleParameterTypes = this.ViewModel.ShowSimpleParameterValues ? this.ViewModel.GetVisibleParameterTypes() : [];
     var valuesBelow = visibleParameterTypes.Count > MaxInlineValueColumns;
 
@@ -78,34 +96,20 @@ Copyright (c) 2023-2026 Starion Group S.A.
         @<div @key="requirement.Iid" id="@RequirementAnchorId(requirement)" class="req-row @(requirement.IsDeprecated ? "req-row-deprecated" : string.Empty)">
             <div class="req-row-top @(valuesBelow ? "req-values-below" : string.Empty)">
                 <div class="req-row-main">
-                    @if (this.IsEditingDefinition(requirement))
+                    @switch (this.ViewModel.DisplayMode)
                     {
-                        <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
-                        <div class="req-def-editor @(this.IsDefinitionDirty(requirement) ? "req-def-editor-dirty" : string.Empty)" @onkeydown="this.OnDefinitionEditorKeyDown">
-                            <div class="req-def-editor-actions">
-                                <button type="button" class="req-def-save" title="Save" @onclick="@(() => this.ConfirmDefinitionEdit(requirement))">&#10003;</button>
-                                <button type="button" class="req-def-cancel" title="Cancel (Esc)" @onclick="this.CancelDefinitionEdit">&#10007;</button>
-                            </div>
-                            <DxMemo @bind-Text="this.editingDefinition" BindValueMode="BindValueMode.OnInput" Rows="3" CssClass="req-def-memo" />
-                        </div>
-                    }
-                    else
-                    {
-                        @switch (this.ViewModel.DisplayMode)
-                        {
-                            case RequirementRowDisplayMode.ShortNameAndDefinition:
-                                <p class="req-def"><strong class="req-id">@requirement.ShortName</strong> &#8211; @GetDefinition(requirement)</p>
-                                break;
+                        case RequirementRowDisplayMode.ShortNameAndDefinition:
+                            <div class="req-def"><strong class="req-id">@requirement.ShortName</strong> &#8211; @definitionPart(requirement)</div>
+                            break;
 
-                            case RequirementRowDisplayMode.NameAndDefinition:
-                                <p class="req-def"><strong class="req-id">@requirement.Name</strong> &#8211; @GetDefinition(requirement)</p>
-                                break;
+                        case RequirementRowDisplayMode.NameAndDefinition:
+                            <div class="req-def"><strong class="req-id">@requirement.Name</strong> &#8211; @definitionPart(requirement)</div>
+                            break;
 
-                            default:
-                                <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
-                                <p class="req-def"><span class="req-def-display" title="Click to edit" @onclick="@(() => this.StartDefinitionEdit(requirement))">@GetDefinitionDisplay(requirement)</span></p>
-                                break;
-                        }
+                        default:
+                            <div class="req-row-header"><strong class="req-id">@requirement.ShortName</strong> <span class="req-name">@requirement.Name</span></div>
+                            <div class="req-def">@definitionPart(requirement)</div>
+                            break;
                     }
                 </div>
                 @if (this.ViewModel.ShowSimpleParameterValues && valuesBelow)

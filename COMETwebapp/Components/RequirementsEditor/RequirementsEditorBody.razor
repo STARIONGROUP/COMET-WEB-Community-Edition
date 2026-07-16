@@ -94,7 +94,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
                                 <div class="btn-group" role="group" aria-label="Requirement layout">
                                     @foreach (var mode in DisplayModes)
                                     {
-                                        <DxButton RenderStyle="@(this.ViewModel.DisplayMode == mode ? ButtonRenderStyle.Primary : ButtonRenderStyle.Light)"
+                                        <DxButton RenderStyle="ButtonRenderStyle.Light"
+                                                  CssClass="@(this.ViewModel.DisplayMode == mode ? "req-view-toggle-on" : string.Empty)"
                                                   Text="@GetDisplayModeLabel(mode)"
                                                   title="@GetDisplayModeTitle(mode)"
                                                   Click="@(() => this.ViewModel.DisplayMode = mode)" />
@@ -104,6 +105,10 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                             <div class="req-view-section">
                                 <span class="req-toolbar-label">Show</span>
+                                <DxCheckBox Checked="@(!this.ViewModel.TreeUsesShortName)"
+                                            CheckedChanged="@((bool value) => this.ViewModel.TreeUsesShortName = !value)"
+                                            CheckType="CheckType.Switch"
+                                            title="Label the table of contents and traceability by full name instead of short name">Full names</DxCheckBox>
                                 <DxCheckBox @bind-Checked="@this.ViewModel.IndentGroups" CheckType="CheckType.Switch">Indent groups</DxCheckBox>
                                 <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
                                 <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategory" CheckType="CheckType.Switch">Category</DxCheckBox>

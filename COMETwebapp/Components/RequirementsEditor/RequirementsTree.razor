@@ -42,14 +42,6 @@ Copyright (c) 2023-2026 Starion Group S.A.
 {
     <div class="req-tree-header">
         <span class="req-tree-header-title">Contents</span>
-        <div class="btn-group" role="group" aria-label="Table of contents label">
-            <DxButton RenderStyle="@(this.ViewModel.TreeUsesShortName ? ButtonRenderStyle.Primary : ButtonRenderStyle.Light)"
-                      Text="ID" title="Label by short name"
-                      Click="@(() => this.ViewModel.TreeUsesShortName = true)" />
-            <DxButton RenderStyle="@(this.ViewModel.TreeUsesShortName ? ButtonRenderStyle.Light : ButtonRenderStyle.Primary)"
-                      Text="Name" title="Label by name"
-                      Click="@(() => this.ViewModel.TreeUsesShortName = false)" />
-        </div>
     </div>
 
     <ul class="req-tree">

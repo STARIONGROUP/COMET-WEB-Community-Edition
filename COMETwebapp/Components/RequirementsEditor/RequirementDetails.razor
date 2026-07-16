@@ -107,6 +107,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <span class="req-section-title">Traceability</span>
                 @foreach (var row in traceabilityRows)
                 {
+                    var linkedDefinition = GetRequirementDefinitionText(row.RelatedThings.OfType<Requirement>().FirstOrDefault());
+
                     <div class="req-link-row">
                         <span class="req-link-direction" title="@GetDirectionTitle(row.Direction)">@GetDirectionSymbol(row.Direction)</span>
                         <span class="req-link-targets">
@@ -126,6 +128,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                                 }
                             }
                         </span>
+                        <span class="req-link-def" title="@linkedDefinition">@linkedDefinition</span>
                         <span class="req-pills">
                             @foreach (var ruleName in row.RuleNames)
                             {

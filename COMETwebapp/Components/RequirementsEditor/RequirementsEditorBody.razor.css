@@ -59,6 +59,13 @@
     gap: 6px;
 }
 
+.req-view-menu ::deep .req-view-toggle-on {
+    background-color: #e7f1ff !important;
+    border-color: #b9d0f0 !important;
+    color: #3b5b8c !important;
+    font-weight: 600;
+}
+
 .req-filter {
     flex: 1 1 100px;
     min-width: 78px;
@@ -385,10 +392,13 @@
 }
 
 .req-document ::deep .req-def {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    column-gap: 4px;
     margin: 2px 0 0;
     line-height: 1.5;
     color: #1f2937;
-    white-space: pre-wrap;
 }
 
 /* pills block when the value columns are hidden: a compact inline group at the far right of the row */
@@ -589,10 +599,9 @@
     padding: 1px;
 }
 
-/* clearly show an unsaved edit (blue, not amber — amber reads as a warning) */
 .req-document ::deep .req-value-editor-dirty {
-    outline: 2px solid #4096ff;
-    background: #e6f4ff;
+    outline: 2px solid #b9d0f0;
+    background: #e7f1ff;
 }
 
 .req-document ::deep .req-value-editor-actions {
@@ -793,8 +802,21 @@
     overflow-wrap: anywhere;
 }
 
+/* the linked requirement's definition, shown in the remaining space on ONE line (truncated) so it never grows
+   the card. flex-basis 0 means it never forces a wrap to a second line: it only grows into the room left between
+   the link and the rule pills, and also acts as the spacer that pushes the pills to the right. */
+.req-document ::deep .req-link-def {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #98a2b3;
+    font-size: 0.82rem;
+}
+
 .req-document ::deep .req-link-row .req-pills {
-    margin-left: auto;
+    flex: 0 0 auto;
     padding-left: 6px;
 }
 
@@ -870,6 +892,9 @@
 }
 
 .req-document ::deep .req-def-display {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: pre-wrap;
     cursor: text;
     border-radius: 3px;
     padding: 1px 3px;
@@ -881,26 +906,27 @@
     box-shadow: inset 0 0 0 1px #c7d2fe;
 }
 
-/* same compact shape as the simple-parameter-value editor: borderless ✓/✗ on a row above the memo */
 .req-document ::deep .req-def-editor {
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 3px;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: flex-start;
+    gap: 4px;
+    max-width: 100%;
 }
 
-/* same blue "unsaved edit" highlight as the value editor (.req-value-editor-dirty) */
+/* same "unsaved edit" highlight as the value editor (.req-value-editor-dirty) */
 .req-document ::deep .req-def-editor-dirty {
-    outline: 2px solid #4096ff;
-    background: #e6f4ff;
+    outline: 2px solid #b9d0f0;
+    background: #e7f1ff;
     border-radius: 4px;
     padding: 2px;
 }
 
 .req-document ::deep .req-def-editor-actions {
-    display: flex;
+    display: inline-flex;
+    flex-direction: column;
     gap: 2px;
-    justify-content: flex-end;
     flex: 0 0 auto;
 }
 
@@ -923,5 +949,6 @@
 }
 
 .req-document ::deep .req-def-memo {
-    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
 }

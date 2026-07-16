@@ -118,14 +118,34 @@ namespace COMETwebapp.Components.RequirementsEditor
         }
 
         /// <summary>
-        /// Gets the link label of a related <see cref="Requirement" />: its specification's short name and its own.
+        /// Gets the link label of a related <see cref="Requirement" />: its specification's short name and its own
+        /// short name or name, matching the table-of-contents ID/Name toggle so the two correspond.
         /// </summary>
         /// <param name="requirement">The related <see cref="Requirement" /></param>
         /// <returns>The label</returns>
-        private static string GetRequirementLabel(Requirement requirement)
+        private string GetRequirementLabel(Requirement requirement)
         {
             var specification = requirement.GetContainerOfType<RequirementsSpecification>();
-            return specification == null ? requirement.ShortName : $"{specification.ShortName} · {requirement.ShortName}";
+            var requirementLabel = this.ViewModel.TreeUsesShortName ? requirement.ShortName : requirement.Name;
+
+            if (specification == null)
+            {
+                return requirementLabel;
+            }
+
+            var specificationLabel = this.ViewModel.TreeUsesShortName ? specification.ShortName : specification.Name;
+            return $"{specificationLabel} · {requirementLabel}";
+        }
+
+        /// <summary>
+        /// Gets the first definition text of a related <see cref="Requirement" />, shown after its link in the
+        /// remaining space (truncated) so a traceability row hints at what it points to.
+        /// </summary>
+        /// <param name="requirement">The related <see cref="Requirement" /></param>
+        /// <returns>The definition content, or an empty string</returns>
+        private static string GetRequirementDefinitionText(Requirement requirement)
+        {
+            return requirement?.Definition.FirstOrDefault()?.Content ?? string.Empty;
         }
 
         /// <summary>
