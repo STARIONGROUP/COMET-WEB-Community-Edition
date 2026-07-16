@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IEngineeringModelsTableViewModel.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -83,9 +83,9 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         EngineeringModelSetup SelectedSourceModel { get; set; }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="IterationRowViewModel"/>s
+        /// Gets the <see cref="IIterationsTableViewModel"/>
         /// </summary>
-        IEnumerable<IterationRowViewModel> IterationRows { get; }
+        IIterationsTableViewModel IterationsTableViewModel { get; }
 
         /// <summary>
         /// Gets the <see cref="IOrganizationalParticipantsTableViewModel"/>

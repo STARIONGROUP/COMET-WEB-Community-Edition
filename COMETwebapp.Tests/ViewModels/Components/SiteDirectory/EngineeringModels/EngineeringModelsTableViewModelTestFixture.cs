@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="EngineeringModelsTableViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -54,6 +54,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
         private Mock<IPermissionService> permissionService;
         private Mock<IOrganizationalParticipantsTableViewModel> organizationalParticipantsTableViewModel;
         private Mock<IParticipantsTableViewModel> participantsTableViewModel;
+        private Mock<IIterationsTableViewModel> iterationsTableViewModel;
         private Mock<ILogger<EngineeringModelsTableViewModel>> loggerMock;
         private CDPMessageBus messageBus;
         private EngineeringModelSetup engineeringModel;
@@ -109,8 +110,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
 
             this.organizationalParticipantsTableViewModel = new Mock<IOrganizationalParticipantsTableViewModel>();
             this.participantsTableViewModel = new Mock<IParticipantsTableViewModel>();
+            this.iterationsTableViewModel = new Mock<IIterationsTableViewModel>();
 
-            this.viewModel = new EngineeringModelsTableViewModel(this.sessionService.Object, this.messageBus, this.loggerMock.Object, this.organizationalParticipantsTableViewModel.Object, this.participantsTableViewModel.Object);
+            this.viewModel = new EngineeringModelsTableViewModel(this.sessionService.Object, this.messageBus, this.loggerMock.Object, this.organizationalParticipantsTableViewModel.Object, this.participantsTableViewModel.Object, this.iterationsTableViewModel.Object);
         }
 
         [TearDown]

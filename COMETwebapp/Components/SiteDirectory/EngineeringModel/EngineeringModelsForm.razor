@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 Copyright (c) 2023-2026 Starion Group S.A.
 
     This file is part of COMET WEB Community Edition
@@ -64,8 +64,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 </DxFormLayoutTabPage>
 
                 <DxFormLayoutTabPage Caption="Iterations">
-                    <IterationsTable EngineeringModelSetup="@(this.ViewModel.CurrentThing)"
-                                     IterationRows="@(this.ViewModel.IterationRows)"/>
+                    <IterationsTable ViewModel="@(this.ViewModel.IterationsTableViewModel)"/>
                 </DxFormLayoutTabPage>
             }
             <DxFormLayoutTabPage Caption="Active Domains">

@@ -64,6 +64,7 @@ namespace COMETwebapp.Services.RowViewModelFactoryService
                 DomainOfExpertise castThing => new DomainOfExpertiseRowViewModel(castThing),
                 EngineeringModelSetup castThing => new EngineeringModelRowViewModel(castThing),
                 Iteration castThing => new IterationRowViewModel(castThing),
+                IterationSetup castThing => new IterationSetupRowViewModel(castThing),
                 OrganizationalParticipant castThing => new OrganizationalParticipantRowViewModel(castThing),
                 Organization castThing => new OrganizationRowViewModel(castThing),
                 ParticipantRole castThing => new ParticipantRoleRowViewModel(castThing),

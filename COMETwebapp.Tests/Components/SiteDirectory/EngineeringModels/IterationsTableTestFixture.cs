@@ -1,76 +1,86 @@
 // --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IterationsTableTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
-//
-//     This file is part of COMET WEB Community Edition
-//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     This file is part of CDP4-COMET WEB Community Edition
+//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Affero General Public License for more details.
+//     Affero General Public License for more details.
 // 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
-//  --------------------------------------------------------------------------------------------------------------------
+//   --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 {
     using Bunit;
 
-    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.SiteDirectory.EngineeringModel;
+    using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
+
+    using DevExpress.Blazor;
 
     using DynamicData;
 
-    using NUnit.Framework;
+    using Microsoft.Extensions.DependencyInjection;
 
+    using Moq;
+
+    using NUnit.Framework;
 
     [TestFixture]
     public class IterationsTableTestFixture
     {
         private BunitContext context;
         private IRenderedComponent<IterationsTable> renderer;
-        private EngineeringModelSetup model;
-        private Iteration iteration1;
+        private Mock<IIterationsTableViewModel> viewModel;
+        private IterationSetup iteration1;
+        private IterationSetup iteration2;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new BunitContext();
+            this.viewModel = new Mock<IIterationsTableViewModel>();
 
-            this.model = new EngineeringModelSetup
+            this.iteration1 = new IterationSetup
             {
-                Name = "model",
-                ShortName = "model"
+                IterationNumber = 1,
+                Container = new EngineeringModelSetup { ShortName = "model" }
             };
 
-            this.iteration1 = new Iteration
+            this.iteration2 = new IterationSetup
             {
-                IterationSetup = new IterationSetup { Container = this.model },
-                Container = new EngineeringModel { EngineeringModelSetup = this.model }
+                IterationNumber = 2,
+                Container = new EngineeringModelSetup { ShortName = "model" }
             };
 
-            var rows = new SourceList<IterationRowViewModel>();
-            rows.Add(new IterationRowViewModel(this.iteration1));
+            var rows = new SourceList<IterationSetupRowViewModel>();
+            rows.Add(new IterationSetupRowViewModel(this.iteration1));
+            rows.Add(new IterationSetupRowViewModel(this.iteration2));
+
+            this.viewModel.Setup(x => x.Rows).Returns(rows);
+            this.viewModel.Setup(x => x.CurrentThing).Returns(new IterationSetup());
+            this.viewModel.Setup(x => x.CanCreateIteration).Returns(true);
+
+            this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.ConfigureDevExpressBlazor();
 
-            this.renderer = this.context.Render<IterationsTable>(p =>
-            {
-                p.Add(parameter => parameter.EngineeringModelSetup, this.model);
-                p.Add(parameter => parameter.IterationRows, rows.Items);
-            });
+            this.renderer = this.context.Render<IterationsTable>(p => { p.Add(parameter => parameter.ViewModel, this.viewModel.Object); });
         }
 
         [TearDown]
@@ -81,13 +91,48 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         }
 
         [Test]
+        public async Task VerifyAddingOrEditingIteration()
+        {
+            var addIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addIterationButton");
+            await this.renderer.InvokeAsync(addIterationButton.Instance.Click.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.True);
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(IterationSetup)));
+            });
+
+            var editIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editIterationButton");
+            await this.renderer.InvokeAsync(editIterationButton.Instance.Click.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.False);
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(IterationSetup)));
+            });
+
+            var saveIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "saveIterationButton");
+            await this.renderer.InvokeAsync(saveIterationButton.Instance.Click.InvokeAsync);
+            this.viewModel.Verify(x => x.CreateOrEditIteration(It.IsAny<bool>()), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyDeleteIteration()
+        {
+            var deleteIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "deleteIterationButton");
+            await this.renderer.InvokeAsync(deleteIterationButton.Instance.Click.InvokeAsync);
+            this.viewModel.Verify(x => x.OnDeleteButtonClick(It.IsAny<IterationSetupRowViewModel>()), Times.Once);
+        }
+
+        [Test]
         public void VerifyOnInitialized()
         {
             Assert.Multiple(() =>
             {
-                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
-                Assert.That(this.renderer.Instance.EngineeringModelSetup, Is.EqualTo(this.model));
-                Assert.That(this.renderer.Markup, Does.Contain(this.model.ShortName));
+                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.False);
+                Assert.That(this.renderer.Instance.ViewModel, Is.Not.Null);
+                Assert.That(this.renderer.Markup, Does.Contain("Iteration 1"));
+                Assert.That(this.renderer.Markup, Does.Contain("Iteration 2"));
             });
         }
     }
