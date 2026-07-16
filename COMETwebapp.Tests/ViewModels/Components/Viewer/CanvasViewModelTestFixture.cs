@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CanvasViewModelTestFixture.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -177,8 +177,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             this.selectionMediator.SetupGet(x => x.SelectedSceneObjectClone).Returns(clone);
 
             this.viewModel.InitializeViewModel();
+            this.selectionMediator.Raise(x => x.OnParameterChanged += null);
 
-            await this.selectionMediator.RaiseAsync(x => x.OnParameterChanged += null);
             await Task.Delay(100);
 
             using (Assert.EnterMultipleScope())
@@ -193,7 +193,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         /// Verifies the OnParameterSubmitted callback behaviour.
         /// </summary>
         [Test]
-        public async Task VerifyParameterSubmittedCallback()
+        public void VerifyParameterSubmittedCallback()
         {
             var original = new SceneObject(new Cube(1, 1, 1));
             var clone = original.Clone();
@@ -202,8 +202,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 
             this.viewModel.InitializeViewModel();
 
-            await this.selectionMediator.RaiseAsync(x => x.OnParameterSubmitted += null);
-            await Task.Delay(100);
+            this.selectionMediator.Raise(x => x.OnParameterSubmitted += null);
 
             using (Assert.EnterMultipleScope())
             {
@@ -215,8 +214,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             var newClone = new SceneObject(new Sphere(1));
             this.selectionMediator.SetupGet(x => x.SelectedSceneObjectClone).Returns(newClone);
 
-            await this.selectionMediator.RaiseAsync(x => x.OnParameterSubmitted += null);
-            await Task.Delay(100);
+            this.selectionMediator.Raise(x => x.OnParameterSubmitted += null);
 
             using (Assert.EnterMultipleScope())
             {
@@ -229,7 +227,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         /// Verifies the OnTreeSelectionChanged callback behaviour.
         /// </summary>
         [Test]
-        public async Task VerifyTreeSelectionChangedCallback()
+        public void VerifyTreeSelectionChangedCallback()
         {
             var original = new SceneObject(new Cube(1, 1, 1));
             var clone = original.Clone();
@@ -245,8 +243,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
                 IsSceneObjectVisible = true
             };
             
-            await this.selectionMediator.RaiseAsync(x => x.OnTreeSelectionChanged += null, nodeViewModel);
-            await Task.Delay(100);
+            this.selectionMediator.Raise(x => x.OnTreeSelectionChanged += null, nodeViewModel);
 
             using (Assert.EnterMultipleScope())
             {
@@ -259,7 +256,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         /// Verifies the OnTreeVisibilityChanged callback behaviour.
         /// </summary>
         [Test]
-        public async Task VerifyTreeVisibilityChangedCallback()
+        public void VerifyTreeVisibilityChangedCallback()
         {
             var original = new SceneObject(new Cube(1, 1, 1));
             var clone = original.Clone();
@@ -274,8 +271,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
                 IsSceneObjectVisible = true
             };
            
-            await this.selectionMediator.RaiseAsync(x => x.OnTreeVisibilityChanged += null, nodeViewModel);
-            await Task.Delay(100);
+            this.selectionMediator.Raise(x => x.OnTreeVisibilityChanged += null, nodeViewModel);
 
             using (Assert.EnterMultipleScope())
             {
