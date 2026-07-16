@@ -243,6 +243,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// </summary>
         private void PadValueArray()
         {
+            // TODO: Check the data for potential data issues in the ValueArray for the orientation parameter edition in system representation tab. Ticket #811
             if (this.valueArray == null || this.valueArray.Count > this.ValueArrayIndex)
             {
                 return;

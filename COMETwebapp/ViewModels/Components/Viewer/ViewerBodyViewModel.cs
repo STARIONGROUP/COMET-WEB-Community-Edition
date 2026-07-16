@@ -58,6 +58,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             this.PropertiesViewModel = new PropertiesComponentViewModel(babylonInterop, sessionService, selectionMediator, this.MessageBus);
             this.MultipleFiniteStateSelector = new MultipleActualFiniteStateSelectorViewModel();
 
+            this.InitializeSubscriptions([typeof(ElementBase)]);
+
             this.Disposables.Add(this.WhenAnyValue(x => x.MultipleFiniteStateSelector.SelectedFiniteStates,
                     x => x.OptionSelector.SelectedOption)
                 .Subscribe(_ => this.InitializeElementsAndCreateTree()));
@@ -172,51 +174,53 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             if (optionMembershipChanged || this.ProductTreeViewModel.RootViewModel == null)
             {
                 this.InitializeElementsAndCreateTree();
+                this.ClearRecordedChanges();
+                this.IsLoading = false;
+
+                return;
             }
-            else
+            
+            var finiteStates = this.MultipleFiniteStateSelector.SelectedFiniteStates.ToList();
+            var addedNodes = this.ProductTreeViewModel.AddElementsToTree(addedElements, selectedOption, finiteStates);
+            var removedNodes = this.ProductTreeViewModel.RemoveElementsFromTree(deletedElements);
+            var updatedNodes = this.ProductTreeViewModel.UpdateElementsFromTree(updatedElements, selectedOption, finiteStates);
+
+            foreach (var node in addedNodes.Where(node => node.SceneObject.Primitive != null))
             {
-                var finiteStates = this.MultipleFiniteStateSelector.SelectedFiniteStates.ToList();
-                var addedNodes = this.ProductTreeViewModel.AddElementsToTree(addedElements, selectedOption, finiteStates);
-                var removedNodes = this.ProductTreeViewModel.RemoveElementsFromTree(deletedElements);
-                var updatedNodes = this.ProductTreeViewModel.UpdateElementsFromTree(updatedElements, selectedOption, finiteStates);
-
-                foreach (var node in addedNodes.Where(node => node.SceneObject.Primitive != null))
-                {
-                    await this.CanvasViewModel.AddSceneObject(node.SceneObject);
-                }
-
-                foreach (var node in removedNodes.Where(node => node.SceneObject.Primitive != null))
-                {
-                    await this.CanvasViewModel.RemoveSceneObject(node.SceneObject);
-                }
-
-                foreach (var (oldSceneObject, newSceneObject) in updatedNodes)
-                {
-                    if (oldSceneObject.Primitive != null)
-                    {
-                        await this.CanvasViewModel.RemoveSceneObject(oldSceneObject);
-                    }
-
-                    if (newSceneObject.Primitive == null)
-                    {
-                        continue;
-                    }
-
-                    await this.CanvasViewModel.AddSceneObject(newSceneObject);
-                        
-                    var node = this.ProductTreeViewModel.RootViewModel.GetFlatListOfDescendants(true).FirstOrDefault(n => n.SceneObject == newSceneObject);
-                    
-                    if (node is { IsSceneObjectVisible: false })
-                    {
-                        await this.CanvasViewModel.SetSceneObjectVisibility(newSceneObject, false);
-                    }
-                }
-
-                this.ProductTreeViewModel.RootViewModel.OrderAllDescendantsByShortName();
-                this.ProductTreeViewModel.OnFilterChanged();
-                this.ProductTreeViewModel.OnSearchFilterChange();
+                await this.CanvasViewModel.AddSceneObject(node.SceneObject);
             }
 
+            foreach (var node in removedNodes.Where(node => node.SceneObject.Primitive != null))
+            {
+                await this.CanvasViewModel.RemoveSceneObject(node.SceneObject);
+            }
+
+            foreach (var (oldSceneObject, newSceneObject) in updatedNodes)
+            {
+                if (oldSceneObject.Primitive != null)
+                {
+                    await this.CanvasViewModel.RemoveSceneObject(oldSceneObject);
+                }
+
+                if (newSceneObject.Primitive == null)
+                {
+                    continue;
+                }
+
+                await this.CanvasViewModel.AddSceneObject(newSceneObject);
+                    
+                var node = this.ProductTreeViewModel.RootViewModel.GetFlatListOfDescendants(true).FirstOrDefault(n => n.SceneObject == newSceneObject);
+                
+                if (node is { IsSceneObjectVisible: false })
+                {
+                    await this.CanvasViewModel.SetSceneObjectVisibility(newSceneObject, false);
+                }
+            }
+
+            this.ProductTreeViewModel.RootViewModel.OrderAllDescendantsByShortName();
+            this.ProductTreeViewModel.OnFilterChanged();
+            this.ProductTreeViewModel.OnSearchFilterChange();
+            
             this.ClearRecordedChanges();
             this.IsLoading = false;
         }
