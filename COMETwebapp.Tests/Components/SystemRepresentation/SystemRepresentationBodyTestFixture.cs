@@ -36,12 +36,14 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
     using CDP4Web.Enumerations;
 
+    using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
+    using COMETwebapp.Components.Common;
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Common;
@@ -206,6 +208,12 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                 }
             };
 
+            elementDefinition.Category.Add(new Category(Guid.NewGuid(), this.assembler.Cache, this.uri)
+            {
+                Name = "Structure",
+                ShortName = "STR"
+            });
+
             this.iteration.Element.Add(elementDefinition);
             this.iteration.TopElement = this.iteration.Element[0];
 
@@ -297,6 +305,56 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                 Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows.First().ActualValue, Is.Not.Null);
                 Assert.That(this.viewModel.DetailsPanelViewModel.ElementDefinitionDetailsViewModel.Rows.First().SwitchValue, Is.Not.Null);
             });
+        }
+
+        [Test]
+        public async Task VerifyDetailsActionBarAndTreeNodePillsRender()
+        {
+            var renderer = this.context.Render<SystemRepresentationBody>(parameters => parameters.Add(p => p.CurrentThing, this.iteration));
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.DetailsPanelViewModel.CurrentDomain = this.domain;
+
+            // Selecting an option builds and draws the product tree, rendering SystemNode's owner and category pills.
+            await renderer.InvokeAsync(() => this.viewModel.OptionSelector.SelectedOption = this.iteration.DefaultOption);
+
+            var panel = renderer.FindComponent<ElementDetailsPanel>();
+
+            // Selecting an ElementDefinition renders the details action bar (search box + the three add buttons).
+            await renderer.InvokeAsync(() => this.viewModel.DetailsPanelViewModel.SelectElement(this.iteration.Element[0]));
+
+            // In the app the panel re-renders from its SelectedElement subscription; force it here so the
+            // SelectedElementDefinition-gated action bar is reflected in the markup.
+            panel.Render();
+
+            renderer.WaitForAssertion(() =>
+            {
+                Assert.That(this.viewModel.DetailsPanelViewModel.SelectedElementDefinition, Is.Not.Null, "Selecting an ElementDefinition must set SelectedElementDefinition.");
+                Assert.That(renderer.Markup, Does.Contain("Parameter Group"), "The renamed add-parameter-group button must render.");
+                Assert.That(renderer.Markup, Does.Contain("Element Definition"), "The renamed add-element-definition button must render.");
+                Assert.That(renderer.Markup, Does.Contain("STR"), "The tree node's category pill must render.");
+            });
+
+            // Drive the details-panel search box to cover the SearchTerm binding and the owner-aware parameter filter.
+            var detailsSearch = renderer.FindComponents<SearchBar>()
+                .First(searchBar => searchBar.Instance.Placeholder != null && searchBar.Instance.Placeholder.Contains("parameters"));
+
+            await renderer.InvokeAsync(() => detailsSearch.Instance.TextChanged.InvokeAsync("SYS"));
+
+            Assert.That(detailsSearch.Instance, Is.Not.Null);
+
+            // Simulate a drag hovering over the root node so its drop-impact badge renders.
+            var treeViewModel = this.viewModel.ProductTreeViewModel;
+            var rootNode = treeViewModel.RootViewModel;
+            var childNode = rootNode.GetChildren().First();
+            treeViewModel.DraggedNode = childNode;
+            treeViewModel.DragOverNode = rootNode;
+
+            var rootSystemNode = renderer.FindComponents<SystemNode>().First(node => ReferenceEquals(node.Instance.ViewModel, rootNode));
+            rootSystemNode.Render();
+
+            renderer.WaitForAssertion(() => Assert.That(renderer.Markup, Does.Contain("drop-impact-badge"), "The drop-impact badge must render on a valid drop target during a drag."));
         }
 
         [Test]

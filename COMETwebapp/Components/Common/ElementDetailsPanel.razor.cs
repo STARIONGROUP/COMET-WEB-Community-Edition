@@ -45,7 +45,7 @@ namespace COMETwebapp.Components.Common
 
         /// <summary>
         /// Gets or sets the current search term used to filter the parameter cards rendered by the
-        /// <see cref="DetailsPanelEditor" />. Held here so the search box can share the action-bar row.
+        /// <see cref="COMETwebapp.Components.ModelEditor.DetailsPanelEditor" />. Held here so the search box can share the action-bar row.
         /// </summary>
         private string SearchTerm { get; set; }
 
