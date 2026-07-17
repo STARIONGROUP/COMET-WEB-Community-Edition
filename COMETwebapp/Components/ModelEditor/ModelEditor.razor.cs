@@ -52,11 +52,6 @@ namespace COMETwebapp.Components.ModelEditor
         private const int MinimumPanelWidth = 260;
 
         /// <summary>
-        /// The maximum width, in pixels, that a panel can be dragged up to
-        /// </summary>
-        private const int MaximumPanelWidth = 900;
-
-        /// <summary>
         /// Holds a reference to the data of the node where another node is dragged over
         /// </summary>
         private (ElementDefinitionTree, object) DragOverObject;
@@ -162,7 +157,7 @@ namespace COMETwebapp.Components.ModelEditor
         {
             try
             {
-                await this.JsRuntime.InvokeVoidAsync("cometResizer.init", resizerId, panelId, MinimumPanelWidth, MaximumPanelWidth);
+                await this.JsRuntime.InvokeVoidAsync("cometResizer.init", resizerId, panelId, MinimumPanelWidth);
             }
             catch (Exception)
             {

@@ -32,11 +32,9 @@
     vertical-align: middle;
 }
 
-/* The source tree, the target tree and the details panel are equal-share flex columns, so that
-   minimizing one of them hands its space to the ones that stay open (see issue #742). */
 .model-editor-panel {
     flex: 1 1 0;
-    min-width: 260px;
+    min-width: 0;
     min-height: 0;
     height: 100%;
     display: flex;
@@ -51,8 +49,15 @@
     padding: 0;
 }
 
-/* A minimized panel stays mounted (its ViewModel owns subscriptions that nothing would dispose on
-   unmount) and is only hidden, so its space goes to the panels that are still open. */
+.model-editor-details-panel {
+    min-width: 350px;
+}
+
+.model-editor-panel-grow {
+    flex: 1 1 0 !important;
+    max-width: none !important;
+}
+
 .model-editor-panel-collapsed {
     display: none;
 }

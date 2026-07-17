@@ -61,6 +61,11 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         private const string CollapsedPanelClass = "model-editor-panel-collapsed";
 
         /// <summary>
+        /// The css class that makes a panel grow to fill the space freed by a collapsed neighbour.
+        /// </summary>
+        private const string GrowPanelClass = "model-editor-panel-grow";
+
+        /// <summary>
         /// The bunit <see cref="BunitContext" /> used to render the component under test.
         /// </summary>
         private BunitContext context;
@@ -357,6 +362,33 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 Assert.That(renderedComponent.Find("#detailsPanel").ClassList, Does.Not.Contain(CollapsedPanelClass));
                 Assert.That(() => renderedComponent.Find("#expandDetailsPanel"), Throws.TypeOf<ElementNotFoundException>());
             });
+        }
+
+        /// <summary>
+        /// Verifies that a collapsed details panel makes the target tree grow to fill the freed space, so the collapsed
+        /// strip sticks to the right edge of the screen instead of leaving a gap next to the middle panel (issue GH809).
+        /// The grow class also overrides any fixed inline width the column resizer previously wrote on the panel.
+        /// </summary>
+        [Test]
+        public void VerifyCollapsedDetailsPanelGrowsTheTargetTree()
+        {
+            var renderedComponent = this.RenderModelEditor();
+
+            Assert.That(renderedComponent.Find("#targetPanel").ClassList, Does.Not.Contain(GrowPanelClass));
+
+            renderedComponent.Find("#collapseDetailsPanel").Click();
+
+            renderedComponent.WaitForAssertion(() =>
+            {
+                Assert.That(renderedComponent.Instance.IsDetailsPanelCollapsed, Is.True);
+                Assert.That(renderedComponent.Find("#targetPanel").ClassList, Does.Contain(GrowPanelClass),
+                    "A collapsed details panel must let the target tree grow, so the collapsed strip stays flush with the screen edge.");
+            });
+
+            renderedComponent.Find("#expandDetailsPanel").Click();
+
+            renderedComponent.WaitForAssertion(() =>
+                Assert.That(renderedComponent.Find("#targetPanel").ClassList, Does.Not.Contain(GrowPanelClass)));
         }
 
         /// <summary>
