@@ -169,7 +169,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
                 return false;
             }
 
-            var toDefinition = to.Thing as ElementDefinition ?? (to.Thing as ElementUsage)?.ElementDefinition;
+            var toDefinition = GetElementDefinition(to);
 
             if (toDefinition is null)
             {
@@ -177,8 +177,21 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             }
 
             return from.GetFlatListOfDescendants(true)
-                .Select(node => node.Thing as ElementDefinition ?? (node.Thing as ElementUsage)?.ElementDefinition)
+                .Select(GetElementDefinition)
                 .All(definition => definition != toDefinition);
+        }
+
+        /// <summary>
+        /// Resolves the <see cref="ElementDefinition" /> represented by <paramref name="node" />: its
+        /// <see cref="COMETwebapp.ViewModels.Components.Shared.BaseNodeViewModel{T}.Thing" /> when that is an
+        /// <see cref="ElementDefinition" />, the referenced <see cref="ElementUsage.ElementDefinition" /> when it
+        /// is an <see cref="ElementUsage" />, or <see langword="null" /> otherwise.
+        /// </summary>
+        /// <param name="node">The node whose <see cref="ElementDefinition" /> to resolve.</param>
+        /// <returns>The resolved <see cref="ElementDefinition" />, or <see langword="null" />.</returns>
+        private static ElementDefinition GetElementDefinition(SystemNodeViewModel node)
+        {
+            return node.Thing as ElementDefinition ?? (node.Thing as ElementUsage)?.ElementDefinition;
         }
 
         /// <summary>

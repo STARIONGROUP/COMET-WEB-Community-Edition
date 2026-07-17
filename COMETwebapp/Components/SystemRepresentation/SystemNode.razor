@@ -102,7 +102,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                             {
                                 @foreach (var category in elementBase.GetDisplayCategories())
                                 {
-                                    <button class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.ShortName">@category.ShortName</button>
+                                    <button @key="category.Iid" class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.ShortName">@category.ShortName</button>
                                 }
                             }
                         }
