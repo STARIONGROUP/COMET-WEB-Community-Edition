@@ -336,6 +336,9 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                 Assert.That(renderer.Markup, Does.Contain("STR"), "The tree node's category pill must render.");
             });
 
+            // Toggle the tree's View display-options dropdown to cover its click handler.
+            renderer.Find("#systemTreeViewMenuButton").Click();
+
             // Drive the details-panel search box to cover the SearchTerm binding and the owner-aware parameter filter.
             var detailsSearch = renderer.FindComponents<SearchBar>()
                 .First(searchBar => searchBar.Instance.Placeholder != null && searchBar.Instance.Placeholder.Contains("parameters"));

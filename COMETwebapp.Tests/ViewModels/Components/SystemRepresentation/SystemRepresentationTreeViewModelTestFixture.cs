@@ -105,6 +105,23 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
 
             Assert.That(SystemRepresentationTreeViewModel.CanDrop(freshRootNode, rootUsageNode), Is.False,
                 "Dropping an element definition onto a separate usage of the same definition must be rejected to avoid a self-containment cycle.");
+
+            // A node whose Thing is not an ElementBase → false, on either side.
+            var nonElementNode = new SystemNodeViewModel(rootDefinition);
+            nonElementNode.SetThing(new Option { Iid = Guid.NewGuid(), Name = "Option", ShortName = "OPT" });
+
+            Assert.That(SystemRepresentationTreeViewModel.CanDrop(nonElementNode, rootNode), Is.False,
+                "A dragged node whose Thing is not an ElementBase must be rejected.");
+
+            Assert.That(SystemRepresentationTreeViewModel.CanDrop(rootNode, nonElementNode), Is.False,
+                "A target node whose Thing is not an ElementBase must be rejected.");
+
+            // A target usage with no ElementDefinition resolves to a null definition → false.
+            var danglingUsage = new ElementUsage { Iid = Guid.NewGuid(), Name = "Dangling", ShortName = "DU", Owner = domain };
+            var danglingNode = new SystemNodeViewModel(danglingUsage);
+
+            Assert.That(SystemRepresentationTreeViewModel.CanDrop(unrelatedNode, danglingNode), Is.False,
+                "Dropping onto a usage node with no ElementDefinition must be rejected.");
         }
 
         /// <summary>
