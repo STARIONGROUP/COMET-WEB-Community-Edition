@@ -35,11 +35,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                       CssClass="req-collapse-toggle" />
 
             <div class="req-search">
-                <DxTextBox @bind-Text="@this.ViewModel.SearchText"
-                           BindValueMode="BindValueMode.OnDelayedInput"
-                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                           NullText="Search in definitions..."
-                           CssClass="req-search-input" />
+                <SearchBar @bind-Text="@this.ViewModel.SearchText" Placeholder="Search in definitions..."/>
             </div>
 
             <DxTagBox Data="@this.ViewModel.AvailableOwners"

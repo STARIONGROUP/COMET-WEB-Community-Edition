@@ -103,15 +103,6 @@
         }
     </div>
 
-    @* ── Search toolbar ── *@
-    <div class="param-group-search-bar mb-2">
-        <span class="oi oi-magnifying-glass param-group-search-icon" aria-hidden="true"></span>
-        <DxTextBox @bind-Text="@this.SearchTerm"
-                   BindValueMode="BindValueMode.OnInput"
-                   NullText="Search parameters…"
-                   CssClass="param-group-search-input"/>
-    </div>
-
     @* ── Collapsible grouped parameter sections ── *@
     <div class="param-groups-container" @ref="this.groupsContainer">
         @foreach (var group in this.TopLevelGroups)

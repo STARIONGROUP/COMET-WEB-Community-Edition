@@ -31,8 +31,7 @@
 }
 
 #rightColumn ::deep #panel-action-bar,
-#rightColumn ::deep .cardview-detailspanel-summary,
-#rightColumn ::deep .param-group-search-bar {
+#rightColumn ::deep .cardview-detailspanel-summary {
     flex: 0 0 auto;
 }
 
@@ -45,6 +44,10 @@
 #option-filter {
     flex: 0 0 auto;
     margin-bottom: 8px;
+}
+
+#option-filter ::deep h6 {
+    display: none;
 }
 
 #col-resizer {

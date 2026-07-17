@@ -98,6 +98,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
             // Child node dropped onto the root (inverted — valid, no cycle) → true
             Assert.That(SystemRepresentationTreeViewModel.CanDrop(childNode, rootNode), Is.True,
                 "Dropping a child node back onto the root is a valid operation.");
+            
+            var rootUsage = new ElementUsage { Iid = Guid.NewGuid(), Name = "RootUsage", ShortName = "RU", Owner = domain, ElementDefinition = rootDefinition };
+            var rootUsageNode = new SystemNodeViewModel(rootUsage);
+            var freshRootNode = new SystemNodeViewModel(rootDefinition);
+
+            Assert.That(SystemRepresentationTreeViewModel.CanDrop(freshRootNode, rootUsageNode), Is.False,
+                "Dropping an element definition onto a separate usage of the same definition must be rejected to avoid a self-containment cycle.");
         }
 
         /// <summary>

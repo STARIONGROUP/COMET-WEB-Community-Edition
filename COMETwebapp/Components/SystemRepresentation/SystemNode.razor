@@ -90,25 +90,27 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                 <div class="node-label-tags">
                     <p class="node-text">@label</p>
 
-                    @if (elementBase is not null)
-                    {
-                        @if (this.TreeViewModel?.ShowOwner != false && elementBase.Owner != null)
+                    <span class="node-pills">
+                        @if (elementBase is not null)
                         {
-                            <button class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{elementBase.Owner.ShortName}") !important;" title="Owning Domain Of Expertise: @elementBase.Owner.ShortName">@elementBase.Owner.ShortName</button>
-                        }
-
-                        @if (this.TreeViewModel?.ShowCategories != false)
-                        {
-                            @foreach (var category in elementBase.GetDisplayCategories())
+                            @if (this.TreeViewModel?.ShowOwner != false && elementBase.Owner != null)
                             {
-                                <button class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.ShortName">@category.ShortName</button>
+                                <button class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{elementBase.Owner.ShortName}") !important;" title="Owning Domain Of Expertise: @elementBase.Owner.ShortName">@elementBase.Owner.ShortName</button>
+                            }
+
+                            @if (this.TreeViewModel?.ShowCategories != false)
+                            {
+                                @foreach (var category in elementBase.GetDisplayCategories())
+                                {
+                                    <button class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.ShortName">@category.ShortName</button>
+                                }
                             }
                         }
-                    }
-                    @if (this.IsValidDropTarget)
-                    {
-                        <span class="drop-impact-badge" title="This usage and everything it brings">+@this.DraggedItemImpactCount</span>
-                    }
+                        @if (this.IsValidDropTarget)
+                        {
+                            <span class="drop-impact-badge" title="This usage and everything it brings">+@this.DraggedItemImpactCount</span>
+                        }
+                    </span>
                 </div>
             </div>
         </div>

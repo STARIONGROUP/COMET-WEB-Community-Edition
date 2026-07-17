@@ -22,17 +22,21 @@
 @using COMETwebapp.Components.ModelEditor
 @inherits DisposableComponent
 
-<div id="panel-action-bar" class="mb-2 d-flex flex-wrap justify-content-end" style="gap:8px;">
+<div id="panel-action-bar" class="mb-2 d-flex flex-wrap align-items-center justify-content-end" style="gap:8px;">
     @if (this.ViewModel.SelectedElementDefinition is not null)
     {
-        <DxButton Id="addParameter" Text="Add Parameter" IconCssClass="oi oi-plus" Click="@(this.ViewModel.OpenAddParameterPopup)"/>
-        <DxButton Id="addParameterGroup" Text="Add Parameter Group" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateParameterGroupPopup"/>
+        <div style="flex:1 1 200px; min-width:0;">
+            <SearchBar @bind-Text="@this.SearchTerm" Placeholder="Search parameters or owner…"/>
+        </div>
+        <DxButton Id="addParameter" Text="Parameter" IconCssClass="oi oi-plus" Click="@(this.ViewModel.OpenAddParameterPopup)"/>
+        <DxButton Id="addParameterGroup" Text="Parameter Group" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateParameterGroupPopup"/>
     }
 
-    <DxButton Id="addElementDefinition" Text="Add Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
+    <DxButton Id="addElementDefinition" Text="Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
 </div>
 
 <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"
+                    SearchTerm="@this.SearchTerm"
                     OnEditParameter="@(parameter => this.ViewModel.OpenEditParameterPopup(parameter))"
                     OnDeleteParameter="@(parameter => this.ViewModel.OpenDeleteParameterPopup(parameter))"
                     OnCreateSubscription="@(parameter => this.ViewModel.OpenCreateSubscriptionPopup(parameter))"
