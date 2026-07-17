@@ -46,9 +46,40 @@ window.cometResizer = {
         resizerEl.addEventListener('mousedown', function (e) {
             e.preventDefault();
             document.body.style.userSelect = 'none';
+            
+            var row = leftEl.parentElement;
+            var rowStyle = window.getComputedStyle(row);
+            var reserve = 0;
+            var visibleCount = 0;
+
+            for (var child = row.firstElementChild; child; child = child.nextElementSibling) {
+                if (child.getClientRects().length === 0) {
+                    continue;                      
+                }
+
+                if (child !== leftEl) {
+                    var childStyle = window.getComputedStyle(child);
+                    var canShrink = parseFloat(childStyle.flexGrow) > 0 && child.style.maxWidth === '';
+
+                    if (canShrink) {
+                        var incompressible = (parseFloat(childStyle.paddingLeft) || 0) + (parseFloat(childStyle.paddingRight) || 0)
+                            + (parseFloat(childStyle.borderLeftWidth) || 0) + (parseFloat(childStyle.borderRightWidth) || 0);
+                        reserve += Math.max(parseFloat(childStyle.minWidth) || 0, incompressible);
+                    } else {
+                        reserve += child.getBoundingClientRect().width;
+                    }
+                }
+
+                visibleCount++;
+            }
+
+            var gap = parseFloat(rowStyle.columnGap) || 0;
+            var padding = (parseFloat(rowStyle.paddingLeft) || 0) + (parseFloat(rowStyle.paddingRight) || 0);
+            var available = row.clientWidth - padding - gap * Math.max(0, visibleCount - 1);
+            var effectiveMax = Math.min(maxPx, available - reserve);
 
             function onMouseMove(moveEvent) {
-                var w = Math.min(maxPx, Math.max(minPx, moveEvent.clientX - leftEl.getBoundingClientRect().left));
+                var w = Math.min(effectiveMax, Math.max(minPx, moveEvent.clientX - leftEl.getBoundingClientRect().left));
                 leftEl.style.flex = '0 0 ' + w + 'px';
                 leftEl.style.maxWidth = w + 'px';
             }

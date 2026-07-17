@@ -52,9 +52,11 @@ namespace COMETwebapp.Components.ModelEditor
         private const int MinimumPanelWidth = 260;
 
         /// <summary>
-        /// The maximum width, in pixels, that a panel can be dragged up to
+        /// The maximum width, in pixels, that a panel can be dragged up to. It is set high on purpose: the resizer itself
+        /// clamps the drag to the width available in the flex row, so the panels can be widened to (nearly) the full
+        /// screen without this constant capping them short (see issue #809).
         /// </summary>
-        private const int MaximumPanelWidth = 900;
+        private const int MaximumPanelWidth = 100000;
 
         /// <summary>
         /// Holds a reference to the data of the node where another node is dragged over
