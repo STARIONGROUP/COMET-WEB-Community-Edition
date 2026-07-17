@@ -57,7 +57,7 @@ namespace COMETwebapp.Components.SystemRepresentation
             {
                 try
                 {
-                     await this.JsRuntime.InvokeVoidAsync("cometResizer.init", "col-resizer", "leftColumn", 260, 100000);
+                      await this.JsRuntime.InvokeVoidAsync("cometResizer.init", "col-resizer", "leftColumn", 260);
                 }
                 catch (Exception)
                 {
