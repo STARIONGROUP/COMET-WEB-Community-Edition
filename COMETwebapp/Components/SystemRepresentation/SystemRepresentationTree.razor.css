@@ -1,11 +1,3 @@
-#product-tree-title {
-    background: #eaecee;
-    padding: 10px 12px;
-    border-radius: 8px 8px 0 0;
-    flex: 0 0 auto;
-    margin: 0;
-}
-
 #product-tree-container {
     margin: 0;
     padding: 0;
@@ -17,22 +9,24 @@
 
 #product-tree-top-section {
     display: flex;
-    flex-direction: column;
-    margin: 12px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px 0;
     flex: 0 0 auto;
 }
 
-.product-tree-display-options {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
-    font-size: 0.875rem;
-    margin-bottom: 8px;
+#product-tree-search-bar {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
-#product-tree-search-bar {
-    margin-top: 8px;
+.product-tree-view-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    min-width: 180px;
 }
 
 #product-tree-nodes-section {

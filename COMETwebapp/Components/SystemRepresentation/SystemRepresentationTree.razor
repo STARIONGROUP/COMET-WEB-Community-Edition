@@ -20,17 +20,32 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 @inherits DisposableComponent
 
 <div id="product-tree-container">
-    <h4 id="product-tree-title">Product Tree</h4>
-
     <div id="product-tree-top-section">
-        <div class="product-tree-display-options">
-            <DxCheckBox @bind-Checked="@this.ViewModel.ShowName">Name</DxCheckBox>
-            <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner">Owner</DxCheckBox>
-            <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategories">Categories</DxCheckBox>
-        </div>
         <div id="product-tree-search-bar">
-            <DxTextBox NullText="Search..." @bind-Text="@this.ViewModel.SearchText" BindValueMode="BindValueMode.OnInput" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"></DxTextBox>
+            <SearchBar @bind-Text="@this.ViewModel.SearchText"/>
         </div>
+
+        <DxButton Id="systemTreeViewMenuButton"
+                  RenderStyle="ButtonRenderStyle.Light"
+                  IconCssClass="oi oi-cog"
+                  Text="View"
+                  title="Display options"
+                  Click="@(() => this.viewMenuOpen = !this.viewMenuOpen)" />
+
+        <DxDropDown @bind-IsOpen="@this.viewMenuOpen"
+                    PositionMode="DropDownPositionMode.Bottom"
+                    PositionTarget="#systemTreeViewMenuButton"
+                    CloseMode="DropDownCloseMode.Close"
+                    HeaderVisible="false"
+                    FooterVisible="false">
+            <BodyTemplate>
+                <div class="product-tree-view-menu">
+                    <DxCheckBox @bind-Checked="@this.ViewModel.ShowName" CheckType="CheckType.Switch">Full name</DxCheckBox>
+                    <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
+                    <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategories" CheckType="CheckType.Switch">Categories</DxCheckBox>
+                </div>
+            </BodyTemplate>
+        </DxDropDown>
     </div>
 
     <div id="product-tree-nodes-section">

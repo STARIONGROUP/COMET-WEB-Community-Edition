@@ -146,9 +146,13 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// <summary>
         /// Determines whether <paramref name="from" /> may be dropped onto <paramref name="to" />.
         /// The drop is rejected when either argument is <see langword="null" />, the two nodes are
-        /// the same instance, <paramref name="to" /> is a descendant of <paramref name="from" />
-        /// (which would create a cycle), or either node's <see cref="COMETwebapp.ViewModels.Components.Shared.BaseNodeViewModel{T}.Thing" />
-        /// is not an <see cref="ElementBase" />.
+        /// the same instance, either node's <see cref="COMETwebapp.ViewModels.Components.Shared.BaseNodeViewModel{T}.Thing" />
+        /// is not an <see cref="ElementBase" />, or it would introduce a containment cycle. A drop creates a new
+        /// <see cref="ElementUsage" /> of <paramref name="from" />'s <see cref="ElementDefinition" /> inside
+        /// <paramref name="to" />'s <see cref="ElementDefinition" />, so the comparison is made by
+        /// <see cref="ElementDefinition" /> (not by tree-node instance): the drop is refused when the target's
+        /// definition is the dragged definition itself or is already (transitively) contained by it. This also
+        /// catches dropping a definition onto a separate node that represents that same definition.
         /// </summary>
         /// <param name="from">The node being dragged.</param>
         /// <param name="to">The node being dropped onto.</param>
@@ -160,12 +164,34 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
                 return false;
             }
 
-            if (from.GetFlatListOfDescendants(true).Contains(to))
+            if (from.Thing is not ElementBase || to.Thing is not ElementBase)
             {
                 return false;
             }
 
-            return from.Thing is ElementBase && to.Thing is ElementBase;
+            var toDefinition = GetElementDefinition(to);
+
+            if (toDefinition is null)
+            {
+                return false;
+            }
+
+            return from.GetFlatListOfDescendants(true)
+                .Select(GetElementDefinition)
+                .All(definition => definition != toDefinition);
+        }
+
+        /// <summary>
+        /// Resolves the <see cref="ElementDefinition" /> represented by <paramref name="node" />: its
+        /// <see cref="COMETwebapp.ViewModels.Components.Shared.BaseNodeViewModel{T}.Thing" /> when that is an
+        /// <see cref="ElementDefinition" />, the referenced <see cref="ElementUsage.ElementDefinition" /> when it
+        /// is an <see cref="ElementUsage" />, or <see langword="null" /> otherwise.
+        /// </summary>
+        /// <param name="node">The node whose <see cref="ElementDefinition" /> to resolve.</param>
+        /// <returns>The resolved <see cref="ElementDefinition" />, or <see langword="null" />.</returns>
+        private static ElementDefinition GetElementDefinition(SystemNodeViewModel node)
+        {
+            return node.Thing as ElementDefinition ?? (node.Thing as ElementUsage)?.ElementDefinition;
         }
 
         /// <summary>

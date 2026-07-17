@@ -39,8 +39,8 @@ namespace COMETwebapp.Components.ModelEditor
     ///     (which recursively renders nested sub-groups) followed by a trailing "Ungrouped" section.
     ///     Parameters can be dragged from a card and dropped onto a section header to reassign group
     ///     membership. Parameter groups can be dragged by their header and dropped onto another section to
-    ///     nest them, or onto the Ungrouped section to move them to the top level. A search box at the top
-    ///     filters cards by parameter type name or short name.
+    ///     nest them, or onto the Ungrouped section to move them to the top level. The <see cref="SearchTerm" />
+    ///     supplied by the parent filters cards by parameter type name, short name or owner.
     /// </summary>
     public partial class DetailsPanelEditor : IAsyncDisposable
     {
@@ -179,23 +179,12 @@ namespace COMETwebapp.Components.ModelEditor
         private IJSRuntime JsRuntime { get; set; }
 
         /// <summary>
-        ///     Backing field for <see cref="SearchTerm" />.
+        ///     Gets or sets the current search term used to filter parameter cards. Supplied by the parent
+        ///     (<see cref="Components.Common.ElementDetailsPanel" />), which renders the search box in its
+        ///     action-bar row.
         /// </summary>
-        private string searchTerm;
-
-        /// <summary>
-        ///     Gets or sets the current search term used to filter parameter cards. Setting this property
-        ///     triggers a component re-render via <see cref="Microsoft.AspNetCore.Components.ComponentBase.StateHasChanged" />.
-        /// </summary>
-        private string SearchTerm
-        {
-            get => this.searchTerm;
-            set
-            {
-                this.searchTerm = value;
-                this.StateHasChanged();
-            }
-        }
+        [Parameter]
+        public string SearchTerm { get; set; }
 
         /// <summary>
         ///     The row whose card is currently being dragged, or <c>null</c> when no drag is in progress.
