@@ -18,7 +18,8 @@
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @inherits COMET.Web.Common.Shared.TopMenuEntry.MenuEntryBase
-@using AntDesign
 
-<DxMenuItem Text="Notifications" Position="ItemPosition.End" Visible="false"/>
-<AntContainer />
+<DxToastProvider MaxToastCount="3" 
+                 VerticalAlignment="VerticalEdge.Top"
+                 HorizontalAlignment="HorizontalAlignment.Right"
+                 SizeMode="SizeMode.Medium"/>

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ResultExtensions.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -59,8 +59,8 @@ namespace COMETwebapp.Extensions
             if (error is IExceptionalError exceptionalError)
             {
                 errorLine = $"""
-                             <a href="#errorDetails{errorId}" data-bs-toggle="collapse" aria-expanded="false" class="text-reset">{exceptionalError.Message}</a>
-                             <div class="collapse opacity-75" id="errorDetails{errorId}">{WebUtility.HtmlEncode(exceptionalError.Exception.ToString())}</div>
+                             <a data-bs-toggle="collapse" data-bs-target="#errorDetails{errorId}" aria-expanded="false" class="text-reset" style="cursor: pointer;">{exceptionalError.Message}</a>
+                             <div class="collapse opacity-75" id="errorDetails{errorId}" style="white-space: pre-wrap; word-break: break-all;">{WebUtility.HtmlEncode(exceptionalError.Exception.ToString())}</div>
                              """;
             }
             else
