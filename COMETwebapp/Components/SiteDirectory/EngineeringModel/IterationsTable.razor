@@ -17,7 +17,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
     <DxGrid @ref="this.Grid"
-            Data="this.ViewModel.Rows.Items"
+            Data="this.ViewModel.Rows.Items.Where(x => !x.IsDeleted)"
             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
             ShowSearchBox="true"
             ShowAllRows="true"

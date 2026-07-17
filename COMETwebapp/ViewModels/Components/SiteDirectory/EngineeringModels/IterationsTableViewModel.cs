@@ -117,7 +117,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <returns>A list of things</returns>
         protected override List<IterationSetup> QueryListOfThings()
         {
-            return this.CurrentModel?.IterationSetup.Where(x => !x.IsDeleted).ToList() ?? [];
+            return this.CurrentModel?.IterationSetup;
         }
 
         /// <summary>
