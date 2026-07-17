@@ -26,6 +26,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -122,6 +123,18 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
             {
                 this.tabsViewModel.CreateNewTab(this.SelectedApplication, Guid.Empty, panel);
                 return;
+            }
+
+            // When opening a tab for an engineering model, we need to select the active iteration setup if it exists.
+            // This is because the user may have selected a frozen iteration setup for the model previously, but we want to open the tab for the active iteration so edition is possible.
+            if (!isIteration && this.SelectedEngineeringModel != null)
+            {
+                var activeIterationSetup = this.SelectedEngineeringModel.IterationSetup.FirstOrDefault(x => x.FrozenOn == null);
+                
+                if (activeIterationSetup != null)
+                {
+                    this.SelectedIterationSetup = new IterationData(activeIterationSetup);
+                }
             }
 
             if (!this.IsCurrentIterationOpened)

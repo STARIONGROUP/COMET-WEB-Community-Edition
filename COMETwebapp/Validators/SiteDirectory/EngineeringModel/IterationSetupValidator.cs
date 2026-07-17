@@ -48,8 +48,6 @@ namespace COMETwebapp.Validators.SiteDirectory.EngineeringModel
                 .Validate(validationService, nameof(IterationSetup.SourceIterationSetup));
 
             this.RuleFor(x => x.Description)
-                .NotEmpty()
-                .WithMessage("Description is mandatory")
                 .Validate(validationService, nameof(IterationSetup.Description));
         }
     }

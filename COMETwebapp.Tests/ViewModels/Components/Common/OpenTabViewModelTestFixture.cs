@@ -206,6 +206,30 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
 
             await this.viewModel.OpenTab(panel);
             this.sessionService.Verify(x => x.SwitchDomain(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>()), Times.Once);
+
+            // Verify that for a non-iteration application (e.g., Book Editor), the active iteration setup is opened and used
+            var frozenIterationSetup = new IterationSetup { Iid = Guid.NewGuid(), FrozenOn = DateTime.UtcNow };
+            var activeIterationSetup = new IterationSetup { Iid = Guid.NewGuid(), FrozenOn = null };
+            
+            var modelSetupForBookEditor = new EngineeringModelSetup
+            {
+                IterationSetup = { frozenIterationSetup, activeIterationSetup }
+            };
+
+            var bookEditorApplication = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.Url == WebAppConstantValues.BookEditorPage);
+            this.viewModel.SelectedApplication = bookEditorApplication;
+            this.viewModel.SelectedEngineeringModel = modelSetupForBookEditor;
+            this.viewModel.SelectedIterationSetup = new IterationData(frozenIterationSetup);
+            this.viewModel.SelectedDomainOfExpertise = new DomainOfExpertise();
+
+            this.sessionService.Setup(x => x.ReadIteration(activeIterationSetup, It.IsAny<DomainOfExpertise>())).ReturnsAsync(new Result<Iteration>());
+            await this.viewModel.OpenTab(panel);
+
+            using (Assert.EnterMultipleScope())
+            {
+                this.sessionService.Verify(x => x.ReadIteration(activeIterationSetup, It.IsAny<DomainOfExpertise>()), Times.Once);
+                Assert.That(this.viewModel.SelectedIterationSetup.IterationSetupId, Is.EqualTo(activeIterationSetup.Iid));
+            }
         }
 
         /// <summary>
