@@ -102,7 +102,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.True);
-                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(IterationSetup)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf<IterationSetup>());
             });
 
             var editIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editIterationButton");
@@ -111,7 +111,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.False);
-                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(IterationSetup)));
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf<IterationSetup>());
             });
 
             var saveIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "saveIterationButton");
