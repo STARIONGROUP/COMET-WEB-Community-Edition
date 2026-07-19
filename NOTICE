@@ -47,8 +47,6 @@ COMET.Web.Common (Apache-2.0)
         https://github.com/dotnet/runtime
     System.Linq.Dynamic.Core                        Apache-2.0
         https://dynamic-linq.net/
-    System.Text.RegularExpressions                  Microsoft .NET Library License
-        https://go.microsoft.com/fwlink/?LinkId=329770
 
 --------------------------------------------------------------------------
 COMETwebapp (AGPL-3.0-only)
@@ -72,8 +70,6 @@ COMETwebapp (AGPL-3.0-only)
         https://serilog.net/
     System.Drawing.Common                           MIT
         https://github.com/dotnet/winforms
-    System.Drawing.Primitives                       Microsoft .NET Library License
-        https://go.microsoft.com/fwlink/?LinkId=329770
     Z.Blazor.Diagrams                               MIT
         https://blazor-diagrams.zhaytam.com/
 
