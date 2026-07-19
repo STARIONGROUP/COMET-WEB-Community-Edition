@@ -96,10 +96,10 @@ namespace COMET.Web.Common
                         || this.RegistrationService.RegisteredApplications.Any(x => x.IsDisabled && navigationContext.Path.StartsWith(x.Url)))
                     {
                         var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(navigationContext.CancellationToken);
-                        cancellationTokenSource.Cancel();
+                        await cancellationTokenSource.CancelAsync();
                         cancellationTokenSource.Dispose();
 
-                        await Task.Delay(1);
+                        await Task.Delay(1, cancellationTokenSource.Token);
 
                         this.NavigationManager.NavigateTo("/", replace: true);
                     }

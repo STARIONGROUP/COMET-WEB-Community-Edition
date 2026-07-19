@@ -69,7 +69,7 @@ namespace COMET.Web.Common.WebAssembly.Services.NamingConventionService
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStreamAsync();
-                    var namingConvention = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
+                    var namingConvention = await JsonSerializer.DeserializeAsync<Dictionary<string, string>>(jsonContent);
                     return new Dictionary<string, string>(namingConvention, StringComparer.OrdinalIgnoreCase);
                 }
 

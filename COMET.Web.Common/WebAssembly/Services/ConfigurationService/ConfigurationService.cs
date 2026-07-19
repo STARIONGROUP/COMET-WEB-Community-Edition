@@ -86,7 +86,7 @@ namespace COMET.Web.Common.WebAssembly.Services.ConfigurationService
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStreamAsync();
-                    var serverConfiguration = JsonSerializer.Deserialize<ServerConfiguration>(jsonContent);
+                    var serverConfiguration = await JsonSerializer.DeserializeAsync<ServerConfiguration>(jsonContent);
                     this.ServerConfiguration = serverConfiguration;
                 }
                 else if (response.StatusCode == HttpStatusCode.NotFound)
