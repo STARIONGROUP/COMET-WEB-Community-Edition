@@ -77,6 +77,8 @@ COMETwebapp (AGPL-3.0-only)
 COMET.Web.Common.Test (Apache-2.0)
 --------------------------------------------------------------------------
 
+    AngleSharp                                      MIT
+        https://anglesharp.github.io/
     bunit                                           MIT
         https://bunit.dev/
     DevExpress.Blazor                               DevExpress EULA (commercial)
@@ -89,6 +91,7 @@ Test projects (COMET.Web.Common.Tests, COMETwebapp.Tests)
 Development and test use only - not part of the distributed product
 --------------------------------------------------------------------------
 
+    AngleSharp                                      MIT
     bunit                                           MIT
     coverlet.collector                              MIT
     coverlet.msbuild                                MIT

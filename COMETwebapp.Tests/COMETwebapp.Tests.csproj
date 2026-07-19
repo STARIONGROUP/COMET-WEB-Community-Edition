@@ -33,6 +33,10 @@
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="147.0.7727.11700" />
   </ItemGroup>
 
+    <ItemGroup Label="override transitive vulnerable dependency">
+        <PackageReference Include="AngleSharp" Version="1.5.2" />
+    </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\COMET.Web.Common.Test\COMET.Web.Common.Test.csproj" />
     <ProjectReference Include="..\COMETwebapp\COMETwebapp.csproj" />

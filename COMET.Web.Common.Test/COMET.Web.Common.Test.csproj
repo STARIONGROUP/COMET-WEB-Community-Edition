@@ -33,6 +33,7 @@
 
     <ItemGroup Label="override transitive vulnerable dependency">
         <PackageReference Include="System.Formats.Asn1" Version="10.0.7" />
+        <PackageReference Include="AngleSharp" Version="1.5.2" />
     </ItemGroup>
 
     <ItemGroup>

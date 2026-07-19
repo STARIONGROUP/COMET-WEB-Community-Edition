@@ -67,6 +67,10 @@
         <ProjectReference Include="..\COMET.Web.Common\COMET.Web.Common.csproj" />
     </ItemGroup>
 
+    <ItemGroup Label="override transitive vulnerable dependency">
+        <PackageReference Include="AngleSharp" Version="1.5.2" />
+    </ItemGroup>
+
     <ItemGroup>
       <Folder Include="Components\Selectors\" />
       <Folder Include="WebAssembly\Services\StringTableService\" />
