@@ -1,5 +1,114 @@
-COMET.Web.Common - APACHE 2.0
-COMET.Web.Common.Test - APACHE 2.0
-COMETwebapp - AGPL Version 3.0
-
+COMET WEB Community Edition
 Copyright 2022-2026 Starion Group S.A.
+
+This product is developed by Starion Group S.A. and consists of the
+following components:
+
+    COMET.Web.Common      - Apache License 2.0 (NuGet: CDP4.WEB.Common)
+    COMET.Web.Common.Test - Apache License 2.0 (NuGet: CDP4.WEB.Common.Test)
+    COMETwebapp           - GNU Affero General Public License Version 3.0
+
+This product depends on third-party libraries which are used under the
+terms of their respective licenses, listed below per project.
+
+--------------------------------------------------------------------------
+COMET.Web.Common (Apache-2.0)
+--------------------------------------------------------------------------
+
+    AsyncEnumerator                                 MIT
+        https://github.com/Dasync/AsyncEnumerable
+    Blazored.FluentValidation                       MIT
+        https://github.com/Blazored/FluentValidation
+    Blazored.SessionStorage                         MIT
+        https://github.com/Blazored/SessionStorage
+    CDP4ServicesDal-CE (CDP4-COMET-SDK)             LGPL-3.0-only
+        https://github.com/STARIONGROUP/COMET-SDK-Community-Edition
+    CDP4Web-CE (CDP4-COMET-SDK)                     LGPL-3.0-only
+        https://github.com/STARIONGROUP/COMET-SDK-Community-Edition
+    DevExpress.Blazor                               DevExpress EULA (commercial)
+        https://www.devexpress.com/Support/EULAs
+    FastMember                                      Apache-2.0
+        https://github.com/mgravell/fast-member
+    FluentResults                                   MIT
+        https://github.com/altmann/FluentResults
+    Microsoft.AspNetCore.Components.Authorization   MIT
+        https://github.com/dotnet/aspnetcore
+    Microsoft.AspNetCore.WebUtilities               MIT
+        https://github.com/dotnet/aspnetcore
+    Microsoft.Extensions.Configuration.Abstractions MIT
+        https://github.com/dotnet/runtime
+    Microsoft.Extensions.Configuration.Binder       MIT
+        https://github.com/dotnet/runtime
+    ReactiveUI                                      MIT
+        https://reactiveui.net/
+    System.Drawing.Common                           MIT
+        https://github.com/dotnet/winforms
+    System.Formats.Asn1                             MIT
+        https://github.com/dotnet/runtime
+    System.Linq.Dynamic.Core                        Apache-2.0
+        https://dynamic-linq.net/
+    System.Text.RegularExpressions                  Microsoft .NET Library License
+        https://go.microsoft.com/fwlink/?LinkId=329770
+
+--------------------------------------------------------------------------
+COMETwebapp (AGPL-3.0-only)
+--------------------------------------------------------------------------
+
+    AntDesign                                       MIT
+        https://github.com/ant-design-blazor/ant-design-blazor
+    BlazorStrap                                     MIT
+        https://github.com/Blazor-Bootstrap/BlazorStrap
+    Feather.Blazor                                  MIT
+        https://github.com/TheOnlyBeardedBeast/Feather.Blazor
+    ReactiveMarbles.ObservableEvents.SourceGenerator MIT
+        https://github.com/reactivemarbles/ObservableEvents
+    ReactiveUI.Blazor                               MIT
+        https://reactiveui.net/
+    ReactiveUI.SourceGenerators                     MIT
+        https://reactiveui.net/
+    Serilog.AspNetCore                              Apache-2.0
+        https://github.com/serilog/serilog-aspnetcore
+    Serilog.Sinks.Async                             Apache-2.0
+        https://serilog.net/
+    System.Drawing.Common                           MIT
+        https://github.com/dotnet/winforms
+    System.Drawing.Primitives                       Microsoft .NET Library License
+        https://go.microsoft.com/fwlink/?LinkId=329770
+    Z.Blazor.Diagrams                               MIT
+        https://blazor-diagrams.zhaytam.com/
+
+--------------------------------------------------------------------------
+COMET.Web.Common.Test (Apache-2.0)
+--------------------------------------------------------------------------
+
+    bunit                                           MIT
+        https://bunit.dev/
+    DevExpress.Blazor                               DevExpress EULA (commercial)
+        https://www.devexpress.com/Support/EULAs
+    Moq                                             BSD-3-Clause
+        https://github.com/moq/moq
+
+--------------------------------------------------------------------------
+Test projects (COMET.Web.Common.Tests, COMETwebapp.Tests)
+Development and test use only - not part of the distributed product
+--------------------------------------------------------------------------
+
+    bunit                                           MIT
+    coverlet.collector                              MIT
+    coverlet.msbuild                                MIT
+    DotNetSeleniumExtras.WaitHelpers                Apache-2.0
+    Microsoft.NET.Test.Sdk                          MIT
+    Moq                                             BSD-3-Clause
+    NUnit                                           MIT
+    NUnit3TestAdapter                               MIT
+    RichardSzalay.MockHttp                          MIT
+    Selenium.Support                                Apache-2.0
+    Selenium.WebDriver                              Apache-2.0
+    Selenium.WebDriver.ChromeDriver                 Unlicense
+
+--------------------------------------------------------------------------
+
+The DevExpress.Blazor components are proprietary software of Developer
+Express Inc. and are used under a commercial license; they are not covered
+by the open source licenses of this product. A valid DevExpress license is
+required to build this product from source.
