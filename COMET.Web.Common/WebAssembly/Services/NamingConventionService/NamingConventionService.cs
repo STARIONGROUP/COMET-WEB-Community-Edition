@@ -75,16 +75,16 @@ namespace COMET.Web.Common.WebAssembly.Services.NamingConventionService
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    this.Logger.LogError("Naming conventions file not found at {path}", path);
+                    this.Logger.LogError("Naming conventions file not found at {Path}", path);
                     return ImmutableDictionary<string, string>.Empty;
                 }
 
-                this.Logger.LogError("Error fetching naming conventions. Status code: {response}", response.StatusCode);
+                this.Logger.LogError("Error fetching naming conventions. Status code: {Response}", response.StatusCode);
                 return ImmutableDictionary<string, string>.Empty;
             }
             catch (Exception e)
             {
-                this.Logger.LogCritical("Exception has been raised : {message}", e.Message);
+                this.Logger.LogCritical(e, "Exception has been raised");
                 return ImmutableDictionary<string, string>.Empty;
             }
         }

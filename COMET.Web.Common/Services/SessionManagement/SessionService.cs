@@ -288,7 +288,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             }
             catch (Exception exception)
             {
-                this.logger.LogError("During reading EnngineeringModel an error has occured: {exception}", exception.Message);
+                this.logger.LogError(exception, "During reading EnngineeringModel an error has occured");
                 result.Reasons.Add(new Error($"During reading EnngineeringModel an error has occured: {exception.Message}"));
             }
 
@@ -342,12 +342,12 @@ namespace COMET.Web.Common.Services.SessionManagement
             }
             catch (InvalidOperationException ex)
             {
-                this.logger.LogError("Transaction failed: {exception}", ex.Message);
+                this.logger.LogError(ex, "Transaction failed");
                 return Result.Fail(new ExceptionalError("Transaction failed", ex).AddReasonIdentifier(HttpStatusCode.Unauthorized));
             }
             catch (DalWriteException ex)
             {
-                this.logger.LogError("Transaction failed: {exception}", ex.Message);
+                this.logger.LogError(ex, "Transaction failed");
                 return Result.Fail(new ExceptionalError("Transaction failed", ex).AddReasonIdentifier(HttpStatusCode.BadRequest));
             }
             finally

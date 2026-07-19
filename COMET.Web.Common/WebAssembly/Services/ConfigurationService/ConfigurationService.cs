@@ -91,18 +91,18 @@ namespace COMET.Web.Common.WebAssembly.Services.ConfigurationService
                 }
                 else if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    this.logger.LogError("Server configuration file not found at {path}", path);
+                    this.logger.LogError("Server configuration file not found at {Path}", path);
                     return;
                 }
                 else
                 {
-                    this.logger.LogError("Error fetching server configuration. Status code: {response}", response.StatusCode);
+                    this.logger.LogError("Error fetching server configuration. Status code: {Response}", response.StatusCode);
                     return;
                 }
             }
             catch (Exception e)
             {
-                this.logger.LogCritical("Exception has been raised : {message}", e.Message);
+                this.logger.LogCritical(e, "Exception has been raised");
                 return;
             }
 
