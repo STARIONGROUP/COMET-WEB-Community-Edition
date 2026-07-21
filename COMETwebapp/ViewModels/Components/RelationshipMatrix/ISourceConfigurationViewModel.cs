@@ -29,6 +29,7 @@ namespace COMETwebapp.ViewModels.Components.RelationshipMatrix
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Model.RelationshipMatrix;
+    using COMETwebapp.Model.RelationshipMatrix.Configuration;
 
     /// <summary>
     /// View model for one Relationship Matrix source axis (rows or columns): a <see cref="ClassKind" />, a set of
@@ -115,16 +116,16 @@ namespace COMETwebapp.ViewModels.Components.RelationshipMatrix
         IReadOnlyList<DefinedThing> QuerySourceThings(IEnumerable<DefinedThing> candidates);
 
         /// <summary>
-        /// Captures this axis' configuration into a <see cref="SourceConfigurationSnapshot" /> (used to swap axes).
+        /// Captures this axis' configuration into a <see cref="MatrixSourceConfiguration" /> (used to swap axes and to export).
         /// </summary>
-        /// <returns>The captured <see cref="SourceConfigurationSnapshot" /></returns>
-        SourceConfigurationSnapshot CaptureSnapshot();
+        /// <returns>The captured <see cref="MatrixSourceConfiguration" /></returns>
+        MatrixSourceConfiguration CaptureSnapshot();
 
         /// <summary>
-        /// Restores this axis' configuration from a <see cref="SourceConfigurationSnapshot" />, silently dropping any
+        /// Restores this axis' configuration from a <see cref="MatrixSourceConfiguration" />, silently dropping any
         /// <see cref="Category" /> or <see cref="DomainOfExpertise" /> that no longer resolves against <see cref="CurrentIteration" />.
         /// </summary>
-        /// <param name="snapshot">The <see cref="SourceConfigurationSnapshot" /> to restore</param>
-        void RestoreSnapshot(SourceConfigurationSnapshot snapshot);
+        /// <param name="snapshot">The <see cref="MatrixSourceConfiguration" /> to restore</param>
+        void RestoreSnapshot(MatrixSourceConfiguration snapshot);
     }
 }

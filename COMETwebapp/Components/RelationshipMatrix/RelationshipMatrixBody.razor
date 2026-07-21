@@ -19,7 +19,6 @@ Copyright (c) 2023-2026 Starion Group S.A.
 ------------------------------------------------------------------------------->
 
 @using CDP4Common.SiteDirectoryData
-@using COMETwebapp.Model.RelationshipMatrix
 @using COMETwebapp.ViewModels.Components.RelationshipMatrix
 
 @inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.RelationshipMatrix.IRelationshipMatrixBodyViewModel>
@@ -50,7 +49,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
             <div class="matrix-config-actions">
                 <DxButton Text="Swap rows &amp; columns" IconCssClass="oi oi-loop-circular" Click="@(() => this.ViewModel.SwapAxes())"/>
-                <DxButton Text="Export" IconCssClass="oi oi-data-transfer-download" Click="@(async () => await this.ViewModel.ExportAsync())"/>
+                <DxButton Text="Export to Excel" IconCssClass="oi oi-spreadsheet" Click="@(async () => await this.ViewModel.ExportAsync())"/>
+                <DxButton Text="Configuration" IconCssClass="oi oi-cog" Click="@(() => this.ViewModel.IsConfigurationDialogVisible = true)"/>
             </div>
         </div>
 
@@ -65,5 +65,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <div class="matrix-content">
             <MatrixGrid ViewModel="@this.ViewModel"/>
         </div>
+
+        <MatrixConfigurationDialog ViewModel="@this.ViewModel"/>
     </div>
 </LoadingComponent>

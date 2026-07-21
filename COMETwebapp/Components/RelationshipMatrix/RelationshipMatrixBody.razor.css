@@ -45,7 +45,12 @@
 
 .matrix-config-actions {
     display: flex;
+    flex-direction: column;
     gap: 8px;
+}
+
+::deep .matrix-config-actions .dxbl-btn {
+    width: 100%;
 }
 
 .matrix-collapsed-strip {

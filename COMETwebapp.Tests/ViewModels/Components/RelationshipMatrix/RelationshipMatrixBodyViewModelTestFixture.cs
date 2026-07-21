@@ -24,6 +24,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RelationshipMatrix
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
 
     using CDP4Common.CommonData;
@@ -42,7 +43,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.RelationshipMatrix
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Model.RelationshipMatrix;
-    using COMETwebapp.Services.Interoperability;
+    using COMETwebapp.Services.Export;
+    using COMETwebapp.Services.FileStore;
+    using COMETwebapp.Services.RelationshipMatrix;
     using COMETwebapp.ViewModels.Components.RelationshipMatrix;
 
     using FluentResults;
@@ -59,7 +62,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RelationshipMatrix
         private RelationshipMatrixBodyViewModel viewModel;
         private CDPMessageBus messageBus;
         private Mock<ISessionService> sessionService;
-        private Mock<IJsUtilitiesService> jsUtilitiesService;
+        private Mock<IExportService> exportService;
+        private Mock<IFileStoreService> fileStoreService;
         private Iteration iteration;
         private ElementDefinition rowEd;
         private ElementDefinition rowEd2;
@@ -148,11 +152,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.RelationshipMatrix
             this.iteration.Element.Add(this.colEd);
             this.iteration.Element.Add(this.colEd2);
 
-            this.jsUtilitiesService = new Mock<IJsUtilitiesService>();
-            this.jsUtilitiesService.Setup(x => x.DownloadFileFromStreamAsync(It.IsAny<Stream>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+            this.exportService = new Mock<IExportService>();
+            this.exportService.Setup(x => x.ExportAndDownloadAsync(It.IsAny<IExporter>())).Returns(Task.CompletedTask);
+
+            this.fileStoreService = new Mock<IFileStoreService>();
 
             this.viewModel = new RelationshipMatrixBodyViewModel(this.sessionService.Object, this.messageBus, new Mock<ILogger<RelationshipMatrixBodyViewModel>>().Object,
-                this.jsUtilitiesService.Object)
+                this.exportService.Object, this.fileStoreService.Object)
             {
                 CurrentThing = this.iteration
             };
@@ -349,9 +355,141 @@ namespace COMETwebapp.Tests.ViewModels.Components.RelationshipMatrix
         {
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
+            this.ConfigureRowsAndColumns();
+            this.viewModel.SelectedRule = this.rule;
+
             await this.viewModel.ExportAsync();
 
-            this.jsUtilitiesService.Verify(x => x.DownloadFileFromStreamAsync(It.IsAny<Stream>(), "RelationshipMatrix.xlsx"), Times.Once);
+            this.exportService.Verify(x => x.ExportAndDownloadAsync(It.Is<IExporter>(exporter => exporter.FileName == "RelationshipMatrix.xlsx")), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyExportConfiguration()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            await this.viewModel.ExportConfigurationAsync();
+
+            this.exportService.Verify(x => x.ExportAndDownloadAsync(It.Is<IExporter>(exporter => exporter.FileName == "RelationshipMatrix.json")), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyImportConfigurationRoundTrips()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.ConfigureRowsAndColumns();
+            this.viewModel.SelectedRule = this.rule;
+            this.viewModel.ShowRelatedOnly = true;
+
+            using var stream = new RelationshipMatrixConfigurationExporter(
+                this.viewModel.RowConfiguration, this.viewModel.ColumnConfiguration, this.rule, true, true, false).Export();
+
+            this.viewModel.SelectedRule = null;
+            this.viewModel.RowConfiguration.SelectedClassKind = null;
+            this.viewModel.ColumnConfiguration.SelectedClassKind = null;
+            this.viewModel.ShowRelatedOnly = false;
+
+            await this.viewModel.ImportConfigurationAsync(stream);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SelectedRule, Is.EqualTo(this.rule));
+                Assert.That(this.viewModel.RowConfiguration.SelectedClassKind, Is.EqualTo(ClassKind.ElementDefinition));
+                Assert.That(this.viewModel.RowConfiguration.CategorySelector.SelectedCategories, Does.Contain(this.rowCategory));
+                Assert.That(this.viewModel.ColumnConfiguration.CategorySelector.SelectedCategories, Does.Contain(this.colCategory));
+                Assert.That(this.viewModel.ShowRelatedOnly, Is.True);
+            });
+        }
+
+        [Test]
+        public async Task VerifyCanUseModelFileStore()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.fileStoreService.Setup(x => x.GetFileType(this.iteration, "json")).Returns((FileType)null);
+            Assert.That(this.viewModel.CanUseModelFileStore, Is.False);
+
+            this.fileStoreService.Setup(x => x.GetFileType(this.iteration, "json")).Returns(new FileType());
+            Assert.That(this.viewModel.CanUseModelFileStore, Is.True);
+        }
+
+        [Test]
+        public async Task VerifySaveConfigurationToStore()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.ConfigureRowsAndColumns();
+            this.viewModel.SelectedRule = this.rule;
+
+            var jsonFileType = new FileType();
+            this.fileStoreService.Setup(x => x.GetFileType(this.iteration, "json")).Returns(jsonFileType);
+
+            var folder = new Folder();
+
+            this.fileStoreService
+                .Setup(x => x.SaveFileAsync(this.iteration, FileStoreType.Domain, "MyConfig.json", jsonFileType, It.IsAny<byte[]>(), folder))
+                .ReturnsAsync(Result.Ok());
+
+            await this.viewModel.SaveConfigurationToStoreAsync(FileStoreType.Domain, "MyConfig", folder);
+
+            this.fileStoreService.Verify(x => x.SaveFileAsync(this.iteration, FileStoreType.Domain, "MyConfig.json", jsonFileType, It.IsAny<byte[]>(), folder), Times.Once);
+            Assert.That(this.viewModel.FileStoreMessage, Does.Contain("Saved"));
+
+            this.fileStoreService
+                .Setup(x => x.SaveFileAsync(this.iteration, FileStoreType.Common, "RelationshipMatrix.json", jsonFileType, It.IsAny<byte[]>(), null))
+                .ReturnsAsync(Result.Fail("No Common file store available"));
+
+            await this.viewModel.SaveConfigurationToStoreAsync(FileStoreType.Common);
+
+            Assert.That(this.viewModel.FileStoreMessage, Does.Contain("No Common file store available"));
+        }
+
+        [Test]
+        public async Task VerifyCreateFileStore()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.fileStoreService.Setup(x => x.StoreExists(this.iteration, FileStoreType.Common)).Returns(false);
+            this.fileStoreService.Setup(x => x.CreateStoreAsync(this.iteration, FileStoreType.Common)).ReturnsAsync(Result.Ok());
+
+            await this.viewModel.CreateFileStoreAsync(FileStoreType.Common);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.StoreExists(FileStoreType.Common), Is.False);
+                Assert.That(this.viewModel.FileStoreMessage, Does.Contain("Created"));
+            });
+
+            this.fileStoreService.Verify(x => x.CreateStoreAsync(this.iteration, FileStoreType.Common), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyLoadConfigurationFromStore()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.ConfigureRowsAndColumns();
+            this.viewModel.SelectedRule = this.rule;
+
+            using var stream = new RelationshipMatrixConfigurationExporter(
+                this.viewModel.RowConfiguration, this.viewModel.ColumnConfiguration, this.rule, true, false, false).Export();
+            using var buffer = new MemoryStream();
+            await stream.CopyToAsync(buffer);
+
+            var file = new CDP4Common.EngineeringModelData.File();
+            this.fileStoreService.Setup(x => x.ReadFileAsync(file)).ReturnsAsync(buffer.ToArray());
+
+            this.viewModel.SelectedRule = null;
+            this.viewModel.RowConfiguration.SelectedClassKind = null;
+
+            await this.viewModel.LoadConfigurationFromStoreAsync(file);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SelectedRule, Is.EqualTo(this.rule));
+                Assert.That(this.viewModel.RowConfiguration.SelectedClassKind, Is.EqualTo(ClassKind.ElementDefinition));
+            });
         }
 
         [Test]

@@ -29,6 +29,7 @@ namespace COMETwebapp.ViewModels.Components.RelationshipMatrix
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Model.RelationshipMatrix;
+    using COMETwebapp.Services.FileStore;
 
     /// <summary>
     /// Interface for the <see cref="RelationshipMatrixBodyViewModel" />, driving the Relationship Matrix application.
@@ -160,5 +161,80 @@ namespace COMETwebapp.ViewModels.Components.RelationshipMatrix
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task ExportAsync();
+
+        /// <summary>
+        /// Exports the current matrix configuration to a COMET-IME-compatible JSON file and offers it for download.
+        /// </summary>
+        /// <param name="name">The name of the downloaded file (without extension); a default is used when empty</param>
+        /// <returns>A <see cref="Task" /></returns>
+        Task ExportConfigurationAsync(string name = null);
+
+        /// <summary>
+        /// Imports a matrix configuration from the given <paramref name="stream" /> (a COMET-IME-compatible JSON file)
+        /// and applies it to the two axes, the relationship rule and the display options, then rebuilds the matrix.
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream" /> holding the JSON configuration</param>
+        /// <returns>A <see cref="Task" /></returns>
+        Task ImportConfigurationAsync(Stream stream);
+
+        /// <summary>
+        /// Gets a value indicating whether the current model can hold matrix configurations in its file store, that is
+        /// whether a JSON <see cref="FileType" /> is defined by the reference data.
+        /// </summary>
+        bool CanUseModelFileStore { get; }
+
+        /// <summary>
+        /// Gets the last outcome message of a save/load against the model file store, shown to the user. Empty when there is none.
+        /// </summary>
+        string FileStoreMessage { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the configuration export/import dialog is open.
+        /// </summary>
+        bool IsConfigurationDialogVisible { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the requested <paramref name="storeType" /> exists on the current iteration.
+        /// </summary>
+        /// <param name="storeType">The <see cref="FileStoreType" /> to check</param>
+        /// <returns><see langword="true" /> when the store exists, otherwise <see langword="false" /></returns>
+        bool StoreExists(FileStoreType storeType);
+
+        /// <summary>
+        /// Gets the <see cref="Folder" />s of the requested <paramref name="storeType" /> the configuration can be saved into.
+        /// </summary>
+        /// <param name="storeType">The <see cref="FileStoreType" /> to read from</param>
+        /// <returns>The available <see cref="Folder" />s</returns>
+        IReadOnlyList<Folder> GetFolders(FileStoreType storeType);
+
+        /// <summary>
+        /// Creates the requested <paramref name="storeType" /> on the current iteration when it does not yet exist.
+        /// </summary>
+        /// <param name="storeType">The <see cref="FileStoreType" /> to create</param>
+        /// <returns>A <see cref="Task" /> with <see langword="true" /> when the store was created</returns>
+        Task<bool> CreateFileStoreAsync(FileStoreType storeType);
+
+        /// <summary>
+        /// Saves the current matrix configuration as a JSON file item into the model's file store.
+        /// </summary>
+        /// <param name="storeType">The <see cref="FileStoreType" /> to save into</param>
+        /// <param name="name">The name of the saved configuration file (without extension); a default is used when empty</param>
+        /// <param name="folder">The <see cref="Folder" /> to save into, or <see langword="null" /> for the store root</param>
+        /// <returns>A <see cref="Task" /> with <see langword="true" /> when the configuration was saved</returns>
+        Task<bool> SaveConfigurationToStoreAsync(FileStoreType storeType, string name = null, Folder folder = null);
+
+        /// <summary>
+        /// Gets the matrix configuration files stored in the requested store of the current iteration.
+        /// </summary>
+        /// <param name="storeType">The <see cref="FileStoreType" /> to read from</param>
+        /// <returns>The stored configuration <see cref="File" />s</returns>
+        IReadOnlyList<File> GetStoredConfigurations(FileStoreType storeType);
+
+        /// <summary>
+        /// Loads a matrix configuration from the given <paramref name="file" /> stored in the model's file store.
+        /// </summary>
+        /// <param name="file">The stored configuration <see cref="File" /></param>
+        /// <returns>A <see cref="Task" /></returns>
+        Task LoadConfigurationFromStoreAsync(File file);
     }
 }

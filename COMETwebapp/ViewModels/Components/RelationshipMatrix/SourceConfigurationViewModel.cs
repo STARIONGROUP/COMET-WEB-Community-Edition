@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.RelationshipMatrix
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Model.RelationshipMatrix;
+    using COMETwebapp.Model.RelationshipMatrix.Configuration;
 
     using ReactiveUI;
 
@@ -257,12 +258,12 @@ namespace COMETwebapp.ViewModels.Components.RelationshipMatrix
         }
 
         /// <summary>
-        /// Captures this axis' configuration into a <see cref="SourceConfigurationSnapshot" /> (used to swap axes).
+        /// Captures this axis' configuration into a <see cref="MatrixSourceConfiguration" /> (used to swap axes and to export).
         /// </summary>
-        /// <returns>The captured <see cref="SourceConfigurationSnapshot" /></returns>
-        public SourceConfigurationSnapshot CaptureSnapshot()
+        /// <returns>The captured <see cref="MatrixSourceConfiguration" /></returns>
+        public MatrixSourceConfiguration CaptureSnapshot()
         {
-            return new SourceConfigurationSnapshot
+            return new MatrixSourceConfiguration
             {
                 SelectedClassKind = this.SelectedClassKind,
                 SelectedCategories = this.CategorySelector.SelectedCategories.Select(x => x.Iid).ToList(),
@@ -271,30 +272,30 @@ namespace COMETwebapp.ViewModels.Components.RelationshipMatrix
                 IncludeSubcategories = this.IncludeSubcategories,
                 SelectedDisplayKind = this.SelectedDisplayKind,
                 SelectedSortKind = this.SelectedSortKind,
-                SelectedSortOrder = this.SelectedSortOrder
+                SortOrder = this.SelectedSortOrder
             };
         }
 
         /// <summary>
-        /// Restores this axis' configuration from a <see cref="SourceConfigurationSnapshot" />, silently dropping any
+        /// Restores this axis' configuration from a <see cref="MatrixSourceConfiguration" />, silently dropping any
         /// <see cref="Category" /> or <see cref="DomainOfExpertise" /> that no longer resolves against <see cref="CurrentIteration" />.
         /// </summary>
-        /// <param name="snapshot">The <see cref="SourceConfigurationSnapshot" /> to restore</param>
-        public void RestoreSnapshot(SourceConfigurationSnapshot snapshot)
+        /// <param name="snapshot">The <see cref="MatrixSourceConfiguration" /> to restore</param>
+        public void RestoreSnapshot(MatrixSourceConfiguration snapshot)
         {
             this.SelectedClassKind = snapshot.SelectedClassKind;
             this.SelectedBooleanOperatorKind = snapshot.SelectedBooleanOperatorKind;
             this.IncludeSubcategories = snapshot.IncludeSubcategories;
             this.SelectedDisplayKind = snapshot.SelectedDisplayKind;
             this.SelectedSortKind = snapshot.SelectedSortKind;
-            this.SelectedSortOrder = snapshot.SelectedSortOrder;
+            this.SelectedSortOrder = snapshot.SortOrder;
 
             this.CategorySelector.SelectedCategories = this.CategorySelector.AvailableCategories
-                .Where(x => snapshot.SelectedCategories.Contains(x.Iid))
+                .Where(x => (snapshot.SelectedCategories ?? []).Contains(x.Iid))
                 .ToList();
 
             this.SelectedOwners = this.AvailableOwners
-                .Where(x => snapshot.SelectedOwners.Contains(x.Iid))
+                .Where(x => (snapshot.SelectedOwners ?? []).Contains(x.Iid))
                 .ToList();
         }
 
