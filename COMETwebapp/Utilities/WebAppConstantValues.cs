@@ -105,6 +105,11 @@ namespace COMETwebapp.Utilities
         public const string RequirementManagementPage = "RequirementManagement";
 
         /// <summary>
+        /// The page name of the Relationship Matrix
+        /// </summary>
+        public const string RelationshipMatrixPage = "RelationshipMatrix";
+
+        /// <summary>
         /// The page name of the Budget Editor
         /// </summary>
         public const string BudgetEditorPage = "BudgetEditor";

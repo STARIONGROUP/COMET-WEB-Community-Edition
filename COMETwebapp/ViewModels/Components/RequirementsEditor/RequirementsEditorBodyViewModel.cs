@@ -1139,6 +1139,16 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         }
 
         /// <summary>
+        /// Handles a write committed by this or another open application (e.g. a relationship created from the
+        /// Relationship Matrix in a split view) so the traceability links refresh here as well.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override Task OnEndUpdate()
+        {
+            return this.ReloadPreservingSelection();
+        }
+
+        /// <summary>
         /// Builds the flattened list of every <see cref="RequirementsGroup" /> of the selected specification, used to file a requirement.
         /// </summary>
         /// <returns>All groups of the selected specification, or an empty list when none is selected.</returns>

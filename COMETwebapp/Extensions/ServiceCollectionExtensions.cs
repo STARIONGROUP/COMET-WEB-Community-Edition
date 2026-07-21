@@ -51,6 +51,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
+    using COMETwebapp.ViewModels.Components.RelationshipMatrix;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
     using COMETwebapp.ViewModels.Components.SiteDirectory;
     using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
@@ -100,6 +101,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<ISubscribedTableViewModel, SubscribedTableViewModel>();
             serviceCollection.AddTransient<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
             serviceCollection.AddTransient<IRequirementsEditorBodyViewModel, RequirementsEditorBodyViewModel>();
+            serviceCollection.AddTransient<IRelationshipMatrixBodyViewModel, RelationshipMatrixBodyViewModel>();
             serviceCollection.AddTransient<IViewerBodyViewModel, ViewerBodyViewModel>();
             serviceCollection.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
             serviceCollection.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();
