@@ -69,7 +69,7 @@ namespace COMET.Web.Common.WebAssembly.Services.StringTableService
             {
                 var path = ContentPathBuilder.BuildPath(this.FilePath);
                 var jsonContent = await this.http.GetStreamAsync(path);
-                this.Configurations = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
+                this.Configurations = await JsonSerializer.DeserializeAsync<Dictionary<string, string>>(jsonContent);
             }
             catch (Exception e)
             {

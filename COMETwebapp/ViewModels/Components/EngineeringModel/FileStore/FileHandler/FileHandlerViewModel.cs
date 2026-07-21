@@ -197,11 +197,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
 
             if (result.IsSuccess)
             {
-                this.logger.LogInformation("File with iid {iid} updated successfully", this.CurrentThing.Iid);
+                this.logger.LogInformation("File with iid {Iid} updated successfully", this.CurrentThing.Iid);
             }
             else
             {
-                this.logger.LogWarning("File could not be created. {warning}", string.Join(", ", result.Reasons.Select(x => x.Message)));
+                this.logger.LogWarning("File could not be created. {Warning}", string.Join(", ", result.Reasons.Select(x => x.Message)));
             }
 
             this.IsLoading = false;
