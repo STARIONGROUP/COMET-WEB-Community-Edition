@@ -1,0 +1,71 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.SiteDirectoryData
+@using COMETwebapp.ViewModels.Components.RelationshipMatrix
+
+@inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.RelationshipMatrix.IRelationshipMatrixBodyViewModel>
+
+<LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+    <div class="matrix-editor">
+        <div id="matrixConfigPanel" class="matrix-config-panel @(this.ViewModel.IsConfigurationPanelCollapsed ? "matrix-config-panel-collapsed" : string.Empty)">
+            <div class="matrix-config-panel-header">
+                <DxButton IconCssClass="oi oi-chevron-left"
+                          RenderStyle="ButtonRenderStyle.Link"
+                          SizeMode="SizeMode.Small"
+                          Click="@(() => this.ViewModel.IsConfigurationPanelCollapsed = true)"
+                          title="Minimize the configuration panel"/>
+            </div>
+
+            <SourceConfiguration Title="Rows" ViewModel="@this.ViewModel.RowConfiguration"/>
+            <SourceConfiguration Title="Columns" ViewModel="@this.ViewModel.ColumnConfiguration"/>
+
+            <label>Relationship rule</label>
+            <DxComboBox Data="@this.ViewModel.AvailableRules"
+                        TextFieldName="@nameof(BinaryRelationshipRule.Name)"
+                        @bind-Value="@this.ViewModel.SelectedRule"
+                        NullText="Select a relationship rule"/>
+
+            <DxCheckBox @bind-Checked="@this.ViewModel.ShowDirectionality">Show directionality</DxCheckBox>
+            <DxCheckBox @bind-Checked="@this.ViewModel.ShowRelatedOnly">Show related only</DxCheckBox>
+            <DxCheckBox @bind-Checked="@this.ViewModel.ShowNonRelatedBackgroundColor">Highlight unrelated rows/columns</DxCheckBox>
+
+            <div class="matrix-config-actions">
+                <DxButton Text="Swap rows &amp; columns" IconCssClass="oi oi-loop-circular" Click="@(() => this.ViewModel.SwapAxes())"/>
+                <DxButton Text="Export to Excel" IconCssClass="oi oi-spreadsheet" Click="@(async () => await this.ViewModel.ExportAsync())"/>
+                <DxButton Text="Configuration" IconCssClass="oi oi-cog" Click="@(() => this.ViewModel.IsConfigurationDialogVisible = true)"/>
+            </div>
+        </div>
+
+        @if (this.ViewModel.IsConfigurationPanelCollapsed)
+        {
+            <div id="expandMatrixConfigPanel" class="matrix-collapsed-strip" title="Restore the configuration panel" @onclick="@(() => this.ViewModel.IsConfigurationPanelCollapsed = false)">
+                <span class="oi oi-chevron-right"></span>
+                <span class="matrix-collapsed-strip-text">Configuration</span>
+            </div>
+        }
+
+        <div class="matrix-content">
+            <MatrixGrid ViewModel="@this.ViewModel"/>
+        </div>
+
+        <MatrixConfigurationDialog ViewModel="@this.ViewModel"/>
+    </div>
+</LoadingComponent>

@@ -30,6 +30,7 @@ namespace COMETwebapp.Model
     using COMETwebapp.Components.ModelEditor;
     using COMETwebapp.Components.ParameterEditor;
     using COMETwebapp.Components.ReferenceData;
+    using COMETwebapp.Components.RelationshipMatrix;
     using COMETwebapp.Components.RequirementsEditor;
     using COMETwebapp.Components.SiteDirectory;
     using COMETwebapp.Components.SubscriptionDashboard;
@@ -90,6 +91,16 @@ namespace COMETwebapp.Model
                     Description = "View and edit requirements as documents.",
                     Url = WebAppConstantValues.RequirementManagementPage,
                     ComponentType = typeof(RequirementsEditorBody)
+                },
+
+                new TabbedApplication
+                {
+                    Name = "Relationship Matrix",
+                    Color = "#76b8fc",
+                    IconType = typeof(FeatherGrid),
+                    Description = "Create and browse relationships between categorized things as a matrix.",
+                    Url = WebAppConstantValues.RelationshipMatrixPage,
+                    ComponentType = typeof(RelationshipMatrixBody)
                 },
 
                 new TabbedApplication

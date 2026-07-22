@@ -1,0 +1,51 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@typeparam T
+@inherits DisposableComponent
+
+<div class="checkbox-multiselect">
+    <button type="button" id="@this.TriggerId" class="checkbox-multiselect-trigger" @onclick="@(() => this.isOpen = !this.isOpen)">
+        <span class="checkbox-multiselect-text">@this.SummaryText</span>
+        <span class="checkbox-multiselect-caret oi oi-caret-bottom"></span>
+    </button>
+
+    <DxDropDown @bind-IsOpen="@this.isOpen"
+                PositionMode="DropDownPositionMode.Bottom"
+                PositionTarget="@this.TriggerSelector"
+                HeaderVisible="false"
+                FooterVisible="false">
+        <BodyTemplate>
+            <div class="checkbox-multiselect-body">
+                <label class="checkbox-multiselect-selectall">
+                    <DxCheckBox Checked="@this.AreAllSelected" CheckedChanged="@((bool value) => this.OnSelectAllChanged(value))">(Select All)</DxCheckBox>
+                </label>
+
+                <DxListBox Data="@this.Data"
+                           Values="@this.Values"
+                           ValuesChanged="@((IEnumerable<T> values) => this.OnValuesChanged(values))"
+                           TextFieldName="@this.TextFieldName"
+                           SelectionMode="ListBoxSelectionMode.Multiple"
+                           ShowCheckboxes="true"
+                           CssClass="checkbox-multiselect-list"/>
+            </div>
+        </BodyTemplate>
+    </DxDropDown>
+</div>

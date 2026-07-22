@@ -1,0 +1,53 @@
+.checkbox-multiselect {
+    width: 100%;
+}
+
+.checkbox-multiselect-trigger {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    padding: 5px 8px;
+    background: #fff;
+    border: 1px solid #d4d9df;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.85rem;
+}
+
+.checkbox-multiselect-trigger:hover {
+    border-color: #a9b1bd;
+}
+
+.checkbox-multiselect-text {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #212529;
+}
+
+.checkbox-multiselect-caret {
+    flex: 0 0 auto;
+    font-size: 0.6rem;
+    color: #6c757d;
+}
+
+.checkbox-multiselect-body {
+    display: flex;
+    flex-direction: column;
+    min-width: 240px;
+    max-height: 280px;
+}
+
+.checkbox-multiselect-selectall {
+    padding: 6px 8px;
+    border-bottom: 1px solid #eaecef;
+    margin: 0;
+}
+
+.checkbox-multiselect-list {
+    max-height: 230px;
+    overflow: auto;
+}
