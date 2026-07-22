@@ -22,15 +22,20 @@
 
 namespace COMETwebapp.Tests.Components.RelationshipMatrix
 {
+    using System.IO;
+    using System.Reflection;
+
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Test.Helpers;
 
+    using COMETwebapp.Model.RelationshipMatrix;
     using COMETwebapp.Services.FileStore;
     using COMETwebapp.ViewModels.Components.RelationshipMatrix;
 
+    using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.AspNetCore.Components.Web;
 
     using Moq;
@@ -107,6 +112,81 @@ namespace COMETwebapp.Tests.Components.RelationshipMatrix
             var renderedComponent = this.RenderDialog();
 
             Assert.That(renderedComponent.Markup, Does.Contain("Add a JSON file type to the RDL"));
+        }
+
+        [Test]
+        public async Task VerifyImportFromFileInvokesViewModel()
+        {
+            this.viewModel.Setup(x => x.ImportConfigurationAsync(It.IsAny<Stream>())).Returns(Task.CompletedTask);
+
+            var renderedComponent = this.RenderDialog();
+
+            var file = InputFileContent.CreateFromText("{}", "config.json");
+            await renderedComponent.InvokeAsync(() => renderedComponent.FindComponent<InputFile>().UploadFiles(file));
+
+            this.viewModel.Verify(x => x.ImportConfigurationAsync(It.IsAny<Stream>()), Times.Once);
+            this.viewModel.VerifySet(x => x.IsConfigurationDialogVisible = false);
+        }
+
+        [Test]
+        public async Task VerifySaveToModelCreatesStoreAndCloses()
+        {
+            this.viewModel.Setup(x => x.StoreExists(FileStoreType.Domain)).Returns(false);
+            this.viewModel.Setup(x => x.CreateFileStoreAsync(FileStoreType.Domain)).ReturnsAsync(true);
+
+            var renderedComponent = this.RenderDialog();
+
+            // The destination combo is a DevExpress component that cannot be driven in bunit, so the selection is set on
+            // the component directly to reach the model-store save branch (verified end-to-end elsewhere).
+            SetPrivateMember(renderedComponent.Instance, "Destination", ConfigurationDestination.DomainFileStore);
+            renderedComponent.Render();
+
+            Assert.That(renderedComponent.Markup, Does.Contain("will be created"));
+
+            var saveButton = renderedComponent.FindAll("button").Single(x => x.TextContent.Contains("Save to model"));
+            await renderedComponent.InvokeAsync(() => saveButton.ClickAsync(new MouseEventArgs()));
+
+            Assert.Multiple(() =>
+            {
+                this.viewModel.Verify(x => x.CreateFileStoreAsync(FileStoreType.Domain), Times.Once);
+                this.viewModel.Verify(x => x.SaveConfigurationToStoreAsync(FileStoreType.Domain, It.IsAny<string>(), It.IsAny<Folder>()), Times.Once);
+                this.viewModel.VerifySet(x => x.IsConfigurationDialogVisible = false);
+            });
+        }
+
+        [Test]
+        public async Task VerifyLoadFromModelInvokesViewModelAndCloses()
+        {
+            var storedConfiguration = new CDP4Common.EngineeringModelData.File();
+
+            var renderedComponent = this.RenderDialog();
+
+            SetPrivateMember(renderedComponent.Instance, "ImportStore", FileStoreType.Common);
+            SetPrivateMember(renderedComponent.Instance, "selectedStoredConfiguration", storedConfiguration);
+            renderedComponent.Render();
+
+            var loadButton = renderedComponent.FindAll("button").Single(x => x.TextContent.Contains("Load from model"));
+            await renderedComponent.InvokeAsync(() => loadButton.ClickAsync(new MouseEventArgs()));
+
+            this.viewModel.Verify(x => x.LoadConfigurationFromStoreAsync(storedConfiguration), Times.Once);
+            this.viewModel.VerifySet(x => x.IsConfigurationDialogVisible = false);
+        }
+
+        /// <summary>
+        /// Sets a non-public property (via its setter) or field on the component, so selections normally made through a
+        /// DevExpress combo (which bunit cannot drive) can be reached in a component test.
+        /// </summary>
+        private static void SetPrivateMember(object target, string name, object value)
+        {
+            var property = target.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.NonPublic);
+
+            if (property != null)
+            {
+                property.SetValue(target, value);
+                return;
+            }
+
+            target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(target, value);
         }
     }
 }

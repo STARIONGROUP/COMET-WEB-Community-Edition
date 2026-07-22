@@ -284,6 +284,37 @@ namespace COMETwebapp.Tests.Components.RelationshipMatrix
         }
 
         [Test]
+        public async Task VerifyConfigurationActionsInvokeViewModel()
+        {
+            var renderedComponent = this.RenderMatrix();
+
+            await renderedComponent.InvokeAsync(() => renderedComponent.FindAll("button").Single(x => x.TextContent.Contains("Swap")).ClickAsync(new MouseEventArgs()));
+            await renderedComponent.InvokeAsync(() => renderedComponent.FindAll("button").Single(x => x.TextContent.Contains("Export to Excel")).ClickAsync(new MouseEventArgs()));
+            await renderedComponent.InvokeAsync(() => renderedComponent.FindAll("button").Single(x => x.TextContent.Contains("Configuration")).ClickAsync(new MouseEventArgs()));
+            await renderedComponent.InvokeAsync(() => renderedComponent.Find(".matrix-config-panel-header button").ClickAsync(new MouseEventArgs()));
+
+            Assert.Multiple(() =>
+            {
+                this.viewModel.Verify(x => x.SwapAxes(), Times.Once);
+                this.viewModel.Verify(x => x.ExportAsync(), Times.Once);
+                this.viewModel.VerifySet(x => x.IsConfigurationDialogVisible = true);
+                this.viewModel.VerifySet(x => x.IsConfigurationPanelCollapsed = true);
+            });
+        }
+
+        [Test]
+        public async Task VerifyCollapsedPanelCanExpand()
+        {
+            this.viewModel.Setup(x => x.IsConfigurationPanelCollapsed).Returns(true);
+
+            var renderedComponent = this.RenderMatrix();
+
+            await renderedComponent.InvokeAsync(() => renderedComponent.Find("#expandMatrixConfigPanel").ClickAsync(new MouseEventArgs()));
+
+            this.viewModel.VerifySet(x => x.IsConfigurationPanelCollapsed = false);
+        }
+
+        [Test]
         public void VerifyPlaceholderShownWithoutRule()
         {
             this.viewModel.Setup(x => x.SelectedRule).Returns((BinaryRelationshipRule)null);

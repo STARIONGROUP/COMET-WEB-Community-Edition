@@ -514,5 +514,139 @@ namespace COMETwebapp.Tests.ViewModels.Components.RelationshipMatrix
                 Assert.That(this.viewModel.IsLoading, Is.False);
             });
         }
+
+        [Test]
+        public async Task VerifyCreateRelationshipGuardsAndHandlesError()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            // No selected cell / rule short-circuits without a write
+            await this.viewModel.CreateRelationshipAsync(RelationshipDirectionKind.RowToColumn);
+            this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Never);
+
+            this.viewModel.SelectedRule = this.rule;
+            this.viewModel.SelectCell(this.rowEd2, this.colEd2);
+
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ThrowsAsync(new InvalidOperationException("boom"));
+
+            await this.viewModel.CreateRelationshipAsync(RelationshipDirectionKind.ColumnToRow);
+
+            Assert.That(this.viewModel.IsLoading, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyDeleteRelationshipGuardsAndHandlesError()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            // No selected cell short-circuits without a delete
+            await this.viewModel.DeleteRelationshipAsync();
+            this.sessionService.Verify(x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Never);
+
+            this.AddExistingRelationship();
+            this.viewModel.SelectedRule = this.rule;
+            this.viewModel.SelectCell(this.rowEd, this.colEd);
+
+            this.sessionService
+                .Setup(x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ThrowsAsync(new InvalidOperationException("boom"));
+
+            await this.viewModel.DeleteRelationshipAsync();
+
+            Assert.That(this.viewModel.IsLoading, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyImportHandlesEmptyAndInvalidConfiguration()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.SelectedRule = this.rule;
+
+            using var empty = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("{}"));
+            await this.viewModel.ImportConfigurationAsync(empty);
+
+            using var invalid = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("not valid json"));
+            await this.viewModel.ImportConfigurationAsync(invalid);
+
+            // Neither a usable-but-empty nor an unparsable file changes the current selection
+            Assert.That(this.viewModel.SelectedRule, Is.EqualTo(this.rule));
+        }
+
+        [Test]
+        public async Task VerifySaveConfigurationWithoutJsonFileType()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.fileStoreService.Setup(x => x.GetFileType(this.iteration, "json")).Returns((FileType)null);
+
+            var saved = await this.viewModel.SaveConfigurationToStoreAsync(FileStoreType.Domain);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(saved, Is.False);
+                Assert.That(this.viewModel.FileStoreMessage, Does.Contain("JSON file type"));
+            });
+        }
+
+        [Test]
+        public async Task VerifyCreateFileStoreReportsFailureAndError()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.fileStoreService.Setup(x => x.CreateStoreAsync(this.iteration, FileStoreType.Common)).ReturnsAsync(Result.Fail("boom"));
+            var failed = await this.viewModel.CreateFileStoreAsync(FileStoreType.Common);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(failed, Is.False);
+                Assert.That(this.viewModel.FileStoreMessage, Does.Contain("Could not create"));
+            });
+
+            this.fileStoreService.Setup(x => x.CreateStoreAsync(this.iteration, FileStoreType.Domain)).ThrowsAsync(new InvalidOperationException("boom"));
+            var errored = await this.viewModel.CreateFileStoreAsync(FileStoreType.Domain);
+
+            Assert.That(errored, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyExportAndConfigurationExportHandleError()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.ConfigureRowsAndColumns();
+            this.viewModel.SelectedRule = this.rule;
+
+            this.exportService.Setup(x => x.ExportAndDownloadAsync(It.IsAny<IExporter>())).ThrowsAsync(new InvalidOperationException("boom"));
+
+            await this.viewModel.ExportAsync();
+            await this.viewModel.ExportConfigurationAsync("cfg");
+
+            Assert.That(this.viewModel.IsLoading, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyLoadConfigurationHandlesError()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.fileStoreService.Setup(x => x.ReadFileAsync(It.IsAny<CDP4Common.EngineeringModelData.File>())).ThrowsAsync(new InvalidOperationException("boom"));
+
+            await this.viewModel.LoadConfigurationFromStoreAsync(new CDP4Common.EngineeringModelData.File());
+
+            Assert.That(this.viewModel.IsLoading, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyConfigurationDialogVisibleToggles()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.IsConfigurationDialogVisible = true;
+
+            Assert.That(this.viewModel.IsConfigurationDialogVisible, Is.True);
+        }
     }
 }

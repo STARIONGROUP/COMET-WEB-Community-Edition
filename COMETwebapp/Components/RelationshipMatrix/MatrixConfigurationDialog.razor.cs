@@ -217,12 +217,5 @@ namespace COMETwebapp.Components.RelationshipMatrix
             await this.ViewModel.LoadConfigurationFromStoreAsync(this.selectedStoredConfiguration);
             this.ViewModel.IsConfigurationDialogVisible = false;
         }
-
-        /// <summary>
-        /// Pairs a <see cref="ConfigurationDestination" /> with its user-facing label for the destination combo box.
-        /// </summary>
-        /// <param name="Value">The <see cref="ConfigurationDestination" /></param>
-        /// <param name="Label">The user-facing label</param>
-        private sealed record DestinationOption(ConfigurationDestination Value, string Label);
     }
 }

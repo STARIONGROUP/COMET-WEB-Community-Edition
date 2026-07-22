@@ -94,6 +94,45 @@ namespace COMETwebapp.Tests.Services.FileStore
         }
 
         [Test]
+        public void VerifyGetFiles()
+        {
+            var jsonType = new FileType { Extension = "json" };
+            var otherType = new FileType { Extension = "txt" };
+
+            var store = new DomainFileStore { Name = "DFS", Owner = this.domain };
+            var revision = new FileRevision { Name = "config.json" };
+            revision.FileType.Add(jsonType);
+            var file = new CDP4Common.EngineeringModelData.File { Owner = this.domain };
+            file.FileRevision.Add(revision);
+            store.File.Add(file);
+            this.iteration.DomainFileStore.Add(store);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.service.GetFiles(this.iteration, FileStoreType.Domain), Does.Contain(file));
+                Assert.That(this.service.GetFiles(this.iteration, FileStoreType.Domain, jsonType), Does.Contain(file));
+                Assert.That(this.service.GetFiles(this.iteration, FileStoreType.Domain, otherType), Is.Empty);
+                Assert.That(this.service.GetFiles(this.iteration, FileStoreType.Common), Is.Empty);
+            });
+        }
+
+        [Test]
+        public async Task VerifyReadFileAsync()
+        {
+            var revision = new FileRevision { Name = "config.json" };
+            var file = new CDP4Common.EngineeringModelData.File { Owner = this.domain };
+            file.FileRevision.Add(revision);
+
+            var session = new Mock<ISession>();
+            session.Setup(x => x.ReadFile(revision)).ReturnsAsync([1, 2, 3]);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+
+            var bytes = await this.service.ReadFileAsync(file);
+
+            Assert.That(bytes, Is.EqualTo(new byte[] { 1, 2, 3 }));
+        }
+
+        [Test]
         public async Task VerifyCreateStoreAsync()
         {
             Thing writtenContainer = null;

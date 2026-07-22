@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.Tests.Components.RelationshipMatrix
 {
+    using System.Reflection;
+
     using Bunit;
 
     using COMET.Web.Common.Test.Helpers;
@@ -82,6 +84,38 @@ namespace COMETwebapp.Tests.Components.RelationshipMatrix
             var trigger = renderedComponent.Find(".checkbox-multiselect-trigger");
 
             Assert.That(trigger.TextContent, Does.Contain("a; b"));
+        }
+
+        [Test]
+        public async Task VerifySelectionHandlersForwardToValuesChanged()
+        {
+            var renderedComponent = this.RenderComponent([]);
+
+            // The "(Select All)" checkbox and list box live inside the un-rendered DxDropDown body (see the note below),
+            // so the forwarding handlers are invoked directly to verify they push the right selection to ValuesChanged.
+            await renderedComponent.InvokeAsync(() => InvokePrivate(renderedComponent.Instance, "OnSelectAllChanged", true));
+            Assert.That(this.capturedValues, Is.EqualTo(Data));
+
+            await renderedComponent.InvokeAsync(() => InvokePrivate(renderedComponent.Instance, "OnSelectAllChanged", false));
+            Assert.That(this.capturedValues, Is.Empty);
+
+            await renderedComponent.InvokeAsync(() => InvokePrivate(renderedComponent.Instance, "OnValuesChanged", new[] { "a" }));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.capturedValues, Is.EqualTo(new[] { "a" }));
+                Assert.That(GetPrivate(renderedComponent.Instance, "AreAllSelected"), Is.False);
+            });
+        }
+
+        private static Task InvokePrivate(object target, string name, object argument)
+        {
+            return (Task)target.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(target, [argument]);
+        }
+
+        private static object GetPrivate(object target, string name)
+        {
+            return target.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(target);
         }
 
         // ponytail: no VerifySelectAllSelectsEverything test. The "(Select All)" DxCheckBox and DxListBox only
