@@ -19,7 +19,8 @@
 ------------------------------------------------------------------------------->
 @inherits DisposableComponent
 
-<div class="@($"tab-component {(this.OnClick != null ? "cursor-pointer" : "")} {(this.IsCurrent ? "current-tab" : "")}")"
+<div id="@this.Id"
+     class="@($"tab-component {(this.OnClick != null ? "cursor-pointer" : "")} {(this.IsCurrent ? "current-tab" : "")}")"
      @onclick="@(() => this.OnClick?.Invoke())"
      title="@(this.Caption)">
 
@@ -47,8 +48,7 @@
 
     <DxButton RenderStyle="ButtonRenderStyle.None"
               Click="@(() => this.OnIconClick?.Invoke())"
-              CssClass="px-1"
-              Id="tab-button">
+              CssClass="px-1 tab-close-button">
         <DynamicComponent Type="@(this.Icon)"
                           Parameters="IconConfiguration"/>
     </DxButton>

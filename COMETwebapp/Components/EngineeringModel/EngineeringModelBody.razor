@@ -20,7 +20,7 @@
 @inherits SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.EngineeringModel.IEngineeringModelBodyViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <DxToolbar ItemClick="@(this.OnItemClick)">
+    <DxToolbar Id="engineering-model-toolbar" ItemClick="@(this.OnItemClick)">
         <Items>
             @foreach (var mappedValue in this.MapOfComponentsAndParameters)
             {

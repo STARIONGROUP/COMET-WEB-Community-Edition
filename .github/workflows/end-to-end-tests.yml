@@ -1,0 +1,94 @@
+name: End-to-End Tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  e2e:
+    name: Playwright End-to-End
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Start COMET Web Services (Docker)
+        run: docker compose -f .github/e2e/docker-compose.e2e.yml up -d
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v5.1.0
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: add Github nuget feed
+        env:
+          PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+        run: dotnet nuget add source https://nuget.pkg.github.com/STARIONGROUP/index.json -n StarionGithubFeed -u STARIONGROUP -p $PACKAGE_TOKEN --store-password-in-clear-text
+
+      - name: add DevExpress nuget feed
+        env:
+          DEVEXPRESS_NUGET_KEY: ${{ secrets.DEVEXPRESS_NUGET_KEY }}
+        run: dotnet nuget add source https://nuget.devexpress.com/api -n DXFeed -u DevExpress -p $DEVEXPRESS_NUGET_KEY --store-password-in-clear-text
+
+      - name: Restore dependencies
+        run: dotnet restore COMETwebapp.Tests/COMETwebapp.Tests.csproj
+
+      - name: Build
+        run: dotnet build COMETwebapp.Tests/COMETwebapp.Tests.csproj --no-restore -c Debug
+
+      - name: Install Playwright browsers
+        # chromium-headless-shell is a separate download from chromium since Playwright 1.49 and is what the
+        # headless launch uses, so install both explicitly.
+        run: pwsh COMETwebapp.Tests/bin/Debug/net10.0/playwright.ps1 install --with-deps chromium chromium-headless-shell
+
+      - name: Wait for the COMET Web Services to be ready
+        run: |
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/ || true)
+            if [ "$code" != "000" ]; then
+              echo "COMET Web Services responded with HTTP $code"
+              exit 0
+            fi
+            echo "waiting for COMET Web Services... ($i)"
+            sleep 5
+          done
+          echo "COMET Web Services did not become ready in time"
+          docker compose -f .github/e2e/docker-compose.e2e.yml logs comet-webservices
+          exit 1
+
+      - name: Start the COMET WEB application
+        run: |
+          nohup dotnet run --project COMETwebapp/COMETwebapp.csproj --no-build -c Debug > webapp.log 2>&1 &
+          echo $! > webapp.pid
+
+      - name: Wait for the COMET WEB application to be ready
+        run: |
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/healthz || true)
+            if [ "$code" = "200" ]; then
+              echo "COMET WEB application is up"
+              exit 0
+            fi
+            echo "waiting for COMET WEB application... ($i)"
+            sleep 5
+          done
+          echo "COMET WEB application did not become ready in time"
+          cat webapp.log
+          exit 1
+
+      - name: Run the end-to-end tests
+        env:
+          COMETWEBAPP_URL: http://localhost:8080
+          COMET_SERVER_URL: http://localhost:5000
+          COMET_USERNAME: admin
+          COMET_PASSWORD: pass
+        run: dotnet test COMETwebapp.Tests/COMETwebapp.Tests.csproj --no-build -c Debug --filter "TestCategory=EndToEnd" --logger "console;verbosity=normal"
+
+      - name: Stop the COMET WEB application
+        if: always()
+        run: if [ -f webapp.pid ]; then kill "$(cat webapp.pid)" || true; fi
+
+      - name: Stop the COMET Web Services (Docker)
+        if: always()
+        run: docker compose -f .github/e2e/docker-compose.e2e.yml down
