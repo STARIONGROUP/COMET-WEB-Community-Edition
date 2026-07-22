@@ -11,13 +11,13 @@ jobs:
     name: Playwright End-to-End
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Start COMET Web Services (Docker)
         run: docker compose -f .github/e2e/docker-compose.e2e.yml up -d
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v5.1.0
+        uses: actions/setup-dotnet@baa11fbfe1d6520db94683bd5c7a3818018e4309 # v5.1.0
         with:
           dotnet-version: '10.0.x'
 
@@ -58,6 +58,11 @@ jobs:
           exit 1
 
       - name: Start the COMET WEB application
+        # Force single-step authentication for the e2e run: the multi-step "Next" flow depends on a DevExpress
+        # OnInput value round-tripping through the Blazor circuit before the click, which races on the CI runner.
+        # Single-step keeps everything on one form, and the Connect button only enables once the fields validate.
+        env:
+          ServerConfiguration__AllowMultipleStepsAuthentication: "false"
         run: |
           nohup dotnet run --project COMETwebapp/COMETwebapp.csproj --no-build -c Debug > webapp.log 2>&1 &
           echo $! > webapp.pid

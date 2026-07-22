@@ -77,20 +77,61 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <returns>A <see cref="Task" />.</returns>
         public async Task LoginAsync(string serverUrl, string username, string password)
         {
+            var unauthorizedNotice = this.page.Locator("#unauthorized-notice");
+
+            // The DevExpress text boxes bind on input and round-trip to the server via the Blazor circuit; a value can
+            // occasionally not commit before the submit, so the login silently does not take. Re-fill and re-submit
+            // until the landing page is gone, then let a final attempt surface any real failure.
+            for (var attempt = 0; attempt < 4; attempt++)
+            {
+                await this.FillLoginFormAsync(serverUrl, username, password);
+                await this.page.Locator("#connectbtn").ClickAsync();
+
+                try
+                {
+                    await unauthorizedNotice.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Detached, Timeout = 20_000 });
+                    return;
+                }
+                catch (TimeoutException)
+                {
+                    // The login did not take; try again.
+                }
+            }
+
+            await this.FillLoginFormAsync(serverUrl, username, password);
+            await this.page.Locator("#connectbtn").ClickAsync();
+            await unauthorizedNotice.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Detached });
+        }
+
+        /// <summary>
+        /// Fills the login form: the source address (when shown), advancing past the multi-step "Next" screen if the
+        /// server is configured for it, then the user name and password.
+        /// </summary>
+        /// <param name="serverUrl">The COMET Web Services URL to connect to.</param>
+        /// <param name="username">The user name.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>A <see cref="Task" />.</returns>
+        private async Task FillLoginFormAsync(string serverUrl, string username, string password)
+        {
             var sourceAddress = this.TextInput("sourceaddress");
-            await sourceAddress.FillAsync(serverUrl);
+
+            if (await sourceAddress.IsVisibleAsync())
+            {
+                await sourceAddress.FillAsync(serverUrl);
+
+                // Give the on-input value time to round-trip before it is needed by Next or Connect.
+                await this.page.WaitForTimeoutAsync(600);
+            }
 
             var nextButton = this.page.Locator("#nextBtn");
             var usernameInput = this.TextInput("username");
 
             if (await nextButton.IsVisibleAsync())
             {
-                // The source-address text box binds on input and round-trips to the server via the Blazor circuit;
-                // clicking Next before that commits leaves the address empty. Settle, click, and retry until the
-                // credentials step appears.
+                // Multi-step: clicking Next before the source address commits leaves it empty. Click and retry until
+                // the credentials step appears.
                 for (var attempt = 0; attempt < 5; attempt++)
                 {
-                    await this.page.WaitForTimeoutAsync(600);
                     await nextButton.ClickAsync();
 
                     try
@@ -101,17 +142,13 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
                     catch (TimeoutException)
                     {
                         await sourceAddress.FillAsync(serverUrl);
+                        await this.page.WaitForTimeoutAsync(600);
                     }
                 }
             }
 
             await usernameInput.FillAsync(username);
             await this.TextInput("password").FillAsync(password);
-
-            // The Connect button is only enabled once the credentials validate, so the click auto-waits for it.
-            await this.page.Locator("#connectbtn").ClickAsync();
-
-            await this.page.Locator("#unauthorized-notice").WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Detached });
         }
 
         /// <summary>
