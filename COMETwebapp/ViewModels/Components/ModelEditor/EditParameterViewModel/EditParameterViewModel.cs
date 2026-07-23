@@ -128,6 +128,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel
                 })
             };
 
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
+
             this.MeasurementScaleSelectorViewModel = new MeasurementScaleSelectorViewModel(sessionService)
             {
                 OnSelectedMeasurementScaleChange = callbackFactory.Create<MeasurementScale>(this, selectedScale =>

@@ -63,6 +63,10 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
                     this.CurrentThing.DefaultDomain = selectedOwner;
                 })
             };
+
+            // This is a nested content view model, not a tabbed application, so it is never moved between panels; opt out of the ApplicationBaseViewModel tab-move dispose gate so it actually disposes (and releases its DomainOfExpertiseSelectorViewModel subscription) when its host unmounts.
+            this.IsAllowedToDispose = true;
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
         }
 
         /// <summary>

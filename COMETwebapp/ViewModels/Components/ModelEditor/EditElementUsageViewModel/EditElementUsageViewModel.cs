@@ -28,6 +28,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewMode
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using Microsoft.AspNetCore.Components;
@@ -37,7 +38,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewMode
     /// <see cref="ElementUsage" /> so the form can mutate state without leaking changes back into the
     /// cached domain graph until the surrounding commit succeeds.
     /// </summary>
-    public class EditElementUsageViewModel : IEditElementUsageViewModel
+    public class EditElementUsageViewModel : DisposableObject, IEditElementUsageViewModel
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="EditElementUsageViewModel" /> class.
@@ -56,6 +57,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewMode
                     }
                 })
             };
+
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
         }
 
         /// <summary>

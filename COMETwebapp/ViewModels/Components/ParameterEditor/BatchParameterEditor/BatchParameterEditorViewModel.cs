@@ -93,6 +93,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
                 CurrentIteration = this.CurrentIteration
             };
 
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
+
             this.ConfirmCancelPopupViewModel = new ConfirmCancelPopupViewModel
             {
                 OnCancel = eventCallbackFactory.Create(this, this.OnCancelPopup),

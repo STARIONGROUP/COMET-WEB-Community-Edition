@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
     using CDP4Common.Types;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
@@ -166,6 +167,28 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         {
             this.viewModel.Dispose();
             this.messageBus.ClearSubscriptions();
+        }
+
+        /// <summary>
+        /// Verifies that disposing the view model disposes its <see cref="DomainOfExpertiseSelectorViewModel" />, so the
+        /// selector's subscription on the circuit-scoped message bus does not accumulate every time the view model is
+        /// (re)created (see GH824).
+        /// </summary>
+        [Test]
+        public void VerifyDisposeUnsubscribesDomainSelectorFromMessageBus()
+        {
+            var domainA = new DomainOfExpertise { Iid = Guid.NewGuid() };
+            var domainB = new DomainOfExpertise { Iid = Guid.NewGuid() };
+
+            this.viewModel.DomainOfExpertiseSelectorViewModel.CurrentIteration = this.iteration;
+
+            this.messageBus.SendMessage(new DomainChangedEvent(this.iteration, domainA));
+            Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.CurrentIterationDomain, Is.EqualTo(domainA), "The selector should react while subscribed.");
+
+            this.viewModel.Dispose();
+            this.messageBus.SendMessage(new DomainChangedEvent(this.iteration, domainB));
+
+            Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.CurrentIterationDomain, Is.EqualTo(domainA), "After disposal the selector must no longer react to bus events.");
         }
 
         [Test]

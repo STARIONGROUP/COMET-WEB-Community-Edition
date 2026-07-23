@@ -89,6 +89,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
             this.sessionService = sessionService;
             this.cacheService = cacheService;
             this.DetailsPanelViewModel = detailsPanelViewModel;
+            this.Disposables.Add((IDisposable)this.DetailsPanelViewModel);
 
             var eventCallbackFactory = new EventCallbackFactory();
 

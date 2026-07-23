@@ -29,6 +29,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreatio
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Components.ModelEditor;
@@ -38,7 +39,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreatio
     /// <summary>
     /// View model for the <see cref="ElementDefinitionCreation" /> component
     /// </summary>
-    public class ElementDefinitionCreationViewModel : IElementDefinitionCreationViewModel
+    public class ElementDefinitionCreationViewModel : DisposableObject, IElementDefinitionCreationViewModel
     {
         /// <summary>
         /// The <see cref="ISessionService" />
@@ -61,6 +62,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreatio
                     ElementDefinition.Owner = selectedOwner;
                 })
             };
+
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
         }
 
         /// <summary>

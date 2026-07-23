@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Utilities;
@@ -42,7 +43,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     /// a fresh instance (create) of the target so the form can mutate short name, name, owner, categories, definitions and
     /// deprecation without leaking into the cached domain graph until the surrounding commit succeeds.
     /// </summary>
-    public class EditRequirementThingViewModel : IEditRequirementThingViewModel
+    public class EditRequirementThingViewModel : DisposableObject, IEditRequirementThingViewModel
     {
         /// <summary>
         /// The <see cref="ISessionService" /> queried for the available categories.
@@ -74,6 +75,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                     }
                 })
             };
+
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
         }
 
         /// <summary>

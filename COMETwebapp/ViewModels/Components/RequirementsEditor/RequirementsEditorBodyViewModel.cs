@@ -1179,10 +1179,17 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         private void EnsureEditViewModel()
         {
-            this.EditViewModel ??= new EditRequirementThingViewModel(this.SessionService, this.MessageBus)
+            if (this.EditViewModel is not null)
+            {
+                return;
+            }
+
+            this.EditViewModel = new EditRequirementThingViewModel(this.SessionService, this.MessageBus)
             {
                 OnValidSubmit = new EventCallbackFactory().Create(this, this.OnEditValidSubmitAsync)
             };
+
+            this.Disposables.Add((IDisposable)this.EditViewModel);
         }
 
         /// <summary>

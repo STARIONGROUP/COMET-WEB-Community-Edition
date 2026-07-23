@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using Microsoft.AspNetCore.Components;
@@ -42,7 +43,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
     /// through the open <see cref="ISession" />; it is cloned at submit time when a
     /// <see cref="Iteration.TopElement" /> change must be persisted.
     /// </summary>
-    public class EditElementDefinitionViewModel : IEditElementDefinitionViewModel
+    public class EditElementDefinitionViewModel : DisposableObject, IEditElementDefinitionViewModel
     {
         /// <summary>
         /// The <see cref="ISessionService" /> queried for the available
@@ -69,6 +70,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
                     }
                 })
             };
+
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
         }
 
         /// <summary>

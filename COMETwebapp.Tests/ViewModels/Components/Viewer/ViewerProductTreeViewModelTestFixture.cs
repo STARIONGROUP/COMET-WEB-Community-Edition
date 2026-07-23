@@ -182,6 +182,30 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         }
 
         /// <summary>
+        /// Verifies that disposing the view model unsubscribes from the <see cref="ISelectionMediator" /> events, so a
+        /// long-lived (circuit-scoped) mediator no longer keeps the disposed view model alive.
+        /// </summary>
+        [Test]
+        public void VerifyDisposeUnsubscribesFromSelectionMediator()
+        {
+            this.selectionMediator.SetupGet(m => m.SelectedSceneObject).Returns(this.node2.SceneObject);
+            var propertyChanged = false;
+
+            this.node2.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(this.node2.SceneObject))
+                {
+                    propertyChanged = true;
+                }
+            };
+
+            this.viewModel.Dispose();
+            this.selectionMediator.Raise(m => m.OnParameterSubmitted += null);
+
+            Assert.That(propertyChanged, Is.False);
+        }
+
+        /// <summary>
         /// Verifies the OnSearchFilterChange method.
         /// </summary>
         [Test]
