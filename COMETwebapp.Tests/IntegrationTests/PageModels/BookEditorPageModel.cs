@@ -43,7 +43,7 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <summary>
         /// Gets a selector for an element that is only present once this page has rendered.
         /// </summary>
-        protected override string Landmark => "#bookeditor-body";
+        protected override string LandmarkSelector => "#bookeditor-body";
 
         /// <summary>
         /// Gets the book editor body container.

@@ -22,14 +22,12 @@
 
 namespace COMETwebapp.Tests.IntegrationTests.PageModels
 {
-    using System.Threading.Tasks;
-
     using Microsoft.Playwright;
 
     /// <summary>
-    /// Base class for the per-application page objects. A concrete page model supplies a <see cref="Landmark" /> and
-    /// exposes the page's main elements as <see cref="ILocator" /> members so feature tests do not have to rediscover
-    /// selectors.
+    /// Base class for the per-application page objects. A concrete page model supplies a <see cref="LandmarkSelector" />
+    /// and exposes the page's main elements as <see cref="ILocator" /> members so feature tests do not have to
+    /// rediscover selectors.
     /// </summary>
     public abstract class ApplicationPageModel : IApplicationPageModel
     {
@@ -48,26 +46,13 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         protected IPage Page { get; }
 
         /// <summary>
-        /// Gets a selector for an element that is only present once this page has rendered.
+        /// Gets the selector for an element that is only present once this page has rendered.
         /// </summary>
-        protected abstract string Landmark { get; }
+        protected abstract string LandmarkSelector { get; }
 
         /// <summary>
-        /// Waits for the page to be loaded.
+        /// Gets a locator for an element that is only present once this page has rendered.
         /// </summary>
-        /// <returns>A <see cref="Task" />.</returns>
-        public Task WaitForLoadedAsync()
-        {
-            return this.Page.Locator(this.Landmark).First.WaitForAsync();
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether the page is currently loaded.
-        /// </summary>
-        /// <returns><c>true</c> if the page's landmark element is visible.</returns>
-        public Task<bool> IsLoadedAsync()
-        {
-            return this.Page.Locator(this.Landmark).First.IsVisibleAsync();
-        }
+        public ILocator Landmark => this.Page.Locator(this.LandmarkSelector).First;
     }
 }

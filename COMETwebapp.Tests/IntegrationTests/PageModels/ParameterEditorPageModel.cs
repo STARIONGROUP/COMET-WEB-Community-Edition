@@ -44,7 +44,7 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <summary>
         /// Gets a selector for an element that is only present once this page has rendered.
         /// </summary>
-        protected override string Landmark => "#parametereditor-body";
+        protected override string LandmarkSelector => "#parametereditor-body";
 
         /// <summary>
         /// Gets the parameter editor body container.
@@ -67,22 +67,17 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator GroupExpandButtons => this.Page.Locator("#parameter-table .dxbl-grid-expand-button");
 
         /// <summary>
-        /// Gets the number of rows currently rendered in the parameter table (collapsing a group hides its rows).
+        /// Gets the rows currently rendered in the parameter table (collapsing a group hides its rows).
         /// </summary>
-        /// <returns>The row count.</returns>
-        public Task<int> GetRowCountAsync()
-        {
-            return this.Page.Locator("#parameter-table tr").CountAsync();
-        }
+        public ILocator Rows => this.Page.Locator("#parameter-table tr");
 
         /// <summary>
-        /// Clicks the first element group's expand/collapse button and waits for the table to settle.
+        /// Clicks the first element group's expand/collapse button.
         /// </summary>
         /// <returns>A <see cref="Task" />.</returns>
-        public async Task ToggleFirstGroupAsync()
+        public Task ToggleFirstGroupAsync()
         {
-            await this.GroupExpandButtons.First.ClickAsync();
-            await this.Page.WaitForTimeoutAsync(700);
+            return this.GroupExpandButtons.First.ClickAsync();
         }
     }
 }

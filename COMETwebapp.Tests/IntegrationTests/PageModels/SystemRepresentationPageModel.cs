@@ -44,7 +44,7 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <summary>
         /// Gets a selector for an element that is only present once this page has rendered.
         /// </summary>
-        protected override string Landmark => "#product-tree-container";
+        protected override string LandmarkSelector => "#product-tree-container";
 
         /// <summary>
         /// Gets the product tree container.
@@ -77,66 +77,30 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator TreeNodes => this.Page.Locator(".treeNode");
 
         /// <summary>
-        /// Waits for the product tree and its root node to be rendered.
+        /// Expands the first collapsed node in the tree.
         /// </summary>
         /// <returns>A <see cref="Task" />.</returns>
-        public async Task WaitForTreeAsync()
+        public Task ExpandFirstCollapsedNodeAsync()
         {
-            await this.ProductTree.WaitForAsync();
-            await this.TreeNodes.First.WaitForAsync();
+            return this.Page.Locator("img.expandIcon[src*=Collapsed]").First.ClickAsync();
         }
 
         /// <summary>
-        /// Gets the number of nodes currently rendered in the tree (collapsing a node removes its descendants).
-        /// </summary>
-        /// <returns>The visible node count.</returns>
-        public Task<int> GetNodeCountAsync()
-        {
-            return this.TreeNodes.CountAsync();
-        }
-
-        /// <summary>
-        /// Expands the first collapsed node in the tree and waits for its children to render.
+        /// Collapses the first expanded node in the tree.
         /// </summary>
         /// <returns>A <see cref="Task" />.</returns>
-        public async Task ExpandFirstCollapsedNodeAsync()
+        public Task CollapseFirstExpandedNodeAsync()
         {
-            await this.Page.Locator("img.expandIcon[src*=Collapsed]").First.ClickAsync();
-
-            // Rendering the children is a server round-trip, so wait for at least a second node to appear.
-            await this.TreeNodes.Nth(1).WaitForAsync();
+            return this.Page.Locator("img.expandIcon[src*=Expanded]").First.ClickAsync();
         }
 
         /// <summary>
-        /// Collapses the first expanded node in the tree and waits for its children to be removed.
+        /// Selects the root node, which opens its element details in the right-hand panel.
         /// </summary>
         /// <returns>A <see cref="Task" />.</returns>
-        public async Task CollapseFirstExpandedNodeAsync()
+        public Task SelectRootNodeAsync()
         {
-            await this.Page.Locator("img.expandIcon[src*=Expanded]").First.ClickAsync();
-
-            // Collapsing the root removes its descendants, leaving only the root row.
-            await this.TreeNodes.Nth(1).WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Detached });
-        }
-
-        /// <summary>
-        /// Selects the root node, which opens its element details in the right-hand panel, and waits for the details
-        /// to render.
-        /// </summary>
-        /// <returns>A <see cref="Task" />.</returns>
-        public async Task SelectRootNodeAsync()
-        {
-            await this.TreeNodes.First.ClickAsync();
-            await this.DetailsPanel.GetByText("Element Definition").First.WaitForAsync();
-        }
-
-        /// <summary>
-        /// Gets the text currently shown in the element details panel (populated when a node is selected).
-        /// </summary>
-        /// <returns>The details panel text.</returns>
-        public Task<string> GetDetailsPanelTextAsync()
-        {
-            return this.DetailsPanel.InnerTextAsync();
+            return this.TreeNodes.First.ClickAsync();
         }
     }
 }

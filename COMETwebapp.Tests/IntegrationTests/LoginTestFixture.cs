@@ -26,6 +26,8 @@ namespace COMETwebapp.Tests.IntegrationTests
 
     using NUnit.Framework;
 
+    using static Microsoft.Playwright.Assertions;
+
     /// <summary>
     /// End-to-end tests covering the unauthenticated landing page, login and logout. Each test uses its own fresh
     /// browser (these tests need an unauthenticated starting state).
@@ -50,14 +52,8 @@ namespace COMETwebapp.Tests.IntegrationTests
         {
             await this.Login.NavigateAsync(AppUrl);
 
-            var title = await this.Page.TitleAsync();
-            var unauthorizedNotice = await this.Login.GetUnauthorizedNoticeAsync();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(title, Is.EqualTo("CDP4-COMET Community Edition"));
-                Assert.That(unauthorizedNotice, Is.EqualTo("Connect and Open a Model."));
-            });
+            await Expect(this.Page).ToHaveTitleAsync("CDP4-COMET Community Edition");
+            await Expect(this.Login.UnauthorizedNotice).ToHaveTextAsync("Connect and Open a Model.");
         }
 
         [Test]
@@ -66,7 +62,7 @@ namespace COMETwebapp.Tests.IntegrationTests
             await this.Login.NavigateAsync(AppUrl);
             await this.Login.LoginAsync(ServerUrl, Username, Password);
 
-            Assert.That(await this.Home.IsAuthenticatedAsync(), Is.True);
+            await Expect(this.Home.SessionSidebar).ToBeVisibleAsync();
         }
 
         [Test]
@@ -77,7 +73,7 @@ namespace COMETwebapp.Tests.IntegrationTests
 
             await this.Home.RefreshSessionAsync();
 
-            Assert.That(await this.Tabs.HasBlazorErrorAsync(), Is.False, "refreshing the session should not raise a Blazor error");
+            await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
         }
 
         [Test]
@@ -88,7 +84,7 @@ namespace COMETwebapp.Tests.IntegrationTests
 
             await this.Home.LogoutAsync();
 
-            Assert.That(await this.Login.GetUnauthorizedNoticeAsync(), Is.EqualTo("Connect and Open a Model."));
+            await Expect(this.Login.UnauthorizedNotice).ToHaveTextAsync("Connect and Open a Model.");
         }
     }
 }

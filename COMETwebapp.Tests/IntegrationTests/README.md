@@ -1,7 +1,7 @@
 # End-to-End (Playwright) tests
 
 Playwright-based end-to-end tests that drive a **running** COMET WEB application against a **running** COMET Web
-Services server. They replace the previous minimal Selenium suite (issue #822).
+Services server (issue #822).
 
 They live in the `COMETwebapp.Tests.IntegrationTests` namespace and carry the `[Category("EndToEnd")]` attribute, so
 the unit-test CI filter (`FullyQualifiedName!~IntegrationTests`) excludes them. The dedicated

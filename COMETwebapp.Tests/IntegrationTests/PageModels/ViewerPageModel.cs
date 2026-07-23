@@ -42,7 +42,7 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// Gets a selector for an element that is only present once this page has rendered.
         /// </summary>
         // The body id ("3dviewer-body") starts with a digit, which is not a valid CSS #id selector, so match by attribute.
-        protected override string Landmark => "[id='3dviewer-body']";
+        protected override string LandmarkSelector => "[id='3dviewer-body']";
 
         /// <summary>
         /// Gets the Babylon.js 3D canvas.

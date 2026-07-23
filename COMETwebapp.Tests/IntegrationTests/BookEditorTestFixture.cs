@@ -30,6 +30,8 @@ namespace COMETwebapp.Tests.IntegrationTests
 
     using NUnit.Framework;
 
+    using static Microsoft.Playwright.Assertions;
+
     /// <summary>
     /// End-to-end tests for the Book Editor application. Add Book-Editor-specific tests here.
     /// </summary>
@@ -54,11 +56,9 @@ namespace COMETwebapp.Tests.IntegrationTests
             // Non-mutating: this exercises the create-book flow up to the editor without persisting a book.
             await this.PageModel.OpenAddBookDialogAsync();
 
-            var dialogVisible = await this.PageModel.EditorPopup.IsVisibleAsync();
+            await Expect(this.PageModel.EditorPopup).ToBeVisibleAsync();
 
             await this.PageModel.CancelDialogAsync();
-
-            Assert.That(dialogVisible, Is.True, "clicking 'add book' should open the book editor dialog");
         }
     }
 }

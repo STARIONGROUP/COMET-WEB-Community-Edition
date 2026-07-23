@@ -30,6 +30,8 @@ namespace COMETwebapp.Tests.IntegrationTests
 
     using NUnit.Framework;
 
+    using static Microsoft.Playwright.Assertions;
+
     /// <summary>
     /// End-to-end tests for the Model Dashboard application. Add Model-Dashboard-specific tests here (the page is
     /// already open; use <c>this.PageModel</c>).
@@ -52,9 +54,7 @@ namespace COMETwebapp.Tests.IntegrationTests
         [Test]
         public async Task VerifyDashboardChartsRender()
         {
-            await this.PageModel.Charts.First.WaitForAsync();
-
-            Assert.That(await this.PageModel.Charts.CountAsync(), Is.GreaterThan(0), "the dashboard should render its parameter/element charts");
+            await Expect(this.PageModel.Charts.First).ToBeVisibleAsync();
         }
     }
 }

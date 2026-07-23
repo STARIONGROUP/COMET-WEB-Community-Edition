@@ -28,6 +28,8 @@ namespace COMETwebapp.Tests.IntegrationTests
 
     using NUnit.Framework;
 
+    using static Microsoft.Playwright.Assertions;
+
     /// <summary>
     /// Base fixture for the toolbar-based applications (Engineering Model, Reference Data, Server Administration). Adds
     /// a test that opens every toolbar section, on top of the inherited page-loaded smoke test.
@@ -43,7 +45,7 @@ namespace COMETwebapp.Tests.IntegrationTests
             {
                 await this.PageModel.SelectSectionAsync(section);
 
-                Assert.That(await this.Tabs.HasBlazorErrorAsync(), Is.False, $"Opening the '{section}' section raised a Blazor error.");
+                await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
             }
         }
     }

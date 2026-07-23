@@ -41,7 +41,7 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <summary>
         /// Gets a selector for an element that is only present once this page has rendered.
         /// </summary>
-        protected override string Landmark => "#subscriptiondashboard-body";
+        protected override string LandmarkSelector => "#subscriptiondashboard-body";
 
         /// <summary>
         /// Gets the dashboard body container.

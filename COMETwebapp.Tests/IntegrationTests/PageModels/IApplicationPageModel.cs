@@ -22,24 +22,18 @@
 
 namespace COMETwebapp.Tests.IntegrationTests.PageModels
 {
-    using System.Threading.Tasks;
+    using Microsoft.Playwright;
 
     /// <summary>
-    /// Common contract for an application page object: it can tell whether/when its page has loaded (via a landmark
-    /// element that is only present once the page has rendered).
+    /// Common contract for an application page object: it exposes the landmark element that is only present once the
+    /// page has rendered, so call sites can wait on and assert against it with Playwright's web-first assertions
+    /// (<c>Expect(model.Landmark).ToBeVisibleAsync()</c>) rather than a one-shot boolean.
     /// </summary>
     public interface IApplicationPageModel
     {
         /// <summary>
-        /// Waits for the page to be loaded.
+        /// Gets a locator for an element that is only present once this page has rendered.
         /// </summary>
-        /// <returns>A <see cref="Task" />.</returns>
-        Task WaitForLoadedAsync();
-
-        /// <summary>
-        /// Gets a value indicating whether the page is currently loaded.
-        /// </summary>
-        /// <returns><c>true</c> if the page's landmark element is visible.</returns>
-        Task<bool> IsLoadedAsync();
+        ILocator Landmark { get; }
     }
 }

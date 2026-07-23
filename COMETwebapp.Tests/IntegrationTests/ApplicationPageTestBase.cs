@@ -30,6 +30,8 @@ namespace COMETwebapp.Tests.IntegrationTests
 
     using NUnit.Framework;
 
+    using static Microsoft.Playwright.Assertions;
+
     /// <summary>
     /// Base fixture for the per-application end-to-end tests. It logs in <b>once</b> and opens the application under
     /// test as a tab in <see cref="OpenApplicationOnceAsync" />, then leaves it open for the tests. A derived fixture
@@ -69,7 +71,7 @@ namespace COMETwebapp.Tests.IntegrationTests
             await this.Tabs.OpenApplicationTabAsync(this.ApplicationName);
 
             this.PageModel = this.CreatePageModel(this.Page);
-            await this.PageModel.WaitForLoadedAsync();
+            await Expect(this.PageModel.Landmark).ToBeVisibleAsync();
         }
 
         /// <summary>
@@ -85,14 +87,8 @@ namespace COMETwebapp.Tests.IntegrationTests
         [Test]
         public async Task VerifyPageIsDisplayed()
         {
-            var loaded = await this.PageModel.IsLoadedAsync();
-            var hasError = await this.Tabs.HasBlazorErrorAsync();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(loaded, Is.True, $"The '{this.ApplicationName}' page did not load.");
-                Assert.That(hasError, Is.False, $"The '{this.ApplicationName}' page raised a Blazor error.");
-            });
+            await Expect(this.PageModel.Landmark).ToBeVisibleAsync();
+            await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
         }
     }
 }

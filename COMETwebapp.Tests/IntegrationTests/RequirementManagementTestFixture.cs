@@ -30,6 +30,8 @@ namespace COMETwebapp.Tests.IntegrationTests
 
     using NUnit.Framework;
 
+    using static Microsoft.Playwright.Assertions;
+
     /// <summary>
     /// End-to-end tests for the Requirement Management application. Add Requirement-Management-specific tests here.
     /// </summary>
@@ -56,7 +58,7 @@ namespace COMETwebapp.Tests.IntegrationTests
 
             await this.PageModel.OpenFirstSpecificationAsync();
 
-            Assert.That(await this.PageModel.GetDocumentTextAsync(), Is.Not.Empty, "opening a specification should show it in the document viewer");
+            await Expect(this.PageModel.DocumentSpecificationTitle).ToBeVisibleAsync();
         }
     }
 }

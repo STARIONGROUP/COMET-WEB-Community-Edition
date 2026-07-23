@@ -44,7 +44,7 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <summary>
         /// Gets a selector for an element that is only present once this page has rendered.
         /// </summary>
-        protected override string Landmark => "#requirementmanagement-body";
+        protected override string LandmarkSelector => "#requirementmanagement-body";
 
         /// <summary>
         /// Gets the requirements editor body container.
@@ -82,6 +82,11 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator Document => this.Page.Locator(".req-document");
 
         /// <summary>
+        /// Gets the specification title shown at the top of the document viewer once a specification is opened.
+        /// </summary>
+        public ILocator DocumentSpecificationTitle => this.Document.Locator(".req-spec-title");
+
+        /// <summary>
         /// Gets a value indicating whether the table of contents contains at least one specification.
         /// </summary>
         /// <returns><c>true</c> if a specification row is present.</returns>
@@ -94,19 +99,9 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// Selects the first specification in the table of contents, which opens it in the document viewer.
         /// </summary>
         /// <returns>A <see cref="Task" />.</returns>
-        public async Task OpenFirstSpecificationAsync()
+        public Task OpenFirstSpecificationAsync()
         {
-            await this.TableOfContentsRows.First.ClickAsync();
-            await this.Document.Locator(".req-spec-title").First.WaitForAsync();
-        }
-
-        /// <summary>
-        /// Gets the text currently shown in the document viewer.
-        /// </summary>
-        /// <returns>The document text.</returns>
-        public Task<string> GetDocumentTextAsync()
-        {
-            return this.Document.InnerTextAsync();
+            return this.TableOfContentsRows.First.ClickAsync();
         }
     }
 }

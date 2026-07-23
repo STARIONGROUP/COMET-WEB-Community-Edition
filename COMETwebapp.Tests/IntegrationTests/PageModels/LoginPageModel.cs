@@ -26,6 +26,8 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
 
     using Microsoft.Playwright;
 
+    using static Microsoft.Playwright.Assertions;
+
     /// <summary>
     /// Page object for the COMET WEB landing/login page. Encapsulates the selectors and steps so a selector change is a
     /// one-line fix here rather than a change scattered across every fixture.
@@ -47,6 +49,11 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         }
 
         /// <summary>
+        /// Gets the "Connect and Open a Model" notice shown while the user is not authenticated.
+        /// </summary>
+        public ILocator UnauthorizedNotice => this.page.Locator("#unauthorized-notice");
+
+        /// <summary>
         /// Navigates to the application root and waits for the unauthenticated landing page to appear.
         /// </summary>
         /// <param name="appUrl">The base URL of the application under test.</param>
@@ -54,16 +61,9 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public async Task NavigateAsync(string appUrl)
         {
             await this.page.GotoAsync(appUrl);
-            await this.page.Locator("#unauthorized-notice").WaitForAsync();
-        }
 
-        /// <summary>
-        /// Gets the text of the unauthorized notice shown before login.
-        /// </summary>
-        /// <returns>The notice text.</returns>
-        public Task<string> GetUnauthorizedNoticeAsync()
-        {
-            return this.page.Locator("#unauthorized-notice").InnerTextAsync();
+            // The first request boots the Blazor Server circuit, which is slower than a steady-state interaction.
+            await Expect(this.UnauthorizedNotice).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
         }
 
         /// <summary>
@@ -77,79 +77,59 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <returns>A <see cref="Task" />.</returns>
         public async Task LoginAsync(string serverUrl, string username, string password)
         {
-            var unauthorizedNotice = this.page.Locator("#unauthorized-notice");
-
-            // The DevExpress text boxes bind on input and round-trip to the server via the Blazor circuit; a value can
-            // occasionally not commit before the submit, so the login silently does not take. Re-fill and re-submit
-            // until the landing page is gone, then let a final attempt surface any real failure.
-            for (var attempt = 0; attempt < 4; attempt++)
+            // The source-address box is shown when the server is not pre-configured.
+            if (await this.TextInput("sourceaddress").IsVisibleAsync())
             {
-                await this.FillLoginFormAsync(serverUrl, username, password);
-                await this.page.Locator("#connectbtn").ClickAsync();
-
-                try
-                {
-                    await unauthorizedNotice.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Detached, Timeout = 20_000 });
-                    return;
-                }
-                catch (TimeoutException)
-                {
-                    // The login did not take; try again.
-                }
-            }
-
-            await this.FillLoginFormAsync(serverUrl, username, password);
-            await this.page.Locator("#connectbtn").ClickAsync();
-            await unauthorizedNotice.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Detached });
-        }
-
-        /// <summary>
-        /// Fills the login form: the source address (when shown), advancing past the multi-step "Next" screen if the
-        /// server is configured for it, then the user name and password.
-        /// </summary>
-        /// <param name="serverUrl">The COMET Web Services URL to connect to.</param>
-        /// <param name="username">The user name.</param>
-        /// <param name="password">The password.</param>
-        /// <returns>A <see cref="Task" />.</returns>
-        private async Task FillLoginFormAsync(string serverUrl, string username, string password)
-        {
-            var sourceAddress = this.TextInput("sourceaddress");
-
-            if (await sourceAddress.IsVisibleAsync())
-            {
-                await sourceAddress.FillAsync(serverUrl);
-
-                // Give the on-input value time to round-trip before it is needed by Next or Connect.
-                await this.page.WaitForTimeoutAsync(600);
+                await this.TypeCredentialAsync("sourceaddress", serverUrl);
             }
 
             var nextButton = this.page.Locator("#nextBtn");
-            var usernameInput = this.TextInput("username");
 
+            // Multi-step configuration only: a "Next" screen takes the server address before asking for credentials.
             if (await nextButton.IsVisibleAsync())
             {
-                // Multi-step: clicking Next before the source address commits leaves it empty. Click and retry until
-                // the credentials step appears.
-                for (var attempt = 0; attempt < 5; attempt++)
-                {
-                    await nextButton.ClickAsync();
-
-                    try
-                    {
-                        await usernameInput.WaitForAsync(new LocatorWaitForOptions { Timeout = 2500 });
-                        break;
-                    }
-                    catch (TimeoutException)
-                    {
-                        await sourceAddress.FillAsync(serverUrl);
-                        await this.page.WaitForTimeoutAsync(600);
-                    }
-                }
+                await nextButton.ClickAsync();
+                await Expect(this.TextInput("username")).ToBeVisibleAsync();
             }
 
-            await usernameInput.FillAsync(username);
-            await this.TextInput("password").FillAsync(password);
+            await this.TypeCredentialAsync("username", username);
+            await this.TypeCredentialAsync("password", password);
+
+            // BindValueMode.OnInput debounces before pushing the value through the Blazor circuit; blur the last field so
+            // its final value is flushed to the server-side DTO before the submit, otherwise Connect can post a truncated
+            // password and the server answers 401 while the login notice stays up.
+            await this.TextInput("password").BlurAsync();
+
+            await this.page.Locator("#connectbtn").ClickAsync();
+
+            // Connecting opens the ISession against the COMET server, a network round-trip that can be slow on CI.
+            await Expect(this.UnauthorizedNotice).ToBeHiddenAsync(new LocatorAssertionsToBeHiddenOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
         }
+
+        /// <summary>
+        /// Types a value into a DevExpress login text box deterministically. It first waits for DevExpress to attach the
+        /// editor (its <c>data-qa-dxbl-loaded</c> marker), because on a cold Blazor circuit the field re-renders as it
+        /// wires up and wipes anything typed too early, so Connect ends up posting an empty value; then it types at a
+        /// cadence the on-input binding can keep up with and confirms the field holds the full value.
+        /// </summary>
+        /// <param name="id">The DevExpress text box component id.</param>
+        /// <param name="value">The value to type.</param>
+        /// <returns>A <see cref="Task" />.</returns>
+        private async Task TypeCredentialAsync(string id, string value)
+        {
+            await Expect(this.page.Locator($"#{id}[data-qa-dxbl-loaded]"))
+                .ToBeAttachedAsync(new LocatorAssertionsToBeAttachedOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
+
+            var input = this.TextInput(id);
+            await input.PressSequentiallyAsync(value, TypingCadence);
+            await Expect(input).ToHaveValueAsync(value);
+        }
+
+        /// <summary>
+        /// The per-keystroke typing cadence used for the DevExpress on-input login fields, so each keystroke's binding
+        /// commits through the Blazor circuit in order.
+        /// </summary>
+        private static LocatorPressSequentiallyOptions TypingCadence => new() { Delay = 30 };
 
         /// <summary>
         /// Resolves the inner <c>input</c> of a DevExpress text box regardless of whether the component

@@ -50,7 +50,7 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <summary>
         /// Gets the section toolbar.
         /// </summary>
-        public ILocator Toolbar => this.Page.Locator(this.Landmark);
+        public ILocator Toolbar => this.Landmark;
 
         /// <summary>
         /// Clicks the toolbar item that switches to the given section.

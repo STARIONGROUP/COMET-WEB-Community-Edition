@@ -22,14 +22,21 @@
 
 namespace COMETwebapp.Tests.IntegrationTests.PageModels
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
+    using COMETwebapp.Model;
+
     using Microsoft.Playwright;
+
+    using static Microsoft.Playwright.Assertions;
 
     /// <summary>
     /// Page object for the Tabs application (the tabbed shell). Drives the "Open Tab" card: pick a View (the
-    /// application), a model/domain/iteration, then open the tab so the application's real content renders.
+    /// application), the model/domain/iteration the view requires, then open the tab so the application's real content
+    /// renders.
     /// </summary>
     public class TabsPageModel
     {
@@ -48,9 +55,19 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         }
 
         /// <summary>
-        /// Opens the given application as a tab from the home "Open Tab" card (the card is shown on the home page once
-        /// authenticated). Selects it as the View, then the first available model/domain/iteration (only those the
-        /// selected view actually requires), then opens the tab and waits for the tab content to replace the card.
+        /// Gets the Blazor unhandled-error banner (hidden unless the open application crashed while rendering).
+        /// </summary>
+        public ILocator BlazorError => this.page.Locator("#blazor-error-ui");
+
+        /// <summary>
+        /// Gets the list items of the currently open DevExpress drop-down. Scoping to the shown drop-down avoids
+        /// matching the fading-out items of a drop-down that was just closed.
+        /// </summary>
+        private ILocator OpenDropdownItems => this.page.Locator(".dxbl-edit-dropdown-shown .dxbl-listbox-item");
+
+        /// <summary>
+        /// Opens the given application as a tab from the home "Open Tab" card. Selects it as the View, then the
+        /// model/domain/iteration the view requires, then opens the tab and waits for the tab content to replace the card.
         /// </summary>
         /// <remarks>
         /// The flow stays within the authenticated Blazor circuit — a full-page navigation to <c>/Tabs</c> would start
@@ -64,54 +81,58 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
 
             await this.SelectComboItemAsync("view-selection", applicationName);
 
-            // The View combo commits its value on lost focus; blur it so the conditional model/domain/iteration
-            // selectors settle into their final shape before we read them.
+            // The View combo commits on lost focus, which is what makes the model/domain/iteration selectors this view
+            // needs appear; blur it, then fill exactly those selectors.
             await this.page.Locator("input[name=view-selection]").BlurAsync();
-            await this.page.WaitForTimeoutAsync(800);
 
-            // The model/domain/iteration selectors are rendered conditionally depending on the selected view, so only
-            // fill the ones that appear.
-            await this.SelectFirstItemIfPresentAsync("model-selection");
-            await this.SelectFirstItemIfPresentAsync("domain-selection");
-            await this.SelectFirstItemIfPresentAsync("iteration-selection");
+            foreach (var selector in RequiredSelectorsFor(applicationName))
+            {
+                await this.SelectFirstComboItemAsync(selector);
+            }
 
-            var openTabButton = this.page.Locator("#opentab__button");
-            await openTabButton.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible });
+            await this.page.Locator("#opentab__button").ClickAsync();
 
-            // Continuous Blazor re-renders of this card defeat Playwright's click-stability check, so dispatch the
-            // click directly instead of relying on actionability.
-            await openTabButton.DispatchEventAsync("click");
-
-            // Once a tab is open the tab content replaces the "Open Tab" selection card.
-            await this.page.Locator("#view-selection").WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Detached, Timeout = 30_000 });
+            // Opening a tab loads the selected iteration from the COMET server, a network round-trip that can be slow on
+            // CI. Once it completes the tab content replaces the "Open Tab" selection card.
+            await Expect(this.page.Locator("#view-selection")).ToBeHiddenAsync(new LocatorAssertionsToBeHiddenOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
         }
 
         /// <summary>
-        /// Gets a value indicating whether the Blazor unhandled-error banner is currently visible, i.e. the opened
-        /// application crashed while rendering.
+        /// Gets the ids of the model/domain/iteration selectors the given application's view requires, derived from the
+        /// application's thing-of-interest (iteration views need all three, engineering-model views need the first two,
+        /// and server/reference views need none).
         /// </summary>
-        /// <returns><c>true</c> if the error banner is visible.</returns>
-        public Task<bool> HasBlazorErrorAsync()
+        /// <param name="applicationName">The application display name.</param>
+        /// <returns>The required selector ids, in the order they must be filled.</returns>
+        private static IReadOnlyList<string> RequiredSelectorsFor(string applicationName)
         {
-            return this.page.Locator("#blazor-error-ui").IsVisibleAsync();
+            var application = Applications.ExistingApplications
+                .OfType<TabbedApplication>()
+                .FirstOrDefault(app => app.Name == applicationName);
+
+            return application?.ThingTypeOfInterest?.Name switch
+            {
+                "Iteration" => ["model-selection", "domain-selection", "iteration-selection"],
+                "EngineeringModel" => ["model-selection", "domain-selection"],
+                _ => []
+            };
         }
 
         /// <summary>
-        /// Ensures the "Open Tab" selection card is visible, opening it from the tab bar's "+" entry when a tab is
+        /// Ensures the "Open Tab" selection card is visible, reopening it from the tab bar's "+" entry when a tab is
         /// already open.
         /// </summary>
         /// <returns>A <see cref="Task" />.</returns>
         private async Task EnsureOpenTabFormVisibleAsync()
         {
-            var viewSelection = this.page.Locator("#view-selection");
+            var openNewTab = this.page.Locator("#open-new-tab");
 
-            if (await viewSelection.IsVisibleAsync())
+            if (await openNewTab.IsVisibleAsync())
             {
-                return;
+                await openNewTab.ClickAsync();
             }
 
-            await this.page.Locator("#open-new-tab").ClickAsync();
-            await viewSelection.WaitForAsync();
+            await Expect(this.page.Locator("#view-selection")).ToBeVisibleAsync();
         }
 
         /// <summary>
@@ -124,63 +145,34 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         {
             await this.OpenComboAsync(comboId);
 
-            var item = this.page.Locator(".dxbl-listbox-item")
-                .Filter(new LocatorFilterOptions { HasTextRegex = new Regex($"^\\s*{Regex.Escape(exactText)}\\s*$") });
-
-            await item.First.ClickAsync();
+            await this.OpenDropdownItems
+                .Filter(new LocatorFilterOptions { HasTextRegex = new Regex($"^\\s*{Regex.Escape(exactText)}\\s*$") })
+                .First.ClickAsync();
         }
 
         /// <summary>
-        /// Opens a DevExpress combo box by id and selects its first item, but only if the combo box is present.
+        /// Waits for a DevExpress combo box to be shown, opens it and selects its first item.
         /// </summary>
         /// <param name="comboId">The combo box component id.</param>
         /// <returns>A <see cref="Task" />.</returns>
-        private async Task SelectFirstItemIfPresentAsync(string comboId)
+        private async Task SelectFirstComboItemAsync(string comboId)
         {
-            var combo = this.page.Locator($"#{comboId}");
-
-            try
-            {
-                await combo.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 3000 });
-            }
-            catch (TimeoutException)
-            {
-                return;
-            }
-
-            if (!await this.OpenComboAsync(comboId))
-            {
-                return;
-            }
-
-            await this.page.Locator(".dxbl-listbox-item").First.ClickAsync();
+            await Expect(this.page.Locator($"#{comboId}")).ToBeVisibleAsync();
+            await this.OpenComboAsync(comboId);
+            await this.OpenDropdownItems.First.ClickAsync();
         }
 
         /// <summary>
-        /// Clicks a DevExpress combo box open and waits for its list to appear, retrying a few times because the first
-        /// click occasionally does not open the drop-down.
+        /// Clicks a DevExpress combo box open and waits for its list to appear. The combo is targeted through its
+        /// <c>data-qa-dxbl-loaded</c> marker, so the click waits for DevExpress to attach its client-side scripts —
+        /// a click before that silently fails to open the drop-down.
         /// </summary>
         /// <param name="comboId">The combo box component id.</param>
-        /// <returns><c>true</c> if the drop-down opened.</returns>
-        private async Task<bool> OpenComboAsync(string comboId)
+        /// <returns>A <see cref="Task" />.</returns>
+        private async Task OpenComboAsync(string comboId)
         {
-            var items = this.page.Locator(".dxbl-listbox-item");
-
-            for (var attempt = 0; attempt < 3; attempt++)
-            {
-                await this.page.Locator($"#{comboId}").ClickAsync();
-
-                try
-                {
-                    await items.First.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 4000 });
-                    return true;
-                }
-                catch (TimeoutException)
-                {
-                }
-            }
-
-            return false;
+            await this.page.Locator($"#{comboId}[data-qa-dxbl-loaded]").ClickAsync();
+            await Expect(this.OpenDropdownItems.First).ToBeVisibleAsync();
         }
     }
 }

@@ -46,14 +46,9 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         }
 
         /// <summary>
-        /// Gets a value indicating whether the authenticated session sidebar entry is visible (i.e. the user is
-        /// logged in).
+        /// Gets the authenticated session sidebar entry (only present once the user is logged in).
         /// </summary>
-        /// <returns><c>true</c> if the session sidebar entry is visible.</returns>
-        public Task<bool> IsAuthenticatedAsync()
-        {
-            return this.page.Locator("#session-side-bar-item").IsVisibleAsync();
-        }
+        public ILocator SessionSidebar => this.page.Locator("#session-side-bar-item");
 
         /// <summary>
         /// Logs the current user out through the session sidebar and waits for the landing page to reappear.

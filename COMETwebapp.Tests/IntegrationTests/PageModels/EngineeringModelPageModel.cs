@@ -49,6 +49,6 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <summary>
         /// Gets a selector for an element that is only present once this page has rendered.
         /// </summary>
-        protected override string Landmark => "#engineering-model-toolbar";
+        protected override string LandmarkSelector => "#engineering-model-toolbar";
     }
 }

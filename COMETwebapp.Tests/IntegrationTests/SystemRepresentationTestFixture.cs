@@ -30,6 +30,8 @@ namespace COMETwebapp.Tests.IntegrationTests
 
     using NUnit.Framework;
 
+    using static Microsoft.Playwright.Assertions;
+
     /// <summary>
     /// End-to-end tests for the System Representation application, including navigating the product tree. Add further
     /// System-Representation-specific tests here (use <c>this.PageModel</c>).
@@ -52,28 +54,19 @@ namespace COMETwebapp.Tests.IntegrationTests
         [Test]
         public async Task VerifyCanNavigateProductTree()
         {
-            await this.PageModel.WaitForTreeAsync();
-
-            var initialNodeCount = await this.PageModel.GetNodeCountAsync();
+            await Expect(this.PageModel.TreeNodes.First).ToBeVisibleAsync();
+            var initialNodeCount = await this.PageModel.TreeNodes.CountAsync();
 
             await this.PageModel.ExpandFirstCollapsedNodeAsync();
-            var expandedNodeCount = await this.PageModel.GetNodeCountAsync();
+            await Expect(this.PageModel.TreeNodes).Not.ToHaveCountAsync(initialNodeCount);
 
             await this.PageModel.SelectRootNodeAsync();
-            var detailsPanelText = await this.PageModel.GetDetailsPanelTextAsync();
+            await Expect(this.PageModel.DetailsPanel).ToContainTextAsync("Element Definition");
 
             await this.PageModel.CollapseFirstExpandedNodeAsync();
-            var collapsedNodeCount = await this.PageModel.GetNodeCountAsync();
+            await Expect(this.PageModel.TreeNodes).ToHaveCountAsync(initialNodeCount);
 
-            var hasError = await this.Tabs.HasBlazorErrorAsync();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(expandedNodeCount, Is.GreaterThan(initialNodeCount), "expanding the root node should reveal its children");
-                Assert.That(detailsPanelText, Does.Contain("Element Definition"), "selecting a node should open its element details");
-                Assert.That(collapsedNodeCount, Is.LessThan(expandedNodeCount), "collapsing the node should hide its children");
-                Assert.That(hasError, Is.False);
-            });
+            await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
         }
     }
 }

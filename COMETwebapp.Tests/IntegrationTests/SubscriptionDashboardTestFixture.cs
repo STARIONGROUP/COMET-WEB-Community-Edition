@@ -30,6 +30,8 @@ namespace COMETwebapp.Tests.IntegrationTests
 
     using NUnit.Framework;
 
+    using static Microsoft.Playwright.Assertions;
+
     /// <summary>
     /// End-to-end tests for the Subscription Dashboard application. Add Subscription-Dashboard-specific tests here.
     /// </summary>
@@ -51,9 +53,7 @@ namespace COMETwebapp.Tests.IntegrationTests
         [Test]
         public async Task VerifySubscriptionTablesRender()
         {
-            await this.PageModel.SectionHeaders.First.WaitForAsync();
-
-            Assert.That(await this.PageModel.SectionHeaders.CountAsync(), Is.GreaterThanOrEqualTo(2), "both subscription table sections should be shown");
+            await Expect(this.PageModel.SectionHeaders).ToHaveCountAsync(2);
         }
     }
 }

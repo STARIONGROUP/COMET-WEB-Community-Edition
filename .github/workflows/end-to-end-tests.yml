@@ -44,13 +44,15 @@ jobs:
 
       - name: Wait for the COMET Web Services to be ready
         run: |
-          for i in $(seq 1 60); do
-            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/ || true)
-            if [ "$code" != "000" ]; then
-              echo "COMET Web Services responded with HTTP $code"
+          # The server's readiness health check (/ready) returns 503 while it is still migrating the database and 200
+          # once it can serve requests, unlike the liveness check (/healthz) which is 200 as soon as the process is up.
+          for i in $(seq 1 90); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/ready || true)
+            if [ "$code" = "200" ]; then
+              echo "COMET Web Services is ready"
               exit 0
             fi
-            echo "waiting for COMET Web Services... ($i)"
+            echo "waiting for COMET Web Services... ($i) [/ready HTTP $code]"
             sleep 5
           done
           echo "COMET Web Services did not become ready in time"
@@ -70,7 +72,7 @@ jobs:
       - name: Wait for the COMET WEB application to be ready
         run: |
           for i in $(seq 1 60); do
-            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/healthz || true)
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/ready || true)
             if [ "$code" = "200" ]; then
               echo "COMET WEB application is up"
               exit 0
@@ -89,6 +91,14 @@ jobs:
           COMET_USERNAME: admin
           COMET_PASSWORD: pass
         run: dotnet test COMETwebapp.Tests/COMETwebapp.Tests.csproj --no-build -c Debug --filter "TestCategory=EndToEnd" --logger "console;verbosity=normal"
+
+      - name: Upload Playwright traces
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-traces
+          path: COMETwebapp.Tests/bin/Debug/net10.0/playwright-traces
+          if-no-files-found: ignore
 
       - name: Stop the COMET WEB application
         if: always()

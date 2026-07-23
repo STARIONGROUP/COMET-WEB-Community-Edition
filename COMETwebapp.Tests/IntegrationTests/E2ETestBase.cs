@@ -23,6 +23,7 @@
 namespace COMETwebapp.Tests.IntegrationTests
 {
     using System;
+    using System.IO;
     using System.Threading.Tasks;
 
     using COMETwebapp.Tests.IntegrationTests.PageModels;
@@ -30,6 +31,7 @@ namespace COMETwebapp.Tests.IntegrationTests
     using Microsoft.Playwright;
 
     using NUnit.Framework;
+    using NUnit.Framework.Interfaces;
 
     /// <summary>
     /// Base class for the Playwright end-to-end tests. Owns the Playwright/browser/page lifecycle and exposes the
@@ -44,6 +46,13 @@ namespace COMETwebapp.Tests.IntegrationTests
     [Category("EndToEnd")]
     public abstract class E2ETestBase
     {
+        /// <summary>
+        /// The timeout, in milliseconds, allowed for a wait that depends on a COMET server round-trip through the Blazor
+        /// circuit (logging in, opening a tab): those cross the network and can be slow on a cold CI runner. Ordinary UI
+        /// assertions use the shorter default set in <see cref="StartBrowserAsync" /> so a genuine failure surfaces fast.
+        /// </summary>
+        internal const int ServerRoundTripTimeoutMilliseconds = 30_000;
+
         /// <summary>
         /// Gets the URL of the COMET WEB application under test (env <c>COMETWEBAPP_URL</c>, default the local Kestrel port).
         /// </summary>
@@ -116,9 +125,17 @@ namespace COMETwebapp.Tests.IntegrationTests
             this.context = await this.browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
             this.Page = await this.context.NewPageAsync();
 
-            // The COMET WEB circuit performs a server-side round-trip to the COMET server on login/open-tab, so keep timeouts generous.
-            this.Page.SetDefaultTimeout(60_000);
-            this.Page.SetDefaultNavigationTimeout(60_000);
+            // Record a Playwright trace (with screenshots and DOM snapshots); it is kept only when the test fails so it
+            // can be opened with `playwright show-trace` to diagnose the first CI failure.
+            await this.context.Tracing.StartAsync(new TracingStartOptions { Screenshots = true, Snapshots = true, Sources = true });
+
+            // Most UI actions resolve in a second or two, so keep the default waits short: a failing assertion should
+            // surface quickly rather than hang for half a minute. The few waits that cross the network to the COMET
+            // server (login, open-tab) opt into the longer ServerRoundTripTimeoutMilliseconds explicitly, and the first
+            // page load boots the Blazor circuit so its navigation timeout is generous.
+            this.Page.SetDefaultTimeout(10_000);
+            this.Page.SetDefaultNavigationTimeout(ServerRoundTripTimeoutMilliseconds);
+            Assertions.SetDefaultExpectTimeout(10_000);
 
             this.Login = new LoginPageModel(this.Page);
             this.Home = new HomePageModel(this.Page);
@@ -126,13 +143,14 @@ namespace COMETwebapp.Tests.IntegrationTests
         }
 
         /// <summary>
-        /// Disposes the browser context and Playwright.
+        /// Disposes the browser context and Playwright, saving the trace first when the test failed.
         /// </summary>
         /// <returns>A <see cref="Task" />.</returns>
         protected async Task StopBrowserAsync()
         {
             if (this.context != null)
             {
+                await this.SaveTraceOnFailureAsync();
                 await this.context.CloseAsync();
             }
 
@@ -142,6 +160,26 @@ namespace COMETwebapp.Tests.IntegrationTests
             }
 
             this.playwright?.Dispose();
+        }
+
+        /// <summary>
+        /// Stops tracing, writing the trace to a zip under a <c>playwright-traces</c> folder only when the test (or the
+        /// fixture's one-time setup) failed.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        private async Task SaveTraceOnFailureAsync()
+        {
+            if (TestContext.CurrentContext.Result.Outcome.Status != TestStatus.Failed)
+            {
+                await this.context.Tracing.StopAsync();
+                return;
+            }
+
+            var directory = Path.Combine(TestContext.CurrentContext.WorkDirectory, "playwright-traces");
+            Directory.CreateDirectory(directory);
+
+            var traceName = TestContext.CurrentContext.Test.Name.Replace('(', '_').Replace(')', '_').Replace('"', '_');
+            await this.context.Tracing.StopAsync(new TracingStopOptions { Path = Path.Combine(directory, $"{traceName}.zip") });
         }
     }
 }

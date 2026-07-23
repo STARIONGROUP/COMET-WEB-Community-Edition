@@ -30,6 +30,8 @@ namespace COMETwebapp.Tests.IntegrationTests
 
     using NUnit.Framework;
 
+    using static Microsoft.Playwright.Assertions;
+
     /// <summary>
     /// End-to-end tests for the Parameter Editor application. Add Parameter-Editor-specific tests here.
     /// </summary>
@@ -51,19 +53,13 @@ namespace COMETwebapp.Tests.IntegrationTests
         [Test]
         public async Task VerifyCanExpandAndCollapseAnElement()
         {
-            var initialRowCount = await this.PageModel.GetRowCountAsync();
+            var initialRowCount = await this.PageModel.Rows.CountAsync();
 
             await this.PageModel.ToggleFirstGroupAsync();
-            var toggledRowCount = await this.PageModel.GetRowCountAsync();
+            await Expect(this.PageModel.Rows).Not.ToHaveCountAsync(initialRowCount);
 
             await this.PageModel.ToggleFirstGroupAsync();
-            var restoredRowCount = await this.PageModel.GetRowCountAsync();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(toggledRowCount, Is.Not.EqualTo(initialRowCount), "expanding/collapsing an element group should change the number of rows");
-                Assert.That(restoredRowCount, Is.EqualTo(initialRowCount), "toggling the group back should restore the original rows");
-            });
+            await Expect(this.PageModel.Rows).ToHaveCountAsync(initialRowCount);
         }
     }
 }

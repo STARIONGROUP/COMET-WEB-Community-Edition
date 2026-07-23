@@ -43,7 +43,7 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <summary>
         /// Gets a selector for an element that is only present once this page has rendered.
         /// </summary>
-        protected override string Landmark => "#sourcePanel";
+        protected override string LandmarkSelector => "#sourcePanel";
 
         /// <summary>
         /// Gets the source model panel.
@@ -74,19 +74,9 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// Selects the first element in the source model tree, which opens it in the details panel.
         /// </summary>
         /// <returns>A <see cref="Task" />.</returns>
-        public async Task SelectFirstSourceElementAsync()
+        public Task SelectFirstSourceElementAsync()
         {
-            await this.SourceElements.First.ClickAsync();
-            await this.DetailsPanel.GetByText("Element Definition").First.WaitForAsync();
-        }
-
-        /// <summary>
-        /// Gets the text currently shown in the details panel.
-        /// </summary>
-        /// <returns>The details panel text.</returns>
-        public Task<string> GetDetailsPanelTextAsync()
-        {
-            return this.DetailsPanel.InnerTextAsync();
+            return this.SourceElements.First.ClickAsync();
         }
     }
 }

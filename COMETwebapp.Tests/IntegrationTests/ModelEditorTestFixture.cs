@@ -30,6 +30,8 @@ namespace COMETwebapp.Tests.IntegrationTests
 
     using NUnit.Framework;
 
+    using static Microsoft.Playwright.Assertions;
+
     /// <summary>
     /// End-to-end tests for the Model Editor application. Add Model-Editor-specific tests here.
     /// </summary>
@@ -53,7 +55,7 @@ namespace COMETwebapp.Tests.IntegrationTests
         {
             await this.PageModel.SelectFirstSourceElementAsync();
 
-            Assert.That(await this.PageModel.GetDetailsPanelTextAsync(), Does.Contain("Element Definition"), "selecting an element should open its details");
+            await Expect(this.PageModel.DetailsPanel).ToContainTextAsync("Element Definition");
         }
     }
 }
