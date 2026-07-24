@@ -20,7 +20,7 @@
 @inherits ApplicationBase<COMETwebapp.ViewModels.Components.ReferenceData.IReferenceDataBodyViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <DxToolbar ItemClick="@(this.OnItemClick)">
+    <DxToolbar Id="reference-data-toolbar" ItemClick="@(this.OnItemClick)">
         <Items>
             @foreach (var mappedValue in this.mapOfComponentsAndNames)
             {
