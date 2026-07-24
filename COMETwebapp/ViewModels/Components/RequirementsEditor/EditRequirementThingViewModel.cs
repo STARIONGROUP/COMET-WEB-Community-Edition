@@ -37,6 +37,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
     using Microsoft.AspNetCore.Components;
 
+    using ReactiveUI;
+
     /// <summary>
     /// Reusable view model that drives the create/edit dialog for a <see cref="Requirement" />, a
     /// <see cref="RequirementsGroup" /> or a <see cref="RequirementsSpecification" />. It holds a working clone (edit) or
@@ -55,6 +57,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// is shown and edited there.
         /// </summary>
         private string selectedLanguageCode = "en";
+
+        /// <summary>
+        /// Backing field for the <see cref="OnValidSubmit" /> property
+        /// </summary>
+        private EventCallback onValidSubmit;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EditRequirementThingViewModel" /> class.
@@ -217,7 +224,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <summary>
         /// Gets or sets the callback invoked when the user submits a valid edit.
         /// </summary>
-        public EventCallback OnValidSubmit { get; set; }
+        public EventCallback OnValidSubmit
+        {
+            get => this.onValidSubmit;
+            set => this.RaiseAndSetIfChanged(ref this.onValidSubmit, value);
+        }
 
         /// <summary>
         /// Initializes the form for the given <paramref name="thing" />.
