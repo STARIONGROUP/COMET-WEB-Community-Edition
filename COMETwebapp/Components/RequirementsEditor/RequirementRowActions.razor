@@ -18,8 +18,6 @@ Copyright (c) 2023-2026 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
-@using COMETwebapp.Utilities
-
 @if (this.Requirement.IsDeprecated)
 {
     <span class="req-deprecated-badge" title="This requirement is deprecated">Deprecated</span>
@@ -38,7 +36,7 @@ else
     <div class="req-pill-action-row">
         @if (this.ViewModel.ShowOwner && this.Requirement.Owner != null)
         {
-            <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{this.Requirement.Owner.ShortName}") !important;" title="Owner: @this.Requirement.Owner.Name">@this.Requirement.Owner.ShortName</span>
+            <StarionPill ColorSeed="@($"owner:{this.Requirement.Owner.ShortName}")" Title="@($"Owner: {this.Requirement.Owner.Name}")">@this.Requirement.Owner.ShortName</StarionPill>
         }
         <span class="req-actions"><EditThingButton ViewModel="@this.ViewModel" Thing="@this.Requirement" /></span>
     </div>
@@ -48,7 +46,7 @@ else
             {
                 @foreach (var category in this.Requirement.Category)
                 {
-                    <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.Name">@category.ShortName</span>
+                    <StarionPill ColorSeed="@($"category:{category.ShortName}")" Title="@($"Category: {category.Name}")">@category.ShortName</StarionPill>
                 }
             }
         </span>

@@ -18,19 +18,17 @@ Copyright (c) 2023-2026 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
-@using COMETwebapp.Utilities
-
 <span class="req-pills">
     @if (this.ViewModel.ShowOwner && this.Owner != null)
     {
-        <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{this.Owner.ShortName}") !important;" title="Owner: @this.Owner.Name">@this.Owner.ShortName</span>
+        <StarionPill ColorSeed="@($"owner:{this.Owner.ShortName}")" Title="@($"Owner: {this.Owner.Name}")">@this.Owner.ShortName</StarionPill>
     }
     <span class="req-pill-categories">
         @if (this.ViewModel.ShowCategory)
         {
             @foreach (var category in this.Categories)
             {
-                <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.Name">@category.ShortName</span>
+                <StarionPill ColorSeed="@($"category:{category.ShortName}")" Title="@($"Category: {category.Name}")">@category.ShortName</StarionPill>
             }
         }
     </span>

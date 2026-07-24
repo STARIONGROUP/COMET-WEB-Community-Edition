@@ -239,11 +239,16 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         }
 
         /// <summary>
-        /// Pads the ValueArray to ensure it can be safely accessed at the current ValueArrayIndex
+        /// Pads the <see cref="ValueArray" /> with empty entries so it can be safely accessed at the current
+        /// <see cref="ValueArrayIndex" />.
         /// </summary>
+        /// <remarks>
+        /// Guards against a malformed persisted value set whose <see cref="ValueArray{T}" /> has fewer entries than the
+        /// number of components its <see cref="ParameterType" /> declares. This is
+        /// the UI-side defense; the underlying data anomaly is a server/import concern outside this repository.
+        /// </remarks>
         private void PadValueArray()
         {
-            // TODO: Check the data for potential data issues in the ValueArray for the orientation parameter edition in system representation tab. Ticket #811
             if (this.valueArray == null || this.valueArray.Count > this.ValueArrayIndex)
             {
                 return;

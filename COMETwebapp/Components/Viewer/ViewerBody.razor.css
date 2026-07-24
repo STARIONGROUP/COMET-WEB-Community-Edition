@@ -1,22 +1,39 @@
-﻿#gridParent {
+﻿.viewer-page-body {
+    height: 100%;
+}
+
+#gridParent {
     position: relative;
-    margin: 1% 0;
+    margin: 0;
     display: grid;
     grid-template-columns: 0.2fr 1fr 0.2fr;
     grid-template-rows: 1fr;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
     gap: 10px;
+    height: 100%;
+    overflow: hidden;
 }
 
 #leftColumn {
     grid-area: 1 / 1 / 2 / 2;
     margin: 0;
     margin-right: 2%;
-    overflow-y: auto;
-    max-height: 67vh;
+    height: 100%;
     top: 0;
-    border: 1px solid #EEE;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#option-filter {
+    flex: 0 0 auto;
+    margin-bottom: 8px;
+}
+
+#option-filter ::deep h6 {
+    display: none;
 }
 
 #center-container {

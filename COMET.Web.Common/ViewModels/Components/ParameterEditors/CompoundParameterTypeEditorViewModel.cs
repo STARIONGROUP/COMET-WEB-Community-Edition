@@ -55,7 +55,7 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         /// <returns>The <see cref="IOrientationViewModel" /></returns>
         public IOrientationViewModel CreateOrientationViewModel()
         {
-            return new OrientationViewModel(this.ValueSet, this.ParameterValueChanged);
+            return new OrientationViewModel(this.ValueSet, this.ParameterValueChanged, this.CurrentParameterSwitchKind);
         }
 
         /// <summary>

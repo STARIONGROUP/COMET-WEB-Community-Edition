@@ -45,7 +45,16 @@ namespace COMETwebapp.Components.Viewer
         /// </summary>
         [Parameter]
         public int Level { get; set; }
-        
+
+        /// <summary>
+        /// Gets or sets the <see cref="ViewerProductTreeViewModel" /> cascaded from the tree root,
+        /// used to read display-option toggles (<see cref="ViewerProductTreeViewModel.ShowName" />,
+        /// <see cref="ViewerProductTreeViewModel.ShowOwner" />,
+        /// <see cref="ViewerProductTreeViewModel.ShowCategories" />).
+        /// </summary>
+        [CascadingParameter]
+        public ViewerProductTreeViewModel TreeViewModel { get; set; }
+
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.
@@ -90,6 +99,9 @@ namespace COMETwebapp.Components.Viewer
                         break;
                     case nameof(this.Level):
                         this.Level = (int)parameter.Value;
+                        break;
+                    case nameof(this.TreeViewModel):
+                        this.TreeViewModel = parameter.Value as ViewerProductTreeViewModel;
                         break;
                 }
             }

@@ -18,7 +18,6 @@
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Extensions
-@using COMETwebapp.Utilities
 
 <div class="@this.CssClass" style="display: flex; justify-content: space-between; align-items: center;" @attributes="this.AdditionalAttributes">
     <span>
@@ -28,24 +27,20 @@
         @if (this.ShowOwner)
         {
             <span>
-                <button class="starion-pill"
-                        title="Owning Domain Of Expertise: @this.ElementBaseTreeRowViewModel.OwnerShortName"
-                        style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{this.ElementBaseTreeRowViewModel.OwnerShortName}") !important;">
+                <StarionPill ColorSeed="@($"owner:{this.ElementBaseTreeRowViewModel.OwnerShortName}")" Title="@($"Owning Domain Of Expertise: {this.ElementBaseTreeRowViewModel.OwnerShortName}")">
                     <CardField Context="@this.ElementBaseTreeRowViewModel" FieldName="OwnerShortName"/>
-                </button>
+                </StarionPill>
             </span>
         }
-     
+
         @if (this.ShowCategories)
         {
             @foreach (var categoryShortName in this.ElementBaseTreeRowViewModel.ElementBase.GetDisplayCategories().Select(x => x.ShortName))
             {
                 <span @key="categoryShortName">
-                    <button class="starion-pill"
-                            title="Category: @categoryShortName"
-                            style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{categoryShortName}") !important;">
+                    <StarionPill ColorSeed="@($"category:{categoryShortName}")" Title="@($"Category: {categoryShortName}")">
                         <CardField Context="@categoryShortName"/>
-                    </button>
+                    </StarionPill>
                 </span>
             }
         }

@@ -18,10 +18,6 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.SystemRepresentation
-@using CDP4Common.EngineeringModelData
-@using COMET.Web.Common.Extensions
-@using COMETwebapp.Extensions
-@using COMETwebapp.Utilities
 @inherits DisposableComponent
 @{
     @if (this.ViewModel is null)
@@ -83,7 +79,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                 }
 
                 @{
-                    var elementBase = this.ViewModel.Thing as ElementBase;
+                    var elementBase = this.ViewModel.ElementBase;
                     var label = this.TreeViewModel is { ShowName: false } ? elementBase?.ShortName : elementBase?.Name;
                     label ??= this.ViewModel.Title;
                 }
@@ -91,21 +87,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                     <p class="node-text">@label</p>
 
                     <span class="node-pills">
-                        @if (elementBase is not null)
-                        {
-                            @if (this.TreeViewModel?.ShowOwner != false && elementBase.Owner != null)
-                            {
-                                <button class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{elementBase.Owner.ShortName}") !important;" title="Owning Domain Of Expertise: @elementBase.Owner.ShortName">@elementBase.Owner.ShortName</button>
-                            }
-
-                            @if (this.TreeViewModel?.ShowCategories != false)
-                            {
-                                @foreach (var category in elementBase.GetDisplayCategories())
-                                {
-                                    <button @key="category.Iid" class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.ShortName">@category.ShortName</button>
-                                }
-                            }
-                        }
+                        <NodePills ElementBase="@elementBase" ShowOwner="@(this.TreeViewModel?.ShowOwner != false)" ShowCategories="@(this.TreeViewModel?.ShowCategories != false)"/>
                         @if (this.IsValidDropTarget)
                         {
                             <span class="drop-impact-badge" title="This usage and everything it brings">+@this.DraggedItemImpactCount</span>

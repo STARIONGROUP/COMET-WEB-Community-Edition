@@ -250,6 +250,64 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         }
 
         /// <summary>
+        /// Verifies that the three display-option toggles (<see cref="ViewerProductTreeViewModel.ShowName" />,
+        /// <see cref="ViewerProductTreeViewModel.ShowOwner" /> and <see cref="ViewerProductTreeViewModel.ShowCategories" />)
+        /// default to <c>true</c> and that setting each to <c>false</c> round-trips through
+        /// <c>RaiseAndSetIfChanged</c>.
+        /// </summary>
+        [Test]
+        public void VerifyDisplayOptionDefaultsAndReactivity()
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.ShowName, Is.True);
+                Assert.That(this.viewModel.ShowOwner, Is.True);
+                Assert.That(this.viewModel.ShowCategories, Is.True);
+            }
+
+            this.viewModel.ShowName = false;
+            this.viewModel.ShowOwner = false;
+            this.viewModel.ShowCategories = false;
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.ShowName, Is.False);
+                Assert.That(this.viewModel.ShowOwner, Is.False);
+                Assert.That(this.viewModel.ShowCategories, Is.False);
+            }
+        }
+
+        /// <summary>
+        /// Verifies that <see cref="ViewerProductTreeViewModel.ShowOnlyNodesWithGeometry" /> defaults to <c>false</c>
+        /// and round-trips through the underlying <see cref="ViewerProductTreeViewModel.SelectedFilter" />.
+        /// </summary>
+        [Test]
+        public void VerifyShowOnlyNodesWithGeometry()
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.ShowOnlyNodesWithGeometry, Is.False);
+                Assert.That(this.viewModel.SelectedFilter, Is.EqualTo(TreeFilter.ShowFullTree));
+            }
+
+            this.viewModel.ShowOnlyNodesWithGeometry = true;
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.SelectedFilter, Is.EqualTo(TreeFilter.ShowNodesWithGeometry));
+                Assert.That(this.viewModel.ShowOnlyNodesWithGeometry, Is.True);
+            }
+
+            this.viewModel.ShowOnlyNodesWithGeometry = false;
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.SelectedFilter, Is.EqualTo(TreeFilter.ShowFullTree));
+                Assert.That(this.viewModel.ShowOnlyNodesWithGeometry, Is.False);
+            }
+        }
+
+        /// <summary>
         /// Verifies the UpdateElementsFromTree method.
         /// </summary>
         [Test]

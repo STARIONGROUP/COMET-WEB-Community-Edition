@@ -74,6 +74,17 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public ISelectionMediator SelectionMediator { get; private set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the tree only shows nodes that have a 3D geometry
+        /// primitive.
+        /// </summary>
+        // One-way convenience wrapper over SelectedFilter for the "View" cog checkbox; the Viewer never mutates SelectedFilter elsewhere.
+        public bool ShowOnlyNodesWithGeometry
+        {
+            get => this.SelectedFilter == TreeFilter.ShowNodesWithGeometry;
+            set => this.SelectedFilter = value ? TreeFilter.ShowNodesWithGeometry : TreeFilter.ShowFullTree;
+        }
+
+        /// <summary>
         /// Creates the product tree
         /// </summary>
         /// <param name="productTreeElements">the product tree elements</param>
