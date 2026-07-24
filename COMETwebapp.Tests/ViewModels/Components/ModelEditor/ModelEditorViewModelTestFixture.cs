@@ -22,12 +22,17 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 {
+    using System.Collections.Concurrent;
+
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
     using CDP4Dal;
     using CDP4Dal.Events;
+    using CDP4Dal.Operations;
+    using CDP4Dal.Permission;
 
     using CDP4Web.Enumerations;
 
@@ -82,6 +87,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
         private Mock<ISession> session;
 
         /// <summary>
+        /// The mocked <see cref="IPermissionService" /> used to gate <see cref="ModelEditorViewModel.MoveElementUsageAsync" />.
+        /// </summary>
+        private Mock<IPermissionService> permissionService;
+
+        /// <summary>
         /// Builds the iteration graph and the view model with mocked dependencies.
         /// </summary>
         [SetUp]
@@ -94,6 +104,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
             this.session = new Mock<ISession>();
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
+
+            this.permissionService = new Mock<IPermissionService>();
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
+            this.session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
+            this.session.Setup(x => x.Write(It.IsAny<OperationContainer>())).Returns(Task.CompletedTask);
 
             var domain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
             this.currentDomain = domain;
@@ -260,6 +275,128 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 Assert.That(isLoadingValues, Has.Some.EqualTo(true),
                     "IsLoading must toggle so that the Blazor component subscribed to it knows to re-render.");
             });
+        }
+
+        [Test]
+        public async Task VerifyMoveElementUsageWritesWhenValid()
+        {
+            var cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            var movingIteration = new Iteration(Guid.NewGuid(), cache, null) { Container = new EngineeringModel { Iid = Guid.NewGuid() } };
+            var sourceElementDefinition = new ElementDefinition(Guid.NewGuid(), cache, null);
+            var targetElementDefinition = new ElementDefinition(Guid.NewGuid(), cache, null);
+            var referencedElementDefinition = new ElementDefinition(Guid.NewGuid(), cache, null);
+
+            movingIteration.Element.Add(sourceElementDefinition);
+            movingIteration.Element.Add(targetElementDefinition);
+            movingIteration.Element.Add(referencedElementDefinition);
+
+            var elementUsage = new ElementUsage(Guid.NewGuid(), cache, null)
+            {
+                Owner = this.currentDomain,
+                ElementDefinition = referencedElementDefinition
+            };
+
+            sourceElementDefinition.ContainedElement.Add(elementUsage);
+
+            OperationContainer capturedOperationContainer = null;
+
+            this.session.Setup(x => x.Write(It.IsAny<OperationContainer>()))
+                .Callback<OperationContainer>(operationContainer => capturedOperationContainer = operationContainer)
+                .Returns(Task.CompletedTask);
+
+            await this.viewModel.MoveElementUsageAsync(elementUsage, targetElementDefinition);
+
+            this.session.Verify(x => x.Write(It.IsAny<OperationContainer>()), Times.Once);
+            Assert.That(capturedOperationContainer, Is.Not.Null);
+        }
+
+        /// <summary>
+        /// Verifies that <see cref="ModelEditorViewModel.MoveElementUsageAsync" /> silently refuses the move when
+        /// it would cross iterations, is a no-op (target equals the current container), would introduce a
+        /// containment cycle, or the current user lacks write permission on the target.
+        /// </summary>
+        [Test]
+        public async Task VerifyMoveElementUsageIsRejected()
+        {
+            // (a) cross-iteration: the target container belongs to a different Iteration.
+            var cacheA = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            var iterationA1 = new Iteration(Guid.NewGuid(), cacheA, null);
+            var iterationA2 = new Iteration(Guid.NewGuid(), cacheA, null);
+            var sourceA = new ElementDefinition(Guid.NewGuid(), cacheA, null);
+            var targetA = new ElementDefinition(Guid.NewGuid(), cacheA, null);
+            var referencedA = new ElementDefinition(Guid.NewGuid(), cacheA, null);
+            iterationA1.Element.Add(sourceA);
+            iterationA1.Element.Add(referencedA);
+            iterationA2.Element.Add(targetA);
+
+            var usageA = new ElementUsage(Guid.NewGuid(), cacheA, null) { Owner = this.currentDomain, ElementDefinition = referencedA };
+            sourceA.ContainedElement.Add(usageA);
+
+            await this.viewModel.MoveElementUsageAsync(usageA, targetA);
+
+            // (b) already contained: the target equals the usage's current container.
+            var cacheB = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            var iterationB = new Iteration(Guid.NewGuid(), cacheB, null);
+            var sourceB = new ElementDefinition(Guid.NewGuid(), cacheB, null);
+            var referencedB = new ElementDefinition(Guid.NewGuid(), cacheB, null);
+            iterationB.Element.Add(sourceB);
+            iterationB.Element.Add(referencedB);
+
+            var usageB = new ElementUsage(Guid.NewGuid(), cacheB, null) { Owner = this.currentDomain, ElementDefinition = referencedB };
+            sourceB.ContainedElement.Add(usageB);
+
+            await this.viewModel.MoveElementUsageAsync(usageB, sourceB);
+
+            // (c) containment cycle: the usage's referenced definition already (transitively) contains the target.
+            var cacheC = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            var iterationC = new Iteration(Guid.NewGuid(), cacheC, null);
+            var sourceC = new ElementDefinition(Guid.NewGuid(), cacheC, null);
+            var referencedC = new ElementDefinition(Guid.NewGuid(), cacheC, null);
+            var targetC = new ElementDefinition(Guid.NewGuid(), cacheC, null);
+            iterationC.Element.Add(sourceC);
+            iterationC.Element.Add(referencedC);
+            iterationC.Element.Add(targetC);
+
+            var innerUsageC = new ElementUsage(Guid.NewGuid(), cacheC, null) { Owner = this.currentDomain, ElementDefinition = targetC };
+            referencedC.ContainedElement.Add(innerUsageC);
+
+            var usageC = new ElementUsage(Guid.NewGuid(), cacheC, null) { Owner = this.currentDomain, ElementDefinition = referencedC };
+            sourceC.ContainedElement.Add(usageC);
+
+            await this.viewModel.MoveElementUsageAsync(usageC, targetC);
+
+            // (d) no write permission on the target.
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(false);
+
+            var cacheD = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            var iterationD = new Iteration(Guid.NewGuid(), cacheD, null);
+            var sourceD = new ElementDefinition(Guid.NewGuid(), cacheD, null);
+            var targetD = new ElementDefinition(Guid.NewGuid(), cacheD, null);
+            var referencedD = new ElementDefinition(Guid.NewGuid(), cacheD, null);
+            iterationD.Element.Add(sourceD);
+            iterationD.Element.Add(targetD);
+            iterationD.Element.Add(referencedD);
+
+            var usageD = new ElementUsage(Guid.NewGuid(), cacheD, null) { Owner = this.currentDomain, ElementDefinition = referencedD };
+            sourceD.ContainedElement.Add(usageD);
+
+            await this.viewModel.MoveElementUsageAsync(usageD, targetD);
+
+            this.session.Verify(x => x.Write(It.IsAny<OperationContainer>()), Times.Never);
+        }
+
+        [Test]
+        public void VerifyCanWriteElementUsageReflectsPermission()
+        {
+            var targetContainer = new ElementDefinition { Iid = Guid.NewGuid(), Owner = this.currentDomain };
+
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
+            Assert.That(this.viewModel.CanWriteElementUsage(targetContainer), Is.True);
+
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(false);
+            Assert.That(this.viewModel.CanWriteElementUsage(targetContainer), Is.False);
+
+            Assert.That(() => this.viewModel.CanWriteElementUsage(null), Throws.TypeOf<ArgumentNullException>());
         }
     }
 }

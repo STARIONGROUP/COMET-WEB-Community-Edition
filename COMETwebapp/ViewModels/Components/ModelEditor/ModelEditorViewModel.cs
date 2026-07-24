@@ -22,6 +22,7 @@
 
 namespace COMETwebapp.ViewModels.Components.ModelEditor
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
 
     using CDP4Dal;
@@ -271,6 +272,63 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
                 {
                     this.IsLoading = false;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Move (re-parent) an existing <see cref="ElementUsage"/> under a target <see cref="ElementDefinition"/>,
+        /// keeping its <see cref="Thing.Iid"/>, name, owner, options and <see cref="ElementUsage.ParameterOverride"/>s.
+        /// </summary>
+        /// <param name="elementUsage">The existing <see cref="ElementUsage"/> to move.</param>
+        /// <param name="targetContainer">The <see cref="ElementDefinition"/> that becomes the new container.</param>
+        public Task MoveElementUsageAsync(ElementUsage elementUsage, ElementDefinition targetContainer)
+        {
+            ArgumentNullException.ThrowIfNull(elementUsage);
+            ArgumentNullException.ThrowIfNull(targetContainer);
+
+            return this.MoveElementUsageImplAsync(elementUsage, targetContainer);
+        }
+
+        /// <summary>
+        /// Determines whether the current user may write an <see cref="ElementUsage"/> into
+        /// <paramref name="targetContainer"/>, so the drop can be rejected client-side instead of failing on the server.
+        /// </summary>
+        /// <param name="targetContainer">The target container <see cref="ElementDefinition"/>.</param>
+        /// <returns><see langword="true"/> when the write is permitted; otherwise <see langword="false"/>.</returns>
+        public bool CanWriteElementUsage(ElementDefinition targetContainer)
+        {
+            ArgumentNullException.ThrowIfNull(targetContainer);
+
+            return this.sessionService.Session.PermissionService.CanWrite(ClassKind.ElementUsage, targetContainer);
+        }
+
+        /// <summary>
+        /// Move (re-parent) an existing <see cref="ElementUsage"/> under a target <see cref="ElementDefinition"/>.
+        /// Silently refuses the move when it would cross iterations, is a no-op (already contained), would introduce a
+        /// containment cycle, or the user lacks write permission on the target.
+        /// </summary>
+        /// <param name="elementUsage">The existing <see cref="ElementUsage"/> to move.</param>
+        /// <param name="targetContainer">The <see cref="ElementDefinition"/> that becomes the new container.</param>
+        private async Task MoveElementUsageImplAsync(ElementUsage elementUsage, ElementDefinition targetContainer)
+        {
+            if (elementUsage.GetContainerOfType<Iteration>() != targetContainer.GetContainerOfType<Iteration>()
+                || elementUsage.Container == targetContainer
+                || elementUsage.ElementDefinition.HasUsageOf(targetContainer)
+                || !this.CanWriteElementUsage(targetContainer))
+            {
+                return;
+            }
+
+            this.IsLoading = true;
+
+            try
+            {
+                var thingCreator = new ThingCreator();
+                await thingCreator.MoveElementUsageAsync(elementUsage, targetContainer, this.sessionService.Session);
+            }
+            finally
+            {
+                this.IsLoading = false;
             }
         }
 

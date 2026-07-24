@@ -26,6 +26,7 @@ namespace COMETwebapp.Components.SystemRepresentation
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.JSInterop;
 
     using ReactiveUI;
 
@@ -39,6 +40,43 @@ namespace COMETwebapp.Components.SystemRepresentation
         /// </summary>
         [Parameter]
         public SystemRepresentationTreeViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the injected <see cref="IJSRuntime" /> used to wire drag auto-scroll onto the tree container.
+        /// </summary>
+        [Inject]
+        public IJSRuntime JsRuntime { get; set; }
+
+        /// <summary>
+        /// Whether the "View" display-options dropdown is open.
+        /// </summary>
+        private bool viewMenuOpen;
+
+        /// <summary>
+        /// Wires the drag auto-scroll behaviour onto the tree's scroll container on first render, so a node dragged
+        /// towards the top or bottom edge scrolls out-of-view rows into reach. Tolerates the JS interop being
+        /// unavailable during pre-rendering or in tests.
+        /// </summary>
+        /// <param name="firstRender"><see langword="true" /> on the first render cycle.</param>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (!firstRender)
+            {
+                return;
+            }
+
+            try
+            {
+                await this.JsRuntime.InvokeVoidAsync("cometDragScroll.init", "product-tree-nodes-section");
+            }
+            catch (Exception)
+            {
+                // JS interop failures during pre-rendering or test environments are non-fatal.
+            }
+        }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its

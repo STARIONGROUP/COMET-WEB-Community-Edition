@@ -284,6 +284,37 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         }
 
         /// <summary>
+        /// Verifies that dropping an existing <see cref="ElementUsage" /> onto an <see cref="ElementDefinition" /> node
+        /// routes to a move (re-parent), and not to a copy or a create-usage.
+        /// </summary>
+        [Test]
+        public async Task VerifyDroppingAnElementUsageOntoADefinitionMovesIt()
+        {
+            var owner = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS" };
+            var referencedElement = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Referenced", ShortName = "REF", Owner = owner };
+            var draggedUsage = new ElementUsage { Iid = Guid.NewGuid(), Name = "Usage", ShortName = "USG", Owner = owner, ElementDefinition = referencedElement };
+            var targetElement = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Target", ShortName = "TGT", Owner = owner };
+            this.iteration.Element.Add(targetElement);
+
+            var usageRow = new ElementUsageTreeRowViewModel(draggedUsage);
+            var targetRow = new ElementDefinitionTreeRowViewModel(targetElement);
+
+            this.elementDefinitionTreeViewModel.Setup(x => x.Iteration).Returns(this.iteration);
+            this.viewModel.Setup(x => x.MoveElementUsageAsync(It.IsAny<ElementUsage>(), It.IsAny<ElementDefinition>())).Returns(Task.CompletedTask);
+
+            var renderedComponent = this.RenderModelEditor();
+            var trees = renderedComponent.FindComponents<ElementDefinitionTree>();
+            var sourceTree = trees[0].Instance;
+            var targetTree = trees[1].Instance;
+
+            await renderedComponent.InvokeAsync(() => sourceTree.OnDragStart.InvokeAsync((sourceTree, usageRow)));
+            await renderedComponent.InvokeAsync(() => targetTree.OnDrop.InvokeAsync((targetTree, targetRow, new DragEventArgs())));
+
+            this.viewModel.Verify(x => x.MoveElementUsageAsync(draggedUsage, targetElement), Times.Once);
+            this.viewModel.Verify(x => x.AddNewElementUsageAsync(It.IsAny<ElementBase>(), It.IsAny<ElementBase>()), Times.Never);
+        }
+
+        /// <summary>
         /// Verifies that selecting a node in either tree drives the details panel, and clears the selection of the other tree
         /// </summary>
         [Test]

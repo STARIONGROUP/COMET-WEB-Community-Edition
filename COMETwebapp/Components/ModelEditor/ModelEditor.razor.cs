@@ -226,21 +226,27 @@ namespace COMETwebapp.Components.ModelEditor
         {
             this.ErrorMessage = string.Empty;
 
-            if (this.DragObject.Item2 is not ElementDefinitionTreeRowViewModel elementDefinitionTreeRowViewModel)
+            if (this.DragObject.Item2 is null)
             {
                 return;
             }
 
             try
             {
-                if (nodeData.Item2 == null)
+                switch (this.DragObject.Item2, nodeData.Item2)
                 {
-                    // Drop in the same model
-                    await this.ViewModel.CopyAndAddNewElementAsync(nodeData.Item1, elementDefinitionTreeRowViewModel.ElementBase, nodeData.Item3.GetCopyOperationKind());
-                }
-                else
-                {
-                    await this.ViewModel.AddNewElementUsageAsync(elementDefinitionTreeRowViewModel.ElementBase, nodeData.Item2.ElementBase);
+                    case (ElementDefinitionTreeRowViewModel draggedDefinition, null):
+                        // Drop in the empty area of a tree: copy the ElementDefinition there.
+                        await this.ViewModel.CopyAndAddNewElementAsync(nodeData.Item1, draggedDefinition.ElementBase, nodeData.Item3.GetCopyOperationKind());
+                        break;
+                    case (ElementUsageTreeRowViewModel draggedUsage, ElementDefinitionTreeRowViewModel targetDefinition):
+                        // Move (re-parent) the existing usage under the target ElementDefinition.
+                        await this.ViewModel.MoveElementUsageAsync((ElementUsage)draggedUsage.ElementBase, (ElementDefinition)targetDefinition.ElementBase);
+                        break;
+                    case (ElementDefinitionTreeRowViewModel draggedDefinition, ElementDefinitionTreeRowViewModel targetDefinition):
+                        // Dragging a definition onto a node creates a fresh usage of it.
+                        await this.ViewModel.AddNewElementUsageAsync(draggedDefinition.ElementBase, targetDefinition.ElementBase);
+                        break;
                 }
             }
             catch (Exception ex)
@@ -298,47 +304,40 @@ namespace COMETwebapp.Components.ModelEditor
             var dragOverObject = this.DragOverObject;
             var dragObject = this.DragObject;
 
-            if (!elementDefinitionTree.AllowDrop)
+            if (!elementDefinitionTree.AllowDrop || dragObject == (null, null) || dragOverObject == dragObject || dragObject.Item2 is null)
             {
                 return false;
             }
 
-            if (dragObject == (null, null))
+            // Hovering a node: only an ElementDefinition node is a valid drop target (a usage node is not).
+            if (dragOverObject.Item2 is ElementBaseTreeRowViewModel)
             {
-                return false;
-            }
-
-            if (dragOverObject == dragObject)
-            {
-                return false;
-            }
-
-            if (dragOverObject.Item2 is ElementDefinitionTreeRowViewModel dragOverVm)
-            {
-                if (dragObject.Item2 is not ElementDefinitionTreeRowViewModel dragVm)
+                if (dragOverObject.Item2 is not ElementDefinitionTreeRowViewModel dragOverVm)
                 {
                     return false;
                 }
 
-                if (dragOverVm.ElementBase == dragVm.ElementBase)
+                var targetDefinition = (ElementDefinition)dragOverVm.ElementBase;
+
+                // Both a move and a create-usage are only allowed within a single iteration and with write permission.
+                if (dragObject.Item2.ElementBase.GetContainerOfType<Iteration>() != targetDefinition.GetContainerOfType<Iteration>()
+                    || !this.ViewModel.CanWriteElementUsage(targetDefinition))
                 {
                     return false;
                 }
 
-                if (dragOverVm.ElementBase.GetContainerOfType<Iteration>() == dragVm.ElementBase.GetContainerOfType<Iteration>())
+                return dragObject.Item2 switch
                 {
-                    return true;
-                }
-
-                return false;
+                    ElementUsageTreeRowViewModel usageRow => ((ElementUsage)usageRow.ElementBase).Container != targetDefinition
+                                                             && !((ElementUsage)usageRow.ElementBase).ElementDefinition.HasUsageOf(targetDefinition),
+                    ElementDefinitionTreeRowViewModel definitionRow => (ElementDefinition)definitionRow.ElementBase != targetDefinition
+                                                                       && !((ElementDefinition)definitionRow.ElementBase).HasUsageOf(targetDefinition),
+                    _ => false
+                };
             }
 
-            if (dragOverObject.Item1 == elementDefinitionTree)
-            {
-                return true;
-            }
-
-            return false;
+            // Hovering the empty area of a tree: only an ElementDefinition can be copied there.
+            return dragOverObject.Item1 == elementDefinitionTree && dragObject.Item2 is ElementDefinitionTreeRowViewModel;
         }
     }
 }

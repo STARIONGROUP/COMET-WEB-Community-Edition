@@ -347,11 +347,22 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
 
             Assert.That(detailsSearch.Instance, Is.Not.Null);
 
-            // Simulate a drag hovering over the root node so its drop-impact badge renders.
+            // Simulate a drag hovering over the root node so its drop-impact badge renders. The dragged node is an
+            // external usage whose container is a different ElementDefinition, so the drop is a valid move onto the
+            // root (dragging one of the root's own child usages back onto the root is a no-op and not a valid drop).
             var treeViewModel = this.viewModel.ProductTreeViewModel;
             var rootNode = treeViewModel.RootViewModel;
-            var childNode = rootNode.GetChildren().First();
-            treeViewModel.DraggedNode = childNode;
+
+            var externalUsage = new ElementUsage(Guid.NewGuid(), this.assembler.Cache, this.uri)
+            {
+                Name = "ExternalUsage",
+                ShortName = "EXT",
+                Owner = this.domain,
+                Container = new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri) { Name = "OtherContainer", ShortName = "OTH", Owner = this.domain },
+                ElementDefinition = new ElementDefinition(Guid.NewGuid(), this.assembler.Cache, this.uri) { Name = "ExternalDefinition", ShortName = "EXTD", Owner = this.domain }
+            };
+
+            treeViewModel.DraggedNode = new SystemNodeViewModel(externalUsage);
             treeViewModel.DragOverNode = rootNode;
 
             var rootSystemNode = renderer.FindComponents<SystemNode>().First(node => ReferenceEquals(node.Instance.ViewModel, rootNode));
