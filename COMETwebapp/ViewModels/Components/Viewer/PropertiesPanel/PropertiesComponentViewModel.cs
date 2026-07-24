@@ -33,12 +33,14 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
 
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Model;
     using COMETwebapp.Model.Viewer;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Viewer;
 
     using Microsoft.AspNetCore.Components;
 
@@ -47,8 +49,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     /// <summary>
     /// View Model for the <see cref="PropertiesComponent" />
     /// </summary>
-    public class PropertiesComponentViewModel : ReactiveObject, IPropertiesComponentViewModel
+    public class PropertiesComponentViewModel : DisposableObject, IPropertiesComponentViewModel
     {
+        /// <summary>
+        /// Handler registered on <see cref="ISelectionMediator.OnTreeSelectionChanged" />, retained so it can be unsubscribed on disposal
+        /// </summary>
+        private readonly Action<ViewerNodeViewModel> onTreeSelectionChangedHandler;
+
         /// <summary>
         /// Backing field for the <see cref="IsVisible" />
         /// </summary>
@@ -90,8 +97,24 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 
             this.OnParameterValueSetChanged = new EventCallbackFactory().Create(this, async ((IValueSet,int) valueSet) => { await this.ParameterValueSetChanged(valueSet); });
 
-            this.SelectionMediator.OnTreeSelectionChanged += nodeViewModel => this.OnSelectionChanged(nodeViewModel.SceneObject);
+            this.onTreeSelectionChangedHandler = nodeViewModel => this.OnSelectionChanged(nodeViewModel.SceneObject);
+            this.SelectionMediator.OnTreeSelectionChanged += this.onTreeSelectionChangedHandler;
             this.SelectionMediator.OnModelSelectionChanged += this.OnSelectionChanged;
+        }
+
+        /// <summary>
+        /// Unsubscribes from the <see cref="ISelectionMediator" /> events and releases the resources used by this view model
+        /// </summary>
+        /// <param name="disposing">Value asserting if this component should dispose or not</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.SelectionMediator.OnTreeSelectionChanged -= this.onTreeSelectionChangedHandler;
+                this.SelectionMediator.OnModelSelectionChanged -= this.OnSelectionChanged;
+            }
+
+            base.Dispose(disposing);
         }
 
         /// <summary>

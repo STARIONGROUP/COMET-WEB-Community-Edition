@@ -94,6 +94,26 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         private readonly Subject<Unit> parameterChangedSubject = new();
 
         /// <summary>
+        /// Handler registered on <see cref="ISelectionMediator.OnTreeSelectionChanged" />, retained so it can be unsubscribed on disposal
+        /// </summary>
+        private Action<ViewerNodeViewModel> onTreeSelectionChangedHandler;
+
+        /// <summary>
+        /// Handler registered on <see cref="ISelectionMediator.OnTreeVisibilityChanged" />, retained so it can be unsubscribed on disposal
+        /// </summary>
+        private Action<ViewerNodeViewModel> onTreeVisibilityChangedHandler;
+
+        /// <summary>
+        /// Handler registered on <see cref="ISelectionMediator.OnParameterChanged" />, retained so it can be unsubscribed on disposal
+        /// </summary>
+        private Action onParameterChangedHandler;
+
+        /// <summary>
+        /// Handler registered on <see cref="ISelectionMediator.OnParameterSubmitted" />, retained so it can be unsubscribed on disposal
+        /// </summary>
+        private Action onParameterSubmittedHandler;
+
+        /// <summary>
         /// Gets or sets if the user is about to change the selected primitive
         /// </summary>
         public bool IsOnChangePrimitiveMode
@@ -131,14 +151,38 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         public void InitializeViewModel()
         {
             this.SelectionMediator.SceneObjectHasChanges = false;
-            this.SelectionMediator.OnTreeSelectionChanged += async (nodeViewModel) => await this.OnTreeSelectionChanged(nodeViewModel);
-            this.SelectionMediator.OnTreeVisibilityChanged += async (nodeViewModel) => await this.OnTreeVisibilityChanged(nodeViewModel);
-            this.SelectionMediator.OnParameterChanged += () => this.parameterChangedSubject.OnNext(Unit.Default);
-            this.SelectionMediator.OnParameterSubmitted += async () => await this.OnParameterSubmitted();
 
-            this.parameterChangedSubject
+            this.onTreeSelectionChangedHandler = async nodeViewModel => await this.OnTreeSelectionChanged(nodeViewModel);
+            this.onTreeVisibilityChangedHandler = async nodeViewModel => await this.OnTreeVisibilityChanged(nodeViewModel);
+            this.onParameterChangedHandler = () => this.parameterChangedSubject.OnNext(Unit.Default);
+            this.onParameterSubmittedHandler = async () => await this.OnParameterSubmitted();
+
+            this.SelectionMediator.OnTreeSelectionChanged += this.onTreeSelectionChangedHandler;
+            this.SelectionMediator.OnTreeVisibilityChanged += this.onTreeVisibilityChangedHandler;
+            this.SelectionMediator.OnParameterChanged += this.onParameterChangedHandler;
+            this.SelectionMediator.OnParameterSubmitted += this.onParameterSubmittedHandler;
+
+            this.Disposables.Add(this.parameterChangedSubject
                 .Throttle(TimeSpan.FromMilliseconds(50))
-                .SubscribeAsync(async _ => await this.OnParameterChanged());
+                .SubscribeAsync(async _ => await this.OnParameterChanged()));
+        }
+
+        /// <summary>
+        /// Unsubscribes from the <see cref="ISelectionMediator" /> events and releases the resources used by this view model
+        /// </summary>
+        /// <param name="disposing">Value asserting if this component should dispose or not</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.SelectionMediator.OnTreeSelectionChanged -= this.onTreeSelectionChangedHandler;
+                this.SelectionMediator.OnTreeVisibilityChanged -= this.onTreeVisibilityChangedHandler;
+                this.SelectionMediator.OnParameterChanged -= this.onParameterChangedHandler;
+                this.SelectionMediator.OnParameterSubmitted -= this.onParameterSubmittedHandler;
+                this.parameterChangedSubject.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
 
         /// <summary>

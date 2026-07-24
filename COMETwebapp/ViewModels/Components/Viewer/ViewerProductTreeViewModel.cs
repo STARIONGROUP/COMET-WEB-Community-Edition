@@ -54,6 +54,21 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         }
 
         /// <summary>
+        /// Unsubscribes from the <see cref="ISelectionMediator" /> events and releases the resources used by this view model
+        /// </summary>
+        /// <param name="disposing">Value asserting if this component should dispose or not</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.SelectionMediator.OnModelSelectionChanged -= this.OnModelSelectionChanged;
+                this.SelectionMediator.OnParameterSubmitted -= this.OnParameterSubmitted;
+            }
+
+            base.Dispose(disposing);
+        }
+
+        /// <summary>
         /// Gets o sets the <see cref="SelectionMediator" />
         /// </summary>
         public ISelectionMediator SelectionMediator { get; private set; }

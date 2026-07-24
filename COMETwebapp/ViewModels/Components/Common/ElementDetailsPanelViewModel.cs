@@ -295,6 +295,13 @@ namespace COMETwebapp.ViewModels.Components.Common
                 OnCancel = eventCallbackFactory.Create(this, this.OnDeleteParameterGroupCancelled),
                 OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedParameterGroupAsync)
             };
+
+            this.Disposables.Add((IDisposable)this.ElementDefinitionCreationViewModel);
+            this.Disposables.Add((IDisposable)this.AddParameterViewModel);
+            this.Disposables.Add((IDisposable)this.EditParameterViewModel);
+            this.Disposables.Add((IDisposable)this.EditParameterSubscriptionViewModel);
+            this.Disposables.Add((IDisposable)this.EditElementDefinitionViewModel);
+            this.Disposables.Add((IDisposable)this.EditElementUsageViewModel);
         }
 
         /// <summary>

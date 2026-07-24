@@ -106,6 +106,28 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             });
         }
 
+        /// <summary>
+        /// Verifies that disposing the view model unsubscribes from the <see cref="ISelectionMediator" /> events, so a
+        /// long-lived (circuit-scoped) mediator no longer keeps the disposed view model alive nor fires its callbacks.
+        /// </summary>
+        [Test]
+        public void VerifyDisposeUnsubscribesFromSelectionMediator()
+        {
+            var mediator = new Mock<ISelectionMediator>();
+            var babylon = new Mock<IBabylonInterop>();
+            var session = new Mock<ISessionService>();
+
+            var vm = new PropertiesComponentViewModel(babylon.Object, session.Object, mediator.Object, this.messageBus)
+            {
+                IsVisible = false
+            };
+
+            vm.Dispose();
+            mediator.Raise(x => x.OnModelSelectionChanged += null, new SceneObject(new Cube(1, 1, 1)));
+
+            Assert.That(vm.IsVisible, Is.False);
+        }
+
         [Test]
         public void VerifyElementValueChanges()
         {

@@ -30,11 +30,14 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Reusable view model that drives the create/edit dialog for a <see cref="Requirement" />, a
@@ -42,7 +45,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     /// a fresh instance (create) of the target so the form can mutate short name, name, owner, categories, definitions and
     /// deprecation without leaking into the cached domain graph until the surrounding commit succeeds.
     /// </summary>
-    public class EditRequirementThingViewModel : IEditRequirementThingViewModel
+    public class EditRequirementThingViewModel : DisposableObject, IEditRequirementThingViewModel
     {
         /// <summary>
         /// The <see cref="ISessionService" /> queried for the available categories.
@@ -54,6 +57,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// is shown and edited there.
         /// </summary>
         private string selectedLanguageCode = "en";
+
+        /// <summary>
+        /// Backing field for the <see cref="OnValidSubmit" /> property
+        /// </summary>
+        private EventCallback onValidSubmit;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EditRequirementThingViewModel" /> class.
@@ -74,6 +82,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                     }
                 })
             };
+
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
         }
 
         /// <summary>
@@ -214,7 +224,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <summary>
         /// Gets or sets the callback invoked when the user submits a valid edit.
         /// </summary>
-        public EventCallback OnValidSubmit { get; set; }
+        public EventCallback OnValidSubmit
+        {
+            get => this.onValidSubmit;
+            set => this.RaiseAndSetIfChanged(ref this.onValidSubmit, value);
+        }
 
         /// <summary>
         /// Initializes the form for the given <paramref name="thing" />.

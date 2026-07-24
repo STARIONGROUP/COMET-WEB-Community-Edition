@@ -60,6 +60,10 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
             {
                 OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner => { this.CurrentThing.Owner = selectedOwner; })
             };
+
+            // This is a nested content view model, not a tabbed application, so it is never moved between panels; opt out of the ApplicationBaseViewModel tab-move dispose gate so it actually disposes (and releases its DomainOfExpertiseSelectorViewModel subscription) when its host unmounts.
+            this.IsAllowedToDispose = true;
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
         }
 
         /// <summary>

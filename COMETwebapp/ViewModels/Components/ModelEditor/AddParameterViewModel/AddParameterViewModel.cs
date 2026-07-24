@@ -61,6 +61,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.AddParameterViewModel
                 OnSelectedDomainOfExpertiseChange = callbackFactory.Create<DomainOfExpertise>(this, selectedOwner => { this.Parameter.Owner = selectedOwner; })
             };
 
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
+
             this.MeasurementScaleSelectorViewModel = new MeasurementScaleSelectorViewModel(sessionService)
             {
                 OnSelectedMeasurementScaleChange = callbackFactory.Create<MeasurementScale>(this, selectedScale => { this.Parameter.Scale = selectedScale; })
