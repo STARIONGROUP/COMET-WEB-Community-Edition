@@ -1,7 +1,9 @@
 .side-bar-footer {
     display: flex;
     align-items: center;
+    bottom: 0;
     margin-top: auto;
     margin-left: 5px;
     padding-top: 10px;
+    position: fixed;
 }
