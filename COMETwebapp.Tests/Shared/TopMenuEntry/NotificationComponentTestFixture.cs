@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="NotificationComponentTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
-//
+// 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
@@ -66,7 +66,6 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
             this.context.Services.AddSingleton(this.versionService.Object);
             this.context.Services.AddSingleton(this.notificationService.Object);
             this.context.Services.AddSingleton(this.toastNotificationService.Object);
-            this.context.Services.AddSingleton(new Mock<AntDesign.IComponentIdGenerator>().Object);
             this.context.Services.AddSingleton(new Mock<IHttpClientFactory>().Object);
             this.context.ConfigureDevExpressBlazor();
         }
@@ -128,7 +127,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
             // nor raise a toast — regression for the NullReferenceException that aborted a parameter-group
             // delete before its second (delete) transaction ran.
             Assert.That(() => this.notificationService.Object.Results.Add(new ResultNotification(new Result(), null)), Throws.Nothing);
-            
+
             using (Assert.EnterMultipleScope())
             {
                 this.toastNotificationService.Verify(x => x.ShowToast(It.IsAny<ToastOptions>()), Times.Never);
