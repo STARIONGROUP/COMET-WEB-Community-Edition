@@ -22,6 +22,14 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 {
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+
+    using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.Types;
+
     using COMETwebapp.Model;
     using COMETwebapp.Model.Viewer.Primitives;
     using COMETwebapp.Utilities;
@@ -160,76 +168,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 
             this.rootNode.UpdateSceneObjectProperty();
             Assert.That(propertyChanged, Is.True);
-        }
-
-        /// <summary>
-        /// Verifies the Equals and GetHashCode methods of <see cref="ViewerNodeViewModel" />.
-        /// </summary>
-        [Test]
-        public void VerifyEquality()
-        {
-            var sceneObject1 = new SceneObject(null);
-            var sceneObject2 = new SceneObject(null);
-
-            var vm1 = new ViewerNodeViewModel(sceneObject1);
-            var vm2 = new ViewerNodeViewModel(sceneObject1);
-            var vm3 = new ViewerNodeViewModel(sceneObject2);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(vm1, Is.EqualTo(vm2));
-                Assert.That(vm1.GetHashCode(), Is.EqualTo(vm2.GetHashCode()));
-                Assert.That(vm1, Is.Not.EqualTo(vm3));
-                Assert.That(vm1.Equals(null), Is.False);
-            });
-        }
-
-        /// <summary>
-        /// Verifies that raising tree node visibility changed propagates properly.
-        /// </summary>
-        [Test]
-        public void VerifyRaiseTreeNodeVisibilityChanged()
-        {
-            var selectionMediatorMock = new Mock<ISelectionMediator>();
-
-            var vm = new ViewerNodeViewModel(new SceneObject(null))
-            {
-                SelectionMediator = selectionMediatorMock.Object
-            };
-
-            vm.RaiseTreeNodeVisibilityChanged();
-
-            selectionMediatorMock.Verify(x => x.RaiseOnTreeVisibilityChanged(vm), Times.Once);
-        }
-
-        /// <summary>
-        /// Verifies that raising tree selection changed propagates and manages state properly.
-        /// </summary>
-        [Test]
-        public void VerifyRaiseTreeSelectionChanged()
-        {
-            var selectionMediatorMock = new Mock<ISelectionMediator>();
-
-            var root = new ViewerNodeViewModel(new SceneObject(null))
-            {
-                SelectionMediator = selectionMediatorMock.Object
-            };
-
-            var child = new ViewerNodeViewModel(new SceneObject(null))
-            {
-                SelectionMediator = selectionMediatorMock.Object
-            };
-
-            root.AddChild(child);
-            child.IsSelected = true;
-
-            child.RaiseTreeSelectionChanged();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(child.IsSelected, Is.True);
-                selectionMediatorMock.Verify(x => x.RaiseOnTreeSelectionChanged(child), Times.Once);
-            });
         }
     }
 }

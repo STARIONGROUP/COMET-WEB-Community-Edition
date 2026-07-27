@@ -23,6 +23,7 @@
 namespace COMETwebapp.ViewModels.Components.Shared
 {
     using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Utilities.DisposableObject;
 
@@ -77,6 +78,13 @@ namespace COMETwebapp.ViewModels.Components.Shared
         /// Gets or sets the current thing
         /// </summary>
         public Thing Thing { get; private set; }
+
+        /// <summary>
+        /// Gets the <see cref="ElementBase" /> this node represents. Base implementation resolves it from
+        /// <see cref="Thing" />; overridden by node view models (e.g. <see cref="COMETwebapp.ViewModels.Components.Viewer.ViewerNodeViewModel" />)
+        /// whose underlying element comes from a different source.
+        /// </summary>
+        public virtual ElementBase ElementBase => this.Thing as ElementBase;
 
         /// <summary>
         /// Field for containing the children of this <see cref="BaseNodeViewModel{T}" />

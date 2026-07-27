@@ -96,7 +96,7 @@
                 </div>
             }
             <div id="source-resizer" class="model-editor-resizer @(this.IsSourcePanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)" title="Drag to resize"></div>
-            <div id="targetPanel" class="model-editor-panel">
+              <div id="targetPanel" class="model-editor-panel @(this.IsDetailsPanelCollapsed ? "model-editor-panel-grow" : string.Empty)">
                 <ElementDefinitionTree
                     @ref="this.TargetTree"
                     ScrollableAreaCssClass="treeview-scrollarea"
@@ -124,7 +124,7 @@
                 </ElementDefinitionTree>
             </div>
             <div id="target-resizer" class="model-editor-resizer @(this.IsDetailsPanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)" title="Drag to resize"></div>
-            <div id="detailsPanel" class="model-editor-panel model-editor-panel-borderless @(this.IsDetailsPanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)">
+            <div id="detailsPanel" class="model-editor-panel model-editor-panel-borderless model-editor-details-panel @(this.IsDetailsPanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)">
                 <div class="model-editor-panel-header model-editor-panel-header-end">
                     <DxButton Id="collapseDetailsPanel"
                               IconCssClass="oi oi-chevron-right"

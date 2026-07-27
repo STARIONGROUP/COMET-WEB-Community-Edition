@@ -18,10 +18,6 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMETwebapp.ViewModels.Components.SystemRepresentation
-@using CDP4Common.EngineeringModelData
-@using COMET.Web.Common.Extensions
-@using COMETwebapp.Extensions
-@using COMETwebapp.Utilities
 @inherits DisposableComponent
 @{
     @if (this.ViewModel is null)
@@ -83,32 +79,20 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                 }
 
                 @{
-                    var elementBase = this.ViewModel.Thing as ElementBase;
+                    var elementBase = this.ViewModel.ElementBase;
                     var label = this.TreeViewModel is { ShowName: false } ? elementBase?.ShortName : elementBase?.Name;
                     label ??= this.ViewModel.Title;
                 }
                 <div class="node-label-tags">
                     <p class="node-text">@label</p>
 
-                    @if (elementBase is not null)
-                    {
-                        @if (this.TreeViewModel?.ShowOwner != false && elementBase.Owner != null)
+                    <span class="node-pills">
+                        <NodePills ElementBase="@elementBase" ShowOwner="@(this.TreeViewModel?.ShowOwner != false)" ShowCategories="@(this.TreeViewModel?.ShowCategories != false)"/>
+                        @if (this.IsValidDropTarget)
                         {
-                            <button class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{elementBase.Owner.ShortName}") !important;" title="Owning Domain Of Expertise: @elementBase.Owner.ShortName">@elementBase.Owner.ShortName</button>
+                            <span class="drop-impact-badge" title="This usage and everything it brings">+@this.DraggedItemImpactCount</span>
                         }
-
-                        @if (this.TreeViewModel?.ShowCategories != false)
-                        {
-                            @foreach (var category in elementBase.GetDisplayCategories())
-                            {
-                                <button class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.ShortName">@category.ShortName</button>
-                            }
-                        }
-                    }
-                    @if (this.IsValidDropTarget)
-                    {
-                        <span class="drop-impact-badge" title="This usage and everything it brings">+@this.DraggedItemImpactCount</span>
-                    }
+                    </span>
                 </div>
             </div>
         </div>

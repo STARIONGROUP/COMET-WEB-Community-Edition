@@ -79,8 +79,6 @@ html, body, #app {
 
 .m-right-3px { margin-right: 3px; }
 
-::deep .dx-blazor-widget .dx-chart { justify-content: center }
-
 .dxbs-fl .dxbs-fl-cpt { font-weight: normal; }
 
 .width-200 { width: 200px; }
@@ -165,8 +163,6 @@ html, body, #app {
 
 .width-30 { width: 30%; }
 
-.width-12.5 { width: 12.5%; }
-
 .centered {
     display: block !important;
     margin: 0 auto !important;
@@ -243,8 +239,26 @@ div[id^="dropdown-customization-target-container-"] { display: flex; }
 }
 
 .collapsed .application-item-container {
-    width: 70px !important;
-    padding: 22px;
+    width: 32px !important;
+    padding: 4px;
+    margin: 2px 0;
+    justify-content: center;
+}
+
+.collapsed #side-bar-collapse-button {
+    padding: 4px !important;
+    min-width: 0 !important;
+}
+
+.collapsed .side-bar-section-header {
+    padding: 0 !important;
+    min-height: 0;
+}
+
+.collapsed .side-bar-section-divider {
+    align-self: stretch;
+    border-top: 1px solid var(--colors-gray-300);
+    margin: 6px 4px;
 }
 
 sub {
@@ -305,13 +319,16 @@ sub {
 
 .starion-pill {
     margin: 1px;
-    height: 19px;
     width: auto;
     border-radius: 30px;
     background-color: white;
     border: 1px solid dimgray;
     color: dimgray;
-    padding-top: 0px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 18px;
+    padding: 1px 8px;
 }
 
 .search-mark {

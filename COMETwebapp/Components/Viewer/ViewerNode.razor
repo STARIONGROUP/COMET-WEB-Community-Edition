@@ -72,8 +72,19 @@ along with this program. If not, see http://www.gnu.org/licenses/.
                     <img class="expandIcon" alt="" src="@uri" @onclick="@(()=>{ this.ViewModel.IsExpanded = !this.ViewModel.IsExpanded; })" />
                 }
 
-                <p class="node-text">@this.ViewModel.Title</p>
-                
+                @{
+                    var elementBase = this.ViewModel.ElementBase;
+                    var label = this.TreeViewModel is { ShowName: false } ? elementBase?.ShortName : elementBase?.Name;
+                    label ??= this.ViewModel.Title;
+                }
+                <div class="node-label-tags">
+                    <p class="node-text">@label</p>
+
+                    <span class="node-pills">
+                        <NodePills ElementBase="@elementBase" ShowOwner="@(this.TreeViewModel?.ShowOwner != false)" ShowCategories="@(this.TreeViewModel?.ShowCategories != false)"/>
+                    </span>
+                </div>
+
                 @if (this.ViewModel.SceneObject?.Primitive is not null)
                 {
                     var uri = this.ViewModel.IsSceneObjectVisible ? "images/Show.svg" : "images/Hide.svg";

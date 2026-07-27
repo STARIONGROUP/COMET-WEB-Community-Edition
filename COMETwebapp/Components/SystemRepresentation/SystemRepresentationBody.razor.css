@@ -18,13 +18,9 @@
     overflow: hidden;
 }
 
-/* The right column is a fixed-height flex column: the action bar, element summary card and parameter
-   search bar stay put, and only the group/parameter area scrolls (mirrors the product tree, where only
-   the node list scrolls). ElementDetailsPanel / DetailsPanelEditor render inline (no wrapper element), so
-   their outputs are flat flex children of #rightColumn and can be targeted with ::deep. */
 #rightColumn {
     flex: 1 1 auto;
-    min-width: 380px;
+    min-width: 350px;
     position: sticky;
     top: 8px;
     align-self: flex-start;
@@ -35,8 +31,7 @@
 }
 
 #rightColumn ::deep #panel-action-bar,
-#rightColumn ::deep .cardview-detailspanel-summary,
-#rightColumn ::deep .param-group-search-bar {
+#rightColumn ::deep .cardview-detailspanel-summary {
     flex: 0 0 auto;
 }
 
@@ -49,6 +44,10 @@
 #option-filter {
     flex: 0 0 auto;
     margin-bottom: 8px;
+}
+
+#option-filter ::deep h6 {
+    display: none;
 }
 
 #col-resizer {

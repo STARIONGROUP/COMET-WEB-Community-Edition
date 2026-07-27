@@ -7,23 +7,3 @@
     gap: 12px;
 }
 
-/* ── Search toolbar ── */
-.param-group-search-bar {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 8px;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-}
-
-.param-group-search-icon {
-    color: #6c757d;
-    flex-shrink: 0;
-}
-
-.param-group-search-input {
-    flex: 1;
-    min-width: 0;
-}

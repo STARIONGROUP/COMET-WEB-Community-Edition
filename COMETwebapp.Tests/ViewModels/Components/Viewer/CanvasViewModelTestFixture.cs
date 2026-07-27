@@ -282,6 +282,33 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         }
 
         /// <summary>
+        /// Verifies that disposing the view model unsubscribes from the <see cref="ISelectionMediator" /> events, so a
+        /// long-lived (circuit-scoped) mediator no longer keeps the disposed view model alive nor fires its callbacks.
+        /// </summary>
+        [Test]
+        public void VerifyDisposeUnsubscribesFromSelectionMediator()
+        {
+            var original = new SceneObject(new Cube(1, 1, 1));
+            var clone = original.Clone();
+            this.selectionMediator.SetupGet(x => x.SelectedSceneObject).Returns(original);
+            this.selectionMediator.SetupGet(x => x.SelectedSceneObjectClone).Returns(clone);
+            this.selectionMediator.SetupGet(x => x.SceneObjectHasChanges).Returns(true);
+
+            this.viewModel.InitializeViewModel();
+            this.viewModel.Dispose();
+
+            var nodeViewModel = new ViewerNodeViewModel(original)
+            {
+                IsSelected = true,
+                IsSceneObjectVisible = true
+            };
+
+            this.selectionMediator.Raise(x => x.OnTreeSelectionChanged += null, nodeViewModel);
+
+            Assert.That(this.viewModel.GetAllTemporarySceneObjects(), Is.Empty);
+        }
+
+        /// <summary>
         /// Verifies the HandleMouseUp method.
         /// </summary>
         [Test]

@@ -33,13 +33,13 @@ namespace COMETwebapp.ViewModels.Components.Shared
     /// <summary>
     /// View Model for building the product tree
     /// </summary>
-    public abstract class ProductTreeViewModel<T> : DisposableObject, IProductTreeViewModel<T> where T : IBaseNodeViewModel
+    public abstract class ProductTreeViewModel<T> : DisposableObject, IProductTreeViewModel<T>, IProductTreeDisplayOptions where T : IBaseNodeViewModel
     {
         /// <summary>
         /// Backing field for the <see cref="RootViewModel" />s
         /// </summary>
         private T rootViewModel;
-        
+
         /// <summary>
         /// Gets or sets the root of the <see cref="ProductTreeViewModel{T}" />
         /// </summary>
@@ -80,6 +80,50 @@ namespace COMETwebapp.ViewModels.Components.Shared
         {
             get => this.searchText;
             set => this.RaiseAndSetIfChanged(ref this.searchText, value);
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="ShowName" />.
+        /// </summary>
+        private bool showName = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether nodes should display their <see cref="CDP4Common.CommonData.DefinedThing.Name" />
+        /// (<c>true</c>) or <see cref="CDP4Common.CommonData.DefinedThing.ShortName" /> (<c>false</c>).
+        /// </summary>
+        public bool ShowName
+        {
+            get => this.showName;
+            set => this.RaiseAndSetIfChanged(ref this.showName, value);
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="ShowOwner" />.
+        /// </summary>
+        private bool showOwner = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the owning <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" />
+        /// pill is shown on each tree node.
+        /// </summary>
+        public bool ShowOwner
+        {
+            get => this.showOwner;
+            set => this.RaiseAndSetIfChanged(ref this.showOwner, value);
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="ShowCategories" />.
+        /// </summary>
+        private bool showCategories = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether category pills are shown on each tree node.
+        /// </summary>
+        public bool ShowCategories
+        {
+            get => this.showCategories;
+            set => this.RaiseAndSetIfChanged(ref this.showCategories, value);
         }
 
         /// <summary>

@@ -1,0 +1,29 @@
+.req-expr-link {
+    border: none;
+    background: none;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #667085;
+    flex-shrink: 0;
+}
+
+.req-expr-link:hover {
+    color: #3b5b8c;
+}
+
+.req-link-picker-list {
+    max-height: 40vh;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.req-link-picker-item {
+    padding: 2px 0;
+}

@@ -5,7 +5,7 @@
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
       <Title>CDP4 WEB Common Test</Title>
-      <Version>7.0.0</Version>
+      <Version>8.1.0</Version>
       <AssemblyVersion>5.2.0</AssemblyVersion>
       <FileVersion>5.2.0</FileVersion>
       <Description>A Common Library that includes DevExpress Blazor and Tasks test helpers</Description>
@@ -22,8 +22,6 @@
       <IncludeSymbols>true</IncludeSymbols>
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
       <PackageReleaseNotes>
-          [Update] to CDP4.WEB.Common 7.0.0
-          [Update] System.Formats.Asn1 to version 10.0.1
       </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -35,6 +33,7 @@
 
     <ItemGroup Label="override transitive vulnerable dependency">
         <PackageReference Include="System.Formats.Asn1" Version="10.0.7" />
+        <PackageReference Include="AngleSharp" Version="1.5.2" />
     </ItemGroup>
 
     <ItemGroup>

@@ -231,6 +231,14 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         IReadOnlyList<BooleanExpression> GetTerms(BooleanExpression expression);
 
         /// <summary>
+        /// Gets every <see cref="ParameterOrOverrideBase" /> bound to the given <paramref name="expression" /> through a
+        /// <see cref="BinaryRelationship" />.
+        /// </summary>
+        /// <param name="expression">The <see cref="RelationalExpression" /></param>
+        /// <returns>The bound parameters, empty when none are bound</returns>
+        IReadOnlyList<ParameterOrOverrideBase> GetBoundParameters(RelationalExpression expression);
+
+        /// <summary>
         /// Gets the <see cref="ParameterOrOverrideBase" /> bound to the given <paramref name="expression" /> through a
         /// <see cref="BinaryRelationship" />.
         /// </summary>
@@ -247,12 +255,36 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         string GetBoundParameterModelCode(RelationalExpression expression);
 
         /// <summary>
+        /// Gets the formatted published value of the given <paramref name="parameter" />.
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterOrOverrideBase" /></param>
+        /// <returns>The formatted published value, or null when it cannot be shown unambiguously</returns>
+        string GetPublishedValue(ParameterOrOverrideBase parameter);
+
+        /// <summary>
         /// Gets the published value of the <see cref="ParameterOrOverrideBase" /> bound to the given
         /// <paramref name="expression" />.
         /// </summary>
         /// <param name="expression">The <see cref="RelationalExpression" /></param>
         /// <returns>The formatted published value, or null when no parameter is bound</returns>
         string GetBoundParameterPublishedValue(RelationalExpression expression);
+
+        /// <summary>
+        /// Gets the <see cref="ParameterOrOverrideBase" />s of the element tree that could be linked to the given
+        /// <paramref name="expression" />, i.e. the ones sharing its <see cref="ParameterType" />.
+        /// </summary>
+        /// <param name="expression">The <see cref="RelationalExpression" /></param>
+        /// <returns>The candidate parameters, ordered by model code</returns>
+        IReadOnlyList<ParameterOrOverrideBase> GetLinkableParameters(RelationalExpression expression);
+
+        /// <summary>
+        /// Creates and removes the <see cref="BinaryRelationship" />s so that the given <paramref name="expression" />
+        /// ends up bound to exactly the <paramref name="selected" /> parameters.
+        /// </summary>
+        /// <param name="expression">The <see cref="RelationalExpression" /></param>
+        /// <param name="selected">The <see cref="ParameterOrOverrideBase" />s the expression should be bound to</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        Task<Result> UpdateParameterLinksAsync(RelationalExpression expression, IReadOnlyCollection<ParameterOrOverrideBase> selected);
 
         /// <summary>
         /// Gets a one-line human-readable summary of the given <paramref name="expression" /> tree.
@@ -288,6 +320,36 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="requirement">The <see cref="Requirement" /> to navigate to</param>
         void NavigateToRequirement(Requirement requirement);
+
+        /// <summary>
+        /// Gets or sets the <see cref="RequirementsGroup" /> currently being dragged in the table of contents to change
+        /// its nesting, or null when no drag is in progress.
+        /// </summary>
+        RequirementsGroup DraggedGroup { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="RequirementsContainer" /> the dragged group is currently hovered over, or null;
+        /// used to highlight only the hovered valid drop target.
+        /// </summary>
+        RequirementsContainer DragOverContainer { get; set; }
+
+        /// <summary>
+        /// Determines whether the given <paramref name="group" /> may be dropped onto the given <paramref name="target" />
+        /// container (a different container in the same specification that is not the group itself or a descendant).
+        /// </summary>
+        /// <param name="group">The <see cref="RequirementsGroup" /> being moved.</param>
+        /// <param name="target">The target <see cref="RequirementsContainer" />.</param>
+        /// <returns>true when the move is allowed</returns>
+        bool CanMoveGroup(RequirementsGroup group, RequirementsContainer target);
+
+        /// <summary>
+        /// Re-parents the given <paramref name="group" /> under the given <paramref name="target" /> container and
+        /// persists the move; does nothing when the move is not allowed.
+        /// </summary>
+        /// <param name="group">The <see cref="RequirementsGroup" /> to move.</param>
+        /// <param name="target">The target <see cref="RequirementsContainer" />.</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the move</returns>
+        Task<Result> MoveGroupAsync(RequirementsGroup group, RequirementsContainer target);
 
         /// <summary>
         /// Gets whether the group with the given <paramref name="iid" /> is collapsed in the document panel.

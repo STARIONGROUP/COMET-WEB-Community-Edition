@@ -29,21 +29,49 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreatio
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Components.ModelEditor;
 
     using Microsoft.AspNetCore.Components;
 
+    using ReactiveUI;
+
     /// <summary>
     /// View model for the <see cref="ElementDefinitionCreation" /> component
     /// </summary>
-    public class ElementDefinitionCreationViewModel : IElementDefinitionCreationViewModel
+    public class ElementDefinitionCreationViewModel : DisposableObject, IElementDefinitionCreationViewModel
     {
         /// <summary>
         /// The <see cref="ISessionService" />
         /// </summary>
         private readonly ISessionService sessionService;
+
+        /// <summary>
+        /// Backing field for the <see cref="AvailableCategories" /> property
+        /// </summary>
+        private IEnumerable<Category> availableCategories = new List<Category>();
+
+        /// <summary>
+        /// Backing field for the <see cref="SelectedCategories" /> property
+        /// </summary>
+        private IEnumerable<Category> selectedCategories = new List<Category>();
+
+        /// <summary>
+        /// Backing field for the <see cref="OnValidSubmit" /> property
+        /// </summary>
+        private EventCallback onValidSubmit;
+
+        /// <summary>
+        /// Backing field for the <see cref="IsTopElement" /> property
+        /// </summary>
+        private bool isTopElement;
+
+        /// <summary>
+        /// Backing field for the <see cref="ElementDefinition" /> property
+        /// </summary>
+        private ElementDefinition elementDefinition = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ElementDefinitionCreationViewModel" /> class.
@@ -61,12 +89,18 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreatio
                     ElementDefinition.Owner = selectedOwner;
                 })
             };
+
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
         }
 
         /// <summary>
         /// A collection of available <see cref="Category" />s
         /// </summary>
-        public IEnumerable<Category> AvailableCategories { get; set; } = new List<Category>();
+        public IEnumerable<Category> AvailableCategories
+        {
+            get => this.availableCategories;
+            set => this.RaiseAndSetIfChanged(ref this.availableCategories, value);
+        }
 
         /// <summary>
         /// Gets the <see cref="IDomainOfExpertiseSelectorViewModel" />
@@ -76,22 +110,38 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreatio
         /// <summary>
         /// Selected <see cref="Category" />
         /// </summary>
-        public IEnumerable<Category> SelectedCategories { get; set; } = new List<Category>();
+        public IEnumerable<Category> SelectedCategories
+        {
+            get => this.selectedCategories;
+            set => this.RaiseAndSetIfChanged(ref this.selectedCategories, value);
+        }
 
         /// <summary>
         /// An <see cref="EventCallback" /> to invoke on form submit
         /// </summary>
-        public EventCallback OnValidSubmit { get; set; }
+        public EventCallback OnValidSubmit
+        {
+            get => this.onValidSubmit;
+            set => this.RaiseAndSetIfChanged(ref this.onValidSubmit, value);
+        }
 
         /// <summary>
         /// Value indicating if the <see cref="ElementDefinition" /> is top element
         /// </summary>
-        public bool IsTopElement { get; set; }
+        public bool IsTopElement
+        {
+            get => this.isTopElement;
+            set => this.RaiseAndSetIfChanged(ref this.isTopElement, value);
+        }
 
         /// <summary>
         /// The <see cref="ElementDefinition" /> to create or edit
         /// </summary>
-        public ElementDefinition ElementDefinition { get; set; } = new();
+        public ElementDefinition ElementDefinition
+        {
+            get => this.elementDefinition;
+            set => this.RaiseAndSetIfChanged(ref this.elementDefinition, value);
+        }
 
         /// <summary>
         /// Initializes the current view model

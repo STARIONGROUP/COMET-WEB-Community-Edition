@@ -54,9 +54,35 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         }
 
         /// <summary>
+        /// Unsubscribes from the <see cref="ISelectionMediator" /> events and releases the resources used by this view model
+        /// </summary>
+        /// <param name="disposing">Value asserting if this component should dispose or not</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.SelectionMediator.OnModelSelectionChanged -= this.OnModelSelectionChanged;
+                this.SelectionMediator.OnParameterSubmitted -= this.OnParameterSubmitted;
+            }
+
+            base.Dispose(disposing);
+        }
+
+        /// <summary>
         /// Gets o sets the <see cref="SelectionMediator" />
         /// </summary>
         public ISelectionMediator SelectionMediator { get; private set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the tree only shows nodes that have a 3D geometry
+        /// primitive.
+        /// </summary>
+        // One-way convenience wrapper over SelectedFilter for the "View" cog checkbox; the Viewer never mutates SelectedFilter elsewhere.
+        public bool ShowOnlyNodesWithGeometry
+        {
+            get => this.SelectedFilter == TreeFilter.ShowNodesWithGeometry;
+            set => this.SelectedFilter = value ? TreeFilter.ShowNodesWithGeometry : TreeFilter.ShowFullTree;
+        }
 
         /// <summary>
         /// Creates the product tree

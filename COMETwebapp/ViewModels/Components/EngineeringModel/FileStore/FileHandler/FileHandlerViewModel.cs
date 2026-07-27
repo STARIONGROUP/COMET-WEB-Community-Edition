@@ -67,6 +67,10 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
                 OnSelectedDomainOfExpertiseChange = new EventCallbackFactory().Create<DomainOfExpertise>(this, selectedOwner => { this.CurrentThing.Owner = selectedOwner; })
             };
 
+            // This is a nested content view model, not a tabbed application, so it is never moved between panels; opt out of the ApplicationBaseViewModel tab-move dispose gate so it actually disposes (and releases its DomainOfExpertiseSelectorViewModel subscription) when its host unmounts.
+            this.IsAllowedToDispose = true;
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
+
             this.InitializeSubscriptions([typeof(FileStore)]);
         }
 
@@ -197,11 +201,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
 
             if (result.IsSuccess)
             {
-                this.logger.LogInformation("File with iid {iid} updated successfully", this.CurrentThing.Iid);
+                this.logger.LogInformation("File with iid {Iid} updated successfully", this.CurrentThing.Iid);
             }
             else
             {
-                this.logger.LogWarning("File could not be created. {warning}", string.Join(", ", result.Reasons.Select(x => x.Message)));
+                this.logger.LogWarning("File could not be created. {Warning}", string.Join(", ", result.Reasons.Select(x => x.Message)));
             }
 
             this.IsLoading = false;

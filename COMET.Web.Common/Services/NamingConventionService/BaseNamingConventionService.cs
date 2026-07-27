@@ -69,7 +69,7 @@ namespace COMET.Web.Common.Services.NamingConventionService
                 }
                 else
                 {
-                    this.Logger.LogWarning("{namingConventionKind} is missing from the Naming Convention configuration file", namingConventionKind.ToString());
+                    this.Logger.LogWarning("{NamingConventionKind} is missing from the Naming Convention configuration file", namingConventionKind.ToString());
                 }
             }
         }

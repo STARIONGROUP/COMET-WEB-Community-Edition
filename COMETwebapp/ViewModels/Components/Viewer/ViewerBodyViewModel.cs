@@ -60,6 +60,10 @@ namespace COMETwebapp.ViewModels.Components.Viewer
 
             this.InitializeSubscriptions([typeof(ElementBase)]);
 
+            this.Disposables.Add(this.ProductTreeViewModel);
+            this.Disposables.Add((IDisposable)this.CanvasViewModel);
+            this.Disposables.Add((IDisposable)this.PropertiesViewModel);
+
             this.Disposables.Add(this.WhenAnyValue(x => x.MultipleFiniteStateSelector.SelectedFiniteStates,
                     x => x.OptionSelector.SelectedOption)
                 .Subscribe(_ => this.InitializeElementsAndCreateTree()));

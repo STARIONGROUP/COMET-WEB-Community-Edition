@@ -30,9 +30,12 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// View model driving the edit-Element-Definition popup. Holds a working clone of the target
@@ -42,13 +45,28 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
     /// through the open <see cref="ISession" />; it is cloned at submit time when a
     /// <see cref="Iteration.TopElement" /> change must be persisted.
     /// </summary>
-    public class EditElementDefinitionViewModel : IEditElementDefinitionViewModel
+    public class EditElementDefinitionViewModel : DisposableObject, IEditElementDefinitionViewModel
     {
         /// <summary>
         /// The <see cref="ISessionService" /> queried for the available
         /// <see cref="DefinedThing.Definition" /> categories.
         /// </summary>
         private readonly ISessionService sessionService;
+
+        /// <summary>
+        /// Backing field for the <see cref="SelectedCategories" /> property
+        /// </summary>
+        private IEnumerable<Category> selectedCategories = new List<Category>();
+
+        /// <summary>
+        /// Backing field for the <see cref="IsTopElement" /> property
+        /// </summary>
+        private bool isTopElement;
+
+        /// <summary>
+        /// Backing field for the <see cref="OnValidSubmit" /> property
+        /// </summary>
+        private EventCallback onValidSubmit;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EditElementDefinitionViewModel" /> class.
@@ -69,6 +87,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
                     }
                 })
             };
+
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
         }
 
         /// <summary>
@@ -88,7 +108,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
         /// <summary>
         /// Gets or sets the categories selected by the user on the form.
         /// </summary>
-        public IEnumerable<Category> SelectedCategories { get; set; } = new List<Category>();
+        public IEnumerable<Category> SelectedCategories
+        {
+            get => this.selectedCategories;
+            set => this.RaiseAndSetIfChanged(ref this.selectedCategories, value);
+        }
 
         /// <summary>
         /// Gets the categories permitted on an <see cref="ElementDefinition" /> across all open
@@ -102,7 +126,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
         /// promoted to <see cref="Iteration.TopElement" /> on save. Initialized to the iteration's current
         /// top-element identity.
         /// </summary>
-        public bool IsTopElement { get; set; }
+        public bool IsTopElement
+        {
+            get => this.isTopElement;
+            set => this.RaiseAndSetIfChanged(ref this.isTopElement, value);
+        }
 
         /// <summary>
         /// Gets the selector view model used by the form to pick the owning
@@ -114,7 +142,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
         /// Gets or sets the callback invoked by the form when the user submits a valid edit. Wired by the
         /// owning <see cref="ModelEditorViewModel" /> to the actual save handler.
         /// </summary>
-        public EventCallback OnValidSubmit { get; set; }
+        public EventCallback OnValidSubmit
+        {
+            get => this.onValidSubmit;
+            set => this.RaiseAndSetIfChanged(ref this.onValidSubmit, value);
+        }
 
         /// <summary>
         /// Initializes the view model with a clone of the <see cref="ElementDefinition" /> to edit and the

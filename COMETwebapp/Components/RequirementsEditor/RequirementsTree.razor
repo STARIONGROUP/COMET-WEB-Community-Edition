@@ -18,50 +18,26 @@ Copyright (c) 2023-2026 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
-@using CDP4Common.SiteDirectoryData
-@using COMETwebapp.Utilities
-
-@{
-    RenderFragment<(DomainOfExpertise Owner, IEnumerable<Category> Categories)> pills = context =>
-        @<span class="req-pills">
-            @if (this.ViewModel.ShowOwner && context.Owner != null)
-            {
-                <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{context.Owner.ShortName}") !important;" title="Owner: @context.Owner.Name">@context.Owner.ShortName</span>
-            }
-            @if (this.ViewModel.ShowCategory)
-            {
-                @foreach (var category in context.Categories)
-                {
-                    <span class="starion-pill" style="background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;" title="Category: @category.Name">@category.ShortName</span>
-                }
-            }
-        </span>;
-}
-
 @if (this.Groups == null)
 {
     <div class="req-tree-header">
         <span class="req-tree-header-title">Contents</span>
-        <div class="btn-group" role="group" aria-label="Table of contents label">
-            <DxButton RenderStyle="@(this.ViewModel.TreeUsesShortName ? ButtonRenderStyle.Primary : ButtonRenderStyle.Light)"
-                      Text="ID" title="Label by short name"
-                      Click="@(() => this.ViewModel.TreeUsesShortName = true)" />
-            <DxButton RenderStyle="@(this.ViewModel.TreeUsesShortName ? ButtonRenderStyle.Light : ButtonRenderStyle.Primary)"
-                      Text="Name" title="Label by name"
-                      Click="@(() => this.ViewModel.TreeUsesShortName = false)" />
-        </div>
     </div>
 
     <ul class="req-tree">
         @foreach (var specification in this.ViewModel.AvailableSpecifications)
         {
             var isSelected = specification == this.ViewModel.SelectedSpecification;
+            var specIsDropTarget = this.ViewModel.DragOverContainer == specification && this.ViewModel.CanMoveGroup(this.ViewModel.DraggedGroup, specification);
 
             <li class="req-tree-item">
-                <div class="req-tree-row req-tree-spec @(isSelected ? "selected" : string.Empty) @(specification.IsDeprecated ? "req-tree-deprecated" : string.Empty)"
-                     @onclick="@(() => this.ViewModel.SelectedSpecification = specification)">
+                <div class="req-tree-row req-tree-spec @(isSelected ? "selected" : string.Empty) @(specification.IsDeprecated ? "req-tree-deprecated" : string.Empty) @(specIsDropTarget ? "req-tree-droptarget" : string.Empty)"
+                     @onclick="@(() => this.ViewModel.SelectedSpecification = specification)"
+                     @ondragenter="@(() => this.OnDragEnter(specification))"
+                     @ondragover:preventDefault="true"
+                     @ondrop="@(() => this.OnDropOnContainer(specification))">
                     <span class="req-tree-label">@(this.ViewModel.TreeUsesShortName ? specification.ShortName : specification.Name)</span>
-                    @pills((specification.Owner, specification.Category))
+                    <RequirementPills ViewModel="@this.ViewModel" Owner="@specification.Owner" Categories="@specification.Category" />
                 </div>
                 @if (isSelected)
                 {
@@ -78,9 +54,17 @@ else
         {
             var hasChildren = this.ViewModel.GetGroups(group).Any();
             var collapsed = this.ViewModel.IsTreeNodeCollapsed(group.Iid);
+            var isDropTarget = this.ViewModel.DragOverContainer == group && this.ViewModel.CanMoveGroup(this.ViewModel.DraggedGroup, group);
 
             <li class="req-tree-item">
-                <div class="req-tree-row">
+                <div class="req-tree-row req-tree-group-row @(isDropTarget ? "req-tree-droptarget" : string.Empty)"
+                     draggable="true"
+                     title="Drag onto a group to nest it, or onto the specification to make it top-level"
+                     @ondragstart="@(() => this.OnGroupDragStart(group))"
+                     @ondragend="@this.OnGroupDragEnd"
+                     @ondragenter="@(() => this.OnDragEnter(group))"
+                     @ondragover:preventDefault="true"
+                     @ondrop="@(() => this.OnDropOnContainer(group))">
                     @if (hasChildren)
                     {
                         <button type="button" class="req-tree-chevron" title="@(collapsed ? "Expand" : "Collapse")"
@@ -92,8 +76,8 @@ else
                     {
                         <span class="req-tree-chevron-placeholder"></span>
                     }
-                    <a class="req-tree-group" href="#@RequirementsDocument.GroupAnchorId(group)" title="@group.Name">@(this.ViewModel.TreeUsesShortName ? group.ShortName : group.Name)</a>
-                    @pills((group.Owner, group.Category))
+                    <a class="req-tree-group" draggable="false" href="#@RequirementsDocument.GroupAnchorId(group)" title="@group.Name">@(this.ViewModel.TreeUsesShortName ? group.ShortName : group.Name)</a>
+                    <RequirementPills ViewModel="@this.ViewModel" Owner="@group.Owner" Categories="@group.Category" />
                 </div>
                 @if (hasChildren && !collapsed)
                 {

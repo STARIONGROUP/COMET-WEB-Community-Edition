@@ -1,0 +1,7 @@
+.search-bar {
+    width: 100%;
+}
+
+.search-bar ::deep .inline-search-icon {
+    width: 100%;
+}

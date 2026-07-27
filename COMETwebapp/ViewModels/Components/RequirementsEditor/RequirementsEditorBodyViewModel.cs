@@ -572,7 +572,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
                 if (definition == null)
                 {
-                    definition = new Definition { Iid = Guid.NewGuid(), LanguageCode = "en-GB" };
+                    definition = new Definition { Iid = Guid.NewGuid(), LanguageCode = this.GetDefaultDefinitionLanguageCode() };
                     clone.Definition.Add(definition);
                 }
 
@@ -597,6 +597,126 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 this.IsLoading = false;
             }
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="DraggedGroup" />.
+        /// </summary>
+        private RequirementsGroup draggedGroup;
+
+        /// <summary>
+        /// Gets or sets the <see cref="RequirementsGroup" /> currently being dragged in the table of contents to change
+        /// its nesting, or null when no drag is in progress. Reactive so the tree re-renders to gate drop targets.
+        /// </summary>
+        public RequirementsGroup DraggedGroup
+        {
+            get => this.draggedGroup;
+            set => this.RaiseAndSetIfChanged(ref this.draggedGroup, value);
+        }
+
+        /// <summary>
+        /// Backing field for <see cref="DragOverContainer" />.
+        /// </summary>
+        private RequirementsContainer dragOverContainer;
+
+        /// <summary>
+        /// Gets or sets the <see cref="RequirementsContainer" /> the dragged group is currently hovered over, or null.
+        /// Reactive so only the hovered valid target is highlighted (like the System Representation tree).
+        /// </summary>
+        public RequirementsContainer DragOverContainer
+        {
+            get => this.dragOverContainer;
+            set => this.RaiseAndSetIfChanged(ref this.dragOverContainer, value);
+        }
+
+        /// <summary>
+        /// Determines whether the given <paramref name="group" /> may be dropped onto the given <paramref name="target" />
+        /// container: the target must be a different container in the same specification, and must not be the group
+        /// itself or one of its descendants (which would create a cycle).
+        /// </summary>
+        /// <param name="group">The <see cref="RequirementsGroup" /> being moved.</param>
+        /// <param name="target">The target <see cref="RequirementsContainer" /> (a specification or a group).</param>
+        /// <returns>true when the move is allowed</returns>
+        public bool CanMoveGroup(RequirementsGroup group, RequirementsContainer target)
+        {
+            if (group == null || target == null || target == group.Container)
+            {
+                return false;
+            }
+
+            var groupSpecification = group.GetContainerOfType<RequirementsSpecification>();
+            var targetSpecification = target as RequirementsSpecification ?? target.GetContainerOfType<RequirementsSpecification>();
+
+            if (groupSpecification != targetSpecification)
+            {
+                return false;
+            }
+
+            for (var ancestor = target as RequirementsGroup; ancestor != null; ancestor = ancestor.Container as RequirementsGroup)
+            {
+                if (ancestor == group)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Re-parents the given <paramref name="group" /> under the given <paramref name="target" /> container — a
+        /// <see cref="RequirementsSpecification" /> to make it a top-level group, or another <see cref="RequirementsGroup" />
+        /// to nest it — and persists the move. Does nothing when the move is not allowed (see <see cref="CanMoveGroup" />).
+        /// </summary>
+        /// <param name="group">The <see cref="RequirementsGroup" /> to move.</param>
+        /// <param name="target">The target <see cref="RequirementsContainer" />.</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the move</returns>
+        public async Task<Result> MoveGroupAsync(RequirementsGroup group, RequirementsContainer target)
+        {
+            if (!this.CanMoveGroup(group, target))
+            {
+                return Result.Fail("The group cannot be moved to that location.");
+            }
+
+            try
+            {
+                // toggling IsLoading is what makes the body (tree AND document) re-render with the new nesting once the
+                // write returns — every other write in this VM follows the same IsLoading + ReloadPreservingSelection pattern
+                this.IsLoading = true;
+
+                // mirrors the desktop IME (RequirementsSpecificationRowViewModel.MoveGroup): only the NEW container is
+                // updated, with the moved group added to its Group list — the server re-parents it and removes it from
+                // its old container. Sending the old container or the group as separate updates trips the server's
+                // acyclic check (NullReferenceException in RequirementsGroupSideEffect) because it sees inconsistent state.
+                var newContainerClone = (RequirementsContainer)target.Clone(false);
+                newContainerClone.Group.Add(group.Clone(false));
+
+                var result = await this.SessionService.CreateOrUpdateThingsWithNotification(newContainerClone, [newContainerClone],
+                    BuildNotification(group, "moved", "move"));
+
+                if (result.IsSuccess)
+                {
+                    await this.ReloadPreservingSelection();
+                }
+
+                return result;
+            }
+            finally
+            {
+                this.IsLoading = false;
+            }
+        }
+
+        /// <summary>
+        /// Gets the directory-wide default definition language: the first <see cref="NaturalLanguage" /> configured on the
+        /// model's <see cref="SiteDirectory" />, falling back to English when the directory defines none. Mirrors the
+        /// create/edit dialog so an inline-added definition gets the same default language.
+        /// </summary>
+        /// <returns>The default language code</returns>
+        private string GetDefaultDefinitionLanguageCode()
+        {
+            var directoryLanguage = this.SessionService.Session.RetrieveSiteDirectory().NaturalLanguage.FirstOrDefault()?.LanguageCode;
+            return string.IsNullOrWhiteSpace(directoryLanguage) ? "en" : directoryLanguage;
         }
 
         /// <summary>
@@ -743,6 +863,26 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         }
 
         /// <summary>
+        /// Gets every <see cref="ParameterOrOverrideBase" /> bound to the given <paramref name="expression" /> through a
+        /// <see cref="BinaryRelationship" />, the way requirement verification links a parameter to a relational
+        /// expression.
+        /// </summary>
+        /// <param name="expression">The <see cref="RelationalExpression" /></param>
+        /// <returns>The bound parameters, empty when none are bound</returns>
+        public IReadOnlyList<ParameterOrOverrideBase> GetBoundParameters(RelationalExpression expression)
+        {
+            if (this.CurrentThing == null)
+            {
+                return [];
+            }
+
+            return this.CurrentThing.Relationship.OfType<BinaryRelationship>()
+                .Select(x => (x.Source == expression ? x.Target : x.Target == expression ? x.Source : null) as ParameterOrOverrideBase)
+                .Where(x => x != null)
+                .ToList();
+        }
+
+        /// <summary>
         /// Gets the <see cref="ParameterOrOverrideBase" /> bound to the given <paramref name="expression" /> through a
         /// <see cref="BinaryRelationship" />, the way requirement verification links a parameter to a relational
         /// expression.
@@ -751,15 +891,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <returns>The bound parameter, or null when none is bound</returns>
         public ParameterOrOverrideBase GetBoundParameter(RelationalExpression expression)
         {
-            var binding = this.CurrentThing?.Relationship.OfType<BinaryRelationship>()
-                .FirstOrDefault(x => (x.Source == expression && x.Target is ParameterOrOverrideBase) || (x.Target == expression && x.Source is ParameterOrOverrideBase));
-
-            if (binding == null)
-            {
-                return null;
-            }
-
-            return (ParameterOrOverrideBase)(binding.Source == expression ? binding.Target : binding.Source);
+            return this.GetBoundParameters(expression).FirstOrDefault();
         }
 
         /// <summary>
@@ -774,6 +906,21 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         }
 
         /// <summary>
+        /// Gets the formatted published value of the given <paramref name="parameter" /> — the value the bound element
+        /// last published, to compare against the constraint's threshold.
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterOrOverrideBase" /></param>
+        /// <returns>The formatted published value, or null when it cannot be shown unambiguously</returns>
+        public string GetPublishedValue(ParameterOrOverrideBase parameter)
+        {
+            var valueSets = parameter?.ValueSets.OfType<ParameterValueSetBase>().ToList() ?? [];
+
+            // only show a single, unambiguous published value; an option/state-dependent parameter has several and we
+            // would otherwise present an arbitrary one as "the" published value
+            return valueSets.Count == 1 ? ParameterValueFormatter.Format(valueSets[0].Published, parameter.Scale) : null;
+        }
+
+        /// <summary>
         /// Gets the published value of the <see cref="ParameterOrOverrideBase" /> bound to the given
         /// <paramref name="expression" /> — the value the bound element last published, to compare against the
         /// constraint's threshold.
@@ -782,12 +929,77 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <returns>The formatted published value, or null when no parameter is bound</returns>
         public string GetBoundParameterPublishedValue(RelationalExpression expression)
         {
-            var parameter = this.GetBoundParameter(expression);
-            var valueSets = parameter?.ValueSets.OfType<ParameterValueSetBase>().ToList() ?? [];
+            return this.GetPublishedValue(this.GetBoundParameter(expression));
+        }
 
-            // only show a single, unambiguous published value; an option/state-dependent parameter has several and we
-            // would otherwise present an arbitrary one as "the" published value
-            return valueSets.Count == 1 ? ParameterValueFormatter.Format(valueSets[0].Published, parameter.Scale) : null;
+        /// <summary>
+        /// Gets the <see cref="ParameterOrOverrideBase" />s of the element tree that could be linked to the given
+        /// <paramref name="expression" />, i.e. the ones sharing its <see cref="ParameterType" />.
+        /// </summary>
+        /// <param name="expression">The <see cref="RelationalExpression" /></param>
+        /// <returns>The candidate parameters, ordered by model code</returns>
+        public IReadOnlyList<ParameterOrOverrideBase> GetLinkableParameters(RelationalExpression expression)
+        {
+            if (this.CurrentThing == null || expression?.ParameterType == null)
+            {
+                return [];
+            }
+
+            var definitionParameters = this.CurrentThing.Element.SelectMany(x => x.Parameter);
+            var usageOverrides = this.CurrentThing.Element.SelectMany(x => x.ContainedElement).SelectMany(x => x.ParameterOverride);
+
+            // same gate as the desktop IME (ThingCreator.IsCreateBinaryRelationshipForRequirementVerificationAllowed):
+            // same parameter type, and for a quantity kind also the same scale
+            return definitionParameters.Concat<ParameterOrOverrideBase>(usageOverrides)
+                .Where(x => x.ParameterType == expression.ParameterType && (expression.ParameterType is not QuantityKind || x.Scale == expression.Scale))
+                .OrderBy(x => x.ModelCode())
+                .ToList();
+        }
+
+        /// <summary>
+        /// Creates and removes the <see cref="BinaryRelationship" />s so that the given <paramref name="expression" />
+        /// ends up bound to exactly the <paramref name="selected" /> parameters.
+        /// </summary>
+        /// <param name="expression">The <see cref="RelationalExpression" /></param>
+        /// <param name="selected">The <see cref="ParameterOrOverrideBase" />s the expression should be bound to</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        public async Task<Result> UpdateParameterLinksAsync(RelationalExpression expression, IReadOnlyCollection<ParameterOrOverrideBase> selected)
+        {
+            if (this.CurrentThing == null)
+            {
+                return Result.Fail("No iteration is loaded");
+            }
+
+            var currentBindings = this.CurrentThing.Relationship.OfType<BinaryRelationship>()
+                .Where(x => (x.Source == expression && x.Target is ParameterOrOverrideBase) || (x.Target == expression && x.Source is ParameterOrOverrideBase))
+                .ToList();
+
+            var boundParameters = currentBindings.ToDictionary(x => x, x => (ParameterOrOverrideBase)(x.Source == expression ? x.Target : x.Source));
+
+            var toAdd = selected.Where(x => !boundParameters.Values.Contains(x)).ToList();
+            var toRemove = currentBindings.Where(x => !selected.Contains(boundParameters[x])).ToList();
+
+            if (toAdd.Count == 0 && toRemove.Count == 0)
+            {
+                return Result.Ok();
+            }
+
+            var iterationClone = this.CurrentThing.Clone(false);
+            var created = new List<Thing> { iterationClone };
+
+            foreach (var parameter in toAdd)
+            {
+                // direction matches the desktop IME (ThingCreator.CreateBinaryRelationshipForRequirementVerification):
+                // Source is the parameter, Target is the relational expression — the IME only recognises links written this way
+                var relationship = new BinaryRelationship { Iid = Guid.NewGuid(), Source = parameter, Target = expression, Owner = this.CurrentDomain };
+                iterationClone.Relationship.Add(relationship);
+                created.Add(relationship);
+            }
+
+            var deleted = toRemove.Select(x => (Thing)x.Clone(false)).ToList();
+
+            return await this.SessionService.CreateUpdateAndDeleteThingsWithNotification(iterationClone, created, deleted,
+                new NotificationDescription { OnSuccess = "Parameter link updated", OnError = "Updating the parameter link failed" });
         }
 
         /// <summary>
@@ -927,6 +1139,16 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         }
 
         /// <summary>
+        /// Handles a write committed by this or another open application (e.g. a relationship created from the
+        /// Relationship Matrix in a split view) so the traceability links refresh here as well.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override Task OnEndUpdate()
+        {
+            return this.ReloadPreservingSelection();
+        }
+
+        /// <summary>
         /// Builds the flattened list of every <see cref="RequirementsGroup" /> of the selected specification, used to file a requirement.
         /// </summary>
         /// <returns>All groups of the selected specification, or an empty list when none is selected.</returns>
@@ -957,10 +1179,17 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         private void EnsureEditViewModel()
         {
-            this.EditViewModel ??= new EditRequirementThingViewModel(this.SessionService, this.MessageBus)
+            if (this.EditViewModel is not null)
+            {
+                return;
+            }
+
+            this.EditViewModel = new EditRequirementThingViewModel(this.SessionService, this.MessageBus)
             {
                 OnValidSubmit = new EventCallbackFactory().Create(this, this.OnEditValidSubmitAsync)
             };
+
+            this.Disposables.Add((IDisposable)this.EditViewModel);
         }
 
         /// <summary>

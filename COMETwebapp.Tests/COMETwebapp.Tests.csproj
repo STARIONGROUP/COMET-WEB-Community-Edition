@@ -15,8 +15,8 @@
 
   <ItemGroup>
     <PackageReference Include="bunit" Version="2.7.2" />
-    <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+    <PackageReference Include="Microsoft.Playwright.NUnit" Version="1.49.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="NUnit" Version="4.6.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
@@ -28,10 +28,11 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Selenium.Support" Version="4.43.0" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.43.0" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="147.0.7727.11700" />
   </ItemGroup>
+
+    <ItemGroup Label="override transitive vulnerable dependency">
+        <PackageReference Include="AngleSharp" Version="1.5.2" />
+    </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\COMET.Web.Common.Test\COMET.Web.Common.Test.csproj" />

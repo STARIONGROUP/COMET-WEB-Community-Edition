@@ -27,6 +27,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -121,6 +122,29 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
         {
             this.viewModel.Dispose();
             this.messageBus.Dispose();
+        }
+
+        /// <summary>
+        /// Verifies that disposing the view model disposes its <see cref="DomainOfExpertiseSelectorViewModel" /> — even
+        /// though this view model is <c>ApplicationBaseViewModel</c>-derived, its constructor opts out of the tab-move
+        /// dispose gate (it is a nested content view model, never a tab), so a plain <c>Dispose()</c> releases the
+        /// selector's circuit-scoped message-bus subscription instead of leaking it (see GH824).
+        /// </summary>
+        [Test]
+        public void VerifyDisposeUnsubscribesDomainSelectorFromMessageBus()
+        {
+            var domainA = new DomainOfExpertise { Iid = Guid.NewGuid() };
+            var domainB = new DomainOfExpertise { Iid = Guid.NewGuid() };
+
+            this.viewModel.DomainOfExpertiseSelectorViewModel.CurrentIteration = this.iteration;
+
+            this.messageBus.SendMessage(new DomainChangedEvent(this.iteration, domainA));
+            Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.CurrentIterationDomain, Is.EqualTo(domainA), "The selector should react while subscribed.");
+
+            this.viewModel.Dispose();
+            this.messageBus.SendMessage(new DomainChangedEvent(this.iteration, domainB));
+
+            Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.CurrentIterationDomain, Is.EqualTo(domainA), "After disposal the selector must no longer react to bus events.");
         }
 
         [Test]

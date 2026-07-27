@@ -22,14 +22,12 @@
 @inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.Viewer.IViewerBodyViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
-    <div id="@WebAppConstantValues.ViewerPage.QueryPageBodyName()" class="row">
-        <div class="col">
-            <div class="width-fit-content">
-                <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
-            </div> 
-        </div> 
+    <div id="@WebAppConstantValues.ViewerPage.QueryPageBodyName()" class="viewer-page-body">
         <div id="gridParent">
             <div id="leftColumn">
+                <div id="option-filter">
+                    <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
+                </div>
                 <ViewerProductTree ViewModel="this.ViewModel.ProductTreeViewModel" />
             </div>
             <div id="center-container">

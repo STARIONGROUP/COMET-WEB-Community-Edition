@@ -292,7 +292,8 @@ namespace COMETwebapp.Components.Common
         {
             return !this.IsSearchActive
                    || row.ParameterTypeName.Contains(this.SearchTerm, StringComparison.OrdinalIgnoreCase)
-                   || row.ShortName.Contains(this.SearchTerm, StringComparison.OrdinalIgnoreCase);
+                   || row.ShortName.Contains(this.SearchTerm, StringComparison.OrdinalIgnoreCase)
+                   || (row.Owner?.Contains(this.SearchTerm, StringComparison.OrdinalIgnoreCase) ?? false);
         }
 
         /// <summary>

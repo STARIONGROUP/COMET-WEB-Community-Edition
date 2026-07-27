@@ -20,18 +20,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 @inherits DisposableComponent
 
 <div id="product-tree-container">
-    <h4 id="product-tree-title">Product Tree</h4>
-
-    <div id="product-tree-top-section">
-        <div class="product-tree-display-options">
-            <DxCheckBox @bind-Checked="@this.ViewModel.ShowName">Name</DxCheckBox>
-            <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner">Owner</DxCheckBox>
-            <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategories">Categories</DxCheckBox>
-        </div>
-        <div id="product-tree-search-bar">
-            <DxTextBox NullText="Search..." @bind-Text="@this.ViewModel.SearchText" BindValueMode="BindValueMode.OnInput" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"></DxTextBox>
-        </div>
-    </div>
+    <ProductTreeToolbar ViewModel="this.ViewModel" ButtonId="systemTreeViewMenuButton"/>
 
     <div id="product-tree-nodes-section">
         @if (this.ViewModel.RootViewModel is not null)

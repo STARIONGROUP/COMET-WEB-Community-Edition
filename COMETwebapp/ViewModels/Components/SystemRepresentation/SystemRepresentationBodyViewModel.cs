@@ -62,6 +62,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         {
             this.logger = logger;
             this.DetailsPanelViewModel = detailsPanelViewModel;
+            this.Disposables.Add((IDisposable)this.DetailsPanelViewModel);
             this.DetailsPanelViewModel.AutoAddCreatedDefinitionAsUsage = true;
 
             this.ProductTreeViewModel = new SystemRepresentationTreeViewModel

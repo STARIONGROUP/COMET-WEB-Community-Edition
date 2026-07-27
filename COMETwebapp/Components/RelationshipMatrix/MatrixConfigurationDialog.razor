@@ -1,0 +1,122 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.EngineeringModelData
+@using COMETwebapp.Extensions
+@using COMETwebapp.Model.RelationshipMatrix
+@using COMETwebapp.Services.FileStore
+@inherits COMET.Web.Common.Components.DisposableComponent
+
+<DxPopup @bind-Visible="@this.ViewModel.IsConfigurationDialogVisible"
+         HeaderText="Matrix configuration"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Width="440px">
+    <div class="matrix-dialog">
+        <section class="matrix-dialog-section">
+            <h6>Export configuration</h6>
+
+            <div class="matrix-dialog-row">
+                <label>Name</label>
+                <DxTextBox @bind-Text="@this.configurationName" NullText="RelationshipMatrix"/>
+            </div>
+
+            <div class="matrix-dialog-row">
+                <label>Destination</label>
+                <DxComboBox Data="@Destinations"
+                            TextFieldName="@nameof(DestinationOption.Label)"
+                            ValueFieldName="@nameof(DestinationOption.Value)"
+                            @bind-Value="@this.Destination"/>
+            </div>
+
+            @if (this.Destination != ConfigurationDestination.LocalDownload)
+            {
+                @if (this.ViewModel.StoreExists(this.StoreType))
+                {
+                    <div class="matrix-dialog-row">
+                        <label>Folder</label>
+                        <DxComboBox Data="@this.ViewModel.GetFolders(this.StoreType)"
+                                    @bind-Value="@this.selectedFolder"
+                                    TextFieldName="@nameof(Folder.Name)"
+                                    NullText="root">
+                            <ItemTemplate Context="folderContext">@folderContext.GetFolderPath()</ItemTemplate>
+                        </DxComboBox>
+                    </div>
+                }
+                else
+                {
+                    <div class="matrix-dialog-hint">The @(DestinationLabel(this.Destination).ToLowerInvariant()) will be created when you save.</div>
+                }
+            }
+
+            <div class="matrix-dialog-actions">
+                <DxButton Text="@this.ExportButtonText"
+                          IconCssClass="oi oi-data-transfer-download"
+                          Enabled="@this.CanExportOrSave"
+                          Click="@(async () => await this.OnExportOrSaveAsync())"/>
+            </div>
+        </section>
+
+        <section class="matrix-dialog-section">
+            <h6>Import configuration</h6>
+
+            <div class="matrix-dialog-row">
+                <label>From file</label>
+                <label id="importMatrixConfig" class="btn btn-secondary matrix-import-config" title="Import a configuration from a JSON file">
+                    <span class="oi oi-data-transfer-upload"></span> Choose a JSON file
+                    <InputFile OnChange="@this.OnImportFileAsync" accept=".json" style="display: none;"/>
+                </label>
+            </div>
+
+            @if (this.ViewModel.CanUseModelFileStore)
+            {
+                <div class="matrix-dialog-row">
+                    <label>From model</label>
+                    <DxComboBox Data="@ImportStores" @bind-Value="@this.ImportStore"/>
+                </div>
+
+                <div class="matrix-dialog-row">
+                    <label></label>
+                    <DxComboBox Data="@this.ViewModel.GetStoredConfigurations(this.ImportStore)"
+                                @bind-Value="@this.selectedStoredConfiguration"
+                                NullText="Select a stored configuration">
+                        <ItemTemplate>@context.CurrentFileRevision?.Name</ItemTemplate>
+                    </DxComboBox>
+                </div>
+
+                <div class="matrix-dialog-actions">
+                    <DxButton Text="Load from model"
+                              IconCssClass="oi oi-data-transfer-download"
+                              Enabled="@(this.selectedStoredConfiguration != null)"
+                              Click="@(async () => await this.OnLoadFromModelAsync())"/>
+                </div>
+            }
+            else
+            {
+                <div class="matrix-dialog-hint">Add a JSON file type to the RDL to store configurations in the model.</div>
+            }
+        </section>
+
+        @if (!string.IsNullOrEmpty(this.ViewModel.FileStoreMessage))
+        {
+            <div class="matrix-dialog-message">@this.ViewModel.FileStoreMessage</div>
+        }
+    </div>
+</DxPopup>

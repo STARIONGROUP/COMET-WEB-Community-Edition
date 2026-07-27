@@ -1,0 +1,150 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using COMETwebapp.Model.RelationshipMatrix
+@inherits DisposableComponent
+
+@if (this.ViewModel.SelectedRule is not null && this.ViewModel.RowThings.Count > 0 && this.ViewModel.ColumnThings.Count > 0)
+{
+    <div class="matrix-table-container">
+        <table class="matrix-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    @foreach (var column in this.ViewModel.ColumnThings)
+                    {
+                        <th @key="column"
+                            class="@(this.ViewModel.ShowNonRelatedBackgroundColor && this.ViewModel.IsColumnUnrelated(column) ? "unrelated" : string.Empty)"
+                            title="@(this.ViewModel.ColumnConfiguration.SelectedDisplayKind == MatrixDisplayKind.Name ? column.ShortName : column.Name)">
+                            @(this.ViewModel.ColumnConfiguration.SelectedDisplayKind == MatrixDisplayKind.Name ? column.Name : column.ShortName)
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in this.ViewModel.RowThings)
+                {
+                    var rowUnrelated = this.ViewModel.ShowNonRelatedBackgroundColor && this.ViewModel.IsRowUnrelated(row);
+
+                    <tr @key="row">
+                        <th class="@(rowUnrelated ? "unrelated" : string.Empty)"
+                            title="@(this.ViewModel.RowConfiguration.SelectedDisplayKind == MatrixDisplayKind.Name ? row.ShortName : row.Name)">
+                            @(this.ViewModel.RowConfiguration.SelectedDisplayKind == MatrixDisplayKind.Name ? row.Name : row.ShortName)
+                        </th>
+                        @foreach (var column in this.ViewModel.ColumnThings)
+                        {
+                            var cell = this.ViewModel.GetCell(row, column);
+
+                            <td @key="column"
+                                class="matrix-cell @(cell == this.ViewModel.SelectedCell ? "selected" : string.Empty)"
+                                title="@cell.Tooltip"
+                                @onclick="@(() => this.OnCellClick(row, column))"
+                                @ondblclick="@(eventArgs => this.OnCellDoubleClick(eventArgs, row, column))"
+                                @oncontextmenu:preventDefault="true"
+                                @oncontextmenu="@(eventArgs => this.OnCellContextMenu(eventArgs, row, column))">
+                                @if (this.ViewModel.ShowDirectionality)
+                                {
+                                    @this.GetCellArrow(cell.Direction)
+                                }
+                                else
+                                {
+                                    @this.GetCellContent(cell.Direction)
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (this.isContextMenuVisible)
+    {
+        <div class="matrix-context-overlay" @onclick="@(() => this.isContextMenuVisible = false)" @oncontextmenu:preventDefault="true" @oncontextmenu="@(() => this.isContextMenuVisible = false)"></div>
+        <div class="matrix-context-menu" style="top:@(this.contextMenuY.ToString(System.Globalization.CultureInfo.InvariantCulture))px; left:@(this.contextMenuX.ToString(System.Globalization.CultureInfo.InvariantCulture))px;">
+            <button type="button" class="matrix-context-item" disabled="@(!this.ViewModel.CanCreateRowToColumn)"
+                    @onclick="@(() => this.ExecuteContextMenuAction(() => this.ViewModel.CreateRelationshipAsync(RelationshipDirectionKind.RowToColumn)))">
+                Create <span class="matrix-arrow">@this.GetCellArrow(RelationshipDirectionKind.RowToColumn)</span>
+            </button>
+            <button type="button" class="matrix-context-item" disabled="@(!this.ViewModel.CanCreateColumnToRow)"
+                    @onclick="@(() => this.ExecuteContextMenuAction(() => this.ViewModel.CreateRelationshipAsync(RelationshipDirectionKind.ColumnToRow)))">
+                Create <span class="matrix-arrow">@this.GetCellArrow(RelationshipDirectionKind.ColumnToRow)</span>
+            </button>
+            <button type="button" class="matrix-context-item" disabled="@(!this.ViewModel.CanDelete)"
+                    @onclick="@(() => this.ExecuteContextMenuAction(() => this.ViewModel.DeleteRelationshipAsync()))">
+                Delete
+            </button>
+        </div>
+    }
+
+    @if (this.ViewModel.SelectedCell is not null)
+    {
+        <div class="matrix-details-panel">
+            <div class="matrix-details-header" @onclick="@(() => this.isDetailsCollapsed = !this.isDetailsCollapsed)">
+                <span class="oi @(this.isDetailsCollapsed ? "oi-chevron-right" : "oi-chevron-bottom")"></span>
+                <span>Item details</span>
+            </div>
+
+            @if (!this.isDetailsCollapsed)
+            {
+                <div class="matrix-details">
+                    <div class="matrix-details-column">
+                        <h6>Row</h6>
+                        <div class="matrix-details-content">
+                            @foreach (var line in this.ViewModel.SelectedCell.RowDetails)
+                            {
+                                <span>@line</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="matrix-details-column">
+                        <h6>Relations</h6>
+                        <div class="matrix-details-content">
+                            @if (this.ViewModel.SelectedCell.RelationDescriptions.Count == 0)
+                            {
+                                <span>No relationship</span>
+                            }
+                            else
+                            {
+                                @foreach (var relation in this.ViewModel.SelectedCell.RelationDescriptions)
+                                {
+                                    <span>@relation</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="matrix-details-column">
+                        <h6>Column</h6>
+                        <div class="matrix-details-content">
+                            @foreach (var line in this.ViewModel.SelectedCell.ColumnDetails)
+                            {
+                                <span>@line</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
+else
+{
+    <p>Select row/column categories and a relationship rule to build the matrix.</p>
+}
