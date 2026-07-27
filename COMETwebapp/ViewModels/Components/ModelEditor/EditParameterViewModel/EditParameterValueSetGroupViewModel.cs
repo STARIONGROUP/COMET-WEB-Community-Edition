@@ -28,6 +28,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
@@ -38,6 +39,9 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel
     /// one row; a <see cref="CompoundParameterType" /> produces one row per component (each with its own parameter
     /// type and scale, mirroring the desktop IME). The switch and the staged clone are shared by all the rows of the
     /// value set, so edits to different components accumulate onto the same clone and commit as a single value set.
+    /// An orientation parameter is the one exception: although it is a <see cref="CompoundParameterType" />,
+    /// it produces a single row backed by the dedicated <c>OrientationComponent</c> editor, which owns the whole
+    /// array, instead of nine flattened scalar rows.
     /// </summary>
     public class EditParameterValueSetGroupViewModel : DisposableObject
     {
@@ -63,12 +67,19 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel
         public EditParameterValueSetGroupViewModel(ParameterType parameterType, ParameterValueSetBase valueSet, ICDPMessageBus messageBus)
         {
             this.OriginalValueSet = valueSet;
-            this.isCompound = parameterType is CompoundParameterType;
+
+            // An orientation parameter (issue #811) is a CompoundParameterType, but it must not be flattened into a
+            // scalar row per matrix/euler component: it has its own dedicated OrientationComponent editor that owns
+            // the whole array, exactly like a SampledFunctionParameterType's table.
+            var isOrientation = parameterType is CompoundParameterType { ShortName: var shortName }
+                                 && string.Equals(shortName, ConstantValues.OrientationShortName, StringComparison.InvariantCultureIgnoreCase);
+
+            this.isCompound = parameterType is CompoundParameterType && !isOrientation;
             this.ParameterSwitchKindSelectorViewModel = new ParameterSwitchKindSelectorViewModel(valueSet.ValueSwitch, false);
 
             var rows = new List<EditParameterValueSetRowViewModel>();
 
-            if (parameterType is CompoundParameterType compoundParameterType)
+            if (parameterType is CompoundParameterType compoundParameterType && !isOrientation)
             {
                 var index = 0;
 

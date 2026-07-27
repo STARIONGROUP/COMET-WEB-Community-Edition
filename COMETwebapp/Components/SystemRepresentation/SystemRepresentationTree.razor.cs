@@ -41,11 +41,6 @@ namespace COMETwebapp.Components.SystemRepresentation
         public SystemRepresentationTreeViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Whether the "View" display-options dropdown is open.
-        /// </summary>
-        private bool viewMenuOpen;
-
-        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>

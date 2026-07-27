@@ -86,5 +86,30 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
                 Assert.That(this.viewModel.ParameterValueChanged, Is.Not.Null);
             });
         }
+
+        [Test]
+        public void VerifyShortValueArrayIsPaddedForHighComponentIndex()
+        {
+            var shortParameterValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["0", "0", "0"]),
+                Reference = new ValueArray<string>(["0", "0", "0"])
+            };
+
+            var orientationParameterType = new SimpleQuantityKind
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            var componentViewModel = new QuantityKindParameterTypeEditorViewModel(orientationParameterType, shortParameterValueSet, false, 8);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => componentViewModel.ValueArray[componentViewModel.ValueArrayIndex], Throws.Nothing);
+                Assert.That(componentViewModel.ValueArray.Count, Is.GreaterThan(componentViewModel.ValueArrayIndex));
+            });
+        }
     }
 }

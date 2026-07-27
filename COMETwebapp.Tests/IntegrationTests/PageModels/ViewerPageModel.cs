@@ -60,6 +60,11 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator SearchBar => this.Page.Locator("#product-tree-search-bar");
 
         /// <summary>
+        /// Gets the tree "View" display-options cog button.
+        /// </summary>
+        public ILocator ViewMenuButton => this.Page.Locator("#viewerTreeViewMenuButton");
+
+        /// <summary>
         /// Gets the properties/details panel.
         /// </summary>
         public ILocator PropertiesPanel => this.Page.Locator("#rightColumn");

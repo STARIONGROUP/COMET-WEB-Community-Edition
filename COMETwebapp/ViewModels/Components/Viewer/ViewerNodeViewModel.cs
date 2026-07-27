@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.ViewModels.Components.Viewer
 {
+    using CDP4Common.EngineeringModelData;
+
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Shared;
@@ -37,6 +39,13 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// The <see cref="SceneObject"/> that this <see cref="ViewerNodeViewModel"/> represents
         /// </summary>
         public SceneObject SceneObject { get; }
+
+        /// <summary>
+        /// Gets the <see cref="ElementBase"/> this node represents, resolved from the <see cref="SceneObject"/>
+        /// since a <see cref="ViewerNodeViewModel"/> is created with a title-only base constructor and never
+        /// has its <see cref="COMETwebapp.ViewModels.Components.Shared.BaseNodeViewModel{T}.Thing"/> set.
+        /// </summary>
+        public override ElementBase ElementBase => this.SceneObject?.ElementBase;
 
         /// <summary>
         /// Gets or set the <see cref="ISelectionMediator"/>

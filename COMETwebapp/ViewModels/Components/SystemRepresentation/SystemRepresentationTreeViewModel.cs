@@ -38,21 +38,6 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
     public class SystemRepresentationTreeViewModel : ProductTreeViewModel<SystemNodeViewModel>
     {
         /// <summary>
-        /// Backing field for <see cref="ShowName" />.
-        /// </summary>
-        private bool showName = true;
-
-        /// <summary>
-        /// Backing field for <see cref="ShowOwner" />.
-        /// </summary>
-        private bool showOwner = true;
-
-        /// <summary>
-        /// Backing field for <see cref="ShowCategories" />.
-        /// </summary>
-        private bool showCategories = true;
-
-        /// <summary>
         /// Backing field for <see cref="DraggedNode" />.
         /// </summary>
         private SystemNodeViewModel draggedNode;
@@ -80,35 +65,6 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 
             this.Disposables.Add(this.WhenAnyValue(x => x.SearchText).Subscribe(_ => this.OnSearchFilterChange()));
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedFilter).Subscribe(_ => this.OnFilterChanged()));
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether nodes should display their <see cref="CDP4Common.CommonData.DefinedThing.Name" />
-        /// (<c>true</c>) or <see cref="CDP4Common.CommonData.DefinedThing.ShortName" /> (<c>false</c>).
-        /// </summary>
-        public bool ShowName
-        {
-            get => this.showName;
-            set => this.RaiseAndSetIfChanged(ref this.showName, value);
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the owning <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" />
-        /// pill is shown on each tree node.
-        /// </summary>
-        public bool ShowOwner
-        {
-            get => this.showOwner;
-            set => this.RaiseAndSetIfChanged(ref this.showOwner, value);
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether category pills are shown on each tree node.
-        /// </summary>
-        public bool ShowCategories
-        {
-            get => this.showCategories;
-            set => this.RaiseAndSetIfChanged(ref this.showCategories, value);
         }
 
         /// <summary>

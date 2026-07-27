@@ -22,6 +22,14 @@
 
 namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 {
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+
+    using CDP4Common.CommonData;
+    using CDP4Common.EngineeringModelData;
+    using CDP4Common.Types;
+
     using COMETwebapp.Model;
     using COMETwebapp.Model.Viewer.Primitives;
     using COMETwebapp.ViewModels.Components.Viewer;
@@ -157,6 +165,27 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 
             this.rootNode.UpdateSceneObjectProperty();
             Assert.That(propertyChanged, Is.True);
+        }
+
+        [Test]
+        public void VerifyElementBaseResolvesFromSceneObject()
+        {
+            var cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+            var uri = new Uri("http://test.com");
+            var elementDefinition = new ElementDefinition(Guid.NewGuid(), cache, uri) { Name = "Bus" };
+
+            var sceneObject = SceneObject.Create(elementDefinition, null, new List<ActualFiniteState>());
+            var nodeWithElementBase = new ViewerNodeViewModel(sceneObject);
+
+            var nodeWithoutSceneObject = new ViewerNodeViewModel(null);
+            var nodeWithEmptySceneObject = new ViewerNodeViewModel(new SceneObject(null));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(nodeWithElementBase.ElementBase, Is.EqualTo(elementDefinition));
+                Assert.That(nodeWithoutSceneObject.ElementBase, Is.Null);
+                Assert.That(nodeWithEmptySceneObject.ElementBase, Is.Null);
+            });
         }
     }
 }

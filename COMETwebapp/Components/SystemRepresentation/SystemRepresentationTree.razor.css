@@ -7,37 +7,10 @@
     flex: 1 1 auto;
 }
 
-#product-tree-top-section {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 8px 0;
-    flex: 0 0 auto;
-}
-
-#product-tree-search-bar {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-.product-tree-view-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 12px;
-    min-width: 180px;
-}
-
 #product-tree-nodes-section {
     flex: 1 1 auto;
     min-height: 0;
     overflow-x: auto;
     overflow-y: auto;
     position: relative;
-}
-
-::deep #tree-search-filter {
-    width: 100%;
-    margin-left: 0;
 }
