@@ -43,7 +43,7 @@
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.3" />
   </ItemGroup>
   <ItemGroup Label="override transitive vulnerable dependency">
-    <PackageReference Include="System.Formats.Asn1" Version="10.0.10" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.10" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="\" />
