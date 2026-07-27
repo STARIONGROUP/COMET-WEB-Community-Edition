@@ -84,7 +84,7 @@
                     OnDrop="@(async x => await this.OnDropAsync(x))"
                     ShowOwner="@this.ShowOwner"
                     ShowCategories="@this.ShowCategories"
-                    AllowNodeDrag="(_, model) => model is ElementDefinitionTreeRowViewModel"
+                    AllowNodeDrag="(_, model) => model is ElementDefinitionTreeRowViewModel or ElementUsageTreeRowViewModel"
                     IsModelSelectionEnabled="true">
                 </ElementDefinitionTree>
             </div>
@@ -119,7 +119,7 @@
                     OnDrop="@(async x => await this.OnDropAsync(x))"
                     ShowOwner="@this.ShowOwner"
                     ShowCategories="@this.ShowCategories"
-                    AllowNodeDrag="(_, model) => model is ElementDefinitionTreeRowViewModel"
+                    AllowNodeDrag="(_, model) => model is ElementDefinitionTreeRowViewModel or ElementUsageTreeRowViewModel"
                     IsModelSelectionEnabled="false">
                 </ElementDefinitionTree>
             </div>

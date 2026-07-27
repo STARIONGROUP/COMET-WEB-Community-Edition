@@ -51,7 +51,11 @@ namespace COMET.Web.Common.Utilities.DisposableObject
         {
             if (disposing)
             {
-                this.Disposables.ForEach(x => x.Dispose());
+                foreach (var disposable in this.Disposables.ToArray())
+                {
+                    disposable.Dispose();
+                }
+
                 this.Disposables.Clear();
             }
         }

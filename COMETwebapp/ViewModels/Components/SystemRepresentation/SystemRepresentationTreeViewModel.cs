@@ -103,12 +103,13 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         /// Determines whether <paramref name="from" /> may be dropped onto <paramref name="to" />.
         /// The drop is rejected when either argument is <see langword="null" />, the two nodes are
         /// the same instance, either node's <see cref="COMETwebapp.ViewModels.Components.Shared.BaseNodeViewModel{T}.Thing" />
-        /// is not an <see cref="ElementBase" />, or it would introduce a containment cycle. A drop creates a new
-        /// <see cref="ElementUsage" /> of <paramref name="from" />'s <see cref="ElementDefinition" /> inside
-        /// <paramref name="to" />'s <see cref="ElementDefinition" />, so the comparison is made by
+        /// is not an <see cref="ElementBase" />, or it would introduce a containment cycle. A drop either moves an
+        /// existing <see cref="ElementUsage" /> under <paramref name="to" />'s <see cref="ElementDefinition" /> or
+        /// creates a new usage of the dragged <see cref="ElementDefinition" /> there, so the comparison is made by
         /// <see cref="ElementDefinition" /> (not by tree-node instance): the drop is refused when the target's
-        /// definition is the dragged definition itself or is already (transitively) contained by it. This also
-        /// catches dropping a definition onto a separate node that represents that same definition.
+        /// definition is the dragged definition itself or is already (transitively) contained by it, and a move onto
+        /// the container the dragged usage already sits in is likewise refused. This also catches dropping a
+        /// definition onto a separate node that represents that same definition.
         /// </summary>
         /// <param name="from">The node being dragged.</param>
         /// <param name="to">The node being dropped onto.</param>
@@ -128,6 +129,12 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             var toDefinition = GetElementDefinition(to);
 
             if (toDefinition is null)
+            {
+                return false;
+            }
+
+            // Moving an existing usage onto the container it already sits in is a no-op, so it is rejected.
+            if (from.Thing is ElementUsage draggedUsage && draggedUsage.Container == toDefinition)
             {
                 return false;
             }
