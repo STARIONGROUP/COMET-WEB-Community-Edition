@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ModelDashboardBodyTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -340,13 +340,13 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
                 Assert.That(() => parameterDashboard.Instance.OnAccessData(("Referenced", "THE")), Throws.Nothing);  
             });
 
-            this.viewModel.OptionSelector.SelectedOption = this.viewModel.OptionSelector.AvailableOptions.First();
+            await renderer.InvokeAsync(() => this.viewModel.OptionSelector.SelectedOption = this.viewModel.OptionSelector.AvailableOptions.First());
             Assert.That(navigation.Uri, Does.Contain("option="));
 
-            this.viewModel.FiniteStateSelector.SelectedActualFiniteState = this.viewModel.FiniteStateSelector.AvailableFiniteStates.First();
+            await renderer.InvokeAsync(() => this.viewModel.FiniteStateSelector.SelectedActualFiniteState = this.viewModel.FiniteStateSelector.AvailableFiniteStates.First());
             Assert.That(navigation.Uri, Does.Contain("state="));
 
-            this.viewModel.ParameterTypeSelector.SelectedParameterType = this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First();
+            await renderer.InvokeAsync(() => this.viewModel.ParameterTypeSelector.SelectedParameterType = this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First());
             Assert.That(navigation.Uri, Does.Contain("parameter="));
 
             Assert.That(() => this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate)), Throws.Nothing);
