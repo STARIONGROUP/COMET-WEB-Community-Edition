@@ -79,16 +79,7 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
         [Test]
         public void VerifyAboutEntry()
         {
-            var renderer = this.context.Render<DxMenu>(parameters =>
-            {
-                parameters.Add(p => p.Items, builder =>
-                {
-                    builder.OpenComponent(0, typeof(NotificationComponent));
-                    builder.CloseComponent();
-                });
-            });
-
-            var notificationComponent = renderer.FindComponent<NotificationComponent>();
+            var notificationComponent = this.context.Render<NotificationComponent>();
 
             using (Assert.EnterMultipleScope())
             {
@@ -112,16 +103,9 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
         [Test]
         public void VerifyNullNotificationDescriptionIsIgnored()
         {
-            var renderer = this.context.Render<DxMenu>(parameters =>
-            {
-                parameters.Add(p => p.Items, builder =>
-                {
-                    builder.OpenComponent(0, typeof(NotificationComponent));
-                    builder.CloseComponent();
-                });
-            });
+            var notificationComponent = this.context.Render<NotificationComponent>();
 
-            Assert.That(renderer.FindComponent<NotificationComponent>().Instance, Is.Not.Null);
+            Assert.That(notificationComponent.Instance, Is.Not.Null);
 
             // A result carrying a null NotificationDescription (a silent sub-operation) must not throw
             // nor raise a toast — regression for the NullReferenceException that aborted a parameter-group
