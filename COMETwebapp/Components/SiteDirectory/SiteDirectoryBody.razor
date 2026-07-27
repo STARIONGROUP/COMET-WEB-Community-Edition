@@ -20,7 +20,7 @@
 @inherits ApplicationBase<COMETwebapp.ViewModels.Components.SiteDirectory.ISiteDirectoryBodyViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <DxToolbar ItemClick="@(this.OnItemClick)">
+    <DxToolbar Id="site-directory-toolbar" ItemClick="@(this.OnItemClick)">
         <Items>
             @foreach (var mappedValue in this.mapOfComponentsAndNames)
             {

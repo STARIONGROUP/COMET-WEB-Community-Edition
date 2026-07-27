@@ -1,0 +1,41 @@
+# COMET Web Services stack used by the end-to-end (Playwright) tests.
+#
+# Uses the Community Edition database image, which ships a ready "cdp4server" database with the admin user and the
+# demo "LOFT" engineering model, so the suite always has a model/iteration/domain to open. (The *test* database image
+# does NOT contain a "cdp4server" database, so the server never starts against it.) The published server expects the
+# database host to be reachable as "comet-db", which is why the database service carries that network alias.
+#
+# Local use:  docker compose -f .github/e2e/docker-compose.e2e.yml up -d
+#             (server on http://localhost:5000, credentials admin / pass)
+
+services:
+  comet-db:
+    image: stariongroup/cdp4-database-community-edition:4.2.0
+    shm_size: 1gb
+    command: postgres -c max_locks_per_transaction=1024
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pass
+    networks:
+      comet:
+        aliases:
+          - comet-db
+    ports:
+      - "5432:5432"
+
+  comet-webservices:
+    image: stariongroup/comet-webservices-community-edition:10.0.0
+    depends_on:
+      - comet-db
+    networks:
+      - comet
+    ports:
+      - "5000:5000"
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    networks:
+      - comet
+
+networks:
+  comet:

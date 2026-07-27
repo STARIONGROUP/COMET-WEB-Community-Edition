@@ -39,10 +39,6 @@
     max-width: 420px;
 }
 
-.req-search ::deep .req-search-input {
-    width: 100%;
-}
-
 .req-view-menu {
     display: flex;
     flex-direction: column;

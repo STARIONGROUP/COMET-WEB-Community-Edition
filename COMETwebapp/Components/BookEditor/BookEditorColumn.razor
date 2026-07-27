@@ -26,7 +26,7 @@
     var buttonDisabledClass = this.IsAddButtonDisabled ? "disabled-button" : "";
 }
 
-<div class="book-editor-column @columnConditionalClass">
+<div id="@this.Id" class="book-editor-column @columnConditionalClass">
     <div class="column-header">
         <button class="icon collapse-button @this.CollapseButtonIconClass" @onclick="@(async () => await this.OnCollapseClicked.InvokeAsync())"></button>
         <h5 style="background-color:@this.HeaderHexColor" class="header-text p-2">@this.HeaderTitle</h5>

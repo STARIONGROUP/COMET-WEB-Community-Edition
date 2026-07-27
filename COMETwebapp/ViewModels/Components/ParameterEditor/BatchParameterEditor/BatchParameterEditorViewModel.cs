@@ -93,6 +93,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
                 CurrentIteration = this.CurrentIteration
             };
 
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
+
             this.ConfirmCancelPopupViewModel = new ConfirmCancelPopupViewModel
             {
                 OnCancel = eventCallbackFactory.Create(this, this.OnCancelPopup),
@@ -237,7 +239,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor
             this.ConfirmCancelPopupViewModel.IsVisible = false;
             this.IsVisible = false;
 
-            this.logger.LogInformation("Applying manual value {value} to all selected parameters types with iid {iid}", this.ParameterTypeEditorSelectorViewModel.ValueSet.Manual, this.ParameterTypeSelectorViewModel.SelectedParameterType.Iid);
+            this.logger.LogInformation("Applying manual value {Value} to all selected parameters types with iid {Iid}", this.ParameterTypeEditorSelectorViewModel.ValueSet.Manual, this.ParameterTypeSelectorViewModel.SelectedParameterType.Iid);
             var thingsToUpdate = new List<Thing>();
 
             foreach (var parameterValueSetRow in this.SelectedValueSetsRowsToUpdate.Cast<ParameterValueSetBaseRowViewModel>())

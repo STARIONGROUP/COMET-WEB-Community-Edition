@@ -136,5 +136,55 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.ParameterEditors
                 Assert.That(localViewModel.Orientation.Matrix[0], Is.EqualTo(1.0));
             }
         }
+
+        [Test]
+        public void VerifyMalformedValueArrayDoesNotThrow()
+        {
+            // Neither 3 (Euler) nor 9 (matrix) values: data anomaly. The view model must degrade to an
+            // identity orientation instead of letting the underlying ArgumentException surface.
+            var valueSet = new ParameterValueSet()
+            {
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(new List<string>() { "0", "0", "0", "0", "0" })
+            };
+
+            OrientationViewModel localViewModel = null;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => localViewModel = new OrientationViewModel(valueSet, this.onParameterValueSetChanged), Throws.Nothing);
+                Assert.That(localViewModel.Orientation.Matrix, Is.EquivalentTo(Orientation.Identity().Matrix));
+                Assert.That(() => localViewModel.OnMatrixValuesChanged(0, "1.0"), Throws.Nothing);
+            });
+        }
+
+        [Test]
+        public async Task VerifySendChangesBackWritesToTheCurrentSwitchSlot()
+        {
+            (IValueSet ValueSet, int Index) capturedValue = default;
+
+            var identityValues = new List<string> { "1", "0", "0", "0", "1", "0", "0", "0", "1" };
+
+            var valueSet = new ParameterValueSet()
+            {
+                ValueSwitch = ParameterSwitchKind.REFERENCE,
+                Manual = new ValueArray<string>(identityValues),
+                Reference = new ValueArray<string>(identityValues)
+            };
+
+            var callback = new EventCallbackFactory().Create<(IValueSet, int)>(this, tuple => capturedValue = tuple);
+            var localViewModel = new OrientationViewModel(valueSet, callback, ParameterSwitchKind.REFERENCE);
+
+            await localViewModel.OnEulerAnglesChanged("Rx", "10.0");
+
+            var emittedValueSet = capturedValue.ValueSet as ParameterValueSetBase;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(emittedValueSet, Is.Not.Null);
+                Assert.That(emittedValueSet.Reference, Is.Not.EqualTo(valueSet.Reference).AsCollection, "The Reference slot must carry the edited orientation.");
+                Assert.That(emittedValueSet.Manual, Is.EqualTo(valueSet.Manual).AsCollection, "The Manual slot must be untouched while editing on the Reference switch.");
+            });
+        }
     }
 }

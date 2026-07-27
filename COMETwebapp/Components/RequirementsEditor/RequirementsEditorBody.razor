@@ -28,28 +28,27 @@ Copyright (c) 2023-2026 Starion Group S.A.
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <div id="@WebAppConstantValues.RequirementManagementPage.QueryPageBodyName()" class="req-editor">
         <div class="req-toolbar">
-            <DxButton RenderStyle="ButtonRenderStyle.Light"
+            <DxButton Id="requirement-toc-toggle"
+                      RenderStyle="ButtonRenderStyle.Light"
                       Text="@(this.ViewModel.IsTocCollapsed ? "»" : "«")"
                       title="Toggle table of contents"
                       Click="@(() => this.ViewModel.IsTocCollapsed = !this.ViewModel.IsTocCollapsed)"
                       CssClass="req-collapse-toggle" />
 
-            <div class="req-search">
-                <DxTextBox @bind-Text="@this.ViewModel.SearchText"
-                           BindValueMode="BindValueMode.OnDelayedInput"
-                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                           NullText="Search in definitions..."
-                           CssClass="req-search-input" />
+            <div id="requirement-search" class="req-search">
+                <SearchBar @bind-Text="@this.ViewModel.SearchText" Placeholder="Search in definitions..."/>
             </div>
 
-            <DxTagBox Data="@this.ViewModel.AvailableOwners"
+            <DxTagBox Id="requirement-owner-filter"
+                      Data="@this.ViewModel.AvailableOwners"
                       Values="@this.ViewModel.SelectedOwners"
                       ValuesChanged="@((IEnumerable<DomainOfExpertise> values) => this.ViewModel.SelectedOwners = values.ToList())"
                       TextFieldName="@nameof(DomainOfExpertise.ShortName)"
                       NullText="Filter by owner..."
                       CssClass="req-filter" />
 
-            <DxTagBox Data="@this.ViewModel.AvailableCategories"
+            <DxTagBox Id="requirement-category-filter"
+                      Data="@this.ViewModel.AvailableCategories"
                       Values="@this.ViewModel.SelectedCategories"
                       ValuesChanged="@((IEnumerable<Category> values) => this.ViewModel.SelectedCategories = values.ToList())"
                       TextFieldName="@nameof(Category.ShortName)"

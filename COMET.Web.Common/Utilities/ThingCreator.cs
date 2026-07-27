@@ -98,5 +98,62 @@ namespace COMET.Web.Common.Utilities
             var operationContainer = transaction.FinalizeTransaction();
             await session.Write(operationContainer);
         }
+
+        /// <summary>
+        /// Move (re-parent) an existing <see cref="ElementUsage"/> so that it becomes contained by a different
+        /// <see cref="ElementDefinition"/>, keeping its <see cref="ElementUsage.Iid"/>, name, owner, options and
+        /// <see cref="ElementUsage.ParameterOverride"/>s.
+        /// </summary>
+        /// <param name="elementUsage">
+        /// The existing <see cref="ElementUsage"/> to move.
+        /// </param>
+        /// <param name="targetContainer">
+        /// The <see cref="ElementDefinition"/> that becomes the new container of the <see cref="ElementUsage"/>.
+        /// </param>
+        /// <param name="session">
+        /// The <see cref="ISession"/> in which the move is written.
+        /// </param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous move operation.</returns>
+        public Task MoveElementUsageAsync(ElementUsage elementUsage, ElementDefinition targetContainer, ISession session)
+        {
+            ArgumentNullException.ThrowIfNull(elementUsage);
+            ArgumentNullException.ThrowIfNull(targetContainer);
+            ArgumentNullException.ThrowIfNull(session);
+
+            return MoveElementUsageImplAsync(elementUsage, targetContainer, session);
+        }
+
+        /// <summary>
+        /// Move (re-parent) an existing <see cref="ElementUsage"/> to a different container <see cref="ElementDefinition"/>.
+        /// </summary>
+        /// <param name="elementUsage">
+        /// The existing <see cref="ElementUsage"/> to move.
+        /// </param>
+        /// <param name="targetContainer">
+        /// The <see cref="ElementDefinition"/> that becomes the new container of the <see cref="ElementUsage"/>.
+        /// </param>
+        /// <param name="session">
+        /// The <see cref="ISession"/> in which the move is written.
+        /// </param>
+        /// <remarks>
+        /// Only the target container clone (with the moved <see cref="ElementUsage"/> clone added to its
+        /// <see cref="ElementDefinition.ContainedElement"/>) is written. The server re-parents the usage and removes it
+        /// from its former container itself, so the old container must not be sent in the same transaction - mirroring the
+        /// composite re-parent already done for a <see cref="CDP4Common.EngineeringModelData.RequirementsGroup"/> move.
+        /// </remarks>
+        private static async Task MoveElementUsageImplAsync(ElementUsage elementUsage, ElementDefinition targetContainer, ISession session)
+        {
+            var targetClone = targetContainer.Clone(false);
+            var usageClone = elementUsage.Clone(false);
+
+            targetClone.ContainedElement.Add(usageClone);
+
+            var transactionContext = TransactionContextResolver.ResolveContext(targetContainer);
+            var transaction = new ThingTransaction(transactionContext, targetClone);
+            transaction.CreateOrUpdate(usageClone);
+
+            var operationContainer = transaction.FinalizeTransaction();
+            await session.Write(operationContainer);
+        }
     }
 }

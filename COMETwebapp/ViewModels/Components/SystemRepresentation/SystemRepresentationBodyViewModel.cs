@@ -22,6 +22,7 @@
 
 namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -62,6 +63,7 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         {
             this.logger = logger;
             this.DetailsPanelViewModel = detailsPanelViewModel;
+            this.Disposables.Add((IDisposable)this.DetailsPanelViewModel);
             this.DetailsPanelViewModel.AutoAddCreatedDefinitionAsUsage = true;
 
             this.ProductTreeViewModel = new SystemRepresentationTreeViewModel
@@ -160,21 +162,28 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
         }
 
         /// <summary>
-        /// Handles a drop event raised by the product tree: creates a new <see cref="ElementUsage" /> of the
-        /// dragged node's <see cref="ElementDefinition" /> under the target node's
-        /// <see cref="ElementDefinition" />.
+        /// Handles a drop event raised by the product tree. When the dragged node is an existing
+        /// <see cref="ElementUsage" /> it is <b>moved</b> (re-parented) under the target node's
+        /// <see cref="ElementDefinition" />, keeping its <see cref="Thing.Iid" />, name, owner, options and
+        /// <see cref="ElementUsage.ParameterOverride" />s. When the dragged node is an
+        /// <see cref="ElementDefinition" /> a fresh <see cref="ElementUsage" /> of it is created under the target
+        /// instead. The drop is rejected when the current user lacks write permission on the target.
         /// </summary>
         /// <param name="args">
         /// A tuple whose <c>From</c> member is the dragged <see cref="SystemNodeViewModel" /> and whose
         /// <c>To</c> member is the drop-target <see cref="SystemNodeViewModel" />.
         /// </param>
-        /// <returns>A <see cref="Task" /> representing the asynchronous create operation.</returns>
+        /// <returns>A <see cref="Task" /> representing the asynchronous move or create operation.</returns>
         private async Task OnElementDroppedAsync((SystemNodeViewModel From, SystemNodeViewModel To) args)
         {
-            var fromDefinition = args.From.Thing as ElementDefinition ?? (args.From.Thing as ElementUsage)?.ElementDefinition;
             var toDefinition = args.To.Thing as ElementDefinition ?? (args.To.Thing as ElementUsage)?.ElementDefinition;
 
-            if (fromDefinition is null || toDefinition is null || this.CurrentDomain is null)
+            if (toDefinition is null || this.CurrentDomain is null)
+            {
+                return;
+            }
+
+            if (!this.SessionService.Session.PermissionService.CanWrite(ClassKind.ElementUsage, toDefinition))
             {
                 return;
             }
@@ -184,11 +193,20 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
             try
             {
                 var thingCreator = new ThingCreator();
-                await thingCreator.CreateElementUsageAsync(toDefinition, fromDefinition, this.CurrentDomain, this.SessionService.Session);
+
+                switch (args.From.Thing)
+                {
+                    case ElementUsage usage:
+                        await thingCreator.MoveElementUsageAsync(usage, toDefinition, this.SessionService.Session);
+                        break;
+                    case ElementDefinition fromDefinition:
+                        await thingCreator.CreateElementUsageAsync(toDefinition, fromDefinition, this.CurrentDomain, this.SessionService.Session);
+                        break;
+                }
             }
             catch (Exception exception)
             {
-                this.logger.LogError(exception, "An error occurred while creating an Element Usage of '{From}' under '{To}' from a drag-and-drop operation", fromDefinition.ShortName, toDefinition.ShortName);
+                this.logger.LogError(exception, "An error occurred while moving or creating an Element Usage under '{To}' from a drag-and-drop operation", toDefinition.ShortName);
             }
             finally
             {
@@ -290,7 +308,12 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
                 return excluded == drawnUsageIids.Contains(usage.Iid);
             });
 
-            if (optionMembershipChanged)
+            // A re-parented (moved) usage arrives as an Update with a changed Container: the tree node still sits under
+            // its old parent, and updating it in place would not move it. Detect that and rebuild the whole tree, which
+            // reconstructs the structure from the actual containment (and preserves the expansion state).
+            var usageMoved = updatedElements.Any(this.HasUsageMovedInTree);
+
+            if (optionMembershipChanged || usageMoved)
             {
                 this.ApplyFilters();
             }
@@ -304,6 +327,27 @@ namespace COMETwebapp.ViewModels.Components.SystemRepresentation
 
             this.ClearRecordedChanges();
             this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Determines whether the given <see cref="ElementUsage" /> is drawn in the product tree under a parent node
+        /// whose <see cref="ElementDefinition" /> no longer matches the usage's current <see cref="ElementUsage.Container" />,
+        /// which is the signature of a re-parent (move).
+        /// </summary>
+        /// <param name="usage">The updated <see cref="ElementUsage" /> to test.</param>
+        /// <returns><see langword="true" /> when a drawn node for the usage sits under the wrong parent; otherwise <see langword="false" />.</returns>
+        private bool HasUsageMovedInTree(ElementUsage usage)
+        {
+            var drawnNodes = this.ProductTreeViewModel.RootViewModel?.GetFlatListOfDescendants(true)
+                .Where(node => node.Thing != null && node.Thing.Iid == usage.Iid);
+
+            return drawnNodes?.Any(node =>
+            {
+                var parentThing = node.Parent?.Thing;
+                var parentDefinition = parentThing as ElementDefinition ?? (parentThing as ElementUsage)?.ElementDefinition;
+
+                return parentDefinition != null && parentDefinition != usage.Container;
+            }) ?? false;
         }
 
         /// <summary>

@@ -128,6 +128,12 @@ namespace COMETwebapp.Components.BookEditor
         public ILogger<BookEditorColumn<TItem>> Logger { get; set; }
 
         /// <summary>
+        /// Gets or sets the id rendered on the column's root element (optional)
+        /// </summary>
+        [Parameter]
+        public string Id { get; set; }
+
+        /// <summary>
         /// Gets or sets the class used to selected the nodes
         /// </summary>
         [Parameter]

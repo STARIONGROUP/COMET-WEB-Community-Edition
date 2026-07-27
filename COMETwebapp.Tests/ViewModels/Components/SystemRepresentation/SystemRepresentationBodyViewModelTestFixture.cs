@@ -29,6 +29,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
 
     using CDP4Dal;
     using CDP4Dal.Events;
+    using CDP4Dal.Operations;
+    using CDP4Dal.Permission;
 
     using CDP4Web.Enumerations;
 
@@ -69,6 +71,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
         private Mock<ISession> session;
 
         /// <summary>
+        /// The mocked <see cref="IPermissionService" /> gating the drag-and-drop move/create pipeline.
+        /// </summary>
+        private Mock<IPermissionService> permissionService;
+
+        /// <summary>
         /// The message bus used by the view model.
         /// </summary>
         private CDPMessageBus messageBus;
@@ -99,6 +106,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
             this.session = new Mock<ISession>();
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
+
+            this.permissionService = new Mock<IPermissionService>();
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
+            this.session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
+            this.session.Setup(x => x.Write(It.IsAny<OperationContainer>())).Returns(Task.CompletedTask);
 
             this.currentDomain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(this.currentDomain);
@@ -418,6 +430,235 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
             Assert.That(() => rootNode.Title != originalTitle && rootNode.Title == this.topElement.UserFriendlyName, Is.True.After(2000, 25),
                 "After EndUpdate, the ROOT node must reflect the renamed top ElementDefinition, " +
                 "not just the ElementUsage nodes below it.");
+        }
+
+        [Test]
+        public void VerifyMovingAUsageRepositionsItInTheProductTree()
+        {
+            var definitionA = new ElementDefinition { Iid = Guid.NewGuid(), Name = "DefA", ShortName = "DA", Owner = this.currentDomain };
+            var definitionB = new ElementDefinition { Iid = Guid.NewGuid(), Name = "DefB", ShortName = "DB", Owner = this.currentDomain };
+            var definitionC = new ElementDefinition { Iid = Guid.NewGuid(), Name = "DefC", ShortName = "DC", Owner = this.currentDomain };
+
+            var usageA = new ElementUsage { Iid = Guid.NewGuid(), Name = "UsageA", ShortName = "UA", ElementDefinition = definitionA, Owner = this.currentDomain };
+            var usageB = new ElementUsage { Iid = Guid.NewGuid(), Name = "UsageB", ShortName = "UB", ElementDefinition = definitionB, Owner = this.currentDomain };
+            var usageC = new ElementUsage { Iid = Guid.NewGuid(), Name = "UsageC", ShortName = "UC", ElementDefinition = definitionC, Owner = this.currentDomain };
+
+            this.topElement.ContainedElement.Add(usageA);
+            this.topElement.ContainedElement.Add(usageB);
+            definitionA.ContainedElement.Add(usageC);
+
+            this.iteration.Element.Add(definitionA);
+            this.iteration.Element.Add(definitionB);
+            this.iteration.Element.Add(definitionC);
+
+            var option = new Option { Iid = Guid.NewGuid(), Name = "Option 1", ShortName = "OPT1" };
+            this.iteration.Option.Add(option);
+            this.iteration.DefaultOption = option;
+
+            this.viewModel.CurrentThing = this.iteration;
+
+            var tree = this.viewModel.ProductTreeViewModel;
+
+            Assert.That(() => tree.RootViewModel != null && tree.RootViewModel.GetFlatListOfDescendants(true).Any(n => n.Thing?.Iid == usageC.Iid),
+                Is.True.After(2000, 25),
+                "the initial load never drew the usage that is about to be moved");
+
+            // Precondition: usageC is drawn under usageA, which represents definitionA.
+            var initialParent = tree.RootViewModel.GetFlatListOfDescendants(true).First(n => n.Thing?.Iid == usageC.Iid).Parent.Thing;
+            Assert.That((initialParent as ElementUsage)?.ElementDefinition.Iid, Is.EqualTo(definitionA.Iid),
+                "usageC must initially sit under definitionA.");
+
+            var isLoadingValues = new List<bool>();
+            this.viewModel.WhenAnyValue(x => x.IsLoading).Subscribe(isLoadingValues.Add);
+
+            // Re-parent usageC from definitionA to definitionB, as ThingCreator.MoveElementUsageAsync and the server would.
+            definitionA.ContainedElement.Remove(usageC);
+            definitionB.ContainedElement.Add(usageC);
+
+            this.messageBus.SendObjectChangeEvent(usageC, EventKind.Updated);
+            this.messageBus.SendObjectChangeEvent(definitionA, EventKind.Updated);
+            this.messageBus.SendObjectChangeEvent(definitionB, EventKind.Updated);
+            this.messageBus.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
+
+            Assert.That(() => isLoadingValues.Contains(true) && !this.viewModel.IsLoading, Is.True.After(2000, 25),
+                "the view model never signalled a re-render in reaction to the move");
+
+            Assert.That(() =>
+                {
+                    var node = tree.RootViewModel.GetFlatListOfDescendants(true).FirstOrDefault(n => n.Thing?.Iid == usageC.Iid);
+                    var parentThing = node?.Parent?.Thing;
+                    var parentDefinition = parentThing as ElementDefinition ?? (parentThing as ElementUsage)?.ElementDefinition;
+                    return parentDefinition?.Iid == definitionB.Iid;
+                },
+                Is.True.After(2000, 25),
+                "After the move + EndUpdate, the product tree must redraw usageC under definitionB, not leave it under definitionA.");
+        }
+
+        /// <summary>
+        /// Verifies that dropping an existing <see cref="ElementUsage" /> node onto a different
+        /// <see cref="ElementDefinition" /> node moves (re-parents) the existing usage, rather than creating a
+        /// brand-new usage of its referenced definition.
+        /// </summary>
+        [Test]
+        public async Task VerifyDroppingAnElementUsageMovesIt()
+        {
+            var referencedElementDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Box",
+                ShortName = "BOX",
+                Owner = this.currentDomain
+            };
+
+            var targetElementDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Target",
+                ShortName = "TGT",
+                Owner = this.currentDomain
+            };
+
+            this.iteration.Element.Add(referencedElementDefinition);
+            this.iteration.Element.Add(targetElementDefinition);
+
+            var elementUsage = new ElementUsage
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Box1",
+                ShortName = "BOX1",
+                ElementDefinition = referencedElementDefinition,
+                Owner = this.currentDomain
+            };
+
+            this.topElement.ContainedElement.Add(elementUsage);
+
+            var option = new Option { Iid = Guid.NewGuid(), Name = "Option 1", ShortName = "OPT1" };
+            this.iteration.Option.Add(option);
+            this.iteration.DefaultOption = option;
+
+            this.viewModel.CurrentThing = this.iteration;
+
+            Assert.That(() => this.viewModel.CurrentDomain != null, Is.True.After(2000, 25),
+                "the current domain must be resolved before the drop can be evaluated");
+
+            OperationContainer capturedOperationContainer = null;
+
+            this.session.Setup(x => x.Write(It.IsAny<OperationContainer>()))
+                .Callback<OperationContainer>(operationContainer => capturedOperationContainer = operationContainer)
+                .Returns(Task.CompletedTask);
+
+            var fromNode = new SystemNodeViewModel(elementUsage);
+            var toNode = new SystemNodeViewModel(targetElementDefinition);
+
+            await this.viewModel.ProductTreeViewModel.OnDrop.InvokeAsync((fromNode, toNode));
+
+            this.session.Verify(x => x.Write(It.IsAny<OperationContainer>()), Times.Once);
+
+            var modifiedIids = capturedOperationContainer.Operations.Select(x => x.ModifiedThing.Iid).ToList();
+
+            Assert.That(modifiedIids, Does.Contain(elementUsage.Iid),
+                "The existing usage's Iid must be part of the written operation, proving it was moved rather than re-created.");
+        }
+
+        /// <summary>
+        /// Verifies that dropping an <see cref="ElementDefinition" /> node onto a different
+        /// <see cref="ElementDefinition" /> node still creates a new <see cref="ElementUsage" /> of it.
+        /// </summary>
+        [Test]
+        public async Task VerifyDroppingAnElementDefinitionCreatesAUsage()
+        {
+            var draggedElementDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Box",
+                ShortName = "BOX",
+                Owner = this.currentDomain
+            };
+
+            var targetElementDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Target",
+                ShortName = "TGT",
+                Owner = this.currentDomain
+            };
+
+            this.iteration.Element.Add(draggedElementDefinition);
+            this.iteration.Element.Add(targetElementDefinition);
+
+            var option = new Option { Iid = Guid.NewGuid(), Name = "Option 1", ShortName = "OPT1" };
+            this.iteration.Option.Add(option);
+            this.iteration.DefaultOption = option;
+
+            this.viewModel.CurrentThing = this.iteration;
+
+            Assert.That(() => this.viewModel.CurrentDomain != null, Is.True.After(2000, 25),
+                "the current domain must be resolved before the drop can be evaluated");
+
+            var fromNode = new SystemNodeViewModel(draggedElementDefinition);
+            var toNode = new SystemNodeViewModel(targetElementDefinition);
+
+            await this.viewModel.ProductTreeViewModel.OnDrop.InvokeAsync((fromNode, toNode));
+
+            this.session.Verify(x => x.Write(It.IsAny<OperationContainer>()), Times.Once,
+                "Dropping an ElementDefinition onto another one must still create a new ElementUsage.");
+        }
+
+        /// <summary>
+        /// Verifies that the drop is rejected, without ever writing, when the current user lacks write
+        /// permission on the target <see cref="ElementDefinition" />.
+        /// </summary>
+        [Test]
+        public async Task VerifyDropIsRejectedWithoutWritePermission()
+        {
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(false);
+
+            var referencedElementDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Box",
+                ShortName = "BOX",
+                Owner = this.currentDomain
+            };
+
+            var targetElementDefinition = new ElementDefinition
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Target",
+                ShortName = "TGT",
+                Owner = this.currentDomain
+            };
+
+            this.iteration.Element.Add(referencedElementDefinition);
+            this.iteration.Element.Add(targetElementDefinition);
+
+            var elementUsage = new ElementUsage
+            {
+                Iid = Guid.NewGuid(),
+                Name = "Box1",
+                ShortName = "BOX1",
+                ElementDefinition = referencedElementDefinition,
+                Owner = this.currentDomain
+            };
+
+            this.topElement.ContainedElement.Add(elementUsage);
+
+            var option = new Option { Iid = Guid.NewGuid(), Name = "Option 1", ShortName = "OPT1" };
+            this.iteration.Option.Add(option);
+            this.iteration.DefaultOption = option;
+
+            this.viewModel.CurrentThing = this.iteration;
+
+            Assert.That(() => this.viewModel.CurrentDomain != null, Is.True.After(2000, 25),
+                "the current domain must be resolved before the drop can be evaluated");
+
+            var fromNode = new SystemNodeViewModel(elementUsage);
+            var toNode = new SystemNodeViewModel(targetElementDefinition);
+
+            await this.viewModel.ProductTreeViewModel.OnDrop.InvokeAsync((fromNode, toNode));
+
+            this.session.Verify(x => x.Write(It.IsAny<OperationContainer>()), Times.Never,
+                "Without write permission on the target, the drop must be rejected client-side and never reach Write.");
         }
     }
 }

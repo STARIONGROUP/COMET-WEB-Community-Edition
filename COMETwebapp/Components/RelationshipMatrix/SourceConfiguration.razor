@@ -1,0 +1,80 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.CommonData
+@using CDP4Common.SiteDirectoryData
+@inherits DisposableComponent
+
+<div class="source-configuration">
+    <h6>@this.Title</h6>
+
+    <div class="source-configuration-row">
+        <label>Type</label>
+        <DxComboBox Data="@this.ClassKindOptions"
+                    @bind-Value="@this.ViewModel.SelectedClassKind"
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    NullText="Select a type"/>
+    </div>
+
+    <div class="source-configuration-row">
+        <label>Categories</label>
+        <div class="source-configuration-categories">
+            <CheckboxMultiSelect T="Category"
+                                 Data="@this.ViewModel.CategorySelector.AvailableCategories"
+                                 Values="@this.ViewModel.CategorySelector.SelectedCategories"
+                                 ValuesChanged="@(values => this.ViewModel.CategorySelector.SelectedCategories = values)"
+                                 TextFieldName="@nameof(Category.Name)"
+                                 TextSelector="@(category => category.Name)"
+                                 NullText="Select categories"/>
+            <DxComboBox Data="@this.ViewModel.PossibleBooleanOperatorKinds" @bind-Value="@this.ViewModel.SelectedBooleanOperatorKind"/>
+        </div>
+    </div>
+
+    <div class="source-configuration-row">
+        <label></label>
+        <DxCheckBox @bind-Checked="@this.ViewModel.IncludeSubcategories">Include sub-categories</DxCheckBox>
+    </div>
+
+    <div class="source-configuration-row">
+        <label>Owners</label>
+        <CheckboxMultiSelect T="DomainOfExpertise"
+                             Data="@this.ViewModel.AvailableOwners"
+                             Values="@this.ViewModel.SelectedOwners"
+                             ValuesChanged="@(values => this.ViewModel.SelectedOwners = values.ToList())"
+                             TextFieldName="@nameof(DomainOfExpertise.Name)"
+                             TextSelector="@(owner => owner.Name)"
+                             NullText="All owners"/>
+    </div>
+
+    <div class="source-configuration-row">
+        <label>Display</label>
+        <DxComboBox Data="@this.ViewModel.PossibleDisplayKinds" @bind-Value="@this.ViewModel.SelectedDisplayKind"/>
+    </div>
+
+    <div class="source-configuration-row">
+        <label>Sort on</label>
+        <DxComboBox Data="@this.ViewModel.PossibleDisplayKinds" @bind-Value="@this.ViewModel.SelectedSortKind"/>
+    </div>
+
+    <div class="source-configuration-row">
+        <label>Sort order</label>
+        <DxComboBox Data="@this.ViewModel.PossibleSortOrders" @bind-Value="@this.ViewModel.SelectedSortOrder"/>
+    </div>
+</div>

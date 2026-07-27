@@ -20,7 +20,6 @@
 @using COMET.Web.Common.Extensions
 @using CDP4Common.EngineeringModelData
 @using COMETwebapp.Components.Common
-@using COMETwebapp.Utilities
 @using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
 @using Microsoft.JSInterop
 @inherits DisposableComponent
@@ -38,11 +37,9 @@
                 <small class="text-muted">@this.ViewModel.SelectedSystemNode.ShortName</small>
             </div>
             <div class="col-5" align="right">
-                <button class="starion-pill"
-                        title="Owning Domain Of Expertise: @this.ViewModel.SelectedSystemNode.Owner.ShortName"
-                        style="background-color:@TagColorGenerator.GetBackgroundColor($"owner:{this.ViewModel.SelectedSystemNode.Owner.ShortName}") !important;">
+                <StarionPill ColorSeed="@($"owner:{this.ViewModel.SelectedSystemNode.Owner.ShortName}")" Title="@($"Owning Domain Of Expertise: {this.ViewModel.SelectedSystemNode.Owner.ShortName}")">
                     @this.ViewModel.SelectedSystemNode.Owner.ShortName
-                </button>
+                </StarionPill>
                 @if (this.OnEditDefinition.HasDelegate && this.ViewModel.SelectedSystemNode is ElementUsage)
                 {
                     <DxButton Id="editDefinition"
@@ -83,9 +80,9 @@
                 <div class="col-12">
                     @foreach (var category in categories)
                     {
-                        <button class="starion-pill" title="Category: @category.Name" style="margin-right:4px; background-color:@TagColorGenerator.GetBackgroundColor($"category:{category.ShortName}") !important;">
+                        <StarionPill ColorSeed="@($"category:{category.ShortName}")" Title="@($"Category: {category.Name}")" Style="margin-right:4px;">
                             @category.Name
-                        </button>
+                        </StarionPill>
                     }
                 </div>
             </div>
@@ -101,15 +98,6 @@
                 </div>
             </div>
         }
-    </div>
-
-    @* ── Search toolbar ── *@
-    <div class="param-group-search-bar mb-2">
-        <span class="oi oi-magnifying-glass param-group-search-icon" aria-hidden="true"></span>
-        <DxTextBox @bind-Text="@this.SearchTerm"
-                   BindValueMode="BindValueMode.OnInput"
-                   NullText="Search parameters…"
-                   CssClass="param-group-search-input"/>
     </div>
 
     @* ── Collapsible grouped parameter sections ── *@

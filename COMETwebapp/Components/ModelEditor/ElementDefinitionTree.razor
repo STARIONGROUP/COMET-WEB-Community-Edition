@@ -39,8 +39,7 @@ else
 }
 </div>
 <div id="search-textbox" style="visibility:@(this.AllowSearch ? "visible" : "hidden");">
-    <DxTextBox CssClass="inline-search-icon" SizeMode="SizeMode.Medium" BindValueMode="BindValueMode.OnDelayedInput" InputDelay="500" @bind-Text="this.SearchTerm" NullText="Search..." ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
-    </DxTextBox>
+    <SearchBar @bind-Text="this.SearchTerm"/>
 </div>
 <div class="drop-area-color @(this.dragOverNode == this.TreeView && this.AllowNodeDrop && this.AllowDrop ? "treeview-drag-over" : "")"
      dropzone="@(this.AllowDrop ? "move" : "")"

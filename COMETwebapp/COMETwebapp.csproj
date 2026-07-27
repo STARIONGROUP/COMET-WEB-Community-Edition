@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <Version>8.0.0</Version>
+        <Version>8.1.0</Version>
         <Title>CDP4-COMET WEB</Title>
         <Description>A web application that implements ECSS-E-TM-10-25</Description>
         <Company>Starion Group S.A.</Company>
@@ -29,11 +29,11 @@
     <ItemGroup>
         <PackageReference Include="AntDesign" Version="1.6.2" />
         <PackageReference Include="BlazorStrap" Version="5.2.104" />
+        <PackageReference Include="ClosedXML" Version="0.105.0" />
         <PackageReference Include="Feather.Blazor" Version="1.0.1" />
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
         <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
         <PackageReference Include="System.Drawing.Common" Version="10.0.10" />
-        <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
         <PackageReference Include="Z.Blazor.Diagrams" Version="3.0.4.1" />
 
         <PackageReference Include="ReactiveUI.Blazor" Version="23.2.28" />

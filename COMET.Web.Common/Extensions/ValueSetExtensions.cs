@@ -56,14 +56,27 @@ namespace COMET.Web.Common.Extensions
         /// <param name="valueSet">the value set to parse</param>
         /// <param name="angleFormat">The format of the angle</param>
         /// <returns>And array of type [Rx,Ry,Rz]</returns>
+        /// <remarks>
+        /// Falls back to an identity <see cref="Orientation" /> when the value set holds neither 3 (Euler angles) nor
+        /// 9 (rotation matrix) values, instead of letting <see cref="MatrixExtensions.ToOrientation" /> throw. This is
+        /// a UI-side guard against a malformed persisted orientation value set; the underlying data
+        /// anomaly is a server/import concern outside this repository.
+        /// </remarks>
         public static Orientation ParseIValueToOrientation(this IValueSet valueSet, AngleFormat angleFormat)
         {
-            if (valueSet.ToDoubles(out var result))
+            if (!valueSet.ToDoubles(out var result))
+            {
+                return new Orientation(0, 0, 0);
+            }
+
+            try
             {
                 return result.ToArray().ToOrientation(valueSet.ActualValue.Count == 9, angleFormat);
             }
-
-            return new Orientation(0, 0, 0);
+            catch (ArgumentException)
+            {
+                return new Orientation(0, 0, 0);
+            }
         }
 
         /// <summary>

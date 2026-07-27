@@ -24,6 +24,8 @@ namespace COMETwebapp.Extensions
 {
     using COMETwebapp.Model.Viewer;
     using COMETwebapp.Resources;
+    using COMETwebapp.Services.Export;
+    using COMETwebapp.Services.FileStore;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Services.SubscriptionService;
@@ -51,6 +53,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales;
     using COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits;
     using COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes;
+    using COMETwebapp.ViewModels.Components.RelationshipMatrix;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
     using COMETwebapp.ViewModels.Components.SiteDirectory;
     using COMETwebapp.ViewModels.Components.SiteDirectory.DomainsOfExpertise;
@@ -83,6 +86,8 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddScoped<IBabylonInterop, BabylonInterop>();
             serviceCollection.AddScoped<IDomDataService, DomDataService>();
             serviceCollection.AddScoped<IJsUtilitiesService, JsUtilitiesService>();
+            serviceCollection.AddScoped<IExportService, ExportService>();
+            serviceCollection.AddScoped<IFileStoreService, FileStoreService>();
             serviceCollection.AddHttpClient();
         }
 
@@ -100,6 +105,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<ISubscribedTableViewModel, SubscribedTableViewModel>();
             serviceCollection.AddTransient<IParameterEditorBodyViewModel, ParameterEditorBodyViewModel>();
             serviceCollection.AddTransient<IRequirementsEditorBodyViewModel, RequirementsEditorBodyViewModel>();
+            serviceCollection.AddTransient<IRelationshipMatrixBodyViewModel, RelationshipMatrixBodyViewModel>();
             serviceCollection.AddTransient<IViewerBodyViewModel, ViewerBodyViewModel>();
             serviceCollection.AddTransient<IElementDefinitionDetailsViewModel, ElementDefinitionDetailsViewModel>();
             serviceCollection.AddTransient<IParameterTypeTableViewModel, ParameterTypeTableViewModel>();

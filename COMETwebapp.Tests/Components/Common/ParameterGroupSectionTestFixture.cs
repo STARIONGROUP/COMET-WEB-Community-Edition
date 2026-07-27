@@ -210,5 +210,34 @@ namespace COMETwebapp.Tests.Components.Common
                 Assert.That(markup, Does.Contain("Temperature"), "Matching parameter must still render.");
             });
         }
+
+        [Test]
+        public void VerifySearchFilterMatchesOwner()
+        {
+            var owner = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
+            var group = new ParameterGroup { Iid = Guid.NewGuid(), Name = "Thermal" };
+
+            var parameter = BuildParameter(owner, "Temperature", "T");
+            parameter.Group = group;
+
+            var row = new ElementDefinitionDetailsRowViewModel(parameter, owner);
+
+            // The term matches neither the parameter type name ("Temperature") nor its short name ("T"),
+            // only the owner short name ("SYS") — the row must still be kept.
+            var rendered = this.context.Render<ParameterGroupSection>(parameters => parameters
+                .Add(p => p.Group, group)
+                .Add(p => p.AllRows, new List<ElementDefinitionDetailsRowViewModel> { row })
+                .Add(p => p.AllGroups, new List<ParameterGroup> { group })
+                .Add(p => p.SearchTerm, "sys")
+                .Add(p => p.Level, 0));
+
+            var markup = rendered.Markup;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(markup, Does.Contain("group-card"), "Group must render when the search term matches the parameter owner.");
+                Assert.That(markup, Does.Contain("Temperature"), "The owner-matched parameter must still render.");
+            });
+        }
     }
 }

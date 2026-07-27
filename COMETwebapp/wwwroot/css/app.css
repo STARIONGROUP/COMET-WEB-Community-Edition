@@ -315,13 +315,16 @@ sub {
 
 .starion-pill {
     margin: 1px;
-    height: 19px;
     width: auto;
     border-radius: 30px;
     background-color: white;
     border: 1px solid dimgray;
     color: dimgray;
-    padding-top: 0px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 18px;
+    padding: 1px 8px;
 }
 
 .search-mark {

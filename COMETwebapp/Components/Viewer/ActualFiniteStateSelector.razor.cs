@@ -40,15 +40,24 @@ namespace COMETwebapp.Components.Viewer
         public IActualFiniteStateSelectorViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// The subscription to the selected finite state, retained so it can be disposed and replaced when the parameters change
+        /// </summary>
+        private IDisposable selectedFiniteStateSubscription;
+
+        /// <summary>
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            
-            this.WhenAnyValue(x => x.ViewModel.SelectedFiniteState)
+
+            this.selectedFiniteStateSubscription?.Dispose();
+
+            this.selectedFiniteStateSubscription = this.WhenAnyValue(x => x.ViewModel.SelectedFiniteState)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged));
+
+            this.Disposables.Add(this.selectedFiniteStateSubscription);
         }
     }
 }

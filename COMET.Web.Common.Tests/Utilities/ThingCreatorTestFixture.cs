@@ -24,6 +24,7 @@
 namespace COMET.Web.Common.Tests.Utilities
 {
     using System.Collections.Concurrent;
+    using System.Linq;
 
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -115,6 +116,62 @@ namespace COMET.Web.Common.Tests.Utilities
             iteration.Element.Add(elementDefinitionB);
 
             Assert.ThrowsAsync<Exception>(async () => await this.thingCreator.CreateElementUsageAsync(elementDefinitionA, elementDefinitionB, domainOfExpertise, this.sessionThatThrowsException.Object));
+        }
+
+        [Test]
+        public void VerifyThatArgumentNullExceptionsAreThrownOnMoveElementUsage()
+        {
+            var referencedElementDefinition = new ElementDefinition(Guid.NewGuid(), this.cache, null);
+            var targetElementDefinition = new ElementDefinition(Guid.NewGuid(), this.cache, null);
+
+            var elementUsage = new ElementUsage(Guid.NewGuid(), this.cache, null)
+            {
+                ElementDefinition = referencedElementDefinition
+            };
+
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await this.thingCreator.MoveElementUsageAsync(null, targetElementDefinition, this.session.Object));
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await this.thingCreator.MoveElementUsageAsync(elementUsage, null, this.session.Object));
+            Assert.ThrowsAsync<ArgumentNullException>(async () => await this.thingCreator.MoveElementUsageAsync(elementUsage, targetElementDefinition, null));
+        }
+
+        [Test]
+        public async Task VerifyThatMoveElementUsageExecutesWrite()
+        {
+            var domainOfExpertise = new DomainOfExpertise(Guid.NewGuid(), this.cache, null);
+            var engineeringModel = new EngineeringModel(Guid.NewGuid(), this.cache, null);
+            var iteration = new Iteration(Guid.NewGuid(), this.cache, null);
+            engineeringModel.Iteration.Add(iteration);
+
+            var sourceElementDefinition = new ElementDefinition(Guid.NewGuid(), this.cache, null);
+            var targetElementDefinition = new ElementDefinition(Guid.NewGuid(), this.cache, null);
+            var referencedElementDefinition = new ElementDefinition(Guid.NewGuid(), this.cache, null);
+
+            iteration.Element.Add(sourceElementDefinition);
+            iteration.Element.Add(targetElementDefinition);
+            iteration.Element.Add(referencedElementDefinition);
+
+            var elementUsage = new ElementUsage(Guid.NewGuid(), this.cache, null)
+            {
+                Owner = domainOfExpertise,
+                ElementDefinition = referencedElementDefinition
+            };
+
+            sourceElementDefinition.ContainedElement.Add(elementUsage);
+
+            OperationContainer capturedOperationContainer = null;
+
+            this.session.Setup(x => x.Write(It.IsAny<OperationContainer>()))
+                .Callback<OperationContainer>(operationContainer => capturedOperationContainer = operationContainer)
+                .Returns(Task.CompletedTask);
+
+            await this.thingCreator.MoveElementUsageAsync(elementUsage, targetElementDefinition, this.session.Object);
+
+            this.session.Verify(x => x.Write(It.IsAny<OperationContainer>()), Times.Once);
+
+            var modifiedIids = capturedOperationContainer.Operations.Select(x => x.ModifiedThing.Iid).ToList();
+
+            // The existing usage's Iid must be part of the operation, proving it was moved rather than re-created.
+            Assert.That(modifiedIids, Does.Contain(elementUsage.Iid));
         }
     }
 }

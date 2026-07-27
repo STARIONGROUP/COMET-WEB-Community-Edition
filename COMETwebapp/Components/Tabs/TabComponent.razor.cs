@@ -34,6 +34,12 @@ namespace COMETwebapp.Components.Tabs
     public partial class TabComponent : DisposableComponent
     {
         /// <summary>
+        /// Gets or sets the id rendered on the tab's root element (optional)
+        /// </summary>
+        [Parameter]
+        public string Id { get; set; }
+
+        /// <summary>
         /// Gets or sets the text to be displayed in the tab title
         /// </summary>
         [Parameter]

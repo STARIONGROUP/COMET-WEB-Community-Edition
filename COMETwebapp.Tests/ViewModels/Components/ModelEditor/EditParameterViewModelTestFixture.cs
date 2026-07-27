@@ -31,6 +31,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
 
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
 
     using COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel;
 
@@ -249,6 +250,43 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 Assert.That(this.viewModel.ValueRows.Select(row => row.ParameterTypeName), Is.EquivalentTo(new[] { "x", "y" }));
                 Assert.That(this.viewModel.ValueRows[0].ActualValue, Is.EqualTo("1"));
                 Assert.That(this.viewModel.ValueRows[1].ActualValue, Is.EqualTo("2"));
+            });
+        }
+
+        [Test]
+        public void VerifyOrientationParameterIsNotFlattenedIntoComponentRows()
+        {
+            var orientationParameterType = new CompoundParameterType { Iid = Guid.NewGuid(), Name = "orientation", ShortName = ConstantValues.OrientationShortName };
+            var quantityKind = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "n", ShortName = "n" };
+
+            var components = Enumerable.Range(1, 9)
+                .Select(index => new ParameterTypeComponent { Iid = Guid.NewGuid(), ShortName = $"c{index}", ParameterType = quantityKind });
+
+            orientationParameterType.Component.AddRange(components);
+
+            var orientationValues = Enumerable.Repeat("0", 9).ToList();
+
+            var orientationParameter = new Parameter { Iid = Guid.NewGuid(), Owner = this.currentDomain, ParameterType = orientationParameterType };
+
+            orientationParameter.ValueSet.Add(new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                Manual = new ValueArray<string>(orientationValues),
+                Computed = new ValueArray<string>(orientationValues),
+                Reference = new ValueArray<string>(orientationValues),
+                Formula = new ValueArray<string>(orientationValues),
+                Published = new ValueArray<string>(orientationValues),
+                ValueSwitch = ParameterSwitchKind.MANUAL
+            });
+
+            this.elementDefinition.Parameter.Add(orientationParameter);
+
+            this.viewModel.SetParameter(orientationParameter, this.iteration, this.currentDomain);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ValueRows, Has.Count.EqualTo(1), "An orientation parameter must be edited as a single compound row, not flattened per component.");
+                Assert.That(this.viewModel.ValueRows[0].ManualEditorViewModel.ParameterType, Is.InstanceOf<CompoundParameterType>(), "The dedicated orientation editor needs the whole compound parameter type, not a scalar component.");
             });
         }
 

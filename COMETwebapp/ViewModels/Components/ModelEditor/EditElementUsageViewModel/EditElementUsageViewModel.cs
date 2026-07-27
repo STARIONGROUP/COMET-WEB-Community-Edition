@@ -28,16 +28,19 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewMode
     using CDP4Dal;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// View model driving the edit-Element-Usage popup. Holds a working clone of the target
     /// <see cref="ElementUsage" /> so the form can mutate state without leaking changes back into the
     /// cached domain graph until the surrounding commit succeeds.
     /// </summary>
-    public class EditElementUsageViewModel : IEditElementUsageViewModel
+    public class EditElementUsageViewModel : DisposableObject, IEditElementUsageViewModel
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="EditElementUsageViewModel" /> class.
@@ -56,6 +59,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewMode
                     }
                 })
             };
+
+            this.Disposables.Add(this.DomainOfExpertiseSelectorViewModel);
         }
 
         /// <summary>
@@ -72,11 +77,20 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewMode
         public IReadOnlyList<Option> AvailableOptions { get; private set; } = [];
 
         /// <summary>
+        /// Backing field for the <see cref="SelectedOptions" /> property
+        /// </summary>
+        private IEnumerable<Option> selectedOptions = [];
+
+        /// <summary>
         /// Gets or sets the <see cref="Option" />s the element usage is included in (the complement of
         /// <see cref="ElementUsage.ExcludeOption" />). Updated by the multi-select in the form and applied
         /// back to the clone before the save is committed.
         /// </summary>
-        public IEnumerable<Option> SelectedOptions { get; set; } = [];
+        public IEnumerable<Option> SelectedOptions
+        {
+            get => this.selectedOptions;
+            set => this.RaiseAndSetIfChanged(ref this.selectedOptions, value);
+        }
 
         /// <summary>
         /// Gets the selector view model used by the form to pick the owning
@@ -85,10 +99,19 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementUsageViewMode
         public IDomainOfExpertiseSelectorViewModel DomainOfExpertiseSelectorViewModel { get; }
 
         /// <summary>
+        /// Backing field for the <see cref="OnValidSubmit" /> property
+        /// </summary>
+        private EventCallback onValidSubmit;
+
+        /// <summary>
         /// Gets or sets the callback invoked by the form when the user submits a valid edit. Wired by the
         /// owning <see cref="ModelEditorViewModel" /> to the actual save handler.
         /// </summary>
-        public EventCallback OnValidSubmit { get; set; }
+        public EventCallback OnValidSubmit
+        {
+            get => this.onValidSubmit;
+            set => this.RaiseAndSetIfChanged(ref this.onValidSubmit, value);
+        }
 
         /// <summary>
         /// Initializes the view model with the supplied clone of the <see cref="ElementUsage" /> and

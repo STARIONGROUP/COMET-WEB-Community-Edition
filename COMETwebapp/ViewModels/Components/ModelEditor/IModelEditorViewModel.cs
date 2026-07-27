@@ -89,5 +89,22 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor
         /// <param name="fromElementBase">The <see cref="ElementBase"/> to be added as <see cref="ElementUsage"/></param>
         /// <param name="toElementBase">The <see cref="ElementBase"/> where to add the new <see cref="ElementUsage"/> to</param>
         Task AddNewElementUsageAsync(ElementBase fromElementBase, ElementBase toElementBase);
+
+        /// <summary>
+        /// Move (re-parent) an existing <see cref="ElementUsage"/> under a target <see cref="ElementDefinition"/>,
+        /// keeping its <see cref="CDP4Common.CommonData.Thing.Iid"/>, name, owner, options and
+        /// <see cref="ElementUsage.ParameterOverride"/>s.
+        /// </summary>
+        /// <param name="elementUsage">The existing <see cref="ElementUsage"/> to move.</param>
+        /// <param name="targetContainer">The <see cref="ElementDefinition"/> that becomes the new container.</param>
+        Task MoveElementUsageAsync(ElementUsage elementUsage, ElementDefinition targetContainer);
+
+        /// <summary>
+        /// Determines whether the current user may write an <see cref="ElementUsage"/> into
+        /// <paramref name="targetContainer"/>, so a drop can be rejected client-side instead of failing on the server.
+        /// </summary>
+        /// <param name="targetContainer">The target container <see cref="ElementDefinition"/>.</param>
+        /// <returns><see langword="true"/> when the write is permitted; otherwise <see langword="false"/>.</returns>
+        bool CanWriteElementUsage(ElementDefinition targetContainer);
     }
 }

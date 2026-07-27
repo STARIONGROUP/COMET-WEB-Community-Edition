@@ -61,6 +61,11 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         private const string CollapsedPanelClass = "model-editor-panel-collapsed";
 
         /// <summary>
+        /// The css class that makes a panel grow to fill the space freed by a collapsed neighbour.
+        /// </summary>
+        private const string GrowPanelClass = "model-editor-panel-grow";
+
+        /// <summary>
         /// The bunit <see cref="BunitContext" /> used to render the component under test.
         /// </summary>
         private BunitContext context;
@@ -279,6 +284,37 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         }
 
         /// <summary>
+        /// Verifies that dropping an existing <see cref="ElementUsage" /> onto an <see cref="ElementDefinition" /> node
+        /// routes to a move (re-parent), and not to a copy or a create-usage.
+        /// </summary>
+        [Test]
+        public async Task VerifyDroppingAnElementUsageOntoADefinitionMovesIt()
+        {
+            var owner = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS" };
+            var referencedElement = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Referenced", ShortName = "REF", Owner = owner };
+            var draggedUsage = new ElementUsage { Iid = Guid.NewGuid(), Name = "Usage", ShortName = "USG", Owner = owner, ElementDefinition = referencedElement };
+            var targetElement = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Target", ShortName = "TGT", Owner = owner };
+            this.iteration.Element.Add(targetElement);
+
+            var usageRow = new ElementUsageTreeRowViewModel(draggedUsage);
+            var targetRow = new ElementDefinitionTreeRowViewModel(targetElement);
+
+            this.elementDefinitionTreeViewModel.Setup(x => x.Iteration).Returns(this.iteration);
+            this.viewModel.Setup(x => x.MoveElementUsageAsync(It.IsAny<ElementUsage>(), It.IsAny<ElementDefinition>())).Returns(Task.CompletedTask);
+
+            var renderedComponent = this.RenderModelEditor();
+            var trees = renderedComponent.FindComponents<ElementDefinitionTree>();
+            var sourceTree = trees[0].Instance;
+            var targetTree = trees[1].Instance;
+
+            await renderedComponent.InvokeAsync(() => sourceTree.OnDragStart.InvokeAsync((sourceTree, usageRow)));
+            await renderedComponent.InvokeAsync(() => targetTree.OnDrop.InvokeAsync((targetTree, targetRow, new DragEventArgs())));
+
+            this.viewModel.Verify(x => x.MoveElementUsageAsync(draggedUsage, targetElement), Times.Once);
+            this.viewModel.Verify(x => x.AddNewElementUsageAsync(It.IsAny<ElementBase>(), It.IsAny<ElementBase>()), Times.Never);
+        }
+
+        /// <summary>
         /// Verifies that selecting a node in either tree drives the details panel, and clears the selection of the other tree
         /// </summary>
         [Test]
@@ -357,6 +393,33 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 Assert.That(renderedComponent.Find("#detailsPanel").ClassList, Does.Not.Contain(CollapsedPanelClass));
                 Assert.That(() => renderedComponent.Find("#expandDetailsPanel"), Throws.TypeOf<ElementNotFoundException>());
             });
+        }
+
+        /// <summary>
+        /// Verifies that a collapsed details panel makes the target tree grow to fill the freed space, so the collapsed
+        /// strip sticks to the right edge of the screen instead of leaving a gap next to the middle panel (issue GH809).
+        /// The grow class also overrides any fixed inline width the column resizer previously wrote on the panel.
+        /// </summary>
+        [Test]
+        public void VerifyCollapsedDetailsPanelGrowsTheTargetTree()
+        {
+            var renderedComponent = this.RenderModelEditor();
+
+            Assert.That(renderedComponent.Find("#targetPanel").ClassList, Does.Not.Contain(GrowPanelClass));
+
+            renderedComponent.Find("#collapseDetailsPanel").Click();
+
+            renderedComponent.WaitForAssertion(() =>
+            {
+                Assert.That(renderedComponent.Instance.IsDetailsPanelCollapsed, Is.True);
+                Assert.That(renderedComponent.Find("#targetPanel").ClassList, Does.Contain(GrowPanelClass),
+                    "A collapsed details panel must let the target tree grow, so the collapsed strip stays flush with the screen edge.");
+            });
+
+            renderedComponent.Find("#expandDetailsPanel").Click();
+
+            renderedComponent.WaitForAssertion(() =>
+                Assert.That(renderedComponent.Find("#targetPanel").ClassList, Does.Not.Contain(GrowPanelClass)));
         }
 
         /// <summary>

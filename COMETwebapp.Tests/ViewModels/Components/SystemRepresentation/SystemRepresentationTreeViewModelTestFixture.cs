@@ -95,9 +95,61 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
             Assert.That(SystemRepresentationTreeViewModel.CanDrop(unrelatedNode, rootNode), Is.True,
                 "Dropping an unrelated element node onto the root must be permitted.");
 
-            // Child node dropped onto the root (inverted — valid, no cycle) → true
-            Assert.That(SystemRepresentationTreeViewModel.CanDrop(childNode, rootNode), Is.True,
-                "Dropping a child node back onto the root is a valid operation.");
+            Assert.That(SystemRepresentationTreeViewModel.CanDrop(childNode, rootNode), Is.False,
+                "Dropping a usage back onto the container it already sits in is a no-op and must be rejected.");
+
+            var rootUsage = new ElementUsage { Iid = Guid.NewGuid(), Name = "RootUsage", ShortName = "RU", Owner = domain, ElementDefinition = rootDefinition };
+            var rootUsageNode = new SystemNodeViewModel(rootUsage);
+            var freshRootNode = new SystemNodeViewModel(rootDefinition);
+
+            Assert.That(SystemRepresentationTreeViewModel.CanDrop(freshRootNode, rootUsageNode), Is.False,
+                "Dropping an element definition onto a separate usage of the same definition must be rejected to avoid a self-containment cycle.");
+
+            // A node whose Thing is not an ElementBase → false, on either side.
+            var nonElementNode = new SystemNodeViewModel(rootDefinition);
+            nonElementNode.SetThing(new Option { Iid = Guid.NewGuid(), Name = "Option", ShortName = "OPT" });
+
+            Assert.That(SystemRepresentationTreeViewModel.CanDrop(nonElementNode, rootNode), Is.False,
+                "A dragged node whose Thing is not an ElementBase must be rejected.");
+
+            Assert.That(SystemRepresentationTreeViewModel.CanDrop(rootNode, nonElementNode), Is.False,
+                "A target node whose Thing is not an ElementBase must be rejected.");
+
+            // A target usage with no ElementDefinition resolves to a null definition → false.
+            var danglingUsage = new ElementUsage { Iid = Guid.NewGuid(), Name = "Dangling", ShortName = "DU", Owner = domain };
+            var danglingNode = new SystemNodeViewModel(danglingUsage);
+
+            Assert.That(SystemRepresentationTreeViewModel.CanDrop(unrelatedNode, danglingNode), Is.False,
+                "Dropping onto a usage node with no ElementDefinition must be rejected.");
+        }
+
+        /// <summary>
+        /// Verifies that <see cref="SystemRepresentationTreeViewModel.CanDrop" /> rejects moving an existing
+        /// <see cref="ElementUsage" /> back onto the <see cref="ElementDefinition" /> that already contains it
+        /// (a no-op move), while still permitting the move onto an unrelated <see cref="ElementDefinition" />.
+        /// </summary>
+        [Test]
+        public void VerifyCanDropRejectsMovingAUsageOntoItsOwnContainer()
+        {
+            var domain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS" };
+
+            var containerDefinition = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Container", ShortName = "CONT", Owner = domain };
+            var referencedDefinition = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Referenced", ShortName = "REF", Owner = domain };
+
+            var usage = new ElementUsage { Iid = Guid.NewGuid(), Name = "Usage", ShortName = "USG", Owner = domain, ElementDefinition = referencedDefinition };
+            containerDefinition.ContainedElement.Add(usage);
+
+            var usageNode = new SystemNodeViewModel(usage);
+            var containerNode = new SystemNodeViewModel(containerDefinition);
+
+            Assert.That(SystemRepresentationTreeViewModel.CanDrop(usageNode, containerNode), Is.False,
+                "Dropping a usage back onto the container it already sits in is a no-op and must be rejected.");
+
+            var unrelatedDefinition = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Unrelated", ShortName = "UNR", Owner = domain };
+            var unrelatedNode = new SystemNodeViewModel(unrelatedDefinition);
+
+            Assert.That(SystemRepresentationTreeViewModel.CanDrop(usageNode, unrelatedNode), Is.True,
+                "Dropping the same usage onto a different, unrelated ElementDefinition must be permitted.");
         }
 
         /// <summary>

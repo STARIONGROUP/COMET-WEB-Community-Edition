@@ -25,13 +25,13 @@
 
 <LoadingComponent IsVisible="this.ViewModel.IsLoading">
     
-    <div id="@WebAppConstantValues.ModelDashboardPage.QueryPageBodyName()" class="book-editor-body">
+    <div id="@WebAppConstantValues.BookEditorPage.QueryPageBodyName()" class="book-editor-body">
         
         <EditorPopup ViewModel="@this.ViewModel.EditorPopupViewModel"/>
     
         <ConfirmCancelPopup ViewModel="@this.ViewModel.ConfirmCancelPopupViewModel"/>
 
-        <BookEditorColumn TItem="Book" HeaderHexColor="#eba434" HeaderTitle="Books"
+        <BookEditorColumn TItem="Book" Id="books-column" HeaderHexColor="#eba434" HeaderTitle="Books"
                           Items="@this.ViewModel.AvailableBooks.Items.ToList()"
                           @bind-SelectedValue="@this.ViewModel.SelectedBook"
                           DrawLeftLines="false"
@@ -46,7 +46,7 @@
             </ContentTemplate>
         </BookEditorColumn>
 
-        <BookEditorColumn TItem="Section" HeaderHexColor="#56bd08" HeaderTitle="Sections"
+        <BookEditorColumn TItem="Section" Id="sections-column" HeaderHexColor="#56bd08" HeaderTitle="Sections"
                           Items="@this.ViewModel.SelectedBook?.Section.ToList()"
                           @bind-SelectedValue="@this.ViewModel.SelectedSection"
                           IsCollapsed="@this.IsSectionColumnCollapsed"

@@ -47,15 +47,26 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         private AngleFormat angleFormat = AngleFormat.Degrees;
 
         /// <summary>
+        /// The <see cref="ParameterSwitchKind" /> the emitted value must be written to (Manual or Reference); mirrors
+        /// the switch the rest of the parameter's editors are currently on so all of them stage the same slot.
+        /// </summary>
+        private readonly ParameterSwitchKind currentParameterSwitchKind;
+
+        /// <summary>
         /// Creates a new instance of type <see cref="Orientation" />
         /// </summary>
         /// <param name="valueSet">the current value set that's being changed</param>
         /// <param name="onParameterValueSetChanged">event callback for when a value has changed</param>
-        public OrientationViewModel(IValueSet valueSet, EventCallback<(IValueSet, int)> onParameterValueSetChanged)
+        /// <param name="currentParameterSwitchKind">
+        /// the <see cref="ParameterSwitchKind" /> the emitted array is written to (defaults to
+        /// <see cref="ParameterSwitchKind.MANUAL" /> for callers that only ever edit the Manual value)
+        /// </param>
+        public OrientationViewModel(IValueSet valueSet, EventCallback<(IValueSet, int)> onParameterValueSetChanged, ParameterSwitchKind currentParameterSwitchKind = ParameterSwitchKind.MANUAL)
         {
             this.CurrentValueSet = valueSet ?? throw new ArgumentNullException(nameof(valueSet));
             this.Orientation = valueSet.ParseIValueToOrientation(AngleFormat.Degrees);
             this.ParameterValueChanged = onParameterValueSetChanged;
+            this.currentParameterSwitchKind = currentParameterSwitchKind;
         }
 
         /// <summary>
@@ -185,20 +196,34 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         }
 
         /// <summary>
-        /// Send the changes back to the parent components
+        /// Send the changes back to the parent components. The array is written to the slot matching
+        /// <see cref="currentParameterSwitchKind" /> (Manual or Reference) without forcing the switch itself, so
+        /// editing while on the Reference switch stages a Reference edit instead of silently switching the parameter
+        /// to Manual. Nothing is sent while on <see cref="ParameterSwitchKind.COMPUTED" />, which stays
+        /// read-only just like the scalar editors.
         /// </summary>
         /// <param name="modifiedValueArray">the value array to send back</param>
         /// <returns>A <see cref="Task" /></returns>
         private async Task SendChangesBack(ValueArray<string> modifiedValueArray)
         {
-            if (this.CurrentValueSet is ParameterValueSetBase parameterValueSetBase)
+            if (this.CurrentValueSet is not ParameterValueSetBase parameterValueSetBase || this.currentParameterSwitchKind == ParameterSwitchKind.COMPUTED)
             {
-                var sendingParameterValueSetBase = parameterValueSetBase.Clone(true);
-                sendingParameterValueSetBase.Manual = modifiedValueArray;
-                sendingParameterValueSetBase.ValueSwitch = ParameterSwitchKind.MANUAL;
-
-                await this.ParameterValueChanged.InvokeAsync((sendingParameterValueSetBase,0));
+                return;
             }
+
+            var sendingParameterValueSetBase = parameterValueSetBase.Clone(true);
+
+            switch (this.currentParameterSwitchKind)
+            {
+                case ParameterSwitchKind.MANUAL:
+                    sendingParameterValueSetBase.Manual = modifiedValueArray;
+                    break;
+                case ParameterSwitchKind.REFERENCE:
+                    sendingParameterValueSetBase.Reference = modifiedValueArray;
+                    break;
+            }
+
+            await this.ParameterValueChanged.InvokeAsync((sendingParameterValueSetBase, 0));
         }
     }
 }

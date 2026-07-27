@@ -49,7 +49,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </div>
             <div class="col">
                 <div class="width-fit-content">
-                    <DxCheckBox @bind-Checked="@(this.ViewModel.IsOwnedParameters)"
+                    <DxCheckBox Id="only-owned-parameters-toggle"
+                                @bind-Checked="@(this.ViewModel.IsOwnedParameters)"
                                 CheckType="CheckType.Switch">
                         Only Parameters owned by @this.ViewModel.CurrentDomain?.Name domain
                     </DxCheckBox>
@@ -59,7 +60,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <div class="pt-3">
             <BatchParameterEditor ViewModel="@(this.ViewModel.BatchParameterEditorViewModel)"/>
         </div>
-        <div class="row">
+        <div id="parameter-table" class="row">
             <ParameterTable ViewModel="this.ViewModel.ParameterTableViewModel"/>
         </div>
     </div>

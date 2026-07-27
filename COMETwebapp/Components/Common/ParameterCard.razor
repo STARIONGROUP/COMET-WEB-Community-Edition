@@ -19,7 +19,6 @@
 ------------------------------------------------------------------------------->
 
 @namespace COMETwebapp.Components.Common
-@using COMETwebapp.Utilities
 
 <div class="parameter-card"
      draggable="true"
@@ -36,11 +35,9 @@
             }
         </h6>
         <div class="d-flex align-items-center flex-nowrap" style="flex-shrink:0;">
-            <button class="starion-pill"
-                    title="Owning Domain Of Expertise: @this.Row.Owner"
-                    style="white-space:nowrap;flex-shrink:0;background-color:@TagColorGenerator.GetBackgroundColor($"owner:{this.Row.Owner}") !important;">
+            <StarionPill ColorSeed="@($"owner:{this.Row.Owner}")" Title="@($"Owning Domain Of Expertise: {this.Row.Owner}")" Style="white-space:nowrap;flex-shrink:0;">
                 @this.Row.Owner
-            </button>
+            </StarionPill>
             @if (this.OnCreateSubscription.HasDelegate && this.Row.CanSubscribe)
             {
                 <DxButton IconCssClass="oi oi-bell"
@@ -114,9 +111,9 @@
     {
         <div class="row" style="border-top:1px dotted darkgray;margin-top:8px;padding-top:8px;">
             <div class="col d-flex align-items-center" style="gap:6px;">
-                <button class="starion-pill" style="white-space:nowrap;">
+                <StarionPill Style="white-space:nowrap;">
                     @this.Row.StateValues.Count states
-                </button>
+                </StarionPill>
                 <button class="btn btn-sm btn-link p-0"
                         title="@(this.statesExpanded ? "Collapse state values" : "Expand state values")"
                         @onclick="this.ToggleStatesExpanded">
@@ -134,10 +131,9 @@
                         <div class="row" style="margin-top:4px;">
                             <div class="col-6">
                                 <span>
-                                    <button class="starion-pill"
-                                            title="Value Switch: @stateRow.SwitchValue">
+                                    <StarionPill Title="@($"Value Switch: {stateRow.SwitchValue}")">
                                         @stateRow.SwitchValue
-                                    </button>
+                                    </StarionPill>
                                 </span>
                                 <span>Actual:</span>
                             </div>
@@ -167,10 +163,9 @@
         <div class="row" style="border-top:1px dotted darkgray;margin-top:8px;padding-top:8px;">
             <div class="col-6">
                 <span>
-                    <button class="starion-pill"
-                            title="Actual Value's Value Switch: @this.Row.SwitchValue">
+                    <StarionPill Title="@($"Actual Value's Value Switch: {this.Row.SwitchValue}")">
                         @this.Row.SwitchValue
-                    </button>
+                    </StarionPill>
                 </span>
                 <span>Actual:</span>
             </div>

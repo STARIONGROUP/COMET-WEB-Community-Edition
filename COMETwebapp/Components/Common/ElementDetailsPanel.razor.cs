@@ -44,6 +44,12 @@ namespace COMETwebapp.Components.Common
         public IElementDetailsPanelViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// Gets or sets the current search term used to filter the parameter cards rendered by the
+        /// <see cref="COMETwebapp.Components.ModelEditor.DetailsPanelEditor" />. Held here so the search box can share the action-bar row.
+        /// </summary>
+        private string SearchTerm { get; set; }
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its initial parameters
         /// from its parent in the render tree. Subscribes to the three mode flags that control popup
         /// visibility so the component re-renders when they change.

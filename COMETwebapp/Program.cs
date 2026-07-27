@@ -102,7 +102,7 @@ namespace COMETwebapp
 
                 logger.LogInformation("################################################################");
 
-                logger.LogInformation("Starting CDP4-COMET WEB v{version}", resourceLoader.QueryVersion());
+                logger.LogInformation("Starting CDP4-COMET WEB v{Version}", resourceLoader.QueryVersion());
 
                 app.UseStaticFiles();
                 app.UseRouting();
