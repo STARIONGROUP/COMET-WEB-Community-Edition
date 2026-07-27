@@ -93,10 +93,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
 
                 if (shouldCreate)
                 {
-                    this.CurrentThing.Iid = Guid.NewGuid();
                     this.CurrentThing.IterationIid = Guid.NewGuid();
-                    this.CurrentThing.IterationNumber = (modelClone.IterationSetup.Max(x => (int?)x.IterationNumber) ?? 0) + 1;
-
                     modelClone.IterationSetup.Add(this.CurrentThing);
                 }
 
