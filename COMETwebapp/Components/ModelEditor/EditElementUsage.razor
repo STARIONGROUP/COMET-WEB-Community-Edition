@@ -23,6 +23,7 @@
 @if (this.ViewModel.ElementUsage is not null)
 {
     <EditForm Context="EditFormContext" Model="@this.ViewModel.ElementUsage" OnValidSubmit="@this.ViewModel.OnValidSubmit">
+        <FluentValidationValidator />
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
                 <DxTextBox @bind-Text="@this.ViewModel.ElementUsage.ShortName" />
@@ -45,6 +46,7 @@
                 </DxFormLayoutItem>
             }
         </DxFormLayout>
+        <ValidationSummary />
         <div class="modal-footer m-top-10px">
             <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Save" SubmitFormOnClick="true" />
         </div>
