@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IUserManagementTableViewModel.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -29,8 +29,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
 
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
-
-    using DevExpress.Blazor;
 
     /// <summary>
     /// View model used to manage <see cref="Person" />
@@ -105,8 +103,10 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         /// <summary>
         /// Tries to activate or disactivate a <see cref="Thing" />
         /// </summary>
+        /// <param name="personRow">The <see cref="PersonRowViewModel" /> of the person</param>
+        /// <param name="value">The new active status</param>
         /// <returns>A <see cref="Task" /></returns>
-        Task ActivateOrDeactivatePerson(GridDataColumnCellDisplayTemplateContext context, bool value);
+        Task ActivateOrDeactivatePerson(PersonRowViewModel personRow, bool value);
 
         /// <summary>
         /// Tries to create or edit an existing <see cref="Thing"/>

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IConfirmCancelPopupViewModel.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -23,7 +23,9 @@
 
 namespace COMET.Web.Common.ViewModels.Components
 {
-    using DevExpress.Blazor;
+    using System;
+
+    using COMET.Web.Common.Enumerations;
 
     using Microsoft.AspNetCore.Components;
 
@@ -48,14 +50,26 @@ namespace COMET.Web.Common.ViewModels.Components
         EventCallback OnConfirm { get; set; }
 
         /// <summary>
-        /// The <see cref="ButtonRenderStyle" /> to apply for the Cancel button
+        /// The <see cref="CometButtonStyle" /> to apply for the Cancel button
         /// </summary>
-        ButtonRenderStyle CancelRenderStyle { get; set; }
+        CometButtonStyle CancelStyle { get; set; }
 
         /// <summary>
-        /// The <see cref="ButtonRenderStyle" /> to apply for the Confirm button
+        /// The <see cref="CometButtonStyle" /> to apply for the Confirm button
         /// </summary>
-        ButtonRenderStyle ConfirmRenderStyle { get; set; }
+        CometButtonStyle ConfirmStyle { get; set; }
+
+        /// <summary>
+        /// The <see cref="CometButtonStyle" /> to apply for the Cancel button
+        /// </summary>
+        [Obsolete("Use CancelStyle instead. Will be removed in next release.")]
+        CometButtonStyle CancelRenderStyle { get; set; }
+
+        /// <summary>
+        /// The <see cref="CometButtonStyle" /> to apply for the Confirm button
+        /// </summary>
+        [Obsolete("Use ConfirmStyle instead. Will be removed in next release.")]
+        CometButtonStyle ConfirmRenderStyle { get; set; }
 
         /// <summary>
         /// The content of the header of the popup

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="CanvasViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -22,6 +22,7 @@
 
 namespace COMETwebapp.ViewModels.Components.Viewer
 {
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components;
@@ -34,8 +35,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer
     using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
-
-    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
@@ -134,8 +133,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             {
                 HeaderText = "Alert!",
                 ContentText = "You are about to select another primitive. The changes on the previous one haven't been saved. Do you want to continue?",
-                CancelRenderStyle = ButtonRenderStyle.Danger,
-                ConfirmRenderStyle = ButtonRenderStyle.Success,
+                CancelStyle = CometButtonStyle.Danger,
+                ConfirmStyle = CometButtonStyle.Success,
                 OnConfirm = new EventCallback(null, async () =>
                 {
                     await this.SelectSceneObjectUnderMouse();

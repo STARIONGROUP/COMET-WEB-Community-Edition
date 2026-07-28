@@ -35,8 +35,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -234,11 +232,12 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
         /// <summary>
         /// Tries to activate or disactivate a <see cref="Thing" />
         /// </summary>
+        /// <param name="personRow">The <see cref="PersonRowViewModel" /> of the person</param>
+        /// <param name="value">The new active status</param>
         /// <returns>A <see cref="Task" /></returns>
-        public async Task ActivateOrDeactivatePerson(GridDataColumnCellDisplayTemplateContext context, bool value)
+        public async Task ActivateOrDeactivatePerson(PersonRowViewModel personRow, bool value)
         {
             var siteDirectoryClone = this.SessionService.GetSiteDirectory().Clone(false);
-            var personRow = (PersonRowViewModel)context.DataItem;
             var personToUpdate = personRow.Thing;
             var clonedPerson = personToUpdate.Clone(false);
             clonedPerson.IsActive = value;
