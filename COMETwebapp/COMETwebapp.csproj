@@ -28,7 +28,6 @@
 
     <ItemGroup>
         <PackageReference Include="AntDesign" Version="1.6.2" />
-        <PackageReference Include="BlazorStrap" Version="5.2.104" />
         <PackageReference Include="ClosedXML" Version="0.105.0" />
         <PackageReference Include="Feather.Blazor" Version="1.0.1" />
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
