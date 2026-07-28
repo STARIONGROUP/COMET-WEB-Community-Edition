@@ -5,3 +5,11 @@
     margin-left: 5px;
     padding-top: 10px;
 }
+
+body:has(dx-license[style*="visibility: visible"]) .side-bar-footer {
+    min-height: 110px;
+}
+
+body:has(dx-license[style*="visibility: visible"]) .collapsed .side-bar-footer {
+    min-height: 0px;
+}
