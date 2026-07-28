@@ -32,7 +32,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 
     using COMETwebapp.Model;
     using COMETwebapp.Model.Viewer.Primitives;
+    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -155,7 +158,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         {
             var propertyChanged = false;
 
-            this.rootNode.PropertyChanged += (sender, args) =>
+            this.rootNode.PropertyChanged += (_, args) =>
             {
                 if (args.PropertyName == nameof(this.rootNode.SceneObject))
                 {
@@ -174,7 +177,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             var uri = new Uri("http://test.com");
             var elementDefinition = new ElementDefinition(Guid.NewGuid(), cache, uri) { Name = "Bus" };
 
-            var sceneObject = SceneObject.Create(elementDefinition, null, new List<ActualFiniteState>());
+            var sceneObject = SceneObject.Create(elementDefinition, null, []);
             var nodeWithElementBase = new ViewerNodeViewModel(sceneObject);
 
             var nodeWithoutSceneObject = new ViewerNodeViewModel(null);

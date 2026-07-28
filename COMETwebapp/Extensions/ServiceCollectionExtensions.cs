@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ServiceCollectionExtensions.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -122,6 +122,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddTransient<IDomainsOfExpertiseTableViewModel, DomainsOfExpertiseTableViewModel>();
             serviceCollection.AddTransient<IOrganizationsTableViewModel, OrganizationsTableViewModel>();
             serviceCollection.AddTransient<IEngineeringModelsTableViewModel, EngineeringModelsTableViewModel>();
+            serviceCollection.AddTransient<IIterationsTableViewModel, IterationsTableViewModel>();
             serviceCollection.AddTransient<IParticipantsTableViewModel, ParticipantsTableViewModel>();
             serviceCollection.AddTransient<IOrganizationalParticipantsTableViewModel, OrganizationalParticipantsTableViewModel>();
             serviceCollection.AddTransient<IParticipantRolesTableViewModel, ParticipantRolesTableViewModel>();

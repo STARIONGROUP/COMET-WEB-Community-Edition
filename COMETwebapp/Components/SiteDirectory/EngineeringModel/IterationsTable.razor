@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 Copyright (c) 2023-2026 Starion Group S.A.
     This file is part of CDP4-COMET WEB Community Edition
      The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -13,17 +13,107 @@ Copyright (c) 2023-2026 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.ViewModels.Components.SiteDirectory.Rows
-@inherits COMETwebapp.Components.Common.SelectedDataItemBase<CDP4Common.EngineeringModelData.Iteration, IterationRowViewModel>
+@inherits SelectedDataItemBase<IterationSetup, IterationSetupRowViewModel>
 
-<DxGrid @ref="this.Grid"
-        Data="this.IterationRows"
-        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-        ShowSearchBox="true"
-        ShowAllRows="true"
-        SearchBoxNullText="Search for an iteration...">
-    <Columns>
-        <DxGridDataColumn FieldName="@nameof(IterationRowViewModel.Name)" MinWidth="150" />
-        <DxGridDataColumn FieldName="@nameof(IterationRowViewModel.Number)" MinWidth="80" SearchEnabled="false" />
-    </Columns>
-</DxGrid>
+<LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
+    <DxGrid @ref="this.Grid"
+            Data="this.ViewModel.Rows.Items.Where(x => !x.IsDeleted)"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            ShowSearchBox="true"
+            ShowAllRows="true"
+            SearchBoxNullText="Search for an iteration..."
+            PopupEditFormCssClass="pw-800"
+            PopupEditFormHeaderText="Iteration"
+            CustomizeEditModel="this.CustomizeEditThing"
+            EditMode="GridEditMode.PopupEditForm"
+            EditModelSaving="@(this.OnEditThingSaving)"
+            EditFormButtonsVisible="false">
+        <Columns>
+            <DxGridDataColumn FieldName="@nameof(IterationSetupRowViewModel.Name)" MinWidth="150">
+                <CellDisplayTemplate>
+                    @{
+                        var row = (IterationSetupRowViewModel)context.DataItem;
+                        <span>@row.Name</span>
+
+                        if (row.Thing.FrozenOn != null)
+                        {
+                            <span style="display: inline-flex; align-items: center; min-height: 18px; padding: 1px 8px; margin: 1px 2px; font-size: 0.72rem; line-height: 1.2; border-radius: 30px; background: #e7f0fd; color: #3b5b8c; border: 1px solid #d0e1fd; margin-left: 8px;" title="This iteration is frozen">Frozen</span>
+                        }
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="@nameof(IterationSetupRowViewModel.Number)" MinWidth="80" SearchEnabled="false"/>
+            <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+                <HeaderTemplate>
+                    @if (this.ViewModel.CanCreateIteration)
+                    {
+                        <DxButton Id="addIterationButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                    }
+                    else
+                    {
+                        <span title="Iterations can only be created in Design Session Phase, Reporting Phase, or Completed Study.">
+                            <DxButton Id="addIterationButton" Text="Add" IconCssClass="oi oi-plus" Enabled="false"/>
+                        </span>
+                    }
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var row = (IterationSetupRowViewModel)context.DataItem;
+
+                        <DxButton Id="editIterationButton"
+                                  IconCssClass="oi oi-pencil"
+                                  Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"
+                                  Enabled="@(row.IsAllowedToWrite)"/>
+
+                        <DxButton Id="deleteIterationButton"
+                                  IconCssClass="oi oi-trash"
+                                  Click="() => this.ViewModel.OnDeleteButtonClick(row)"
+                                  Enabled="@(this.IsDeleteEnabled(row))"/>
+                    }
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
+        </Columns>
+
+        <EditFormTemplate Context="editFormContext">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Source Iteration:" ColSpanMd="10">
+                    <DxComboBox Data="@(this.ViewModel.SourceIterations)"
+                                TextFieldName="@nameof(IterationSetup.IterationNumber)"
+                                @bind-Value="@(this.ViewModel.CurrentThing.SourceIterationSetup)"
+                                Enabled="@(this.ShouldCreateThing)"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Never"
+                                CssClass="cw-480"/>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description:" ColSpanMd="10">
+                    <DxTextBox @bind-Text="@(this.ViewModel.CurrentThing.Description)"
+                               CssClass="cw-480"/>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+            <div class="pt-3"></div>
+            <ValidationSummary/>
+            <div class="dxbl-grid-edit-form-buttons">
+                <DxButton Id="saveIterationButton"
+                          Click="@(this.SetSelectedValuesAndSubmit)">
+                    Save
+                </DxButton>
+                <DxButton Id="cancelIterationButton"
+                          Click="this.Grid.CancelEditAsync"
+                          RenderStyle="ButtonRenderStyle.Secondary">
+                    Cancel
+                </DxButton>
+            </div>
+        </EditFormTemplate>
+
+        <CustomValidators>
+            <FluentValidationValidator/>
+        </CustomValidators>
+    </DxGrid>
+</LoadingComponent>
+
+<DxPopup @bind-Visible="@(this.ViewModel.IsOnDeletionMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
+    @(this.ViewModel.PopupDialog)
+    <div class="dxbl-grid-confirm-dialog-buttons">
+        <DxButton Text="Cancel" RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
+        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.ViewModel.OnConfirmPopupButtonClick)"/>
+    </div>
+</DxPopup>

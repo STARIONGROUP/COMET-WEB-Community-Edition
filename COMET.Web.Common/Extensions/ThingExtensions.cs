@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ThingExtensions.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -561,6 +561,7 @@ namespace COMET.Web.Common.Extensions
         {
             var thingDesignation = thing switch
             {
+                IterationSetup iterationSetup => $"Iteration {iterationSetup.IterationNumber}",
                 IShortNamedThing shortNamedThing => shortNamedThing.ShortName,
                 INamedThing namedThing => namedThing.Name,
                 _ => thing.UserFriendlyShortName

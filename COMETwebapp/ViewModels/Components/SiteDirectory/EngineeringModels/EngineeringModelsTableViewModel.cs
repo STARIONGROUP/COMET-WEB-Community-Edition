@@ -61,11 +61,13 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         /// <param name="logger">The <see cref="ILogger{TCategoryName}"/></param>
         /// <param name="organizationalParticipantsTableViewModel">The <see cref="IOrganizationalParticipantsTableViewModel"/></param>
         /// <param name="participantsTableViewModel">The <see cref="IParticipantsTableViewModel"/></param>
+        /// <param name="iterationsTableViewModel">The <see cref="IIterationsTableViewModel"/></param>
         public EngineeringModelsTableViewModel(ISessionService sessionService, ICDPMessageBus messageBus, ILogger<EngineeringModelsTableViewModel> logger, IOrganizationalParticipantsTableViewModel organizationalParticipantsTableViewModel,
-            IParticipantsTableViewModel participantsTableViewModel) : base(sessionService, messageBus, logger)
+            IParticipantsTableViewModel participantsTableViewModel, IIterationsTableViewModel iterationsTableViewModel) : base(sessionService, messageBus, logger)
         {
             this.OrganizationalParticipantsTableViewModel = organizationalParticipantsTableViewModel;
             this.ParticipantsTableViewModel = participantsTableViewModel;
+            this.IterationsTableViewModel = iterationsTableViewModel;
             this.CurrentThing = new EngineeringModelSetup();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedSiteRdl).Subscribe(this.OnSelectedSiteRdlChanged));
@@ -88,9 +90,9 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
         public IEnumerable<EngineeringModelSetup> EngineeringModels { get; private set; }
 
         /// <summary>
-        /// Gets a collection of the available <see cref="IterationRowViewModel"/>s
+        /// Gets the <see cref="IIterationsTableViewModel"/>
         /// </summary>
-        public IEnumerable<IterationRowViewModel> IterationRows { get; private set; }
+        public IIterationsTableViewModel IterationsTableViewModel { get; }
 
         /// <summary>
         /// Gets a collection of all the possible model kinds
@@ -157,10 +159,6 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
             this.SiteRdls = siteDirectory.SiteReferenceDataLibrary.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
             this.DomainsOfExpertise = siteDirectory.Domain.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
             this.Organizations = siteDirectory.Organization.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
-
-            this.IterationRows = this.SessionService.OpenIterations.Items
-                .Where(x => ((EngineeringModel)x.Container).EngineeringModelSetup.Iid == this.CurrentThing?.Iid)
-                .Select(x => new IterationRowViewModel(x));
         }
 
         /// <summary>
@@ -236,6 +234,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels
             this.SelectedSourceModel = this.Rows.Items.FirstOrDefault(x => x.Thing.Iid == this.CurrentThing.SourceEngineeringModelSetupIid)?.Thing;
             this.OrganizationalParticipantsTableViewModel.InitializeViewModel(this.CurrentThing);
             this.ParticipantsTableViewModel.InitializeViewModel(this.CurrentThing);
+            this.IterationsTableViewModel.InitializeViewModel(this.CurrentThing);
 
             return Task.CompletedTask;
         }

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="OpenModelViewModel.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -190,7 +190,7 @@ namespace COMET.Web.Common.ViewModels.Components
             this.IsOpeningSession = false;
 
             var availableEngineeringModelSetups = this.sessionService.GetParticipantModels()
-                .Where(x => x.IterationSetup.Exists(setup => this.sessionService.OpenIterations.Items.All(i => i.Iid != setup.IterationIid)))
+                .Where(x => this.CanSelectAlreadyOpenIteration || x.IterationSetup.Exists(setup => !setup.IsDeleted && this.sessionService.OpenIterations.Items.All(i => i.Iid != setup.IterationIid)))
                 .OrderBy(x => x.Name).ToList();
 
             var rdlFilter = this.configurationService.ServerConfiguration?.RdlFilter;
@@ -304,7 +304,7 @@ namespace COMET.Web.Common.ViewModels.Components
             this.AvailablesDomainOfExpertises = this.sessionService.GetModelDomains(this.SelectedEngineeringModel);
 
             this.AvailableIterationSetups = this.SelectedEngineeringModel.IterationSetup
-                .Where(x => this.CanSelectAlreadyOpenIteration || this.sessionService.OpenIterations.Items.All(i => i.Iid != x.IterationIid))
+                .Where(x => !x.IsDeleted && (this.CanSelectAlreadyOpenIteration || this.sessionService.OpenIterations.Items.All(i => i.Iid != x.IterationIid)))
                 .OrderBy(x => x.IterationNumber)
                 .Select(x => new IterationData(x));
         }

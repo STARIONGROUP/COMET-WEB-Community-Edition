@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ThingExtensionsTestFixture.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -417,6 +417,36 @@ namespace COMET.Web.Common.Tests.Extensions
 
             var evolution = ownedParameterSubscriptions.Select(x => x.QueryParameterSubscriptionValueSetEvolution());
             Assert.That(evolution.First(), Is.Not.Empty);
+        }
+
+        /// <summary>
+        /// Verifies the GetShortNameOrName extension method.
+        /// </summary>
+        [Test]
+        public void VerifyGetShortNameOrName()
+        {
+            var uri = new Uri("https://www.stariongroup.eu/");
+            var cache = new ConcurrentDictionary<CacheKey, Lazy<Thing>>();
+
+            var iterationSetup = new IterationSetup(Guid.NewGuid(), cache, uri)
+            {
+                IterationNumber = 42
+            };
+
+            var shortNamedThing = new DomainOfExpertise(Guid.NewGuid(), cache, uri)
+            {
+                ShortName = "SYS",
+                Name = "System"
+            };
+
+            var person = new Person(Guid.NewGuid(), cache, uri);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(iterationSetup.GetShortNameOrName(), Is.EqualTo("Iteration 42"));
+                Assert.That(shortNamedThing.GetShortNameOrName(), Is.EqualTo("SYS"));
+                Assert.That(person.GetShortNameOrName(), Is.Null);
+            });
         }
     }
 }
