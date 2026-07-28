@@ -4,8 +4,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <LangVersion>Latest</LangVersion>
     <Version>8.1.0</Version>
-    <AssemblyVersion>6.3.0</AssemblyVersion>
-    <FileVersion>6.3.0</FileVersion>
     <Title>CDP4 WEB Common</Title>
     <Description>A Common Library for any Blazor based application related to ECSS-E-TM-10-25</Description>
     <Company>Starion Group S.A.</Company>

@@ -49,6 +49,12 @@ When you're ready to go you should confirm that you are up to date and rebased w
 
 And remember; **A pull-request with tests is a pull-request that's likely to be pulled in.** :grin: Bonus points if you document your feature in our [wiki](https://github.com/RHEAGROUP/COMET-WEB-Community-Edition/wiki) once it has been pulled in
 
+## Versioning Policy
+
+Packable projects (currently `COMET.Web.Common` and `COMET.Web.Common.Test`, published to NuGet as `CDP4.WEB.Common` and `CDP4.WEB.Common.Test`) declare only `<Version>` in their `.csproj`. Do **not** add explicit `<AssemblyVersion>` or `<FileVersion>` — MSBuild derives both from `Version` automatically, which keeps the assembly's strong identity, the file-properties version, and the NuGet package version in lockstep by construction. An assembly and file version that silently drifts from the package version defeats diagnostics: crash dumps, logs and `dotnet --info`-style tooling all report the (wrong) frozen number, and two functionally different releases become indistinguishable to the loader.
+
+When cutting a release that bumps `Version` on a packable project, call out the change in that package's `PackageReleaseNotes`.
+
 ## Style Guidelines
 
 - Indent with 4 spaces, **not** tabs.
