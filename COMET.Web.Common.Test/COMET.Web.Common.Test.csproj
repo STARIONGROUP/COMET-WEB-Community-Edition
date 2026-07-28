@@ -5,9 +5,10 @@
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
       <Title>CDP4 WEB Common Test</Title>
+      <!-- AssemblyVersion and FileVersion are intentionally not set here: MSBuild derives
+           both from Version, keeping the assembly's strong identity and file-properties
+           version in lockstep with the package version by construction. -->
       <Version>8.1.0</Version>
-      <AssemblyVersion>5.2.0</AssemblyVersion>
-      <FileVersion>5.2.0</FileVersion>
       <Description>A Common Library that includes DevExpress Blazor and Tasks test helpers</Description>
       <Company>Starion Group S.A.</Company>
       <Copyright>Copyright 2023-2025 Starion Group S.A.</Copyright>
