@@ -3,9 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <LangVersion>Latest</LangVersion>
-    <!-- AssemblyVersion and FileVersion are intentionally not set here: MSBuild derives
-         both from Version, keeping the assembly's strong identity and file-properties
-         version in lockstep with the package version by construction. -->
     <Version>8.1.0</Version>
     <Title>CDP4 WEB Common</Title>
     <Description>A Common Library for any Blazor based application related to ECSS-E-TM-10-25</Description>
