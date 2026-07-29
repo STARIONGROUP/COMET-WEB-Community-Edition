@@ -46,7 +46,6 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using NUnit.Framework;
 
-
     [TestFixture]
     public class ParticipantsTableTestFixture
     {
@@ -163,6 +162,37 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             var saveParticipantsButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "saveParticipantsButton");
             await this.renderer.InvokeAsync(saveParticipantsButton.Instance.Click.InvokeAsync);
             this.viewModel.Verify(x => x.CreateOrEditParticipant(It.IsAny<bool>()), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyStartCreate()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.False);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+            });
+
+            await this.renderer.InvokeAsync(() => this.renderer.Instance.StartCreate());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.True);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+            });
+        }
+
+        [Test]
+        public async Task VerifyStartEdit()
+        {
+            var row = new ParticipantRowViewModel(this.participant1);
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+
+            await this.renderer.InvokeAsync(() => this.renderer.Instance.StartEdit(null));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+
+            await this.renderer.InvokeAsync(() => this.renderer.Instance.StartEdit(row));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
         }
     }
 }
