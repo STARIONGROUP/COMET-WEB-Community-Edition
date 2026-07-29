@@ -52,7 +52,8 @@
                 </DxFormLayoutTabPage>
 
                 <DxFormLayoutTabPage Caption="Definition">
-                    <DefinitionsTable Thing="@this.ViewModel.ElementDefinition"/>
+                    <DefinitionsTable Thing="@this.ViewModel.ElementDefinition"
+                                      AvailableLanguages="@this.ViewModel.AvailableLanguages"/>
                 </DxFormLayoutTabPage>
             </DxFormLayoutTabPages>
         </DxFormLayout>

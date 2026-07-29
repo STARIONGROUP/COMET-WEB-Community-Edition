@@ -28,7 +28,8 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
 
     using CDP4Dal;
 
-    using COMET.Web.Common.Extensions;
+    using COMETwebapp.Extensions;
+
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
@@ -122,6 +123,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
         public IEnumerable<Category> AvailableCategories { get; private set; } = new List<Category>();
 
         /// <summary>
+        /// Gets the <see cref="NaturalLanguage" />s available for selection in definition fields.
+        /// </summary>
+        public IEnumerable<NaturalLanguage> AvailableLanguages { get; private set; } = [];
+
+        /// <summary>
         /// Gets or sets a value indicating whether the edited <see cref="ElementDefinition" /> should be
         /// promoted to <see cref="Iteration.TopElement" /> on save. Initialized to the iteration's current
         /// top-element identity.
@@ -173,6 +179,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
             this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(elementDefinition.Owner is null, elementDefinition.Owner);
 
             this.AvailableCategories = this.GetAvailableCategories();
+            this.AvailableLanguages = this.sessionService.GetAvailableNaturalLanguages();
         }
 
         /// <summary>
