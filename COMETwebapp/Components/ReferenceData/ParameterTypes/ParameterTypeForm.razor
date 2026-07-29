@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 Copyright (c) 2023-2026 Starion Group S.A.
 
     This file is part of COMET WEB Community Edition
@@ -186,7 +186,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </DxFormLayoutTabPage>
 
             <DxFormLayoutTabPage Caption="Definitions">
-                <DefinitionsTable Thing="@(this.ViewModel.CurrentThing)"/>
+                <DefinitionsTable Thing="@(this.ViewModel.CurrentThing)"
+                                  AvailableLanguages="@(this.ViewModel.AvailableLanguages)"/>
             </DxFormLayoutTabPage>
         </DxFormLayoutTabPages>
     </DxFormLayout>

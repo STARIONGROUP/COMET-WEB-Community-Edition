@@ -33,6 +33,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
@@ -244,7 +245,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             this.Thing = thing;
             this.AvailableGroups = availableGroups ?? [];
             this.AvailableCategories = this.GetAvailableCategories(thing.ClassKind);
-            this.AvailableLanguages = this.GetAvailableLanguages();
+            this.AvailableLanguages = this.sessionService.GetAvailableNaturalLanguages();
 
             this.selectedLanguageCode = this.DefinedThing.Definition.FirstOrDefault()?.LanguageCode ?? this.GetDirectoryDefaultLanguageCode();
 
@@ -260,31 +261,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             this.DomainOfExpertiseSelectorViewModel.CurrentIteration = iteration;
             this.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise = ((EngineeringModel)iteration.Container).EngineeringModelSetup.ActiveDomain.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
             this.DomainOfExpertiseSelectorViewModel.SetSelectedDomainOfExpertiseOrReset(owner is null, owner);
-        }
-
-        /// <summary>
-        /// Builds the languages offered for a definition: the default IME language set (<see cref="DefaultNaturalLanguages" />)
-        /// merged with any languages defined on the model's <see cref="SiteDirectory" />, the model ones taking precedence,
-        /// de-duplicated by language code and ordered by name.
-        /// </summary>
-        /// <returns>The available languages.</returns>
-        private List<NaturalLanguage> GetAvailableLanguages()
-        {
-            var languagesByCode = new Dictionary<string, NaturalLanguage>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var language in DefaultNaturalLanguages.All)
-            {
-                languagesByCode[language.LanguageCode] = language;
-            }
-
-            foreach (var language in this.sessionService.GetSiteDirectory().NaturalLanguage)
-            {
-                languagesByCode[language.LanguageCode] = language;
-            }
-
-            return languagesByCode.Values
-                .OrderBy(x => string.IsNullOrWhiteSpace(x.NativeName) ? x.Name : x.NativeName, StringComparer.InvariantCultureIgnoreCase)
-                .ToList();
         }
 
         /// <summary>

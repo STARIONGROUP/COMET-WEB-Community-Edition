@@ -63,6 +63,11 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditElementDefinitionVie
         IEnumerable<Category> AvailableCategories { get; }
 
         /// <summary>
+        /// Gets the <see cref="NaturalLanguage" />s available for selection in definition fields.
+        /// </summary>
+        IEnumerable<NaturalLanguage> AvailableLanguages { get; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the edited <see cref="ElementDefinition" /> should be
         /// promoted to <see cref="Iteration.TopElement" /> on save.
         /// </summary>
