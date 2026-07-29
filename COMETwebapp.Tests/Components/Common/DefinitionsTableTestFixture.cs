@@ -1,24 +1,24 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="DefinitionsTableTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
-//
-//     This file is part of COMET WEB Community Edition
-//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+// 
+//     This file is part of CDP4-COMET WEB Community Edition
+//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
-//
-//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+// 
+//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Affero General Public License for more details.
-//
+//     Affero General Public License for more details.
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
-//  --------------------------------------------------------------------------------------------------------------------
+//   --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Tests.Components.Common
 {
@@ -30,9 +30,10 @@ namespace COMETwebapp.Tests.Components.Common
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Common;
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using DevExpress.Blazor;
+
+    using Microsoft.AspNetCore.Components.Forms;
 
     using NUnit.Framework;
 
@@ -76,17 +77,6 @@ namespace COMETwebapp.Tests.Components.Common
         }
 
         [Test]
-        public void VerifyExistingDefinitionIsRendered()
-        {
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.renderer.Instance.Thing, Is.SameAs(this.parameterType));
-                Assert.That(this.renderer.Markup, Does.Contain("Existing definition"));
-                Assert.That(this.renderer.Markup, Does.Contain("en-GB"));
-            });
-        }
-
-        [Test]
         public async Task VerifyAddDefinition()
         {
             var addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addDefinitionButton");
@@ -99,6 +89,34 @@ namespace COMETwebapp.Tests.Components.Common
                 Assert.That(this.renderer.Instance.Item.LanguageCode, Is.EqualTo("en-GB"));
                 Assert.That(this.parameterType.Definition, Has.Count.EqualTo(1));
             });
+        }
+
+        [Test]
+        public void VerifyExistingDefinitionIsRendered()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.Thing, Is.SameAs(this.parameterType));
+                Assert.That(this.renderer.Markup, Does.Contain("Existing definition"));
+                Assert.That(this.renderer.Markup, Does.Contain("en-GB"));
+            });
+        }
+
+        [Test]
+        public async Task VerifyGetSelectableLanguagesExcludesUsedLanguages()
+        {
+            var english = new NaturalLanguage { LanguageCode = "en-GB", Name = "English" };
+            var french = new NaturalLanguage { LanguageCode = "fr", Name = "French" };
+
+            var languageRenderer = this.context.Render<DefinitionsTable>(parameters => parameters
+                .Add(p => p.Thing, this.parameterType)
+                .Add(p => p.AvailableLanguages, [english, french]));
+
+            var addButton = languageRenderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addDefinitionButton");
+            await languageRenderer.InvokeAsync(addButton.Instance.Click.InvokeAsync);
+
+            // The parent already holds an en-GB definition, so only the unused French language may be selected for the new one.
+            Assert.That(languageRenderer.Instance.GetSelectableLanguages().Select(x => x.LanguageCode), Is.EqualTo(FrenchLanguageCode));
         }
 
         [Test]
@@ -134,20 +152,52 @@ namespace COMETwebapp.Tests.Components.Common
         }
 
         [Test]
-        public async Task VerifyGetSelectableLanguagesExcludesUsedLanguages()
+        public async Task VerifyStartEditAndFormSaveCancel()
         {
-            var english = new NaturalLanguage { LanguageCode = "en-GB", Name = "English" };
-            var french = new NaturalLanguage { LanguageCode = "fr", Name = "French" };
+            this.renderer.Instance.StartEdit(null);
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
 
-            var languageRenderer = this.context.Render<DefinitionsTable>(parameters => parameters
-                .Add(p => p.Thing, this.parameterType)
-                .Add(p => p.AvailableLanguages, new[] { english, french }));
+            var editButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editDefinitionButton");
+            await this.renderer.InvokeAsync(editButton.Instance.Click.InvokeAsync);
 
-            var addButton = languageRenderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addDefinitionButton");
-            await languageRenderer.InvokeAsync(addButton.Instance.Click.InvokeAsync);
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.False);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+                Assert.That(this.renderer.Instance.Item.Content, Is.EqualTo("Existing definition"));
+            });
 
-            // The parent already holds an en-GB definition, so only the unused French language may be selected for the new one.
-            Assert.That(languageRenderer.Instance.GetSelectableLanguages().Select(x => x.LanguageCode), Is.EqualTo(FrenchLanguageCode));
+            this.renderer.Instance.Item.Content = "Updated definition";
+            var form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+                Assert.That(this.parameterType.Definition.First().Content, Is.EqualTo("Updated definition"));
+            });
+
+            var addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addDefinitionButton");
+            await this.renderer.InvokeAsync(addButton.Instance.Click.InvokeAsync);
+            this.renderer.Instance.Item.Content = "New definition";
+            this.renderer.Instance.Item.LanguageCode = "fr";
+
+            form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+                Assert.That(this.parameterType.Definition, Has.Count.EqualTo(2));
+            });
+
+            addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addDefinitionButton");
+            await this.renderer.InvokeAsync(addButton.Instance.Click.InvokeAsync);
+
+            var cancelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelItemButton");
+            await this.renderer.InvokeAsync(cancelButton.Instance.Click.InvokeAsync);
+
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
         }
     }
 }

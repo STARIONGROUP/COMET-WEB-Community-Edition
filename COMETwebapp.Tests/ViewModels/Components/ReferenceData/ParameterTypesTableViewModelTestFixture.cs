@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParameterTypesTableViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -140,6 +140,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.parameterType));
                 Assert.That(this.viewModel.ReferenceDataLibraries, Is.EqualTo(this.siteDirectory.SiteReferenceDataLibrary));
                 Assert.That(this.viewModel.MeasurementScales.Count(), Is.EqualTo(1));
+                Assert.That(this.viewModel.AvailableLanguages, Is.Not.Empty);
             });
 
             this.viewModel.CurrentThing = new SpecializedQuantityKind
