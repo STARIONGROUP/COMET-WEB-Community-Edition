@@ -20,8 +20,6 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-using DevExpress.Blazor;
-
 namespace COMETwebapp.Services.ShowHideDeprecatedThingsService
 {
     /// <summary>

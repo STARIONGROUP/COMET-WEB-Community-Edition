@@ -54,8 +54,6 @@ COMETwebapp (AGPL-3.0-only)
 
     AntDesign                                       MIT
         https://github.com/ant-design-blazor/ant-design-blazor
-    BlazorStrap                                     MIT
-        https://github.com/Blazor-Bootstrap/BlazorStrap
     ClosedXML                                       MIT
         https://github.com/ClosedXML/ClosedXML
     Feather.Blazor                                  MIT

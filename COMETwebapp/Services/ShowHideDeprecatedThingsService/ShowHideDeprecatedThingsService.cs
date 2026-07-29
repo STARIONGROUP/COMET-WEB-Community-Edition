@@ -22,8 +22,6 @@
 
 namespace COMETwebapp.Services.ShowHideDeprecatedThingsService
 {
-    using DevExpress.Blazor;
-
     using ReactiveUI;
 
     /// <summary>
