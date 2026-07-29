@@ -51,6 +51,6 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <summary>
         /// Gets the dashboard charts (parameter/element progress widgets).
         /// </summary>
-        public ILocator Charts => this.Page.Locator("#modeldashboard-body .dx-chart-root");
+        public ILocator Charts => this.Page.Locator("#modeldashboard-body .dxbl-chart-root");
     }
 }

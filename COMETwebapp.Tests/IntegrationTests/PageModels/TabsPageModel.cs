@@ -63,7 +63,7 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// Gets the list items of the currently open DevExpress drop-down. Scoping to the shown drop-down avoids
         /// matching the fading-out items of a drop-down that was just closed.
         /// </summary>
-        private ILocator OpenDropdownItems => this.page.Locator(".dxbl-edit-dropdown-shown .dxbl-listbox-item");
+        private ILocator OpenDropdownItems => this.page.Locator("dxbl-dropdown[x-is-open] [role=\"option\"]");
 
         /// <summary>
         /// Opens the given application as a tab from the home "Open Tab" card. Selects it as the View, then the
@@ -172,7 +172,8 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         private async Task OpenComboAsync(string comboId)
         {
             await this.page.Locator($"#{comboId}[data-qa-dxbl-loaded]").ClickAsync();
-            await Expect(this.OpenDropdownItems.First).ToBeVisibleAsync();
+            await Expect(this.OpenDropdownItems.First).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
+            await Task.Delay(300);
         }
     }
 }

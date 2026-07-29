@@ -222,10 +222,6 @@ div[id^="dropdown-customization-target-container-"] { display: flex; }
     box-shadow: 0 2px 6px 0 rgb(0 0 0 / 12%);
 }
 
-.dxbl-text {
-    display: inline-block!important;
-}
-
 .cursor-pointer{
     cursor: pointer;
 }

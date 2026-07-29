@@ -22,18 +22,17 @@
 
 namespace COMETwebapp.Shared.TopMenuEntry
 {
-    using AntDesign;
-
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Shared.TopMenuEntry;
 
     using COMETwebapp.Extensions;
 
+    using DevExpress.Blazor;
+
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
 
-    using IAntDesignNotificationService = AntDesign.INotificationService;
     using INotificationService = COMET.Web.Common.Services.NotificationService.INotificationService;
 
     /// <summary>
@@ -48,10 +47,10 @@ namespace COMETwebapp.Shared.TopMenuEntry
         public INotificationService NotificationService { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="IAntDesignNotificationService" />
+        /// Gets or sets the <see cref="IToastNotificationService" />
         /// </summary>
         [Inject]
-        public IAntDesignNotificationService AntNotificationService { get; set; }
+        public IToastNotificationService ToastNotificationService { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -76,11 +75,6 @@ namespace COMETwebapp.Shared.TopMenuEntry
         /// Displays a toast notification in the screen from a given result
         /// </summary>
         /// <param name="resultNotification">The result notification of an operation</param>
-        /// <exception cref="InvalidDataException">
-        /// Throws an <see cref="InvalidDataException" /> if the
-        /// <see cref="NotificationService" /> property is null
-        /// </exception>
-        /// <returns>A <see cref="Task" /></returns>
         private void DisplayToastNotificationFromResult(ResultNotification resultNotification)
         {
             if (resultNotification?.NotificationDescription is null)
@@ -88,26 +82,30 @@ namespace COMETwebapp.Shared.TopMenuEntry
                 return;
             }
 
-            var key = $"open{DateTime.Now}";
-
-            var notificationConfig = new NotificationConfig { Key = key };
-
             if (resultNotification.Result.IsSuccess)
             {
-                notificationConfig.Message = "Success!";
-                notificationConfig.Description = resultNotification.NotificationDescription.OnSuccess;
-                notificationConfig.NotificationType = NotificationType.Success;
-                notificationConfig.Duration = 4.5;
+                var toastOptions = new ToastOptions
+                {
+                    Title = "Success!",
+                    Text = resultNotification.NotificationDescription.OnSuccess,
+                    RenderStyle = ToastRenderStyle.Success,
+                    DisplayTime = TimeSpan.FromSeconds(4.5)
+                };
+
+                this.ToastNotificationService.ShowToast(toastOptions);
             }
             else
             {
-                notificationConfig.Message = "Operation Failed!";
-                notificationConfig.Description = $"{resultNotification.NotificationDescription.OnError}<br>{resultNotification.Result.GetHtmlErrorsDescription()}";
-                notificationConfig.NotificationType = NotificationType.Error;
-                notificationConfig.Duration = 12.5;
-            }
+                var toastOptions = new ToastOptions
+                {
+                    Title = "Operation Failed!",
+                    RenderStyle = ToastRenderStyle.Danger,
+                    DisplayTime = TimeSpan.FromSeconds(12.5)
+                };
 
-            this.AntNotificationService.Open(notificationConfig);
+                var htmlText = $"<div>{resultNotification.NotificationDescription.OnError}<br>{resultNotification.Result.GetHtmlErrorsDescription()}</div>";
+                this.ToastNotificationService.ShowToast(toastOptions, builder => builder.AddMarkupContent(0, htmlText));
+            }
         }
     }
 }

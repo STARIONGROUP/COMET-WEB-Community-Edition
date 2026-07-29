@@ -1,7 +1,7 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="NotificationComponentTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
-//
+// 
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
@@ -22,8 +22,6 @@
 
 namespace COMETwebapp.Tests.Shared.TopMenuEntry
 {
-    using AntDesign;
-
     using Bunit;
 
     using COMET.Web.Common.Model;
@@ -38,13 +36,13 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
 
     using FluentResults;
 
+    using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
     using NUnit.Framework;
 
-    using IAntDesignNotificationService = AntDesign.INotificationService;
     using INotificationService = COMET.Web.Common.Services.NotificationService.INotificationService;
     using Result = FluentResults.Result;
 
@@ -54,28 +52,20 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
         private BunitContext context;
         private Mock<IVersionService> versionService;
         private Mock<INotificationService> notificationService;
-        private Mock<IAntDesignNotificationService> antDesignNotificationService;
+        private Mock<IToastNotificationService> toastNotificationService;
 
         [SetUp]
         public void Setup()
         {
             this.context = new BunitContext();
-            this.antDesignNotificationService = new Mock<IAntDesignNotificationService>();
+            this.toastNotificationService = new Mock<IToastNotificationService>();
             this.notificationService = new Mock<INotificationService>();
             this.notificationService.Setup(x => x.Results).Returns(new SourceList<ResultNotification>());
             this.versionService = new Mock<IVersionService>();
             this.versionService.Setup(x => x.GetVersion()).Returns("1.1.2");
             this.context.Services.AddSingleton(this.versionService.Object);
             this.context.Services.AddSingleton(this.notificationService.Object);
-            this.context.Services.AddSingleton(this.antDesignNotificationService.Object);
-            this.context.Services.AddSingleton(new NotificationService());
-            this.context.Services.AddSingleton(new MessageService());
-            this.context.Services.AddSingleton(new MessageService());
-            this.context.Services.AddSingleton(new ConfirmService());
-            this.context.Services.AddSingleton(new ModalService());
-            this.context.Services.AddSingleton(new DrawerService());
-            this.context.Services.AddSingleton(new ImageService());
-            this.context.Services.AddSingleton(new Mock<IComponentIdGenerator>().Object);
+            this.context.Services.AddSingleton(this.toastNotificationService.Object);
             this.context.Services.AddSingleton(new Mock<IHttpClientFactory>().Object);
             this.context.ConfigureDevExpressBlazor();
         }
@@ -89,26 +79,17 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
         [Test]
         public void VerifyAboutEntry()
         {
-            var renderer = this.context.Render<DxMenu>(parameters =>
-            {
-                parameters.Add(p => p.Items, builder =>
-                {
-                    builder.OpenComponent(0, typeof(NotificationComponent));
-                    builder.CloseComponent();
-                });
-            });
+            var notificationComponent = this.context.Render<NotificationComponent>();
 
-            var notificationComponent = renderer.FindComponent<NotificationComponent>();
-
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(notificationComponent.Instance, Is.Not.Null);
-                Assert.That(notificationComponent.Instance.AntNotificationService, Is.Not.Null);
+                Assert.That(notificationComponent.Instance.ToastNotificationService, Is.Not.Null);
                 Assert.That(notificationComponent.Instance.NotificationService, Is.Not.Null);
-            });
+            }
 
             this.notificationService.Object.Results.Add(new ResultNotification(new Result(), new NotificationDescription()));
-            this.antDesignNotificationService.Verify(x => x.Open(It.IsAny<NotificationConfig>()), Times.Once);
+            this.toastNotificationService.Verify(x => x.ShowToast(It.IsAny<ToastOptions>()), Times.Once);
 
             var resultNotification = new ResultNotification(new Result
             {
@@ -116,28 +97,26 @@ namespace COMETwebapp.Tests.Shared.TopMenuEntry
             }, new NotificationDescription());
 
             this.notificationService.Object.Results.Add(resultNotification);
-            this.antDesignNotificationService.Verify(x => x.Open(It.IsAny<NotificationConfig>()), Times.Exactly(2));
+            this.toastNotificationService.Verify(x => x.ShowToast(It.IsAny<ToastOptions>(), It.IsAny<RenderFragment>()), Times.Once);
         }
 
         [Test]
         public void VerifyNullNotificationDescriptionIsIgnored()
         {
-            var renderer = this.context.Render<DxMenu>(parameters =>
-            {
-                parameters.Add(p => p.Items, builder =>
-                {
-                    builder.OpenComponent(0, typeof(NotificationComponent));
-                    builder.CloseComponent();
-                });
-            });
+            var notificationComponent = this.context.Render<NotificationComponent>();
 
-            Assert.That(renderer.FindComponent<NotificationComponent>().Instance, Is.Not.Null);
+            Assert.That(notificationComponent.Instance, Is.Not.Null);
 
             // A result carrying a null NotificationDescription (a silent sub-operation) must not throw
             // nor raise a toast — regression for the NullReferenceException that aborted a parameter-group
             // delete before its second (delete) transaction ran.
             Assert.That(() => this.notificationService.Object.Results.Add(new ResultNotification(new Result(), null)), Throws.Nothing);
-            this.antDesignNotificationService.Verify(x => x.Open(It.IsAny<NotificationConfig>()), Times.Never);
+
+            using (Assert.EnterMultipleScope())
+            {
+                this.toastNotificationService.Verify(x => x.ShowToast(It.IsAny<ToastOptions>()), Times.Never);
+                this.toastNotificationService.Verify(x => x.ShowToast(It.IsAny<ToastOptions>(), It.IsAny<RenderFragment>()), Times.Never);
+            }
         }
     }
 }

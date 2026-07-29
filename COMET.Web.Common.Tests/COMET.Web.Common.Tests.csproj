@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -69,6 +69,7 @@
 
     <ItemGroup Label="override transitive vulnerable dependency">
         <PackageReference Include="AngleSharp" Version="1.5.2" />
+        <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.10" />
     </ItemGroup>
 
     <ItemGroup>

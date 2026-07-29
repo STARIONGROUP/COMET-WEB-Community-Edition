@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="MultiComboBoxTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -110,8 +110,8 @@ namespace COMET.Web.Common.Tests.Components
             Assert.Multiple(() =>
             {
                 Assert.That(dropdownItems, Is.Not.Null);
-                Assert.That(dropdownItems, Is.Not.Empty);
-                Assert.That(dropdownItems.Count, Is.EqualTo(this.availableCategories.Count)); 
+                Assert.That(dropdownItems, isComponentEnabled ? Is.Not.Empty : Is.Empty);
+                Assert.That(dropdownItems, Has.Count.EqualTo(isComponentEnabled ? this.availableCategories.Count : 0)); 
             });
         }
     }

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TopMenuTestFixture.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -276,7 +276,7 @@ namespace COMET.Web.Common.Tests.Shared
 
             this.registeredApplications.Add(modelDashboardApplication);
 
-            renderer.Render();
+            applicationMenuEntry.Render();
             dxMenus = applicationMenuEntry.FindComponents<DxMenuItem>();
 
             Assert.Multiple(() =>

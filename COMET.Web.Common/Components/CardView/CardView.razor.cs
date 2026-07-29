@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="CardView.razor.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -140,7 +140,7 @@ namespace COMET.Web.Common.Components.CardView
         /// </summary>
         /// <param name="request">The request to perform filtering of the items list</param>
         /// <returns>an waitable <see cref="ValueTask"/></returns>
-        private ValueTask<ItemsProviderResult<T>> LoadItemsAsync(ItemsProviderRequest request)
+        public ValueTask<ItemsProviderResult<T>> LoadItemsAsync(ItemsProviderRequest request)
         {
             // Filter items based on the SearchTerm
             var filteredItems = !this.AllowSearch || string.IsNullOrWhiteSpace(this.SearchTerm)

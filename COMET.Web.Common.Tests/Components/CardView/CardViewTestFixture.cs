@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="CardViewTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -30,10 +30,10 @@ namespace COMET.Web.Common.Tests.Components.CardView
     using DevExpress.Blazor.Internal;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Web.Virtualization;
     using Microsoft.Extensions.DependencyInjection;
 
     using NUnit.Framework;
-
 
     public class CardViewTestFixture
     {
@@ -425,35 +425,33 @@ namespace COMET.Web.Common.Tests.Components.CardView
 
             await component.InvokeAsync(() => component.Instance.OnSelectedSortItemChanged("Id"));
 
-            component.Render();
-
-            cardFields = component.FindComponents<CardField<TestClass>>();
+            await component.WaitForStateAsync(() => component.Instance.SelectedSortField == "Id", TimeSpan.FromSeconds(5));
 
             var sortedTestClasses = this.testClasses.OrderBy(x => x.Id).Select(x => x.Name).ToList();
-            var sortedCarFields = cardFields.Where(x => x.Markup.StartsWith("Name-")).Select(x => x.Markup).ToList();
+            var sortedResult = await component.InvokeAsync(async () => await component.Instance.LoadItemsAsync(new ItemsProviderRequest(0, this.testClasses.Length, CancellationToken.None)));
+            var sortedNames = sortedResult.Items.Select(x => x.Name).ToList();
 
             Assert.Multiple(() =>
             {
-                Assert.That(component.Instance.SelectedSortField == "Id");
-                Assert.That(sortedTestClasses[0], Is.EqualTo(sortedCarFields[0]));
-                Assert.That(sortedTestClasses[1], Is.EqualTo(sortedCarFields[1]));
-                Assert.That(sortedTestClasses[2], Is.EqualTo(sortedCarFields[2]));
+                Assert.That(component.Instance.SelectedSortField, Is.EqualTo("Id"));
+                Assert.That(sortedTestClasses[0], Is.EqualTo(sortedNames[0]));
+                Assert.That(sortedTestClasses[1], Is.EqualTo(sortedNames[1]));
+                Assert.That(sortedTestClasses[2], Is.EqualTo(sortedNames[2]));
             });
 
             await component.InvokeAsync(() => component.Instance.OnSelectedSortItemChanged(string.Empty));
 
-            component.Render();
+            await component.WaitForStateAsync(() => string.IsNullOrEmpty(component.Instance.SelectedSortField), TimeSpan.FromSeconds(5));
 
-            cardFields = component.FindComponents<CardField<TestClass>>();
-
-            sortedCarFields = cardFields.Where(x => x.Markup.StartsWith("Name-")).Select(x => x.Markup).ToList();
+            var unsortedResult = await component.InvokeAsync(async () => await component.Instance.LoadItemsAsync(new ItemsProviderRequest(0, this.testClasses.Length, CancellationToken.None)));
+            var unsortedNames = unsortedResult.Items.Select(x => x.Name).ToList();
 
             Assert.Multiple(() =>
             {
-                Assert.That(component.Instance.SelectedSortField == string.Empty);
-                Assert.That(this.testClasses[0].Name, Is.EqualTo(sortedCarFields[0]));
-                Assert.That(this.testClasses[1].Name, Is.EqualTo(sortedCarFields[1]));
-                Assert.That(this.testClasses[2].Name, Is.EqualTo(sortedCarFields[2]));
+                Assert.That(component.Instance.SelectedSortField, Is.Empty);
+                Assert.That(this.testClasses[0].Name, Is.EqualTo(unsortedNames[0]));
+                Assert.That(this.testClasses[1].Name, Is.EqualTo(unsortedNames[1]));
+                Assert.That(this.testClasses[2].Name, Is.EqualTo(unsortedNames[2]));
             });
         }
 
