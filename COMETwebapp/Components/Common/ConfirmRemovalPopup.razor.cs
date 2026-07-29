@@ -23,9 +23,8 @@
 namespace COMETwebapp.Components.Common
 {
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.ViewModels.Components;
-
-    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
@@ -64,7 +63,7 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         public IConfirmCancelPopupViewModel ViewModel { get; } = new ConfirmCancelPopupViewModel
         {
-            ConfirmRenderStyle = ButtonRenderStyle.Danger
+            ConfirmStyle = CometButtonStyle.Danger
         };
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2026 Starion Group S.A.
 //
 //   This file is part of CDP4-COMET WEB Community Edition
@@ -26,8 +26,8 @@
 	</Content>
 	<FooterTemplate>
 		<div class="modal-footer">
-			<DxButton Text="Cancel" RenderStyle="@this.ViewModel.CancelRenderStyle" Click="@this.ViewModel.OnCancel" Enabled="this.buttonsEnabled"/>
-			<DxButton Text="Confirm" RenderStyle="@this.ViewModel.ConfirmRenderStyle" Click="@this.OnConfirmClicked" Enabled="this.buttonsEnabled"/>
+			<DxButton Text="Cancel" RenderStyle="@this.ViewModel.CancelStyle.ToButtonRenderStyle()" Click="@this.ViewModel.OnCancel" Enabled="this.buttonsEnabled"/>
+			<DxButton Text="Confirm" RenderStyle="@this.ViewModel.ConfirmStyle.ToButtonRenderStyle()" Click="@this.OnConfirmClicked" Enabled="this.buttonsEnabled"/>
 		</div>
 	</FooterTemplate>
 </DxPopup>

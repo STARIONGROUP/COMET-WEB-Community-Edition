@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ModelMenuViewModel.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -26,12 +26,11 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components;
-
-    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
@@ -79,8 +78,8 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
 
             this.ConfirmCancelViewModel = new ConfirmCancelPopupViewModel
             {
-                CancelRenderStyle = ButtonRenderStyle.Secondary,
-                ConfirmRenderStyle = ButtonRenderStyle.Danger,
+                CancelStyle = CometButtonStyle.Secondary,
+                ConfirmStyle = CometButtonStyle.Danger,
                 HeaderText = "Close Iteration",
                 OnCancel = new EventCallbackFactory().Create(this, () => { this.ConfirmCancelViewModel.IsVisible = false; }),
                 OnConfirm = new EventCallbackFactory().Create(this, this.CloseIteration)

@@ -56,7 +56,7 @@
                             var row = (PersonRowViewModel)context.DataItem;
 
                             <DxCheckBox Id="activatePerson"
-                                        CheckedChanged="@((bool value) => this.ViewModel.ActivateOrDeactivatePerson(context, value))"
+                                        CheckedChanged="@((bool value) => this.ViewModel.ActivateOrDeactivatePerson(row, value))"
                                         Checked="(bool)context.Value"
                                         Enabled="row.IsAllowedToWrite"/>
                         }

@@ -21,6 +21,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>
+      Breaking change: Replaced ButtonRenderStyle references in ViewModels with presentation-agnostic CometButtonStyle enum (CancelStyle and ConfirmStyle properties on IConfirmCancelPopupViewModel). CancelRenderStyle and ConfirmRenderStyle are marked Obsolete.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
