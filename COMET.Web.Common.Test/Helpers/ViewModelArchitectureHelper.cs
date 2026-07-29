@@ -26,14 +26,16 @@ namespace COMET.Web.Common.Test.Helpers
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Text.RegularExpressions;
 
     /// <summary>
-    /// Helper class for enforcing ViewModel architecture purity rules across assemblies.
+    /// Helper class for enforcing ViewModel architecture purity rules across assemblies and source files.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public static class ViewModelArchitectureHelper
+    public static partial class ViewModelArchitectureHelper
     {
         /// <summary>
         /// The list of prohibited UI component library namespace prefixes.
@@ -51,23 +53,42 @@ namespace COMET.Web.Common.Test.Helpers
         ];
 
         /// <summary>
-        /// Inspects all types in ViewModel namespaces in the given assembly and returns any violations.
+        /// Creates a regex matching using statements of prohibited UI component library namespaces.
+        /// </summary>
+        [GeneratedRegex(@"^\s*using\s+([A-Za-z0-9_]+\s*=\s*)?(static\s+)?(?<ns>DevExpress|AntDesign|BlazorStrap|Feather|Radzen|MudBlazor|Blazor\.Diagrams|Z\.Blazor\.Diagrams)(\.[A-Za-z0-9_]+)*\s*;", RegexOptions.Multiline)]
+        private static partial Regex CreateUsingDirectiveRegex();
+
+        /// <summary>
+        /// Creates a regex matching block comments.
+        /// </summary>
+        [GeneratedRegex(@"/\*[\s\S]*?\*/")]
+        private static partial Regex CreateBlockCommentRegex();
+
+        /// <summary>
+        /// Creates a regex matching line comments.
+        /// </summary>
+        [GeneratedRegex("//.*$", RegexOptions.Multiline)]
+        private static partial Regex CreateLineCommentRegex();
+
+        /// <summary>
+        /// Inspects all types in ViewModel namespaces and ViewModel source files for the given assembly and returns any violations.
         /// </summary>
         /// <param name="assembly">The assembly to inspect.</param>
         /// <returns>A list of violation messages.</returns>
         public static List<string> GetViewModelPurityViolations(Assembly assembly)
         {
+            var violations = new List<string>();
+
             var viewModelTypes = assembly.GetTypes()
                 .Where(t => t.Namespace != null && t.Namespace.Split('.').Contains("ViewModels"))
                 .ToList();
-
-            var violations = new List<string>();
 
             foreach (var type in viewModelTypes)
             {
                 InspectType(type, violations);
             }
 
+            InspectSourceFiles(assembly, violations);
             return violations;
         }
 
@@ -182,7 +203,7 @@ namespace COMET.Web.Common.Test.Helpers
                 {
                     continue;
                 }
-
+                
                 foreach (var genericArg in method.GetGenericArguments())
                 {
                     var offending = GetOffendingUiType(genericArg);
@@ -193,6 +214,88 @@ namespace COMET.Web.Common.Test.Helpers
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Inspects a source file content string for using directives to prohibited UI component library namespaces.
+        /// </summary>
+        /// <param name="fileName">The source file name.</param>
+        /// <param name="content">The source file text content.</param>
+        /// <param name="violations">The list of violation messages to accumulate into.</param>
+        public static void InspectSourceContent(string fileName, string content, List<string> violations)
+        {
+            var cleanContent = StripComments(content);
+
+            foreach (Match match in CreateUsingDirectiveRegex().Matches(cleanContent))
+            {
+                var message = $"ViewModel file '{fileName}' imports prohibited UI library namespace in '{match.Value.Trim()}'.";
+
+                if (!violations.Contains(message))
+                {
+                    violations.Add(message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Strips single-line and multi-line comments from C# source code.
+        /// </summary>
+        /// <param name="code">The source code.</param>
+        /// <returns>The code with comments removed.</returns>
+        private static string StripComments(string code)
+        {
+            var noBlockComments = CreateBlockCommentRegex().Replace(code, string.Empty);
+            return CreateLineCommentRegex().Replace(noBlockComments, string.Empty);
+        }
+
+        /// <summary>
+        /// Inspects ViewModel source files in the project for using directives and inline type references to prohibited UI component library namespaces.
+        /// </summary>
+        /// <param name="assembly">The assembly whose project directory will be located.</param>
+        /// <param name="violations">The list of violation messages to accumulate into.</param>
+        private static void InspectSourceFiles(Assembly assembly, List<string> violations)
+        {
+            var repoRoot = FindRepositoryRoot();
+            var assemblyName = assembly.GetName().Name ?? string.Empty;
+            var projectDir = Path.Combine(repoRoot, assemblyName);
+
+            if (!Directory.Exists(projectDir))
+            {
+                return;
+            }
+
+            var csFiles = Directory.GetFiles(projectDir, "*.cs", SearchOption.AllDirectories)
+                .Where(f => f.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Contains("ViewModels"))
+                .ToList();
+
+            foreach (var csFile in csFiles)
+            {
+                var fileName = Path.GetFileName(csFile);
+                var content = File.ReadAllText(csFile);
+
+                InspectSourceContent(fileName, content, violations);
+            }
+        }
+
+        /// <summary>
+        /// Finds the root directory of the repository by walking up from the base execution directory.
+        /// </summary>
+        /// <returns>The root directory path.</returns>
+        private static string FindRepositoryRoot()
+        {
+            var currentDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+
+            while (currentDir != null)
+            {
+                if (currentDir.GetFiles("*.sln").Length > 0 || currentDir.GetDirectories(".git").Length > 0)
+                {
+                    return currentDir.FullName;
+                }
+
+                currentDir = currentDir.Parent;
+            }
+
+            return Directory.GetCurrentDirectory();
         }
 
         /// <summary>

@@ -23,6 +23,7 @@
 
 namespace COMET.Web.Common.Tests.ViewModels
 {
+    using System;
     using System.Collections.Generic;
 
     using COMET.Web.Common.Test.Helpers;
@@ -47,11 +48,11 @@ namespace COMET.Web.Common.Tests.ViewModels
             var assembly = typeof(ApplicationBaseViewModel).Assembly;
             var violations = ViewModelArchitectureHelper.GetViewModelPurityViolations(assembly);
 
-            Assert.That(violations, Is.Empty);
+            Assert.That(violations, Is.Empty, () => $"ViewModel purity violations found:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
         }
 
         /// <summary>
-        /// Verifies that reintroducing a UI library type into a ViewModel is caught with a clear failure message naming the type and member.
+        /// Verifies that reintroducing a UI library type into a ViewModel property is caught with a clear failure message naming the type and member.
         /// </summary>
         [Test]
         public void VerifyUiTypeDetection()
@@ -59,13 +60,31 @@ namespace COMET.Web.Common.Tests.ViewModels
             var violations = new List<string>();
             ViewModelArchitectureHelper.InspectType(typeof(MockOffendingViewModel), violations);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(violations, Has.Count.EqualTo(1));
                 Assert.That(violations[0], Does.Contain(nameof(MockOffendingViewModel)));
                 Assert.That(violations[0], Does.Contain(nameof(MockOffendingViewModel.OffendingProperty)));
                 Assert.That(violations[0], Does.Contain(nameof(DxPopup)));
-            });
+            }
+        }
+
+        /// <summary>
+        /// Verifies that importing a UI library type in a ViewModel source file is caught, while string literals containing using text are ignored.
+        /// </summary>
+        [Test]
+        public void VerifyInlineUiTypeDetection()
+        {
+            var violations = new List<string>();
+            const string mockContent = "using DevExpress.Blazor;\npublic class SampleViewModel { public void Test() { var a = \"using DevExpress.Blazor;\"; } }";
+            ViewModelArchitectureHelper.InspectSourceContent("SampleViewModel.cs", mockContent, violations);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(violations, Has.Count.EqualTo(1));
+                Assert.That(violations[0], Does.Contain("SampleViewModel.cs"));
+                Assert.That(violations[0], Does.Contain("using DevExpress.Blazor;"));
+            }
         }
     }
 }

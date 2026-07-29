@@ -24,10 +24,6 @@ namespace COMETwebapp.Tests.ViewModels
 {
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.ViewModels.Components.BookEditor;
-
-    using DevExpress.Blazor;
-
     using NUnit.Framework;
 
     /// <summary>
@@ -37,35 +33,16 @@ namespace COMETwebapp.Tests.ViewModels
     public class ViewModelArchitectureTestFixture
     {
         /// <summary>
-        /// Verifies that reintroducing a UI library type into a ViewModel is caught with a clear failure message naming the type
-        /// and member.
-        /// </summary>
-        [Test]
-        public void VerifyUiTypeDetection()
-        {
-            var violations = new List<string>();
-            ViewModelArchitectureHelper.InspectType(typeof(MockOffendingViewModel), violations);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(violations, Has.Count.EqualTo(1));
-                Assert.That(violations[0], Does.Contain(nameof(MockOffendingViewModel)));
-                Assert.That(violations[0], Does.Contain(nameof(MockOffendingViewModel.OffendingProperty)));
-                Assert.That(violations[0], Does.Contain(nameof(DxPopup)));
-            });
-        }
-
-        /// <summary>
-        /// Verifies that no type in any ViewModels namespace in the COMETwebapp assembly references a type from a UI component
+        /// Verifies that no type in any ViewModels namespace in the CDP4-COMET WEB Community Edition assembly references a type from a UI component
         /// library namespace.
         /// </summary>
         [Test]
         public void VerifyViewModelLayerPurity()
         {
-            var assembly = typeof(BookEditorBodyViewModel).Assembly;
+            var assembly = typeof(Program).Assembly;
             var violations = ViewModelArchitectureHelper.GetViewModelPurityViolations(assembly);
 
-            Assert.That(violations, Is.Empty);
+            Assert.That(violations, Is.Empty, () => $"ViewModel purity violations found:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
         }
     }
 }
