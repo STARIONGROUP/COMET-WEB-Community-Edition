@@ -23,7 +23,7 @@
 
 @if(this.Elements != null && this.UnusedElementDefinitions != null)
 {
-    <div>
+    <div data-testid="dashboard-chart">
         <div class="row">
             <div class="col-9">
                 <h3 class="text-align-end">Unused Elements</h3>
@@ -34,7 +34,7 @@
                 </Tooltip>
             </div>
        
-            <DxChart Data="@this.Elements"  CustomizeSeriesPoint="@PreparePointLabel">
+            <DxChart Data="@this.Elements" CustomizeSeriesPoint="@PreparePointLabel">
                 <DxChartFullStackedBarSeries Color="System.Drawing.Color.IndianRed" Name="@WebAppConstantValues.UsedElements" Filter="@((ElementDefinition e) => this.UnusedElementDefinitions.All(x => x.Iid != e.Iid))"
                                             ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
                                             AggregationMethod="Enumerable.Sum">

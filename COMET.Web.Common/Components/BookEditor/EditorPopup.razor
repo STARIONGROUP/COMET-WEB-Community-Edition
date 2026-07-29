@@ -20,8 +20,8 @@
 @namespace COMET.Web.Common.Components.BookEditor
 @inherits DisposableComponent
 
-<DxPopup @bind-Visible="@this.ViewModel.IsVisible" CloseOnOutsideClick="false" ShowCloseButton="true" ShowFooter="true" HeaderText="@this.ViewModel.HeaderText" Closed="@(()=> this.ViewModel.OnCancelClick.InvokeAsync())">
-    <Content>
+<DxPopup @bind-Visible="@this.ViewModel.IsVisible" CssClass="book-editor-popup" CloseOnOutsideClick="false" ShowCloseButton="true" ShowFooter="true" HeaderText="@this.ViewModel.HeaderText" Closed="@(()=> this.ViewModel.OnCancelClick.InvokeAsync())">
+    <BodyContentTemplate>
         <InputEditor Item="@this.ViewModel.Item" ActiveDomains="@this.ViewModel.ActiveDomains" AvailableCategories="@this.ViewModel.AvailableCategories" ShowName="@this.showName" ShowShortName="@this.showShortName" />
         <div style="display:flex; flex-direction:column">
             @foreach (var validationError in this.ViewModel.ValidationErrors.Items)
@@ -29,7 +29,7 @@
                 <ValidationMessageComponent ValidationMessage="@validationError"/>
             }
         </div>
-    </Content>
+    </BodyContentTemplate>
     <FooterTemplate>
         <div class="modal-footer">
             <DxButton CssClass="ok-button" Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@(async () => await this.OnConfirmClick())" />

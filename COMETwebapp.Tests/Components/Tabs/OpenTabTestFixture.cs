@@ -89,6 +89,13 @@ namespace COMETwebapp.Tests.Components.Tabs
         }
 
         [Test]
+        public void VerifyReadinessMarkerIsPublished()
+        {
+            var form = this.renderer.Find("#open-tab-form");
+            Assert.That(form.GetAttribute("data-app-ready"), Is.EqualTo("true"));
+        }
+
+        [Test]
         public void VerifyOnInitialized()
         {
             Assert.Multiple(() =>
