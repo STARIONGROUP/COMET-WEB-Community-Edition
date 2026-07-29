@@ -22,8 +22,6 @@
 
 namespace COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable
 {
-    using AntDesign;
-
     using CDP4Common.CommonData;
 
     using CDP4Dal;
