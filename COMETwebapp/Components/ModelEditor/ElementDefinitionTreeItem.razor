@@ -19,7 +19,7 @@
 ------------------------------------------------------------------------------->
 @using COMETwebapp.Extensions
 
-<div class="@this.CssClass" style="display: flex; justify-content: space-between; align-items: center;" @attributes="this.AdditionalAttributes">
+<div data-testid="element-node" class="@this.CssClass" style="display: flex; justify-content: space-between; align-items: center;" @attributes="this.AdditionalAttributes">
     <span>
         <CardField Context="@this.ElementBaseTreeRowViewModel" FieldName="ElementName" />
     </span>

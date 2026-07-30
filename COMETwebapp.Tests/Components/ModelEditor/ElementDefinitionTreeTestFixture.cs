@@ -120,7 +120,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 Assert.That(selectedModel, Is.Null);
             });
 
-            var firstSourceRow = treeView.Find(".dxbl-treeview-item-container");
+            var firstSourceRow = treeView.Find("[data-testid=element-node]");
             firstSourceRow.Click();
 
             Assert.Multiple(() =>
@@ -240,13 +240,13 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         [Test]
         public void VerifyDragIsNotAllowed()
         {
-            var firstItem = renderedComponent.Find(".dxbl-text").FirstElementChild;
+            var firstItem = renderedComponent.Find("[data-testid=element-node]");
 
             Assert.Multiple(() =>
             {
                 Assert.That(firstItem, Is.Not.Null);
                 Assert.That(firstItem.InnerHtml, Contains.Substring("Test1"));
-                Assert.That(firstItem.Attributes.Length, Is.EqualTo(2));
+                Assert.That(firstItem.Attributes.Length, Is.EqualTo(3));
             });
         }
 
@@ -259,13 +259,13 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                     .Add(p => p.AllowDrag, true);
             });
 
-            var firstItem = renderedComponent.Find(".dxbl-text").FirstElementChild;
+            var firstItem = renderedComponent.Find("[data-testid=element-node]");
 
             Assert.Multiple(() =>
             {
                 Assert.That(firstItem, Is.Not.Null);
                 Assert.That(firstItem.InnerHtml, Contains.Substring("Test1"));
-                Assert.That(firstItem.Attributes.Length, Is.EqualTo(10));
+                Assert.That(firstItem.Attributes.Length, Is.EqualTo(11));
             });
         }
     }

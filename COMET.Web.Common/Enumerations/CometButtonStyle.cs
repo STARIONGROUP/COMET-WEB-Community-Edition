@@ -29,47 +29,47 @@ namespace COMET.Web.Common.Enumerations
     public enum CometButtonStyle
     {
         /// <summary>
-        /// Primary button style intent.
+        /// Primary button style intent. Used for primary actions, main call-to-actions, and confirmation/submit buttons.
         /// </summary>
         Primary = 0,
 
         /// <summary>
-        /// Secondary button style intent.
+        /// Secondary button style intent. Used for neutral actions, cancellation, secondary options, and simple selections.
         /// </summary>
         Secondary = 1,
 
         /// <summary>
-        /// Danger button style intent.
+        /// Danger button style intent. Used for destructive or irreversible actions, such as delete or remove operations.
         /// </summary>
         Danger = 2,
 
         /// <summary>
-        /// Success button style intent.
+        /// Success button style intent. Used for positive confirmation, successful operations, or completion actions.
         /// </summary>
         Success = 3,
 
         /// <summary>
-        /// Warning button style intent.
+        /// Warning button style intent. Used for cautionary actions or operations requiring user attention.
         /// </summary>
         Warning = 4,
 
         /// <summary>
-        /// Info button style intent.
+        /// Info button style intent. Used for informational actions, help triggers, or guidance prompts.
         /// </summary>
         Info = 5,
 
         /// <summary>
-        /// Light button style intent.
+        /// Light button style intent. Used for subtle actions on dark backgrounds or low-emphasis controls.
         /// </summary>
         Light = 6,
 
         /// <summary>
-        /// Dark button style intent.
+        /// Dark button style intent. Used for high-contrast actions on light backgrounds or dark-themed controls.
         /// </summary>
         Dark = 7,
 
         /// <summary>
-        /// Link button style intent.
+        /// Link button style intent. Used for inline navigation, hyperlink-style actions, or minimal footprint triggers.
         /// </summary>
         Link = 8
     }

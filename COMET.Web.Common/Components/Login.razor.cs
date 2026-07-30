@@ -120,6 +120,13 @@ namespace COMET.Web.Common.Components
         private bool checkingRestoreSession = true;
 
         /// <summary>
+        /// Asserts that the login form has rendered and its editors are interactive. Exposed to the DOM as the
+        /// application-owned <c>data-app-ready</c> readiness marker the end-to-end tests wait on before typing, so the
+        /// tests no longer depend on a third-party "editor loaded" attribute.
+        /// </summary>
+        private bool formReady;
+
+        /// <summary>
         /// Handles the focus event of the given fieldName
         /// </summary>
         /// <param name="fieldName">Form field name, as indexed in <see cref="FieldsFocusedStatus" /></param>
@@ -215,6 +222,11 @@ namespace COMET.Web.Common.Components
             {
                 await this.AuthenticationService.TryRestoreLastSessionAsync();
                 this.checkingRestoreSession = false;
+                await this.InvokeAsync(this.StateHasChanged);
+            }
+            else if (!this.checkingRestoreSession && !this.formReady)
+            {
+                this.formReady = true;
                 await this.InvokeAsync(this.StateHasChanged);
             }
         }

@@ -111,6 +111,8 @@ namespace COMETwebapp.Components.ParameterEditor
                 var elementBaseName = (string)e.Grid.GetRowValue(e.VisibleIndex, nameof(ParameterBaseRowViewModel.ElementBaseName));
                 var isPublishableParameterInGroup = this.sortedCollection.Any(x => x.IsPublishable && x.ElementBaseName == elementBaseName);
 
+                e.Attributes["data-testid"] = "parameter-group-row";
+
                 if (isPublishableParameterInGroup)
                 {
                     e.CssClass = "font-weight-bold";

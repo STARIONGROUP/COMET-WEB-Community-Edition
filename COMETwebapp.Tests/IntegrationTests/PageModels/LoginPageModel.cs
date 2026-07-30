@@ -107,17 +107,18 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         }
 
         /// <summary>
-        /// Types a value into a DevExpress login text box deterministically. It first waits for DevExpress to attach the
-        /// editor (its <c>data-qa-dxbl-loaded</c> marker), because on a cold Blazor circuit the field re-renders as it
-        /// wires up and wipes anything typed too early, so Connect ends up posting an empty value; then it types at a
+        /// Types a value into a login text box deterministically. It first waits for the login form's application-owned
+        /// <c>data-app-ready</c> marker, which the form publishes once its editors have rendered and DevExpress has had a
+        /// render cycle to attach their client-side scripts - because on a cold Blazor circuit the field re-renders as it
+        /// wires up and wipes anything typed too early, so Connect ends up posting an empty value. It then types at a
         /// cadence the on-input binding can keep up with and confirms the field holds the full value.
         /// </summary>
-        /// <param name="id">The DevExpress text box component id.</param>
+        /// <param name="id">The text box component id.</param>
         /// <param name="value">The value to type.</param>
         /// <returns>A <see cref="Task" />.</returns>
         private async Task TypeCredentialAsync(string id, string value)
         {
-            await Expect(this.page.Locator($"#{id}[data-qa-dxbl-loaded]"))
+            await Expect(this.page.Locator("#login-form[data-app-ready]"))
                 .ToBeAttachedAsync(new LocatorAssertionsToBeAttachedOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
 
             var input = this.TextInput(id);
