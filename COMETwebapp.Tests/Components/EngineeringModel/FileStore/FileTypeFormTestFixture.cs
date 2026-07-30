@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="FileTypeFormTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -62,6 +62,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
             this.renderer = this.context.Render<FileTypeForm>(parameters => parameters
                 .Add(p => p.FileType, this.fileType)
+                .Add(p => p.FileTypeChanged, ft => this.fileType = ft)
                 .Add(p => p.AvailableFileTypes, availableFileTypes)
                 .Add(p => p.OnSaved, () => Task.FromResult(this.isSaved = true))
                 .Add(p => p.OnCanceled, () => Task.FromResult(this.isCanceled = true)));
@@ -82,6 +83,11 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
                 Assert.That(this.renderer.Instance.FileType, Is.SameAs(this.fileType));
                 Assert.That(this.renderer.Instance.AvailableFileTypes.ToList(), Has.Count.EqualTo(2));
             }
+
+            var newFileType = this.renderer.Instance.AvailableFileTypes.Last();
+            await this.renderer.InvokeAsync(() => this.renderer.Instance.OnFileTypeChanged(newFileType));
+
+            Assert.That(this.fileType, Is.SameAs(newFileType));
 
             var editForm = this.renderer.FindComponent<EditForm>();
             await this.renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);

@@ -56,7 +56,7 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         /// </summary>
         /// <param name="fileType">The selected <see cref="FileType" /></param>
         /// <returns>A <see cref="Task" /></returns>
-        private async Task OnFileTypeChanged(FileType fileType)
+        public async Task OnFileTypeChanged(FileType fileType)
         {
             this.FileType = fileType;
             await this.FileTypeChanged.InvokeAsync(this.FileType);
