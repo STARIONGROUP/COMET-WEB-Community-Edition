@@ -13,26 +13,19 @@ Copyright (c) 2023-2026 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 @inherits DisposableComponent
 
-<DxGrid @ref="this.Grid"
-        Data="this.GetRows()"
-        EditMode="GridEditMode.PopupEditForm"
-        PopupEditFormHeaderText="File Type"
-        EditModelSaving="@(() => this.OnEditFileTypesSaving())"
-        CustomizeEditModel="this.CustomizeEditFileType"
-        EditFormButtonsVisible="false">
+<DxGrid Data="this.GetRows()">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(FileTypeRowViewModel.Name)" MinWidth="150" />
         <DxGridDataColumn FieldName="@nameof(FileTypeRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
         <DxGridDataColumn FieldName="@nameof(FileTypeRowViewModel.Extension)" MinWidth="80" SearchEnabled="false" />
-        <DxGridCommandColumn Width="160px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="160px">
             <HeaderTemplate>
                 <DxButton Id="addFileTypeButton" 
                           Text="Add File Type" 
                           IconCssClass="oi oi-plus" 
-                          Click="() => this.Grid.StartEditNewRowAsync()" 
+                          Click="this.StartCreate" 
                           Enabled="@(this.SelectedFileTypes.Count != this.FileTypes.Count())"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
@@ -54,33 +47,19 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
-
-    <EditFormTemplate Context="EditFormContext">
-        <EditForm Context="editFormContext" Model="@(this.FileType)" OnValidSubmit="@(async () => await this.Grid.SaveChangesAsync())">
-
-        <FluentValidationValidator/>
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                <DxComboBox Data="@this.FileTypes.Where(x => !this.SelectedFileTypes.Contains(x))"
-                            TextFieldName="@nameof(CDP4Common.SiteDirectoryData.FileType.Name)"
-                            @bind-Value="@this.FileType"
-                            CssClass="cw-480"/>
-            </DxFormLayoutItem>
-        </DxFormLayout>
-        <div class="pt-3"></div>
-        <ValidationSummary/>
-        <div class="dxbl-grid-edit-form-buttons">
-            <DxButton SubmitFormOnClick="true"
-                      Enabled="@(this.FileTypes.Any())">
-                Save
-            </DxButton>
-
-            <DxButton Id="cancelFileButton"
-                      Click="@(() => this.Grid.CancelEditAsync())"
-                      RenderStyle="ButtonRenderStyle.Secondary">
-                Cancel
-            </DxButton>
-        </div>
-        </EditForm>
-    </EditFormTemplate>
 </DxGrid>
+
+<DxPopup HeaderText="File Type"
+         @bind-Visible="@this.IsOnEditMode"
+         CloseOnOutsideClick="false">
+    <BodyContentTemplate Context="popupContext">
+        <FileTypeForm FileType="@this.FileType"
+                      FileTypeChanged="@(fileType => this.FileType = fileType)"
+                      AvailableFileTypes="@this.FileTypes.Where(x => !this.SelectedFileTypes.Contains(x))"
+                      ShouldCreate="true"
+                      IsVisible="@this.IsOnEditMode"
+                      IsVisibleChanged="@(visible => this.IsOnEditMode = visible)"
+                      OnSaved="@this.OnSaved"
+                      OnCanceled="@this.OnCanceled"/>
+    </BodyContentTemplate>
+</DxPopup>
