@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IParameterTypeTableViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -68,6 +68,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// <see cref="ReferenceDataLibrary" />s and filtered by <see cref="Category.PermissibleClass" />.
         /// </summary>
         IEnumerable<Category> Categories { get; }
+
+        /// <summary>
+        /// Gets the available <see cref="NaturalLanguage" />s.
+        /// </summary>
+        IEnumerable<NaturalLanguage> AvailableLanguages { get; }
 
         /// <summary>
         /// Creates or edits a <see cref="ParameterType" />

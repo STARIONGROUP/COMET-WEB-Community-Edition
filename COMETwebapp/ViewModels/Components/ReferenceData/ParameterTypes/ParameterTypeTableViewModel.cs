@@ -31,6 +31,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.Common.DeprecatableDataItemTable;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
@@ -84,6 +85,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         /// Gets the available <see cref="ReferenceDataLibrary" />s
         /// </summary>
         public IEnumerable<ReferenceDataLibrary> ReferenceDataLibraries { get; private set; } = [];
+
+        /// <summary>
+        /// Gets the available <see cref="NaturalLanguage" />s.
+        /// </summary>
+        public IEnumerable<NaturalLanguage> AvailableLanguages => this.SessionService.GetAvailableNaturalLanguages();
 
         /// <summary>
         /// Gets the possible available <see cref="MeasurementScale" />s

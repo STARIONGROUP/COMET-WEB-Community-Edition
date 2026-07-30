@@ -148,6 +148,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelEditor
                 Assert.That(this.viewModel.SelectedCategories, Is.EquivalentTo(new[] { this.structureCategory }));
                 Assert.That(this.viewModel.IsTopElement, Is.False, "The seeded ED is not the iteration's top element.");
                 Assert.That(this.viewModel.AvailableCategories, Does.Contain(this.structureCategory));
+                Assert.That(this.viewModel.AvailableLanguages, Is.Not.Empty);
                 Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.AvailableDomainsOfExpertise, Is.EquivalentTo(new[] { this.domain, this.otherDomain }));
                 Assert.That(this.viewModel.DomainOfExpertiseSelectorViewModel.SelectedDomainOfExpertise, Is.EqualTo(this.domain));
             });

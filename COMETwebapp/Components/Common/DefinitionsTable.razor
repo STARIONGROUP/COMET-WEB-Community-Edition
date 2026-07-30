@@ -19,18 +19,16 @@ Copyright (c) 2023-2026 Starion Group S.A.
 ------------------------------------------------------------------------------->
 @inherits DisposableComponent
 
-<DxGrid @ref="this.Grid"
-        Data="this.GetRows()"
-        EditMode="GridEditMode.PopupEditForm"
-        PopupEditFormHeaderText="Definition"
-        EditModelSaving="@(() => this.OnEditItemSaving())"
-        CustomizeEditModel="this.CustomizeEditDefinition">
+<DxGrid Data="this.GetRows()">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(DefinitionRowViewModel.LanguageCode)" Caption="Language" MinWidth="80" />
         <DxGridDataColumn FieldName="@nameof(DefinitionRowViewModel.Content)" Caption="Content" MinWidth="200" />
-        <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="100px">
             <HeaderTemplate>
-                <DxButton Id="addDefinitionButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                <DxButton Id="addDefinitionButton"
+                          Text="Add"
+                          IconCssClass="oi oi-plus"
+                          Click="this.StartCreate"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
@@ -38,7 +36,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                     <DxButton Id="editDefinitionButton"
                               IconCssClass="oi oi-pencil"
-                              Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
+                              Click="@(() => this.StartEdit(row))"/>
 
                     <DxButton Id="removeDefinitionButton"
                               IconCssClass="oi oi-trash"
@@ -47,38 +45,24 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
-
-    <EditFormTemplate Context="EditFormContext">
-        <FluentValidationValidator/>
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Language Code:" ColSpanMd="10">
-                @if (this.AvailableLanguages.Any())
-                {
-                    <DxComboBox Id="definitionLanguageCodeInput"
-                                Data="@this.GetSelectableLanguages()"
-                                @bind-Value="@this.Item.LanguageCode"
-                                ValueFieldName="@nameof(CDP4Common.SiteDirectoryData.NaturalLanguage.LanguageCode)"
-                                TextFieldName="@nameof(CDP4Common.SiteDirectoryData.NaturalLanguage.NativeName)"
-                                AllowUserInput="true"
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                NullText="Select a language..."/>
-                }
-                else
-                {
-                    <DxTextBox Id="definitionLanguageCodeInput" @bind-Text="@(this.Item.LanguageCode)"/>
-                }
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Content:" ColSpanMd="10">
-                <DxMemo Id="definitionContentInput" @bind-Text="@(this.Item.Content)" Rows="5"/>
-            </DxFormLayoutItem>
-        </DxFormLayout>
-        <div class="pt-3"></div>
-        <ValidationSummary/>
-    </EditFormTemplate>
 </DxGrid>
+
+<DxPopup HeaderText="Definition"
+         @bind-Visible="@this.IsOnEditMode"
+         CloseOnOutsideClick="false">
+    <BodyContentTemplate Context="popupContext">
+        <DefinitionForm Item="@this.Item"
+                        AvailableLanguages="@this.GetSelectableLanguages()"
+                        ShouldCreate="@this.ShouldCreate"
+                        IsVisible="@this.IsOnEditMode"
+                        IsVisibleChanged="@(visible => this.IsOnEditMode = visible)"
+                        OnSaved="@this.OnSaved"
+                        OnCanceled="@this.OnCanceled"/>
+    </BodyContentTemplate>
+</DxPopup>
 
 <ConfirmRemovalPopup TItem="DefinitionRowViewModel"
                      @ref="this.RemovalPopup"
                      HeaderText="Delete definition"
                      ContentText="Are you sure you want to delete this definition?"
-                     OnRemove="@(row => this.RemoveItem(row))"/>
+                     OnRemove="@(this.RemoveItem)"/>
