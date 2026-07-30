@@ -107,6 +107,17 @@ namespace COMET.Web.Common.Tests.Components.BookEditor
         }
         
         [Test]
+        public async Task VerifyClosingThePopupCancels()
+        {
+            this.onCancelCalled = false;
+            var popup = this.component.FindComponent<DxPopup>();
+
+            await this.component.InvokeAsync(() => popup.Instance.Closed.InvokeAsync());
+
+            Assert.That(this.onCancelCalled, Is.True);
+        }
+
+        [Test]
         public void VerifyComponent()
         {
             var popup = this.component.FindComponent<DxPopup>();
