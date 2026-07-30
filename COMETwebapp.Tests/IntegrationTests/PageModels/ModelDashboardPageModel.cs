@@ -49,8 +49,9 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator Body => this.Page.Locator("#modeldashboard-body");
 
         /// <summary>
-        /// Gets the dashboard charts (parameter/element progress widgets).
+        /// Gets the dashboard charts (parameter/element progress widgets), targeted by the application-owned
+        /// <c>data-testid</c> attribute set on each chart's container rather than a DevExpress internal class.
         /// </summary>
-        public ILocator Charts => this.Page.Locator("#modeldashboard-body .dx-chart-root");
+        public ILocator Charts => this.Page.Locator("#modeldashboard-body [data-testid=dashboard-chart]");
     }
 }

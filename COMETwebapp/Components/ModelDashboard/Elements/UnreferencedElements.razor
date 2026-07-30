@@ -23,7 +23,7 @@
 
 @if (this.Elements != null && this.UnreferencedElementDefinitions != null)
 {
-    <div>
+    <div data-testid="dashboard-chart">
         <div class="row">
             <div class="col-9">
                 <h3 class="text-align-end">Unreferenced Elements</h3>
@@ -35,7 +35,7 @@
             </div>
         </div>
 
-            <DxChart Data="@this.Elements"  CustomizeSeriesPoint="@PreparePointLabel">
+            <DxChart Data="@this.Elements" CustomizeSeriesPoint="@PreparePointLabel">
                 <DxChartFullStackedBarSeries Color="System.Drawing.Color.MediumPurple" Name="@WebAppConstantValues.ReferencedElements" Filter="@((ElementDefinition e) => this.UnreferencedElementDefinitions.All(x => x.Iid != e.Iid))"
                                     ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
                                     AggregationMethod="Enumerable.Sum">

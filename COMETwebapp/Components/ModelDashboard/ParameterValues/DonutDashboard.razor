@@ -20,7 +20,7 @@
 @using COMETwebapp.Model
 @using Orientation = DevExpress.Blazor.Orientation
 
-<div class="col col-xxl-8">
+<div class="col col-xxl-8" data-testid="dashboard-chart">
     <DxPieChart Data="@(this.dataCharts)" CustomizeSeriesPoint="@CustomizeSeriesPoint"
                 InnerDiameter="0.5">
         <DxPieChartSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Missing Values") || d.Argument.Equals("Complete Values")))"

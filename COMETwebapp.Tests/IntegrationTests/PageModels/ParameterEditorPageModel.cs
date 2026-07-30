@@ -62,9 +62,12 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator OwnedParametersToggle => this.Page.Locator("#only-owned-parameters-toggle");
 
         /// <summary>
-        /// Gets the expand/collapse buttons of the element group rows.
+        /// Gets the element group rows. Each group row is located through the application-owned
+        /// <c>data-testid="parameter-group-row"</c> attribute set on its group cell (rather than a DevExpress internal
+        /// class), then widened to the whole table row so its expand/collapse button - which lives in a sibling cell -
+        /// can be reached.
         /// </summary>
-        public ILocator GroupExpandButtons => this.Page.Locator("#parameter-table .dxbl-grid-expand-button");
+        public ILocator GroupRows => this.Page.Locator("#parameter-table tr:has(td[data-testid=parameter-group-row])");
 
         /// <summary>
         /// Gets the rows currently rendered in the parameter table (collapsing a group hides its rows).
@@ -72,12 +75,13 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator Rows => this.Page.Locator("#parameter-table tr");
 
         /// <summary>
-        /// Clicks the first element group's expand/collapse button.
+        /// Clicks the first element group's expand/collapse button (the single button in the group row), which expands or
+        /// collapses that group.
         /// </summary>
         /// <returns>A <see cref="Task" />.</returns>
         public Task ToggleFirstGroupAsync()
         {
-            return this.GroupExpandButtons.First.ClickAsync();
+            return this.GroupRows.First.Locator("button").First.ClickAsync();
         }
     }
 }

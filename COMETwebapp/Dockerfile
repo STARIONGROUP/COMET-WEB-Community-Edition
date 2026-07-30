@@ -5,6 +5,10 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG DEVEXPRESS_NUGET_KEY
 ARG PACKAGE_TOKEN
 
+# Central package management: the projects resolve their versions from this file,
+# which MSBuild locates by walking up from each project directory.
+COPY Directory.Packages.props .
+
 COPY COMET.Web.Common COMET.Web.Common
 COPY COMETwebapp COMETwebapp
 

@@ -60,10 +60,13 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator BlazorError => this.page.Locator("#blazor-error-ui");
 
         /// <summary>
-        /// Gets the list items of the currently open DevExpress drop-down. Scoping to the shown drop-down avoids
-        /// matching the fading-out items of a drop-down that was just closed.
+        /// Gets the items of the currently open combo drop-down. Each item's content carries the application-owned
+        /// <c>data-testid="combo-item"</c> attribute (set by every combo's <c>ItemTemplate</c>), so this does not depend
+        /// on a DevExpress internal class. Only the open combo renders its items, and <see cref="OpenComboAsync" /> waits
+        /// for the previous drop-down to close before opening the next, so this never matches the fading-out items of a
+        /// just-closed one.
         /// </summary>
-        private ILocator OpenDropdownItems => this.page.Locator(".dxbl-edit-dropdown-shown .dxbl-listbox-item");
+        private ILocator OpenDropdownItems => this.page.Locator("[data-testid=combo-item]");
 
         /// <summary>
         /// Opens the given application as a tab from the home "Open Tab" card. Selects it as the View, then the
@@ -163,16 +166,52 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         }
 
         /// <summary>
-        /// Clicks a DevExpress combo box open and waits for its list to appear. The combo is targeted through its
-        /// <c>data-qa-dxbl-loaded</c> marker, so the click waits for DevExpress to attach its client-side scripts —
-        /// a click before that silently fails to open the drop-down.
+        /// Clicks a combo box open and waits for its list to appear. It first waits for the open-tab form's
+        /// application-owned <c>data-app-ready</c> marker and for any previous drop-down to have fully closed (so no stale
+        /// item is matched). The application-owned marker signals the combos have rendered but cannot prove DevExpress has
+        /// finished attaching their client-side scripts, so on a cold or heavily loaded circuit a first click can land
+        /// before the handler is wired and silently fail to open the drop-down; the click is therefore retried until the
+        /// items appear, re-clicking only while nothing is open so an already-open drop-down is never toggled shut.
         /// </summary>
         /// <param name="comboId">The combo box component id.</param>
         /// <returns>A <see cref="Task" />.</returns>
         private async Task OpenComboAsync(string comboId)
         {
-            await this.page.Locator($"#{comboId}[data-qa-dxbl-loaded]").ClickAsync();
-            await Expect(this.OpenDropdownItems.First).ToBeVisibleAsync();
+            await Expect(this.page.Locator("#open-tab-form[data-app-ready]")).ToBeAttachedAsync(new LocatorAssertionsToBeAttachedOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
+            await Expect(this.OpenDropdownItems).ToHaveCountAsync(0);
+
+            var combo = this.page.Locator($"#{comboId}");
+
+            for (var attempt = 0; attempt < ComboOpenAttempts; attempt++)
+            {
+                if (await this.OpenDropdownItems.CountAsync() == 0)
+                {
+                    await combo.ClickAsync();
+                }
+
+                try
+                {
+                    await Expect(this.OpenDropdownItems.First).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = ComboOpenAttemptTimeoutMilliseconds });
+                    return;
+                }
+                catch (PlaywrightException) when (attempt < ComboOpenAttempts - 1)
+                {
+                    // The DevExpress client script had not attached when the click landed, so the drop-down did not open;
+                    // retry on the next iteration.
+                }
+            }
         }
+
+        /// <summary>
+        /// The number of times <see cref="OpenComboAsync" /> retries opening a combo box before giving up, to absorb the
+        /// gap between the form's readiness marker and DevExpress attaching the combo's client-side click handler.
+        /// </summary>
+        private const int ComboOpenAttempts = 5;
+
+        /// <summary>
+        /// The per-attempt timeout, in milliseconds, that <see cref="OpenComboAsync" /> waits for a combo's items to
+        /// appear before re-clicking. Kept short so a click that missed the handler is retried quickly.
+        /// </summary>
+        private const int ComboOpenAttemptTimeoutMilliseconds = 3_000;
     }
 }
