@@ -1,7 +1,7 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ShowHideDeprecatedThingsService.cs" company="Starion Group S.A.">
+//  <copyright file="ViewModelArchitectureTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
-//
+// 
 //     This file is part of CDP4-COMET WEB Community Edition
 //     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
@@ -13,34 +13,36 @@
 //     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Affero General Public License for more details.
+//     Affero General Public License for more details.
 // 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
-//  --------------------------------------------------------------------------------------------------------------------
+//   --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Services.ShowHideDeprecatedThingsService
+namespace COMETwebapp.Tests.ViewModels
 {
-    using ReactiveUI;
+    using COMET.Web.Common.Test.Helpers;
+
+    using NUnit.Framework;
 
     /// <summary>
-    /// Service to manage the "Show/Hide Deprecated Items" 
+    /// Test fixture enforcing ViewModel layer architecture purity rules for COMETwebapp.
     /// </summary>
-    public class ShowHideDeprecatedThingsService : ReactiveObject, IShowHideDeprecatedThingsService
+    [TestFixture]
+    public class ViewModelArchitectureTestFixture
     {
         /// <summary>
-        /// Backing field for <see cref="ShowDeprecatedThings" />
+        /// Verifies that no type in any ViewModels namespace in the CDP4-COMET WEB Community Edition assembly references a type from a UI component
+        /// library namespace.
         /// </summary>
-        private bool showDeprecatedThings;
-
-        /// <summary>
-        ///    Value indicating whether to display deprecated items.
-        /// </summary>
-        public bool ShowDeprecatedThings
+        [Test]
+        public void VerifyViewModelLayerPurity()
         {
-            get => this.showDeprecatedThings;
-            set => this.RaiseAndSetIfChanged(ref this.showDeprecatedThings, value);
+            var assembly = typeof(Program).Assembly;
+            var violations = ViewModelArchitectureHelper.GetViewModelPurityViolations(assembly);
+
+            Assert.That(violations, Is.Empty, () => $"ViewModel purity violations found:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
         }
     }
 }

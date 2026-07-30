@@ -59,6 +59,7 @@ namespace COMETwebapp.Components.Common
         /// <summary>
         /// Gets or sets the grid control that is being customized.
         /// </summary>
+        [Obsolete("Grid-editing members are obsolete. Use StartCreate() and StartEdit(TRow) instead.")]
         protected IGrid Grid { get; set; }
 
         /// <summary>
@@ -82,6 +83,7 @@ namespace COMETwebapp.Components.Common
         /// Method invoked when creating a new thing
         /// </summary>
         /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
+        [Obsolete("Grid-editing members are obsolete. Use StartCreate() and StartEdit(TRow) instead.")]
         protected virtual void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
         {
         }
@@ -102,6 +104,31 @@ namespace COMETwebapp.Components.Common
         protected virtual void OnSelectedDataItemChanged(TRow row)
         {
             this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Starts the creation flow for a new <typeparamref name="T"/> item.
+        /// </summary>
+        public virtual void StartCreate()
+        {
+            this.ShouldCreateThing = true;
+            this.IsOnEditMode = true;
+
+            this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Starts the edit flow for the specified <paramref name="row"/>.
+        /// </summary>
+        /// <param name="row">The selected row to edit.</param>
+        public virtual void StartEdit(TRow row)
+        {
+            if (row == null)
+            {
+                return;
+            }
+
+            this.OnSelectedDataItemChanged(row);
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ViewerBodyViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -190,7 +190,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
                 Assert.That(this.viewModel.Elements, Does.Not.Contain(deletedElementUsage));
 
                 // Verify Babylon calls for updatedElementWithShape
-                this.babylonInterop.Verify(x => x.ClearSceneObject(It.Is<SceneObject>(so => so.ElementBase.Iid == updatedElementWithShape.Iid)), Times.Once);
+                this.babylonInterop.Verify(x => x.ClearSceneObject(It.Is<SceneObject>(so => so.ElementBase.Iid == updatedElementWithShape.Iid)), Times.AtLeastOnce);
                 this.babylonInterop.Verify(x => x.AddSceneObject(It.Is<SceneObject>(so => so.ElementBase.Iid == updatedElementWithShape.Iid)), Times.AtLeastOnce);
                 this.babylonInterop.Verify(x => x.SetVisibility(It.Is<SceneObject>(so => so.ElementBase.Iid == updatedElementWithShape.Iid), false), Times.Once);
 

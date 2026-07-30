@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.Common
     using CDP4Dal;
 
     using COMET.Web.Common.Model;
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components;
@@ -42,8 +43,6 @@ namespace COMETwebapp.ViewModels.Components.Common
     using COMETwebapp.ViewModels.Components.ModelEditor.ElementDefinitionCreationViewModel;
     using COMETwebapp.ViewModels.Components.SystemRepresentation;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
-
-    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.Logging;
@@ -226,8 +225,8 @@ namespace COMETwebapp.ViewModels.Components.Common
             this.DeleteElementPopupViewModel = new ConfirmCancelPopupViewModel
             {
                 HeaderText = "Delete element",
-                ConfirmRenderStyle = ButtonRenderStyle.Danger,
-                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                ConfirmStyle = CometButtonStyle.Danger,
+                CancelStyle = CometButtonStyle.Secondary,
                 OnCancel = eventCallbackFactory.Create(this, this.OnDeleteCancelled),
                 OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedElementAsync)
             };
@@ -235,8 +234,8 @@ namespace COMETwebapp.ViewModels.Components.Common
             this.DeleteParameterPopupViewModel = new ConfirmCancelPopupViewModel
             {
                 HeaderText = "Delete parameter",
-                ConfirmRenderStyle = ButtonRenderStyle.Danger,
-                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                ConfirmStyle = CometButtonStyle.Danger,
+                CancelStyle = CometButtonStyle.Secondary,
                 OnCancel = eventCallbackFactory.Create(this, this.OnDeleteParameterCancelled),
                 OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedParameterAsync)
             };
@@ -244,8 +243,8 @@ namespace COMETwebapp.ViewModels.Components.Common
             this.CreateSubscriptionPopupViewModel = new ConfirmCancelPopupViewModel
             {
                 HeaderText = "Create Parameter Subscription",
-                ConfirmRenderStyle = ButtonRenderStyle.Primary,
-                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                ConfirmStyle = CometButtonStyle.Primary,
+                CancelStyle = CometButtonStyle.Secondary,
                 OnCancel = eventCallbackFactory.Create(this, this.OnCreateSubscriptionCancelled),
                 OnConfirm = eventCallbackFactory.Create(this, this.CreateSubscriptionAsync)
             };
@@ -253,8 +252,8 @@ namespace COMETwebapp.ViewModels.Components.Common
             this.DeleteSubscriptionPopupViewModel = new ConfirmCancelPopupViewModel
             {
                 HeaderText = "Delete Parameter Subscription",
-                ConfirmRenderStyle = ButtonRenderStyle.Danger,
-                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                ConfirmStyle = CometButtonStyle.Danger,
+                CancelStyle = CometButtonStyle.Secondary,
                 OnCancel = eventCallbackFactory.Create(this, this.OnDeleteSubscriptionCancelled),
                 OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedSubscriptionAsync)
             };
@@ -262,8 +261,8 @@ namespace COMETwebapp.ViewModels.Components.Common
             this.CreateOverridePopupViewModel = new ConfirmCancelPopupViewModel
             {
                 HeaderText = "Create Parameter Override",
-                ConfirmRenderStyle = ButtonRenderStyle.Primary,
-                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                ConfirmStyle = CometButtonStyle.Primary,
+                CancelStyle = CometButtonStyle.Secondary,
                 OnCancel = eventCallbackFactory.Create(this, this.OnCreateOverrideCancelled),
                 OnConfirm = eventCallbackFactory.Create(this, this.CreateOverrideAsync)
             };
@@ -271,8 +270,8 @@ namespace COMETwebapp.ViewModels.Components.Common
             this.DeleteOverridePopupViewModel = new ConfirmCancelPopupViewModel
             {
                 HeaderText = "Delete Parameter Override",
-                ConfirmRenderStyle = ButtonRenderStyle.Danger,
-                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                ConfirmStyle = CometButtonStyle.Danger,
+                CancelStyle = CometButtonStyle.Secondary,
                 OnCancel = eventCallbackFactory.Create(this, this.OnDeleteOverrideCancelled),
                 OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedOverrideAsync)
             };
@@ -290,8 +289,8 @@ namespace COMETwebapp.ViewModels.Components.Common
             this.DeleteParameterGroupPopupViewModel = new ConfirmCancelPopupViewModel
             {
                 HeaderText = "Delete Parameter Group",
-                ConfirmRenderStyle = ButtonRenderStyle.Danger,
-                CancelRenderStyle = ButtonRenderStyle.Secondary,
+                ConfirmStyle = CometButtonStyle.Danger,
+                CancelStyle = CometButtonStyle.Secondary,
                 OnCancel = eventCallbackFactory.Create(this, this.OnDeleteParameterGroupCancelled),
                 OnConfirm = eventCallbackFactory.Create(this, this.DeleteSelectedParameterGroupAsync)
             };

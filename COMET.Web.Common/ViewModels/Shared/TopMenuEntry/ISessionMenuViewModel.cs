@@ -58,8 +58,7 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
 
         /// <summary>
         /// Gets or sets a value indicating whether the self-service "Edit my profile" popup is open.
-        /// Bound to the <see cref="DevExpress.Blazor.DxPopup" /> visibility from
-        /// <see cref="Shared.TopMenuEntry.SessionMenu" />.
+        /// Bound to the popup visibility from the session menu
         /// </summary>
         bool IsOnEditPersonMode { get; set; }
 
