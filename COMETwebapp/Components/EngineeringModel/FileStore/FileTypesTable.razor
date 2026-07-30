@@ -56,7 +56,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <FileTypeForm FileType="@this.FileType"
                       FileTypeChanged="@(fileType => this.FileType = fileType)"
                       AvailableFileTypes="@this.FileTypes.Where(x => !this.SelectedFileTypes.Contains(x))"
-                      ShouldCreate="true"
+                      ShouldCreate="false"
                       IsVisible="@this.IsOnEditMode"
                       IsVisibleChanged="@(visible => this.IsOnEditMode = visible)"
                       OnSaved="@this.OnSaved"
