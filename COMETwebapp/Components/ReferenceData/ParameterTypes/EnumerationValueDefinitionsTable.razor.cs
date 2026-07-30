@@ -28,13 +28,16 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
-    using DevExpress.Blazor;
-
     /// <summary>
     /// Support class for the <see cref="EnumerationValueDefinitionsTable" />
     /// </summary>
     public partial class EnumerationValueDefinitionsTable : ThingOrderedItemsTable<EnumerationParameterType, EnumerationValueDefinition, EnumerationValueDefinitionRowViewModel>
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the form popup is visible for editing or creating.
+        /// </summary>
+        public bool IsOnEditMode { get; set; }
+
         /// <summary>
         /// Gets or sets the ordered list of items from the current
         /// <see cref="ThingOrderedItemsTable{T,TItem,TItemRow}.Thing" />
@@ -42,19 +45,59 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         public override OrderedItemList<EnumerationValueDefinition> OrderedItemsList => this.Thing.ValueDefinition;
 
         /// <summary>
-        /// Method invoked when creating a new enumeration value definition
+        /// Starts the creation flow for a new <see cref="EnumerationValueDefinition" /> item.
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditEnumerationValueDefinition(GridCustomizeEditModelEventArgs e)
+        public void StartCreate()
         {
-            var dataItem = (EnumerationValueDefinitionRowViewModel)e.DataItem;
-            this.ShouldCreate = e.IsNew;
+            this.ShouldCreate = true;
+            this.Item = new EnumerationValueDefinition { Iid = Guid.NewGuid() };
+            this.IsOnEditMode = true;
+        }
 
-            this.Item = dataItem == null
-                ? new EnumerationValueDefinition { Iid = Guid.NewGuid() }
-                : dataItem.Thing.Clone(true);
+        /// <summary>
+        /// Starts the edit flow for the specified <paramref name="row" />.
+        /// </summary>
+        /// <param name="row">The selected row to edit.</param>
+        public void StartEdit(EnumerationValueDefinitionRowViewModel row)
+        {
+            if (row == null)
+            {
+                return;
+            }
 
-            e.EditModel = this.Item;
+            this.ShouldCreate = false;
+            this.Item = row.Thing.Clone(true);
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Handles saving of the form popup, updating or adding the item to <see cref="OrderedItemsList" />.
+        /// </summary>
+        public void OnSaved()
+        {
+            if (this.ShouldCreate)
+            {
+                this.OrderedItemsList.Add(this.Item);
+            }
+            else
+            {
+                var indexToUpdate = this.OrderedItemsList.FindIndex(x => x.Iid == this.Item.Iid);
+                if (indexToUpdate >= 0)
+                {
+                    this.OrderedItemsList[indexToUpdate] = this.Item;
+                }
+            }
+
+            this.ThingChanged.InvokeAsync(this.Thing);
+            this.IsOnEditMode = false;
+        }
+
+        /// <summary>
+        /// Handles cancellation of the form popup.
+        /// </summary>
+        public void OnCanceled()
+        {
+            this.IsOnEditMode = false;
         }
     }
 }

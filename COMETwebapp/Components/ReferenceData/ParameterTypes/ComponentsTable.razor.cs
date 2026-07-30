@@ -30,8 +30,6 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -46,6 +44,11 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         public IEnumerable<ParameterType> ParameterTypes { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the form popup is visible for editing or creating.
+        /// </summary>
+        public bool IsOnEditMode { get; set; }
+
+        /// <summary>
         /// Gets or sets the ordered list of items from the current
         /// <see cref="ThingOrderedItemsTable{T,TItem,TItemRow}.Thing" />
         /// </summary>
@@ -55,6 +58,63 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// Gets the component dimension for the <see cref="ArrayParameterType" />
         /// </summary>
         public string Dimension { get; private set; }
+
+        /// <summary>
+        /// Starts the creation flow for a new <see cref="ParameterTypeComponent" /> item.
+        /// </summary>
+        public void StartCreate()
+        {
+            this.ShouldCreate = true;
+            this.Item = new ParameterTypeComponent { Iid = Guid.NewGuid() };
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Starts the edit flow for the specified <paramref name="row" />.
+        /// </summary>
+        /// <param name="row">The selected row to edit.</param>
+        public void StartEdit(ParameterTypeComponentRowViewModel row)
+        {
+            if (row == null)
+            {
+                return;
+            }
+
+            this.ShouldCreate = false;
+            this.Item = row.Thing.Clone(true);
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Handles saving of the form popup, updating or adding the item to <see cref="OrderedItemsList" />.
+        /// </summary>
+        public void OnSaved()
+        {
+            if (this.ShouldCreate)
+            {
+                this.OrderedItemsList.Add(this.Item);
+            }
+            else
+            {
+                var indexToUpdate = this.OrderedItemsList.FindIndex(x => x.Iid == this.Item.Iid);
+                
+                if (indexToUpdate >= 0)
+                {
+                    this.OrderedItemsList[indexToUpdate] = this.Item;
+                }
+            }
+
+            this.ThingChanged.InvokeAsync(this.Thing);
+            this.IsOnEditMode = false;
+        }
+
+        /// <summary>
+        /// Handles cancellation of the form popup.
+        /// </summary>
+        public void OnCanceled()
+        {
+            this.IsOnEditMode = false;
+        }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -77,31 +137,6 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             }
 
             this.Dimension = string.Join(",", arrayParameterType.Dimension.Select(x => x.ToString()));
-        }
-
-        /// <summary>
-        /// Gets the available scales based on the <see cref="ParameterType" /> from <see cref="ParameterTypeComponent" />
-        /// </summary>
-        /// <returns>A collection of the available scales</returns>
-        private IEnumerable<MeasurementScale> GetAvailableScales()
-        {
-            return this.Item.ParameterType is not QuantityKind quantityKind ? Enumerable.Empty<MeasurementScale>() : quantityKind.AllPossibleScale.OrderBy(x => x.Name);
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new parameter type component
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditParameterTypeComponent(GridCustomizeEditModelEventArgs e)
-        {
-            var dataItem = (ParameterTypeComponentRowViewModel)e.DataItem;
-            this.ShouldCreate = e.IsNew;
-
-            this.Item = dataItem == null
-                ? new ParameterTypeComponent { Iid = Guid.NewGuid() }
-                : dataItem.Thing.Clone(true);
-
-            e.EditModel = this.Item;
         }
 
         /// <summary>

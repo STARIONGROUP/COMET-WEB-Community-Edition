@@ -28,8 +28,6 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -50,33 +48,69 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         public bool Enabled { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the form popup is visible for editing or creating.
+        /// </summary>
+        public bool IsOnEditMode { get; set; }
+
+        /// <summary>
         /// Gets or sets the ordered list of items from the current <see cref="ThingOrderedItemsTable{T,TItem,TItemRow}.Thing" />
         /// </summary>
         public override OrderedItemList<DependentParameterTypeAssignment> OrderedItemsList => this.Thing.DependentParameterType;
 
         /// <summary>
-        /// Gets the available scales based on the <see cref="ParameterType" /> from <see cref="DependentParameterTypeAssignment" />
+        /// Starts the creation flow for a new <see cref="DependentParameterTypeAssignment" /> item.
         /// </summary>
-        /// <returns></returns>
-        private IEnumerable<MeasurementScale> GetAvailableScales()
+        public void StartCreate()
         {
-            return this.Item.ParameterType is not QuantityKind quantityKind ? Enumerable.Empty<MeasurementScale>() : quantityKind.AllPossibleScale.OrderBy(x => x.Name);
+            this.ShouldCreate = true;
+            this.Item = new DependentParameterTypeAssignment { Iid = Guid.NewGuid() };
+            this.IsOnEditMode = true;
         }
 
         /// <summary>
-        /// Method invoked when creating a new dependent parameter type
+        /// Starts the edit flow for the specified <paramref name="row" />.
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditDependentParameterType(GridCustomizeEditModelEventArgs e)
+        /// <param name="row">The selected row to edit.</param>
+        public void StartEdit(DependentParameterTypeRowViewModel row)
         {
-            var dataItem = (DependentParameterTypeRowViewModel)e.DataItem;
-            this.ShouldCreate = e.IsNew;
+            if (row == null)
+            {
+                return;
+            }
 
-            this.Item = dataItem == null
-                ? new DependentParameterTypeAssignment { Iid = Guid.NewGuid() }
-                : dataItem.Thing.Clone(true);
+            this.ShouldCreate = false;
+            this.Item = row.Thing.Clone(true);
+            this.IsOnEditMode = true;
+        }
 
-            e.EditModel = this.Item;
+        /// <summary>
+        /// Handles saving of the form popup, updating or adding the item to <see cref="OrderedItemsList" />.
+        /// </summary>
+        public void OnSaved()
+        {
+            if (this.ShouldCreate)
+            {
+                this.OrderedItemsList.Add(this.Item);
+            }
+            else
+            {
+                var indexToUpdate = this.OrderedItemsList.FindIndex(x => x.Iid == this.Item.Iid);
+                if (indexToUpdate >= 0)
+                {
+                    this.OrderedItemsList[indexToUpdate] = this.Item;
+                }
+            }
+
+            this.ThingChanged.InvokeAsync(this.Thing);
+            this.IsOnEditMode = false;
+        }
+
+        /// <summary>
+        /// Handles cancellation of the form popup.
+        /// </summary>
+        public void OnCanceled()
+        {
+            this.IsOnEditMode = false;
         }
     }
 }
