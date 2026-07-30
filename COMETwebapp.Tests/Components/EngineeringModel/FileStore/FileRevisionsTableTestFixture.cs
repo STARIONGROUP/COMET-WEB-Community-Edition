@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FileRevisionsTableTestFixture.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -113,8 +113,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
             await this.renderer.InvokeAsync(() => fileInput.Instance.OnChange.InvokeAsync(changeArgs));
             this.viewModel.Verify(x => x.UploadFile(fileMock.Object), Times.Once);
 
-            var grid = this.renderer.FindComponent<DxGrid>();
-            await this.renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
+            var form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
             Assert.That(timesFileRevisionsWasChanged, Is.EqualTo(1));
         }
     }
