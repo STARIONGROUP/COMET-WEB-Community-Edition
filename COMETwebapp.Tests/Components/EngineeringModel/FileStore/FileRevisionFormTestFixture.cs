@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="FileRevisionFormTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -89,6 +89,10 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
                 Assert.That(this.renderer.Instance.ViewModel, Is.SameAs(this.viewModel.Object));
                 Assert.That(this.renderer.Markup, Does.Contain("Revision 1"));
             }
+
+            this.viewModel.Setup(x => x.ErrorMessage).Returns("Error uploading file");
+            this.renderer.Render();
+            Assert.That(this.renderer.Markup, Does.Contain("Error uploading file"));
 
             var fileInput = this.renderer.FindComponent<InputFile>();
             var fileMock = new Mock<IBrowserFile>();
