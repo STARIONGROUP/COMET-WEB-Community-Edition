@@ -17,20 +17,19 @@ Copyright (c) 2023-2026 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
+@inherits DisposableComponent
 
-<DxGrid @ref="this.Grid"
-        Data="this.GetRows()"
-        EditMode="GridEditMode.PopupEditForm"
-        PopupEditFormHeaderText="Scale Value Definition"
-        EditModelSaving="@(() => this.OnEditScaleValueDefinitionSaving())"
-        CustomizeEditModel="this.CustomizeEditScaleValueDefinition">
+<DxGrid Data="this.GetRows()">
     <Columns>
-        <DxGridDataColumn FieldName="@nameof(ScaleValueDefinitionRowViewModel.Name)" MinWidth="150"/>
-        <DxGridDataColumn FieldName="@nameof(ScaleValueDefinitionRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
-        <DxGridDataColumn FieldName="@nameof(ScaleValueDefinitionRowViewModel.Value)" MinWidth="80" SearchEnabled="false"/>
-        <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+        <DxGridDataColumn FieldName="@nameof(ScaleValueDefinitionRowViewModel.Name)" MinWidth="150" />
+        <DxGridDataColumn FieldName="@nameof(ScaleValueDefinitionRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false" />
+        <DxGridDataColumn FieldName="@nameof(ScaleValueDefinitionRowViewModel.Value)" MinWidth="80" SearchEnabled="false" />
+        <DxGridCommandColumn Width="100px">
             <HeaderTemplate>
-                <DxButton Id="addScaleValueDefinitionButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                <DxButton Id="addScaleValueDefinitionButton"
+                          Text="Add"
+                          IconCssClass="oi oi-plus"
+                          Click="this.StartCreate" />
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
@@ -38,30 +37,26 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                     <DxButton Id="editScaleValueDefinitionButton"
                               IconCssClass="oi oi-pencil"
-                              Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
+                              Click="@(() => this.StartEdit(row))" />
 
                     <DxButton Id="removeScaleValueDefinitionButton"
                               IconCssClass="oi oi-trash"
-                              Click="() => this.RemoveScaleValueDefinition(row)"/>
+                              Click="() => this.RemoveScaleValueDefinition(row)" />
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
-
-    <EditFormTemplate Context="EditFormContext">
-        <FluentValidationValidator/>
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Shortname:" ColSpanMd="10">
-                <DxTextBox @bind-Text="@(this.ScaleValueDefinition.ShortName)"/>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                <DxTextBox @bind-Text="@(this.ScaleValueDefinition.Name)"/>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Value:" ColSpanMd="10">
-                <DxTextBox @bind-Text="@(this.ScaleValueDefinition.Value)"/>
-            </DxFormLayoutItem>
-        </DxFormLayout>
-        <div class="pt-3"></div>
-        <ValidationSummary/>
-    </EditFormTemplate>
 </DxGrid>
+
+<DxPopup HeaderText="Scale Value Definition"
+         @bind-Visible="@this.IsOnEditMode"
+         CloseOnOutsideClick="false">
+    <BodyContentTemplate Context="popupContext">
+        <ScaleValueDefinitionForm ScaleValueDefinition="@this.ScaleValueDefinition"
+                                  ShouldCreate="@this.ShouldCreate"
+                                  IsVisible="@this.IsOnEditMode"
+                                  IsVisibleChanged="@(visible => this.IsOnEditMode = visible)"
+                                  OnSaved="@this.OnSaved"
+                                  OnCanceled="@this.OnCanceled" />
+    </BodyContentTemplate>
+</DxPopup>

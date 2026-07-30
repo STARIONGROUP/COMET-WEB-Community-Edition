@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="MappingToReferenceScalesTableTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -32,8 +32,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
 
     using DevExpress.Blazor;
 
-    using NUnit.Framework;
+    using Microsoft.AspNetCore.Components.Forms;
 
+    using NUnit.Framework;
 
     [TestFixture]
     public class MappingToReferenceScalesTableTestFixture
@@ -76,17 +77,17 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         [Test]
         public void VerifyOnInitialized()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance, Is.Not.Null);
                 Assert.That(this.renderer.Instance.DependentScaleValueDefinitions, Is.Not.Null);
-                Assert.That(this.renderer.Instance.DependentScaleValueDefinitions, Is.Not.Null);
+                Assert.That(this.renderer.Instance.ReferenceScaleValueDefinitions, Is.Not.Null);
                 Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(false));
-            });
+            }
         }
 
         [Test]
-        public async Task VerifyUnitFactorsTable()
+        public async Task VerifyTableOperations()
         {
             var timesMeasurementScaleChanged = 0;
 
@@ -95,35 +96,57 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             var editMappingToReferenceScaleButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editMappingToReferenceScaleButton");
             await this.renderer.InvokeAsync(editMappingToReferenceScaleButton.Instance.Click.InvokeAsync);
 
-            var form = this.renderer.FindComponent<DxGrid>();
-            await this.renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
-
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
-                Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(false));
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.False);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+            }
+
+            var form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
                 Assert.That(this.renderer.Instance.MeasurementScale.MappingToReferenceScale, Has.Count.EqualTo(1));
                 Assert.That(timesMeasurementScaleChanged, Is.EqualTo(1));
-            });
+            }
 
             var addMappingToReferenceScaleButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addMappingToReferenceScaleButton");
             await this.renderer.InvokeAsync(addMappingToReferenceScaleButton.Instance.Click.InvokeAsync);
-            await this.renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
-                Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(true));
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.True);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+            }
+
+            form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
                 Assert.That(this.renderer.Instance.MeasurementScale.MappingToReferenceScale, Has.Count.EqualTo(2));
                 Assert.That(timesMeasurementScaleChanged, Is.EqualTo(2));
-            });
+            }
+
+            addMappingToReferenceScaleButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addMappingToReferenceScaleButton");
+            await this.renderer.InvokeAsync(addMappingToReferenceScaleButton.Instance.Click.InvokeAsync);
+
+            var cancelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelItemButton");
+            await this.renderer.InvokeAsync(cancelButton.Instance.Click.InvokeAsync);
+
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
 
             var removeMappingToReferenceScaleButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeMappingToReferenceScaleButton");
             await this.renderer.InvokeAsync(removeMappingToReferenceScaleButton.Instance.Click.InvokeAsync);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance.MeasurementScale.MappingToReferenceScale, Has.Count.EqualTo(1));
                 Assert.That(timesMeasurementScaleChanged, Is.EqualTo(3));
-            });
+            }
         }
     }
 }

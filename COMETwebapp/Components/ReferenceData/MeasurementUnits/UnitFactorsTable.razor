@@ -17,47 +17,43 @@ Copyright (c) 2023-2026 Starion Group S.A.
 @using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 @inherits ThingOrderedItemsTable<DerivedUnit, UnitFactor, UnitFactorRowViewModel>
 
-<DxGrid @ref="this.Grid"
-        Data="this.GetRows()"
-        EditMode="GridEditMode.PopupEditForm"
-        PopupEditFormHeaderText="Unit Factor"
-        EditModelSaving="@(() => this.OnEditItemSaving())"
-        CustomizeEditModel="this.CustomizeEditUnitFactor">
+<DxGrid Data="this.GetRows()">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(UnitFactorRowViewModel.MeasurementUnit)" MinWidth="150" />
         <DxGridDataColumn FieldName="@nameof(UnitFactorRowViewModel.Exponent)" MinWidth="80" SearchEnabled="false" />
-        <DxGridCommandColumn Width="160px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="160px">
             <HeaderTemplate>
-                <DxButton Id="addUnitFactorButton" Text="Add Unit Factor" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                <DxButton Id="addUnitFactorButton"
+                          Text="Add Unit Factor"
+                          IconCssClass="oi oi-plus"
+                          Click="this.StartCreate" />
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
                     var row = (UnitFactorRowViewModel)context.DataItem;
 
-                    <DxButton Id="editUnitFactorButton" Text="Edit" Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))" />
+                    <DxButton Id="editUnitFactorButton"
+                              Text="Edit"
+                              Click="@(() => this.StartEdit(row))" />
                     <DxButton Id="removeUnitFactorButton"
                               Text="Remove"
-                              Click="() => this.RemoveItem(row)"/>
+                              Click="() => this.RemoveItem(row)" />
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
-
-    <EditFormTemplate Context="EditFormContext">
-        <FluentValidationValidator />
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Measurement Unit:" ColSpanMd="10">
-                <DxComboBox Data="@this.MeasurementUnits"
-                            TextFieldName="@nameof(ReferenceDataLibrary.Name)"
-                            @bind-Value="@this.Item.Unit"
-                            CssClass="cw-480"/>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Exponent:" ColSpanMd="10">
-                <DxTextBox @bind-Text="@this.Item.Exponent"/>
-            </DxFormLayoutItem>
-        </DxFormLayout>
-        <div class="pt-3"></div>
-        <ValidationSummary />
-    </EditFormTemplate>
-
 </DxGrid>
+
+<DxPopup HeaderText="Unit Factor"
+         @bind-Visible="@this.IsOnEditMode"
+         CloseOnOutsideClick="false">
+    <BodyContentTemplate Context="popupContext">
+        <UnitFactorForm Item="@this.Item"
+                        MeasurementUnits="@this.MeasurementUnits"
+                        ShouldCreate="@this.ShouldCreate"
+                        IsVisible="@this.IsOnEditMode"
+                        IsVisibleChanged="@(visible => this.IsOnEditMode = visible)"
+                        OnSaved="@this.OnSaved"
+                        OnCanceled="@this.OnCanceled" />
+    </BodyContentTemplate>
+</DxPopup>

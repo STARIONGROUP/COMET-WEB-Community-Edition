@@ -17,22 +17,20 @@ Copyright (c) 2023-2026 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
+@inherits DisposableComponent
 
-
-<DxGrid @ref="this.Grid"
-        Data="this.GetRows()"
-        EditMode="GridEditMode.PopupEditForm"
-        PopupEditFormHeaderText="Mapping To Reference Scale"
-        EditModelSaving="@(() => this.OnEditMappingToReferenceScaleSaving())"
-        CustomizeEditModel="this.CustomizeEditMappingToReferenceScale">
+<DxGrid Data="this.GetRows()">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(MappingToReferenceScaleRowViewModel.Reference)" MinWidth="80" />
         <DxGridDataColumn FieldName="@nameof(MappingToReferenceScaleRowViewModel.ReferenceValue)" MinWidth="80" />
         <DxGridDataColumn FieldName="@nameof(MappingToReferenceScaleRowViewModel.Dependent)" MinWidth="80" />
         <DxGridDataColumn FieldName="@nameof(MappingToReferenceScaleRowViewModel.DependentValue)" MinWidth="80" />
-        <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="100px">
             <HeaderTemplate>
-                <DxButton Id="addMappingToReferenceScaleButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
+                <DxButton Id="addMappingToReferenceScaleButton"
+                          Text="Add"
+                          IconCssClass="oi oi-plus"
+                          Click="this.StartCreate" />
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
@@ -40,34 +38,28 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                     <DxButton Id="editMappingToReferenceScaleButton"
                               IconCssClass="oi oi-pencil"
-                              Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
+                              Click="@(() => this.StartEdit(row))" />
 
                     <DxButton Id="removeMappingToReferenceScaleButton"
                               IconCssClass="oi oi-trash"
-                              Click="() => this.RemoveMappingToReferenceScale(row)"/>
+                              Click="() => this.RemoveMappingToReferenceScale(row)" />
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
-
-    <EditFormTemplate Context="EditFormContext">
-        <FluentValidationValidator />
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Reference Scale Value:" ColSpanMd="10">
-                <DxComboBox Data="@this.ReferenceScaleValueDefinitions"
-                            TextFieldName="@nameof(ScaleValueDefinition.ShortName)"
-                            @bind-Value="@this.MappingToReferenceScale.ReferenceScaleValue"
-                            CssClass="cw-480"/>
-            </DxFormLayoutItem>
-            
-            <DxFormLayoutItem Caption="Dependent Scale Value:" ColSpanMd="10">
-                <DxComboBox Data="@this.DependentScaleValueDefinitions"
-                            TextFieldName="@nameof(ScaleValueDefinition.ShortName)"
-                            @bind-Value="@this.MappingToReferenceScale.DependentScaleValue"
-                            CssClass="cw-480" />
-            </DxFormLayoutItem>
-        </DxFormLayout>
-        <div class="pt-3"></div>
-        <ValidationSummary />
-    </EditFormTemplate>
 </DxGrid>
+
+<DxPopup HeaderText="Mapping To Reference Scale"
+         @bind-Visible="@this.IsOnEditMode"
+         CloseOnOutsideClick="false">
+    <BodyContentTemplate Context="popupContext">
+        <MappingToReferenceScaleForm MappingToReferenceScale="@this.MappingToReferenceScale"
+                                     ReferenceScaleValueDefinitions="@this.ReferenceScaleValueDefinitions"
+                                     DependentScaleValueDefinitions="@this.DependentScaleValueDefinitions"
+                                     ShouldCreate="@this.ShouldCreate"
+                                     IsVisible="@this.IsOnEditMode"
+                                     IsVisibleChanged="@(visible => this.IsOnEditMode = visible)"
+                                     OnSaved="@this.OnSaved"
+                                     OnCanceled="@this.OnCanceled" />
+    </BodyContentTemplate>
+</DxPopup>

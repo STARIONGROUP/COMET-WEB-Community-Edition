@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ScaleValueDefinitionsTableTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -32,8 +32,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
 
     using DevExpress.Blazor;
 
-    using NUnit.Framework;
+    using Microsoft.AspNetCore.Components.Forms;
 
+    using NUnit.Framework;
 
     [TestFixture]
     public class ScaleValueDefinitionsTableTestFixture
@@ -65,15 +66,15 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         [Test]
         public void VerifyOnInitialized()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance, Is.Not.Null);
                 Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(false));
-            });
+            }
         }
 
         [Test]
-        public async Task VerifyUnitFactorsTable()
+        public async Task VerifyTableOperations()
         {
             var timesScaleValueDefinitionsChanged = 0;
 
@@ -82,35 +83,57 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
             var editScaleValueDefinitionButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editScaleValueDefinitionButton");
             await this.renderer.InvokeAsync(editScaleValueDefinitionButton.Instance.Click.InvokeAsync);
 
-            var form = this.renderer.FindComponent<DxGrid>();
-            await this.renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
-
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
-                Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(false));
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.False);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+            }
+
+            var form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
                 Assert.That(this.renderer.Instance.MeasurementScale.ValueDefinition, Has.Count.EqualTo(1));
                 Assert.That(timesScaleValueDefinitionsChanged, Is.EqualTo(1));
-            });
+            }
 
             var addScaleValueDefinitionButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addScaleValueDefinitionButton");
             await this.renderer.InvokeAsync(addScaleValueDefinitionButton.Instance.Click.InvokeAsync);
-            await this.renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
-                Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(true));
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.True);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+            }
+
+            form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
                 Assert.That(this.renderer.Instance.MeasurementScale.ValueDefinition, Has.Count.EqualTo(2));
                 Assert.That(timesScaleValueDefinitionsChanged, Is.EqualTo(2));
-            });
+            }
+
+            addScaleValueDefinitionButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addScaleValueDefinitionButton");
+            await this.renderer.InvokeAsync(addScaleValueDefinitionButton.Instance.Click.InvokeAsync);
+
+            var cancelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelItemButton");
+            await this.renderer.InvokeAsync(cancelButton.Instance.Click.InvokeAsync);
+
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
 
             var removeScaleValueDefinitionButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeScaleValueDefinitionButton");
             await this.renderer.InvokeAsync(removeScaleValueDefinitionButton.Instance.Click.InvokeAsync);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance.MeasurementScale.ValueDefinition, Has.Count.EqualTo(1));
                 Assert.That(timesScaleValueDefinitionsChanged, Is.EqualTo(3));
-            });
+            }
         }
     }
 }

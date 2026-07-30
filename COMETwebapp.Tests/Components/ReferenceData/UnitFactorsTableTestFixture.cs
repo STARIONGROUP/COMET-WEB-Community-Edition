@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="UnitFactorsTableTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -32,8 +32,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
     using DevExpress.Blazor;
 
-    using NUnit.Framework;
+    using Microsoft.AspNetCore.Components.Forms;
 
+    using NUnit.Framework;
 
     [TestFixture]
     public class UnitFactorsTableTestFixture
@@ -82,39 +83,61 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         [Test]
         public void VerifyOnInitialized()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance, Is.Not.Null);
                 Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(false));
                 Assert.That(this.renderer.Instance.Thing, Is.Not.Null);
                 Assert.That(this.renderer.Instance.MeasurementUnits, Is.Not.Null);
-            });
+            }
         }
 
         [Test]
-        public async Task VerifyUnitFactorsTable()
+        public async Task VerifyTableOperations()
         {
             var editUnitFactorButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editUnitFactorButton");
             await this.renderer.InvokeAsync(editUnitFactorButton.Instance.Click.InvokeAsync);
 
-            var form = this.renderer.FindComponent<DxGrid>();
-            await this.renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
-
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
-                Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(false));
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.False);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+            }
+
+            var form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
                 Assert.That(this.renderer.Instance.Thing.UnitFactor, Has.Count.EqualTo(1));
-            });
+            }
 
             var addUnitFactorButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addUnitFactorButton");
             await this.renderer.InvokeAsync(addUnitFactorButton.Instance.Click.InvokeAsync);
-            await this.renderer.InvokeAsync(form.Instance.EditModelSaving.InvokeAsync);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
-                Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(true));
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.True);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+            }
+
+            form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
                 Assert.That(this.renderer.Instance.Thing.UnitFactor, Has.Count.EqualTo(2));
-            });
+            }
+
+            addUnitFactorButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addUnitFactorButton");
+            await this.renderer.InvokeAsync(addUnitFactorButton.Instance.Click.InvokeAsync);
+
+            var cancelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelItemButton");
+            await this.renderer.InvokeAsync(cancelButton.Instance.Click.InvokeAsync);
+
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
 
             var removeUnitFactorButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeUnitFactorButton");
             await this.renderer.InvokeAsync(removeUnitFactorButton.Instance.Click.InvokeAsync);

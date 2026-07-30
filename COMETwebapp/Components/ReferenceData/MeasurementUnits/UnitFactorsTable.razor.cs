@@ -22,14 +22,11 @@
 
 namespace COMETwebapp.Components.ReferenceData.MeasurementUnits
 {
-    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
-
-    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
@@ -42,27 +39,59 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementUnits
         /// A collection of measurement units to display for selection
         /// </summary>
         [Parameter]
-        public IEnumerable<MeasurementUnit> MeasurementUnits { get; set; }
+        public IEnumerable<MeasurementUnit> MeasurementUnits { get; set; } = [];
 
         /// <summary>
-        /// Gets or sets the ordered list of items from the current <see cref="Thing" />
+        /// Gets or sets the ordered list of items from the current Thing
         /// </summary>
         public override OrderedItemList<UnitFactor> OrderedItemsList => this.Thing.UnitFactor;
 
         /// <summary>
-        /// Method invoked when creating a new quantity kind factor
+        /// Gets or sets a value indicating whether the form popup is visible for editing or creating.
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditUnitFactor(GridCustomizeEditModelEventArgs e)
+        public bool IsOnEditMode { get; set; }
+
+        /// <summary>
+        /// Starts the creation flow for a new <see cref="UnitFactor" />.
+        /// </summary>
+        private void StartCreate()
         {
-            var dataItem = (UnitFactorRowViewModel)e.DataItem;
-            this.ShouldCreate = e.IsNew;
+            this.ShouldCreate = true;
+            this.Item = new UnitFactor { Iid = Guid.NewGuid() };
+            this.IsOnEditMode = true;
+        }
 
-            this.Item = dataItem == null
-                ? new UnitFactor { Iid = Guid.NewGuid() }
-                : dataItem.Thing.Clone(true);
+        /// <summary>
+        /// Starts the edit flow for the specified <paramref name="row" />.
+        /// </summary>
+        /// <param name="row">The selected row to edit.</param>
+        private void StartEdit(UnitFactorRowViewModel row)
+        {
+            if (row == null)
+            {
+                return;
+            }
 
-            e.EditModel = this.Item;
+            this.ShouldCreate = false;
+            this.Item = row.Thing.Clone(true);
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Method that is invoked when the edit/add unit factor form is being saved
+        /// </summary>
+        private void OnSaved()
+        {
+            this.OnEditItemSaving();
+            this.IsOnEditMode = false;
+        }
+
+        /// <summary>
+        /// Handles cancellation of the form popup.
+        /// </summary>
+        private void OnCanceled()
+        {
+            this.IsOnEditMode = false;
         }
     }
 }
