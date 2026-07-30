@@ -68,4 +68,7 @@ When cutting a release that bumps `Version` on a packable project, call out the 
 - Pay attention to whitespace and extra blank lines
 - Absolutely **no** regions
 
+### ViewModel Layer Purity
+Types in `*.ViewModels.*` namespaces MUST NOT reference any types from UI component library namespaces (such as `DevExpress`, `AntDesign`, `BlazorStrap`, `Feather`, `Radzen`, `MudBlazor`, `Blazor.Diagrams`, etc.).
+
 > If you are a ReSharper user, you can make use of our `.DotSettings` file to ensure you cover as many of our style guidelines as possible. There may be some style guidelines which are not covered by the file, so please pay attention to the style of existing code.
