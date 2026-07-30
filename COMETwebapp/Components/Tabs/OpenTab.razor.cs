@@ -74,6 +74,13 @@ namespace COMETwebapp.Components.Tabs
         private bool IsIterationView => this.ViewModel.SelectedApplication?.ThingTypeOfInterest == typeof(Iteration);
 
         /// <summary>
+        /// Asserts that the open-tab form has rendered and its combo boxes are interactive. Exposed to the DOM as the
+        /// application-owned <c>data-app-ready</c> readiness marker the end-to-end tests wait on before opening a combo,
+        /// so the tests no longer depend on a third-party "editor loaded" attribute.
+        /// </summary>
+        private bool formReady;
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -81,6 +88,24 @@ namespace COMETwebapp.Components.Tabs
         {
             this.Initialize(this.ViewModel);
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedApplication).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
+
+        /// <summary>
+        /// Method invoked after each time the component has been rendered interactively. Publishes the application-owned
+        /// <c>data-app-ready</c> readiness marker once the combo boxes have rendered at least once (so DevExpress has had
+        /// a render cycle to attach their client-side scripts).
+        /// </summary>
+        /// <param name="firstRender">Set to <c>true</c> if this is the first time the method has been invoked.</param>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
+            {
+                this.formReady = true;
+                await this.InvokeAsync(this.StateHasChanged);
+            }
         }
 
         /// <summary>

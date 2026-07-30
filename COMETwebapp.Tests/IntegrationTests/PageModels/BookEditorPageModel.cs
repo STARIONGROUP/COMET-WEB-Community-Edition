@@ -66,9 +66,9 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator AddBookButton => this.Page.Locator("#books-column .add-item-button");
 
         /// <summary>
-        /// Gets the create/edit popup.
+        /// Gets the create/edit popup, targeted by the application-owned <c>book-editor-popup</c> class set on it. 
         /// </summary>
-        public ILocator EditorPopup => this.Page.Locator(".dxbl-popup");
+        public ILocator EditorPopup => this.Page.Locator(".book-editor-popup");
 
         /// <summary>
         /// Opens the "add book" editor dialog.

@@ -66,9 +66,10 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator SearchBox => this.Page.Locator("#search-textbox");
 
         /// <summary>
-        /// Gets the element rows of the source model tree.
+        /// Gets the element rows of the source model tree, targeted by the application-owned <c>data-testid</c> attribute
+        /// set on each tree item rather than a DevExpress internal class.
         /// </summary>
-        public ILocator SourceElements => this.Page.Locator("#sourcePanel .dxbl-treeview-item");
+        public ILocator SourceElements => this.Page.Locator("#sourcePanel [data-testid=element-node]");
 
         /// <summary>
         /// Selects the first element in the source model tree, which opens it in the details panel.

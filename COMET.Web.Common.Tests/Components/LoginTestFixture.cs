@@ -87,6 +87,14 @@ namespace COMET.Web.Common.Tests.Components
         }
 
         [Test]
+        public void VerifyReadinessMarkerIsPublished()
+        {
+            var renderer = this.context.Render<Login>();
+            var form = renderer.Find("#login-form");
+            Assert.That(form.GetAttribute("data-app-ready"), Is.EqualTo("true"));
+        }
+
+        [Test]
         public async Task VerifyErrorsShown()
         {
             var renderer = this.context.Render<Login>();
