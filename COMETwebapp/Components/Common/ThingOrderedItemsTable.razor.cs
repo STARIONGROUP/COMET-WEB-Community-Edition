@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="ParameterTypeOrderedItemsTable.razor.cs" company="Starion Group S.A.">
+//  <copyright file="ThingOrderedItemsTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of COMET WEB Community Edition
@@ -37,7 +37,7 @@ namespace COMETwebapp.Components.Common
     /// <summary>
     /// Support class for the <see cref="ThingOrderedItemsTable{T,TItem,TItemRow}" />
     /// </summary>
-    public abstract class ThingOrderedItemsTable<T, TItem, TItemRow> : DisposableComponent where T : Thing where TItem : Thing where TItemRow : BaseDataItemRowViewModel<TItem>
+    public abstract class ThingOrderedItemsTable<T, TItem, TItemRow> : DisposableComponent where T : Thing where TItem : Thing, new() where TItemRow : BaseDataItemRowViewModel<TItem>
     {
         /// <summary>
         /// Gets or sets the parameter type
@@ -57,19 +57,78 @@ namespace COMETwebapp.Components.Common
         public bool ShouldCreate { get; protected set; }
 
         /// <summary>
-        /// The quantity kind factor that will be handled for both edit and add forms
+        /// Gets or sets a value indicating whether the form popup is visible for editing or creating.
+        /// </summary>
+        public bool IsOnEditMode { get; set; }
+
+        /// <summary>
+        /// The item that will be handled for both edit and add forms
         /// </summary>
         public TItem Item { get; protected set; }
 
         /// <summary>
         /// Gets or sets the grid control that is being customized.
         /// </summary>
-        public IGrid Grid { get; protected set; }
+        [Obsolete("Grid-editing members are obsolete. Use StartCreate() and StartEdit(TItemRow) instead.")]
+        protected IGrid Grid { get; set; }
 
         /// <summary>
         /// Gets or sets the ordered list of items from the current <see cref="Thing" />
         /// </summary>
         public abstract OrderedItemList<TItem> OrderedItemsList { get; }
+
+        /// <summary>
+        /// Starts the creation flow for a new <typeparamref name="TItem" /> item.
+        /// </summary>
+        public virtual void StartCreate()
+        {
+            this.ShouldCreate = true;
+            this.Item = new TItem { Iid = Guid.NewGuid() };
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Starts the edit flow for the specified <paramref name="row" />.
+        /// </summary>
+        /// <param name="row">The selected row to edit.</param>
+        public virtual void StartEdit(TItemRow row)
+        {
+            if (row == null)
+            {
+                return;
+            }
+
+            this.ShouldCreate = false;
+            this.Item = (TItem)row.Thing.Clone(true);
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Handles saving of the form popup, updating or adding the item to <see cref="OrderedItemsList" />.
+        /// </summary>
+        public virtual void OnSaved()
+        {
+            if (this.ShouldCreate)
+            {
+                this.OrderedItemsList.Add(this.Item);
+            }
+            else
+            {
+                var indexToUpdate = this.OrderedItemsList.FindIndex(x => x.Iid == this.Item.Iid);
+                this.OrderedItemsList[indexToUpdate] = this.Item;
+            }
+
+            this.ThingChanged.InvokeAsync(this.Thing);
+            this.IsOnEditMode = false;
+        }
+
+        /// <summary>
+        /// Handles cancellation of the form popup.
+        /// </summary>
+        public virtual void OnCanceled()
+        {
+            this.IsOnEditMode = false;
+        }
 
         /// <summary>
         /// Moves the selected row up
@@ -108,6 +167,7 @@ namespace COMETwebapp.Components.Common
         /// <summary>
         /// Method that is invoked when the edit/add quantity kind factor form is being saved
         /// </summary>
+        [Obsolete("Grid-editing members are obsolete. Use OnSaved() instead.")]
         protected void OnEditItemSaving()
         {
             if (this.ShouldCreate)
