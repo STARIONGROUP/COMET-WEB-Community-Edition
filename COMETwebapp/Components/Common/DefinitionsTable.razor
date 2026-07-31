@@ -27,7 +27,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <HeaderTemplate>
                 <DxButton Id="addDefinitionButton"
                           Text="Add"
-                          IconCssClass="oi oi-plus"
+                          IconCssClass="@IconName.Add.GetCssClass()()"
                           Click="this.StartCreate"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
@@ -35,11 +35,11 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     var row = (DefinitionRowViewModel)context.DataItem;
 
                     <DxButton Id="editDefinitionButton"
-                              IconCssClass="oi oi-pencil"
+                              IconCssClass="@IconName.Edit.GetCssClass()"
                               Click="@(() => this.StartEdit(row))"/>
 
                     <DxButton Id="removeDefinitionButton"
-                              IconCssClass="oi oi-trash"
+                              IconCssClass="@IconName.Delete.GetCssClass()"
                               Click="() => this.RemovalPopup.Request(row)"/>
                 }
             </CellDisplayTemplate>

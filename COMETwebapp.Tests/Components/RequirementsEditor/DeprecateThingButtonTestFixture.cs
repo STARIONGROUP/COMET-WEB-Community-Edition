@@ -27,6 +27,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
@@ -76,9 +78,9 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             Assert.Multiple(() =>
             {
-                Assert.That(activeButton.IconCssClass, Is.EqualTo("oi oi-ban"));
+                Assert.That(activeButton.IconCssClass, Is.EqualTo(IconName.Ban.GetCssClass()));
                 Assert.That(activeButton.Attributes["title"], Is.EqualTo("Deprecate requirement"));
-                Assert.That(deprecatedButton.IconCssClass, Is.EqualTo("oi oi-action-undo"));
+                Assert.That(deprecatedButton.IconCssClass, Is.EqualTo(IconName.Undo.GetCssClass()));
                 Assert.That(deprecatedButton.Attributes["title"], Is.EqualTo("Restore specification"));
             });
         }

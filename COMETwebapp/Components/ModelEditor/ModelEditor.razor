@@ -34,7 +34,7 @@
         else
         {
             <span title="Select copy mode settings for copying ElementDefinitions from one model to the other">
-                <DxButton Click="() => { this.ViewModel.OpenCopySettingsPopup(); }" CssClass="drop-area-background-color" title="Open drop settings" IconCssClass="oi oi-transfer"></DxButton>
+                <DxButton Click="() => { this.ViewModel.OpenCopySettingsPopup(); }" CssClass="drop-area-background-color" title="Open drop settings" IconCssClass="@IconName.Transfer.GetCssClass()"></DxButton>
             </span>
             <span title="Selected copy mode for copying ElementDefinitions to another Iteration. Hold Ctrl while dropping to keep the parameter values and take ownership, Shift to keep the original owner, or Ctrl+Shift for both.">
                 Copy mode to different Iteration: @this.ViewModel.CopySettingsViewModel.SelectedOperationKindDescription
@@ -56,7 +56,7 @@
             <div id="sourcePanel" class="model-editor-panel @(this.IsSourcePanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)">
                 <div class="model-editor-panel-header">
                     <DxButton Id="collapseSourcePanel"
-                              IconCssClass="oi oi-chevron-left"
+                              IconCssClass="@IconName.ChevronLeft.GetCssClass()"
                               RenderStyle="ButtonRenderStyle.Link"
                               SizeMode="SizeMode.Small"
                               Click="@(() => this.IsSourcePanelCollapsed = true)"
@@ -91,7 +91,7 @@
             @if (this.IsSourcePanelCollapsed)
             {
                 <div id="expandSourcePanel" class="model-editor-collapsed-strip" title="Restore the source model panel" @onclick="@(() => this.IsSourcePanelCollapsed = false)">
-                    <span class="oi oi-chevron-right"></span>
+                    <CometIcon Icon="IconName.ChevronRight"/>
                     <span class="model-editor-collapsed-strip-text">Source model</span>
                 </div>
             }
@@ -127,7 +127,7 @@
             <div id="detailsPanel" class="model-editor-panel model-editor-panel-borderless model-editor-details-panel @(this.IsDetailsPanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)">
                 <div class="model-editor-panel-header model-editor-panel-header-end">
                     <DxButton Id="collapseDetailsPanel"
-                              IconCssClass="oi oi-chevron-right"
+                              IconCssClass="@IconName.ChevronRight.GetCssClass()"
                               RenderStyle="ButtonRenderStyle.Link"
                               SizeMode="SizeMode.Small"
                               Click="@(() => this.IsDetailsPanelCollapsed = true)"
@@ -143,7 +143,7 @@
             @if (this.IsDetailsPanelCollapsed)
             {
                 <div id="expandDetailsPanel" class="model-editor-collapsed-strip" title="Restore the details panel" @onclick="@(() => this.IsDetailsPanelCollapsed = false)">
-                    <span class="oi oi-chevron-left"></span>
+                    <CometIcon Icon="IconName.ChevronLeft"/>
                     <span class="model-editor-collapsed-strip-text">Details</span>
                 </div>
             }

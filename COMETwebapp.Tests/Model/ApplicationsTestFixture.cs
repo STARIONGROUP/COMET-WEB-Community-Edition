@@ -42,17 +42,7 @@ namespace COMETwebapp.Tests.Model
                 {
                     Assert.That(application.Name, Is.Not.Null.Or.Empty);
                     Assert.That(application.Color, Is.Not.Null.Or.Empty);
-
-                    if (application.IconType == null)
-                    {
-                        Assert.That(application.Icon, Is.Not.Null.Or.Empty);
-                    }
-
-                    if (application.Icon == null)
-                    {
-                        Assert.That(application.IconType, Is.Not.Null.Or.Empty);
-                    }
-
+                    Assert.That(Enum.IsDefined(application.Icon), Is.True);
                     Assert.That(application.Description, Is.Not.Null.Or.Empty);
                     Assert.That(application.Url, Is.Not.Null.Or.Empty);
                 });

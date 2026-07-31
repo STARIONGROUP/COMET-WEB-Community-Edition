@@ -35,8 +35,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
             {
                 <button type="button" title="Move down" @onclick="@(() => this.OnMoveDown.InvokeAsync(this.Row))">&#8595;</button>
             }
-            <button type="button" title="Edit expression" @onclick="@(() => this.OnEditRelational.InvokeAsync(relational))"><span class="oi oi-pencil"></span></button>
-            <button type="button" title="Delete" @onclick="@(() => this.OnRemove.InvokeAsync(this.Row))"><span class="oi oi-trash"></span></button>
+            <button type="button" title="Edit expression" @onclick="@(() => this.OnEditRelational.InvokeAsync(relational))"><CometIcon Icon="IconName.Edit"/></button>
+            <button type="button" title="Delete" @onclick="@(() => this.OnRemove.InvokeAsync(this.Row))"><CometIcon Icon="IconName.Delete"/></button>
         </span>
     </div>
 }
@@ -57,7 +57,7 @@ else if (this.Row is CompositeExpressionRow group)
             <span class="pc-actions">
                 @if (!this.IsRoot)
                 {
-                    <button type="button" title="Delete group" @onclick="@(() => this.OnRemove.InvokeAsync(this.Row))"><span class="oi oi-trash"></span></button>
+                    <button type="button" title="Delete group" @onclick="@(() => this.OnRemove.InvokeAsync(this.Row))"><CometIcon Icon="IconName.Delete"/></button>
                 }
             </span>
         </div>
@@ -86,7 +86,7 @@ else if (this.Row is CompositeExpressionRow group)
 
             <span class="pc-add pc-split">
                 <button type="button" class="pc-split-main" title="Add a relational expression"
-                        @onclick="@(() => this.AddExpressionClicked(group))"><span class="oi oi-plus"></span> Add Expression</button>
+                        @onclick="@(() => this.AddExpressionClicked(group))"><CometIcon Icon="IconName.Add"/> Add Expression</button>
                 <button type="button" class="pc-split-arrow" id="@this.AddButtonId" title="More…"
                         @onclick="@(() => this.addMenuOpen = !this.addMenuOpen)">▾</button>
             </span>
@@ -98,8 +98,8 @@ else if (this.Row is CompositeExpressionRow group)
                         FooterVisible="false">
                 <BodyTemplate>
                     <div style="display:flex; flex-direction:column; min-width:170px;">
-                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-plus" Text="Add Expression" Click="@(() => this.AddExpressionClicked(group))" />
-                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-fork" Text="Add Group" Click="@(() => this.AddGroupClicked(group))" />
+                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Add.GetCssClass()" Text="Add Expression" Click="@(() => this.AddExpressionClicked(group))" />
+                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Branch.GetCssClass()" Text="Add Group" Click="@(() => this.AddGroupClicked(group))" />
                     </div>
                 </BodyTemplate>
             </DxDropDown>

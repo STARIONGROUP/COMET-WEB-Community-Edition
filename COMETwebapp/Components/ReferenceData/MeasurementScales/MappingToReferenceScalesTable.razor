@@ -32,18 +32,18 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <DxGridDataColumn FieldName="@nameof(MappingToReferenceScaleRowViewModel.DependentValue)" MinWidth="80" />
         <DxGridCommandColumn Width="100px" EditButtonVisible="false">
             <HeaderTemplate>
-                <DxButton Id="addMappingToReferenceScaleButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()" />
+                <DxButton Id="addMappingToReferenceScaleButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="() => this.Grid.StartEditNewRowAsync()" />
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
                     var row = (MappingToReferenceScaleRowViewModel)context.DataItem;
 
                     <DxButton Id="editMappingToReferenceScaleButton"
-                              IconCssClass="oi oi-pencil"
+                              IconCssClass="@IconName.Edit.GetCssClass()"
                               Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
 
                     <DxButton Id="removeMappingToReferenceScaleButton"
-                              IconCssClass="oi oi-trash"
+                              IconCssClass="@IconName.Delete.GetCssClass()"
                               Click="() => this.RemoveMappingToReferenceScale(row)"/>
                 }
             </CellDisplayTemplate>

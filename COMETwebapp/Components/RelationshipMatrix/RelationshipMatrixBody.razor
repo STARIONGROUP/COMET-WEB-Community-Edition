@@ -28,7 +28,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <div id="matrixConfigPanel" class="matrix-config-panel @(this.ViewModel.IsConfigurationPanelCollapsed ? "matrix-config-panel-collapsed" : string.Empty)">
             <div class="matrix-config-panel-header">
                 <DxButton Id="matrix-config-minimize"
-                          IconCssClass="oi oi-chevron-left"
+                          IconCssClass="@IconName.ChevronLeft.GetCssClass()"
                           RenderStyle="ButtonRenderStyle.Link"
                           SizeMode="SizeMode.Small"
                           Click="@(() => this.ViewModel.IsConfigurationPanelCollapsed = true)"
@@ -49,16 +49,16 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <DxCheckBox @bind-Checked="@this.ViewModel.ShowNonRelatedBackgroundColor">Highlight unrelated rows/columns</DxCheckBox>
 
             <div class="matrix-config-actions">
-                <DxButton Text="Swap rows &amp; columns" IconCssClass="oi oi-loop-circular" Click="@(() => this.ViewModel.SwapAxes())"/>
-                <DxButton Text="Export to Excel" IconCssClass="oi oi-spreadsheet" Click="@(async () => await this.ViewModel.ExportAsync())"/>
-                <DxButton Text="Configuration" IconCssClass="oi oi-cog" Click="@(() => this.ViewModel.IsConfigurationDialogVisible = true)"/>
+                <DxButton Text="Swap rows &amp; columns" IconCssClass="@IconName.Refresh.GetCssClass()" Click="@(() => this.ViewModel.SwapAxes())"/>
+                <DxButton Text="Export to Excel" IconCssClass="@IconName.Grid.GetCssClass()" Click="@(async () => await this.ViewModel.ExportAsync())"/>
+                <DxButton Text="Configuration" IconCssClass="@IconName.Settings.GetCssClass()" Click="@(() => this.ViewModel.IsConfigurationDialogVisible = true)"/>
             </div>
         </div>
 
         @if (this.ViewModel.IsConfigurationPanelCollapsed)
         {
             <div id="expandMatrixConfigPanel" class="matrix-collapsed-strip" title="Restore the configuration panel" @onclick="@(() => this.ViewModel.IsConfigurationPanelCollapsed = false)">
-                <span class="oi oi-chevron-right"></span>
+                <CometIcon Icon="IconName.ChevronRight"/>
                 <span class="matrix-collapsed-strip-text">Configuration</span>
             </div>
         }

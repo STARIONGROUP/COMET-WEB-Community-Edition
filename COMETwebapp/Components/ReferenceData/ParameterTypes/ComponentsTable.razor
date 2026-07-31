@@ -42,7 +42,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <HeaderTemplate>
                 @if (this.Thing is not ArrayParameterType)
                 {
-                    <DxButton Id="addParameterTypeComponentButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                    <DxButton Id="addParameterTypeComponentButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="() => this.Grid.StartEditNewRowAsync()"/>
                 }
                 else
                 {
@@ -54,13 +54,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     var row = (ParameterTypeComponentRowViewModel)context.DataItem;
 
                     <DxButton Id="editParameterTypeComponentButton"
-                              IconCssClass="oi oi-pencil"
+                              IconCssClass="@IconName.Edit.GetCssClass()"
                               Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
 
                     @if (this.Thing is not ArrayParameterType)
                     {
                         <DxButton Id="removeParameterTypeComponentButton"
-                                  IconCssClass="oi oi-trash"
+                                  IconCssClass="@IconName.Delete.GetCssClass()"
                                   Click="() => this.RemoveItem(row)"/>
                     }
                 }
@@ -75,12 +75,12 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     var row = (ParameterTypeComponentRowViewModel)context.DataItem;
 
                     <DxButton Id="moveUpButton"
-                              IconCssClass="oi oi-arrow-top"
+                              IconCssClass="@IconName.ArrowUp.GetCssClass()"
                               Click="() => this.MoveUp(row)"
                               Enabled="@(this.Thing.Component.IndexOf(row.Thing) > 0)"/>
 
                     <DxButton Id="moveDownButton"
-                              IconCssClass="oi oi-arrow-bottom"
+                              IconCssClass="@IconName.ArrowDown.GetCssClass()"
                               Click="() => this.MoveDown(row)"
                               Enabled="@(this.Thing.Component.LastOrDefault() != row.Thing)"/>
                 }

@@ -23,7 +23,7 @@
 <DxComboBox Data="@this.availableValues"
             @bind-Value="@this.ViewModel.SwitchValue">
     <Buttons>
-        <DxEditorButton IconCssClass="icon icon-save"
+        <DxEditorButton IconCssClass="@IconName.Save.GetCssClass()"
                         Tooltip="Update the ParameterValueSwitch for the current Parameter Value Set"
                         Click="@this.ViewModel.OnUpdate"
                         Enabled="@(!this.ViewModel.IsReadOnly && this.ViewModel.InitialSwitchValue != this.ViewModel.SwitchValue)"

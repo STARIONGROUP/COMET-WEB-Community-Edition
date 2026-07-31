@@ -1,0 +1,27 @@
+/*
+ * comet-icons.css - base rule for the consolidated icon system (GH845).
+ * A glyph is drawn as a CSS mask so it inherits the surrounding text colour via `currentColor`,
+ * scales with font-size and ships without an icon font. The per-glyph `comet-icon-*` mask rules
+ * are emitted once at runtime by the CometIconStyles component, sourced from the vendored Feather
+ * icon library, so no SVG files are stored in the repository.
+ *
+ * The size and display are marked !important because DevExpress adds its own `.dxbl-image` class to
+ * the icon span of a button/menu item (two-class specificity, `width: 0`), which would otherwise
+ * collapse the glyph to nothing. The CometIcon component's explicit Size wins because it is applied
+ * as an equally-!important inline style.
+ */
+
+.comet-icon {
+    display: inline-block !important;
+    width: 1em !important;
+    height: 1em !important;
+    flex-shrink: 0;
+    vertical-align: -0.125em;
+    background-color: currentColor;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}

@@ -31,7 +31,7 @@
             @this.Row.ParameterTypeName
             @if (this.Row.IsOptionDependent)
             {
-                <span class="oi oi-cog option-dep-icon" title="Option dependent parameter"></span>
+                <CometIcon Icon="IconName.Settings" CssClass="option-dep-icon" Title="Option dependent parameter"/>
             }
         </h6>
         <div class="d-flex align-items-center flex-nowrap" style="flex-shrink:0;">
@@ -40,7 +40,7 @@
             </StarionPill>
             @if (this.OnCreateSubscription.HasDelegate && this.Row.CanSubscribe)
             {
-                <DxButton IconCssClass="oi oi-bell"
+                <DxButton IconCssClass="@IconName.Bell.GetCssClass()"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
                           Click="@(() => this.OnCreateSubscription.InvokeAsync(this.Row.Parameter))"
@@ -48,7 +48,7 @@
             }
             else if (this.OnDeleteSubscription.HasDelegate && this.Row.HasCurrentDomainSubscription)
             {
-                <DxButton IconCssClass="oi oi-bell"
+                <DxButton IconCssClass="@IconName.Bell.GetCssClass()"
                           RenderStyle="ButtonRenderStyle.Danger"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
@@ -57,7 +57,7 @@
             }
             @if (this.OnCreateOverride.HasDelegate && this.Row.CanCreateOverride)
             {
-                <DxButton IconCssClass="oi oi-fork"
+                <DxButton IconCssClass="@IconName.Branch.GetCssClass()"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
                           Click="@(() => this.OnCreateOverride.InvokeAsync((this.Row.Parameter, this.Row.HostElementUsage)))"
@@ -65,7 +65,7 @@
             }
             else if (this.OnDeleteOverride.HasDelegate && this.Row.HasOverride)
             {
-                <DxButton IconCssClass="oi oi-fork"
+                <DxButton IconCssClass="@IconName.Branch.GetCssClass()"
                           RenderStyle="ButtonRenderStyle.Danger"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
@@ -76,12 +76,12 @@
             {
                 <span class="other-sub-bell ms-1 flex-shrink-0"
                       title="Subscribed by: @this.Row.OtherDomainSubscriptionOwners">
-                    <span class="oi oi-bell"></span>
+                    <CometIcon Icon="IconName.Bell"/>
                 </span>
             }
             @if (this.OnEditParameter.HasDelegate)
             {
-                <DxButton IconCssClass="oi oi-pencil"
+                <DxButton IconCssClass="@IconName.Edit.GetCssClass()"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
                           Click="@(() => this.OnEditParameter.InvokeAsync(this.Row.HasOverride ? this.Row.CurrentOverride : (ParameterOrOverrideBase)this.Row.Parameter))"
@@ -89,7 +89,7 @@
             }
             @if (this.OnDeleteParameter.HasDelegate)
             {
-                <DxButton IconCssClass="oi oi-trash"
+                <DxButton IconCssClass="@IconName.Delete.GetCssClass()"
                           RenderStyle="ButtonRenderStyle.Danger"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
@@ -117,7 +117,7 @@
                 <button class="btn btn-sm btn-link p-0"
                         title="@(this.statesExpanded ? "Collapse state values" : "Expand state values")"
                         @onclick="this.ToggleStatesExpanded">
-                    <span class="oi @(this.statesExpanded ? "oi-chevron-top" : "oi-chevron-bottom")"></span>
+                    <CometIcon Icon="@(this.statesExpanded ? IconName.ChevronUp : IconName.ChevronDown)"/>
                 </button>
             </div>
         </div>
