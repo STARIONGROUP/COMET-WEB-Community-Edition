@@ -59,6 +59,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             this.context.ConfigureDevExpressBlazor();
 
             this.viewModel = new Mock<IParticipantsTableViewModel>();
+
             var participant = new Participant
             {
                 Person = new Person { GivenName = "John", Surname = "Doe" },
