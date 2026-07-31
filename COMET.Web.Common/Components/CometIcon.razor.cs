@@ -65,6 +65,13 @@ namespace COMET.Web.Common.Components
         public string CssClass { get; set; }
 
         /// <summary>
+        /// Gets or sets an optional CSS colour for the glyph, for example <c>"var(--colors-primary-500)"</c> or
+        /// <c>"#c00"</c>. When <see langword="null" /> or empty the glyph inherits the surrounding text colour.
+        /// </summary>
+        [Parameter]
+        public string Color { get; set; }
+
+        /// <summary>
         /// Gets the computed <c>class</c> attribute value, combining the mask-based icon classes for
         /// <see cref="Icon" /> with any additional <see cref="CssClass" />.
         /// </summary>
@@ -73,12 +80,21 @@ namespace COMET.Web.Common.Components
             : $"{this.Icon.GetCssClass()} {this.CssClass}";
 
         /// <summary>
-        /// Gets the computed inline <c>style</c> attribute value that pins the glyph to <see cref="Size" /> pixels,
-        /// or <see langword="null" /> when no size is set so the glyph scales with the font size.
+        /// Gets the computed inline <c>style</c> attribute value, pinning the glyph to <see cref="Size" /> pixels
+        /// when set and applying <see cref="Color" /> when set, or <see langword="null" /> when neither is set so the
+        /// glyph scales with the font size and inherits the text colour.
         /// </summary>
-        private string ComputedStyle => this.Size is { } size
-            ? $"width:{size}px !important;height:{size}px !important;"
-            : null;
+        private string ComputedStyle
+        {
+            get
+            {
+                var sizeStyle = this.Size is { } size ? $"width:{size}px !important;height:{size}px !important;" : string.Empty;
+                var colorStyle = string.IsNullOrEmpty(this.Color) ? string.Empty : $"color:{this.Color};";
+                var style = $"{sizeStyle}{colorStyle}";
+
+                return style.Length == 0 ? null : style;
+            }
+        }
 
         /// <summary>
         /// Gets the <see cref="Title" />, or <see langword="null" /> when it is empty so no <c>title</c> attribute

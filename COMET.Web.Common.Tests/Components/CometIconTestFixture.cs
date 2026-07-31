@@ -86,6 +86,18 @@ namespace COMET.Web.Common.Tests.Components
         }
 
         [Test]
+        public void VerifyColorRendersAnInlineColorStyle()
+        {
+            var component = this.context.Render<CometIcon>(parameters => parameters
+                .Add(p => p.Icon, IconName.Smile)
+                .Add(p => p.Size, 42)
+                .Add(p => p.Color, "var(--colors-primary-500)"));
+
+            Assert.That(component.Find("span").GetAttribute("style"),
+                Is.EqualTo("width:42px !important;height:42px !important;color:var(--colors-primary-500);"));
+        }
+
+        [Test]
         public void VerifyTitleRendersTheTitleAttribute()
         {
             var component = this.context.Render<CometIcon>(parameters => parameters
