@@ -24,7 +24,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 <div class="checkbox-multiselect">
     <button type="button" id="@this.TriggerId" class="checkbox-multiselect-trigger" @onclick="@(() => this.isOpen = !this.isOpen)">
         <span class="checkbox-multiselect-text">@this.SummaryText</span>
-        <span class="checkbox-multiselect-caret oi oi-caret-bottom"></span>
+        <CometIcon Icon="IconName.ChevronDown" CssClass="checkbox-multiselect-caret"/>
     </button>
 
     <DxDropDown @bind-IsOpen="@this.isOpen"

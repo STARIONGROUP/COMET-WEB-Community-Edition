@@ -24,7 +24,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <HeaderTemplate>
                 <DxButton Id="addFileTypeButton" 
                           Text="Add File Type" 
-                          IconCssClass="oi oi-plus" 
+                          IconCssClass="@IconName.Add.GetCssClass()" 
                           Click="this.StartCreate" 
                           Enabled="@(this.SelectedFileTypes.Count != this.FileTypes.Count())"/>
             </HeaderTemplate>
@@ -33,15 +33,15 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     var row = (FileTypeRowViewModel)context.DataItem;
 
                     <DxButton Id="moveUpButton"
-                              IconCssClass="oi oi-arrow-top"
+                              IconCssClass="@IconName.ArrowUp.GetCssClass()"
                               Click="() => this.MoveUp(row)" 
                               Enabled="@(this.SelectedFileTypes.IndexOf(row.Thing) > 0)"/>
                     <DxButton Id="moveDownButton"
-                              IconCssClass="oi oi-arrow-bottom"
+                              IconCssClass="@IconName.ArrowDown.GetCssClass()"
                               Click="() => this.MoveDown(row)"
                               Enabled="@(this.SelectedFileTypes.LastOrDefault() != row.Thing)" />
                     <DxButton Id="removeFileTypeButton"
-                              IconCssClass="oi oi-trash"
+                              IconCssClass="@IconName.Delete.GetCssClass()"
                               Click="() => this.RemoveFileType(row)" />
                 }
             </CellDisplayTemplate>

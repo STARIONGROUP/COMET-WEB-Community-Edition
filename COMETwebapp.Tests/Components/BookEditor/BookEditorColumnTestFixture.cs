@@ -29,6 +29,8 @@ namespace COMETwebapp.Tests.Components.BookEditor
 
     using COMET.Web.Common.Test.Helpers;
 
+    using COMET.Web.Common.Enumerations;
+
     using COMETwebapp.Components.BookEditor;
     using COMETwebapp.Services.Interoperability;
 
@@ -85,7 +87,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
             
             this.component = this.context.Render<BookEditorColumn<Book>>(parameters =>
             {
-                parameters.Add(p => p.CollapseButtonIconClass, "icon-class");
+                parameters.Add(p => p.CollapseButtonIcon, IconName.ArrowLeft);
                 parameters.Add(p => p.HeaderTitle, "TestColumn");
                 parameters.Add(p => p.HeaderHexColor, "#CCC");
                 parameters.Add(p => p.Items, new List<Book>() { book });
@@ -134,8 +136,8 @@ namespace COMETwebapp.Tests.Components.BookEditor
                 Assert.That(this.component.Instance.SelectedValue, Is.Not.Null);
             });
 
-            var editButton = this.component.Find(".icon-edit");
-            var deleteButton = this.component.Find(".icon-trash");
+            var editButton = this.component.Find(".edit-button");
+            var deleteButton = this.component.Find(".delete-button");
 
             editButton.Click();
             deleteButton.Click();

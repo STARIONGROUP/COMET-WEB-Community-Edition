@@ -30,8 +30,7 @@
             @if (this.Icon is not null)
             {
                 <div class="application-sidebar-icon">
-                    <DynamicComponent Type="@(this.Icon)"
-                                      Parameters="IconConfiguration"/>
+                    <CometIcon Icon="@(this.Icon.Value)" Size="22" CssClass="cursor-pointer"/>
                 </div>
             }
             else
@@ -43,7 +42,7 @@
         if (this.DropdownSelector)
         {
             <div style="margin-left: auto;" class="not-displayed-on-collapse">
-                <span class="oi oi-chevron-right" style="font-size: 15px;"></span>
+                <CometIcon Icon="IconName.ChevronRight" Size="15"/>
             </div>
         }
     }

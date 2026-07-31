@@ -25,6 +25,9 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Extensions;
+
     using ReactiveUI;
 
     /// <summary>
@@ -77,7 +80,7 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
         public FileFolderNodeViewModel()
         {
             this.Name = "root";
-            this.IconCssClass = "oi oi-target";
+            this.IconCssClass = IconName.Target.GetCssClass();
         }
 
         /// <summary>
@@ -148,11 +151,11 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore
             {
                 case File file:
                     this.Name = file.CurrentFileRevision?.Name;
-                    this.IconCssClass = "oi oi-file";
+                    this.IconCssClass = IconName.File.GetCssClass();
                     break;
                 case Folder folder:
                     this.Name = folder.Name;
-                    this.IconCssClass = "oi oi-folder";
+                    this.IconCssClass = IconName.Folder.GetCssClass();
                     break;
                 default:
                     throw new InvalidDataException("The given thing should be either a File or a Folder");

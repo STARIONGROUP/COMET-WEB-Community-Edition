@@ -58,7 +58,7 @@ namespace COMET.Web.Common.Tests.Components
                 {
                     Color = "#123456",
                     Description = "A description",
-                    Icon = "eye",
+                    Icon = IconName.Eye,
                     Name = "Application 1",
                     Url = "/Application1"
                 },
@@ -66,7 +66,7 @@ namespace COMET.Web.Common.Tests.Components
                 {
                     Color = "#123456",
                     Description = "A disabled description",
-                    Icon = "file",
+                    Icon = IconName.File,
                     Name = "Application 2",
                     Url = "/Application2", 
                     IsDisabled = true

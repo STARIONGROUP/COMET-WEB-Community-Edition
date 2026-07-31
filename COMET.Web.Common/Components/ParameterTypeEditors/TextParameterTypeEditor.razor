@@ -46,7 +46,7 @@ else
                    TextChanged="@((e) => this.ViewModel.OnParameterValueChanged(e))"
                    ReadOnly="this.ViewModel.IsReadOnly">
             <Buttons>
-                <DxEditorButton IconCssClass="icon icon-edit"
+                <DxEditorButton IconCssClass="@IconName.Edit.GetCssClass()"
                                 Tooltip="Open Multiline editor"
                                 Click="this.OpenMemoPopup" />
             </Buttons>
