@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 Copyright (c) 2023-2026 Starion Group S.A.
     This file is part of CDP4-COMET WEB Community Edition
      The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -15,8 +15,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 ------------------------------------------------------------------------------->
 @inherits SelectedDataItemBase<DomainOfExpertise, DomainOfExpertiseRowViewModel>
 
-<DxGrid @ref="this.Grid"
-        Data="this.EngineeringModelSetup.ActiveDomain.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)"
+<DxGrid Data="this.EngineeringModelSetup.ActiveDomain.OrderBy(x => x.Name, StringComparer.InvariantCultureIgnoreCase)"
         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
         ShowSearchBox="true"
         ShowAllRows="true"
