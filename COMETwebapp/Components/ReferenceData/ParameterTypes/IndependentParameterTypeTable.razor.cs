@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IndependentParameterTypeTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -25,16 +25,16 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMET.Web.Common.Components;
 
-    using DevExpress.Blazor;
+    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// Support class for the <see cref="IndependentParameterTypeTable" />
     /// </summary>
-    public partial class IndependentParameterTypeTable
+    public partial class IndependentParameterTypeTable : DisposableComponent
     {
         /// <summary>
         /// The compound parameter type
@@ -66,28 +66,45 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         public bool ShouldCreate { get; private set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the form popup is visible for editing or creating.
+        /// </summary>
+        public bool IsOnEditMode { get; set; }
+
+        /// <summary>
         /// The independent parameter type that will be handled for both edit and add forms
         /// </summary>
         public IndependentParameterTypeRowViewModel Item { get; private set; }
 
         /// <summary>
-        /// Gets or sets the grid control that is being customized.
+        /// Starts the creation flow for a new independent parameter type.
         /// </summary>
-        private IGrid Grid { get; set; }
-
-        /// <summary>
-        /// Gets the available scales based on the <see cref="CDP4Common.SiteDirectoryData.ParameterType" /> from <see cref="Item" />
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerable<MeasurementScale> GetAvailableScales()
+        public void StartCreate()
         {
-            return this.Item.Thing.ParameterType is not QuantityKind quantityKind ? Enumerable.Empty<MeasurementScale>() : quantityKind.AllPossibleScale.OrderBy(x => x.Name);
+            this.ShouldCreate = true;
+            this.Item = new IndependentParameterTypeRowViewModel(new IndependentParameterTypeAssignment { Iid = Guid.NewGuid() }, string.Empty);
+            this.IsOnEditMode = true;
         }
 
         /// <summary>
-        /// Method that is invoked when the edit/add independent parameter type form is being saved
+        /// Starts the edit flow for the specified <paramref name="row" />.
         /// </summary>
-        private void OnEditIndependentParameterTypeSaving()
+        /// <param name="row">The selected row to edit.</param>
+        public void StartEdit(IndependentParameterTypeRowViewModel row)
+        {
+            if (row == null)
+            {
+                return;
+            }
+
+            this.ShouldCreate = false;
+            this.Item = new IndependentParameterTypeRowViewModel(row.Thing.Clone(true), row.InterpolationPeriod);
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Handles saving of the form popup, updating or adding the item.
+        /// </summary>
+        public void OnSaved()
         {
             if (this.ShouldCreate)
             {
@@ -101,6 +118,15 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             }
 
             this.ThingChanged.InvokeAsync(this.Thing);
+            this.IsOnEditMode = false;
+        }
+
+        /// <summary>
+        /// Handles cancellation of the form popup.
+        /// </summary>
+        public void OnCanceled()
+        {
+            this.IsOnEditMode = false;
         }
 
         /// <summary>
@@ -139,22 +165,9 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         }
 
         /// <summary>
-        /// Method invoked when creating a new independent parameter type
+        /// Method used to retrieve the available rows, given the <see cref="SampledFunctionParameterType" />
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditIndependentParameterType(GridCustomizeEditModelEventArgs e)
-        {
-            var dataItem = (IndependentParameterTypeRowViewModel)e.DataItem;
-            this.ShouldCreate = e.IsNew;
-            this.Item = dataItem ?? new IndependentParameterTypeRowViewModel(new IndependentParameterTypeAssignment { Iid = Guid.NewGuid() }, string.Empty);
-
-            e.EditModel = this.Item.Thing;
-        }
-
-        /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="CompoundParameterType" />
-        /// </summary>
-        /// <returns>A collection of <see cref="EnumerationValueDefinitionRowViewModel" />s to display</returns>
+        /// <returns>A collection of <see cref="IndependentParameterTypeRowViewModel" />s to display</returns>
         private List<IndependentParameterTypeRowViewModel> GetRows()
         {
             var degreesOfInterpolation = this.Thing.InterpolationPeriod;

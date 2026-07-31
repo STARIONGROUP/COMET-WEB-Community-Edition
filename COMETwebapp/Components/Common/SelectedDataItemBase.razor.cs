@@ -134,7 +134,7 @@ namespace COMETwebapp.Components.Common
         /// <summary>
         /// Method invoked whenever a form is saved
         /// </summary>
-        protected void OnSaved()
+        protected virtual void OnSaved()
         {
             if (!this.ShouldCreateThing)
             {

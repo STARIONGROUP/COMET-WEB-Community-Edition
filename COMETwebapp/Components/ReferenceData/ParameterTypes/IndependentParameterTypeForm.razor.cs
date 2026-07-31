@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="QuantityKindFactorsTable.razor.cs" company="Starion Group S.A.">
+//  <copyright file="IndependentParameterTypeForm.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of COMET WEB Community Edition
@@ -23,7 +23,6 @@
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
     using CDP4Common.SiteDirectoryData;
-    using CDP4Common.Types;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
@@ -31,19 +30,31 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Support class for the <see cref="QuantityKindFactorsTable" />
+    /// Support class for the <see cref="IndependentParameterTypeForm" /> component.
     /// </summary>
-    public partial class QuantityKindFactorsTable : ThingOrderedItemsTable<DerivedQuantityKind, QuantityKindFactor, QuantityKindFactorRowViewModel>
+    public partial class IndependentParameterTypeForm : SelectedDataItemForm
     {
         /// <summary>
-        /// Gets or sets the collection of <see cref="ParameterType" />s of <see cref="QuantityKind" />
+        /// Gets or sets the <see cref="IndependentParameterTypeRowViewModel" /> item being created or edited.
         /// </summary>
         [Parameter]
-        public IEnumerable<QuantityKind> QuantityKindParameterTypes { get; set; }
+        public IndependentParameterTypeRowViewModel Item { get; set; }
 
         /// <summary>
-        /// Gets or sets the ordered list of items from the current <see cref="ThingOrderedItemsTable{T,TItem,TItemRow}.Thing"/>
+        /// Gets or sets the collection of available <see cref="ParameterType" />s.
         /// </summary>
-        public override OrderedItemList<QuantityKindFactor> OrderedItemsList => this.Thing.QuantityKindFactor;
+        [Parameter]
+        public IEnumerable<ParameterType> ParameterTypes { get; set; } = [];
+
+        /// <summary>
+        /// Gets the available scales based on the <see cref="ParameterType" /> from <see cref="Item" />.
+        /// </summary>
+        /// <returns>A collection of available scales.</returns>
+        private IEnumerable<MeasurementScale> GetAvailableScales()
+        {
+            return this.Item.Thing.ParameterType is not QuantityKind quantityKind 
+                ? Enumerable.Empty<MeasurementScale>() 
+                : quantityKind.AllPossibleScale.OrderBy(x => x.Name);
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 Copyright (c) 2023-2026 Starion Group S.A.
     This file is part of CDP4-COMET WEB Community Edition
      The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -16,18 +16,11 @@ Copyright (c) 2023-2026 Starion Group S.A.
 @inherits COMETwebapp.Components.Common.SelectedDataItemBase<CDP4Common.SiteDirectoryData.Participant, ParticipantRowViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
-    <DxGrid @ref="this.Grid"
-            Data="this.ViewModel.Rows.Items"
+    <DxGrid Data="this.ViewModel.Rows.Items"
             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
             ShowSearchBox="true"
             ShowAllRows="true"
-            SearchBoxNullText="Search for a participant..."
-            PopupEditFormCssClass="pw-800"
-            PopupEditFormHeaderText="Participant"
-            CustomizeEditModel="this.CustomizeEditThing"
-            EditMode="GridEditMode.PopupEditForm"
-            EditModelSaving="@(() => this.OnEditThingSaving())"
-            EditFormButtonsVisible="false">
+            SearchBoxNullText="Search for a participant...">
         <Columns>
             <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Name)" MinWidth="150" />
             <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Organization)" MinWidth="80" SearchEnabled="false" />
@@ -40,9 +33,9 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     </a>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+            <DxGridCommandColumn Width="100px">
                 <HeaderTemplate>
-                    <DxButton Id="addParticipantButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="() => this.Grid.StartEditNewRowAsync()" />
+                    <DxButton Id="addParticipantButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate" />
                 </HeaderTemplate>
                 <CellDisplayTemplate>
                     @{
@@ -50,7 +43,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                         <DxButton Id="editParticipantButton"
                                   IconCssClass="@IconName.Edit.GetCssClass()"
-                                  Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"
+                                  Click="@(() => this.StartEdit(row))"
                                   Enabled="@(row.IsAllowedToWrite)"/>
 
                         <DxButton Id="deleteParticipantButton"
@@ -61,60 +54,22 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
         </Columns>
-
-        <EditFormTemplate Context="EditFormContext">
-            <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Person:" ColSpanMd="10">
-                    <DxComboBox Data="@this.Persons"
-                                TextFieldName="@nameof(Person.Name)"
-                                @bind-Value="@this.ViewModel.CurrentThing.Person"
-                                CssClass="cw-480"/>
-                </DxFormLayoutItem>
-                
-                <DxFormLayoutItem Caption="Participant Role:" ColSpanMd="10">
-                    <DxComboBox Data="@this.ViewModel.ParticipantRoles"
-                                TextFieldName="@nameof(ParticipantRole.Name)"
-                                @bind-Value="@this.ViewModel.CurrentThing.Role"
-                                CssClass="cw-480"/>
-                </DxFormLayoutItem>
-                
-                <DxFormLayoutItem Caption="Domain of Expertise:" ColSpanMd="10">
-                    <DxListBox TValue="DomainOfExpertise"
-                               TData="DomainOfExpertise"
-                               Data="@this.ViewModel.DomainsOfExpertise"
-                               TextFieldName="@nameof(DomainOfExpertise.Name)"
-                               SelectionMode="ListBoxSelectionMode.Multiple"
-                               ShowCheckboxes="true"
-                               @bind-Values="@this.ViewModel.SelectedDomains"
-                               CssClass="cw-480"/>
-                </DxFormLayoutItem>
-
-                <DxFormLayoutItem Caption="Active:" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@this.ViewModel.CurrentThing.IsActive" />
-                </DxFormLayoutItem>
-
-            </DxFormLayout>
-            <div class="pt-3"></div>
-            <ValidationSummary/>
-            <div class="dxbl-grid-edit-form-buttons">
-                <DxButton Id="saveParticipantsButton" 
-                          Click="@this.SetSelectedValuesAndSubmit">
-                    Save
-                </DxButton>
-                <DxButton Id="cancelParticipantsButton" 
-                          Click="this.Grid.CancelEditAsync"
-                          RenderStyle="ButtonRenderStyle.Secondary">
-                    Cancel
-                </DxButton>
-            </div>
-        </EditFormTemplate>
-        
-        <CustomValidators>
-            <FluentValidationValidator />
-        </CustomValidators>
-
     </DxGrid>
 </LoadingComponent>
+
+<DxPopup HeaderText="Participant"
+         @bind-Visible="@this.IsOnEditMode"
+         CssClass="pw-800"
+         CloseOnOutsideClick="false">
+    <BodyContentTemplate Context="popupContext">
+        <ParticipantsForm ViewModel="@this.ViewModel"
+                          ShouldCreate="@this.ShouldCreateThing"
+                          IsVisible="@this.IsOnEditMode"
+                          IsVisibleChanged="@(visible => this.IsOnEditMode = visible)"
+                          OnSaved="@this.OnSaved"
+                          OnCanceled="@(() => this.IsOnEditMode = false)" />
+    </BodyContentTemplate>
+</DxPopup>
 
 <DxPopup @bind-Visible="@this.ViewModel.IsOnDeletionMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
     @this.ViewModel.PopupDialog
@@ -124,7 +79,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
     </div>
 </DxPopup>
 
-<DxPopup @bind-Visible="@this.IsOnEditMode"
+<DxPopup @bind-Visible="@this.IsAssignedDomainsPopupVisible"
          HeaderText="Assigned Domains">
     <ul>
         @foreach (var assignedDomain in this.AssignedDomainsPopupText.Split(ParticipantRowViewModel.Separator))

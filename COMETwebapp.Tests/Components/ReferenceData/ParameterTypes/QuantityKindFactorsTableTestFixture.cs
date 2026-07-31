@@ -32,8 +32,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
     using DevExpress.Blazor;
 
-    using NUnit.Framework;
+    using Microsoft.AspNetCore.Components.Forms;
 
+    using NUnit.Framework;
 
     [TestFixture]
     public class QuantityKindFactorsTableTestFixture
@@ -71,7 +72,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
         }
 
         [Test]
-        public async Task VerifyGridActions()
+        public async Task VerifyComponentsEdit()
         {
             Assert.Multiple(() =>
             {
@@ -79,10 +80,52 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
                 Assert.That(this.parameterType.QuantityKindFactor, Has.Count.EqualTo(2));
             });
 
+            this.renderer.Instance.StartEdit(null);
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+
+            var editQuantityKindFactorButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editQuantityKindFactorButton");
+            await this.renderer.InvokeAsync(editQuantityKindFactorButton.Instance.Click.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.Item, Is.Not.Null);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.False);
+            });
+
+            var form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+
             var addQuantityKindFactorButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addQuantityKindFactorButton");
             await this.renderer.InvokeAsync(addQuantityKindFactorButton.Instance.Click.InvokeAsync);
-            Assert.That(this.renderer.Instance.Item, Is.Not.Null);
 
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.True);
+            });
+
+            form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+                Assert.That(this.parameterType.QuantityKindFactor, Has.Count.EqualTo(3));
+            });
+
+            await this.renderer.InvokeAsync(addQuantityKindFactorButton.Instance.Click.InvokeAsync);
+            var cancelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelItemButton");
+            await this.renderer.InvokeAsync(cancelButton.Instance.Click.InvokeAsync);
+
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyReorderAndRemove()
+        {
             var firstFactor = this.parameterType.QuantityKindFactor[0];
 
             var moveUpButton = this.renderer.FindComponents<DxButton>().Last(x => x.Instance.Id == "moveUpButton");
@@ -96,20 +139,6 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             var removeQuantityKindFactorButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeQuantityKindFactorButton");
             await this.renderer.InvokeAsync(removeQuantityKindFactorButton.Instance.Click.InvokeAsync);
             Assert.That(this.parameterType.QuantityKindFactor, Has.Count.EqualTo(1));
-
-            var grid = this.renderer.FindComponent<DxGrid>();
-            await this.renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.renderer.Instance.OrderedItemsList, Has.Count.EqualTo(2));
-                Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(true));
-            });
-
-            var editQuantityKindFactorButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editQuantityKindFactorButton");
-            await this.renderer.InvokeAsync(editQuantityKindFactorButton.Instance.Click.InvokeAsync);
-            await this.renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
-            Assert.That(this.renderer.Instance.ShouldCreate, Is.EqualTo(false));
         }
 
         [Test]

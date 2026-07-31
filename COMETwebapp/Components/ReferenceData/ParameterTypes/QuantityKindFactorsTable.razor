@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 Copyright (c) 2023-2026 Starion Group S.A.
 
     This file is part of COMET WEB Community Edition
@@ -19,18 +19,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
 ------------------------------------------------------------------------------->
 @inherits ThingOrderedItemsTable<DerivedQuantityKind, QuantityKindFactor, QuantityKindFactorRowViewModel>
 
-<DxGrid @ref="this.Grid"
-        Data="this.GetRows()"
-        EditMode="GridEditMode.PopupEditForm"
-        PopupEditFormHeaderText="Component"
-        EditModelSaving="@(() => this.OnEditItemSaving())"
-        CustomizeEditModel="this.CustomizeEditQuantityKindFactor">
+<DxGrid Data="this.GetRows()">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(QuantityKindFactorRowViewModel.Exponent)" MinWidth="80"/>
         <DxGridDataColumn FieldName="@nameof(QuantityKindFactorRowViewModel.QuantityKind)"/>
-        <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="100px">
             <HeaderTemplate>
-                <DxButton Id="addQuantityKindFactorButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="@(() => this.Grid.StartEditNewRowAsync())"/>
+                <DxButton Id="addQuantityKindFactorButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
@@ -38,7 +33,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                     <DxButton Id="editQuantityKindFactorButton"
                               IconCssClass="@IconName.Edit.GetCssClass()"
-                              Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
+                              Click="@(() => this.StartEdit(row))"/>
 
                     <DxButton Id="removeQuantityKindFactorButton"
                               IconCssClass="@IconName.Delete.GetCssClass()"
@@ -46,7 +41,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
-        <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="100px">
             <HeaderTemplate>
                 Order
             </HeaderTemplate>
@@ -67,20 +62,18 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
-
-    <EditFormTemplate Context="EditFormContext">
-        <FluentValidationValidator/>
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Exponent:" ColSpanMd="12">
-                <DxTextBox @bind-Text="this.Item.Exponent" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Quantity Kind:" ColSpanMd="12">
-                <DxComboBox Data="@(this.QuantityKindParameterTypes)"
-                            TextFieldName="@(nameof(QuantityKind.Name))"
-                            @bind-Value="this.Item.QuantityKind" />
-            </DxFormLayoutItem>
-        </DxFormLayout>
-        <div class="pt-3"></div>
-        <ValidationSummary/>
-    </EditFormTemplate>
 </DxGrid>
+
+<DxPopup HeaderText="Quantity Kind Factor"
+         @bind-Visible="@this.IsOnEditMode"
+         CloseOnOutsideClick="false">
+    <BodyContentTemplate Context="popupContext">
+        <QuantityKindFactorForm Item="@this.Item"
+                                QuantityKindParameterTypes="@this.QuantityKindParameterTypes"
+                                ShouldCreate="@this.ShouldCreate"
+                                IsVisible="@this.IsOnEditMode"
+                                IsVisibleChanged="@(visible => this.IsOnEditMode = visible)"
+                                OnSaved="@this.OnSaved"
+                                OnCanceled="@this.OnCanceled"/>
+    </BodyContentTemplate>
+</DxPopup>
