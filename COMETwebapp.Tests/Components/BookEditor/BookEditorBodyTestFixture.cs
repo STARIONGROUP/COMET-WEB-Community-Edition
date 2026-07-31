@@ -36,6 +36,8 @@ namespace COMETwebapp.Tests.Components.BookEditor
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
+    using COMET.Web.Common.Enumerations;
+
     using COMETwebapp.Components.BookEditor;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.BookEditor;
@@ -134,7 +136,7 @@ namespace COMETwebapp.Tests.Components.BookEditor
                 Assert.That(bookEditorColumn.Instance.HeaderTitle, Is.EqualTo("Books"));
                 Assert.That(bookEditorColumn.Instance.Items, Is.Not.Null.Or.Empty);
                 Assert.That(bookEditorColumn.Instance.DrawLeftLines, Is.False);
-                Assert.That(bookEditorColumn.Instance.CollapseButtonIconClass, Is.EqualTo("no-display"));
+                Assert.That(bookEditorColumn.Instance.CollapseButtonIcon, Is.Null);
                 Assert.That(bookEditorColumn.Instance.CssClass, Is.EqualTo("book-node"));
                 Assert.That(bookEditorColumn.Instance.OnCreateNewItemClick.HasDelegate, Is.True);
                 Assert.That(bookEditorColumn.Instance.OnEditClicked.HasDelegate, Is.True);

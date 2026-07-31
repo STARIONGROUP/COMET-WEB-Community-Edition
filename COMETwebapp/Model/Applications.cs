@@ -22,6 +22,7 @@
 
 namespace COMETwebapp.Model
 {
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
 
     using COMETwebapp.Components.BookEditor;
@@ -37,8 +38,6 @@ namespace COMETwebapp.Model
     using COMETwebapp.Components.SystemRepresentation;
     using COMETwebapp.Components.Viewer;
     using COMETwebapp.Utilities;
-
-    using Feather.Blazor.Icons;
 
     /// <summary>
     /// Provides all available application contained into the current web application
@@ -67,7 +66,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "Model Dashboard",
                     Color = "#c3cffd",
-                    IconType = typeof(FeatherPieChart),
+                    Icon = IconName.PieChart,
                     Description = "Summarize the model progress.",
                     Url = WebAppConstantValues.ModelDashboardPage,
                     ComponentType = typeof(ModelDashboardBody)
@@ -77,7 +76,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "Subscription Dashboard",
                     Color = "#76fd98",
-                    IconType = typeof(FeatherActivity),
+                    Icon = IconName.Activity,
                     Description = "Table of subscribed values.",
                     Url = WebAppConstantValues.SubscriptionDashboardPage,
                     ComponentType = typeof(SubscriptionDashboardBody)
@@ -87,7 +86,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "Requirement Management",
                     Color = "#fda966",
-                    IconType = typeof(FeatherFileText),
+                    Icon = IconName.FileText,
                     Description = "View and edit requirements as documents.",
                     Url = WebAppConstantValues.RequirementManagementPage,
                     ComponentType = typeof(RequirementsEditorBody)
@@ -97,7 +96,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "Relationship Matrix",
                     Color = "#76b8fc",
-                    IconType = typeof(FeatherGrid),
+                    Icon = IconName.Grid,
                     Description = "Create and browse relationships between categorized things as a matrix.",
                     Url = WebAppConstantValues.RelationshipMatrixPage,
                     ComponentType = typeof(RelationshipMatrixBody)
@@ -107,7 +106,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "Model Editor",
                     Color = "#76fd98",
-                    IconType = typeof(FeatherBox),
+                    Icon = IconName.Box,
                     Description = "Populate model",
                     Url = WebAppConstantValues.ModelEditorPage,
                     ComponentType = typeof(ModelEditor)
@@ -117,7 +116,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "Parameter Editor",
                     Color = "#76b8fc",
-                    IconType = typeof(FeatherLayout),
+                    Icon = IconName.Layout,
                     Description = "Table of element usages with their associated parameters.",
                     Url = WebAppConstantValues.ParameterEditorPage,
                     ComponentType = typeof(ParameterEditorBody)
@@ -127,7 +126,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "System Representation",
                     Color = "#a7f876",
-                    IconType = typeof(FeatherShare2),
+                    Icon = IconName.Share,
                     Description = "Represent relations between elements.",
                     Url = WebAppConstantValues.SystemRepresentationPage,
                     ComponentType = typeof(SystemRepresentationBody)
@@ -137,7 +136,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "3D Viewer",
                     Color = "#76fd98",
-                    IconType = typeof(FeatherPackage),
+                    Icon = IconName.Package,
                     Description = "Show 3D Viewer",
                     Url = WebAppConstantValues.ViewerPage,
                     ComponentType = typeof(ViewerBody)
@@ -147,7 +146,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "Budget Editor",
                     Color = "#fc3a1aad",
-                    Icon = "brush",
+                    Icon = IconName.PieChart,
                     Description = $"Create budget tables.{Environment.NewLine}Under Development",
                     IsDisabled = true,
                     Url = WebAppConstantValues.BudgetEditorPage
@@ -157,7 +156,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "Book Editor",
                     Color = "#76fd98",
-                    IconType = typeof(FeatherBook),
+                    Icon = IconName.Book,
                     Description = "Manage books",
                     Url = WebAppConstantValues.BookEditorPage,
                     ComponentType = typeof(BookEditorBody)
@@ -167,7 +166,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "Engineering Model",
                     Color = "#c3cffd",
-                    IconType = typeof(FeatherSettings),
+                    Icon = IconName.Settings,
                     Description = "Visualize the engineering model data",
                     Url = WebAppConstantValues.EngineeringModelPage,
                     ComponentType = typeof(EngineeringModelBody)
@@ -177,7 +176,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "Reference Data",
                     Color = "#fc3a1aad",
-                    IconType = typeof(FeatherFile),
+                    Icon = IconName.File,
                     Description = "Visualize reference data",
                     Url = WebAppConstantValues.ReferenceDataPage,
                     ComponentType = typeof(ReferenceDataBody)
@@ -187,7 +186,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "Server Administration",
                     Color = "#fc3a1aad",
-                    IconType = typeof(FeatherServer),
+                    Icon = IconName.Server,
                     Description = "Visualize site directory data",
                     Url = WebAppConstantValues.SiteDirectoryPage,
                     ComponentType = typeof(SiteDirectoryBody)
@@ -198,7 +197,7 @@ namespace COMETwebapp.Model
                     Name = "Tabs",
                     Url = WebAppConstantValues.TabsPage,
                     Color = "#76fd98",
-                    Icon = "list",
+                    Icon = IconName.List,
                     Description = "Access applications via tabs"
                 }
             ];

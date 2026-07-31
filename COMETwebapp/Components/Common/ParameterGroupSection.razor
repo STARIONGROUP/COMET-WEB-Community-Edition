@@ -43,7 +43,7 @@
                 @if (this.OnEditGroup.HasDelegate)
                 {
                     <span @onclick:stopPropagation="true">
-                        <DxButton IconCssClass="oi oi-pencil"
+                        <DxButton IconCssClass="@IconName.Edit.GetCssClass()"
                                   RenderStyleMode="ButtonRenderStyleMode.Text"
                                   SizeMode="SizeMode.Small"
                                   CssClass="ms-1"
@@ -54,7 +54,7 @@
                 @if (this.OnDeleteGroup.HasDelegate)
                 {
                     <span @onclick:stopPropagation="true">
-                        <DxButton IconCssClass="oi oi-trash"
+                        <DxButton IconCssClass="@IconName.Delete.GetCssClass()"
                                   RenderStyle="ButtonRenderStyle.Danger"
                                   RenderStyleMode="ButtonRenderStyleMode.Text"
                                   SizeMode="SizeMode.Small"

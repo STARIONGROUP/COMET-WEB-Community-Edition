@@ -61,7 +61,7 @@
                         <DxCheckBox @bind-Checked="@(email.IsDefault)"/>
                     </DxFormLayoutItem>
                     <DxFormLayoutItem ColSpanMd="1">
-                        <DxButton IconCssClass="oi oi-trash"
+                        <DxButton IconCssClass="@IconName.Delete.GetCssClass()"
                                   RenderStyle="ButtonRenderStyle.Danger"
                                   RenderStyleMode="ButtonRenderStyleMode.Text"
                                   Click="@(() => this.ViewModel.RemoveEmail(email))"
@@ -71,7 +71,7 @@
                 <DxFormLayoutItem ColSpanMd="12">
                     <DxButton Id="addEmailButton"
                               Text="Add e-mail"
-                              IconCssClass="oi oi-plus"
+                              IconCssClass="@IconName.Add.GetCssClass()"
                               Click="@(this.ViewModel.AddEmail)"/>
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
@@ -90,7 +90,7 @@
                         <DxCheckBox @bind-Checked="@(telephone.IsDefault)"/>
                     </DxFormLayoutItem>
                     <DxFormLayoutItem ColSpanMd="1">
-                        <DxButton IconCssClass="oi oi-trash"
+                        <DxButton IconCssClass="@IconName.Delete.GetCssClass()"
                                   RenderStyle="ButtonRenderStyle.Danger"
                                   RenderStyleMode="ButtonRenderStyleMode.Text"
                                   Click="@(() => this.ViewModel.RemoveTelephone(telephone))"
@@ -100,7 +100,7 @@
                 <DxFormLayoutItem ColSpanMd="12">
                     <DxButton Id="addTelephoneButton"
                               Text="Add telephone"
-                              IconCssClass="oi oi-plus"
+                              IconCssClass="@IconName.Add.GetCssClass()"
                               Click="@(this.ViewModel.AddTelephone)"/>
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>

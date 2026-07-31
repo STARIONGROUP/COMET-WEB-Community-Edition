@@ -30,18 +30,18 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <DxGridDataColumn FieldName="@nameof(EnumerationValueDefinitionRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
         <DxGridCommandColumn Width="100px" EditButtonVisible="false">
             <HeaderTemplate>
-                <DxButton Id="addEnumerationValueDefinitionButton" Text="Add" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                <DxButton Id="addEnumerationValueDefinitionButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="() => this.Grid.StartEditNewRowAsync()"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
                     var row = (EnumerationValueDefinitionRowViewModel)context.DataItem;
 
                     <DxButton Id="editScaleValueDefinitionButton"
-                              IconCssClass="oi oi-pencil"
+                              IconCssClass="@IconName.Edit.GetCssClass()"
                               Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
 
                     <DxButton Id="removeScaleValueDefinitionButton"
-                              IconCssClass="oi oi-trash"
+                              IconCssClass="@IconName.Delete.GetCssClass()"
                               Click="() => this.RemoveItem(row)"/>
                 }
             </CellDisplayTemplate>

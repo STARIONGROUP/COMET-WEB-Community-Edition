@@ -25,7 +25,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 
     <DxButton Id="@this.ButtonId"
               RenderStyle="ButtonRenderStyle.Light"
-              IconCssClass="oi oi-cog"
+              IconCssClass="@IconName.Settings.GetCssClass()"
               Text="View"
               title="Display options"
               Click="@(() => this.viewMenuOpen = !this.viewMenuOpen)" />

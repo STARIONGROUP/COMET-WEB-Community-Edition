@@ -43,7 +43,7 @@
                 @if (this.OnEditDefinition.HasDelegate && this.ViewModel.SelectedSystemNode is ElementUsage)
                 {
                     <DxButton Id="editDefinition"
-                              IconCssClass="oi oi-box"
+                              IconCssClass="@IconName.Box.GetCssClass()"
                               RenderStyleMode="ButtonRenderStyleMode.Text"
                               CssClass="ms-1"
                               Click="@(() => this.OnEditDefinition.InvokeAsync())"
@@ -52,7 +52,7 @@
                 @if (this.OnEditElement.HasDelegate)
                 {
                     <DxButton Id="editElement"
-                              IconCssClass="oi oi-pencil"
+                              IconCssClass="@IconName.Edit.GetCssClass()"
                               RenderStyleMode="ButtonRenderStyleMode.Text"
                               CssClass="ms-1"
                               Click="@(() => this.OnEditElement.InvokeAsync())"
@@ -61,7 +61,7 @@
                 @if (this.OnDeleteElement.HasDelegate)
                 {
                     <DxButton Id="deleteElement"
-                              IconCssClass="oi oi-trash"
+                              IconCssClass="@IconName.Delete.GetCssClass()"
                               RenderStyle="ButtonRenderStyle.Danger"
                               RenderStyleMode="ButtonRenderStyleMode.Text"
                               CssClass="ms-1"

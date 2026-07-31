@@ -27,6 +27,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
@@ -104,7 +106,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 Assert.That(component.FindAll(".req-pill-action-row"), Is.Empty, "the inline layout does not use the stacked pill-action rows");
                 Assert.That(component.FindAll(".req-pills"), Has.Count.EqualTo(1), "the inline layout uses a single RequirementPills block");
                 Assert.That(component.Markup, Does.Contain("SYS").And.Contain("KUR"));
-                Assert.That(component.FindComponents<DxButton>().Select(x => x.Instance.IconCssClass), Does.Contain("oi oi-pencil").And.Contain("oi oi-ban"));
+                Assert.That(component.FindComponents<DxButton>().Select(x => x.Instance.IconCssClass), Does.Contain(IconName.Edit.GetCssClass()).And.Contain(IconName.Ban.GetCssClass()));
             });
         }
 
@@ -137,7 +139,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         public async Task VerifyEditButtonOpensEdit()
         {
             var component = this.Render();
-            var editButton = component.FindComponents<DxButton>().First(x => x.Instance.IconCssClass == "oi oi-pencil");
+            var editButton = component.FindComponents<DxButton>().First(x => x.Instance.IconCssClass == IconName.Edit.GetCssClass());
 
             await component.InvokeAsync(editButton.Instance.Click.InvokeAsync);
 
@@ -148,7 +150,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         public async Task VerifyDeprecateButtonConfirmsDeprecation()
         {
             var component = this.Render();
-            var deprecateButton = component.FindComponents<DxButton>().First(x => x.Instance.IconCssClass == "oi oi-ban");
+            var deprecateButton = component.FindComponents<DxButton>().First(x => x.Instance.IconCssClass == IconName.Ban.GetCssClass());
 
             await component.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
 

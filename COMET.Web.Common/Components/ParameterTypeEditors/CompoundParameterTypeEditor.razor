@@ -59,7 +59,7 @@ else if (this.ViewModel.ValueSet is not null)
                         <div>[@componentLabels]</div>
                     }
                 </div>
-                <DxButton Id="openPopup" Text="Edit" RenderStyleMode="@ButtonRenderStyleMode.Outline" IconCssClass="icon icon-edit" SizeMode="SizeMode.Small" Click="@(()=> compoundParameterTypeEditorViewModel.OnComponentSelected())" />
+                <DxButton Id="openPopup" Text="Edit" RenderStyleMode="@ButtonRenderStyleMode.Outline" IconCssClass="@IconName.Edit.GetCssClass()" SizeMode="SizeMode.Small" Click="@(()=> compoundParameterTypeEditorViewModel.OnComponentSelected())" />
             </div>
         }
     }

@@ -21,7 +21,7 @@
 @using COMET.Web.Common.Components.Shared.PersonEdit
 @inherits AuthorizedMenuEntry
 
-<DxMenuItem Name="session-entry" Text="Session" IconCssClass="icon icon-database" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" @bind-Expanded="@this.Expanded">
+<DxMenuItem Name="session-entry" Text="Session" IconCssClass="@IconName.Database.GetCssClass()" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" @bind-Expanded="@this.Expanded">
     <TextTemplate>
         <span id="@context.Name" >
             @if (this.ViewModel.NotificationService.NotificationCount > 0)
@@ -61,12 +61,12 @@
                 sec
             </div>
             <div class="session__buttons">
-                <DxButton Id="edit-profile-button" CssClass="btn btn-connect" Text="Edit my profile" IconCssClass="oi oi-person" Click="@(this.OnEditProfileClick)"/>
+                <DxButton Id="edit-profile-button" CssClass="btn btn-connect" Text="Edit my profile" IconCssClass="@IconName.User.GetCssClass()" Click="@(this.OnEditProfileClick)"/>
             </div>
 
             <div class="session__buttons session__buttons--secondary">
-                <DxButton Id="refresh-button" CssClass="btn btn-connect" Text="@this.RefreshButtonText" IconCssClass="oi oi-reload" Enabled="@(!this.IsRefreshing)" Click="@(this.OnRefreshClick)"/>
-                <DxButton Id="logout-button" CssClass="btn btn-connect" Text="Log out" IconCssClass="oi oi-account-logout" Click="@this.Logout"/>
+                <DxButton Id="refresh-button" CssClass="btn btn-connect" Text="@this.RefreshButtonText" IconCssClass="@IconName.Refresh.GetCssClass()" Enabled="@(!this.IsRefreshing)" Click="@(this.OnRefreshClick)"/>
+                <DxButton Id="logout-button" CssClass="btn btn-connect" Text="Log out" IconCssClass="@IconName.LogOut.GetCssClass()" Click="@this.Logout"/>
             </div>
         </div>
     </SubMenuTemplate>

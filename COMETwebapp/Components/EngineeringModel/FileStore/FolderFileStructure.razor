@@ -50,7 +50,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             @if (row.Thing is Folder)
             {
                 <DxButton Id="editFolderButton"
-                          IconCssClass="oi oi-pencil"
+                          IconCssClass="@IconName.Edit.GetCssClass()"
                           Click="@(() => this.OnEditFolderClick(row))"
                           SizeMode="SizeMode.Small"
                           CssClass="float-end"

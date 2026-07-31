@@ -24,12 +24,12 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
 {
     using Bunit;
 
+    using COMET.Web.Common.Components;
+    using COMET.Web.Common.Enumerations;
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Shared.SideBarEntry;
-
-    using Feather.Blazor;
-    using Feather.Blazor.Icons;
 
     using Microsoft.AspNetCore.Components.Web;
 
@@ -85,29 +85,29 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         [Test]
         public void VerifySideBarItemIconDisplay()
         {
-            var renderer = this.context.Render<SideBarItem>(parameters => { parameters.Add(p => p.Icon, typeof(FeatherCheck)); });
-            
-            var featherIcons = renderer.FindComponents<Icon>();
+            var renderer = this.context.Render<SideBarItem>(parameters => { parameters.Add(p => p.Icon, IconName.Check); });
+
+            var cometIcons = renderer.FindComponents<CometIcon>();
             var cssIcons = renderer.FindAll("#side-bar-item-css-icon");
 
             Assert.Multiple(() =>
             {
-                Assert.That(featherIcons, Has.Count.GreaterThan(0));
+                Assert.That(cometIcons, Has.Count.GreaterThan(0));
                 Assert.That(cssIcons, Has.Count.EqualTo(0));
             });
 
             renderer.Render(parameters =>
             {
-                parameters.Add(p => p.IconCssClass, "oi oi-check");
+                parameters.Add(p => p.IconCssClass, IconName.Check.GetCssClass());
                 parameters.Add(p => p.Icon, null);
             });
 
-            featherIcons = featherIcons = renderer.FindComponents<Icon>();
+            cometIcons = renderer.FindComponents<CometIcon>();
             cssIcons = renderer.FindAll("#side-bar-item-css-icon");
 
             Assert.Multiple(() =>
             {
-                Assert.That(featherIcons, Has.Count.EqualTo(0));
+                Assert.That(cometIcons, Has.Count.EqualTo(0));
                 Assert.That(cssIcons, Has.Count.GreaterThan(0));
             });
         }
