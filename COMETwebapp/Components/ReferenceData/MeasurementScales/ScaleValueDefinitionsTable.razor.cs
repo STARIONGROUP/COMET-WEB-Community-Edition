@@ -26,16 +26,16 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
 {
     using CDP4Common.SiteDirectoryData;
 
-    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+    using COMET.Web.Common.Components;
 
-    using DevExpress.Blazor;
+    using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// Support class for the <see cref="ScaleValueDefinitionsTable" />
     /// </summary>
-    public partial class ScaleValueDefinitionsTable
+    public partial class ScaleValueDefinitionsTable : DisposableComponent
     {
         /// <summary>
         /// The measurement scale that contains scale value definitions to display for selection
@@ -55,19 +55,45 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         public bool ShouldCreate { get; private set; }
 
         /// <summary>
-        /// The scale value definition that will be handled for both edit and add forms
+        /// Gets or sets a value indicating whether the form popup is visible for editing or creating.
         /// </summary>
-        public ScaleValueDefinition ScaleValueDefinition { get; private set; } = new();
+        public bool IsOnEditMode { get; set; }
 
         /// <summary>
-        /// Gets or sets the grid control that is being customized.
+        /// Gets or sets the scale value definition that will be handled for both edit and add forms
         /// </summary>
-        private IGrid Grid { get; set; }
+        private ScaleValueDefinition ScaleValueDefinition { get; set; } = new();
+
+        /// <summary>
+        /// Starts the creation flow for a new <see cref="ScaleValueDefinition" />.
+        /// </summary>
+        private void StartCreate()
+        {
+            this.ShouldCreate = true;
+            this.ScaleValueDefinition = new ScaleValueDefinition { Iid = Guid.NewGuid() };
+            this.IsOnEditMode = true;
+        }
+
+        /// <summary>
+        /// Starts the edit flow for the specified <paramref name="row" />.
+        /// </summary>
+        /// <param name="row">The selected row to edit.</param>
+        private void StartEdit(ScaleValueDefinitionRowViewModel row)
+        {
+            if (row == null)
+            {
+                return;
+            }
+
+            this.ShouldCreate = false;
+            this.ScaleValueDefinition = row.Thing.Clone(true);
+            this.IsOnEditMode = true;
+        }
 
         /// <summary>
         /// Method that is invoked when the edit/add scale value definition form is being saved
         /// </summary>
-        private void OnEditScaleValueDefinitionSaving()
+        private void OnSaved()
         {
             if (this.ShouldCreate)
             {
@@ -79,32 +105,26 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
                 this.MeasurementScale.ValueDefinition[indexToUpdate] = this.ScaleValueDefinition;
             }
 
+            this.IsOnEditMode = false;
             this.MeasurementScaleChanged.InvokeAsync(this.MeasurementScale);
+        }
+
+        /// <summary>
+        /// Handles cancellation of the form popup.
+        /// </summary>
+        private void OnCanceled()
+        {
+            this.IsOnEditMode = false;
         }
 
         /// <summary>
         /// Method that is invoked when a scale value definition row is being removed
         /// </summary>
+        /// <param name="row">The row to remove.</param>
         private void RemoveScaleValueDefinition(ScaleValueDefinitionRowViewModel row)
         {
             this.MeasurementScale.ValueDefinition.Remove(row.Thing);
             this.MeasurementScaleChanged.InvokeAsync(this.MeasurementScale);
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new scale value definition
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditScaleValueDefinition(GridCustomizeEditModelEventArgs e)
-        {
-            var dataItem = (ScaleValueDefinitionRowViewModel)e.DataItem;
-            this.ShouldCreate = e.IsNew;
-
-            this.ScaleValueDefinition = dataItem == null
-                ? new ScaleValueDefinition { Iid = Guid.NewGuid() }
-                : dataItem.Thing.Clone(true);
-
-            e.EditModel = this.ScaleValueDefinition;
         }
 
         /// <summary>
