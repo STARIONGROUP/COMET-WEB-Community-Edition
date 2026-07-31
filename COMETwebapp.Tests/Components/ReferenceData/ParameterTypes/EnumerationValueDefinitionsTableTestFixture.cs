@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="DependentParameterTypeTableTestFixture.cs" company="Starion Group S.A.">
+//  <copyright file="EnumerationValueDefinitionsTableTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of COMET WEB Community Edition
@@ -37,11 +37,11 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
     using NUnit.Framework;
 
     [TestFixture]
-    public class DependentParameterTypeTableTestFixture
+    public class EnumerationValueDefinitionsTableTestFixture
     {
         private BunitContext context;
-        private IRenderedComponent<DependentParameterTypeTable> renderer;
-        private SampledFunctionParameterType parameterType;
+        private IRenderedComponent<EnumerationValueDefinitionsTable> renderer;
+        private EnumerationParameterType parameterType;
 
         [SetUp]
         public void SetUp()
@@ -49,29 +49,18 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
 
-            this.parameterType = new SampledFunctionParameterType
+            this.parameterType = new EnumerationParameterType
             {
-                DependentParameterType =
+                ValueDefinition =
                 {
-                    new DependentParameterTypeAssignment
-                    {
-                        MeasurementScale = new OrdinalScale(),
-                        ParameterType = new SimpleQuantityKind
-                        {
-                            PossibleScale = [new OrdinalScale { Name = "scale" }],
-                            Name = "parameter"
-                        }
-                    },
-
-                    new DependentParameterTypeAssignment { MeasurementScale = new OrdinalScale(), ParameterType = new SimpleQuantityKind() }
+                    new EnumerationValueDefinition { Name = "Val1", ShortName = "v1" },
+                    new EnumerationValueDefinition { Name = "Val2", ShortName = "v2" }
                 }
             };
 
-            this.renderer = this.context.Render<DependentParameterTypeTable>(parameters =>
+            this.renderer = this.context.Render<EnumerationValueDefinitionsTable>(parameters =>
             {
-                parameters.Add(p => p.ParameterTypes, [new SimpleQuantityKind(), new SpecializedQuantityKind()]);
                 parameters.Add(p => p.Thing, this.parameterType);
-                parameters.Add(p => p.Enabled, true);
             });
         }
 
@@ -82,19 +71,19 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
         }
 
         [Test]
-        public async Task VerifyComponentsEdit()
+        public async Task VerifyEnumerationValueDefinitionsEdit()
         {
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.Item, Is.Null);
-                Assert.That(this.parameterType.DependentParameterType, Has.Count.EqualTo(2));
+                Assert.That(this.parameterType.ValueDefinition, Has.Count.EqualTo(2));
             });
 
             this.renderer.Instance.StartEdit(null);
             Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
 
-            var editDependentParameterTypeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editDependentParameterTypeButton");
-            await this.renderer.InvokeAsync(editDependentParameterTypeButton.Instance.Click.InvokeAsync);
+            var editScaleValueDefinitionButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editScaleValueDefinitionButton");
+            await this.renderer.InvokeAsync(editScaleValueDefinitionButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
@@ -103,13 +92,18 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
                 Assert.That(this.renderer.Instance.ShouldCreate, Is.False);
             });
 
+            this.renderer.Instance.Item.Name = "Val1_updated";
             var form = this.renderer.FindComponent<EditForm>();
             await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
 
-            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+                Assert.That(this.parameterType.ValueDefinition.First().Name, Is.EqualTo("Val1_updated"));
+            });
 
-            var addDependentParameterTypeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addDependentParameterTypeButton");
-            await this.renderer.InvokeAsync(addDependentParameterTypeButton.Instance.Click.InvokeAsync);
+            var addEnumerationValueDefinitionButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addEnumerationValueDefinitionButton");
+            await this.renderer.InvokeAsync(addEnumerationValueDefinitionButton.Instance.Click.InvokeAsync);
 
             Assert.Multiple(() =>
             {
@@ -117,16 +111,18 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
                 Assert.That(this.renderer.Instance.ShouldCreate, Is.True);
             });
 
+            this.renderer.Instance.Item.Name = "Val3";
+            this.renderer.Instance.Item.ShortName = "v3";
             form = this.renderer.FindComponent<EditForm>();
             await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
-                Assert.That(this.parameterType.DependentParameterType, Has.Count.EqualTo(3));
+                Assert.That(this.parameterType.ValueDefinition, Has.Count.EqualTo(3));
             });
 
-            await this.renderer.InvokeAsync(addDependentParameterTypeButton.Instance.Click.InvokeAsync);
+            await this.renderer.InvokeAsync(addEnumerationValueDefinitionButton.Instance.Click.InvokeAsync);
             var cancelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelItemButton");
             await this.renderer.InvokeAsync(cancelButton.Instance.Click.InvokeAsync);
 
@@ -139,10 +135,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance, Is.Not.Null);
-                Assert.That(this.renderer.Instance.ParameterTypes.Count(), Is.EqualTo(2));
                 Assert.That(this.renderer.Instance.Thing, Is.Not.Null);
-                Assert.That(this.renderer.Instance.OrderedItemsList, Is.EqualTo(this.parameterType.DependentParameterType));
-                Assert.That(this.renderer.Markup, Does.Contain(this.parameterType.DependentParameterType.First().ParameterType.Name));
+                Assert.That(this.renderer.Instance.OrderedItemsList, Is.EqualTo(this.parameterType.ValueDefinition));
+                Assert.That(this.renderer.Markup, Does.Contain(this.parameterType.ValueDefinition.First().Name));
             });
         }
     }

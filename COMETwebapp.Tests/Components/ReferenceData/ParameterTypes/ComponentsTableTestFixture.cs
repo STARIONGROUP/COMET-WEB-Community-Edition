@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ComponentsTableTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -32,8 +32,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
     using DevExpress.Blazor;
 
-    using NUnit.Framework;
+    using Microsoft.AspNetCore.Components.Forms;
 
+    using NUnit.Framework;
 
     [TestFixture]
     public class ComponentsTableTestFixture
@@ -87,9 +88,53 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
                 Assert.That(this.parameterType.Component, Has.Count.EqualTo(2));
             });
 
+            this.renderer.Instance.StartEdit(null);
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+
             var editParameterTypeComponentButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editParameterTypeComponentButton");
             await this.renderer.InvokeAsync(editParameterTypeComponentButton.Instance.Click.InvokeAsync);
-            Assert.That(this.renderer.Instance.Item, Is.Not.Null);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.Item, Is.Not.Null);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.False);
+            });
+
+            this.renderer.Instance.Item.ShortName = "comp1_updated";
+            var form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+                Assert.That(this.parameterType.Component.First().ShortName, Is.EqualTo("comp1_updated"));
+            });
+
+            var addParameterTypeComponentButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addParameterTypeComponentButton");
+            await this.renderer.InvokeAsync(addParameterTypeComponentButton.Instance.Click.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+                Assert.That(this.renderer.Instance.ShouldCreate, Is.True);
+            });
+
+            this.renderer.Instance.Item.ShortName = "comp3";
+            form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+                Assert.That(this.parameterType.Component, Has.Count.EqualTo(3));
+            });
+
+            await this.renderer.InvokeAsync(addParameterTypeComponentButton.Instance.Click.InvokeAsync);
+            var cancelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "cancelItemButton");
+            await this.renderer.InvokeAsync(cancelButton.Instance.Click.InvokeAsync);
+
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
         }
 
         [Test]

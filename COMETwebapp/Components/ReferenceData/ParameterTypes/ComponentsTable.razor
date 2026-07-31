@@ -27,22 +27,17 @@ Copyright (c) 2023-2026 Starion Group S.A.
                NullText="Insert a dimension (e.g. 1,2,3)"/>
 }
 
-<DxGrid @ref="this.Grid"
-        Data="this.GetRows()"
-        EditMode="GridEditMode.PopupEditForm"
-        PopupEditFormHeaderText="Component"
-        EditModelSaving="@(() => this.OnEditItemSaving())"
-        CustomizeEditModel="this.CustomizeEditParameterTypeComponent">
+<DxGrid Data="this.GetRows()">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.Coordinates)" MinWidth="80" Visible="@(this.Thing is ArrayParameterType)" />
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ShortName)" MinWidth="80"/>
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.ParameterType)" MinWidth="80"/>
         <DxGridDataColumn FieldName="@nameof(ParameterTypeComponentRowViewModel.Scale)" MinWidth="80"/>
-        <DxGridCommandColumn Width="80px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="80px">
             <HeaderTemplate>
                 @if (this.Thing is not ArrayParameterType)
                 {
-                    <DxButton Id="addParameterTypeComponentButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                    <DxButton Id="addParameterTypeComponentButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate"/>
                 }
                 else
                 {
@@ -55,7 +50,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                     <DxButton Id="editParameterTypeComponentButton"
                               IconCssClass="@IconName.Edit.GetCssClass()"
-                              Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
+                              Click="@(() => this.StartEdit(row))"/>
 
                     @if (this.Thing is not ArrayParameterType)
                     {
@@ -66,7 +61,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>
-        <DxGridCommandColumn Width="80px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="80px">
             <HeaderTemplate>
                 Order
             </HeaderTemplate>
@@ -87,27 +82,18 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
-
-    <EditFormTemplate Context="EditFormContext">
-        <FluentValidationValidator/>
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Shortname:" ColSpanMd="12">
-                <DxTextBox @bind-Text="@(this.Item.ShortName)"/>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12">
-                <DxComboBox Data="@(this.ParameterTypes.OrderBy(x => x.Name))"
-                            TextFieldName="@(nameof(ParameterType.Name))"
-                            NullText="Select a parameter type"
-                            TextChanged="@(() => this.Item.Scale = null)"
-                            @bind-Value="@(this.Item.ParameterType)"/>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Scale:" ColSpanMd="12">
-                <DxComboBox Data="@(this.GetAvailableScales())"
-                            TextFieldName="@(nameof(MeasurementScale.Name))"
-                            @bind-Value="@(this.Item.Scale)"/>
-            </DxFormLayoutItem>
-        </DxFormLayout>
-        <div class="pt-3"></div>
-        <ValidationSummary/>
-    </EditFormTemplate>
 </DxGrid>
+
+<DxPopup HeaderText="Component"
+         @bind-Visible="@this.IsOnEditMode"
+         CloseOnOutsideClick="false">
+    <BodyContentTemplate Context="popupContext">
+        <ComponentForm Item="@this.Item"
+                       ParameterTypes="@this.ParameterTypes"
+                       ShouldCreate="@this.ShouldCreate"
+                       IsVisible="@this.IsOnEditMode"
+                       IsVisibleChanged="@(visible => this.IsOnEditMode = visible)"
+                       OnSaved="@this.OnSaved"
+                       OnCanceled="@this.OnCanceled"/>
+    </BodyContentTemplate>
+</DxPopup>

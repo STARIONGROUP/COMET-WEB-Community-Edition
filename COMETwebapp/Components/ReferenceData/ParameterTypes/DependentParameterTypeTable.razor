@@ -17,24 +17,18 @@ Copyright (c) 2023-2026 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
-
 @inherits ThingOrderedItemsTable<SampledFunctionParameterType, DependentParameterTypeAssignment, DependentParameterTypeRowViewModel>
 
-<DxGrid @ref="this.Grid"
-        Data="this.GetRows()"
-        EditMode="GridEditMode.PopupEditForm"
-        PopupEditFormHeaderText="Component"
-        EditModelSaving="@(() => this.OnEditItemSaving())"
-        CustomizeEditModel="this.CustomizeEditDependentParameterType">
+<DxGrid Data="this.GetRows()">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(DependentParameterTypeRowViewModel.ParameterType)" MinWidth="80"/>
         <DxGridDataColumn FieldName="@nameof(DependentParameterTypeRowViewModel.Scale)" MinWidth="80"/>
         
         @if (this.Enabled)
         {
-            <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+            <DxGridCommandColumn Width="100px">
                 <HeaderTemplate>
-                    <DxButton Id="addDependentParameterTypeButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                    <DxButton Id="addDependentParameterTypeButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate"/>
                 </HeaderTemplate>
                 <CellDisplayTemplate>
                     @{
@@ -42,7 +36,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                         <DxButton Id="editDependentParameterTypeButton"
                                   IconCssClass="@IconName.Edit.GetCssClass()"
-                                  Click="@(() => this.Grid.StartEditRowAsync(context.VisibleIndex))"/>
+                                  Click="@(() => this.StartEdit(row))"/>
 
                         <DxButton Id="removeDependentParameterTypeButton"
                                   IconCssClass="@IconName.Delete.GetCssClass()"
@@ -50,7 +44,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
-            <DxGridCommandColumn Width="100px" EditButtonVisible="false">
+            <DxGridCommandColumn Width="100px">
                 <HeaderTemplate>
                     Order
                 </HeaderTemplate>
@@ -71,26 +65,19 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
         }
-       
     </Columns>
-
-    <EditFormTemplate Context="EditFormContext">
-        <FluentValidationValidator/>
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Parameter Type:" ColSpanMd="12">
-                <DxComboBox Data="@(this.ParameterTypes.OrderBy(x => x.Name))"
-                            TextFieldName="@(nameof(CDP4Common.SiteDirectoryData.ParameterType.Name))"
-                            NullText="Select a parameter type"
-                            TextChanged="@(() => this.Item.MeasurementScale = null)"
-                            @bind-Value="@(this.Item.ParameterType)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Scale:" ColSpanMd="12">
-                <DxComboBox Data="@(this.GetAvailableScales())"
-                            TextFieldName="@(nameof(MeasurementScale.Name))"
-                            @bind-Value="@(this.Item.MeasurementScale)" />
-            </DxFormLayoutItem>
-        </DxFormLayout>
-        <div class="pt-3"></div>
-        <ValidationSummary/>
-    </EditFormTemplate>
 </DxGrid>
+
+<DxPopup HeaderText="Dependent Parameter Type"
+         @bind-Visible="@this.IsOnEditMode"
+         CloseOnOutsideClick="false">
+    <BodyContentTemplate Context="popupContext">
+        <DependentParameterTypeForm Item="@this.Item"
+                                    ParameterTypes="@this.ParameterTypes"
+                                    ShouldCreate="@this.ShouldCreate"
+                                    IsVisible="@this.IsOnEditMode"
+                                    IsVisibleChanged="@(visible => this.IsOnEditMode = visible)"
+                                    OnSaved="@this.OnSaved"
+                                    OnCanceled="@this.OnCanceled"/>
+    </BodyContentTemplate>
+</DxPopup>
