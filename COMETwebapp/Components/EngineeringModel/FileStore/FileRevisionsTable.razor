@@ -13,22 +13,16 @@ Copyright (c) 2023-2026 Starion Group S.A.
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.ViewModels.Components.ReferenceData.Rows
 @inherits DisposableComponent
 
-<DxGrid @ref="this.Grid"
-        Data="this.GetRows().OrderByDescending(x => x.CreatedOn)"
-        EditMode="GridEditMode.PopupEditForm"
-        PopupEditFormHeaderText="File Revision"
-        EditModelSaving="@(() => this.OnEditFileRevisionSaving())"
-        CustomizeEditModel="this.CustomizeEditFileRevision">
+<DxGrid Data="this.GetRows().OrderByDescending(x => x.CreatedOn)">
     <Columns>
         <DxGridDataColumn FieldName="@nameof(FileRevisionRowViewModel.Name)" MinWidth="150" />
         <DxGridDataColumn FieldName="@nameof(FileRevisionRowViewModel.Path)" MinWidth="80" SearchEnabled="false" />
         <DxGridDataColumn FieldName="@nameof(FileRevisionRowViewModel.CreatedOn)" MinWidth="80" SearchEnabled="false" />
-        <DxGridCommandColumn Width="160px" EditButtonVisible="false">
+        <DxGridCommandColumn Width="160px">
             <HeaderTemplate>
-                <DxButton Id="addFileRevisionButton" Text="Add File Revision" IconCssClass="@IconName.Add.GetCssClass()" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                <DxButton Id="addFileRevisionButton" Text="Add File Revision" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
@@ -44,33 +38,17 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
-
-    <EditFormTemplate Context="EditFormContext">
-        <FluentValidationValidator />
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="File:" ColSpanMd="10">
-                <InputFile OnChange="this.OnFileUpload" id="inputGroupFile" class="form-control" accept="@(string.Join(", ", this.ViewModel.FileTypes.Select(x => $".{x.Extension}")))"></InputFile>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Path:" ColSpanMd="10">
-                <DxTextBox @bind-Text="@this.ViewModel.FileRevision.Path" 
-                           Enabled="false"/>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Name:" ColSpanMd="10">
-                <DxTextBox @bind-Text="@this.ViewModel.FileRevision.Name" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="File Types:" 
-                              ColSpanMd="12"
-                              CaptionPosition="CaptionPosition.Vertical">
-                <FileTypesTable @bind-SelectedFileTypes="@this.ViewModel.FileRevision.FileType"
-                                FileTypes="@this.ViewModel.FileTypes" />
-            </DxFormLayoutItem>
-        </DxFormLayout>
-        <div class="pt-3"></div>
-        @if (!string.IsNullOrWhiteSpace(this.ViewModel.ErrorMessage))
-        {
-            <span class="text-danger">@this.ViewModel.ErrorMessage</span>
-        }
-        <ValidationSummary />
-    </EditFormTemplate>
-
 </DxGrid>
+
+<DxPopup HeaderText="File Revision"
+         @bind-Visible="@this.IsOnEditMode"
+         CloseOnOutsideClick="false">
+    <BodyContentTemplate Context="popupContext">
+        <FileRevisionForm ViewModel="@this.ViewModel"
+                          ShouldCreate="true"
+                          IsVisible="@this.IsOnEditMode"
+                          IsVisibleChanged="@(visible => this.IsOnEditMode = visible)"
+                          OnSaved="@this.OnSaved"
+                          OnCanceled="@this.OnCanceled"/>
+    </BodyContentTemplate>
+</DxPopup>

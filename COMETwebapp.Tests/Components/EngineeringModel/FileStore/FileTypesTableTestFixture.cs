@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FileTypesTableTestFixture.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -35,8 +35,9 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
     using DevExpress.Blazor;
 
-    using NUnit.Framework;
+    using Microsoft.AspNetCore.Components.Forms;
 
+    using NUnit.Framework;
 
     [TestFixture]
     public class FileTypesTableTestFixture
@@ -149,8 +150,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
             var addFileTypeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addFileTypeButton");
             await this.renderer.InvokeAsync(addFileTypeButton.Instance.Click.InvokeAsync);
 
-            var grid = this.renderer.FindComponent<DxGrid>();
-            await this.renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
+            var form = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
             Assert.That(timesSelectedFileTypesWasChanged, Is.EqualTo(1));
         }
     }

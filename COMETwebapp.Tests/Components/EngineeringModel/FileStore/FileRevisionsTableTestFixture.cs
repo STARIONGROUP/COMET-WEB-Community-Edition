@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
     using COMET.Web.Common.Test.Helpers;
 
+    using COMETwebapp.Components.Common;
     using COMETwebapp.Components.EngineeringModel.FileStore;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
 
@@ -106,16 +107,32 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
             var addFileRevisionButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addFileRevisionButton");
             await this.renderer.InvokeAsync(addFileRevisionButton.Instance.Click.InvokeAsync);
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
 
+            var form = this.renderer.FindComponent<FileRevisionForm>();
+            await this.renderer.InvokeAsync(() => form.Instance.IsVisibleChanged.InvokeAsync(false));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+
+            await this.renderer.InvokeAsync(addFileRevisionButton.Instance.Click.InvokeAsync);
+            var formButtons = this.renderer.FindComponent<FormButtons>();
+            await this.renderer.InvokeAsync(formButtons.Instance.OnCancel.InvokeAsync);
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+
+            await this.renderer.InvokeAsync(addFileRevisionButton.Instance.Click.InvokeAsync);
             var fileInput = this.renderer.FindComponent<InputFile>();
             var fileMock = new Mock<IBrowserFile>();
             var changeArgs = new InputFileChangeEventArgs([fileMock.Object]);
             await this.renderer.InvokeAsync(() => fileInput.Instance.OnChange.InvokeAsync(changeArgs));
             this.viewModel.Verify(x => x.UploadFile(fileMock.Object), Times.Once);
 
-            var grid = this.renderer.FindComponent<DxGrid>();
-            await this.renderer.InvokeAsync(grid.Instance.EditModelSaving.InvokeAsync);
-            Assert.That(timesFileRevisionsWasChanged, Is.EqualTo(1));
+            var editForm = this.renderer.FindComponent<EditForm>();
+            await this.renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
+            
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(timesFileRevisionsWasChanged, Is.EqualTo(1));
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+            }
         }
     }
 }

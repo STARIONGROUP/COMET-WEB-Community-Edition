@@ -1,28 +1,27 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FileTypesTable.razor.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2026 Starion Group S.A.
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Affero General Public License for more details.
-//
+//  <copyright file="FileTypesTable.razor.cs" company="Starion Group S.A.">
+//     Copyright (c) 2023-2026 Starion Group S.A.
+// 
+//     This file is part of CDP4-COMET WEB Community Edition
+//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//     Affero General Public License for more details.
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//   --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Components.EngineeringModel.FileStore
 {
-    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
@@ -30,12 +29,10 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    ///  Support class for the <see cref="FileTypesTable"/>
+    /// Support class for the <see cref="FileTypesTable" />
     /// </summary>
     public partial class FileTypesTable : DisposableComponent
     {
@@ -60,30 +57,50 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         /// <summary>
         /// The file type that will be added
         /// </summary>
-        public FileType FileType { get; private set; }
+        public FileType FileType { get; set; }
 
         /// <summary>
-        /// Gets or sets the grid control that is being customized.
+        /// Gets or sets a value indicating whether the form popup is visible for editing or creating.
         /// </summary>
-        private IGrid Grid { get; set; }
+        public bool IsOnEditMode { get; set; }
+
+        /// <summary>
+        /// Starts the creation flow for a new <see cref="FileType" /> item.
+        /// </summary>
+        public void StartCreate()
+        {
+            this.FileType = new FileType();
+            this.IsOnEditMode = true;
+        }
 
         /// <summary>
         /// Method that is invoked when the edit/add file type form is being saved
         /// </summary>
-        private async Task OnEditFileTypesSaving()
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task OnSaved()
         {
             var listOfFileTypes = this.SelectedFileTypes;
             listOfFileTypes.Add(this.FileType);
 
             this.SelectedFileTypes = listOfFileTypes;
             await this.SelectedFileTypesChanged.InvokeAsync(this.SelectedFileTypes);
+
+            this.IsOnEditMode = false;
+        }
+
+        /// <summary>
+        /// Handles cancellation of the form popup.
+        /// </summary>
+        public void OnCanceled()
+        {
+            this.IsOnEditMode = false;
         }
 
         /// <summary>
         /// Moves the selected row up
         /// </summary>
         /// <param name="row">The row to be moved</param>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         private async Task MoveUp(FileTypeRowViewModel row)
         {
             var currentIndex = this.SelectedFileTypes.IndexOf(row.Thing);
@@ -95,7 +112,7 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         /// Moves the selected row down
         /// </summary>
         /// <param name="row">The row to be moved</param>
-        /// <returns>A <see cref="Task"/></returns>
+        /// <returns>A <see cref="Task" /></returns>
         private async Task MoveDown(FileTypeRowViewModel row)
         {
             var currentIndex = this.SelectedFileTypes.IndexOf(row.Thing);
@@ -106,6 +123,8 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         /// <summary>
         /// Method that is invoked when a file type row is being removed
         /// </summary>
+        /// <param name="row">The selected row to remove</param>
+        /// <returns>A <see cref="Task" /></returns>
         private async Task RemoveFileType(FileTypeRowViewModel row)
         {
             this.SelectedFileTypes.Remove(row.Thing);
@@ -113,19 +132,9 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         }
 
         /// <summary>
-        /// Method invoked when creating a new file type
+        /// Method used to retrieve the available rows, given the <see cref="FileType" />
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditFileType(GridCustomizeEditModelEventArgs e)
-        {
-            this.FileType = new FileType();
-            e.EditModel = this.FileType;
-        }
-
-        /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="FileType"/>
-        /// </summary>
-        /// <returns>A collection of <see cref="FileTypeRowViewModel"/>s to display</returns>
+        /// <returns>A collection of <see cref="FileTypeRowViewModel" />s to display</returns>
         private List<FileTypeRowViewModel> GetRows()
         {
             return this.SelectedFileTypes.Select(x => new FileTypeRowViewModel(x)).ToList();

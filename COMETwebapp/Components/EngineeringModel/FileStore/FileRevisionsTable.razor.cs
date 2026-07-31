@@ -1,24 +1,24 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FileRevisionsTable.razor.cs" company="Starion Group S.A.">
-//    Copyright (c) 2023-2026 Starion Group S.A.
-//
-//    This file is part of CDP4-COMET WEB Community Edition
-//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-//
-//    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
-//    modify it under the terms of the GNU Affero General Public
-//    License as published by the Free Software Foundation; either
-//    version 3 of the License, or (at your option) any later version.
-//
-//    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Affero General Public License for more details.
-//
+//  <copyright file="FileRevisionsTable.razor.cs" company="Starion Group S.A.">
+//     Copyright (c) 2023-2026 Starion Group S.A.
+// 
+//     This file is part of CDP4-COMET WEB Community Edition
+//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//     Affero General Public License for more details.
+// 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// </copyright>
-// --------------------------------------------------------------------------------------------------------------------
+//  </copyright>
+//   --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Components.EngineeringModel.FileStore
 {
@@ -29,18 +29,15 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
-    using Microsoft.AspNetCore.Components.Forms;
 
     /// <summary>
-    ///  Support class for the <see cref="FileRevisionsTable"/>
+    /// Support class for the <see cref="FileRevisionsTable" />
     /// </summary>
     public partial class FileRevisionsTable : DisposableComponent
     {
         /// <summary>
-        /// Gets or sets the <see cref="IFileRevisionHandlerViewModel"/>
+        /// Gets or sets the <see cref="IFileRevisionHandlerViewModel" />
         /// </summary>
         [Parameter]
         public IFileRevisionHandlerViewModel ViewModel { get; set; }
@@ -58,63 +55,44 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         public EventCallback<IEnumerable<FileRevision>> FileRevisionsChanged { get; set; }
 
         /// <summary>
-        /// Gets or sets the grid control that is being customized.
+        /// Gets or sets a value indicating whether the form popup is visible for editing or creating.
         /// </summary>
-        private IGrid Grid { get; set; }
+        public bool IsOnEditMode { get; set; }
 
         /// <summary>
-        /// Method that is invoked when the edit/add file revision form is being saved
+        /// Starts the creation flow for a new <see cref="FileRevision" /> item.
         /// </summary>
-        private async Task OnEditFileRevisionSaving()
-        {
-            var listOfFileRevisions = this.FileRevisions.ToList();
-            listOfFileRevisions.Add(this.ViewModel.FileRevision);
-
-            this.FileRevisions = listOfFileRevisions;
-            await this.FileRevisionsChanged.InvokeAsync(this.FileRevisions);
-        }
-
-        /// <summary>
-        /// Method that is invoked when a file revision row is being removed
-        /// </summary>
-        private async Task RemoveFileRevision(FileRevisionRowViewModel row)
-        {
-            var listOfFileRevisions = this.FileRevisions.ToList();
-            listOfFileRevisions.Remove(row.Thing);
-
-            this.FileRevisions = listOfFileRevisions;
-            await this.FileRevisionsChanged.InvokeAsync(this.FileRevisions);
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new file revision
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        private void CustomizeEditFileRevision(GridCustomizeEditModelEventArgs e)
+        public void StartCreate()
         {
             this.ViewModel.FileRevision = new FileRevision
             {
                 ContainingFolder = this.ViewModel.CurrentFile.CurrentContainingFolder
             };
 
-            e.EditModel = this.ViewModel.FileRevision;
+            this.IsOnEditMode = true;
         }
 
         /// <summary>
-        /// Method used to retrieve the available rows, given the <see cref="FileRevision"/> from <see cref="File"/>
+        /// Method that is invoked when the edit/add file revision form is being saved
         /// </summary>
-        /// <returns>A collection of <see cref="FileRevisionRowViewModel"/>s to display</returns>
-        private List<FileRevisionRowViewModel> GetRows()
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task OnSaved()
         {
-            return this.FileRevisions.Select(x => new FileRevisionRowViewModel(x)).ToList();
+            var listOfFileRevisions = this.FileRevisions.ToList();
+            listOfFileRevisions.Add(this.ViewModel.FileRevision);
+
+            this.FileRevisions = listOfFileRevisions;
+            await this.FileRevisionsChanged.InvokeAsync(this.FileRevisions);
+
+            this.IsOnEditMode = false;
         }
 
         /// <summary>
-        /// Method that is invoked when a file is uploaded to server
+        /// Handles cancellation of the form popup.
         /// </summary>
-        private async Task OnFileUpload(InputFileChangeEventArgs e)
+        public void OnCanceled()
         {
-            await this.ViewModel.UploadFile(e.File);
+            this.IsOnEditMode = false;
         }
 
         /// <summary>
@@ -125,6 +103,29 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         {
             base.Dispose(disposing);
             this.ViewModel.Dispose();
+        }
+
+        /// <summary>
+        /// Method that is invoked when a file revision row is being removed
+        /// </summary>
+        /// <param name="row">The selected row to remove</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task RemoveFileRevision(FileRevisionRowViewModel row)
+        {
+            var listOfFileRevisions = this.FileRevisions.ToList();
+            listOfFileRevisions.Remove(row.Thing);
+
+            this.FileRevisions = listOfFileRevisions;
+            await this.FileRevisionsChanged.InvokeAsync(this.FileRevisions);
+        }
+
+        /// <summary>
+        /// Method used to retrieve the available rows, given the <see cref="FileRevision" /> from <see cref="File" />
+        /// </summary>
+        /// <returns>A collection of <see cref="FileRevisionRowViewModel" />s to display</returns>
+        private List<FileRevisionRowViewModel> GetRows()
+        {
+            return this.FileRevisions.Select(x => new FileRevisionRowViewModel(x)).ToList();
         }
     }
 }
