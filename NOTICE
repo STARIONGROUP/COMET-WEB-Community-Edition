@@ -17,6 +17,8 @@ COMET.Web.Common (Apache-2.0)
 
     AsyncEnumerator                                 MIT
         https://github.com/Dasync/AsyncEnumerable
+    BlazorBlueprint.Icons.Feather                   MIT
+        https://blazorblueprintui.com/
     Blazored.FluentValidation                       MIT
         https://github.com/Blazored/FluentValidation
     Blazored.SessionStorage                         MIT
@@ -56,8 +58,6 @@ COMETwebapp (AGPL-3.0-only)
         https://github.com/ant-design-blazor/ant-design-blazor
     ClosedXML                                       MIT
         https://github.com/ClosedXML/ClosedXML
-    Feather.Blazor                                  MIT
-        https://github.com/TheOnlyBeardedBeast/Feather.Blazor
     ReactiveMarbles.ObservableEvents.SourceGenerator MIT
         https://github.com/reactivemarbles/ObservableEvents
     ReactiveUI.Blazor                               MIT

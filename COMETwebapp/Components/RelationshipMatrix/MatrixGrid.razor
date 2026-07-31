@@ -98,7 +98,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
     {
         <div class="matrix-details-panel">
             <div class="matrix-details-header" @onclick="@(() => this.isDetailsCollapsed = !this.isDetailsCollapsed)">
-                <span class="oi @(this.isDetailsCollapsed ? "oi-chevron-right" : "oi-chevron-bottom")"></span>
+                <CometIcon Icon="@(this.isDetailsCollapsed ? IconName.ChevronRight : IconName.ChevronDown)"/>
                 <span>Item details</span>
             </div>
 

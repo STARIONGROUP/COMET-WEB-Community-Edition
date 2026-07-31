@@ -186,7 +186,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 .Add(p => p.ViewModel, this.viewModel.Object)
                 .Add(p => p.OnEditElement, EventCallback.Factory.Create(this, () => editInvoked = true)));
 
-            Assert.That(rendered.Markup, Does.Contain("oi-pencil"), "Edit button must render when OnEditElement is bound.");
+            Assert.That(rendered.Markup, Does.Contain("comet-icon-edit"), "Edit button must render when OnEditElement is bound.");
 
             rendered.Find("#editElement").Click();
             Assert.That(editInvoked, Is.True, "Clicking Edit must invoke the OnEditElement callback.");
@@ -204,7 +204,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 .Add(p => p.ViewModel, this.viewModel.Object)
                 .Add(p => p.OnDeleteElement, EventCallback.Factory.Create(this, () => deleteInvoked = true)));
 
-            Assert.That(rendered.Markup, Does.Contain("oi-trash"), "Delete button must render when OnDeleteElement is bound.");
+            Assert.That(rendered.Markup, Does.Contain("comet-icon-delete"), "Delete button must render when OnDeleteElement is bound.");
 
             rendered.Find("#deleteElement").Click();
             Assert.That(deleteInvoked, Is.True, "Clicking Delete must invoke the OnDeleteElement callback.");
@@ -246,7 +246,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
 
             Assert.Multiple(() =>
             {
-                Assert.That(rendered.Markup, Does.Not.Contain("oi-pencil"), "Edit button must not render when OnEditElement is unbound.");
+                Assert.That(rendered.Markup, Does.Not.Contain("comet-icon-edit"), "Edit button must not render when OnEditElement is unbound.");
                 Assert.That(rendered.Markup, Does.Not.Contain("id=\"deleteElement\""), "Delete button must not render when OnDeleteElement is unbound.");
             });
         }
@@ -274,7 +274,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 .Add(p => p.ViewModel, this.viewModel.Object)
                 .Add(p => p.OnCreateSubscription, EventCallback.Factory.Create<Parameter>(this, p => capturedParameter = p)));
 
-            var subscribeButtons = rendered.FindAll(".oi-bell");
+            var subscribeButtons = rendered.FindAll(".comet-icon-bell");
 
             Assert.Multiple(() =>
             {
@@ -313,7 +313,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 .Add(p => p.ViewModel, this.viewModel.Object)
                 .Add(p => p.OnDeleteSubscription, EventCallback.Factory.Create<ParameterSubscription>(this, s => capturedSubscription = s)));
 
-            var bellButtons = rendered.FindAll(".oi-bell");
+            var bellButtons = rendered.FindAll(".comet-icon-bell");
 
             Assert.Multiple(() =>
             {
@@ -348,7 +348,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 .Add(p => p.OnCreateSubscription, EventCallback.Factory.Create<Parameter>(this, _ => { }))
                 .Add(p => p.OnDeleteSubscription, EventCallback.Factory.Create<ParameterSubscription>(this, _ => { })));
 
-            var bellButtons = rendered.FindAll(".oi-bell");
+            var bellButtons = rendered.FindAll(".comet-icon-bell");
 
             Assert.That(bellButtons.Count, Is.EqualTo(1),
                 "Subscribe and unsubscribe affordances must never both render on the same card — the if/else if branch enforces this.");
@@ -455,7 +455,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 .Add(p => p.ViewModel, this.viewModel.Object)
                 .Add(p => p.OnCreateOverride, EventCallback.Factory.Create<(Parameter Parameter, ElementUsage HostUsage)>(this, args => capturedArgs = args)));
 
-            var forkButtons = rendered.FindAll(".oi-fork");
+            var forkButtons = rendered.FindAll(".comet-icon-branch");
 
             Assert.Multiple(() =>
             {
@@ -507,7 +507,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 .Add(p => p.ViewModel, this.viewModel.Object)
                 .Add(p => p.OnDeleteOverride, EventCallback.Factory.Create<ParameterOverride>(this, po => capturedOverride = po)));
 
-            var forkButtons = rendered.FindAll(".oi-fork");
+            var forkButtons = rendered.FindAll(".comet-icon-branch");
 
             Assert.Multiple(() =>
             {
@@ -550,7 +550,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 .Add(p => p.OnCreateOverride, EventCallback.Factory.Create<(Parameter Parameter, ElementUsage HostUsage)>(this, _ => { }))
                 .Add(p => p.OnDeleteOverride, EventCallback.Factory.Create<ParameterOverride>(this, _ => { })));
 
-            var forkButtons = rendered.FindAll(".oi-fork");
+            var forkButtons = rendered.FindAll(".comet-icon-branch");
 
             Assert.That(forkButtons.Count, Is.EqualTo(1),
                 "Create-override and delete-override affordances must never both render on the same card — the if/else if branch enforces this.");

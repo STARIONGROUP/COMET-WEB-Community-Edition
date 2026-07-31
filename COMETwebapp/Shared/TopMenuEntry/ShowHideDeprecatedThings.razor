@@ -19,5 +19,5 @@
 ------------------------------------------------------------------------------->
 @inherits COMET.Web.Common.Shared.TopMenuEntry.AuthorizedMenuEntry
 
-<DxMenuItem Id="showHideIcon" Text="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "Hide Deprecated Things" : "Show Deprecated Things")" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" IconCssClass="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "icon icon-eye-hide" : "icon icon-eye-show")" Click="(() => this.ViewModel.OnShowHideDeprecatedItems())" />
+<DxMenuItem Id="showHideIcon" Text="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "Hide Deprecated Things" : "Show Deprecated Things")" Enabled="@this.AuthorizedMenuEntryViewModel.IsAuthenticated" IconCssClass="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? IconName.EyeOff.GetCssClass() : IconName.Eye.GetCssClass())" Click="(() => this.ViewModel.OnShowHideDeprecatedItems())" />
 

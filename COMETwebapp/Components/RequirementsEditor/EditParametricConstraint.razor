@@ -26,7 +26,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
     {
         <div class="pc-empty">
             <p>No expression defined. Click the button below to add your first expression.</p>
-            <DxButton RenderStyle="ButtonRenderStyle.Primary" IconCssClass="oi oi-plus" Text="Add First Expression" Click="@(() => this.AddFirstExpression())" />
+            <DxButton RenderStyle="ButtonRenderStyle.Primary" IconCssClass="@IconName.Add.GetCssClass()" Text="Add First Expression" Click="@(() => this.AddFirstExpression())" />
         </div>
     }
     else
@@ -48,7 +48,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <div class="pc-root-add">
                 <span class="pc-add pc-split">
                     <button type="button" class="pc-split-main" title="Add a relational expression"
-                            @onclick="@(() => this.RootAddExpression())"><span class="oi oi-plus"></span> Add Expression</button>
+                            @onclick="@(() => this.RootAddExpression())"><CometIcon Icon="IconName.Add"/> Add Expression</button>
                     <button type="button" class="pc-split-arrow" id="pc-root-add" title="More…"
                             @onclick="@(() => this.rootAddMenuOpen = !this.rootAddMenuOpen)">▾</button>
                 </span>
@@ -60,8 +60,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
                             FooterVisible="false">
                     <BodyTemplate>
                         <div style="display:flex; flex-direction:column; min-width:170px;">
-                            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-plus" Text="Add Expression" Click="@(() => this.RootAddExpression())" />
-                            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="oi oi-fork" Text="Add Group" Click="@(() => this.RootAddGroup())" />
+                            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Add.GetCssClass()" Text="Add Expression" Click="@(() => this.RootAddExpression())" />
+                            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Branch.GetCssClass()" Text="Add Group" Click="@(() => this.RootAddGroup())" />
                         </div>
                     </BodyTemplate>
                 </DxDropDown>

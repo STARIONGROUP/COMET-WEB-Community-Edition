@@ -930,6 +930,8 @@ namespace COMETwebapp.ViewModels.Components.Common
                 clonedParameter.ParameterSubscription.Add(subscription);
 
                 await this.sessionService.CreateOrUpdateThingsWithNotification(clonedParameter, thingsToCreate, GetSubscriptionCreationNotificationDescription(parameter));
+
+                this.RefreshSelectedElement();
             }
             catch (Exception exception)
             {
@@ -1022,6 +1024,8 @@ namespace COMETwebapp.ViewModels.Components.Common
                 var clonedSubscription = subscription.Clone(false);
 
                 await this.sessionService.DeleteThingsWithNotification(clonedParameter, [(Thing)clonedSubscription], GetSubscriptionDeletionNotificationDescription(subscription));
+
+                this.RefreshSelectedElement();
             }
             catch (Exception exception)
             {
@@ -1129,6 +1133,8 @@ namespace COMETwebapp.ViewModels.Components.Common
                 clonedUsage.ParameterOverride.Add(parameterOverride);
 
                 await this.sessionService.CreateOrUpdateThingsWithNotification(clonedUsage, [(Thing)clonedUsage, parameterOverride], GetOverrideCreationNotificationDescription(parameter, hostUsage));
+
+                this.RefreshSelectedElement();
             }
             catch (Exception exception)
             {
@@ -1225,6 +1231,8 @@ namespace COMETwebapp.ViewModels.Components.Common
                 var clonedOverride = parameterOverride.Clone(false);
 
                 await this.sessionService.DeleteThingsWithNotification(clonedUsage, [(Thing)clonedOverride], GetOverrideDeletionNotificationDescription(parameterOverride));
+
+                this.RefreshSelectedElement();
             }
             catch (Exception exception)
             {

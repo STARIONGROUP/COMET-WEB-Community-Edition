@@ -22,7 +22,7 @@
     <div>
         <a class="card-btn card__link" href="@this.CurrentApplication.Url">
             <div class="card-body display-flex flex-column align-items-center card__content">
-                <span class="oi oi-@this.CurrentApplication.Icon display-flex justify-content-center card__icon" title="@this.CurrentApplication.Icon" aria-hidden="true"></span>
+                <CometIcon Icon="@this.CurrentApplication.Icon" Size="32" CssClass="display-flex justify-content-center card__icon" />
                 <div class="application__card__info">
                     <h5 class="card-title color-title card__content__name">@this.CurrentApplication.Name</h5>
                     <p class="card-text text-align-center card__content__description">@this.CurrentApplication.Description</p>

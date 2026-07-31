@@ -49,14 +49,14 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </DxGridDataColumn>
             <DxGridCommandColumn Width="90px">
                 <HeaderTemplate>
-                    <DxButton Id="addSimpleParameterValueButton" Text="Add" IconCssClass="oi oi-plus" Click="@(() => this.OpenAdd())" />
+                    <DxButton Id="addSimpleParameterValueButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="@(() => this.OpenAdd())" />
                 </HeaderTemplate>
                 <CellDisplayTemplate>
                     @{
                         var value = (SimpleParameterValue)context.DataItem;
                     }
-                    <DxButton IconCssClass="oi oi-pencil" Click="@(() => this.OpenEdit(value))" />
-                    <DxButton Id="removeSimpleParameterValueButton" IconCssClass="oi oi-trash" Click="@(() => this.RemovalPopup.Request(value))" />
+                    <DxButton IconCssClass="@IconName.Edit.GetCssClass()" Click="@(() => this.OpenEdit(value))" />
+                    <DxButton Id="removeSimpleParameterValueButton" IconCssClass="@IconName.Delete.GetCssClass()" Click="@(() => this.RemovalPopup.Request(value))" />
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
         </Columns>

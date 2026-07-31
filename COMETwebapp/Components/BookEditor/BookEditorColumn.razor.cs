@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.Components.BookEditor
 {
+    using COMET.Web.Common.Enumerations;
+
     using COMETwebapp.Services.Interoperability;
 
     using DynamicData;
@@ -56,10 +58,11 @@ namespace COMETwebapp.Components.BookEditor
         public IDomDataService DomDataService { get; set; }
 
         /// <summary>
-        /// Gets or sets the class to use for the collapse button
+        /// Gets or sets the icon to use for the collapse button, or <see langword="null" /> to hide the button
+        /// altogether (used for the first column, which cannot be collapsed).
         /// </summary>
         [Parameter]
-        public string CollapseButtonIconClass { get; set; }
+        public IconName? CollapseButtonIcon { get; set; }
 
         /// <summary>
         /// Gets or sets if the lines should be drawn in the left side or not drawn at all

@@ -30,7 +30,7 @@
             <DxTextBox NullText="-" Text="@enumerationParameterTypeEditorViewModel.SelectedEnumerationValueDefinitions.AsCommaSeparated()" CssClass="textBoxEllipsis" ReadOnly=true/>
             <div class="dropdownIcon">
                 <span @onclick="@(() => enumerationParameterTypeEditorViewModel.IsOnEditMode = !enumerationParameterTypeEditorViewModel.IsOnEditMode)">
-                    <i class="oi oi-caret-bottom"></i>
+                    <CometIcon Icon="IconName.ChevronDown"/>
                 </span>
             </div>
         </div>

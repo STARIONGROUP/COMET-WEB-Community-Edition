@@ -68,14 +68,14 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
             <div class="req-toolbar-group req-toolbar-right">
                 <DxButton RenderStyle="ButtonRenderStyle.Primary"
-                          IconCssClass="oi oi-plus"
+                          IconCssClass="@IconName.Add.GetCssClass()"
                           Text="Specification"
                           title="Create a new specification"
                           Click="@(() => this.ViewModel.OpenCreateSpecification())" />
 
                 <DxButton Id="reqViewMenuButton"
                           RenderStyle="ButtonRenderStyle.Light"
-                          IconCssClass="oi oi-cog"
+                          IconCssClass="@IconName.Settings.GetCssClass()"
                           Text="View"
                           title="Layout and display options"
                           Click="@(() => this.viewMenuOpen = !this.viewMenuOpen)" />

@@ -35,7 +35,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     <DxButton Id="dataItemDetailsButton"
                               Text="@(this.ButtonDisplayText)"
                               Click="@(() => this.OnButtonClick.Invoke())"
-                              IconCssClass="oi oi-plus"
+                              IconCssClass="@IconName.Add.GetCssClass()"
                               RenderStyle="ButtonRenderStyle.Dark"
                               style="width: 200px;"/>
                 }

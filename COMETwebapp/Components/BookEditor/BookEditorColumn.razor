@@ -28,9 +28,12 @@
 
 <div id="@this.Id" class="book-editor-column @columnConditionalClass">
     <div class="column-header">
-        <button class="icon collapse-button @this.CollapseButtonIconClass" @onclick="@(async () => await this.OnCollapseClicked.InvokeAsync())"></button>
+        @if (this.CollapseButtonIcon.HasValue)
+        {
+            <button class="collapse-button" @onclick="@(async () => await this.OnCollapseClicked.InvokeAsync())"><CometIcon Icon="@this.CollapseButtonIcon.Value" Size="20"/></button>
+        }
         <h5 style="background-color:@this.HeaderHexColor" class="header-text p-2">@this.HeaderTitle</h5>
-        <button class="icon icon-plus add-item-button @buttonDisabledClass" @onclick="@(async () => await this.OnCreateNewItemClick.InvokeAsync())" disabled="@this.IsAddButtonDisabled"></button>
+        <button class="add-item-button @buttonDisabledClass" @onclick="@(async () => await this.OnCreateNewItemClick.InvokeAsync())" disabled="@this.IsAddButtonDisabled"><CometIcon Icon="IconName.AddCircle" Size="20"/></button>
     </div>
     <div class="column-content">
         @if (this.Items != null && this.Items.Any())
@@ -68,8 +71,8 @@
                             @if (isSelected)
                             {
                                 <div class="edit-node-container">
-                                    <button class="icon icon-edit edit-button" @onclick="@(async () => await this.OnEditClicked.InvokeAsync(item))"></button>
-                                    <button class="icon icon-trash delete-button" @onclick="@(async () => await this.OnDeleteClicked.InvokeAsync(item))"></button>
+                                    <button class="edit-button" @onclick="@(async () => await this.OnEditClicked.InvokeAsync(item))"><CometIcon Icon="IconName.Edit" Size="18"/></button>
+                                    <button class="delete-button" @onclick="@(async () => await this.OnDeleteClicked.InvokeAsync(item))"><CometIcon Icon="IconName.Delete" Size="18"/></button>
                                 </div>
                             }
                         </div>
