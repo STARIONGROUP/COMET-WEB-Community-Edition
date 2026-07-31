@@ -37,6 +37,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -114,8 +115,9 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
                 Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf<IterationSetup>());
             });
 
-            var saveIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "saveIterationButton");
-            await this.renderer.InvokeAsync(saveIterationButton.Instance.Click.InvokeAsync);
+            var iterationsForm = this.renderer.FindComponent<IterationsForm>();
+            var editForm = iterationsForm.FindComponent<EditForm>();
+            await iterationsForm.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
             this.viewModel.Verify(x => x.CreateOrEditIteration(It.IsAny<bool>()), Times.Once);
         }
 
