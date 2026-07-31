@@ -28,17 +28,17 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <DxGridDataColumn FieldName="@nameof(FileRevisionRowViewModel.CreatedOn)" MinWidth="80" SearchEnabled="false" />
         <DxGridCommandColumn Width="160px" EditButtonVisible="false">
             <HeaderTemplate>
-                <DxButton Id="addFileRevisionButton" Text="Add File Revision" IconCssClass="oi oi-plus" Click="() => this.Grid.StartEditNewRowAsync()"/>
+                <DxButton Id="addFileRevisionButton" Text="Add File Revision" IconCssClass="@IconName.Add.GetCssClass()" Click="() => this.Grid.StartEditNewRowAsync()"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
                     var row = (FileRevisionRowViewModel)context.DataItem;
 
                     <DxButton Id="downloadFileRevisionButton"
-                              IconCssClass="oi oi-data-transfer-download"
+                              IconCssClass="@IconName.Download.GetCssClass()"
                               Click="() => this.ViewModel.DownloadFileRevision(row.Thing)" />
                     <DxButton Id="removeFileRevisionButton"
-                              IconCssClass="oi oi-trash"
+                              IconCssClass="@IconName.Delete.GetCssClass()"
                               Click="() => this.RemoveFileRevision(row)"/>
                 }
             </CellDisplayTemplate>

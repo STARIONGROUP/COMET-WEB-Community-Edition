@@ -28,11 +28,11 @@
         <div style="flex:1 1 200px; min-width:0;">
             <SearchBar @bind-Text="@this.SearchTerm" Placeholder="Search parameters or owner…"/>
         </div>
-        <DxButton Id="addParameter" Text="Parameter" IconCssClass="oi oi-plus" Click="@(this.ViewModel.OpenAddParameterPopup)"/>
-        <DxButton Id="addParameterGroup" Text="Parameter Group" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateParameterGroupPopup"/>
+        <DxButton Id="addParameter" Text="Parameter" IconCssClass="@IconName.Add.GetCssClass()" Click="@(this.ViewModel.OpenAddParameterPopup)"/>
+        <DxButton Id="addParameterGroup" Text="Parameter Group" IconCssClass="@IconName.Add.GetCssClass()" Click="@this.ViewModel.OpenCreateParameterGroupPopup"/>
     }
 
-    <DxButton Id="addElementDefinition" Text="Element Definition" IconCssClass="oi oi-plus" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
+    <DxButton Id="addElementDefinition" Text="Element Definition" IconCssClass="@IconName.Add.GetCssClass()" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
 </div>
 
 <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"

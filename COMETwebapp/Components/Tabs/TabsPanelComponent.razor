@@ -36,21 +36,21 @@
                     <SortableItemTemplate>
                         <TabComponent Text="@(GetTabText(tab))"
                                       Caption="@(this.GetCaptionText(tab.ObjectOfInterest))"
-                                      Icon="typeof(FeatherX)"
-                                      CustomOptionIcon="@(typeof(FeatherCopy))"
+                                      Icon="IconName.Close"
+                                      CustomOptionIcon="IconName.Copy"
                                       CustomOptionIconVisible="@(tab.ObjectOfInterest != null)"
                                       OnClick="@(() => this.OnTabClick.InvokeAsync((tab, this.Panel)))"
                                       OnIconClick="@(() => this.OnRemoveTabClick.InvokeAsync(tab))"
                                       OnCustomOptionIconClick="@(() => this.OnCreateTabForModel.InvokeAsync(tab))"
                                       IsCurrent="@(tab == this.Panel.CurrentTab)"
-                                      ApplicationIcon="@(Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ComponentType == tab.ComponentType).IconType)"
+                                      ApplicationIcon="@(Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ComponentType == tab.ComponentType).Icon)"
                                       @key="tab"/>
                     </SortableItemTemplate>
                 </SortableList>
 
                 <TabComponent Id="open-new-tab"
                               Text="Select Model"
-                              Icon="typeof(FeatherPlus)"
+                              Icon="IconName.Add"
                               OnClick="@(() => this.OnOpenTabClick.Invoke())"/>
             </div>
             @if (this.IsSidePanelAvailable)
@@ -59,9 +59,7 @@
                           RenderStyle="ButtonRenderStyle.None"
                           Id="new-side-panel-button"
                           CssClass="ml-auto p-0">
-                    <FeatherColumns Size="30"
-                                    Color="currentColor"
-                                    StrokeWidth="1.8f"/>
+                    <CometIcon Icon="IconName.Columns" Size="30"/>
                 </DxButton>
             }
 

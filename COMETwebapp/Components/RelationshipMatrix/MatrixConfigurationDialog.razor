@@ -68,7 +68,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
             <div class="matrix-dialog-actions">
                 <DxButton Text="@this.ExportButtonText"
-                          IconCssClass="oi oi-data-transfer-download"
+                          IconCssClass="@IconName.Download.GetCssClass()"
                           Enabled="@this.CanExportOrSave"
                           Click="@(async () => await this.OnExportOrSaveAsync())"/>
             </div>
@@ -80,7 +80,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <div class="matrix-dialog-row">
                 <label>From file</label>
                 <label id="importMatrixConfig" class="btn btn-secondary matrix-import-config" title="Import a configuration from a JSON file">
-                    <span class="oi oi-data-transfer-upload"></span> Choose a JSON file
+                    <CometIcon Icon="IconName.Upload"/> Choose a JSON file
                     <InputFile OnChange="@this.OnImportFileAsync" accept=".json" style="display: none;"/>
                 </label>
             </div>
@@ -103,7 +103,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                 <div class="matrix-dialog-actions">
                     <DxButton Text="Load from model"
-                              IconCssClass="oi oi-data-transfer-download"
+                              IconCssClass="@IconName.Download.GetCssClass()"
                               Enabled="@(this.selectedStoredConfiguration != null)"
                               Click="@(async () => await this.OnLoadFromModelAsync())"/>
                 </div>

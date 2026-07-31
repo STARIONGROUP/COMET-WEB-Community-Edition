@@ -22,6 +22,8 @@
 
 namespace COMET.Web.Common.Model
 {
+    using COMET.Web.Common.Enumerations;
+
     /// <summary>
     /// Define application information
     /// </summary>
@@ -43,15 +45,10 @@ namespace COMET.Web.Common.Model
         public string Color { get; set; }
 
         /// <summary>
-        /// Icon in the card to represent the application
+        /// The glyph of the consolidated icon system used to represent the application on its card, tab and
+        /// side-bar entry.
         /// </summary>
-        public string Icon { get; set; }
-
-        /// <summary>
-        /// The icon type to be displayed as a dynamic component, instead of a css class
-        /// </summary>
-        /// <remarks>Setting this value will likely override the selected <see cref="Icon" /> property when displayed</remarks>
-        public Type IconType { get; set; }
+        public IconName Icon { get; set; }
 
         /// <summary>
         /// The navigation url for the current application

@@ -26,6 +26,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AsyncEnumerator" />
+    <PackageReference Include="BlazorBlueprint.Icons.Feather"/>
     <PackageReference Include="Blazored.FluentValidation" />
     <PackageReference Include="Blazored.SessionStorage" />
     <PackageReference Include="CDP4ServicesDal-CE" />

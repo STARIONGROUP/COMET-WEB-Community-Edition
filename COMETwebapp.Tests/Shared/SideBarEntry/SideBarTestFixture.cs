@@ -33,6 +33,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
     using CDP4Dal;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.RegistrationService;
@@ -194,7 +195,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
                 Url = "/ModelDashboard",
                 IsDisabled = false,
                 Description = "desc",
-                Icon = "ic"
+                Icon = IconName.PieChart
             };
 
             this.registeredApplications.Add(modelDashboardApplication);

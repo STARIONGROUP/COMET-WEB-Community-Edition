@@ -24,7 +24,7 @@
 <SideBarItem Text="Session"
              Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"
              OnClick="@(this.ExpandDropdown)"
-             Icon="@(typeof(FeatherDatabase))"
+             Icon="IconName.Database"
              Id="session-side-bar-item"
              DropdownSelector="true"/>
 
@@ -57,12 +57,12 @@
                 sec
             </div>
             <div class="session__buttons">
-                <DxButton Id="edit-profile-button" CssClass="btn btn-connect" Text="Edit my profile" IconCssClass="oi oi-person" Click="@(this.OnEditProfileClick)"/>
+                <DxButton Id="edit-profile-button" CssClass="btn btn-connect" Text="Edit my profile" IconCssClass="@IconName.User.GetCssClass()" Click="@(this.OnEditProfileClick)"/>
             </div>
 
             <div class="session__buttons session__buttons--secondary">
-                <DxButton Id="refresh-button" CssClass="btn btn-connect" Text="@(this.RefreshButtonText)" IconCssClass="oi oi-reload" Enabled="@(!this.IsRefreshing)" Click="@(this.OnRefreshClick)"/>
-                <DxButton Id="logout-button" CssClass="btn btn-connect" Text="Log out" IconCssClass="oi oi-account-logout" Click="@(this.Logout)"/>
+                <DxButton Id="refresh-button" CssClass="btn btn-connect" Text="@(this.RefreshButtonText)" IconCssClass="@IconName.Refresh.GetCssClass()" Enabled="@(!this.IsRefreshing)" Click="@(this.OnRefreshClick)"/>
+                <DxButton Id="logout-button" CssClass="btn btn-connect" Text="Log out" IconCssClass="@IconName.LogOut.GetCssClass()" Click="@(this.Logout)"/>
             </div>
         </div>
     </BodyContentTemplate>

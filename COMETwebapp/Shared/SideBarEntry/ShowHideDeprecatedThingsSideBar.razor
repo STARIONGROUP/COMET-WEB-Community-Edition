@@ -21,6 +21,6 @@
 
 <SideBarItem Text="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? "Hide Deprecated Things" : "Show Deprecated Things")"
              OnClick="@(() => this.ViewModel.OnShowHideDeprecatedItems())"
-             Icon="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? typeof(FeatherEyeOff) : typeof(FeatherEye))"
+             Icon="@(this.ViewModel.ShowHideDeprecatedThingsService.ShowDeprecatedThings ? IconName.EyeOff : IconName.Eye)"
              Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"
              Id="showHideIcon"/>

@@ -31,7 +31,7 @@
 	<OpenModel />
 </DxPopup>
 
-<DxMenuItem Name="model-entry" Text="@this.ConfigurationService.GetText(TextConfigurationKind.NavigationModelSelectorTitle)" IconCssClass="icon icon-folder" Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)">
+<DxMenuItem Name="model-entry" Text="@this.ConfigurationService.GetText(TextConfigurationKind.NavigationModelSelectorTitle)" IconCssClass="@IconName.Folder.GetCssClass()" Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)">
     <TextTemplate>
         <span id="@context.Name">
             @context.Text

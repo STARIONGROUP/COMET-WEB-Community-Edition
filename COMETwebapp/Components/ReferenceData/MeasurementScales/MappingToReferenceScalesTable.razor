@@ -29,7 +29,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <HeaderTemplate>
                 <DxButton Id="addMappingToReferenceScaleButton"
                           Text="Add"
-                          IconCssClass="oi oi-plus"
+                          IconCssClass="@IconName.Add.GetCssClass()"
                           Click="this.StartCreate" />
             </HeaderTemplate>
             <CellDisplayTemplate>
@@ -37,11 +37,11 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     var row = (MappingToReferenceScaleRowViewModel)context.DataItem;
 
                     <DxButton Id="editMappingToReferenceScaleButton"
-                              IconCssClass="oi oi-pencil"
+                              IconCssClass="@IconName.Edit.GetCssClass()"
                               Click="@(() => this.StartEdit(row))" />
 
                     <DxButton Id="removeMappingToReferenceScaleButton"
-                              IconCssClass="oi oi-trash"
+                              IconCssClass="@IconName.Delete.GetCssClass()"
                               Click="() => this.RemoveMappingToReferenceScale(row)" />
                 }
             </CellDisplayTemplate>

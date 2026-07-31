@@ -25,6 +25,7 @@
 namespace COMETwebapp.Components.Tabs
 {
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Enumerations;
 
     using Microsoft.AspNetCore.Components;
 
@@ -55,13 +56,13 @@ namespace COMETwebapp.Components.Tabs
         /// Gets or sets the icon to be displayed on the right side of a tab
         /// </summary>
         [Parameter]
-        public Type Icon { get; set; }
+        public IconName? Icon { get; set; }
 
         /// <summary>
         /// Gets or sets the icon to be displayed as an option icon from a tab
         /// </summary>
         [Parameter]
-        public Type CustomOptionIcon { get; set; }
+        public IconName? CustomOptionIcon { get; set; }
 
         /// <summary>
         /// Gets or sets the condition to check if the <see cref="CustomOptionIcon"/> should be visible
@@ -73,7 +74,7 @@ namespace COMETwebapp.Components.Tabs
         /// Gets or sets the icon to be displayed in the left, distinguishing different applications
         /// </summary>
         [Parameter]
-        public Type ApplicationIcon { get; set; }
+        public IconName? ApplicationIcon { get; set; }
 
         /// <summary>
         /// Gets or sets the action to be executed when the tab is clicked
@@ -98,16 +99,5 @@ namespace COMETwebapp.Components.Tabs
         /// </summary>
         [Parameter]
         public bool IsCurrent { get; set; }
-
-        /// <summary>
-        /// Gets the icon configuration to display
-        /// </summary>
-        private static Dictionary<string, object> IconConfiguration => new()
-        {
-            { "Size", 22 },
-            { "Color", "currentColor" },
-            { "StrokeWidth", 1.8f },
-            { "CssClass", "cursor-pointer" }
-        };
     }
 }
