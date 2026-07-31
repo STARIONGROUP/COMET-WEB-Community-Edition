@@ -1,24 +1,24 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ThingOrderedItemsTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
-//
-//     This file is part of COMET WEB Community Edition
-//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     This file is part of CDP4-COMET WEB Community Edition
+//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Affero General Public License for more details.
+//     Affero General Public License for more details.
 // 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
-//  --------------------------------------------------------------------------------------------------------------------
+//   --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Components.Common
 {
@@ -29,8 +29,6 @@ namespace COMETwebapp.Components.Common
 
     using COMETwebapp.Services.RowViewModelFactoryService;
     using COMETwebapp.ViewModels.Components.Common.Rows;
-
-    using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
 
@@ -65,12 +63,6 @@ namespace COMETwebapp.Components.Common
         /// The item that will be handled for both edit and add forms
         /// </summary>
         public TItem Item { get; protected set; }
-
-        /// <summary>
-        /// Gets or sets the grid control that is being customized.
-        /// </summary>
-        [Obsolete("Grid-editing members are obsolete. Use StartCreate() and StartEdit(TItemRow) instead.")]
-        protected IGrid Grid { get; set; }
 
         /// <summary>
         /// Gets or sets the ordered list of items from the current <see cref="Thing" />
@@ -162,25 +154,6 @@ namespace COMETwebapp.Components.Common
         {
             this.OrderedItemsList.Remove(row.Thing);
             await this.ThingChanged.InvokeAsync(this.Thing);
-        }
-
-        /// <summary>
-        /// Method that is invoked when the edit/add quantity kind factor form is being saved
-        /// </summary>
-        [Obsolete("Grid-editing members are obsolete. Use OnSaved() instead.")]
-        protected void OnEditItemSaving()
-        {
-            if (this.ShouldCreate)
-            {
-                this.OrderedItemsList.Add(this.Item);
-            }
-            else
-            {
-                var indexToUpdate = this.OrderedItemsList.FindIndex(x => x.Iid == this.Item.Iid);
-                this.OrderedItemsList[indexToUpdate] = this.Item;
-            }
-
-            this.ThingChanged.InvokeAsync(this.Thing);
         }
 
         /// <summary>

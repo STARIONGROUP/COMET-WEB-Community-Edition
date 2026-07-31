@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParticipantsTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -28,8 +28,6 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -49,32 +47,60 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         private string AssignedDomainsPopupText { get; set; }
 
         /// <summary>
-        /// Gets the available persons. If the user is editing an existing participant, only the selected person should be
-        /// retrieved
+        /// Gets or sets a value indicating whether the assigned domains popup is visible
         /// </summary>
-        private IEnumerable<Person> Persons => this.ShouldCreateThing ? this.ViewModel.Persons : [this.ViewModel.CurrentThing.Person];
+        public bool IsAssignedDomainsPopupVisible { get; set; }
 
         /// <summary>
-        /// Method that is invoked when the edit/add thing form is being saved
+        /// Method invoked when the component is ready to start, having received its initial parameters
         /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnEditThingSaving()
+        protected override void OnInitialized()
         {
-            await this.ViewModel.CreateOrEditParticipant(this.ShouldCreateThing);
+            base.OnInitialized();
+            this.Initialize(this.ViewModel);
         }
 
         /// <summary>
-        /// Method invoked when creating a new thing
+        /// Starts the creation flow for a new <see cref="Participant"/> item.
         /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
+        public override void StartCreate()
         {
-            base.CustomizeEditThing(e);
+            base.StartCreate();
+            this.ViewModel.CurrentThing = new Participant();
+        }
 
-            var dataItem = (ParticipantRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
-            this.ViewModel.CurrentThing = dataItem == null ? new Participant() : dataItem.Thing.Clone(true);
-            e.EditModel = this.ViewModel.CurrentThing;
+        /// <summary>
+        /// Starts the edit flow for the specified <paramref name="row"/>.
+        /// </summary>
+        /// <param name="row">The selected row to edit.</param>
+        public override void StartEdit(ParticipantRowViewModel row)
+        {
+            if (row == null)
+            {
+                return;
+            }
+
+            this.OnSelectedDataItemChanged(row);
+        }
+
+        /// <summary>
+        /// Method invoked every time a row is selected
+        /// </summary>
+        /// <param name="row">The selected row</param>
+        protected override void OnSelectedDataItemChanged(ParticipantRowViewModel row)
+        {
+            base.OnSelectedDataItemChanged(row);
+            this.ShouldCreateThing = false;
+            this.ViewModel.CurrentThing = row.Thing.Clone(true);
+        }
+
+        /// <summary>
+        /// Method invoked whenever a form is saved
+        /// </summary>
+        protected override void OnSaved()
+        {
+            base.OnSaved();
+            this.IsOnEditMode = false;
         }
 
         /// <summary>
@@ -84,17 +110,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         private void OpenAssignedDomainDetailsPopup(string text)
         {
             this.AssignedDomainsPopupText = text;
-            this.IsOnEditMode = true;
-        }
-
-        /// <summary>
-        /// Sets the selected values for the <see cref="Participant" /> creation and submits the form
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task SetSelectedValuesAndSubmit()
-        {
-            this.ViewModel.UpdateSelectedDomains();
-            await this.Grid.SaveChangesAsync();
+            this.IsAssignedDomainsPopupVisible = true;
         }
     }
 }

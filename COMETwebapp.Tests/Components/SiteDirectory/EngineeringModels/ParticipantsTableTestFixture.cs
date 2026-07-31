@@ -39,6 +39,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
 
@@ -116,18 +117,18 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         [Test]
         public void VerifyOnInitialized()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
                 Assert.That(this.renderer.Instance.ViewModel, Is.Not.Null);
                 Assert.That(this.renderer.Markup, Does.Contain(this.participant1.Person.Name));
                 Assert.That(this.renderer.Markup, Does.Contain(this.participant2.Person.Name));
-            });
+            }
 
             var details = this.renderer.Find("a");
             details.ClickAsync(new MouseEventArgs());
 
-            Assert.That(this.renderer.Instance.IsOnEditMode, Is.EqualTo(true));
+            Assert.That(this.renderer.Instance.IsAssignedDomainsPopupVisible, Is.EqualTo(true));
         }
 
         [Test]
@@ -144,42 +145,43 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             var addParticipantButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addParticipantButton");
             await this.renderer.InvokeAsync(addParticipantButton.Instance.Click.InvokeAsync);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.EqualTo(true));
                 Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(Participant)));
-            });
+            }
 
             var editParticipantButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editParticipantButton");
             await this.renderer.InvokeAsync(editParticipantButton.Instance.Click.InvokeAsync);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.EqualTo(false));
                 Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf(typeof(Participant)));
-            });
+            }
 
-            var saveParticipantsButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "saveParticipantsButton");
-            await this.renderer.InvokeAsync(saveParticipantsButton.Instance.Click.InvokeAsync);
+            var participantsForm = this.renderer.FindComponent<ParticipantsForm>();
+            var editForm = participantsForm.FindComponent<EditForm>();
+            await participantsForm.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
             this.viewModel.Verify(x => x.CreateOrEditParticipant(It.IsAny<bool>()), Times.Once);
         }
 
         [Test]
         public async Task VerifyStartCreate()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.False);
                 Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
-            });
+            }
 
             await this.renderer.InvokeAsync(() => this.renderer.Instance.StartCreate());
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.True);
                 Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
-            });
+            }
         }
 
         [Test]
