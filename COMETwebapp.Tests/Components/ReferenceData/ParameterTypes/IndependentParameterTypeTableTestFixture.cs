@@ -105,10 +105,17 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
                 Assert.That(this.renderer.Instance.ShouldCreate, Is.False);
             });
 
+            var replacement = new SimpleQuantityKind { Name = "replacement" };
+            this.renderer.Instance.Item.Thing.ParameterType = replacement;
+
             var form = this.renderer.FindComponent<EditForm>();
             await this.renderer.InvokeAsync(form.Instance.OnValidSubmit.InvokeAsync);
 
-            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+                Assert.That(this.parameterType.IndependentParameterType[0].ParameterType.Name, Is.EqualTo("replacement"));
+            });
 
             var addIndependentParameterTypeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addIndependentParameterTypeButton");
             await this.renderer.InvokeAsync(addIndependentParameterTypeButton.Instance.Click.InvokeAsync);

@@ -114,7 +114,12 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             else
             {
                 var indexToUpdate = this.Thing.IndependentParameterType.FindIndex(x => x.Iid == this.Item.Thing.Iid);
-                this.Thing.InterpolationPeriod[indexToUpdate] = this.Item.InterpolationPeriod;
+
+                if (indexToUpdate != -1)
+                {
+                    this.Thing.IndependentParameterType[indexToUpdate] = this.Item.Thing;
+                    this.Thing.InterpolationPeriod[indexToUpdate] = this.Item.InterpolationPeriod;
+                }
             }
 
             this.ThingChanged.InvokeAsync(this.Thing);
