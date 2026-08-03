@@ -149,6 +149,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
                 }
 
                 await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
+
+                if (this.CurrentThing.Original is MeasurementUnit originalUnit)
+                {
+                    this.CurrentThing = originalUnit.Clone(true);
+                }
             }
             catch (Exception ex)
             {

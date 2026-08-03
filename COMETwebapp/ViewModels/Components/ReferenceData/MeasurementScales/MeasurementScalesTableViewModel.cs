@@ -194,6 +194,11 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
                 thingsToCreate.Add(this.CurrentThing);
 
                 await this.SessionService.CreateOrUpdateThingsWithNotification(rdlClone, thingsToCreate, this.GetNotificationDescription(shouldCreate));
+
+                if (this.CurrentThing.Original is MeasurementScale originalScale)
+                {
+                    this.CurrentThing = originalScale.Clone(true);
+                }
             }
             catch (Exception ex)
             {
