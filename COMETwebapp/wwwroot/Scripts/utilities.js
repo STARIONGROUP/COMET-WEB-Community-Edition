@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Downloads a given file by its name
  * @param {string} fileName
  * @param {any} contentStreamReference
@@ -62,6 +62,7 @@ function loadBabylonScripts() {
             script.src = src;
             script.onload = resolve;
             script.onerror = (err) => {
+                script.remove();
                 babylonScriptsPromise = null;
                 reject(err);
             };
@@ -70,4 +71,4 @@ function loadBabylonScripts() {
     }, Promise.resolve());
 
     return babylonScriptsPromise;
-}
+}

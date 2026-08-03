@@ -22,13 +22,13 @@
 
 namespace COMETwebapp.Tests.Services.Interoperability
 {
-    using System;
-
     using COMETwebapp.Model;
     using COMETwebapp.Model.Viewer.Primitives;
     using COMETwebapp.Services.Interoperability;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.JSInterop;
+    using Microsoft.JSInterop.Infrastructure;
 
     using Moq;
 
@@ -37,57 +37,149 @@ namespace COMETwebapp.Tests.Services.Interoperability
     [TestFixture]
     public class BabylonJsInteroperabilityTestFixture
     {
-        private ElementReference canvasReference;
-        private Mock<IBabylonInterop> babylonInteropMock;
+        private Mock<IJSRuntime> jsRuntimeMock;
+        private BabylonInterop babylonInterop;
 
         [SetUp]
         public void SetUp()
         {
-            this.canvasReference = new ElementReference();
-            this.babylonInteropMock = new Mock<IBabylonInterop>();
-            this.babylonInteropMock.Setup(x => x.InitCanvas(this.canvasReference, It.IsAny<bool>()));
-            this.babylonInteropMock.Setup(x => x.AddSceneObject(null)).Throws<ArgumentNullException>();
-            this.babylonInteropMock.Setup(x => x.ClearSceneObject(null)).Throws<ArgumentNullException>();
-            this.babylonInteropMock.Setup(x => x.ClearSceneObjects(null)).Throws<ArgumentNullException>();
-            this.babylonInteropMock.Setup(x => x.SetVisibility(null, It.IsAny<bool>())).Throws<ArgumentNullException>();
+            this.jsRuntimeMock = new Mock<IJSRuntime>();
+
+            this.jsRuntimeMock
+                .Setup(x => x.InvokeAsync<IJSVoidResult>(It.IsAny<string>(), It.IsAny<object[]>()))
+                .ReturnsAsync(Mock.Of<IJSVoidResult>());
+
+            this.jsRuntimeMock
+                .Setup(x => x.InvokeAsync<string>(It.IsAny<string>(), It.IsAny<object[]>()))
+                .ReturnsAsync((string)null);
+
+            this.babylonInterop = new BabylonInterop(this.jsRuntimeMock.Object);
         }
 
         [Test]
-        public void VerifyInitCanvas()
+        public async Task VerifyAddSceneObject()
         {
-            Assert.DoesNotThrow(() => this.babylonInteropMock.Object.InitCanvas(this.canvasReference, true));
-            this.babylonInteropMock.Verify(x => x.InitCanvas(this.canvasReference, It.IsAny<bool>()), Times.Once());
+            Assert.That(async () => await this.babylonInterop.AddSceneObject(null), Throws.ArgumentNullException);
+
+            await this.babylonInterop.AddSceneObject(new SceneObject(new Cube(1, 1, 1)));
+
+            this.jsRuntimeMock.Verify(
+                x => x.InvokeAsync<IJSVoidResult>(
+                    BabylonInterop.AddSceneObjectFunction,
+                    It.Is<object[]>(args => args.Length == 1)),
+                Times.Once());
         }
 
         [Test]
-        public void VerifyAddSceneObject()
+        public async Task VerifyClearSceneObject()
         {
-            Assert.Throws<ArgumentNullException>(()=> this.babylonInteropMock.Object.AddSceneObject(null));
-            Assert.DoesNotThrow(() => this.babylonInteropMock.Object.AddSceneObject(new SceneObject(new Cube(1, 1, 1))));
-            this.babylonInteropMock.Verify(x => x.AddSceneObject(It.IsAny<SceneObject>()), Times.AtLeast(2));
+            Assert.That(async () => await this.babylonInterop.ClearSceneObject(null), Throws.ArgumentNullException);
+
+            await this.babylonInterop.ClearSceneObject(new SceneObject(new Cube(1, 1, 1)));
+
+            this.jsRuntimeMock.Verify(
+                x => x.InvokeAsync<IJSVoidResult>(
+                    BabylonInterop.DisposeAllFunction,
+                    It.Is<object[]>(args => args.Length == 1)),
+                Times.Once());
         }
 
         [Test]
-        public void VerifyClearSceneObjects()
+        public async Task VerifyClearSceneObjects()
         {
-            Assert.Throws<ArgumentNullException>(() => this.babylonInteropMock.Object.ClearSceneObject(null));
-            Assert.DoesNotThrow(() => this.babylonInteropMock.Object.ClearSceneObject(new SceneObject(new Cube(1, 1, 1))));
-            this.babylonInteropMock.Verify(x => x.ClearSceneObject(It.IsAny<SceneObject>()), Times.AtLeast(2));
+            Assert.That(async () => await this.babylonInterop.ClearSceneObjects(null), Throws.ArgumentNullException);
+
+            // Empty list: DisposeAll should NOT be called
+            await this.babylonInterop.ClearSceneObjects(new List<SceneObject>());
+
+            this.jsRuntimeMock.Verify(
+                x => x.InvokeAsync<IJSVoidResult>(
+                    BabylonInterop.DisposeAllFunction,
+                    It.IsAny<object[]>()),
+                Times.Never());
+
+            // Populated list: DisposeAll SHOULD be called
+            await this.babylonInterop.ClearSceneObjects(new List<SceneObject> { new(new Cube(1, 1, 1)) });
+
+            this.jsRuntimeMock.Verify(
+                x => x.InvokeAsync<IJSVoidResult>(
+                    BabylonInterop.DisposeAllFunction,
+                    It.Is<object[]>(args => args.Length == 1)),
+                Times.Once());
         }
 
         [Test]
-        public void VerifySetVisibility()
+        public async Task VerifyGetPrimitiveIdUnderMouseAsync()
         {
-            Assert.Throws<ArgumentNullException>(() => this.babylonInteropMock.Object.SetVisibility(null,true));
-            Assert.DoesNotThrow(() => this.babylonInteropMock.Object.SetVisibility(new SceneObject(new Cube(1,1,1)), true));
-            this.babylonInteropMock.Verify(x => x.SetVisibility(It.IsAny<SceneObject>(), It.IsAny<bool>()), Times.AtLeast(2));
+            // Returns Guid.Empty when JS returns null
+            var result = await this.babylonInterop.GetPrimitiveIdUnderMouseAsync();
+            Assert.That(result, Is.EqualTo(Guid.Empty));
+
+            // Returns Guid.Empty when JS returns an invalid string
+            this.jsRuntimeMock
+                .Setup(x => x.InvokeAsync<string>(BabylonInterop.GetPrimitiveIdUnderMouseFunction, It.IsAny<object[]>()))
+                .ReturnsAsync("not-a-guid");
+
+            result = await this.babylonInterop.GetPrimitiveIdUnderMouseAsync();
+            Assert.That(result, Is.EqualTo(Guid.Empty));
+
+            // Returns parsed Guid when JS returns a valid guid string
+            var expected = Guid.NewGuid();
+
+            this.jsRuntimeMock
+                .Setup(x => x.InvokeAsync<string>(BabylonInterop.GetPrimitiveIdUnderMouseFunction, It.IsAny<object[]>()))
+                .ReturnsAsync(expected.ToString());
+
+            result = await this.babylonInterop.GetPrimitiveIdUnderMouseAsync();
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]
-        public void VerifyGetPrimitiveIdUnderMouseAsync()
+        public async Task VerifyInitCanvas()
         {
-            Assert.DoesNotThrow(() => this.babylonInteropMock.Object.GetPrimitiveIdUnderMouseAsync());
-            this.babylonInteropMock.Verify(x => x.GetPrimitiveIdUnderMouseAsync(), Times.Once());
+            var canvasReference = new ElementReference();
+            await this.babylonInterop.InitCanvas(canvasReference, true);
+
+            using var scope = Assert.EnterMultipleScope();
+
+            this.jsRuntimeMock.Verify(
+                x => x.InvokeAsync<IJSVoidResult>(
+                    BabylonInterop.LoadBabylonScriptsFunction,
+                    It.Is<object[]>(args => args.Length == 0)),
+                Times.Once());
+
+            this.jsRuntimeMock.Verify(
+                x => x.InvokeAsync<IJSVoidResult>(
+                    BabylonInterop.InitCanvasFunction,
+                    It.Is<object[]>(args => args.Length == 2)),
+                Times.Once());
+        }
+
+        [Test]
+        public async Task VerifyRegenerateMesh()
+        {
+            await this.babylonInterop.RegenerateMesh(new SceneObject(new Cube(1, 1, 1)));
+
+            this.jsRuntimeMock.Verify(
+                x => x.InvokeAsync<IJSVoidResult>(
+                    BabylonInterop.RegenMeshFunction,
+                    It.Is<object[]>(args => args.Length == 1)),
+                Times.Once());
+        }
+
+        [Test]
+        public async Task VerifySetVisibility()
+        {
+            Assert.That(async () => await this.babylonInterop.SetVisibility(null, true), Throws.ArgumentNullException);
+
+            var sceneObject = new SceneObject(new Cube(1, 1, 1));
+            await this.babylonInterop.SetVisibility(sceneObject, true);
+
+            this.jsRuntimeMock.Verify(
+                x => x.InvokeAsync<IJSVoidResult>(
+                    BabylonInterop.SetMeshVisibilityFunction,
+                    It.Is<object[]>(args => args.Length == 2)),
+                Times.Once());
         }
     }
 }
