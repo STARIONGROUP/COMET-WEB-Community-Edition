@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Downloads a given file by its name
  * @param {string} fileName
  * @param {any} contentStreamReference
@@ -61,10 +61,10 @@ function loadBabylonScripts() {
             const script = document.createElement("script");
             script.src = src;
             script.onload = resolve;
-            script.onerror = (err) => {
+            script.onerror = () => {
                 script.remove();
                 babylonScriptsPromise = null;
-                reject(err);
+                reject(new Error(`Failed to load script: ${src}`));
             };
             document.body.appendChild(script);
         }));
