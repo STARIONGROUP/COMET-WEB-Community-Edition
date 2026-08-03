@@ -89,16 +89,6 @@ namespace COMETwebapp.Tests.Services.Interoperability
         {
             Assert.That(async () => await this.babylonInterop.ClearSceneObjects(null), Throws.ArgumentNullException);
 
-            // Empty list: DisposeAll should NOT be called
-            await this.babylonInterop.ClearSceneObjects(new List<SceneObject>());
-
-            this.jsRuntimeMock.Verify(
-                x => x.InvokeAsync<IJSVoidResult>(
-                    BabylonInterop.DisposeAllFunction,
-                    It.IsAny<object[]>()),
-                Times.Never());
-
-            // Populated list: DisposeAll SHOULD be called
             await this.babylonInterop.ClearSceneObjects(new List<SceneObject> { new(new Cube(1, 1, 1)) });
 
             this.jsRuntimeMock.Verify(

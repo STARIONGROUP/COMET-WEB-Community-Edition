@@ -122,14 +122,9 @@ namespace COMETwebapp.Services.Interoperability
         public async Task ClearSceneObjects(IEnumerable<SceneObject> sceneObjects)
         {
             ArgumentNullException.ThrowIfNull(sceneObjects);
+            await this.EnsureScriptsLoadedAsync();
 
             var ids = sceneObjects.Select(x => x.ID).ToList();
-
-            if (ids.Count == 0)
-            {
-                return;
-            }
-
             await this.JsRuntime.InvokeVoidAsync(DisposeAllFunction, ids);
         }
 
