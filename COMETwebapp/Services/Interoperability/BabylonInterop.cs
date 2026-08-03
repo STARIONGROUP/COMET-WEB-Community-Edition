@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BabylonInterop.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -43,13 +43,23 @@ namespace COMETwebapp.Services.Interoperability
         }
 
         /// <summary>
+        /// Ensures that Babylon.js and associated scripts are dynamically loaded.
+        /// </summary>
+        /// <returns>An asynchronous task representing the operation</returns>
+        private async Task EnsureScriptsLoadedAsync()
+        {
+            await this.JsRuntime.InvokeVoidAsync("loadBabylonScripts");
+        }
+
+        /// <summary>
         /// Initializes the canvas with the Babylon.js engine
         /// </summary>
         /// <param name="canvasReference">the reference to the canvas to initialize</param>
         /// <param name="addAxes">if the world should show axes or not</param>
-        /// <returns></returns>
+        /// <returns>An asynchronous task representing the operation</returns>
         public async Task InitCanvas(ElementReference canvasReference, bool addAxes)
         {
+            await this.EnsureScriptsLoadedAsync();
             await this.JsRuntime.InvokeVoidAsync("InitCanvas", canvasReference, addAxes);
         }
 
@@ -62,6 +72,7 @@ namespace COMETwebapp.Services.Interoperability
         {
             ArgumentNullException.ThrowIfNull(sceneObject);
 
+            await this.EnsureScriptsLoadedAsync();
             var sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
             await this.JsRuntime.InvokeVoidAsync("AddSceneObject", sceneObjectJson);
         }
@@ -87,6 +98,7 @@ namespace COMETwebapp.Services.Interoperability
         {
             ArgumentNullException.ThrowIfNull(sceneObjects);
 
+            await this.EnsureScriptsLoadedAsync();
             var ids = sceneObjects.Select(x => x.ID).ToList();
             await this.JsRuntime.InvokeVoidAsync("DisposeAll", ids.ToArray());
         }
@@ -101,6 +113,7 @@ namespace COMETwebapp.Services.Interoperability
         {
             ArgumentNullException.ThrowIfNull(sceneObject);
 
+            await this.EnsureScriptsLoadedAsync();
             await this.JsRuntime.InvokeVoidAsync("SetMeshVisibility", sceneObject.ID, visibility);
         }
 
@@ -110,6 +123,7 @@ namespace COMETwebapp.Services.Interoperability
         /// <param name="sceneObject">the <see cref="SceneObject"/> to regenerate</param>
         public async Task RegenerateMesh(SceneObject sceneObject)
         {
+            await this.EnsureScriptsLoadedAsync();
             var sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
             await this.JsRuntime.InvokeVoidAsync("RegenMesh", sceneObjectJson);
         }
@@ -120,6 +134,7 @@ namespace COMETwebapp.Services.Interoperability
         /// <returns></returns>
         public async Task<Guid> GetPrimitiveIdUnderMouseAsync()
         {
+            await this.EnsureScriptsLoadedAsync();
             var id = await this.JsRuntime.InvokeAsync<string>("GetPrimitiveIDUnderMouse");
             
             if (id == null || !Guid.TryParse(id, out var ID))

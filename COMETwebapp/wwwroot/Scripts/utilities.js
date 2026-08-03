@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Downloads a given file by its name
  * @param {string} fileName
  * @param {any} contentStreamReference
@@ -31,3 +31,43 @@ function GetItemDimensions(cssSelector) {
     }
     return [];
 }
+
+let babylonScriptsPromise = null;
+
+/**
+ * Dynamically loads Babylon.js scripts on demand
+ * @returns {Promise<void>}
+ */
+function loadBabylonScripts() {
+    if (babylonScriptsPromise) {
+        return babylonScriptsPromise;
+    }
+
+    const scripts = [
+        "Scripts/BabylonJS/babylon.js",
+        "Scripts/BabylonJS/babylonjs.loaders.min.js",
+        "Scripts/SceneObject.js",
+        "Scripts/MeshMaterial.js",
+        "Scripts/babylonSpecifics.js",
+        "Scripts/babylonInterop.js"
+    ];
+
+    babylonScriptsPromise = scripts.reduce((promise, src) => {
+        return promise.then(() => new Promise((resolve, reject) => {
+            if (document.querySelector(`script[src="${src}"]`)) {
+                resolve();
+                return;
+            }
+            const script = document.createElement("script");
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = (err) => {
+                babylonScriptsPromise = null;
+                reject(err);
+            };
+            document.body.appendChild(script);
+        }));
+    }, Promise.resolve());
+
+    return babylonScriptsPromise;
+}
