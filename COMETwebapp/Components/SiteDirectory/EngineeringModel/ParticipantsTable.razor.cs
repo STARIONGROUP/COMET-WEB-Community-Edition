@@ -42,9 +42,9 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         public IParticipantsTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets the active domains details text
+        /// Gets or sets the assigned domains list to display in the popup
         /// </summary>
-        private string AssignedDomainsPopupText { get; set; }
+        private List<string> AssignedDomainsPopupList { get; set; } = [];
 
         /// <summary>
         /// Gets or sets a value indicating whether the assigned domains popup is visible
@@ -106,10 +106,10 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         /// <summary>
         /// Opens the assigned domain details popup
         /// </summary>
-        /// <param name="text">The text to show inside the popup</param>
-        private void OpenAssignedDomainDetailsPopup(string text)
+        /// <param name="row">The <see cref="ParticipantRowViewModel"/> row whose assigned domains to show</param>
+        private void OpenAssignedDomainDetailsPopup(ParticipantRowViewModel row)
         {
-            this.AssignedDomainsPopupText = text;
+            this.AssignedDomainsPopupList = row.Thing.Domain.Select(x => x.Name).ToList();
             this.IsAssignedDomainsPopupVisible = true;
         }
     }

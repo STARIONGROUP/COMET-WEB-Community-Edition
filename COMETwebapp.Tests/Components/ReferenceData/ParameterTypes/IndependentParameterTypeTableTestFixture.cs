@@ -157,7 +157,13 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
             var removeIndependentParameterTypeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeIndependentParameterTypeButton");
             await this.renderer.InvokeAsync(removeIndependentParameterTypeButton.Instance.Click.InvokeAsync);
-            Assert.That(this.parameterType.IndependentParameterType, Has.Count.EqualTo(1));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.parameterType.IndependentParameterType, Has.Count.EqualTo(1));
+                Assert.That(this.parameterType.InterpolationPeriod, Has.Count.EqualTo(1));
+                Assert.That(this.parameterType.InterpolationPeriod[0], Is.EqualTo("2"));
+            }
         }
 
         [Test]
