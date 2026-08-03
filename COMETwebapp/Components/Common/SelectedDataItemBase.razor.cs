@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SelectedDataItemBase.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -30,8 +30,6 @@ namespace COMETwebapp.Components.Common
     using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
-    using DevExpress.Blazor;
-
     using DynamicData;
 
     using ReactiveUI;
@@ -57,12 +55,6 @@ namespace COMETwebapp.Components.Common
         public bool IsOnEditMode { get; protected set; }
 
         /// <summary>
-        /// Gets or sets the grid control that is being customized.
-        /// </summary>
-        [Obsolete("Grid-editing members are obsolete. Use StartCreate() and StartEdit(TRow) instead.")]
-        protected IGrid Grid { get; set; }
-
-        /// <summary>
         /// Method used to initialize the <see cref="ViewModel" />
         /// </summary>
         protected void Initialize(IBaseDataItemTableViewModel<T, TRow> viewModel)
@@ -77,24 +69,6 @@ namespace COMETwebapp.Components.Common
 
             this.Disposables.Add(this.ViewModel.Rows.CountChanged.SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.Rows.Connect().AutoRefresh().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-        }
-
-        /// <summary>
-        /// Method invoked when creating a new thing
-        /// </summary>
-        /// <param name="e">A <see cref="GridCustomizeEditModelEventArgs" /></param>
-        [Obsolete("Grid-editing members are obsolete. Use StartCreate() and StartEdit(TRow) instead.")]
-        protected virtual void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
-        {
-        }
-
-        /// <summary>
-        /// Method that is invoked when the edit/add thing form is being saved
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected virtual Task OnEditThingSaving()
-        {
-            return Task.CompletedTask;
         }
 
         /// <summary>

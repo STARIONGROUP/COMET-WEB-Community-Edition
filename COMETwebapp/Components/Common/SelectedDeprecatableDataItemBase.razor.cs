@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SelectedDeprecatableDataItemBase.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -42,6 +42,11 @@ namespace COMETwebapp.Components.Common
         /// The <see cref="IDeprecatableDataItemTableViewModel{T,TRow}" /> for this component
         /// </summary>
         private IDeprecatableDataItemTableViewModel<T, TRow> ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the grid control used for deprecated item filtering.
+        /// </summary>
+        protected IGrid Grid { get; set; }
 
         /// <summary>
         /// Method invoked to "Show/Hide Deprecated Items"

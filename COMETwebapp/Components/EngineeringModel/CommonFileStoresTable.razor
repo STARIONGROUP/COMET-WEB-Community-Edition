@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 Copyright (c) 2023-2026 Starion Group S.A
     This file is part of CDP4-COMET WEB Community Edition
      The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -16,15 +16,13 @@ Copyright (c) 2023-2026 Starion Group S.A
 @inherits SelectedDataItemBase<CommonFileStore, CommonFileStoreRowViewModel>
 
 <div class="selected-data-item-page">
-    <DxGrid @ref="this.Grid"
-            Data="this.ViewModel.Rows.Items"
+    <DxGrid Data="this.ViewModel.Rows.Items"
             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
             ShowSearchBox="true"
             SearchBoxNullText="Search for a common file store ..."
             AllowSelectRowByClick="true"
             SelectionMode="GridSelectionMode.Single"
             SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((CommonFileStoreRowViewModel)row))"
-            EditFormButtonsVisible="false"
             PageSize="20"
             PagerNavigationMode="PagerNavigationMode.Auto"
             PageSizeSelectorVisible="true"

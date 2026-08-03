@@ -28,8 +28,6 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
     using COMETwebapp.ViewModels.Components.SiteDirectory.Rows;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -44,39 +42,53 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         public IIterationsTableViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Method that is invoked when the edit/add thing form is being saved
+        /// Method invoked when the component is initialized
         /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnEditThingSaving()
+        protected override void OnInitialized()
         {
-            await this.ViewModel.CreateOrEditIteration(this.ShouldCreateThing);
+            base.OnInitialized();
+            this.Initialize(this.ViewModel);
         }
 
         /// <summary>
-        /// Method invoked when creating a new thing
+        /// Starts the creation flow for a new <see cref="IterationSetup" /> item.
         /// </summary>
-        /// <param name="e">A <see cref="DevExpress.Blazor.GridCustomizeEditModelEventArgs" /></param>
-        protected override void CustomizeEditThing(GridCustomizeEditModelEventArgs e)
+        public override void StartCreate()
         {
-            base.CustomizeEditThing(e);
+            base.StartCreate();
+            this.ViewModel.CurrentThing = new IterationSetup();
 
-            var dataItem = (IterationSetupRowViewModel)e.DataItem;
-            this.ShouldCreateThing = e.IsNew;
-            this.ViewModel.CurrentThing = dataItem == null ? new IterationSetup() : dataItem.Thing.Clone(true);
-
-            if (this.ShouldCreateThing && this.ViewModel.SourceIterations.Any())
+            if (this.ViewModel.SourceIterations.Any())
             {
                 this.ViewModel.CurrentThing.SourceIterationSetup = this.ViewModel.SourceIterations.OrderByDescending(x => x.IterationNumber).First();
             }
-
-            e.EditModel = this.ViewModel.CurrentThing;
         }
 
         /// <summary>
-        /// Gets a value indicating whether deprecate is enabled for a row
+        /// Method invoked every time a row is selected
+        /// </summary>
+        /// <param name="row">The selected row</param>
+        protected override void OnSelectedDataItemChanged(IterationSetupRowViewModel row)
+        {
+            base.OnSelectedDataItemChanged(row);
+            this.ShouldCreateThing = false;
+            this.ViewModel.CurrentThing = row.Thing.Clone(true);
+        }
+
+        /// <summary>
+        /// Method invoked whenever a form is saved
+        /// </summary>
+        protected override void OnSaved()
+        {
+            base.OnSaved();
+            this.IsOnEditMode = false;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether delete is enabled for a row
         /// </summary>
         /// <param name="row">The row view model</param>
-        /// <returns>True if allowed to deprecate</returns>
+        /// <returns>True if allowed to delete</returns>
         private bool IsDeleteEnabled(IterationSetupRowViewModel row)
         {
             if (row.Thing.IsDeleted || !row.IsAllowedToWrite)
@@ -91,15 +103,6 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
                 .Max();
 
             return row.Thing.IterationNumber != maxIterationNumber;
-        }
-
-        /// <summary>
-        /// Sets the selected values for the <see cref="IterationSetup" /> creation and submits the form
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task SetSelectedValuesAndSubmit()
-        {
-            await this.Grid.SaveChangesAsync();
         }
     }
 }

@@ -22,12 +22,16 @@
 
 namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 {
+    using System.Linq;
+    using System.Threading.Tasks;
+
     using Bunit;
 
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Test.Helpers;
 
+    using COMETwebapp.Components.Common;
     using COMETwebapp.Components.SiteDirectory.EngineeringModel;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
@@ -37,6 +41,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -77,7 +82,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             this.viewModel.Setup(x => x.Rows).Returns(rows);
             this.viewModel.Setup(x => x.CurrentThing).Returns(new IterationSetup());
             this.viewModel.Setup(x => x.CanCreateIteration).Returns(true);
-            this.viewModel.Setup(x => x.SourceIterations).Returns(new List<IterationSetup> { this.iteration1, this.iteration2 });
+            this.viewModel.Setup(x => x.SourceIterations).Returns([this.iteration1, this.iteration2]);
 
             this.context.Services.AddSingleton<IShowHideDeprecatedThingsService>(new ShowHideDeprecatedThingsService());
             this.context.Services.AddSingleton(this.viewModel.Object);
@@ -94,56 +99,124 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         }
 
         [Test]
-        public async Task VerifyAddingOrEditingIteration()
+        public void VerifyOnInitialized()
         {
-            var addIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addIterationButton");
-            await this.renderer.InvokeAsync(addIterationButton.Instance.Click.InvokeAsync);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.True);
-                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf<IterationSetup>());
-            });
-
-            var editIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editIterationButton");
-            await this.renderer.InvokeAsync(editIterationButton.Instance.Click.InvokeAsync);
-
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.False);
-                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf<IterationSetup>());
-            });
-
-            var saveIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "saveIterationButton");
-            await this.renderer.InvokeAsync(saveIterationButton.Instance.Click.InvokeAsync);
-            this.viewModel.Verify(x => x.CreateOrEditIteration(It.IsAny<bool>()), Times.Once);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+                Assert.That(this.renderer.Instance.ViewModel, Is.Not.Null);
+                Assert.That(this.renderer.Markup, Does.Contain("Iteration 1"));
+                Assert.That(this.renderer.Markup, Does.Contain("Iteration 2"));
+            }
         }
 
         [Test]
         public async Task VerifyDeleteIteration()
         {
             var deleteButtons = this.renderer.FindComponents<DxButton>().Where(x => x.Instance.Id == "deleteIterationButton").ToList();
-            
-            Assert.Multiple(() =>
+
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(deleteButtons[0].Instance.Enabled, Is.True);
                 Assert.That(deleteButtons[1].Instance.Enabled, Is.False);
-            });
+            }
 
             await this.renderer.InvokeAsync(deleteButtons[0].Instance.Click.InvokeAsync);
             this.viewModel.Verify(x => x.OnDeleteButtonClick(It.IsAny<IterationSetupRowViewModel>()), Times.Once);
         }
 
         [Test]
-        public void VerifyOnInitialized()
+        public async Task VerifyAddingOrEditingIteration()
         {
-            Assert.Multiple(() =>
+            var addIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addIterationButton");
+            await this.renderer.InvokeAsync(addIterationButton.Instance.Click.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.True);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf<IterationSetup>());
+            }
+
+            var editIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "editIterationButton");
+            await this.renderer.InvokeAsync(editIterationButton.Instance.Click.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance.ShouldCreateThing, Is.False);
-                Assert.That(this.renderer.Instance.ViewModel, Is.Not.Null);
-                Assert.That(this.renderer.Markup, Does.Contain("Iteration 1"));
-                Assert.That(this.renderer.Markup, Does.Contain("Iteration 2"));
-            });
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+                Assert.That(this.viewModel.Object.CurrentThing, Is.InstanceOf<IterationSetup>());
+            }
+
+            var iterationsForm = this.renderer.FindComponent<IterationsForm>();
+            var editForm = iterationsForm.FindComponent<EditForm>();
+            await iterationsForm.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
+            {
+                this.viewModel.Verify(x => x.CreateOrEditIteration(false), Times.Once);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+            }
+        }
+
+        [Test]
+        public async Task VerifyStartCreate()
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.False);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+            }
+
+            await this.renderer.InvokeAsync(() => this.renderer.Instance.StartCreate());
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.renderer.Instance.ShouldCreateThing, Is.True);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+            }
+        }
+
+        [Test]
+        public async Task VerifyStartEdit()
+        {
+            var row = new IterationSetupRowViewModel(this.iteration1);
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+
+            await this.renderer.InvokeAsync(() => this.renderer.Instance.StartEdit(null));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+
+            await this.renderer.InvokeAsync(() => this.renderer.Instance.StartEdit(row));
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+        }
+
+        [Test]
+        public async Task VerifyFormSubmissionAndCancellation()
+        {
+            var addIterationButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addIterationButton");
+            await this.renderer.InvokeAsync(addIterationButton.Instance.Click.InvokeAsync);
+
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+
+            var iterationsForm = this.renderer.FindComponent<IterationsForm>();
+            var formButtons = iterationsForm.FindComponent<FormButtons>();
+            await iterationsForm.InvokeAsync(formButtons.Instance.OnCancel.InvokeAsync);
+
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+
+            await this.renderer.InvokeAsync(addIterationButton.Instance.Click.InvokeAsync);
+            Assert.That(this.renderer.Instance.IsOnEditMode, Is.True);
+
+            iterationsForm = this.renderer.FindComponent<IterationsForm>();
+            var editForm = iterationsForm.FindComponent<EditForm>();
+            await iterationsForm.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
+            {
+                this.viewModel.Verify(x => x.CreateOrEditIteration(true), Times.Once);
+                Assert.That(this.renderer.Instance.IsOnEditMode, Is.False);
+            }
         }
     }
 }
