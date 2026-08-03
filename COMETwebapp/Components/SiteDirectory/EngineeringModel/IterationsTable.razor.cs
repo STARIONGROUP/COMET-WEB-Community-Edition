@@ -65,20 +65,6 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         }
 
         /// <summary>
-        /// Starts the edit flow for the specified <paramref name="row" />.
-        /// </summary>
-        /// <param name="row">The selected row to edit.</param>
-        public override void StartEdit(IterationSetupRowViewModel row)
-        {
-            if (row == null)
-            {
-                return;
-            }
-
-            this.OnSelectedDataItemChanged(row);
-        }
-
-        /// <summary>
         /// Method invoked every time a row is selected
         /// </summary>
         /// <param name="row">The selected row</param>

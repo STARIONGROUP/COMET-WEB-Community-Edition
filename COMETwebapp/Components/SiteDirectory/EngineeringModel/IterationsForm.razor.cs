@@ -22,8 +22,6 @@
 
 namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
 {
-    using System.ComponentModel.DataAnnotations;
-
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
 
@@ -38,7 +36,6 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         /// Gets or sets the <see cref="IIterationsTableViewModel" /> for this component
         /// </summary>
         [Parameter]
-        [Required]
         public IIterationsTableViewModel ViewModel { get; set; }
 
         /// <summary>
