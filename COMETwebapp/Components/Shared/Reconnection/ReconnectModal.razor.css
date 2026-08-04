@@ -24,37 +24,13 @@
     display: block !important;
 }
 
-#components-reconnect-modal.components-reconnect-retrying ::deep .components-reconnect-show {
+#components-reconnect-modal:is(.components-reconnect-retrying, .components-reconnect-paused, .components-reconnect-failed, .components-reconnect-rejected) ::deep .components-reconnect-show {
     display: none !important;
 }
 
-#components-reconnect-modal.components-reconnect-retrying ::deep .components-reconnect-retrying {
-    display: block !important;
-}
-
-#components-reconnect-modal.components-reconnect-paused ::deep .components-reconnect-show,
-#components-reconnect-modal.components-reconnect-paused ::deep .components-reconnect-retrying {
-    display: none !important;
-}
-
-#components-reconnect-modal.components-reconnect-paused ::deep .components-reconnect-paused {
-    display: block !important;
-}
-
-#components-reconnect-modal.components-reconnect-failed ::deep .components-reconnect-show,
-#components-reconnect-modal.components-reconnect-failed ::deep .components-reconnect-retrying {
-    display: none !important;
-}
-
-#components-reconnect-modal.components-reconnect-failed ::deep .components-reconnect-failed {
-    display: block !important;
-}
-
-#components-reconnect-modal.components-reconnect-rejected ::deep .components-reconnect-show,
-#components-reconnect-modal.components-reconnect-rejected ::deep .components-reconnect-retrying {
-    display: none !important;
-}
-
+#components-reconnect-modal.components-reconnect-retrying ::deep .components-reconnect-retrying,
+#components-reconnect-modal.components-reconnect-paused ::deep .components-reconnect-paused,
+#components-reconnect-modal.components-reconnect-failed ::deep .components-reconnect-failed,
 #components-reconnect-modal.components-reconnect-rejected ::deep .components-reconnect-rejected {
     display: block !important;
 }
