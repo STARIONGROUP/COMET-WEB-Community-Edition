@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ReconnectStateBannerTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -59,13 +59,13 @@ namespace COMETwebapp.Tests.Components.Shared.Reconnection
 
             var container = component.Find(".comet-reconnect-state");
             var titleNode = component.Find("strong");
-            var actionLink = component.Find("a");
+            var actionButton = component.Find("button");
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(container.ClassList.Contains("components-reconnect-show"), Is.True);
                 Assert.That(titleNode.TextContent, Is.EqualTo("Connection Lost"));
-                Assert.That(actionLink.GetAttribute("onclick"), Is.EqualTo("Blazor.reconnect()"));
+                Assert.That(actionButton.GetAttribute("onclick"), Is.EqualTo("Blazor.reconnect()"));
             }
         }
     }

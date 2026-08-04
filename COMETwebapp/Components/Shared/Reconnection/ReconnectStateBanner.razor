@@ -1,4 +1,4 @@
-<!------------------------------------------------------------------------------
+﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2026 Starion Group S.A.
 //
 //   This file is part of CDP4-COMET WEB Community Edition
@@ -37,11 +37,11 @@
         </span>
         @if (this.ActionType != ReconnectActionType.None)
         {
-            <a href="javascript:void(0)"
-               onclick="@this.ActionOnClick"
-               class="comet-reconnect-action @this.ActionClass">
+            <button type="button"
+                    onclick="@this.ActionOnClick"
+                    class="comet-reconnect-action @this.ActionClass">
                 @this.ActionText
-            </a>
+            </button>
         }
     </div>
 </div>

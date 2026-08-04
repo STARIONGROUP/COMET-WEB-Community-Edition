@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ReconnectStateBanner.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -72,16 +72,17 @@ namespace COMETwebapp.Components.Shared.Reconnection
         public ReconnectActionType ActionType { get; set; } = ReconnectActionType.None;
 
         /// <summary>
-        /// Gets the JavaScript handler string for the action link
+        /// Gets the JavaScript handler string for the action button
         /// </summary>
         public string ActionOnClick => this.ActionType switch
         {
             ReconnectActionType.Reconnect => "Blazor.reconnect()",
+            ReconnectActionType.Reload => "location.reload()",
             _ => string.Empty
         };
 
         /// <summary>
-        /// Gets additional CSS class for the action link
+        /// Gets additional CSS class for the action button
         /// </summary>
         public string ActionClass => this.ActionType switch
         {

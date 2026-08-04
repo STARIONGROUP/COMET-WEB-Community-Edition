@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Initializes Blazor Server with custom SignalR client options.
  * @see {@link https://learn.microsoft.com/en-us/aspnet/core/blazor/fundamentals/startup?view=aspnetcore-10.0}
  * @see {@link https://learn.microsoft.com/en-us/aspnet/core/signalr/configuration?view=aspnetcore-10.0&tabs=dotnet}
