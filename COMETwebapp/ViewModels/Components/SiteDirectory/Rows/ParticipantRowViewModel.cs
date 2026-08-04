@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParticipantRowViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -63,7 +63,7 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.Rows
         /// <summary>
         /// Gets the separator used to join the participant domains of expertise
         /// </summary>
-        public const string Separator = ";";
+        public const string Separator = ",";
 
         /// <summary>
         /// The organization value for the current <see cref="Participant"/>

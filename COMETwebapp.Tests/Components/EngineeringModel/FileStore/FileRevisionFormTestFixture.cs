@@ -105,6 +105,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
             Assert.That(this.isSaved, Is.True);
 
             var formButtons = this.renderer.FindComponent<FormButtons>();
+            Assert.That(formButtons.Instance.SaveButtonEnabled, Is.True);
+
             await this.renderer.InvokeAsync(formButtons.Instance.OnCancel.InvokeAsync);
             Assert.That(this.isCanceled, Is.True);
         }

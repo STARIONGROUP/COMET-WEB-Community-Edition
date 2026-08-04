@@ -114,7 +114,12 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             else
             {
                 var indexToUpdate = this.Thing.IndependentParameterType.FindIndex(x => x.Iid == this.Item.Thing.Iid);
-                this.Thing.InterpolationPeriod[indexToUpdate] = this.Item.InterpolationPeriod;
+
+                if (indexToUpdate != -1)
+                {
+                    this.Thing.IndependentParameterType[indexToUpdate] = this.Item.Thing;
+                    this.Thing.InterpolationPeriod[indexToUpdate] = this.Item.InterpolationPeriod;
+                }
             }
 
             this.ThingChanged.InvokeAsync(this.Thing);
@@ -158,9 +163,25 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// <summary>
         /// Method that is invoked when a independent parameter type row is being removed
         /// </summary>
+        /// <param name="row">The row to be removed</param>
         private void RemoveIndependentParameterType(IndependentParameterTypeRowViewModel row)
         {
+            var indexToRemove = this.Thing.IndependentParameterType.IndexOf(row.Thing);
+
+            if (indexToRemove == -1)
+            {
+                return;
+            }
+            
             this.Thing.IndependentParameterType.Remove(row.Thing);
+            var interpolationPeriods = this.Thing.InterpolationPeriod.ToList();
+
+            if (indexToRemove < interpolationPeriods.Count)
+            {
+                interpolationPeriods.RemoveAt(indexToRemove);
+                this.Thing.InterpolationPeriod = new ValueArray<string>(interpolationPeriods);
+            }
+            
             this.ThingChanged.InvokeAsync(this.Thing);
         }
 

@@ -27,10 +27,14 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.Role)" MinWidth="80" SearchEnabled="false" />
             <DxGridDataColumn FieldName="@nameof(ParticipantRowViewModel.AssignedDomains)" MinWidth="100" SearchEnabled="false">
                 <CellDisplayTemplate Context="assignedDomainsContext">
-                    <a @onclick="() => this.OpenAssignedDomainDetailsPopup(assignedDomainsContext.DisplayText)"
-                       style="max-width: fit-content; white-space: nowrap;">
-                      @assignedDomainsContext.DisplayText
-                    </a>
+                    @{
+                        var row = (ParticipantRowViewModel)assignedDomainsContext.DataItem;
+
+                        <a @onclick="() => this.OpenAssignedDomainDetailsPopup(row)"
+                           style="max-width: fit-content; white-space: nowrap;">
+                          @assignedDomainsContext.DisplayText
+                        </a>
+                    }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridCommandColumn Width="100px">
@@ -48,7 +52,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                         <DxButton Id="deleteParticipantButton"
                                   IconCssClass="@IconName.Delete.GetCssClass()"
-                                  Click="() => this.ViewModel.OnDeleteButtonClick(row)"
+                                  Click="@(() => this.ViewModel.OnDeleteButtonClick(row))"
                                   Enabled="@(row.IsAllowedToWrite)"/>
                     }
                 </CellDisplayTemplate>
@@ -82,7 +86,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 <DxPopup @bind-Visible="@this.IsAssignedDomainsPopupVisible"
          HeaderText="Assigned Domains">
     <ul>
-        @foreach (var assignedDomain in this.AssignedDomainsPopupText.Split(ParticipantRowViewModel.Separator))
+        @foreach (var assignedDomain in this.AssignedDomainsPopupList)
         {
             <li>@assignedDomain</li>
         }
