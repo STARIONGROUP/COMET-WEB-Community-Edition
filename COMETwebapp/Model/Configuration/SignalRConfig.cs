@@ -24,7 +24,7 @@ namespace COMETwebapp.Model.Configuration
 {
     /// <summary>
     /// Configuration constants for SignalR connection timeouts.
-    /// <see href="https://learn.microsoft.com/en-us/aspnet/core/signalr/configuration?view=aspnetcore-10.0&tabs=dotnet"/>
+    /// <see href="https://learn.microsoft.com/en-us/aspnet/core/signalr/configuration?view=aspnetcore-10.0"/>
     /// </summary>
     public static class SignalRConfig
     {
