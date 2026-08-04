@@ -24,7 +24,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
             <DxToolbarItem Text="Edit Active Domains"
                            Click="() => this.SetEditPopupVisibility(true)"
-                           RenderStyle="ButtonRenderStyle.Info"
+                           RenderStyle="@(CometButtonStyle.Info.ToButtonRenderStyle())"
                            Enabled="true"/>
         </DxToolbar>
     </ToolbarTemplate>
@@ -57,7 +57,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         </DxButton>
         <DxButton Id="cancelActiveDomainsButton"
                   Click="@(() => this.SetEditPopupVisibility(false))"
-                  RenderStyle="ButtonRenderStyle.Secondary">
+                  RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())">
             Cancel
         </DxButton>
     </div>

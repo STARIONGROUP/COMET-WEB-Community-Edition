@@ -56,7 +56,7 @@
             @if (this.IsSidePanelAvailable)
             {
                 <DxButton Click="@(() => this.AddSidePanel())"
-                          RenderStyle="ButtonRenderStyle.None"
+                          RenderStyle="@(CometButtonStyle.None.ToButtonRenderStyle())"
                           Id="new-side-panel-button"
                           CssClass="ml-auto p-0">
                     <CometIcon Icon="IconName.Columns" Size="30"/>

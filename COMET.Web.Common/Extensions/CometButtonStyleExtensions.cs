@@ -51,6 +51,7 @@ namespace COMET.Web.Common.Extensions
                 CometButtonStyle.Light => ButtonRenderStyle.Light,
                 CometButtonStyle.Dark => ButtonRenderStyle.Dark,
                 CometButtonStyle.Link => ButtonRenderStyle.Link,
+                CometButtonStyle.None => ButtonRenderStyle.None,
                 _ => ButtonRenderStyle.Primary
             };
         }

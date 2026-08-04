@@ -78,6 +78,13 @@ namespace COMET.Web.Common.Enumerations
         /// distinct, clearly visible accessible teal so these actions stand apart from create (Primary) and delete
         /// (Danger) and are never as faint as <see cref="Light" />.
         /// </summary>
-        Edit = 9
+        Edit = 9,
+
+        /// <summary>
+        /// No button chrome. Used for controls that are styled entirely by their own CSS (for example tab and
+        /// side-bar triggers), so that even these route through <see cref="CometButtonStyle" /> and the mapping
+        /// stays the single source of truth for every button.
+        /// </summary>
+        None = 10
     }
 }

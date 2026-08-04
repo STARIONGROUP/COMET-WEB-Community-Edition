@@ -29,6 +29,6 @@
         </DxFormLayoutItem>
     </DxFormLayout>
     <div class="modal-footer">
-        <DxButton id="switch-domain-button" Text="Switch" RenderStyle="ButtonRenderStyle.Primary" Click="@(() => this.ViewModel.OnSubmit.InvokeAsync(this.ViewModel.SelectedDomainOfExpertise))"/>
+        <DxButton id="switch-domain-button" Text="Switch" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Click="@(() => this.ViewModel.OnSubmit.InvokeAsync(this.ViewModel.SelectedDomainOfExpertise))"/>
     </div> 
 </span>

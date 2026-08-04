@@ -107,8 +107,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </DxFormLayout>
 
             <div class="modal-footer m-top-10px">
-                <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="@(() => this.ClosePanel())" />
-                <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="OK" Click="@(() => this.Confirm())" Enabled="@(this.selectedParameterType != null)" />
+                <DxButton RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Cancel" Click="@(() => this.ClosePanel())" />
+                <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="OK" Click="@(() => this.Confirm())" Enabled="@(this.selectedParameterType != null)" />
             </div>
         </BodyContentTemplate>
     </DxPopup>

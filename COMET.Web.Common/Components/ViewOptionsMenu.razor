@@ -20,7 +20,7 @@
 
 <DxButton Id="@this.ButtonId"
           CssClass="view-options-button"
-          RenderStyle="ButtonRenderStyle.Light"
+          RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
           IconCssClass="@IconName.Settings.GetCssClass()"
           Text="@this.ButtonText"
           title="@this.ButtonTitle"

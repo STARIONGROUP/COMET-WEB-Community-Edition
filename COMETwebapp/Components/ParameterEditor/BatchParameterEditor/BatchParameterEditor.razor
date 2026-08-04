@@ -109,7 +109,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <DxButton Id="closeButton"
                       Text="Close"
                       Click="(() => this.ViewModel.IsVisible = false)"
-                      RenderStyle="ButtonRenderStyle.Secondary"/>
+                      RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())"/>
         </div>
     </div>
     <ConfirmCancelPopup ViewModel="@(this.ViewModel.ConfirmCancelPopupViewModel)"></ConfirmCancelPopup>

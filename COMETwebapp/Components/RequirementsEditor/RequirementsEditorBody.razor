@@ -29,7 +29,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
     <div id="@WebAppConstantValues.RequirementManagementPage.QueryPageBodyName()" class="req-editor">
         <div class="req-toolbar">
             <DxButton Id="requirement-toc-toggle"
-                      RenderStyle="ButtonRenderStyle.Light"
+                      RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
                       IconCssClass="@((this.ViewModel.IsTocCollapsed ? IconName.ChevronRight : IconName.ChevronLeft).GetCssClass())"
                       title="Toggle table of contents"
                       Click="@(() => this.ViewModel.IsTocCollapsed = !this.ViewModel.IsTocCollapsed)"
@@ -72,7 +72,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             }
 
             <div class="req-toolbar-group req-toolbar-right">
-                <DxButton RenderStyle="ButtonRenderStyle.Primary"
+                <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                           IconCssClass="@IconName.Add.GetCssClass()"
                           Text="Specification"
                           title="Create a new specification"
@@ -84,7 +84,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                         <div class="btn-group" role="group" aria-label="Requirement layout">
                             @foreach (var mode in DisplayModes)
                             {
-                                <DxButton RenderStyle="ButtonRenderStyle.Light"
+                                <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
                                           CssClass="@(this.ViewModel.DisplayMode == mode ? "req-view-toggle-on" : string.Empty)"
                                           Text="@GetDisplayModeLabel(mode)"
                                           title="@GetDisplayModeTitle(mode)"

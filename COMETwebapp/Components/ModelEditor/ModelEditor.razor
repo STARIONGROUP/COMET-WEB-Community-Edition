@@ -84,7 +84,7 @@
                     <HeaderPrefix>
                         <DxButton Id="collapseSourcePanel"
                                   IconCssClass="@IconName.ChevronLeft.GetCssClass()"
-                                  RenderStyle="ButtonRenderStyle.Link"
+                                  RenderStyle="@(CometButtonStyle.Link.ToButtonRenderStyle())"
                                   SizeMode="SizeMode.Small"
                                   Click="@(() => this.IsSourcePanelCollapsed = true)"
                                   title="Minimize the source model panel"/>
@@ -137,7 +137,7 @@
                         <DetailsHeaderActions>
                             <DxButton Id="collapseDetailsPanel"
                                       IconCssClass="@IconName.ChevronRight.GetCssClass()"
-                                      RenderStyle="ButtonRenderStyle.Link"
+                                      RenderStyle="@(CometButtonStyle.Link.ToButtonRenderStyle())"
                                       SizeMode="SizeMode.Small"
                                       Click="@(() => this.IsDetailsPanelCollapsed = true)"
                                       title="Minimize the details panel"/>
@@ -149,7 +149,7 @@
                     <div class="model-editor-details-collapse-floating">
                         <DxButton Id="collapseDetailsPanelEmpty"
                                   IconCssClass="@IconName.ChevronRight.GetCssClass()"
-                                  RenderStyle="ButtonRenderStyle.Link"
+                                  RenderStyle="@(CometButtonStyle.Link.ToButtonRenderStyle())"
                                   SizeMode="SizeMode.Small"
                                   Click="@(() => this.IsDetailsPanelCollapsed = true)"
                                   title="Minimize the details panel"/>

@@ -71,10 +71,10 @@
         <div class="element-details-new-menu">
             @if (this.ViewModel.SelectedElementDefinition is not null)
             {
-                <DxButton Id="addParameter" RenderStyle="ButtonRenderStyle.Light" CssClass="element-details-new-item" Text="Add Parameter" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenAddParameterPopup))"/>
-                <DxButton Id="addParameterGroup" RenderStyle="ButtonRenderStyle.Light" CssClass="element-details-new-item" Text="Add Parameter Group" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenCreateParameterGroupPopup))"/>
+                <DxButton Id="addParameter" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" CssClass="element-details-new-item" Text="Add Parameter" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenAddParameterPopup))"/>
+                <DxButton Id="addParameterGroup" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" CssClass="element-details-new-item" Text="Add Parameter Group" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenCreateParameterGroupPopup))"/>
             }
-            <DxButton Id="addElementDefinition" RenderStyle="ButtonRenderStyle.Light" CssClass="element-details-new-item" Text="Add Element Definition" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenCreateElementDefinitionCreationPopup))"/>
+            <DxButton Id="addElementDefinition" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" CssClass="element-details-new-item" Text="Add Element Definition" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenCreateElementDefinitionCreationPopup))"/>
         </div>
     </BodyTemplate>
 </DxDropDown>
@@ -123,10 +123,10 @@
         </div>
         <div class="d-flex justify-content-end" style="gap:8px;">
             <DxButton Text="Cancel"
-                      RenderStyle="ButtonRenderStyle.Secondary"
+                      RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())"
                       Click="@(() => this.ViewModel.IsOnParameterGroupEditMode = false)"/>
             <DxButton Text="Save"
-                      RenderStyle="ButtonRenderStyle.Primary"
+                      RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                       Click="@this.ViewModel.SaveParameterGroupAsync"/>
         </div>
     </BodyContentTemplate>

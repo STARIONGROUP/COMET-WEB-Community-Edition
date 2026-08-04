@@ -26,7 +26,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
     {
         <div class="pc-empty">
             <p>No expression defined. Click the button below to add your first expression.</p>
-            <DxButton RenderStyle="ButtonRenderStyle.Primary" IconCssClass="@IconName.Add.GetCssClass()" Text="Add First Expression" Click="@(() => this.AddFirstExpression())" />
+            <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" IconCssClass="@IconName.Add.GetCssClass()" Text="Add First Expression" Click="@(() => this.AddFirstExpression())" />
         </div>
     }
     else
@@ -60,8 +60,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
                             FooterVisible="false">
                     <BodyTemplate>
                         <div style="display:flex; flex-direction:column; min-width:170px;">
-                            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Add.GetCssClass()" Text="Add Expression" Click="@(() => this.RootAddExpression())" />
-                            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Branch.GetCssClass()" Text="Add Group" Click="@(() => this.RootAddGroup())" />
+                            <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Add.GetCssClass()" Text="Add Expression" Click="@(() => this.RootAddExpression())" />
+                            <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Branch.GetCssClass()" Text="Add Group" Click="@(() => this.RootAddGroup())" />
                         </div>
                     </BodyTemplate>
                 </DxDropDown>
@@ -71,8 +71,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
 </div>
 
 <div class="modal-footer m-top-10px">
-    <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="@(() => this.OnCancelled.InvokeAsync())" />
-    <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Save" Click="@(() => this.SaveAsync())" Enabled="@(this.viewModel.CanSave)" />
+    <DxButton RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Cancel" Click="@(() => this.OnCancelled.InvokeAsync())" />
+    <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Save" Click="@(() => this.SaveAsync())" Enabled="@(this.viewModel.CanSave)" />
 </div>
 
 <DxPopup CloseOnOutsideClick="false"
@@ -116,8 +116,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
         </DxFormLayout>
 
         <div class="modal-footer m-top-10px">
-            <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="@(() => this.CancelRelational())" />
-            <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Save" Click="@(() => this.ConfirmRelational())" Enabled="@(this.CanConfirmRelational)" />
+            <DxButton RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Cancel" Click="@(() => this.CancelRelational())" />
+            <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Save" Click="@(() => this.ConfirmRelational())" Enabled="@(this.CanConfirmRelational)" />
         </div>
     </BodyContentTemplate>
 </DxPopup>

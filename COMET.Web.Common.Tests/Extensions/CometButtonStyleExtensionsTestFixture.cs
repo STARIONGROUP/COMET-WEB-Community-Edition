@@ -50,6 +50,7 @@ namespace COMET.Web.Common.Tests.Extensions
                 Assert.That(CometButtonStyle.Dark.ToButtonRenderStyle(), Is.EqualTo(ButtonRenderStyle.Dark));
                 Assert.That(CometButtonStyle.Link.ToButtonRenderStyle(), Is.EqualTo(ButtonRenderStyle.Link));
                 Assert.That(CometButtonStyle.Edit.ToButtonRenderStyle(), Is.EqualTo(ButtonRenderStyle.Info));
+                Assert.That(CometButtonStyle.None.ToButtonRenderStyle(), Is.EqualTo(ButtonRenderStyle.None));
                 Assert.That(((CometButtonStyle)99).ToButtonRenderStyle(), Is.EqualTo(ButtonRenderStyle.Primary));
             }
         }

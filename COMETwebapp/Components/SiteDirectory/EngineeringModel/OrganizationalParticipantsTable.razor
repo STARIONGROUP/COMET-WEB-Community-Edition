@@ -25,7 +25,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
             <DxToolbarItem Text="Edit Organizational Participants"
                            Click="(() => this.IsOnEditMode = true)"
-                           RenderStyle="ButtonRenderStyle.Info"
+                           RenderStyle="@(CometButtonStyle.Info.ToButtonRenderStyle())"
                            Enabled="true"/>
         </DxToolbar>
     </ToolbarTemplate>
@@ -70,7 +70,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         </DxButton>
         <DxButton Id="cancelOrganizationalParticipantsButton"
                   Click="@(() => this.IsOnEditMode = false)"
-                  RenderStyle="ButtonRenderStyle.Secondary">
+                  RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())">
             Cancel
         </DxButton>
     </div>

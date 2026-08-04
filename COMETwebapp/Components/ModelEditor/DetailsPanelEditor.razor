@@ -67,7 +67,7 @@
                 {
                     <DxButton Id="deleteElement"
                               IconCssClass="@IconName.Delete.GetCssClass()"
-                              RenderStyle="ButtonRenderStyle.Danger"
+                              RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"
                               RenderStyleMode="ButtonRenderStyleMode.Text"
                               Enabled="@(!this.DisableDelete)"
                               Click="@(() => this.OnDeleteElement.InvokeAsync())"
