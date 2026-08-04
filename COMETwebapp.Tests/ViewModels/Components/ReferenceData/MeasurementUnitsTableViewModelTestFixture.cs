@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="MeasurementUnitsTableViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -215,6 +215,23 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 It.Is<List<Thing>>(c => c.Count == 3),
                 It.IsAny<NotificationDescription>()), 
                 Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyMeasurementUnitOriginalClonedAfterSave()
+        {
+            this.viewModel.InitializeViewModel();
+            var originalUnit = new SimpleUnit { Iid = Guid.NewGuid(), ShortName = "original" };
+            var cloneUnit = originalUnit.Clone(true);
+            this.viewModel.CurrentThing = cloneUnit;
+
+            await this.viewModel.CreateOrEditMeasurementUnit(false);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.CurrentThing, Is.Not.SameAs(cloneUnit));
+                Assert.That(this.viewModel.CurrentThing.Original, Is.SameAs(originalUnit));
+            }
         }
     }
 }

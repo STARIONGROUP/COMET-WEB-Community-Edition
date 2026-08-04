@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="MeasurementScalesTableViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -198,6 +198,23 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>())).Throws(new Exception());
             await this.viewModel.CreateOrEditMeasurementScale(false);
             this.loggerMock.Verify(LogLevel.Error, x => !string.IsNullOrWhiteSpace(x.ToString()), Times.Once());
+        }
+
+        [Test]
+        public async Task VerifyMeasurementScaleOriginalClonedAfterSave()
+        {
+            this.viewModel.InitializeViewModel();
+            var originalScale = new OrdinalScale { Iid = Guid.NewGuid(), ShortName = "original" };
+            var cloneScale = originalScale.Clone(true);
+            this.viewModel.CurrentThing = cloneScale;
+
+            await this.viewModel.CreateOrEditMeasurementScale(false);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.CurrentThing, Is.Not.SameAs(cloneScale));
+                Assert.That(this.viewModel.CurrentThing.Original, Is.SameAs(originalScale));
+            }
         }
 
         [Test]
