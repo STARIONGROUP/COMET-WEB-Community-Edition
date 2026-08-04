@@ -1,34 +1,31 @@
 // --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="Program.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
-//
-//     This file is part of COMET WEB Community Edition
-//     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 // 
-//     The COMET WEB Community Edition is free software; you can redistribute it and/or
+//     This file is part of CDP4-COMET WEB Community Edition
+//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
 // 
-//     The COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//    Affero General Public License for more details.
+//     Affero General Public License for more details.
 // 
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
-//  --------------------------------------------------------------------------------------------------------------------
+//   --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp
 {
-    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
 
     using COMET.Web.Common.Extensions;
-
-    using ReactiveUI.Builder;
 
     using COMETwebapp.Extensions;
     using COMETwebapp.Health;
@@ -40,7 +37,10 @@ namespace COMETwebapp
     using COMETwebapp.Shared.TopMenuEntry;
 
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+    using Microsoft.AspNetCore.SignalR;
     using Microsoft.Extensions.Options;
+
+    using ReactiveUI.Builder;
 
     using Serilog;
 
@@ -62,9 +62,15 @@ namespace COMETwebapp
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
 
+            builder.Services.Configure<HubOptions>(options =>
+            {
+                options.KeepAliveInterval = TimeSpan.FromSeconds(SignalRConfig.KeepAliveSeconds);
+                options.ClientTimeoutInterval = TimeSpan.FromSeconds(SignalRConfig.ClientTimeoutSeconds);
+            });
+
             RxAppBuilder.CreateReactiveUIBuilder()
-                            .WithBlazor().BuildApp();
-            
+                .WithBlazor().BuildApp();
+
             builder.Services.RegisterCdp4CometCommonServices(true, options =>
             {
                 options.Applications = Applications.ExistingApplications;
@@ -80,6 +86,7 @@ namespace COMETwebapp
             builder.Services.Configure<HealthConfig>(builder.Configuration.GetSection("Health"));
             builder.Services.AddSingleton<ICometHasStartedService, CometHasStartedService>();
             builder.Services.AddSingleton<StartupHealthCheck>();
+
             builder.Services.AddHealthChecks()
                 .AddCheck<StartupHealthCheck>("startup", tags: ["startup", "ready"]);
 
@@ -97,7 +104,7 @@ namespace COMETwebapp
             try
             {
                 var resourceLoader = app.Services.GetService<IResourceLoader>();
-                
+
                 logger.LogInformation(resourceLoader.QueryLogo());
 
                 logger.LogInformation("################################################################");

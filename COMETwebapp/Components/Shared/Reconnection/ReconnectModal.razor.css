@@ -1,0 +1,29 @@
+#components-reconnect-modal.components-reconnect-hide {
+    display: none !important;
+}
+
+#components-reconnect-modal.components-reconnect-show,
+#components-reconnect-modal.components-reconnect-retrying,
+#components-reconnect-modal.components-reconnect-paused,
+#components-reconnect-modal.components-reconnect-failed,
+#components-reconnect-modal.components-reconnect-rejected {
+    display: block !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: var(--font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+    font-size: 13px;
+    line-height: 1.4;
+    transition: all 0.3s ease;
+}
+
+#components-reconnect-modal.components-reconnect-show ::deep .components-reconnect-show,
+#components-reconnect-modal.components-reconnect-retrying ::deep .components-reconnect-retrying,
+#components-reconnect-modal.components-reconnect-paused ::deep .components-reconnect-paused,
+#components-reconnect-modal.components-reconnect-failed ::deep .components-reconnect-failed,
+#components-reconnect-modal.components-reconnect-rejected ::deep .components-reconnect-rejected {
+    display: block !important;
+}
