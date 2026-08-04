@@ -21,22 +21,25 @@
 @using COMETwebapp.ViewModels.Components.ModelEditor.Rows
 @inject IJSRuntime JSRuntime
 
-<div style = "height:50px;">
-@if (this.IsModelSelectionEnabled)
-{
-    <DxComboBox TData="IterationData"
-                TValue="IterationData"
-                FilteringMode="DataGridFilteringMode.Contains" 
-                SizeMode="SizeMode.Medium" 
-                Data="@this.ViewModel.Iterations"
-                TextFieldName="IterationName"
-                @bind-Value="@this.ViewModel.SelectedIterationData">
-    </DxComboBox>
-}
-else
-{
-    <h6>@this.ViewModel.Description</h6>
-}
+<div style="flex:0 0 60px; display:flex; align-items:center; gap:6px;">
+    @this.HeaderPrefix
+    <div style="flex:1 1 auto; min-width:0;">
+        @if (this.IsModelSelectionEnabled)
+        {
+            <DxComboBox TData="IterationData"
+                        TValue="IterationData"
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        SizeMode="SizeMode.Medium"
+                        Data="@this.ViewModel.Iterations"
+                        TextFieldName="IterationName"
+                        @bind-Value="@this.ViewModel.SelectedIterationData">
+            </DxComboBox>
+        }
+        else
+        {
+            <h6 class="m-0">@this.ViewModel.Description</h6>
+        }
+    </div>
 </div>
 <div id="search-textbox" style="visibility:@(this.AllowSearch ? "visible" : "hidden");">
     <SearchBar @bind-Text="this.SearchTerm"/>
@@ -47,10 +50,10 @@ else
      @ondragenter="@(() => this.DragEnterAsync(this.TreeView))"
      @ondragleave="@(() => this.DragLeaveAsync(this.TreeView))"
      @ondrop="@(async (DragEventArgs e) => await this.DropAsync(null, e))"
-     style="padding:2px;border:dotted 1px;border-radius: 5px;height:25px;@(this.AllowDrop ? "" : "visibility:hidden;")">
+     style="display:flex;align-items:center;justify-content:center;padding:8px 10px;margin:4px 0;border:dashed 1px var(--colors-primary-600);border-radius:6px;min-height:38px;color:var(--colors-primary-600);background:var(--colors-primary-50);font-size:0.85rem;font-weight:500;@(this.AllowDrop ? "" : "visibility:hidden;")">
     Drop here to create new element...
 </div>
-<div class="@this.ScrollableAreaCssClass" style="overflow:auto;">
+<div id="@this.ScrollAreaId" class="@this.ScrollableAreaCssClass" style="overflow:auto;">
     <DxTreeView @ref="this.TreeView" Data="@this.ViewModel.Rows"
                 FilterString="@this.SearchTerm"
                 FilterMinLength="1"
@@ -74,6 +77,7 @@ else
                     <ElementDefinitionTreeItem
                         CssClass="@($"{cssClass} {(this.AllowDrop && this.dragOverNode == dataItem && this.AllowNodeDrop ? "treeview-item-drag-over" : "")}")"
                         ElementBaseTreeRowViewModel="@dataItem"
+                        ShowName="@this.ShowName"
                         ShowOwner="@this.ShowOwner"
                         ShowCategories="@this.ShowCategories"
                         draggable="@(this.AllowDrag ? "true" : "false")"
@@ -90,6 +94,7 @@ else
                     <ElementDefinitionTreeItem
                         CssClass="@cssClass"
                         ElementBaseTreeRowViewModel="@dataItem"
+                        ShowName="@this.ShowName"
                         ShowOwner="@this.ShowOwner"
                         ShowCategories="@this.ShowCategories"/>
                 }

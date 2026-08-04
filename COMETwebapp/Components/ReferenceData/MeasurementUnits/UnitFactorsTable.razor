@@ -26,7 +26,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <DxButton Id="addUnitFactorButton"
                           Text="Add Unit Factor"
                           IconCssClass="@IconName.Add.GetCssClass()"
-                          Click="this.StartCreate" />
+                          Click="this.StartCreate"
+                          RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" />
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
@@ -34,10 +35,12 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                     <DxButton Id="editUnitFactorButton"
                               Text="Edit"
-                              Click="@(() => this.StartEdit(row))" />
+                              Click="@(() => this.StartEdit(row))"
+                              RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())" />
                     <DxButton Id="removeUnitFactorButton"
                               Text="Remove"
-                              Click="() => this.RemoveItem(row)" />
+                              Click="() => this.RemoveItem(row)"
+                              RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"/>
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>

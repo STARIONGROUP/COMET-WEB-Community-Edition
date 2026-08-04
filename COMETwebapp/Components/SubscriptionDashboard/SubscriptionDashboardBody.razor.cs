@@ -23,6 +23,7 @@
 namespace COMETwebapp.Components.SubscriptionDashboard
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Extensions;
@@ -56,8 +57,8 @@ namespace COMETwebapp.Components.SubscriptionDashboard
         {
             base.OnViewModelAssigned();
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption,
-                    x => x.ViewModel.ParameterTypeSelector.SelectedParameterType)
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOptions,
+                    x => x.ViewModel.ParameterTypeSelector.SelectedParameterTypes)
                 .Subscribe(_ => this.UpdateUrl()));
         }
 
@@ -67,15 +68,37 @@ namespace COMETwebapp.Components.SubscriptionDashboard
         /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
         protected override void InitializeValues(Dictionary<string, string> parameters)
         {
-            if (parameters.TryGetValue(QueryKeys.OptionKey, out var option))
+            if (parameters.TryGetValue(QueryKeys.OptionsKey, out var optionsValue) && !string.IsNullOrWhiteSpace(optionsValue))
             {
-                this.ViewModel.OptionSelector.SelectedOption = this.ViewModel.OptionSelector.AvailableOptions.FirstOrDefault(x => x.Iid == option.FromShortGuid());
+                var ids = optionsValue
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(x => x.FromShortGuid())
+                    .ToHashSet();
+
+                this.ViewModel.OptionSelector.SelectedOptions = this.ViewModel.OptionSelector.AvailableOptions
+                    .Where(x => ids.Contains(x.Iid))
+                    .ToList();
             }
 
-            if (parameters.TryGetValue(QueryKeys.ParameterKey, out var parameter))
+            if (parameters.TryGetValue(QueryKeys.ParametersKey, out var parametersValue) && !string.IsNullOrWhiteSpace(parametersValue))
             {
-                this.ViewModel.ParameterTypeSelector.SelectedParameterType = this.ViewModel.ParameterTypeSelector.AvailableParameterTypes
-                    .FirstOrDefault(x => x.Iid == parameter.FromShortGuid());
+                var ids = parametersValue
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(x => x.FromShortGuid())
+                    .ToHashSet();
+
+                this.ViewModel.ParameterTypeSelector.SelectedParameterTypes = this.ViewModel.ParameterTypeSelector.AvailableParameterTypes
+                    .Where(x => ids.Contains(x.Iid))
+                    .ToList();
+            }
+            else if (parameters.TryGetValue(QueryKeys.ParameterKey, out var parameter))
+            {
+                var match = this.ViewModel.ParameterTypeSelector.AvailableParameterTypes.FirstOrDefault(x => x.Iid == parameter.FromShortGuid());
+
+                if (match != null)
+                {
+                    this.ViewModel.ParameterTypeSelector.SelectedParameterTypes = new List<ParameterType> { match };
+                }
             }
         }
 
@@ -86,14 +109,18 @@ namespace COMETwebapp.Components.SubscriptionDashboard
         {
             var additionalParameters = new Dictionary<string, string>();
 
-            if (this.ViewModel.OptionSelector.SelectedOption != null)
+            var selectedOptions = this.ViewModel.OptionSelector.SelectedOptions?.ToList() ?? new List<Option>();
+
+            if (selectedOptions.Count > 0)
             {
-                additionalParameters[QueryKeys.OptionKey] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToShortGuid();
+                additionalParameters[QueryKeys.OptionsKey] = string.Join(",", selectedOptions.Select(x => x.Iid.ToShortGuid()));
             }
 
-            if (this.ViewModel.ParameterTypeSelector.SelectedParameterType != null)
+            var selectedParameterTypes = this.ViewModel.ParameterTypeSelector.SelectedParameterTypes?.ToList() ?? new List<ParameterType>();
+
+            if (selectedParameterTypes.Count > 0)
             {
-                additionalParameters[QueryKeys.ParameterKey] = this.ViewModel.ParameterTypeSelector.SelectedParameterType.Iid.ToShortGuid();
+                additionalParameters[QueryKeys.ParametersKey] = string.Join(",", selectedParameterTypes.Select(x => x.Iid.ToShortGuid()));
             }
 
             this.ViewModel.UpdateTables();

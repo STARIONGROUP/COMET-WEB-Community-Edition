@@ -36,7 +36,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                               Text="@(this.ButtonDisplayText)"
                               Click="@(() => this.OnButtonClick.Invoke())"
                               IconCssClass="@IconName.Add.GetCssClass()"
-                              RenderStyle="ButtonRenderStyle.Dark"
+                              RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                               style="width: 200px;"/>
                 }
             </div>

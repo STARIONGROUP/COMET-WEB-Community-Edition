@@ -372,7 +372,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             });
 
             // Collapse the details panel: only the details panel is affected.
-            renderedComponent.Find("#collapseDetailsPanel").Click();
+            renderedComponent.Find("#collapseDetailsPanelEmpty").Click();
 
             renderedComponent.WaitForAssertion(() =>
             {
@@ -407,7 +407,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
 
             Assert.That(renderedComponent.Find("#targetPanel").ClassList, Does.Not.Contain(GrowPanelClass));
 
-            renderedComponent.Find("#collapseDetailsPanel").Click();
+            renderedComponent.Find("#collapseDetailsPanelEmpty").Click();
 
             renderedComponent.WaitForAssertion(() =>
             {

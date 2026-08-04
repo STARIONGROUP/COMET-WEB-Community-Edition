@@ -28,13 +28,10 @@
         <h6>@(this.DisplayText)</h6>
     }
 
-    <DxTagBox Data="@(this.ViewModel.AvailableParameterTypes)"
-              TData="ParameterType"
-              TValue="ParameterType"
-              Values="@(this.ViewModel.SelectedParameterTypes)"
-              ValuesChanged="@((IEnumerable<ParameterType> values) => this.ViewModel.SelectedParameterTypes = values)"
-              FilteringMode="DataGridFilteringMode.Contains"
-              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-              TextFieldName="@(nameof(ParameterType.Name))"
-              NullText="Select Parameter Types"/>
+    <FilterTagBox TItem="ParameterType"
+                  Data="@(this.ViewModel.AvailableParameterTypes)"
+                  Values="@(this.ViewModel.SelectedParameterTypes)"
+                  ValuesChanged="@((IEnumerable<ParameterType> values) => this.ViewModel.SelectedParameterTypes = values)"
+                  TextFieldName="@(nameof(ParameterType.Name))"
+                  NullText="Filter by parameter type..."/>
 }

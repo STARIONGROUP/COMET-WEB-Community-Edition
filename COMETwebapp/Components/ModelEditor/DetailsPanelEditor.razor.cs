@@ -51,6 +51,20 @@ namespace COMETwebapp.Components.ModelEditor
         public IElementDefinitionDetailsViewModel ViewModel { get; set; }
 
         /// <summary>
+        ///     Optional content rendered on the right of the element summary header, next to the edit/delete
+        ///     buttons (used by the Model Editor to place the panel-collapse chevron on the same line).
+        /// </summary>
+        [Parameter]
+        public RenderFragment HeaderActions { get; set; }
+
+        /// <summary>
+        ///     Optional content rendered between the element summary card and the parameter groups (the search
+        ///     bar and the "Add" button), so the element context sits on top and the search/add sit below it.
+        /// </summary>
+        [Parameter]
+        public RenderFragment ActionBar { get; set; }
+
+        /// <summary>
         ///     Optional callback invoked when the user clicks the per-card edit affordance, carrying the row's
         ///     <see cref="ParameterOrOverrideBase" /> (the <see cref="ParameterOverride" /> when one exists on the
         ///     selected usage, otherwise the underlying <see cref="Parameter" />). When unset, the edit affordance

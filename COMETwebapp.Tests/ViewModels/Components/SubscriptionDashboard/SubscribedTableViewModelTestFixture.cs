@@ -206,7 +206,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
 
             Assert.That(this.viewModel.DidSubscriptionsChanged, Is.True);
 
-            this.viewModel.ApplyFilters(options[0], heightParameterType);
+            this.viewModel.ApplyFilters([options[0]], [heightParameterType]);
             Assert.That(this.viewModel.Rows, Is.Empty);
 
             this.viewModel.ApplyFilters(null, null);

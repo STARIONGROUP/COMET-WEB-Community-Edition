@@ -29,8 +29,8 @@
         @if (!this.ViewModel.IsReadOnly)
         {
             <div class="sfpt-header">
-                <DxButton RenderStyleMode="@ButtonRenderStyleMode.Outline" IconCssClass="@IconName.Add.GetCssClass()" SizeMode="SizeMode.Small" Click="@(()=> sfptViewModel.AddRow())" Text="Add row"/>
-                <DxButton RenderStyleMode="@ButtonRenderStyleMode.Outline" IconCssClass="@IconName.Remove.GetCssClass()" SizeMode="SizeMode.Small" 
+                <DxButton RenderStyleMode="@ButtonRenderStyleMode.Outline" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" IconCssClass="@IconName.Add.GetCssClass()" SizeMode="SizeMode.Small" Click="@(()=> sfptViewModel.AddRow())" Text="Add row"/>
+                <DxButton RenderStyleMode="@ButtonRenderStyleMode.Outline" RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())" IconCssClass="@IconName.Remove.GetCssClass()" SizeMode="SizeMode.Small"
                           Click="@(()=> sfptViewModel.RemoveRow())" Text="Delete row" Enabled="@sfptViewModel.CanRemoveRow"/>
             </div>
         }
@@ -59,8 +59,8 @@
             </tbody>
         </table>
         <div class="modal-footer">
-            <DxButton Click="@this.UpdateValues" Text="Confirm" Enabled="@(!this.ViewModel.IsReadOnly)" />
-            <DxButton Click="@this.CancelUpdate" Text="Close" />
+            <DxButton Click="@this.UpdateValues" Text="Confirm" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Enabled="@(!this.ViewModel.IsReadOnly)" />
+            <DxButton Click="@this.CancelUpdate" Text="Close" RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" />
         </div>
         }
     else
@@ -70,7 +70,7 @@
                 <div>@this.ViewModel.ParameterType.QueryValuesRepresentation(this.ViewModel.ValueArray)</div>
             </div>
             <span class="align-right">
-                <DxButton Id="openPopup" Text="Edit" RenderStyleMode="@ButtonRenderStyleMode.Outline" IconCssClass="@IconName.Edit.GetCssClass()" SizeMode="SizeMode.Small" Click="@(()=> sfptViewModel.OnComponentSelected())" />
+                <DxButton Id="openPopup" Text="Edit" RenderStyleMode="@ButtonRenderStyleMode.Outline" RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())" IconCssClass="@IconName.Edit.GetCssClass()" SizeMode="SizeMode.Small" Click="@(()=> sfptViewModel.OnComponentSelected())" />
             </span>
         </div>
     }

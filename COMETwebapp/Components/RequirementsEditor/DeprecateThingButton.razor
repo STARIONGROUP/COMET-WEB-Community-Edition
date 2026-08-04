@@ -18,7 +18,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
-<DxButton RenderStyle="ButtonRenderStyle.Light"
+<DxButton RenderStyle="@(this.IsDeprecated ? ButtonRenderStyle.Light : CometButtonStyle.Danger.ToButtonRenderStyle())"
           IconCssClass="@(this.IsDeprecated ? IconName.Undo.GetCssClass() : IconName.Ban.GetCssClass())"
           title="@($"{(this.IsDeprecated ? "Restore" : "Deprecate")} {this.KindLabel}")"
           Click="@(() => this.ViewModel.ConfirmDeprecation(this.Thing))" />

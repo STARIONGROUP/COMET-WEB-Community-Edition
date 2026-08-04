@@ -57,7 +57,13 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator ParameterTable => this.Page.Locator("#parameter-table");
 
         /// <summary>
-        /// Gets the "Only Parameters owned by … domain" toggle.
+        /// Gets the "View" display-and-filter options cog in the upper-right of the toolbar.
+        /// </summary>
+        public ILocator ViewMenuButton => this.Page.Locator("#parameterEditorViewMenuButton");
+
+        /// <summary>
+        /// Gets the "Only Parameters owned by … domain" toggle, which lives inside the <see cref="ViewMenuButton" />
+        /// dropdown (open the cog before interacting with it).
         /// </summary>
         public ILocator OwnedParametersToggle => this.Page.Locator("#only-owned-parameters-toggle");
 

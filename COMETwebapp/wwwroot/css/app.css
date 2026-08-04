@@ -53,6 +53,66 @@ html, body, #app {
 
 .height-fit-content { height: fit-content; }
 
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+}
+
+.filter-bar-item {
+    flex: 1 1 220px;
+    min-width: 170px;
+    max-width: 480px;
+}
+
+.filter-bar-item > .dxbl-tagbox,
+.filter-bar-item > .dxbl-combobox,
+.filter-bar-item .dxbl-tagbox,
+.filter-bar-item .dxbl-combobox {
+    width: 100%;
+}
+
+.filter-bar-item .dxbl-tag-box,
+.filter-tag-box .dxbl-tag-box,
+.filter-tag-box.dxbl-tag-box {
+    flex-wrap: nowrap;
+    overflow: hidden;
+    align-items: center;
+}
+
+.filter-bar-item .dxbl-tag-box .dxbl-tag,
+.filter-tag-box .dxbl-tag,
+.filter-tag-box .dxbl-tag * {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.filter-bar-search {
+    flex: 1 0 220px;
+    min-width: 200px;
+    max-width: 420px;
+}
+
+.filter-bar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.filter-bar-right > dxbl-popup-portal {
+    position: absolute;
+}
+
+.filter-bar-right .dxbl-btn {
+    height: 34px;
+}
+
 .max-width-40 { max-width: 40%; }
 
 .margin-top-120 { margin-top: 120px; }
@@ -121,9 +181,15 @@ html, body, #app {
 .text-align-end { text-align: end; }
 
 .btn-tooltip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 14rem;
-    font-size: 0.7rem;
-    padding: 4px 4px;
+    padding: 5px;
+    background-color: #eef2f6;
+    color: #475467;
+    border: 1px solid #dbe2ea;
+    cursor: pointer;
 }
 
 .width-10 { width: 10%; }
@@ -333,5 +399,5 @@ sub {
 }
 
 .drop-area-color {
-    color: cadetblue !important;
+    color: var(--colors-primary-600) !important;
 }

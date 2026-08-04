@@ -64,7 +64,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
     <div class="dxbl-grid-edit-form-buttons">
         <DxButton Id="saveOrganizationalParticipantsButton"
-                  Click="@(() => this.IsOnEditMode = false)">
+                  Click="@(() => this.IsOnEditMode = false)"
+                  RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())">
             Save
         </DxButton>
         <DxButton Id="cancelOrganizationalParticipantsButton"

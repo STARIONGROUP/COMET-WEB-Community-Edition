@@ -71,6 +71,13 @@ namespace COMET.Web.Common.Enumerations
         /// <summary>
         /// Link button style intent. Used for inline navigation, hyperlink-style actions, or minimal footprint triggers.
         /// </summary>
-        Link = 8
+        Link = 8,
+
+        /// <summary>
+        /// Edit button style intent. Used for edit, subscribe, override and other "modify" actions. Rendered in a
+        /// distinct, clearly visible accessible teal so these actions stand apart from create (Primary) and delete
+        /// (Danger) and are never as faint as <see cref="Light" />.
+        /// </summary>
+        Edit = 9
     }
 }

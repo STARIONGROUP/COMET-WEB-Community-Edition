@@ -60,6 +60,14 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init").SetVoidResult();
+
+            // The ArrayParameterType / numeric branches render DevExpress input editors (DxSpinEdit/DxComboBox)
+            // whose DxInputDataEditorBase.InitClientSideCore awaits JS module-load calls from OnAfterRenderAsync.
+            // ConfigureDevExpressBlazor does not complete them, so the awaited call otherwise throws
+            // JSRuntimeInvocationNotSetException; complete them here (same pattern as AdaptiveDropDown.init).
+            this.context.JSInterop.SetupVoid("DxBlazor.Input.loadModule").SetVoidResult();
+            this.context.JSInterop.SetupVoid("DxBlazor.UiHandlersBridge.loadModule").SetVoidResult();
 
             this.viewModel = new Mock<IParameterTypeTableViewModel>();
             this.viewModel.Setup(x => x.ParameterTypes).Returns([new ClassKindWrapper(ClassKind.BooleanParameterType)]);

@@ -96,8 +96,8 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.OptionSelector.SelectedOption, Is.Null);
-                Assert.That(this.viewModel.ParameterTypeSelector.SelectedParameterType, Is.Null);
+                Assert.That(this.viewModel.OptionSelector.SelectedOptions, Is.Empty);
+                Assert.That(this.viewModel.ParameterTypeSelector.SelectedParameterTypes, Is.Empty);
             });
         }
 
@@ -119,7 +119,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
             var queryParameters = new Dictionary<string, string>
             {
-                [QueryKeys.OptionKey] = optionId.ToShortGuid(),
+                [QueryKeys.OptionsKey] = optionId.ToShortGuid(),
                 [QueryKeys.ParameterKey] = parameterId.ToShortGuid()
             };
 
@@ -164,8 +164,8 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.OptionSelector.SelectedOption, Is.Not.Null);
-                Assert.That(this.viewModel.ParameterTypeSelector.SelectedParameterType, Is.Not.Null);
+                Assert.That(this.viewModel.OptionSelector.SelectedOptions, Is.Not.Empty);
+                Assert.That(this.viewModel.ParameterTypeSelector.SelectedParameterTypes, Is.Not.Empty);
             });
 
             var mockedViewModel = new Mock<ISubscriptionDashboardBodyViewModel>();

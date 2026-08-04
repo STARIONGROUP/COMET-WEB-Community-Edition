@@ -28,13 +28,10 @@
         <h6>@(this.DisplayText)</h6>
     }
 
-    <DxTagBox Data="@(this.ViewModel.AvailableCategories)"
-              TData="Category"
-              TValue="Category"
-              Values="@(this.ViewModel.SelectedCategories)"
-              ValuesChanged="@((IEnumerable<Category> values) => this.ViewModel.SelectedCategories = values)"
-              FilteringMode="DataGridFilteringMode.Contains"
-              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-              TextFieldName="@(nameof(Category.Name))"
-              NullText="Select Categories"/>
+    <FilterTagBox TItem="Category"
+                  Data="@(this.ViewModel.AvailableCategories)"
+                  Values="@(this.ViewModel.SelectedCategories)"
+                  ValuesChanged="@((IEnumerable<Category> values) => this.ViewModel.SelectedCategories = values)"
+                  TextFieldName="@(nameof(Category.Name))"
+                  NullText="Filter by category..."/>
 }

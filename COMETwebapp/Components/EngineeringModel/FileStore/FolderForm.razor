@@ -53,7 +53,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
             Delete
         </DxButton>
 
-        <DxButton SubmitFormOnClick="true">
+        <DxButton SubmitFormOnClick="true"
+                  RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())">
             Save
         </DxButton>
 
@@ -68,7 +69,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 <DxPopup @bind-Visible="@this.IsDeletePopupVisible" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
     You are about to delete the Folder: @(this.ViewModel.CurrentThing.Name)
     <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(() => this.IsDeletePopupVisible = false)" />
+        <DxButton Text="Cancel " RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Click="@(() => this.IsDeletePopupVisible = false)" />
         <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(() => this.OnDelete())" Id="deleteFolderPopupButton" />
     </div>
 </DxPopup>

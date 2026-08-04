@@ -22,6 +22,7 @@
 
 namespace COMETwebapp.Components.ParameterEditor
 {
+    using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Components.Applications;
@@ -47,9 +48,9 @@ namespace COMETwebapp.Components.ParameterEditor
             base.OnViewModelAssigned();
 
             this.Disposables.Add(this.WhenAnyValue(
-                    x => x.ViewModel.OptionSelector.SelectedOption,
+                    x => x.ViewModel.OptionSelector.SelectedOptions,
                     x => x.ViewModel.ParameterTypeSelector.SelectedParameterTypes,
-                    x => x.ViewModel.ElementSelector.SelectedElementBase,
+                    x => x.ViewModel.ElementSelector.SelectedElementBases,
                     x => x.ViewModel.CategorySelector.SelectedCategories,
                     x => x.ViewModel.IsOwnedParameters)
                 .Subscribe(_ => this.UpdateUrl()));
@@ -63,9 +64,28 @@ namespace COMETwebapp.Components.ParameterEditor
         /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
         protected override void InitializeValues(Dictionary<string, string> parameters)
         {
-            if (parameters.TryGetValue(QueryKeys.OptionKey, out var option))
+            if (parameters.TryGetValue(QueryKeys.OptionsKey, out var optionsValue) && !string.IsNullOrWhiteSpace(optionsValue))
             {
-                this.ViewModel.OptionSelector.SelectedOption = this.ViewModel.OptionSelector.AvailableOptions.FirstOrDefault(x => x.Iid == option.FromShortGuid());
+                var ids = optionsValue
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(x => x.FromShortGuid())
+                    .ToHashSet();
+
+                this.ViewModel.OptionSelector.SelectedOptions = this.ViewModel.OptionSelector.AvailableOptions
+                    .Where(x => ids.Contains(x.Iid))
+                    .ToList();
+            }
+
+            if (parameters.TryGetValue(QueryKeys.ElementsKey, out var elementsValue) && !string.IsNullOrWhiteSpace(elementsValue))
+            {
+                var ids = elementsValue
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(x => x.FromShortGuid())
+                    .ToHashSet();
+
+                this.ViewModel.ElementSelector.SelectedElementBases = this.ViewModel.ElementSelector.AvailableElements
+                    .Where(x => ids.Contains(x.Iid))
+                    .ToList();
             }
 
             if (parameters.TryGetValue(QueryKeys.ParametersKey, out var parametersValue) && !string.IsNullOrWhiteSpace(parametersValue))
@@ -109,14 +129,18 @@ namespace COMETwebapp.Components.ParameterEditor
         {
             var additionalParameters = new Dictionary<string, string>();
 
-            if (this.ViewModel.ElementSelector.SelectedElementBase != null)
+            var selectedElementBases = this.ViewModel.ElementSelector.SelectedElementBases?.ToList() ?? new List<ElementBase>();
+
+            if (selectedElementBases.Count > 0)
             {
-                additionalParameters["element"] = this.ViewModel.ElementSelector.SelectedElementBase.Iid.ToShortGuid();
+                additionalParameters[QueryKeys.ElementsKey] = string.Join(",", selectedElementBases.Select(x => x.Iid.ToShortGuid()));
             }
 
-            if (this.ViewModel.OptionSelector.SelectedOption != null)
+            var selectedOptions = this.ViewModel.OptionSelector.SelectedOptions?.ToList() ?? new List<Option>();
+
+            if (selectedOptions.Count > 0)
             {
-                additionalParameters["option"] = this.ViewModel.OptionSelector.SelectedOption.Iid.ToShortGuid();
+                additionalParameters[QueryKeys.OptionsKey] = string.Join(",", selectedOptions.Select(x => x.Iid.ToShortGuid()));
             }
 
             var selectedParameterTypes = this.ViewModel.ParameterTypeSelector.SelectedParameterTypes?.ToList() ?? new List<ParameterType>();

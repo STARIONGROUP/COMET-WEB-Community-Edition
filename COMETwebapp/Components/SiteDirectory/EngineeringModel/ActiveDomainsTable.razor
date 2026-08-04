@@ -51,7 +51,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
     <div class="dxbl-grid-edit-form-buttons">
         <DxButton Id="saveActiveDomainsButton"
-                  Click="@(() => this.SetEditPopupVisibility(false))">
+                  Click="@(() => this.SetEditPopupVisibility(false))"
+                  RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())">
             Save
         </DxButton>
         <DxButton Id="cancelActiveDomainsButton"

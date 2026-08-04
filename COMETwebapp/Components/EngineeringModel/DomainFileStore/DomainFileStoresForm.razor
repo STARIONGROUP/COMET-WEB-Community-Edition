@@ -38,7 +38,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <DxFormLayoutTabPage Caption="FolderFile Structure">
                     <DxFormLayoutItem CssClass="w-100">
                         <FolderFileStructure ViewModel="@(this.ViewModel.FolderFileStructureViewModel)"/>
-                        <DxButton Click="@(() => this.IsFolderFileStructureVisible = true)" Text="Open Details"/>
+                        <DxButton Click="@(() => this.IsFolderFileStructureVisible = true)" Text="Open Details" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"/>
                     </DxFormLayoutItem>
                 </DxFormLayoutTabPage>
             }

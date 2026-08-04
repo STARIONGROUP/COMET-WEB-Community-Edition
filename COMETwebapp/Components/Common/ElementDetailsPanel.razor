@@ -22,19 +22,6 @@
 @using COMETwebapp.Components.ModelEditor
 @inherits DisposableComponent
 
-<div id="panel-action-bar" class="mb-2 d-flex flex-wrap align-items-center justify-content-end" style="gap:8px;">
-    @if (this.ViewModel.SelectedElementDefinition is not null)
-    {
-        <div style="flex:1 1 200px; min-width:0;">
-            <SearchBar @bind-Text="@this.SearchTerm" Placeholder="Search parameters or owner…"/>
-        </div>
-        <DxButton Id="addParameter" Text="Parameter" IconCssClass="@IconName.Add.GetCssClass()" Click="@(this.ViewModel.OpenAddParameterPopup)"/>
-        <DxButton Id="addParameterGroup" Text="Parameter Group" IconCssClass="@IconName.Add.GetCssClass()" Click="@this.ViewModel.OpenCreateParameterGroupPopup"/>
-    }
-
-    <DxButton Id="addElementDefinition" Text="Element Definition" IconCssClass="@IconName.Add.GetCssClass()" Click="@this.ViewModel.OpenCreateElementDefinitionCreationPopup"/>
-</div>
-
 <DetailsPanelEditor ViewModel="this.ViewModel.ElementDefinitionDetailsViewModel"
                     SearchTerm="@this.SearchTerm"
                     OnEditParameter="@(parameter => this.ViewModel.OpenEditParameterPopup(parameter))"
@@ -51,7 +38,46 @@
                     OnAssignParameterGroup="@(args => this.ViewModel.AssignParameterToGroupAsync(args))"
                     OnReassignGroupContaining="@(args => this.ViewModel.ReassignGroupContainingAsync(args))"
                     OnEditParameterGroup="@(g => this.ViewModel.OpenEditParameterGroupPopup(g))"
-                    OnDeleteParameterGroup="@(g => this.ViewModel.OpenDeleteParameterGroupPopup(g))"/>
+                    OnDeleteParameterGroup="@(g => this.ViewModel.OpenDeleteParameterGroupPopup(g))">
+    <HeaderActions>
+        @this.DetailsHeaderActions
+    </HeaderActions>
+    <ActionBar>
+        <div id="panel-action-bar" class="mb-2 d-flex align-items-center" style="gap:8px;">
+            <div style="flex:1 1 200px; min-width:0;">
+                @if (this.ViewModel.SelectedElementDefinition is not null)
+                {
+                    <SearchBar @bind-Text="@this.SearchTerm" Placeholder="Search parameters or owner…"/>
+                }
+            </div>
+
+            <DxButton Id="element-details-new-button"
+                      CssClass="element-details-add-button"
+                      Text="Add"
+                      IconCssClass="@IconName.Add.GetCssClass()"
+                      RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                      Click="@(() => this.IsNewMenuOpen = !this.IsNewMenuOpen)"/>
+        </div>
+    </ActionBar>
+</DetailsPanelEditor>
+
+<DxDropDown @bind-IsOpen="@this.IsNewMenuOpen"
+            PositionMode="DropDownPositionMode.Bottom"
+            PositionTarget="#element-details-new-button"
+            CloseMode="DropDownCloseMode.Close"
+            HeaderVisible="false"
+            FooterVisible="false">
+    <BodyTemplate>
+        <div class="element-details-new-menu">
+            @if (this.ViewModel.SelectedElementDefinition is not null)
+            {
+                <DxButton Id="addParameter" RenderStyle="ButtonRenderStyle.Light" CssClass="element-details-new-item" Text="Add Parameter" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenAddParameterPopup))"/>
+                <DxButton Id="addParameterGroup" RenderStyle="ButtonRenderStyle.Light" CssClass="element-details-new-item" Text="Add Parameter Group" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenCreateParameterGroupPopup))"/>
+            }
+            <DxButton Id="addElementDefinition" RenderStyle="ButtonRenderStyle.Light" CssClass="element-details-new-item" Text="Add Element Definition" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenCreateElementDefinitionCreationPopup))"/>
+        </div>
+    </BodyTemplate>
+</DxDropDown>
 
 <DxPopup CloseOnOutsideClick="false" HeaderText="Create Element Definition" @bind-Visible="@this.ViewModel.IsOnCreationMode" Width="40vw">
     <BodyContentTemplate>

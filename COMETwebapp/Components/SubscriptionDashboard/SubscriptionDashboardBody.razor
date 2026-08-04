@@ -22,12 +22,14 @@
 @inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.SubscriptionDashboard.ISubscriptionDashboardBodyViewModel>
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
-    <div id="@WebAppConstantValues.SubscriptionDashboardPage.QueryPageBodyName()" class="row">
-        <div class="col-2 width-fit-content">
-            <ParameterTypeSelector ViewModel="@(this.ViewModel.ParameterTypeSelector)"/>
-        </div>
-        <div class="col-2 width-fit-content">
-            <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
+    <div id="@WebAppConstantValues.SubscriptionDashboardPage.QueryPageBodyName()">
+        <div class="filter-bar">
+            <div class="filter-bar-item">
+                <MultiParameterTypeSelector ViewModel="@(this.ViewModel.ParameterTypeSelector)" DisplayText=""/>
+            </div>
+            <div class="filter-bar-item">
+                <MultiOptionSelector ViewModel="@(this.ViewModel.OptionSelector)" DisplayText=""/>
+            </div>
         </div>
         <DxTreeView>
             <Nodes>

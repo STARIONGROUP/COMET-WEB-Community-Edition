@@ -135,8 +135,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelDashboard
 
             Assert.Multiple(() =>
             {
-                this.parameterDashboard.Verify(x => x.UpdateProperties(It.IsAny<Iteration>(), It.IsAny<Option>(),
-                        It.IsAny<ActualFiniteState>(), It.IsAny<ParameterType>(), It.IsAny<DomainOfExpertise>(), It.IsAny<IEnumerable<DomainOfExpertise>>()),
+                this.parameterDashboard.Verify(x => x.UpdateProperties(It.IsAny<Iteration>(), It.IsAny<IEnumerable<Option>>(),
+                        It.IsAny<IEnumerable<ActualFiniteState>>(), It.IsAny<IEnumerable<ParameterType>>(), It.IsAny<DomainOfExpertise>(), It.IsAny<IEnumerable<DomainOfExpertise>>()),
                     Times.AtLeastOnce,
                     "ModelDashboardBodyViewModel has no OnEndUpdate override, so a cross-panel write's EndUpdate never " +
                     "reaches OnSessionRefreshed/UpdateDashboards.");

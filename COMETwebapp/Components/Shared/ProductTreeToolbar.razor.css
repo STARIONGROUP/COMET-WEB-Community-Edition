@@ -12,14 +12,6 @@
     min-width: 0;
 }
 
-.product-tree-view-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 12px;
-    min-width: 180px;
-}
-
 ::deep #tree-search-filter {
     width: 100%;
     margin-left: 0;

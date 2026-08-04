@@ -29,9 +29,6 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 
     @if (this.ShowCategories)
     {
-        @foreach (var category in this.ElementBase.GetDisplayCategories())
-        {
-            <StarionPill @key="category.Iid" ColorSeed="@($"category:{category.ShortName}")" Title="@($"Category: {category.ShortName}")">@category.ShortName</StarionPill>
-        }
+         <CategoryPills Categories="@this.ElementBase.GetDisplayCategories()" UseShortName="true" MaxVisible="int.MaxValue"/>
     }
 }

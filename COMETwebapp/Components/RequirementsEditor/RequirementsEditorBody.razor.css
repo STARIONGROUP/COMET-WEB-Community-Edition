@@ -39,30 +39,21 @@
     max-width: 420px;
 }
 
-.req-view-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 12px;
-    min-width: 200px;
-}
-
 .req-view-section {
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
-.req-view-menu ::deep .req-view-toggle-on {
+.req-view-section ::deep .req-view-toggle-on {
     background-color: #e7f1ff !important;
     border-color: #b9d0f0 !important;
     color: #3b5b8c !important;
     font-weight: 600;
 }
 
-.req-filter {
-    flex: 1 1 100px;
-    min-width: 78px;
+.req-toolbar ::deep .dxbl-btn:not(.dxbl-edit-btn-clear):not(.dxbl-tag-btn-close) {
+    height: 34px;
 }
 
 .req-editor-layout {

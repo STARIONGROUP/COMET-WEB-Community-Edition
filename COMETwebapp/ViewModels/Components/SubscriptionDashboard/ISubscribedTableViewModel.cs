@@ -60,12 +60,18 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         public void UpdateProperties(IEnumerable<ParameterSubscription> subscriptions, IEnumerable<Option> availableOptions, Iteration newIteration);
 
         /// <summary>
-        /// Apply filters on <see cref="ParameterSubscriptionRowViewModel" /> based on the <see cref="Option" /> and
-        /// <see cref="ParameterType" />
+        /// Apply filters on <see cref="ParameterSubscriptionRowViewModel" /> based on a multi-select set of
+        /// <see cref="Option" />s and a multi-select set of <see cref="ParameterType" />s
         /// </summary>
-        /// <param name="selectedOption">The selected <see cref="Option" /></param>
-        /// <param name="selectedParameterType">The selected <see cref="ParameterType" /></param>
-        public void ApplyFilters(Option selectedOption, ParameterType selectedParameterType);
+        /// <param name="selectedOptions">
+        /// The collection of selected <see cref="Option" />s. <c>null</c> or an empty collection means no option
+        /// filtering is applied.
+        /// </param>
+        /// <param name="selectedParameterTypes">
+        /// The collection of selected <see cref="ParameterType" />s. <c>null</c> or an empty collection means no
+        /// parameter-type filtering is applied.
+        /// </param>
+        public void ApplyFilters(IEnumerable<Option> selectedOptions, IEnumerable<ParameterType> selectedParameterTypes);
 
         /// <summary>
         /// Validates all changes of <see cref="ParameterValueSetBase" /> related to the current <see cref="Iteration" />

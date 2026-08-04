@@ -56,24 +56,34 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         }
 
         /// <summary>
-        /// Apply filters on <see cref="OwnedParameterOrOverrideBaseRowViewModel" /> based on the <see cref="Option" /> and
-        /// <see cref="ParameterType" />
+        /// Apply filters on <see cref="OwnedParameterOrOverrideBaseRowViewModel" /> based on a multi-select set of
+        /// <see cref="Option" />s and a multi-select set of <see cref="ParameterType" />s
         /// </summary>
-        /// <param name="selectedOption">The selected <see cref="Option" /></param>
-        /// <param name="selectedParameterType">The selected <see cref="ParameterType" /></param>
-        public void ApplyFilters(Option selectedOption, ParameterType selectedParameterType)
+        /// <param name="selectedOptions">
+        /// The collection of selected <see cref="Option" />s. <c>null</c> or an empty collection means no option
+        /// filtering is applied.
+        /// </param>
+        /// <param name="selectedParameterTypes">
+        /// The collection of selected <see cref="ParameterType" />s. <c>null</c> or an empty collection means no
+        /// parameter-type filtering is applied.
+        /// </param>
+        public void ApplyFilters(IEnumerable<Option> selectedOptions, IEnumerable<ParameterType> selectedParameterTypes)
         {
             var filteredRows = new List<OwnedParameterOrOverrideBaseRowViewModel>(this.allRows);
 
-            if (selectedOption != null)
+            var optionIds = selectedOptions?.Select(x => x.Iid).ToHashSet() ?? new HashSet<Guid>();
+
+            if (optionIds.Count > 0)
             {
                 filteredRows.RemoveAll(x => x.Element is ElementUsage usage
-                                            && usage.ExcludeOption.Any(o => o.Iid == selectedOption.Iid));
+                                            && usage.ExcludeOption.Any(o => optionIds.Contains(o.Iid)));
             }
 
-            if (selectedParameterType != null)
+            var parameterTypeIds = selectedParameterTypes?.Select(x => x.Iid).ToHashSet() ?? new HashSet<Guid>();
+
+            if (parameterTypeIds.Count > 0)
             {
-                filteredRows.RemoveAll(x => x.Parameter.ParameterType.Iid != selectedParameterType.Iid);
+                filteredRows.RemoveAll(x => !parameterTypeIds.Contains(x.Parameter.ParameterType.Iid));
             }
 
             this.UpdateRows(filteredRows);

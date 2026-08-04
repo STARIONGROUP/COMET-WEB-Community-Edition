@@ -18,4 +18,4 @@ Copyright (c) 2023-2026 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
-<DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Edit.GetCssClass()" title="@($"Edit {this.KindLabel}")" Click="@(() => this.ViewModel.OpenEdit(this.Thing))" />
+<DxButton RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())" IconCssClass="@IconName.Edit.GetCssClass()" title="@($"Edit {this.KindLabel}")" Click="@(() => this.ViewModel.OpenEdit(this.Thing))" />

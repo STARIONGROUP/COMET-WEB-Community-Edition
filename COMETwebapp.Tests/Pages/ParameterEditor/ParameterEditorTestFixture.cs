@@ -127,11 +127,11 @@ namespace COMETwebapp.Tests.Pages.ParameterEditor
             parameterTableViewModel.Setup(x => x.Rows).Returns(new SourceList<ParameterBaseRowViewModel>());
 
             var parameterEditorBodyViewModel = new Mock<IParameterEditorBodyViewModel>();
-            parameterEditorBodyViewModel.Setup(x => x.OptionSelector).Returns(new Mock<IOptionSelectorViewModel>().Object);
+            parameterEditorBodyViewModel.Setup(x => x.OptionSelector).Returns(new Mock<IMultiOptionSelectorViewModel>().Object);
             parameterEditorBodyViewModel.Setup(x => x.BatchParameterEditorViewModel).Returns(new Mock<IBatchParameterEditorViewModel>().Object);
             parameterEditorBodyViewModel.Setup(x => x.ParameterTypeSelector).Returns(new Mock<IMultiParameterTypeSelectorViewModel>().Object);
             parameterEditorBodyViewModel.Setup(x => x.CategorySelector).Returns(new Mock<IMultiCategorySelectorViewModel>().Object);
-            parameterEditorBodyViewModel.Setup(x => x.ElementSelector).Returns(new Mock<IElementBaseSelectorViewModel>().Object);
+            parameterEditorBodyViewModel.Setup(x => x.ElementSelector).Returns(new Mock<IMultiElementBaseSelectorViewModel>().Object);
             parameterEditorBodyViewModel.Setup(x => x.ParameterTableViewModel).Returns(parameterTableViewModel.Object);
 
             var configurationService = new Mock<IStringTableService>();

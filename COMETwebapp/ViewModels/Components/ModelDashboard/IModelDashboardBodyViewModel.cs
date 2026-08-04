@@ -34,19 +34,22 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
     public interface IModelDashboardBodyViewModel : ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
-        /// Gets the <see cref="IOptionSelectorViewModel" />
+        /// Gets the <see cref="IMultiOptionSelectorViewModel" /> driving the option filter. An empty selection
+        /// means no option filtering is applied.
         /// </summary>
-        IOptionSelectorViewModel OptionSelector { get; }
+        IMultiOptionSelectorViewModel OptionSelector { get; }
 
         /// <summary>
-        /// Gets the <see cref="IFiniteStateSelectorViewModel" />
+        /// Gets the <see cref="IMultiFiniteStateSelectorViewModel" /> driving the finite state filter. An empty
+        /// selection means no state filtering is applied.
         /// </summary>
-        IFiniteStateSelectorViewModel FiniteStateSelector { get; }
+        IMultiFiniteStateSelectorViewModel FiniteStateSelector { get; }
 
         /// <summary>
-        /// Gets the <see cref="IParameterTypeSelectorViewModel" />
+        /// Gets the <see cref="IMultiParameterTypeSelectorViewModel" /> driving the parameter-type filter. An empty
+        /// selection means no parameter-type filtering is applied.
         /// </summary>
-        IParameterTypeSelectorViewModel ParameterTypeSelector { get; }
+        IMultiParameterTypeSelectorViewModel ParameterTypeSelector { get; }
 
         /// <summary>
         /// The <see cref="IParameterDashboardViewModel" />

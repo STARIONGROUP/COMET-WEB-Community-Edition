@@ -25,7 +25,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <DxGridDataColumn FieldName="@nameof(EnumerationValueDefinitionRowViewModel.ShortName)" MinWidth="80" SearchEnabled="false"/>
         <DxGridCommandColumn Width="100px">
             <HeaderTemplate>
-                <DxButton Id="addEnumerationValueDefinitionButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate"/>
+                <DxButton Id="addEnumerationValueDefinitionButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
@@ -33,11 +33,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                     <DxButton Id="editScaleValueDefinitionButton"
                               IconCssClass="@IconName.Edit.GetCssClass()"
-                              Click="@(() => this.StartEdit(row))"/>
+                              Click="@(() => this.StartEdit(row))"
+                              RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"/>
 
                     <DxButton Id="removeScaleValueDefinitionButton"
                               IconCssClass="@IconName.Delete.GetCssClass()"
-                              Click="() => this.RemoveItem(row)"/>
+                              Click="() => this.RemoveItem(row)"
+                              RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"/>
                 }
             </CellDisplayTemplate>
         </DxGridCommandColumn>

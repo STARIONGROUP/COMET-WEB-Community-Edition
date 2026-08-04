@@ -39,14 +39,17 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         ISubscriptionService SubscriptionService { get; set; }
 
         /// <summary>
-        /// Gets the <see cref="IElementBaseSelectorViewModel" />
+        /// Gets the <see cref="IMultiElementBaseSelectorViewModel" /> driving the building-block filter. An empty
+        /// selection means no element filtering is applied.
         /// </summary>
-        public IElementBaseSelectorViewModel ElementSelector { get; }
+        public IMultiElementBaseSelectorViewModel ElementSelector { get; }
 
         /// <summary>
-        /// Gets the <see cref="IOptionSelectorViewModel" />
+        /// Gets the <see cref="IMultiOptionSelectorViewModel" /> driving the option filter. An empty selection
+        /// falls back to the <see cref="CDP4Common.EngineeringModelData.Iteration" />'s default
+        /// <see cref="CDP4Common.EngineeringModelData.Option" />.
         /// </summary>
-        public IOptionSelectorViewModel OptionSelector { get; }
+        public IMultiOptionSelectorViewModel OptionSelector { get; }
 
         /// <summary>
         /// Gets the <see cref="IMultiParameterTypeSelectorViewModel" /> driving the parameter-type filter.

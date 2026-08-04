@@ -44,8 +44,8 @@ else if (this.Container == null)
         }
         <RequirementPills ViewModel="@this.ViewModel" Owner="@specification.Owner" Categories="@specification.Category" />
         <span class="req-actions">
-            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Add.GetCssClass()" title="Add requirement" Click="@(() => this.ViewModel.OpenCreateRequirement(specification))" />
-            <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Folder.GetCssClass()" title="Add group" Click="@(() => this.ViewModel.OpenCreateGroup(specification))" />
+            <DxButton RenderStyle="ButtonRenderStyle.Primary" IconCssClass="@IconName.Add.GetCssClass()" title="Add requirement" Click="@(() => this.ViewModel.OpenCreateRequirement(specification))" />
+            <DxButton RenderStyle="ButtonRenderStyle.Primary" IconCssClass="@IconName.Folder.GetCssClass()" title="Add group" Click="@(() => this.ViewModel.OpenCreateGroup(specification))" />
             <EditThingButton ViewModel="@this.ViewModel" Thing="@specification" />
             <DeprecateThingButton ViewModel="@this.ViewModel" Thing="@specification" />
         </span>
@@ -76,10 +76,10 @@ else
             <span class="req-group-name">@group.Name</span>
             <RequirementPills ViewModel="@this.ViewModel" Owner="@group.Owner" Categories="@group.Category" />
             <span class="req-actions">
-                <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Add.GetCssClass()" title="Add requirement" Click="@(() => this.ViewModel.OpenCreateRequirement(group))" />
-                <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Folder.GetCssClass()" title="Add sub-group" Click="@(() => this.ViewModel.OpenCreateGroup(group))" />
+                <DxButton RenderStyle="ButtonRenderStyle.Primary" IconCssClass="@IconName.Add.GetCssClass()" title="Add requirement" Click="@(() => this.ViewModel.OpenCreateRequirement(group))" />
+                <DxButton RenderStyle="ButtonRenderStyle.Primary" IconCssClass="@IconName.Folder.GetCssClass()" title="Add sub-group" Click="@(() => this.ViewModel.OpenCreateGroup(group))" />
                 <EditThingButton ViewModel="@this.ViewModel" Thing="@group" />
-                <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Delete.GetCssClass()" title="Delete group" Click="@(() => this.ViewModel.ConfirmDeletion(group))" />
+                <DxButton RenderStyle="ButtonRenderStyle.Danger" IconCssClass="@IconName.Delete.GetCssClass()" title="Delete group" Click="@(() => this.ViewModel.ConfirmDeletion(group))" />
             </span>
         </div>
 

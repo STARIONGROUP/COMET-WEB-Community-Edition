@@ -24,16 +24,17 @@
 @if(this.Elements != null && this.UnusedElementDefinitions != null)
 {
     <div data-testid="dashboard-chart">
-        <div class="row">
-            <div class="col-9">
-                <h3 class="text-align-end">Unused Elements</h3>
+        <div class="row align-items-center justify-content-center">
+            <div class="col-auto p-0">
+                <h3 class="m-0">Unused Elements</h3>
             </div>
-            <div class="col text-align-start p-0">
+            <div class="col-auto p-0">
                 <Tooltip MarginBottom="bottom-25" Text="Elements not used in an option">
-                    <button type="button" class="btn btn-secondary btn-tooltip"><CometIcon Icon="IconName.Info"/></button>
+                    <button type="button" class="btn-tooltip"><CometIcon Icon="IconName.Info" Size="16"/></button>
                 </Tooltip>
             </div>
-       
+        </div>
+        <div class="row">
             <DxChart Data="@this.Elements" CustomizeSeriesPoint="@PreparePointLabel">
                 <DxChartFullStackedBarSeries Color="System.Drawing.Color.IndianRed" Name="@WebAppConstantValues.UsedElements" Filter="@((ElementDefinition e) => this.UnusedElementDefinitions.All(x => x.Iid != e.Iid))"
                                             ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"

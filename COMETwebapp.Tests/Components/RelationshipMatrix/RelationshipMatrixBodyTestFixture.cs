@@ -291,7 +291,7 @@ namespace COMETwebapp.Tests.Components.RelationshipMatrix
             await renderedComponent.InvokeAsync(() => renderedComponent.FindAll("button").Single(x => x.TextContent.Contains("Swap")).ClickAsync(new MouseEventArgs()));
             await renderedComponent.InvokeAsync(() => renderedComponent.FindAll("button").Single(x => x.TextContent.Contains("Export to Excel")).ClickAsync(new MouseEventArgs()));
             await renderedComponent.InvokeAsync(() => renderedComponent.FindAll("button").Single(x => x.TextContent.Contains("Configuration")).ClickAsync(new MouseEventArgs()));
-            await renderedComponent.InvokeAsync(() => renderedComponent.Find(".matrix-config-panel-header button").ClickAsync(new MouseEventArgs()));
+            await renderedComponent.InvokeAsync(() => renderedComponent.Find("#matrix-config-minimize").ClickAsync(new MouseEventArgs()));
 
             Assert.Multiple(() =>
             {

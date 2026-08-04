@@ -18,6 +18,7 @@
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
 @using COMET.Web.Common.Extensions
+@using COMETwebapp.Extensions
 @using CDP4Common.EngineeringModelData
 @using COMETwebapp.Components.Common
 @using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows
@@ -26,26 +27,30 @@
 
 @if (this.ViewModel.SelectedSystemNode != null)
 {
-    @* ── Summary card ── *@
-    <div class="card cardview-detailspanel-summary mb-2" style="padding:8px;">
-        <div class="row" style="margin-bottom:4px;">
-            <div class="col-7">
+     <div class="card cardview-detailspanel-summary mb-2" style="padding:8px;">
+        <div class="d-flex align-items-center" style="gap:8px;">
+            <div style="min-width:0; flex:1 1 auto;">
                 <h6 title="@this.ViewModel.SelectedSystemNode.Name"
                     style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:0;">
                     @this.ViewModel.SelectedSystemNode.Name
                 </h6>
-                <small class="text-muted">@this.ViewModel.SelectedSystemNode.ShortName</small>
+                <small class="text-muted" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">@this.ViewModel.SelectedSystemNode.ShortName</small>
             </div>
-            <div class="col-5" align="right">
+
+            <div class="d-flex flex-wrap align-items-center justify-content-end" style="gap:4px; flex:0 1 auto; min-width:0;">
                 <StarionPill ColorSeed="@($"owner:{this.ViewModel.SelectedSystemNode.Owner.ShortName}")" Title="@($"Owning Domain Of Expertise: {this.ViewModel.SelectedSystemNode.Owner.ShortName}")">
                     @this.ViewModel.SelectedSystemNode.Owner.ShortName
                 </StarionPill>
+                <CategoryPills Categories="@this.ViewModel.SelectedSystemNode.GetDisplayCategories()" UseShortName="false"/>
+            </div>
+
+            <div class="d-flex align-items-center" style="gap:2px; flex:0 0 auto;">
                 @if (this.OnEditDefinition.HasDelegate && this.ViewModel.SelectedSystemNode is ElementUsage)
                 {
                     <DxButton Id="editDefinition"
                               IconCssClass="@IconName.Box.GetCssClass()"
+                              RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"
                               RenderStyleMode="ButtonRenderStyleMode.Text"
-                              CssClass="ms-1"
                               Click="@(() => this.OnEditDefinition.InvokeAsync())"
                               title="Edit Element Definition"/>
                 }
@@ -53,8 +58,8 @@
                 {
                     <DxButton Id="editElement"
                               IconCssClass="@IconName.Edit.GetCssClass()"
+                              RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"
                               RenderStyleMode="ButtonRenderStyleMode.Text"
-                              CssClass="ms-1"
                               Click="@(() => this.OnEditElement.InvokeAsync())"
                               title="@(this.ViewModel.SelectedSystemNode is ElementUsage ? "Edit Element Usage" : "Edit Element Definition")"/>
                 }
@@ -64,43 +69,20 @@
                               IconCssClass="@IconName.Delete.GetCssClass()"
                               RenderStyle="ButtonRenderStyle.Danger"
                               RenderStyleMode="ButtonRenderStyleMode.Text"
-                              CssClass="ms-1"
                               Enabled="@(!this.DisableDelete)"
                               Click="@(() => this.OnDeleteElement.InvokeAsync())"
                               title="@(this.DisableDelete ? "The top element of the iteration cannot be deleted" : "Delete the selected element")"/>
                 }
+                @this.HeaderActions
             </div>
         </div>
-        @{
-            var categories = this.ViewModel.SelectedSystemNode.GetAllCategories().ToList();
-        }
-        @if (categories.Count > 0)
-        {
-            <div class="row" style="margin-bottom:4px;">
-                <div class="col-12">
-                    @foreach (var category in categories)
-                    {
-                        <StarionPill ColorSeed="@($"category:{category.ShortName}")" Title="@($"Category: {category.Name}")" Style="margin-right:4px;">
-                            @category.Name
-                        </StarionPill>
-                    }
-                </div>
-            </div>
-        }
-        @{
-            var definition = this.ViewModel.SelectedSystemNode.Definition.Select(x => x.Content).AsCommaSeparated();
-        }
-        @if (!string.IsNullOrWhiteSpace(definition))
-        {
-            <div class="row" style="border-top:1px dotted darkgray;margin-top:8px;padding-top:8px;">
-                <div class="col-12" title="@definition">
-                    @definition
-                </div>
-            </div>
-        }
     </div>
+}
 
-    @* ── Collapsible grouped parameter sections ── *@
+@this.ActionBar
+
+@if (this.ViewModel.SelectedSystemNode != null)
+{
     <div class="param-groups-container" @ref="this.groupsContainer">
         @foreach (var group in this.TopLevelGroups)
         {

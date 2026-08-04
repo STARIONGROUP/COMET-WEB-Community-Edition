@@ -57,12 +57,12 @@
                 sec
             </div>
             <div class="session__buttons">
-                <DxButton Id="edit-profile-button" CssClass="btn btn-connect" Text="Edit my profile" IconCssClass="@IconName.User.GetCssClass()" Click="@(this.OnEditProfileClick)"/>
+                <DxButton Id="edit-profile-button" CssClass="btn btn-connect" Text="Edit my profile" IconCssClass="@IconName.User.GetCssClass()" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" Click="@(this.OnEditProfileClick)"/>
             </div>
 
             <div class="session__buttons session__buttons--secondary">
-                <DxButton Id="refresh-button" CssClass="btn btn-connect" Text="@(this.RefreshButtonText)" IconCssClass="@IconName.Refresh.GetCssClass()" Enabled="@(!this.IsRefreshing)" Click="@(this.OnRefreshClick)"/>
-                <DxButton Id="logout-button" CssClass="btn btn-connect" Text="Log out" IconCssClass="@IconName.LogOut.GetCssClass()" Click="@(this.Logout)"/>
+                <DxButton Id="refresh-button" CssClass="btn btn-connect" Text="@(this.RefreshButtonText)" IconCssClass="@IconName.Refresh.GetCssClass()" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" Enabled="@(!this.IsRefreshing)" Click="@(this.OnRefreshClick)"/>
+                <DxButton Id="logout-button" CssClass="btn btn-connect" Text="Log out" IconCssClass="@IconName.LogOut.GetCssClass()" RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Click="@(this.Logout)"/>
             </div>
         </div>
     </BodyContentTemplate>

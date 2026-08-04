@@ -23,26 +23,10 @@ along with this program. If not, see http://www.gnu.org/licenses/.
         <SearchBar @bind-Text="@this.ViewModel.SearchText"/>
     </div>
 
-    <DxButton Id="@this.ButtonId"
-              RenderStyle="ButtonRenderStyle.Light"
-              IconCssClass="@IconName.Settings.GetCssClass()"
-              Text="View"
-              title="Display options"
-              Click="@(() => this.viewMenuOpen = !this.viewMenuOpen)" />
-
-    <DxDropDown @bind-IsOpen="@this.viewMenuOpen"
-                PositionMode="DropDownPositionMode.Bottom"
-                PositionTarget="@($"#{this.ButtonId}")"
-                CloseMode="DropDownCloseMode.Close"
-                HeaderVisible="false"
-                FooterVisible="false">
-        <BodyTemplate>
-            <div class="product-tree-view-menu">
-                <DxCheckBox @bind-Checked="@this.ViewModel.ShowName" CheckType="CheckType.Switch">Full name</DxCheckBox>
-                <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
-                <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategories" CheckType="CheckType.Switch">Categories</DxCheckBox>
-                @this.ChildContent
-            </div>
-        </BodyTemplate>
-    </DxDropDown>
+    <ViewOptionsMenu ButtonId="@this.ButtonId">
+        <DxCheckBox @bind-Checked="@this.ViewModel.ShowName" CheckType="CheckType.Switch">Full name</DxCheckBox>
+        <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
+        <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategories" CheckType="CheckType.Switch">Categories</DxCheckBox>
+        @this.ChildContent
+    </ViewOptionsMenu>
 </div>

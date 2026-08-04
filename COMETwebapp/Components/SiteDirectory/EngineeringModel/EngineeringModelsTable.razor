@@ -52,7 +52,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 <DxPopup @bind-Visible="@(this.ViewModel.IsOnDeletionMode)" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
     @(this.ViewModel.PopupDialog)
     <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
+        <DxButton Text="Cancel " RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Click="@(this.ViewModel.OnCancelPopupButtonClick)"/>
         <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(this.OnDeletionConfirmed)"/>
     </div>
 </DxPopup>

@@ -24,12 +24,15 @@
 
 @if(this.ViewModel.CurrentIteration != null)
 {
-	<h6>Filter on Option:</h6>
+	if (!string.IsNullOrWhiteSpace(this.DisplayText))
+	{
+		<h6>@(this.DisplayText)</h6>
+	}
 	<DxComboBox Data="@this.ViewModel.AvailableOptions"
 	            AllowUserInput="true"
 	            @bind-Value="@this.ViewModel.SelectedOption"
 	            FilteringMode="DataGridFilteringMode.Contains"
 	            TextFieldName="@nameof(Option.Name)"
 	            ClearButtonDisplayMode="@(this.ViewModel.AllowNullOption ? DataEditorClearButtonDisplayMode.Auto : DataEditorClearButtonDisplayMode.Never)"
-	            NullText="Select an Option"/>
+	            NullText="Filter by option..."/>
 }

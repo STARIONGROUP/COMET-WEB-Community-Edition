@@ -83,8 +83,8 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             elements.Add(new ElementDefinition { Name = "Element2" });
             elements.Add(new ElementDefinition { Name = "Element3" });
 
-            parameterEditorViewModel.Setup(x => x.ElementSelector).Returns(new ElementBaseSelectorViewModel());
-            parameterEditorViewModel.Setup(x => x.OptionSelector).Returns(new OptionSelectorViewModel());
+            parameterEditorViewModel.Setup(x => x.ElementSelector).Returns(new MultiElementBaseSelectorViewModel());
+            parameterEditorViewModel.Setup(x => x.OptionSelector).Returns(new MultiOptionSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.ParameterTypeSelector).Returns(new MultiParameterTypeSelectorViewModel());
             parameterEditorViewModel.Setup(x => x.CategorySelector).Returns(new MultiCategorySelectorViewModel());
             parameterEditorViewModel.Setup(x => x.ParameterTableViewModel).Returns(new ParameterTableViewModel(sessionService.Object, this.messageBus));
@@ -163,12 +163,11 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         [Test]
         public void VerifyComponentUi()
         {
-            var elementFilterCombo = this.renderedComponent.FindComponent<ElementBaseSelector>();
+            var elementFilterCombo = this.renderedComponent.FindComponent<MultiElementBaseSelector>();
             var parameterFilterCombo = this.renderedComponent.FindComponent<MultiParameterTypeSelector>();
             var categoryFilterCombo = this.renderedComponent.FindComponent<MultiCategorySelector>();
-            var optionFilterCombo = this.renderedComponent.FindComponent<OptionSelector>();
+            var optionFilterCombo = this.renderedComponent.FindComponent<MultiOptionSelector>();
 
-            var isOwnedCheckbox = this.renderedComponent.FindComponent<DxCheckBox<bool>>();
             var parameterTable = this.renderedComponent.FindComponent<ParameterTable>();
             var batchParameterEditor = this.renderedComponent.FindComponent<BatchParameterEditor>();
 
@@ -178,7 +177,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
                 Assert.That(parameterFilterCombo, Is.Not.Null);
                 Assert.That(categoryFilterCombo, Is.Not.Null);
                 Assert.That(optionFilterCombo, Is.Not.Null);
-                Assert.That(isOwnedCheckbox, Is.Not.Null);
+                Assert.That(() => this.renderedComponent.Find("#parameterEditorViewMenuButton"), Throws.Nothing);
                 Assert.That(parameterTable, Is.Not.Null);
                 Assert.That(batchParameterEditor, Is.Not.Null);
             });

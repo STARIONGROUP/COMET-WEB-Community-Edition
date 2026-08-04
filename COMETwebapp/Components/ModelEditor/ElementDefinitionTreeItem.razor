@@ -21,7 +21,14 @@
 
 <div data-testid="element-node" class="@this.CssClass" style="display: flex; justify-content: space-between; align-items: center;" @attributes="this.AdditionalAttributes">
     <span>
-        <CardField Context="@this.ElementBaseTreeRowViewModel" FieldName="ElementName" />
+        @if (this.ShowName)
+        {
+            <CardField Context="@this.ElementBaseTreeRowViewModel" FieldName="ElementName" />
+        }
+        else
+        {
+            @this.ElementBaseTreeRowViewModel.ElementBase?.ShortName
+        }
     </span>
     <span style="text-align: end;">
         @if (this.ShowOwner)
@@ -35,14 +42,7 @@
 
         @if (this.ShowCategories)
         {
-            @foreach (var categoryShortName in this.ElementBaseTreeRowViewModel.ElementBase.GetDisplayCategories().Select(x => x.ShortName))
-            {
-                <span @key="categoryShortName">
-                    <StarionPill ColorSeed="@($"category:{categoryShortName}")" Title="@($"Category: {categoryShortName}")">
-                        <CardField Context="@categoryShortName"/>
-                    </StarionPill>
-                </span>
-            }
+            <CategoryPills Categories="@this.ElementBaseTreeRowViewModel.ElementBase.GetDisplayCategories()" UseShortName="true"/>
         }
     </span>
 </div>

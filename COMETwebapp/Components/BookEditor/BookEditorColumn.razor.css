@@ -46,8 +46,17 @@
     background-color: transparent;
 }
 
+.add-item-button {
+    color: var(--colors-primary-600);
+}
+
+.add-item-button:hover:not(.disabled-button) {
+    color: var(--colors-primary-700);
+}
+
 .add-item-button.disabled-button{
-    background-color: #DDD;
+    background-color: transparent;
+    color: #9db8cf;
 }
 
 .column-content {

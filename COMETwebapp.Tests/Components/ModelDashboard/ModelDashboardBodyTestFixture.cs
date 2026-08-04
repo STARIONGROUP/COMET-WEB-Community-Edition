@@ -340,14 +340,14 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
                 Assert.That(() => parameterDashboard.Instance.OnAccessData(("Referenced", "THE")), Throws.Nothing);  
             });
 
-            this.viewModel.OptionSelector.SelectedOption = this.viewModel.OptionSelector.AvailableOptions.First();
-            Assert.That(navigation.Uri, Does.Contain("option="));
+            this.viewModel.OptionSelector.SelectedOptions = [this.viewModel.OptionSelector.AvailableOptions.First()];
+            Assert.That(navigation.Uri, Does.Contain("options="));
 
-            this.viewModel.FiniteStateSelector.SelectedActualFiniteState = this.viewModel.FiniteStateSelector.AvailableFiniteStates.First();
-            Assert.That(navigation.Uri, Does.Contain("state="));
+            this.viewModel.FiniteStateSelector.SelectedActualFiniteStates = [this.viewModel.FiniteStateSelector.AvailableFiniteStates.First()];
+            Assert.That(navigation.Uri, Does.Contain("states="));
 
-            this.viewModel.ParameterTypeSelector.SelectedParameterType = this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First();
-            Assert.That(navigation.Uri, Does.Contain("parameter="));
+            this.viewModel.ParameterTypeSelector.SelectedParameterTypes = [this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First()];
+            Assert.That(navigation.Uri, Does.Contain("parameters="));
 
             Assert.That(() => this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate)), Throws.Nothing);
         }

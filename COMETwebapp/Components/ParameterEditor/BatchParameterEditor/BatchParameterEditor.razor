@@ -22,9 +22,10 @@ Copyright (c) 2023-2026 Starion Group S.A.
 @using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
 @inherits DisposableComponent
 
-<DxButton Id="openBatchParameterEditorButton" 
+<DxButton Id="openBatchParameterEditorButton"
           Click="(this.ViewModel.OpenPopup)"
           Text="Batch Update"
+          RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"
           SizeMode="SizeMode.Medium"/>
 
 <DxPopup @bind-Visible="@(this.ViewModel.IsVisible)"
@@ -54,7 +55,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="@nameof(Category.Name)"
                                 ClearButtonDisplayMode="@(DataEditorClearButtonDisplayMode.Auto)"
-                                NullText="Select a Category" />
+                                NullText="Filter by category..." />
                 </div>
                 <div class="col">
                     <DomainOfExpertiseSelector ViewModel="@(this.ViewModel.DomainOfExpertiseSelectorViewModel)" 
@@ -102,6 +103,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <DxButton Id="okButton"
                       Text="Apply Changes"
                       Click="(() => this.ViewModel.ConfirmCancelPopupViewModel.IsVisible = true)"
+                      RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                       Enabled="@this.IsApplyButtonEnabled"/>
 
             <DxButton Id="closeButton"

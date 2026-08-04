@@ -28,5 +28,5 @@
     </DxFormLayoutItem>
 </DxFormLayout>
 <div class="modal-footer">
-    <DxButton Text="Select" CssClass="btn btn-connect" Click="@this.ViewModel.Submit" Enabled="@(this.ViewModel.SelectedEngineeringModelSetup != null)" />
+    <DxButton Text="Select" CssClass="btn btn-connect" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Click="@this.ViewModel.Submit" Enabled="@(this.ViewModel.SelectedEngineeringModelSetup != null)" />
 </div>

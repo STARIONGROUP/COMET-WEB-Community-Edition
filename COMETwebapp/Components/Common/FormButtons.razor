@@ -27,6 +27,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
     <DxButton Id="saveItemButton"
               SubmitFormOnClick="true"
+              RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
               Enabled="@(this.SaveButtonEnabled && !this.IsLoading)">
         @(this.IsLoading ? "Loading" : "Save")
     </DxButton>

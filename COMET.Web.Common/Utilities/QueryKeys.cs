@@ -77,5 +77,23 @@ namespace COMET.Web.Common.Utilities
         /// Parameter Editor's category filter.
         /// </summary>
         public const string CategoriesKey = "categories";
+
+        /// <summary>
+        /// The query key for a comma-delimited list of <see cref="Option" /> short-form GUIDs, used by
+        /// multi-select option filters.
+        /// </summary>
+        public const string OptionsKey = "options";
+
+        /// <summary>
+        /// The query key for a comma-delimited list of <see cref="ElementBase" /> short-form GUIDs, used by the
+        /// Parameter Editor's element filter.
+        /// </summary>
+        public const string ElementsKey = "elements";
+
+        /// <summary>
+        /// The query key for a comma-delimited list of <see cref="ActualFiniteState" /> short-form GUIDs, used by
+        /// multi-select finite state filters.
+        /// </summary>
+        public const string StatesKey = "states";
     }
 }

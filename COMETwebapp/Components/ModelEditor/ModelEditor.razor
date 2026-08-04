@@ -24,7 +24,7 @@
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <div class="model-editor-root">
-    <div style="padding-bottom:5px;">
+    <div class="model-editor-toolbar">
         @if (this.ViewModel.IsSourceModelSameAsTargetModel)
         {
             <span title="Copy mode for copying ElementDefinitions inside the same Iteration. The modifier keys do not apply here: the SDK cannot copy an ElementDefinition into its own Iteration, so this copy always resets the parameter values and keeps the original owner.">
@@ -41,11 +41,13 @@
                 <span class="model-editor-modifier-hint">(hold Ctrl / Shift / Ctrl+Shift while dropping to override)</span>
             </span>
         }
-        @* One setting for both trees, so that the two panels always show the same kind of node. *@
-        <span class="model-editor-display-options">
-            <DxCheckBox @bind-Checked="@this.ShowOwner">Owner</DxCheckBox>
-            <DxCheckBox @bind-Checked="@this.ShowCategories">Categories</DxCheckBox>
-        </span>
+        <div class="model-editor-toolbar-right">
+             <ViewOptionsMenu ButtonId="modelEditorViewMenuButton">
+                <DxCheckBox @bind-Checked="@this.ShowName" CheckType="CheckType.Switch">Full name</DxCheckBox>
+                <DxCheckBox @bind-Checked="@this.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
+                <DxCheckBox @bind-Checked="@this.ShowCategories" CheckType="CheckType.Switch">Categories</DxCheckBox>
+            </ViewOptionsMenu>
+        </div>
     </div>
     <ValidationMessageComponent ValidationMessage="@(this.ErrorMessage)" />
     <div class="selected-data-item-page" style="flex-wrap:nowrap!important;">
@@ -54,14 +56,6 @@
                injects a transient ViewModel that it never disposes, so unmounting it would leak that
                ViewModel's message bus and DynamicData subscriptions on every collapse. *@
             <div id="sourcePanel" class="model-editor-panel @(this.IsSourcePanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)">
-                <div class="model-editor-panel-header">
-                    <DxButton Id="collapseSourcePanel"
-                              IconCssClass="@IconName.ChevronLeft.GetCssClass()"
-                              RenderStyle="ButtonRenderStyle.Link"
-                              SizeMode="SizeMode.Small"
-                              Click="@(() => this.IsSourcePanelCollapsed = true)"
-                              title="Minimize the source model panel"/>
-                </div>
                 <ElementDefinitionTree
                     @ref="this.SourceTree"
                     ScrollableAreaCssClass="treeview-scrollarea"
@@ -82,10 +76,19 @@
                     OnDragStart="@(async x => await this.OnDragStartAsync(x))"
                     OnDragEnd="@(async x => await this.OnDragEndAsync())"
                     OnDrop="@(async x => await this.OnDropAsync(x))"
+                    ShowName="@this.ShowName"
                     ShowOwner="@this.ShowOwner"
                     ShowCategories="@this.ShowCategories"
                     AllowNodeDrag="(_, model) => model is ElementDefinitionTreeRowViewModel or ElementUsageTreeRowViewModel"
                     IsModelSelectionEnabled="true">
+                    <HeaderPrefix>
+                        <DxButton Id="collapseSourcePanel"
+                                  IconCssClass="@IconName.ChevronLeft.GetCssClass()"
+                                  RenderStyle="ButtonRenderStyle.Link"
+                                  SizeMode="SizeMode.Small"
+                                  Click="@(() => this.IsSourcePanelCollapsed = true)"
+                                  title="Minimize the source model panel"/>
+                    </HeaderPrefix>
                 </ElementDefinitionTree>
             </div>
             @if (this.IsSourcePanelCollapsed)
@@ -117,6 +120,7 @@
                     OnDragStart="@(async x => await this.OnDragStartAsync(x))"
                     OnDragEnd="@(async x => await this.OnDragEndAsync())"
                     OnDrop="@(async x => await this.OnDropAsync(x))"
+                    ShowName="@this.ShowName"
                     ShowOwner="@this.ShowOwner"
                     ShowCategories="@this.ShowCategories"
                     AllowNodeDrag="(_, model) => model is ElementDefinitionTreeRowViewModel or ElementUsageTreeRowViewModel"
@@ -125,20 +129,32 @@
             </div>
             <div id="target-resizer" class="model-editor-resizer @(this.IsDetailsPanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)" title="Drag to resize"></div>
             <div id="detailsPanel" class="model-editor-panel model-editor-panel-borderless model-editor-details-panel @(this.IsDetailsPanelCollapsed ? "model-editor-panel-collapsed" : string.Empty)">
-                <div class="model-editor-panel-header model-editor-panel-header-end">
-                    <DxButton Id="collapseDetailsPanel"
-                              IconCssClass="@IconName.ChevronRight.GetCssClass()"
-                              RenderStyle="ButtonRenderStyle.Link"
-                              SizeMode="SizeMode.Small"
-                              Click="@(() => this.IsDetailsPanelCollapsed = true)"
-                              title="Minimize the details panel"/>
-                </div>
                 <DataItemDetailsComponent IsSelected="@(this.ViewModel.DetailsPanelViewModel.SelectedElementDefinition is not null)"
                                           NotSelectedText="Select an item to view or edit"
                                           Width="100%"
                                           CssClass="model-editor-details">
-                    <ElementDetailsPanel ViewModel="this.ViewModel.DetailsPanelViewModel"/>
+                    <ElementDetailsPanel ViewModel="this.ViewModel.DetailsPanelViewModel">
+                        <DetailsHeaderActions>
+                            <DxButton Id="collapseDetailsPanel"
+                                      IconCssClass="@IconName.ChevronRight.GetCssClass()"
+                                      RenderStyle="ButtonRenderStyle.Link"
+                                      SizeMode="SizeMode.Small"
+                                      Click="@(() => this.IsDetailsPanelCollapsed = true)"
+                                      title="Minimize the details panel"/>
+                        </DetailsHeaderActions>
+                    </ElementDetailsPanel>
                 </DataItemDetailsComponent>
+                @if (!this.IsDetailsPanelCollapsed && this.ViewModel.DetailsPanelViewModel.SelectedElementDefinition is null)
+                {
+                    <div class="model-editor-details-collapse-floating">
+                        <DxButton Id="collapseDetailsPanelEmpty"
+                                  IconCssClass="@IconName.ChevronRight.GetCssClass()"
+                                  RenderStyle="ButtonRenderStyle.Link"
+                                  SizeMode="SizeMode.Small"
+                                  Click="@(() => this.IsDetailsPanelCollapsed = true)"
+                                  title="Minimize the details panel"/>
+                    </div>
+                }
             </div>
             @if (this.IsDetailsPanelCollapsed)
             {
