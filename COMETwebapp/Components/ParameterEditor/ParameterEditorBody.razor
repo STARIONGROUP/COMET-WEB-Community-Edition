@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 Copyright (c) 2023-2026 Starion Group S.A.
 
     This file is part of COMET WEB Community Edition
@@ -18,43 +18,33 @@ Copyright (c) 2023-2026 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
+@using COMETwebapp.Components.ParameterEditor.BatchParameterEditor
 @using COMETwebapp.Utilities
 @using COMETwebapp.Extensions
-@using COMETwebapp.Components.ParameterEditor.BatchParameterEditor
 
 @inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ParameterEditor.IParameterEditorBodyViewModel>
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
     <div id="@WebAppConstantValues.ParameterEditorPage.QueryPageBodyName()" class="container-fluid">
-        <div class="row" style="gap: 0.5rem;">
-            <div class="col">
-                <div class="width-fit-content">
-                    <ElementBaseSelector ViewModel="this.ViewModel.ElementSelector"></ElementBaseSelector>
-                </div>
+        <div class="d-flex align-items-center flex-wrap mb-2" style="gap: 0.5rem;">
+            <div class="d-flex flex-column">
+                <ElementBaseSelector ViewModel="this.ViewModel.ElementSelector"></ElementBaseSelector>
             </div>
-            <div class="col">
-                <div class="width-fit-content">
-                    <MultiParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelector"></MultiParameterTypeSelector>
-                </div>
+            <div class="d-flex flex-column">
+                <MultiParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelector"></MultiParameterTypeSelector>
             </div>
-            <div class="col">
-                <div class="width-fit-content">
-                    <MultiCategorySelector ViewModel="this.ViewModel.CategorySelector"></MultiCategorySelector>
-                </div>
+            <div class="d-flex flex-column">
+                <MultiCategorySelector ViewModel="this.ViewModel.CategorySelector"></MultiCategorySelector>
             </div>
-            <div class="col">
-                <div class="width-fit-content">
-                    <OptionSelector ViewModel="this.ViewModel.OptionSelector"></OptionSelector>
-                </div>
+            <div class="d-flex flex-column">
+                <OptionSelector ViewModel="this.ViewModel.OptionSelector"></OptionSelector>
             </div>
-            <div class="col">
-                <div class="width-fit-content">
-                    <DxCheckBox Id="only-owned-parameters-toggle"
-                                @bind-Checked="@(this.ViewModel.IsOwnedParameters)"
-                                CheckType="CheckType.Switch">
-                        Only Parameters owned by @this.ViewModel.CurrentDomain?.Name domain
-                    </DxCheckBox>
-                </div>
+            <div class="d-flex align-items-center" style="max-width: 250px;">
+                <DxCheckBox Id="only-owned-parameters-toggle"
+                            @bind-Checked="@(this.ViewModel.IsOwnedParameters)"
+                            CheckType="CheckType.Switch">
+                    Only Parameters owned by @this.ViewModel.CurrentDomain?.Name domain
+                </DxCheckBox>
             </div>
         </div>
         <div class="pt-3">

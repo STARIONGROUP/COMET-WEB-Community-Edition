@@ -23,14 +23,14 @@
 
 <LoadingComponent IsVisible="this.ViewModel.IsLoading">
     <div id="@WebAppConstantValues.ModelDashboardPage.QueryPageBodyName()" class="container-fluid">
-        <div class="row" style="gap: 0.5rem">
-            <div class="col-2 width-fit-content">
+        <div class="d-flex align-items-center flex-wrap mb-2" style="gap: 0.5rem;">
+            <div class="d-flex flex-column">
                 <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
             </div>
-            <div class="col-2 width-fit-content">
+            <div class="d-flex flex-column">
                 <FiniteStateSelector ViewModel="@(this.ViewModel.FiniteStateSelector)"/>
             </div>
-            <div class="col-2 width-fit-content">
+            <div class="d-flex flex-column">
                 <ParameterTypeSelector ViewModel="@(this.ViewModel.ParameterTypeSelector)"/>
             </div>
         </div>
