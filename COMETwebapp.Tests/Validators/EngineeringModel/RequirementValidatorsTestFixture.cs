@@ -48,8 +48,11 @@ namespace COMETwebapp.Tests.Validators.EngineeringModel
             Assert.Multiple(() =>
             {
                 Assert.That(validator.Validate(new Requirement()).IsValid, Is.False, "An empty requirement is invalid.");
-                Assert.That(validator.Validate(new Requirement { Name = "First", ShortName = "1REQ" }).IsValid, Is.False, "A short name starting with a digit is invalid.");
+                Assert.That(validator.Validate(new Requirement { Name = "First", ShortName = "1REQ" }).IsValid, Is.True, "A short name starting with a digit is allowed (GH897).");
+                Assert.That(validator.Validate(new Requirement { Name = "1 First", ShortName = "REQ1" }).IsValid, Is.True, "A name starting with a digit is allowed (GH897).");
                 Assert.That(validator.Validate(new Requirement { Name = "First", ShortName = "REQ1" }).IsValid, Is.True);
+                Assert.That(validator.Validate(new Requirement { Name = "Bad (draft)", ShortName = "REQ" }).IsValid, Is.False, "A name with parentheses is invalid.");
+                Assert.That(validator.Validate(new Requirement { Name = "First", ShortName = "RE Q" }).IsValid, Is.False, "A short name with a space is invalid.");
             });
         }
 
@@ -61,8 +64,9 @@ namespace COMETwebapp.Tests.Validators.EngineeringModel
             Assert.Multiple(() =>
             {
                 Assert.That(validator.Validate(new RequirementsGroup()).IsValid, Is.False);
-                Assert.That(validator.Validate(new RequirementsGroup { Name = "Group", ShortName = "1GRP" }).IsValid, Is.False);
+                Assert.That(validator.Validate(new RequirementsGroup { Name = "1 Group", ShortName = "1GRP" }).IsValid, Is.True, "A name and short name starting with a digit are allowed (GH897).");
                 Assert.That(validator.Validate(new RequirementsGroup { Name = "Group", ShortName = "GRP" }).IsValid, Is.True);
+                Assert.That(validator.Validate(new RequirementsGroup { Name = "Group (draft)", ShortName = "GRP" }).IsValid, Is.False, "A name with parentheses is invalid.");
             });
         }
 
@@ -74,8 +78,9 @@ namespace COMETwebapp.Tests.Validators.EngineeringModel
             Assert.Multiple(() =>
             {
                 Assert.That(validator.Validate(new RequirementsSpecification()).IsValid, Is.False);
-                Assert.That(validator.Validate(new RequirementsSpecification { Name = "Spec", ShortName = "1SPEC" }).IsValid, Is.False);
+                Assert.That(validator.Validate(new RequirementsSpecification { Name = "1 Spec", ShortName = "1SPEC" }).IsValid, Is.True, "A name and short name starting with a digit are allowed (GH897).");
                 Assert.That(validator.Validate(new RequirementsSpecification { Name = "Spec", ShortName = "SPEC" }).IsValid, Is.True);
+                Assert.That(validator.Validate(new RequirementsSpecification { Name = "Spec (draft)", ShortName = "SPEC" }).IsValid, Is.False, "A name with parentheses is invalid.");
             });
         }
     }

@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using CDP4Common.Types;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
 
     using CDP4Web.Enumerations;
 
@@ -782,6 +783,45 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 It.IsAny<Thing>(),
                 It.Is<IReadOnlyCollection<Thing>>(things => things.OfType<Definition>().Any(d => d.LanguageCode == "fr" && d.Content == "Some new definition text.")),
                 It.IsAny<NotificationDescription>()), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifySaveReloadsOnlyOnceViaEndUpdate()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            // a brand-new owner the cached AvailableOwners does not yet know about; it only appears when the document reloads
+            var newOwner = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "PWR", Name = "Power" };
+            this.specification.Requirement.Add(new Requirement { Iid = Guid.NewGuid(), ShortName = "R42", Name = "Added", Owner = newOwner });
+
+            await this.viewModel.SaveInlineDefinitionAsync(this.topRequirement, "A changed definition.");
+
+            // the save no longer reloads the document on its own — that redundant reload was the second refresh (GH897)
+            Assert.That(this.viewModel.AvailableOwners, Does.Not.Contain(newOwner), "a save must not reload the document on its own");
+
+            // the single reload is driven centrally by the EndUpdate session event the write raises
+            this.messageBus.SendMessage(new SessionEvent(this.session.Object, SessionStatus.EndUpdate));
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.That(this.viewModel.AvailableOwners, Does.Contain(newOwner), "OnEndUpdate reloads the document exactly once");
+        }
+
+        [Test]
+        public async Task VerifyNavigateToGroup()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            // collapse the ancestor so the nested target would otherwise be hidden in the document
+            this.viewModel.ToggleDocumentGroup(this.operateGroup.Iid);
+            Assert.That(this.viewModel.IsDocumentGroupCollapsed(this.operateGroup.Iid), Is.True);
+
+            this.viewModel.NavigateToGroup(this.c4iGroup);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ScrollTargetGroup, Is.EqualTo(this.c4iGroup), "the clicked group is flagged as the scroll target");
+                Assert.That(this.viewModel.IsDocumentGroupCollapsed(this.operateGroup.Iid), Is.False, "the target's ancestor groups are expanded so it renders");
+            });
         }
 
         [Test]

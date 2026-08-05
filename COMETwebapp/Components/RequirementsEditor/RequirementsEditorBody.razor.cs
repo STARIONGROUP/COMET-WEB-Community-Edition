@@ -78,13 +78,14 @@ namespace COMETwebapp.Components.RequirementsEditor
             this.Disposables.Add(this.WhenAnyValue(
                     x => x.ViewModel.IsOnEditMode,
                     x => x.ViewModel.IsLoading,
+                    x => x.ViewModel.ScrollTargetGroup,
                     x => x.ViewModel.ConfirmCancelPopupViewModel.IsVisible)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
-        /// Scrolls the document to the <see cref="IRequirementsEditorBodyViewModel.ScrollTarget" /> once it has been
-        /// rendered, after a traceability link navigated to it.
+        /// Scrolls the document to the requirement or group flagged as a scroll target once it has been rendered, after a
+        /// traceability link or a table-of-contents entry navigated to it.
         /// </summary>
         /// <param name="firstRender">true on the first render of the component</param>
         /// <returns>A <see cref="Task" /></returns>
@@ -92,22 +93,37 @@ namespace COMETwebapp.Components.RequirementsEditor
         {
             await base.OnAfterRenderAsync(firstRender);
 
-            var target = this.ViewModel?.ScrollTarget;
+            var requirementTarget = this.ViewModel?.ScrollTarget;
+            var groupTarget = this.ViewModel?.ScrollTargetGroup;
 
-            if (target != null)
+            if (requirementTarget != null)
             {
                 this.ViewModel.ScrollTarget = null;
+                await this.ScrollElementIntoView(RequirementsDocument.RequirementAnchorId(requirementTarget));
+            }
+            else if (groupTarget != null)
+            {
+                this.ViewModel.ScrollTargetGroup = null;
+                await this.ScrollElementIntoView(RequirementsDocument.GroupAnchorId(groupTarget));
+            }
+        }
 
-                try
-                {
-                    await this.DomDataService.ScrollElementIntoView(RequirementsDocument.RequirementAnchorId(target));
-                }
-                catch (Exception exception) when (exception is JSException or JSDisconnectedException)
-                {
-                    // The scroll is purely cosmetic; a stale cached DomData.js (missing ScrollElementIntoView) or a
-                    // circuit that disconnected mid-render must never kill the page. Navigation already switched the
-                    // specification and expanded the target's groups.
-                }
+        /// <summary>
+        /// Scrolls the element with the given <paramref name="anchorId" /> into view, swallowing the interop errors that
+        /// are harmless for a purely cosmetic scroll.
+        /// </summary>
+        /// <param name="anchorId">The HTML id of the element to scroll to</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task ScrollElementIntoView(string anchorId)
+        {
+            try
+            {
+                await this.DomDataService.ScrollElementIntoView(anchorId);
+            }
+            catch (Exception exception) when (exception is JSException or JSDisconnectedException)
+            {
+                // The scroll is purely cosmetic; a stale cached DomData.js (missing ScrollElementIntoView) or a circuit
+                // that disconnected mid-render must never kill the page. Navigation already switched to the target.
             }
         }
 
