@@ -237,6 +237,25 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             Assert.That(renderedComponent.FindAll(".starion-pill"), Is.Empty, "Unchecking both options must hide every pill.");
         }
 
+        /// <summary>
+        /// Verifies that unchecking <see cref="ElementDefinitionTree.ShowName" /> renders the node's short
+        /// name instead of the <see cref="CardField" />-driven full name.
+        /// </summary>
+        [Test]
+        public void VerifyShowNameFalseRendersShortName()
+        {
+            renderedComponent = context.Render<ElementDefinitionTree>(parameters =>
+            {
+                parameters
+                    .Add(p => p.ShowName, false);
+            });
+
+            var firstItem = renderedComponent.Find("[data-testid=element-node]");
+
+            Assert.That(firstItem.TextContent, Does.Not.Contain("Test1"),
+                "With ShowName off, the node must fall back to the ElementBase ShortName instead of the row's full name.");
+        }
+
         [Test]
         public void VerifyDragIsNotAllowed()
         {

@@ -105,6 +105,20 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
         }
 
         [Test]
+        public async Task VerifyMultilineOkButtonClosesEditMode()
+        {
+            var textboxButton = this.renderedComponent.FindComponent<DxEditorButton>();
+            await this.renderedComponent.InvokeAsync(() => textboxButton.Instance.Click.InvokeAsync(null));
+
+            Assert.That(this.editor.IsOnEditMode, Is.True);
+
+            var okButton = this.renderedComponent.FindComponents<DxButton>().Single(b => b.Instance.Text == "OK");
+            await this.renderedComponent.InvokeAsync(okButton.Instance.Click.InvokeAsync);
+
+            Assert.That(this.editor.IsOnEditMode, Is.False);
+        }
+
+        [Test]
         public async Task VerifyParameterValueChanged()
         {
             var textbox = this.renderedComponent.FindComponent<DxTextBox>();

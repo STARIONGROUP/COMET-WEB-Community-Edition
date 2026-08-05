@@ -1,3 +1,23 @@
+/* The "drop here to create new element" bar shown above the tree. */
+.drop-here-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    margin: 4px 0;
+    border: dashed 1px var(--colors-primary-600);
+    border-radius: 6px;
+    min-height: 38px;
+    color: var(--colors-primary-600);
+    background: var(--colors-primary-50);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.drop-here-bar-hidden {
+    visibility: hidden;
+}
+
 ::deep .sticky-scrollable-column {
     position: sticky;
     top: 0px;

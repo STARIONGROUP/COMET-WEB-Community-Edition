@@ -36,5 +36,12 @@ namespace COMET.Web.Common.Components.Selectors
         /// </summary>
         [Parameter]
         public string DisplayText { get; set; } = "Filter on Option:";
+
+        /// <summary>
+        /// The placeholder text shown when nothing is selected. Defaults to a "Select ..." wording since the
+        /// selector is a general-purpose selector; pass a "Filter by ..." value when it is used as a page filter.
+        /// </summary>
+        [Parameter]
+        public string NullText { get; set; } = "Select an option...";
     }
 }

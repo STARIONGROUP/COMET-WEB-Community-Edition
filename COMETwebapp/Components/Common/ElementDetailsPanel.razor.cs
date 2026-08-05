@@ -101,7 +101,7 @@ namespace COMETwebapp.Components.Common
         private void OnNewMenuItemClicked(Action action)
         {
             this.IsNewMenuOpen = false;
-            action();
+            action.Invoke();
         }
     }
 }

@@ -229,9 +229,11 @@ namespace COMETwebapp.Components.ModelEditor
             {
                 await this.JSRuntime.InvokeVoidAsync("cometDragScroll.init", this.ScrollAreaId);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                // JS interop failures during pre-rendering or test environments are non-fatal.
+                // JS interop failures during pre-rendering or test environments are non-fatal, but log them so a
+                // genuine failure to wire the drag auto-scroll in the browser can be tracked.
+                this.Logger.LogWarning(exception, "Failed to initialise drag auto-scroll for the element definition tree.");
             }
         }
 

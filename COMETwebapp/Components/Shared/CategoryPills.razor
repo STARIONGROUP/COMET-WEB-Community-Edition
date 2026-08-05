@@ -19,18 +19,12 @@
 ------------------------------------------------------------------------------->
 @using CDP4Common.SiteDirectoryData
 
-@{
-    var all = this.Categories?.ToList() ?? [];
-    var visible = all.Take(this.MaxVisible).ToList();
-    var overflow = all.Skip(this.MaxVisible).ToList();
-}
-
-@foreach (var category in visible)
+@foreach (var category in this.VisibleCategories)
 {
     <StarionPill @key="category" ColorSeed="@($"category:{category.ShortName}")" Title="@($"Category: {this.Label(category)}")">@this.Label(category)</StarionPill>
 }
 
-@if (overflow.Count > 0)
+@if (this.OverflowCategories.Count > 0)
 {
-    <StarionPill ColorSeed="category-overflow" Title="@($"Also: {string.Join(", ", overflow.Select(this.Label))}")">+@overflow.Count</StarionPill>
+    <StarionPill ColorSeed="category-overflow" Title="@($"Also: {string.Join(", ", this.OverflowCategories.Select(this.Label))}")">+@this.OverflowCategories.Count</StarionPill>
 }

@@ -64,22 +64,11 @@ namespace COMET.Web.Common.Components.Selectors
         public string NullText { get; set; }
 
         /// <summary>
-        /// Gets or sets the optional DOM id assigned to the underlying tag box.
+        /// Gets or sets any additional attributes (for example an <c>id</c>) splatted onto the underlying tag box.
+        /// Only attributes the caller actually supplies are forwarded, so no empty or null <c>id</c> is ever set on
+        /// the DxTagBox (which would make DevExpress build the invalid drop-down selector "#" and throw).
         /// </summary>
-        [Parameter]
-        public string Id { get; set; }
-
-        /// <summary>
-        /// An empty attribute set, reused when no id is supplied so no allocation happens on every render.
-        /// </summary>
-        private static readonly IReadOnlyDictionary<string, object> EmptyAttributes = new Dictionary<string, object>();
-
-        /// <summary>
-        /// Gets the splatted <c>id</c> attribute, present only when <see cref="Id" /> is set. Setting an empty or
-        /// null <c>Id</c> directly on the DxTagBox makes DevExpress build the invalid drop-down selector "#" and
-        /// throw a JS exception that kills the circuit, so the attribute is omitted entirely when there is no id.
-        /// </summary>
-        public IReadOnlyDictionary<string, object> IdAttribute
-            => string.IsNullOrEmpty(this.Id) ? EmptyAttributes : new Dictionary<string, object> { ["id"] = this.Id };
+        [Parameter(CaptureUnmatchedValues = true)]
+        public Dictionary<string, object> AdditionalAttributes { get; set; } = new();
     }
 }

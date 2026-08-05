@@ -49,7 +49,7 @@
 
 .node-text {
     margin: 0;
-    sflex: 0 0 auto;
+    flex: 0 0 auto;
     white-space: nowrap;
 }
 

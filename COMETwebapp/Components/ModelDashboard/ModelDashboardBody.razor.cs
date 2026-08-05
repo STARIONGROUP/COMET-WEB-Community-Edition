@@ -29,6 +29,7 @@ namespace COMETwebapp.Components.ModelDashboard
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Utilities;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
@@ -48,10 +49,7 @@ namespace COMETwebapp.Components.ModelDashboard
         {
             if (parameters.TryGetValue(QueryKeys.OptionsKey, out var optionsValue) && !string.IsNullOrWhiteSpace(optionsValue))
             {
-                var ids = optionsValue
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Select(x => x.FromShortGuid())
-                    .ToHashSet();
+                var ids = optionsValue.FromShortGuids();
 
                 this.ViewModel.OptionSelector.SelectedOptions = this.ViewModel.OptionSelector.AvailableOptions
                     .Where(x => ids.Contains(x.Iid))
@@ -60,10 +58,7 @@ namespace COMETwebapp.Components.ModelDashboard
 
             if (parameters.TryGetValue(QueryKeys.StatesKey, out var statesValue) && !string.IsNullOrWhiteSpace(statesValue))
             {
-                var ids = statesValue
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Select(x => x.FromShortGuid())
-                    .ToHashSet();
+                var ids = statesValue.FromShortGuids();
 
                 this.ViewModel.FiniteStateSelector.SelectedActualFiniteStates = this.ViewModel.FiniteStateSelector.AvailableFiniteStates
                     .Where(x => ids.Contains(x.Iid))
@@ -72,10 +67,7 @@ namespace COMETwebapp.Components.ModelDashboard
 
             if (parameters.TryGetValue(QueryKeys.ParametersKey, out var parametersValue) && !string.IsNullOrWhiteSpace(parametersValue))
             {
-                var ids = parametersValue
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Select(x => x.FromShortGuid())
-                    .ToHashSet();
+                var ids = parametersValue.FromShortGuids();
 
                 this.ViewModel.ParameterTypeSelector.SelectedParameterTypes = this.ViewModel.ParameterTypeSelector.AvailableParameterTypes
                     .Where(x => ids.Contains(x.Iid))

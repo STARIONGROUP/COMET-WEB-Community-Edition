@@ -34,5 +34,5 @@
 	            FilteringMode="DataGridFilteringMode.Contains"
 	            TextFieldName="@nameof(Option.Name)"
 	            ClearButtonDisplayMode="@(this.ViewModel.AllowNullOption ? DataEditorClearButtonDisplayMode.Auto : DataEditorClearButtonDisplayMode.Never)"
-	            NullText="Filter by option..."/>
+	            NullText="@this.NullText"/>
 }

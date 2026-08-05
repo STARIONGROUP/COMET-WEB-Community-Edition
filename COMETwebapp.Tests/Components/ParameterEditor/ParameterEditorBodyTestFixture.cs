@@ -32,10 +32,12 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
     using CDP4Dal.Permission;
 
     using COMET.Web.Common.Components.Selectors;
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Components.ParameterEditor;
@@ -47,6 +49,8 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.WebUtilities;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -61,6 +65,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         private IRenderedComponent<ParameterEditorBody> renderedComponent;
         private ParameterEditorBody editor;
         private CDPMessageBus messageBus;
+        private Mock<IParameterEditorBodyViewModel> parameterEditorViewModel;
 
         [SetUp]
         public void SetUp()
@@ -76,7 +81,8 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             session.Setup(x => x.PermissionService).Returns(permissionService.Object);
             sessionService.Setup(x => x.Session).Returns(session.Object);
-            var parameterEditorViewModel = new Mock<IParameterEditorBodyViewModel>();
+            this.parameterEditorViewModel = new Mock<IParameterEditorBodyViewModel>();
+            var parameterEditorViewModel = this.parameterEditorViewModel;
 
             var elements = new SourceList<ElementBase>();
             elements.Add(new ElementDefinition { Name = "Element1" });
@@ -158,6 +164,57 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
                 Assert.That(this.editor.ViewModel, Is.Not.Null);
                 Assert.That(this.renderedComponent, Is.Not.Null);
             });
+        }
+
+        /// <summary>
+        /// Verifies that <c>InitializeValues</c> reads the option/element/parameter/category filters found
+        /// in the URL on first render, and that changing a selector afterward exercises
+        /// <c>UpdateUrl</c> without throwing.
+        /// </summary>
+        [Test]
+        public void VerifyInitializeValuesAndUpdateUrl()
+        {
+            var navigation = this.context.Services.GetRequiredService<NavigationManager>();
+
+            var urlOptions = new Dictionary<string, string>
+            {
+                [QueryKeys.OptionsKey] = Guid.NewGuid().ToShortGuid(),
+                [QueryKeys.ElementsKey] = Guid.NewGuid().ToShortGuid(),
+                [QueryKeys.ParametersKey] = Guid.NewGuid().ToShortGuid(),
+                [QueryKeys.CategoriesKey] = Guid.NewGuid().ToShortGuid()
+            };
+
+            navigation.NavigateTo(QueryHelpers.AddQueryString("http://localhost/", urlOptions));
+
+            var rendered = this.context.Render<ParameterEditorBody>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rendered.Instance.ViewModel.OptionSelector.SelectedOptions, Is.Not.Null);
+                Assert.That(rendered.Instance.ViewModel.ElementSelector.SelectedElementBases, Is.Not.Null);
+                Assert.That(rendered.Instance.ViewModel.ParameterTypeSelector.SelectedParameterTypes, Is.Not.Null);
+                Assert.That(rendered.Instance.ViewModel.CategorySelector.SelectedCategories, Is.Not.Null);
+            });
+
+            var elementSelector = (MultiElementBaseSelectorViewModel)rendered.Instance.ViewModel.ElementSelector;
+            var optionSelector = (MultiOptionSelectorViewModel)rendered.Instance.ViewModel.OptionSelector;
+            var parameterTypeSelector = (MultiParameterTypeSelectorViewModel)rendered.Instance.ViewModel.ParameterTypeSelector;
+            var categorySelector = (MultiCategorySelectorViewModel)rendered.Instance.ViewModel.CategorySelector;
+
+            var element = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Selected element" };
+            var option = new Option { Iid = Guid.NewGuid(), Name = "Selected option" };
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Selected type" };
+            var category = new Category { Iid = Guid.NewGuid(), Name = "Selected category" };
+
+            this.parameterEditorViewModel.SetupProperty(x => x.IsOwnedParameters, true);
+
+            Assert.That(() =>
+            {
+                elementSelector.SelectedElementBases = [element];
+                optionSelector.SelectedOptions = [option];
+                parameterTypeSelector.SelectedParameterTypes = [parameterType];
+                categorySelector.SelectedCategories = [category];
+            }, Throws.Nothing, "Changing a selector must exercise UpdateUrl without throwing.");
         }
 
         [Test]

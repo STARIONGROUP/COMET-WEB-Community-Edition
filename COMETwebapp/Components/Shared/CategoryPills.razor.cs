@@ -37,7 +37,7 @@ namespace COMETwebapp.Components.Shared
         /// The categories to render.
         /// </summary>
         [Parameter]
-        public IEnumerable<Category> Categories { get; set; }
+        public IEnumerable<Category> Categories { get; set; } = [];
 
         /// <summary>
         /// Whether the pills show the category short name (when <see langword="true" />) or the full name.
@@ -50,6 +50,26 @@ namespace COMETwebapp.Components.Shared
         /// </summary>
         [Parameter]
         public int MaxVisible { get; set; } = 2;
+
+        /// <summary>
+        /// Gets the categories rendered as individual pills (the first <see cref="MaxVisible" />).
+        /// </summary>
+        public List<Category> VisibleCategories { get; private set; } = [];
+
+        /// <summary>
+        /// Gets the categories collapsed into the single "+N" pill (those beyond <see cref="MaxVisible" />).
+        /// </summary>
+        public List<Category> OverflowCategories { get; private set; } = [];
+
+        /// <summary>
+        /// Recomputes the visible and overflow category partitions whenever the parameters change.
+        /// </summary>
+        protected override void OnParametersSet()
+        {
+            var all = this.Categories?.ToList() ?? [];
+            this.VisibleCategories = all.Take(this.MaxVisible).ToList();
+            this.OverflowCategories = all.Skip(this.MaxVisible).ToList();
+        }
 
         /// <summary>
         /// Gets the display label of a category, honouring <see cref="UseShortName" />.

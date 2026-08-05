@@ -93,6 +93,35 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
             this.messageBus.ClearSubscriptions();
         }
 
+        /// <summary>
+        /// Verifies that <c>InitializeValues</c> reads the options/states/parameters URL keys on first
+        /// render, applying them (as an empty selection, since nothing is yet available) instead of
+        /// skipping the branch entirely.
+        /// </summary>
+        [Test]
+        public void VerifyInitializeValuesAppliesUrlFilters()
+        {
+            var navigation = this.context.Services.GetRequiredService<NavigationManager>();
+
+            var urlOptions = new Dictionary<string, string>
+            {
+                [QueryKeys.OptionsKey] = Guid.NewGuid().ToShortGuid(),
+                [QueryKeys.StatesKey] = Guid.NewGuid().ToShortGuid(),
+                [QueryKeys.ParametersKey] = Guid.NewGuid().ToShortGuid()
+            };
+
+            navigation.NavigateTo(QueryHelpers.AddQueryString("http://localhost/", urlOptions));
+
+            var rendered = this.context.Render<ModelDashboardBody>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rendered.Instance.ViewModel.OptionSelector.SelectedOptions, Is.Not.Null);
+                Assert.That(rendered.Instance.ViewModel.FiniteStateSelector.SelectedActualFiniteStates, Is.Not.Null);
+                Assert.That(rendered.Instance.ViewModel.ParameterTypeSelector.SelectedParameterTypes, Is.Not.Null);
+            });
+        }
+
         [Test]
         public async Task VerifyModelDashboardComponent()
         {
