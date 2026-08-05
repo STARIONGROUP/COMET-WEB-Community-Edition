@@ -44,6 +44,7 @@
                 {
                     <span @onclick:stopPropagation="true">
                         <DxButton IconCssClass="@IconName.Edit.GetCssClass()"
+                                  RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"
                                   RenderStyleMode="ButtonRenderStyleMode.Text"
                                   SizeMode="SizeMode.Small"
                                   CssClass="ms-1"
@@ -55,7 +56,7 @@
                 {
                     <span @onclick:stopPropagation="true">
                         <DxButton IconCssClass="@IconName.Delete.GetCssClass()"
-                                  RenderStyle="ButtonRenderStyle.Danger"
+                                  RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"
                                   RenderStyleMode="ButtonRenderStyleMode.Text"
                                   SizeMode="SizeMode.Small"
                                   CssClass="ms-1"

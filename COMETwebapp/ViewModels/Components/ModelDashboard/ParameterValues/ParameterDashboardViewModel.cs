@@ -53,12 +53,21 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
         /// Updates this view model properties
         /// </summary>
         /// <param name="iteration">The current <see cref="Iteration" /></param>
-        /// <param name="selectedOption">The current <see cref="Option" /></param>
-        /// <param name="selectedState">The current <see cref="ActualFiniteState" /></param>
-        /// <param name="selectedParameterType">The current <see cref="ParameterType" /></param>
+        /// <param name="selectedOptions">
+        /// The collection of selected <see cref="Option" />s. <c>null</c> or an empty collection means no option
+        /// filtering is applied.
+        /// </param>
+        /// <param name="selectedStates">
+        /// The collection of selected <see cref="ActualFiniteState" />s. <c>null</c> or an empty collection means
+        /// no state filtering is applied.
+        /// </param>
+        /// <param name="selectedParameterTypes">
+        /// The collection of selected <see cref="ParameterType" />s. <c>null</c> or an empty collection means no
+        /// parameter-type filtering is applied.
+        /// </param>
         /// <param name="currentDomain">The current <see cref="DomainOfExpertise" /></param>
         /// <param name="availableDomains">A collection of available <see cref="DomainOfExpertise" /></param>
-        public void UpdateProperties(Iteration iteration, Option selectedOption, ActualFiniteState selectedState, ParameterType selectedParameterType, DomainOfExpertise currentDomain,
+        public void UpdateProperties(Iteration iteration, IEnumerable<Option> selectedOptions, IEnumerable<ActualFiniteState> selectedStates, IEnumerable<ParameterType> selectedParameterTypes, DomainOfExpertise currentDomain,
             IEnumerable<DomainOfExpertise> availableDomains)
         {
             this.ValueSets.Clear();
@@ -70,29 +79,42 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
 
             this.CurrentDomain = currentDomain;
             this.AvailableDomains = availableDomains;
-            this.ValueSets.AddRange(FilterValueSets(iteration, selectedOption, selectedState, selectedParameterType));
+            this.ValueSets.AddRange(FilterValueSets(iteration, selectedOptions, selectedStates, selectedParameterTypes));
         }
 
         /// <summary>
         /// Filters the <see cref="ParameterValueSetBase" /> that are contained into an <see cref="Iteration" />
         /// </summary>
         /// <param name="iteration">The <see cref="Iteration" /></param>
-        /// <param name="selectedOption">The selected <see cref="Option" /></param>
-        /// <param name="selectedState">The selected <see cref="ActualFiniteState" /></param>
-        /// <param name="selectedParameterType">The selected <see cref="ParameterType" /></param>
+        /// <param name="selectedOptions">
+        /// The collection of selected <see cref="Option" />s. <c>null</c> or an empty collection means no option
+        /// filtering is applied.
+        /// </param>
+        /// <param name="selectedStates">
+        /// The collection of selected <see cref="ActualFiniteState" />s. <c>null</c> or an empty collection means
+        /// no state filtering is applied.
+        /// </param>
+        /// <param name="selectedParameterTypes">
+        /// The collection of selected <see cref="ParameterType" />s. <c>null</c> or an empty collection means no
+        /// parameter-type filtering is applied.
+        /// </param>
         /// <returns>A collection of filtered <see cref="ParameterValueSetBase" /></returns>
-        private static IEnumerable<ParameterValueSetBase> FilterValueSets(Iteration iteration, Option selectedOption,
-            ActualFiniteState selectedState, ParameterType selectedParameterType)
+        private static IEnumerable<ParameterValueSetBase> FilterValueSets(Iteration iteration, IEnumerable<Option> selectedOptions,
+            IEnumerable<ActualFiniteState> selectedStates, IEnumerable<ParameterType> selectedParameterTypes)
         {
             var valuesSets = iteration.QueryParameterValueSetBase().ToList();
 
-            if (selectedOption != null)
-            {
-                var nestedParameters = iteration.QueryNestedParameters(selectedOption).ToList();
+            var options = selectedOptions?.ToList() ?? new List<Option>();
 
-                if (nestedParameters.Any())
+            if (options.Count > 0)
+            {
+                var nestedValueSetIds = options.SelectMany(option => iteration.QueryNestedParameters(option))
+                    .Select(p => ((ParameterValueSetBase)p.ValueSet).Iid)
+                    .ToHashSet();
+
+                if (nestedValueSetIds.Count > 0)
                 {
-                    valuesSets = valuesSets.Where(x => nestedParameters.Select(p => p.ValueSet).Contains(x)).ToList();
+                    valuesSets = valuesSets.Where(x => nestedValueSetIds.Contains(x.Iid)).ToList();
                 }
                 else
                 {
@@ -100,14 +122,18 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
                 }
             }
 
-            if (selectedState != null)
+            var stateIds = selectedStates?.Select(x => x.Iid).ToHashSet() ?? new HashSet<Guid>();
+
+            if (stateIds.Count > 0)
             {
-                valuesSets.RemoveAll(v => v.ActualState?.Iid != selectedState.Iid);
+                valuesSets.RemoveAll(v => v.ActualState == null || !stateIds.Contains(v.ActualState.Iid));
             }
 
-            if (selectedParameterType != null)
+            var parameterTypeIds = selectedParameterTypes?.Select(x => x.Iid).ToHashSet() ?? new HashSet<Guid>();
+
+            if (parameterTypeIds.Count > 0)
             {
-                valuesSets.RemoveAll(v => ((ParameterOrOverrideBase)v.Container).ParameterType.Iid != selectedParameterType.Iid);
+                valuesSets.RemoveAll(v => !parameterTypeIds.Contains(((ParameterOrOverrideBase)v.Container).ParameterType.Iid));
             }
 
             return valuesSets;

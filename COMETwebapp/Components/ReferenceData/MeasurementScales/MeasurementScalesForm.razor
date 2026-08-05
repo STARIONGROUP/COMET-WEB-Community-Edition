@@ -128,7 +128,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
                             <DxTextBox @bind-Text="@(this.ViewModel.SelectedReferenceQuantityValue.Value)"/>
                         </DxFormLayoutItem>
                         <DxButton Id="clearReferenceQuantityValue"
-                                  Click="@(this.ClearReferenceQuantityValue)">
+                                  Click="@(this.ClearReferenceQuantityValue)"
+                                  RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())">
                             Clear
                         </DxButton>
                     </DxFormLayoutGroup>

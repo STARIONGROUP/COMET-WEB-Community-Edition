@@ -55,7 +55,7 @@
             
             <DxButton Click="@(this.AddSidePanel)"
                       Enabled="@(this.IsSplitViewEnabled)"
-                      RenderStyle="ButtonRenderStyle.None"
+                      RenderStyle="@(CometButtonStyle.None.ToButtonRenderStyle())"
                       Id="new-side-panel-button"
                       CssClass="ml-auto p-0"
                       Visible="this.IsSplitViewVisible"

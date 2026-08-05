@@ -100,10 +100,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
                 Assert.That(row.InterestedDomainsShortNames, Is.EquivalentTo(otherDomain.ShortName));
             });
 
-            this.viewModel.ApplyFilters(null, new BooleanParameterType());
+            this.viewModel.ApplyFilters(null, [new BooleanParameterType()]);
             Assert.That(this.viewModel.Rows, Is.Empty);
 
-            this.viewModel.ApplyFilters(new Option(), null);
+            this.viewModel.ApplyFilters([new Option()], null);
             Assert.That(this.viewModel.Rows, Is.Not.Empty);
         }
     }

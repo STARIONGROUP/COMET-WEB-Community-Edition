@@ -120,7 +120,6 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 Assert.That(markup, Does.Contain("SYS"), "Owner ShortName must appear in the summary card.");
                 Assert.That(markup, Does.Contain("EdCategory"), "First category name must appear.");
                 Assert.That(markup, Does.Contain("AnotherEdCategory"), "Second category name must appear.");
-                Assert.That(markup, Does.Contain("An element definition used for testing."), "Definition content must appear.");
             });
         }
 
@@ -403,11 +402,12 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         }
 
         [Test]
-        public void VerifyElementUsageInheritsCategoriesFromDefinition()
+        public void VerifyElementShowsItsDisplayCategories()
         {
             var owner = new DomainOfExpertise { ShortName = "SYS", Name = "System" };
 
             var inheritedCategory = new Category { ShortName = "edCat", Name = "InheritedCategory", PermissibleClass = { ClassKind.ElementDefinition } };
+            var directCategory = new Category { ShortName = "euCat", Name = "DirectCategory", PermissibleClass = { ClassKind.ElementUsage } };
 
             var elementDefinition = new ElementDefinition { Name = "BatteryDef", ShortName = "BATDEF", Owner = owner };
             elementDefinition.Category.Add(inheritedCategory);
@@ -420,6 +420,8 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 ElementDefinition = elementDefinition
             };
 
+            elementUsage.Category.Add(directCategory);
+
             this.viewModel.Setup(x => x.SelectedSystemNode).Returns(elementUsage);
 
             var rendered = this.context.Render<DetailsPanelEditor>(parameters => parameters.Add(p => p.ViewModel, this.viewModel.Object));
@@ -429,8 +431,9 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             {
                 Assert.That(markup, Does.Contain("BatteryUsage"), "ElementUsage Name must appear.");
                 Assert.That(markup, Does.Contain("BATU"), "ElementUsage ShortName must appear.");
+                Assert.That(markup, Does.Contain("DirectCategory"), "The usage's own category must appear.");
                 Assert.That(markup, Does.Contain("InheritedCategory"),
-                    "ElementUsage must surface the referenced ElementDefinition's categories via GetAllCategories().");
+                    "The summary card shows the same display categories as the tree, so a usage also surfaces its ElementDefinition's categories.");
             });
         }
 

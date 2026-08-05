@@ -25,5 +25,5 @@ When a user drops an ElementDefinition on a different Iteration, data from the o
     ValueFieldName="Value"
     @bind-Value="@this.ViewModel.SelectedOperationKind" />
 <div class="modal-footer m-top-10px">
-    <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Save Settings" Click="async () => await this.SaveSettings()" />
+    <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Save Settings" Click="async () => await this.SaveSettings()" />
 </div>

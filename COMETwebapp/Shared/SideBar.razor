@@ -25,7 +25,7 @@
     <div class="@(this.IsCollapsed ? "text-center" : "text-end")">
         <DxButton Text="Collapse"
                   Click="@this.ToggleCollapsed"
-                  RenderStyle="ButtonRenderStyle.None"
+                  RenderStyle="@(CometButtonStyle.None.ToButtonRenderStyle())"
                   Id="side-bar-collapse-button">
             @if (this.IsCollapsed)
             {

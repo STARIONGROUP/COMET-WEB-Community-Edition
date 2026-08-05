@@ -22,15 +22,20 @@
 
 namespace COMETwebapp.Tests.Components.ModelEditor
 {
+    using System.Reflection;
+
     using Bunit;
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using CDP4DalCommon.Protocol.Operations;
 
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.ViewModels.Components.Common;
@@ -38,14 +43,18 @@ namespace COMETwebapp.Tests.Components.ModelEditor
     using COMETwebapp.ViewModels.Components.ModelEditor.CopySettings;
     using COMETwebapp.ViewModels.Components.ModelEditor.Rows;
 
+    using DynamicData;
+
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
 
     using Moq;
 
     using NUnit.Framework;
 
     using ElementDefinitionTree = COMETwebapp.Components.ModelEditor.ElementDefinitionTree;
+    using ElementDetailsPanel = COMETwebapp.Components.Common.ElementDetailsPanel;
     using ModelEditorComponent = COMETwebapp.Components.ModelEditor.ModelEditor;
 
     /// <summary>
@@ -372,7 +381,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             });
 
             // Collapse the details panel: only the details panel is affected.
-            renderedComponent.Find("#collapseDetailsPanel").Click();
+            renderedComponent.Find("#collapseDetailsPanelEmpty").Click();
 
             renderedComponent.WaitForAssertion(() =>
             {
@@ -407,7 +416,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
 
             Assert.That(renderedComponent.Find("#targetPanel").ClassList, Does.Not.Contain(GrowPanelClass));
 
-            renderedComponent.Find("#collapseDetailsPanel").Click();
+            renderedComponent.Find("#collapseDetailsPanelEmpty").Click();
 
             renderedComponent.WaitForAssertion(() =>
             {
@@ -442,6 +451,93 @@ namespace COMETwebapp.Tests.Components.ModelEditor
                 Assert.That(renderedComponent.FindComponents<ElementDefinitionTree>(), Has.Count.EqualTo(2),
                     "A collapsed source panel must stay mounted, so that its ViewModel's subscriptions are not leaked.");
             });
+        }
+
+        /// <summary>
+        /// Verifies that selecting an <see cref="ElementDefinition" /> mounts the nested
+        /// <see cref="ElementDetailsPanel" /> (only rendered by <c>DataItemDetailsComponent</c> once a
+        /// selection exists) and that its "Add" button opens the new-item menu.
+        /// </summary>
+        [Test]
+        public void VerifyElementDetailsPanelRendersAddButtonWhenElementSelected()
+        {
+            var realDetailsPanelViewModel = this.BuildRealElementDetailsPanelViewModel(out var elementDefinition);
+            this.viewModel.Setup(x => x.DetailsPanelViewModel).Returns(realDetailsPanelViewModel);
+
+            var renderedComponent = this.RenderModelEditor();
+
+            var detailsPanel = renderedComponent.FindComponent<ElementDetailsPanel>();
+            Assert.That(detailsPanel, Is.Not.Null, "The details panel must mount once an ElementDefinition is selected.");
+
+            var addButton = renderedComponent.Find("#element-details-new-button");
+            addButton.Click();
+
+            renderedComponent.WaitForAssertion(() =>
+                Assert.That(detailsPanel.Instance, Is.Not.Null, "The details panel must stay mounted after opening the new-item menu."));
+
+            // The DxDropDown BodyTemplate holding the menu items never renders in bunit, so the item click
+            // handler is invoked directly through the private method it is bound to.
+            var onNewMenuItemClicked = typeof(ElementDetailsPanel).GetMethod("OnNewMenuItemClicked", BindingFlags.NonPublic | BindingFlags.Instance);
+            var wasInvoked = false;
+
+            renderedComponent.InvokeAsync(() => onNewMenuItemClicked.Invoke(detailsPanel.Instance, [new Action(() => wasInvoked = true)]));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(wasInvoked, Is.True, "OnNewMenuItemClicked must invoke the supplied action.");
+                Assert.That(elementDefinition, Is.Not.Null);
+            });
+
+            realDetailsPanelViewModel.Dispose();
+        }
+
+        /// <summary>
+        /// Builds a real (non-mocked) <see cref="ElementDetailsPanelViewModel" /> against a minimal domain
+        /// graph, with an <see cref="ElementDefinition" /> already selected, so the nested
+        /// <see cref="ElementDetailsPanel" /> renders its populated state instead of relying on a mock that
+        /// would otherwise return null for every child popup view model.
+        /// </summary>
+        /// <param name="selectedElementDefinition">The <see cref="ElementDefinition" /> selected on the returned view model.</param>
+        /// <returns>The built <see cref="ElementDetailsPanelViewModel" />.</returns>
+        private ElementDetailsPanelViewModel BuildRealElementDetailsPanelViewModel(out ElementDefinition selectedElementDefinition)
+        {
+            var messageBus = new CDPMessageBus();
+            var sessionService = new Mock<ISessionService>();
+            var session = new Mock<ISession>();
+            sessionService.Setup(x => x.Session).Returns(session.Object);
+            sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
+
+            var domain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
+            sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(domain);
+
+            var rdl = new SiteReferenceDataLibrary { ShortName = "siteRdl", Name = "Site RDL" };
+            var siteDirectory = new SiteDirectory { Domain = { domain }, SiteReferenceDataLibrary = { rdl } };
+            var modelSetup = new EngineeringModelSetup { Name = "ModelName", ShortName = "ModelShortName", ActiveDomain = { domain }, RequiredRdl = { new ModelReferenceDataLibrary { RequiredRdl = rdl } } };
+            siteDirectory.Model.Add(modelSetup);
+            var iterationSetup = new IterationSetup { IterationNumber = 1 };
+            modelSetup.IterationSetup.Add(iterationSetup);
+            sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
+            session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
+
+            selectedElementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), Name = "Selected", ShortName = "SEL", Owner = domain };
+
+            var detailsIteration = new Iteration
+            {
+                Iid = Guid.NewGuid(),
+                Element = { selectedElementDefinition },
+                TopElement = selectedElementDefinition,
+                IterationSetup = iterationSetup,
+                Container = new EngineeringModel { EngineeringModelSetup = modelSetup }
+            };
+
+            var logger = new Mock<ILogger<ElementDetailsPanelViewModel>>();
+
+            var realDetailsPanelViewModel = new ElementDetailsPanelViewModel(sessionService.Object, messageBus, logger.Object);
+            realDetailsPanelViewModel.Initialize(detailsIteration);
+            realDetailsPanelViewModel.CurrentDomain = domain;
+            realDetailsPanelViewModel.SelectElement(selectedElementDefinition);
+
+            return realDetailsPanelViewModel;
         }
     }
 }

@@ -38,6 +38,13 @@ namespace COMET.Web.Common.Components.Selectors
         public string DisplayText { get; set; } = "Filter on Parameter Type:";
 
         /// <summary>
+        /// The placeholder text shown when nothing is selected. Defaults to a "Select ..." wording since the
+        /// selector is a general-purpose selector; pass a "Filter by ..." value when it is used as a page filter.
+        /// </summary>
+        [Parameter]
+        public string NullText { get; set; } = "Select a parameter type...";
+
+        /// <summary>
         /// Condition to check if name and shortname shall be displayed in the selector. If false, only the name is displayed
         /// </summary>
         [Parameter]

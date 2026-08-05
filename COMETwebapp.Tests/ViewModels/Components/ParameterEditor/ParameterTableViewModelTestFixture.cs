@@ -224,7 +224,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         [Test]
         public void VerifyInitializeViewModel()
         {
-            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, [this.option]);
 
             Assert.Multiple(() =>
             {
@@ -235,7 +235,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         [Test]
         public void VerifyParameterRowProperties()
         {
-            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, [this.option]);
             var parameterRow = this.viewModel.Rows.Items.First();
 
             Assert.Multiple(() =>
@@ -252,7 +252,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         [Test]
         public async Task VerifyParameterRowBehavior()
         {
-            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, [this.option]);
             var parameterRow = this.viewModel.Rows.Items.First();
 
             Assert.Multiple(() =>
@@ -269,7 +269,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
 
-            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, [this.option]);
             parameterRow = this.viewModel.Rows.Items.First();
 
             await parameterRow.ParameterSwitchKindSelectorViewModel.OnUpdate.InvokeAsync();
@@ -294,19 +294,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         [Test]
         public void VerifyFiltering()
         {
-            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, [this.option]);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
 
-            this.viewModel.ApplyFilters(this.iteration.Option.Last(), null, null, null, true);
+            this.viewModel.ApplyFilters([this.iteration.Option.Last()], null, null, null, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(1));
 
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, this.iteration.Element[^1], null, null, true);
+            this.viewModel.ApplyFilters([this.iteration.DefaultOption], [this.iteration.Element[^1]], null, null, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(3));
 
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, new[] { new ArrayParameterType { Iid = Guid.NewGuid() } }, null, true);
+            this.viewModel.ApplyFilters([this.iteration.DefaultOption], null, new[] { new ArrayParameterType { Iid = Guid.NewGuid() } }, null, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(0));
 
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, new[] { this.iteration.TopElement.Parameter[0].ParameterType }, null, true);
+            this.viewModel.ApplyFilters([this.iteration.DefaultOption], null, new[] { this.iteration.TopElement.Parameter[0].ParameterType }, null, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
 
             var multipleParameterTypes = new[]
@@ -314,13 +314,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 this.iteration.TopElement.Parameter[0].ParameterType,
                 new ArrayParameterType { Iid = Guid.NewGuid() }
             };
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, multipleParameterTypes, null, true);
+            this.viewModel.ApplyFilters([this.iteration.DefaultOption], null, multipleParameterTypes, null, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
 
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, Array.Empty<ParameterType>(), null, true);
+            this.viewModel.ApplyFilters([this.iteration.DefaultOption], null, Array.Empty<ParameterType>(), null, true);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
 
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, null, null, false);
+            this.viewModel.ApplyFilters([this.iteration.DefaultOption], null, null, null, false);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
         }
 
@@ -347,34 +347,34 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
 
             this.iteration.Element[^1].Category.Add(boxCategory);
 
-            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, [this.option]);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
 
             // Empty/null category set — no filter applied.
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, null, null, false);
+            this.viewModel.ApplyFilters([this.iteration.DefaultOption], null, null, null, false);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
 
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, null, Array.Empty<Category>(), false);
+            this.viewModel.ApplyFilters([this.iteration.DefaultOption], null, null, Array.Empty<Category>(), false);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(4));
 
             // Filtering by an unrelated category drops every row.
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, null, new[] { unrelatedCategory }, false);
+            this.viewModel.ApplyFilters([this.iteration.DefaultOption], null, null, new[] { unrelatedCategory }, false);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(0));
 
             // Filtering by the box category retains only the rows whose owning ElementBase carries it directly
             // (parameter1, parameter2 on Box) or inherits it (the override on usage1, which references Box).
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, null, new[] { boxCategory }, false);
+            this.viewModel.ApplyFilters([this.iteration.DefaultOption], null, null, new[] { boxCategory }, false);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(3));
 
             // Multi-select OR semantics: union of matching rows.
-            this.viewModel.ApplyFilters(this.iteration.DefaultOption, null, null, new[] { boxCategory, unrelatedCategory }, false);
+            this.viewModel.ApplyFilters([this.iteration.DefaultOption], null, null, new[] { boxCategory, unrelatedCategory }, false);
             Assert.That(this.viewModel.Rows, Has.Count.EqualTo(3));
         }
 
         [Test]
         public void VerifyUpdateOnCollection()
         {
-            this.viewModel.InitializeViewModel(this.iteration, this.domain, this.option);
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, [this.option]);
 
             var elementDefinition = new ElementDefinition()
             {

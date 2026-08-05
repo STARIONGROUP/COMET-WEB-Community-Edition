@@ -26,6 +26,6 @@
 <DxPopup @bind-Visible="this.IsVisible" HeaderText="CDP4-COMET-WEB CE">
     <About/>
     <div class="text-center">
-        <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="@(() => this.SetVisibility(false))" />
+        <DxButton CssClass="popup-button" RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Close" Click="@(() => this.SetVisibility(false))" />
     </div>
 </DxPopup>

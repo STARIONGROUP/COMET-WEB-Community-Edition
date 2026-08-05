@@ -249,14 +249,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         {
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            this.viewModel.ElementSelector.SelectedElementBase = this.viewModel.ElementSelector.AvailableElements.First();
+            this.viewModel.ElementSelector.SelectedElementBases = [this.viewModel.ElementSelector.AvailableElements.First()];
             this.viewModel.ParameterTypeSelector.SelectedParameterTypes = new List<ParameterType> { this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First() };
-            this.viewModel.OptionSelector.SelectedOption = this.viewModel.CurrentThing.Option.Last();
+            this.viewModel.OptionSelector.SelectedOptions = [this.viewModel.CurrentThing.Option.Last()];
             this.viewModel.IsOwnedParameters = false;
 
             this.viewModel.ApplyFilters();
 
-            this.tableViewModel.Verify(x => x.ApplyFilters(It.IsAny<Option>(), It.IsAny<ElementBase>(), It.IsAny<IEnumerable<ParameterType>>(), It.IsAny<IEnumerable<Category>>(), It.IsAny<bool>()), Times.AtLeastOnce);
+            this.tableViewModel.Verify(x => x.ApplyFilters(It.IsAny<IEnumerable<Option>>(), It.IsAny<IEnumerable<ElementBase>>(), It.IsAny<IEnumerable<ParameterType>>(), It.IsAny<IEnumerable<Category>>(), It.IsAny<bool>()), Times.AtLeastOnce);
         }
 
         [Test]
@@ -270,7 +270,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
                 Assert.That(this.viewModel.CategorySelector, Is.Not.Null);
                 Assert.That(this.viewModel.CategorySelector.CurrentIteration, Is.SameAs(this.viewModel.CurrentThing));
                 Assert.That(this.viewModel.OptionSelector, Is.Not.Null);
-                Assert.That(this.viewModel.OptionSelector.SelectedOption, Is.Not.Null);
+                Assert.That(this.viewModel.OptionSelector.SelectedOptions, Is.Empty);
                 Assert.That(this.viewModel.IsOwnedParameters, Is.True);
             });
         }

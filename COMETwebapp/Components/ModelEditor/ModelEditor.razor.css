@@ -1,11 +1,10 @@
-/* The Model Editor fills the height of the tab content and no longer scrolls as a whole page;
-   the two trees and the details panel each scroll internally (no vh — sized against the
-   #app -> .page (100%) -> #tabs-page-content (flex) chain). */
 .model-editor-root {
     height: 100%;
     display: flex;
     flex-direction: column;
     min-height: 0;
+    margin-left: -12px;
+    margin-right: -12px;
 }
 
 ::deep .selected-data-item-page {
@@ -23,25 +22,27 @@
     font-size: 0.8rem;
 }
 
-/* The Owner / Categories check boxes sit inline in the toolbar, next to the copy mode text. */
-.model-editor-display-options {
-    display: inline-flex;
+.model-editor-toolbar {
+    display: flex;
+    align-items: center;
     gap: 8px;
-    margin-left: 16px;
-    font-size: 0.875rem;
-    vertical-align: middle;
+    padding-bottom: 5px;
+    padding-right: 12px;
+}
+
+.model-editor-toolbar-right {
+    margin-left: auto;
+    flex: 0 0 auto;
 }
 
 .model-editor-panel {
-    flex: 1 1 0;
+    flex: 0 1 33%;
     min-width: 0;
     min-height: 0;
     height: 100%;
     display: flex;
     flex-direction: column;
-    border: dashed 1px;
-    padding: 15px;
-    border-radius: 10px;
+    padding: 4px;
 }
 
 .model-editor-panel-borderless {
@@ -50,7 +51,16 @@
 }
 
 .model-editor-details-panel {
+    flex: 1 1 0;
     min-width: 350px;
+    position: relative;
+}
+
+.model-editor-details-collapse-floating {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 2;
 }
 
 .model-editor-panel-grow {
@@ -64,14 +74,15 @@
 
 .model-editor-panel-header {
     flex: 0 0 auto;
+    height: 34px;
     display: flex;
+    align-items: center;
 }
 
 .model-editor-panel-header-end {
     justify-content: flex-end;
 }
 
-/* A minimized panel collapses to a clickable vertical strip that restores it. */
 .model-editor-collapsed-strip {
     flex: 0 0 28px;
     display: flex;
@@ -80,8 +91,8 @@
     gap: 8px;
     padding: 8px 4px;
     cursor: pointer;
-    border: dashed 1px;
-    border-radius: 10px;
+    border: solid 1px #e2e8f0;
+    border-radius: 8px;
     background: #f8fafc;
 }
 
@@ -96,8 +107,6 @@
     color: #475569;
 }
 
-/* Drag-to-resize handle between two panels, driven by wwwroot/js/columnResizer.js — the same handle the
-   System Representation page uses between the product tree and the details panel. */
 .model-editor-resizer {
     flex: 0 0 6px;
     align-self: stretch;
@@ -110,17 +119,21 @@
     background: #94a3b8;
 }
 
-/* Narrow window (a half or quarter-screen browser): three side-by-side panels no longer fit, so they stack
-   vertically and the whole row scrolls, instead of being squeezed past the point of usability. */
 @media (max-width: 1200px) {
     ::deep .selected-data-item-table {
         flex-direction: column;
         overflow-y: auto;
     }
 
+   .model-editor-toolbar {
+        padding-right: 4px;
+    }
+
+    ::deep .model-editor-details .data-item-details-section {
+        padding-right: 4px;
+    }
+
     .model-editor-panel {
-        /* !important is needed because columnResizer.js writes flex and max-width as inline styles on the
-           panel, and an inline style would otherwise win over this rule once the panels stack. */
         flex: 0 0 auto !important;
         max-width: none !important;
         width: 100%;
@@ -179,6 +192,16 @@
 ::deep .model-editor-details .cardview-detailspanel-summary,
 ::deep .model-editor-details .param-group-search-bar {
     flex: 0 0 auto;
+}
+
+::deep .model-editor-details .cardview-detailspanel-summary {
+    height: 46px;
+    padding: 4px 8px !important;
+    margin-bottom: 14px !important;
+}
+
+::deep .model-editor-details .cardview-detailspanel-summary .flex-wrap {
+    flex-wrap: nowrap !important;
 }
 
 ::deep .model-editor-details .param-groups-container {

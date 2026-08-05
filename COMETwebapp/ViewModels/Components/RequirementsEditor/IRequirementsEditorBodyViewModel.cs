@@ -166,6 +166,13 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         Requirement ScrollTarget { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="RequirementsGroup" /> the document should scroll to on the next render, set by
+        /// <see cref="NavigateToGroup" /> when a table-of-contents entry is clicked and cleared by the component once the
+        /// scroll has happened.
+        /// </summary>
+        RequirementsGroup ScrollTargetGroup { get; set; }
+
+        /// <summary>
         /// Gets the distinct <see cref="ParameterType" />s used by the <see cref="SimpleParameterValue" />s of the
         /// non-deprecated requirements of the selected specification, ordered by short name. The columns are stable
         /// across search and owner/category filtering.
@@ -320,6 +327,13 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="requirement">The <see cref="Requirement" /> to navigate to</param>
         void NavigateToRequirement(Requirement requirement);
+
+        /// <summary>
+        /// Navigates the document to the given <paramref name="group" /> from a table-of-contents click: it expands the
+        /// group's ancestor document groups and flags it as the <see cref="ScrollTargetGroup" />.
+        /// </summary>
+        /// <param name="group">The <see cref="RequirementsGroup" /> to navigate to</param>
+        void NavigateToGroup(RequirementsGroup group);
 
         /// <summary>
         /// Gets or sets the <see cref="RequirementsGroup" /> currently being dragged in the table of contents to change

@@ -67,19 +67,22 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
         public IParameterDashboardViewModel ParameterDashboard { get; }
 
         /// <summary>
-        /// Gets the <see cref="IOptionSelectorViewModel" />
+        /// Gets the <see cref="IMultiOptionSelectorViewModel" /> driving the option filter. An empty selection
+        /// means no option filtering is applied.
         /// </summary>
-        public IOptionSelectorViewModel OptionSelector { get; private set; } = new OptionSelectorViewModel();
+        public IMultiOptionSelectorViewModel OptionSelector { get; private set; } = new MultiOptionSelectorViewModel();
 
         /// <summary>
-        /// Gets the <see cref="IFiniteStateSelectorViewModel" />
+        /// Gets the <see cref="IMultiFiniteStateSelectorViewModel" /> driving the finite state filter. An empty
+        /// selection means no state filtering is applied.
         /// </summary>
-        public IFiniteStateSelectorViewModel FiniteStateSelector { get; private set; } = new FiniteStateSelectorViewModel();
+        public IMultiFiniteStateSelectorViewModel FiniteStateSelector { get; private set; } = new MultiFiniteStateSelectorViewModel();
 
         /// <summary>
-        /// Gets the <see cref="IParameterTypeSelectorViewModel" />
+        /// Gets the <see cref="IMultiParameterTypeSelectorViewModel" /> driving the parameter-type filter. An empty
+        /// selection means no parameter-type filtering is applied.
         /// </summary>
-        public IParameterTypeSelectorViewModel ParameterTypeSelector { get; private set; } = new ParameterTypeSelectorViewModel();
+        public IMultiParameterTypeSelectorViewModel ParameterTypeSelector { get; private set; } = new MultiParameterTypeSelectorViewModel();
 
         /// <summary>
         /// Update the dashboard view models properties
@@ -88,8 +91,8 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
         {
             this.IsLoading = true;
 
-            this.ParameterDashboard.UpdateProperties(this.CurrentThing, this.OptionSelector.SelectedOption,
-                this.FiniteStateSelector.SelectedActualFiniteState, this.ParameterTypeSelector.SelectedParameterType,
+            this.ParameterDashboard.UpdateProperties(this.CurrentThing, this.OptionSelector.SelectedOptions,
+                this.FiniteStateSelector.SelectedActualFiniteStates, this.ParameterTypeSelector.SelectedParameterTypes,
                 this.CurrentDomain, this.AvailableDomains);
 
             this.ElementDashboard.UpdateProperties(this.CurrentThing, this.CurrentDomain);

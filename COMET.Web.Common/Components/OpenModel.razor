@@ -58,5 +58,6 @@
 <ValidationMessageComponent ValidationMessage="@this.ErrorMessage" />
 <div class="modal-footer">
 	<DxButton Id="openmodel__button" CssClass="btn btn-connect"
+	          RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
 	          Text="@this.ButtonText" Enabled="@this.ButtonEnabled" Click="@this.OpenSessionAsync" />
 </div>

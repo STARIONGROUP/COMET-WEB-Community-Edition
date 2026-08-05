@@ -55,8 +55,8 @@
                            ShowCheckboxes="true"/>
             </BodyTemplate>
             <FooterTextTemplate>
-                <DxButton Id="confirmButton" RenderStyle="ButtonRenderStyle.Primary" Text="Ok" Click="enumerationParameterTypeEditorViewModel.OnConfirmButtonClick"/>
-                <DxButton Id="cancelButton" RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="enumerationParameterTypeEditorViewModel.OnCancelButtonClick"/>
+                <DxButton Id="confirmButton" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Ok" Click="enumerationParameterTypeEditorViewModel.OnConfirmButtonClick"/>
+                <DxButton Id="cancelButton" RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Cancel" Click="enumerationParameterTypeEditorViewModel.OnCancelButtonClick"/>
             </FooterTextTemplate>
         </DxDropDown>
     }

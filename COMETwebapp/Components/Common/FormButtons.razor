@@ -20,20 +20,21 @@ Copyright (c) 2023-2026 Starion Group S.A.
     {
         <DxButton Id="deleteItemButton"
                   Click="@(() => this.OnDelete.InvokeAsync())"
-                  RenderStyle="ButtonRenderStyle.Danger">
+                  RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())">
             Delete
         </DxButton>
     }
 
     <DxButton Id="saveItemButton"
               SubmitFormOnClick="true"
+              RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
               Enabled="@(this.SaveButtonEnabled && !this.IsLoading)">
         @(this.IsLoading ? "Loading" : "Save")
     </DxButton>
 
     <DxButton Id="cancelItemButton"
               Click="@(() => this.OnCancel.InvokeAsync())"
-              RenderStyle="ButtonRenderStyle.Secondary">
+              RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())">
         Cancel
     </DxButton>
 </div>

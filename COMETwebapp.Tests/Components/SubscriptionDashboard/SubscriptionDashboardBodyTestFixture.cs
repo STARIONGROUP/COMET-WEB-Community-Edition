@@ -96,9 +96,63 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.OptionSelector.SelectedOption, Is.Null);
-                Assert.That(this.viewModel.ParameterTypeSelector.SelectedParameterType, Is.Null);
+                Assert.That(this.viewModel.OptionSelector.SelectedOptions, Is.Empty);
+                Assert.That(this.viewModel.ParameterTypeSelector.SelectedParameterTypes, Is.Empty);
             });
+        }
+
+        /// <summary>
+        /// Verifies that the multi-value "parameters" URL key is applied on initialization, that changing
+        /// a selector afterward round-trips the selection through <c>UpdateUrl</c>, and that clicking a
+        /// missing value in the domain-of-expertise table redirects to the Parameter Editor.
+        /// </summary>
+        [Test]
+        public void VerifyMultiValueInitializationAndUpdateUrlRoundTrip()
+        {
+            var thermal = new DomainOfExpertise { Iid = Guid.NewGuid(), Name = "Thermal" };
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(thermal);
+
+            var navigation = this.context.Services.GetService<NavigationManager>();
+
+            var parameterId = Guid.NewGuid();
+            var optionId = Guid.NewGuid();
+
+            var queryParameters = new Dictionary<string, string>
+            {
+                [QueryKeys.OptionsKey] = optionId.ToShortGuid(),
+                [QueryKeys.ParametersKey] = parameterId.ToShortGuid()
+            };
+
+            navigation.NavigateTo(QueryHelpers.AddQueryString("http://localhost", queryParameters));
+
+            var parameterType = new TextParameterType { Iid = parameterId };
+
+            var parameter = new Parameter
+            {
+                ParameterType = parameterType,
+                Owner = thermal,
+                ParameterSubscription = { new ParameterSubscription { Iid = Guid.NewGuid(), Owner = new DomainOfExpertise() } }
+            };
+
+            var iteration = new Iteration { Element = { new ElementDefinition { Parameter = { parameter } } } };
+            iteration.TopElement = iteration.Element[0];
+            iteration.Option.Add(new Option { Iid = optionId });
+
+            var rendered = this.context.Render<SubscriptionDashboardBody>(parameters => parameters.Add(p => p.CurrentThing, iteration));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.OptionSelector.SelectedOptions, Is.Not.Empty, "The multi-value 'parameters' URL key must apply the option filter.");
+                Assert.That(this.viewModel.ParameterTypeSelector.SelectedParameterTypes, Is.Not.Empty, "The multi-value 'parameters' URL key must apply the parameter-type filter.");
+            });
+
+            Assert.That(() => this.viewModel.OptionSelector.SelectedOptions = [], Throws.Nothing,
+                "Clearing the selection must exercise UpdateUrl without throwing.");
+
+            var domainTable = rendered.FindComponent<DomainOfExpertiseSubscriptionTable>();
+
+            Assert.That(async () => await rendered.InvokeAsync(() => domainTable.Instance.OnMissingValueClick.InvokeAsync(parameter)), Throws.Nothing,
+                "Clicking a missing value must redirect to the Parameter Editor without throwing.");
         }
 
         [Test]
@@ -119,7 +173,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
             var queryParameters = new Dictionary<string, string>
             {
-                [QueryKeys.OptionKey] = optionId.ToShortGuid(),
+                [QueryKeys.OptionsKey] = optionId.ToShortGuid(),
                 [QueryKeys.ParameterKey] = parameterId.ToShortGuid()
             };
 
@@ -164,8 +218,8 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.OptionSelector.SelectedOption, Is.Not.Null);
-                Assert.That(this.viewModel.ParameterTypeSelector.SelectedParameterType, Is.Not.Null);
+                Assert.That(this.viewModel.OptionSelector.SelectedOptions, Is.Not.Empty);
+                Assert.That(this.viewModel.ParameterTypeSelector.SelectedParameterTypes, Is.Not.Empty);
             });
 
             var mockedViewModel = new Mock<ISubscriptionDashboardBodyViewModel>();

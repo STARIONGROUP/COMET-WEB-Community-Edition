@@ -26,7 +26,7 @@
 
     @if (this.ApplicationIcon is not null)
     {
-        <DxButton RenderStyle="ButtonRenderStyle.None"
+        <DxButton RenderStyle="@(CometButtonStyle.None.ToButtonRenderStyle())"
                   CssClass="px-1">
             <CometIcon Icon="@(this.ApplicationIcon.Value)" Size="22" CssClass="cursor-pointer"/>
         </DxButton>
@@ -36,7 +36,7 @@
 
     @if (this.CustomOptionIcon is not null && this.CustomOptionIconVisible)
     {
-        <DxButton RenderStyle="ButtonRenderStyle.None"
+        <DxButton RenderStyle="@(CometButtonStyle.None.ToButtonRenderStyle())"
                   Click="@(() => this.OnCustomOptionIconClick?.Invoke())"
                   CssClass="ps-2 pe-0"
                   Id="tab-custom-option-button">
@@ -44,7 +44,7 @@
         </DxButton>
     }
 
-    <DxButton RenderStyle="ButtonRenderStyle.None"
+    <DxButton RenderStyle="@(CometButtonStyle.None.ToButtonRenderStyle())"
               Click="@(() => this.OnIconClick?.Invoke())"
               CssClass="px-1 tab-close-button">
         <CometIcon Icon="@(this.Icon.Value)" Size="22" CssClass="cursor-pointer"/>

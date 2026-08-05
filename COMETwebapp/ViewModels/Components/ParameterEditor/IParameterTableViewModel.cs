@@ -56,8 +56,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <param name="currentIteration">The current <see cref="Iteration"/></param>
         /// <param name="currentDomain">The <see cref="DomainOfExpertise"/></param>
-        /// <param name="selectedOption">The select <see cref="Option"/></param>
-        void InitializeViewModel(Iteration currentIteration, DomainOfExpertise currentDomain, Option selectedOption);
+        /// <param name="selectedOptions">
+        /// The collection of selected <see cref="Option"/>s. <c>null</c> or an empty collection falls back to the
+        /// <see cref="Iteration"/>'s default <see cref="Option"/>.
+        /// </param>
+        void InitializeViewModel(Iteration currentIteration, DomainOfExpertise currentDomain, IEnumerable<Option> selectedOptions);
 
         /// <summary>
         /// Update the current <see cref="DomainOfExpertise"/>
@@ -66,11 +69,19 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         void UpdateDomain(DomainOfExpertise currentDomain);
 
         /// <summary>
-        /// Apply filters based on <see cref="Option"/>, <see cref="ElementBase"/>, <see cref="ParameterType"/>,
-        /// <see cref="Category"/> and <see cref="DomainOfExpertise"/>.
+        /// Apply filters based on a multi-select set of <see cref="Option"/>s, a multi-select set of
+        /// <see cref="ElementBase"/>s, <see cref="ParameterType"/>, <see cref="Category"/> and
+        /// <see cref="DomainOfExpertise"/>.
         /// </summary>
-        /// <param name="selectedOption">The selected <see cref="Option"/>.</param>
-        /// <param name="selectedElementBase">The selected <see cref="ElementBase"/>.</param>
+        /// <param name="selectedOptions">
+        /// The collection of selected <see cref="Option"/>s. <c>null</c> or an empty collection falls back to the
+        /// <see cref="Iteration"/>'s default <see cref="Option"/>.
+        /// </param>
+        /// <param name="selectedElementBases">
+        /// The collection of <see cref="ElementBase"/>s to filter on. <c>null</c> or an empty collection means no
+        /// element filter is applied; otherwise rows whose owning <see cref="ElementBase"/> is not in the
+        /// collection are removed.
+        /// </param>
         /// <param name="selectedParameterTypes">
         /// The collection of <see cref="ParameterType"/>s to filter on. <c>null</c> or an empty collection means
         /// no parameter-type filter is applied; otherwise rows whose <see cref="ParameterType"/> is not in the
@@ -84,6 +95,6 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// are removed.
         /// </param>
         /// <param name="isOwnedParameters">Value asserting that only <see cref="Thing"/>s owned by the current <see cref="DomainOfExpertise"/> should be visible.</param>
-        void ApplyFilters(Option selectedOption, ElementBase selectedElementBase, IEnumerable<ParameterType> selectedParameterTypes, IEnumerable<Category> selectedCategories, bool isOwnedParameters);
+        void ApplyFilters(IEnumerable<Option> selectedOptions, IEnumerable<ElementBase> selectedElementBases, IEnumerable<ParameterType> selectedParameterTypes, IEnumerable<Category> selectedCategories, bool isOwnedParameters);
     }
 }

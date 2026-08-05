@@ -24,6 +24,7 @@
 <div>
     <div>
         <DxButton IconCssClass="@IconName.UploadCloud.GetCssClass()"
+                  RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                   Enabled="@this.ViewModel.CanPublish"
                   Click="() => { this.ViewModel.ExecutePublish(); }"/>
     </div>

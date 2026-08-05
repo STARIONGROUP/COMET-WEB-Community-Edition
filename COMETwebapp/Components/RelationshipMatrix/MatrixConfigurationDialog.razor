@@ -69,6 +69,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <div class="matrix-dialog-actions">
                 <DxButton Text="@this.ExportButtonText"
                           IconCssClass="@IconName.Download.GetCssClass()"
+                          RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                           Enabled="@this.CanExportOrSave"
                           Click="@(async () => await this.OnExportOrSaveAsync())"/>
             </div>
@@ -104,6 +105,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <div class="matrix-dialog-actions">
                     <DxButton Text="Load from model"
                               IconCssClass="@IconName.Download.GetCssClass()"
+                              RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                               Enabled="@(this.selectedStoredConfiguration != null)"
                               Click="@(async () => await this.OnLoadFromModelAsync())"/>
                 </div>

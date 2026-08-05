@@ -28,6 +28,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <DxButton Id="addDefinitionButton"
                           Text="Add"
                           IconCssClass="@IconName.Add.GetCssClass()"
+                          RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                           Click="this.StartCreate"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
@@ -36,10 +37,12 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                     <DxButton Id="editDefinitionButton"
                               IconCssClass="@IconName.Edit.GetCssClass()"
+                              RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"
                               Click="@(() => this.StartEdit(row))"/>
 
                     <DxButton Id="removeDefinitionButton"
                               IconCssClass="@IconName.Delete.GetCssClass()"
+                              RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"
                               Click="() => this.RemovalPopup.Request(row)"/>
                 }
             </CellDisplayTemplate>

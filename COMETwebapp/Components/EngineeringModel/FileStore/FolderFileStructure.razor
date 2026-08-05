@@ -17,12 +17,14 @@ Copyright (c) 2023-2026 Starion Group S.A.
 @inherits DisposableComponent
 
 <DxButton Id="createFolderButton"
-          Click="@(() => this.OnEditFolderClick())">
+          Click="@(() => this.OnEditFolderClick())"
+          RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())">
     Create Folder
 </DxButton>
 
 <DxButton Id="createFileButton"
-          Click="@(() => this.OnEditFileClick())">
+          Click="@(() => this.OnEditFileClick())"
+          RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())">
     Create File
 </DxButton>
 
@@ -54,7 +56,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                           Click="@(() => this.OnEditFolderClick(row))"
                           SizeMode="SizeMode.Small"
                           CssClass="float-end"
-                          RenderStyle="ButtonRenderStyle.Dark"/>
+                          RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"/>
             }
         </div>}
     </NodeTextTemplate>

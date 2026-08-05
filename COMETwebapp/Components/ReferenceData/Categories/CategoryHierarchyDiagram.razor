@@ -21,7 +21,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
 <CascadingValue Value="this.Diagram">
     <DiagramCanvas @key="@("accc")"/>
     <DxButton Text="Open Details"
-              Click="@(() => this.IsOnDetailsMode = true)"/>
+              Click="@(() => this.IsOnDetailsMode = true)"
+              RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"/>
 
     <DxPopup @bind-Visible="this.IsOnDetailsMode"
              HeaderText="@($"Hierarchy Diagram of Category: {this.Category.Name}")"

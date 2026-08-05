@@ -49,8 +49,8 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         {
             this.SubscribedTable = subscribedTable;
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOption,
-                    x => x.ParameterTypeSelector.SelectedParameterType)
+            this.Disposables.Add(this.WhenAnyValue(x => x.OptionSelector.SelectedOptions,
+                    x => x.ParameterTypeSelector.SelectedParameterTypes)
                 .Subscribe(_ => this.UpdateTables()));
         }
 
@@ -65,14 +65,16 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         public IDomainOfExpertiseSubscriptionTableViewModel DomainOfExpertiseSubscriptionTable { get; } = new DomainOfExpertiseSubscriptionTableViewModel();
 
         /// <summary>
-        /// Gets the <see cref="IOptionSelectorViewModel" />
+        /// Gets the <see cref="IMultiOptionSelectorViewModel" /> driving the option filter. An empty selection
+        /// means no option filtering is applied.
         /// </summary>
-        public IOptionSelectorViewModel OptionSelector { get; } = new OptionSelectorViewModel();
+        public IMultiOptionSelectorViewModel OptionSelector { get; } = new MultiOptionSelectorViewModel();
 
         /// <summary>
-        /// Gets the <see cref="IParameterTypeSelectorViewModel" />
+        /// Gets the <see cref="IMultiParameterTypeSelectorViewModel" /> driving the parameter-type filter. An empty
+        /// selection means no parameter-type filtering is applied.
         /// </summary>
-        public IParameterTypeSelectorViewModel ParameterTypeSelector { get; } = new ParameterTypeSelectorViewModel();
+        public IMultiParameterTypeSelectorViewModel ParameterTypeSelector { get; } = new MultiParameterTypeSelectorViewModel();
 
         /// <summary>
         /// Updates the <see cref="ISubscribedTableViewModel" /> and <see cref="IDomainOfExpertiseSubscriptionTableViewModel" />
@@ -82,8 +84,8 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         {
             this.IsLoading = true;
 
-            this.SubscribedTable.ApplyFilters(this.OptionSelector.SelectedOption, this.ParameterTypeSelector.SelectedParameterType);
-            this.DomainOfExpertiseSubscriptionTable.ApplyFilters(this.OptionSelector.SelectedOption, this.ParameterTypeSelector.SelectedParameterType);
+            this.SubscribedTable.ApplyFilters(this.OptionSelector.SelectedOptions, this.ParameterTypeSelector.SelectedParameterTypes);
+            this.DomainOfExpertiseSubscriptionTable.ApplyFilters(this.OptionSelector.SelectedOptions, this.ParameterTypeSelector.SelectedParameterTypes);
 
             this.IsLoading = false;
         }

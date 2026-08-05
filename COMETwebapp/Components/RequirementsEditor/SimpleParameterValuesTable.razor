@@ -49,14 +49,14 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </DxGridDataColumn>
             <DxGridCommandColumn Width="90px">
                 <HeaderTemplate>
-                    <DxButton Id="addSimpleParameterValueButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="@(() => this.OpenAdd())" />
+                    <DxButton Id="addSimpleParameterValueButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Click="@(() => this.OpenAdd())" />
                 </HeaderTemplate>
                 <CellDisplayTemplate>
                     @{
                         var value = (SimpleParameterValue)context.DataItem;
                     }
-                    <DxButton IconCssClass="@IconName.Edit.GetCssClass()" Click="@(() => this.OpenEdit(value))" />
-                    <DxButton Id="removeSimpleParameterValueButton" IconCssClass="@IconName.Delete.GetCssClass()" Click="@(() => this.RemovalPopup.Request(value))" />
+                    <DxButton IconCssClass="@IconName.Edit.GetCssClass()" RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())" Click="@(() => this.OpenEdit(value))" />
+                    <DxButton Id="removeSimpleParameterValueButton" IconCssClass="@IconName.Delete.GetCssClass()" RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())" Click="@(() => this.RemovalPopup.Request(value))" />
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
         </Columns>
@@ -107,8 +107,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </DxFormLayout>
 
             <div class="modal-footer m-top-10px">
-                <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="@(() => this.ClosePanel())" />
-                <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="OK" Click="@(() => this.Confirm())" Enabled="@(this.selectedParameterType != null)" />
+                <DxButton RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Cancel" Click="@(() => this.ClosePanel())" />
+                <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="OK" Click="@(() => this.Confirm())" Enabled="@(this.selectedParameterType != null)" />
             </div>
         </BodyContentTemplate>
     </DxPopup>

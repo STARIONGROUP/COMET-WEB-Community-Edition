@@ -20,6 +20,14 @@
     background: #fff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     font-size: 0.85rem;
+    position: relative;
+}
+
+.matrix-config-panel ::deep .matrix-config-minimize {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 2;
 }
 
 .matrix-config-panel ::deep .dxbl-edit,
@@ -36,11 +44,6 @@
 
 .matrix-config-panel-collapsed {
     display: none;
-}
-
-.matrix-config-panel-header {
-    flex: 0 0 auto;
-    display: flex;
 }
 
 .matrix-config-actions {

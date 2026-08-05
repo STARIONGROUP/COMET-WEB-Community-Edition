@@ -42,8 +42,8 @@ namespace COMETwebapp.Components.Shared
         public IProductTreeDisplayOptions ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets the id given to the "View" cog <c>DxButton</c>, also used as the <c>DxDropDown</c>
-        /// <c>PositionTarget</c>. Must be unique per page so two toolbars can coexist.
+        /// Gets or sets the id forwarded to the shared <see cref="COMET.Web.Common.Components.ViewOptionsMenu" />
+        /// "View" cog. Must be unique per page so two toolbars can coexist.
         /// </summary>
         [Parameter]
         [EditorRequired]
@@ -54,10 +54,5 @@ namespace COMETwebapp.Components.Shared
         /// </summary>
         [Parameter]
         public RenderFragment ChildContent { get; set; }
-
-        /// <summary>
-        /// Whether the "View" display-options dropdown is open.
-        /// </summary>
-        private bool viewMenuOpen;
     }
 }

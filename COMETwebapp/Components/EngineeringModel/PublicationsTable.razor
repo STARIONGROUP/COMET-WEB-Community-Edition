@@ -43,7 +43,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <div class="p-3">
             <DxButton Id="addPublicationButton" 
                       Text="Publish" 
-                      RenderStyle="ButtonRenderStyle.Primary" 
+                      RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" 
                       Click="@this.PublishSelectedParameters"
                       CssClass="float-end"/>
         </div>

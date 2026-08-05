@@ -1,7 +1,57 @@
-#panel-action-bar {
+#element-details-toolbar {
     position: sticky;
     top: 0;
     z-index: 5;
     background: #fff;
     padding-top: 4px;
+}
+
+.element-details-identity {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.element-details-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 0;
+}
+
+.element-details-actions {
+    flex: 0 0 auto;
+    gap: 4px;
+    margin-left: 8px;
+}
+
+.element-details-pills {
+    gap: 4px;
+    margin-top: 4px;
+}
+
+::deep .element-details-add-button {
+    min-width: 88px;
+    height: 34px;
+}
+
+::deep .element-details-add-button::after {
+    content: "";
+    display: inline-block;
+    margin-left: 6px;
+    vertical-align: middle;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+}
+
+.element-details-new-menu {
+    display: flex;
+    flex-direction: column;
+    min-width: 190px;
+}
+
+.element-details-new-menu ::deep .element-details-new-item {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
 }

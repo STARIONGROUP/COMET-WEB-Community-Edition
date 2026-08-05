@@ -41,6 +41,7 @@
             @if (this.OnCreateSubscription.HasDelegate && this.Row.CanSubscribe)
             {
                 <DxButton IconCssClass="@IconName.Bell.GetCssClass()"
+                          RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
                           Click="@(() => this.OnCreateSubscription.InvokeAsync(this.Row.Parameter))"
@@ -49,7 +50,7 @@
             else if (this.OnDeleteSubscription.HasDelegate && this.Row.HasCurrentDomainSubscription)
             {
                 <DxButton IconCssClass="@IconName.Bell.GetCssClass()"
-                          RenderStyle="ButtonRenderStyle.Danger"
+                          RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
                           Click="@(() => this.OnDeleteSubscription.InvokeAsync(this.Row.CurrentDomainSubscription))"
@@ -58,6 +59,7 @@
             @if (this.OnCreateOverride.HasDelegate && this.Row.CanCreateOverride)
             {
                 <DxButton IconCssClass="@IconName.Branch.GetCssClass()"
+                          RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
                           Click="@(() => this.OnCreateOverride.InvokeAsync((this.Row.Parameter, this.Row.HostElementUsage)))"
@@ -66,7 +68,7 @@
             else if (this.OnDeleteOverride.HasDelegate && this.Row.HasOverride)
             {
                 <DxButton IconCssClass="@IconName.Branch.GetCssClass()"
-                          RenderStyle="ButtonRenderStyle.Danger"
+                          RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
                           Click="@(() => this.OnDeleteOverride.InvokeAsync(this.Row.CurrentOverride))"
@@ -82,6 +84,7 @@
             @if (this.OnEditParameter.HasDelegate)
             {
                 <DxButton IconCssClass="@IconName.Edit.GetCssClass()"
+                          RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
                           Click="@(() => this.OnEditParameter.InvokeAsync(this.Row.HasOverride ? this.Row.CurrentOverride : (ParameterOrOverrideBase)this.Row.Parameter))"
@@ -90,7 +93,7 @@
             @if (this.OnDeleteParameter.HasDelegate)
             {
                 <DxButton IconCssClass="@IconName.Delete.GetCssClass()"
-                          RenderStyle="ButtonRenderStyle.Danger"
+                          RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
                           Click="@(() => this.OnDeleteParameter.InvokeAsync(this.Row.Parameter))"

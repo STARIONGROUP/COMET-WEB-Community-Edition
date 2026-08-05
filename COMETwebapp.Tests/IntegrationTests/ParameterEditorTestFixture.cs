@@ -50,6 +50,17 @@ namespace COMETwebapp.Tests.IntegrationTests
         /// <returns>The page object.</returns>
         protected override ParameterEditorPageModel CreatePageModel(IPage page) => new(page);
 
+        /// <summary>
+        /// Verifies that the harmonized "View" display-and-filter options cog is shown in the upper-right of the toolbar.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyViewMenuButtonIsDisplayed()
+        {
+            await Expect(this.PageModel.ViewMenuButton).ToBeVisibleAsync();
+            await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
+        }
+
         [Test]
         public async Task VerifyCanExpandAndCollapseAnElement()
         {

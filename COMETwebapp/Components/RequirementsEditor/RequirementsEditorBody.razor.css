@@ -39,30 +39,21 @@
     max-width: 420px;
 }
 
-.req-view-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 12px;
-    min-width: 200px;
-}
-
 .req-view-section {
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
-.req-view-menu ::deep .req-view-toggle-on {
+.req-view-section ::deep .req-view-toggle-on {
     background-color: #e7f1ff !important;
     border-color: #b9d0f0 !important;
     color: #3b5b8c !important;
     font-weight: 600;
 }
 
-.req-filter {
-    flex: 1 1 100px;
-    min-width: 78px;
+.req-toolbar ::deep .dxbl-btn:not(.dxbl-edit-btn-clear):not(.dxbl-tag-btn-close) {
+    height: 34px;
 }
 
 .req-editor-layout {
@@ -231,6 +222,12 @@
 .req-toc ::deep .req-tree-group {
     color: #344054;
     text-decoration: none;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    font: inherit;
+    text-align: left;
 }
 
 .req-toc ::deep .req-tree-group:hover {
@@ -286,6 +283,8 @@
     border-radius: 6px;
     margin: 16px 0 8px;
     padding: 6px 10px;
+    /* the TOC jumps to this element via a #anchor; offset it below the sticky spec-title header, like .req-row */
+    scroll-margin-top: 60px;
 }
 
 .req-document ::deep .req-group-level-1 {

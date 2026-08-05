@@ -23,6 +23,8 @@
 namespace COMETwebapp.Extensions
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Numerics;
     using System.Text;
 
@@ -88,6 +90,26 @@ namespace COMETwebapp.Extensions
         public static string QueryPageBodyName(this string pageName)
         {
             return $"{pageName}-body".ToLower();
+        }
+
+        /// <summary>
+        /// Splits a separated list of short-guid strings (for example a URL query value) and converts each entry to
+        /// a <see cref="Guid" />. Returns an empty set for a null, empty or whitespace input.
+        /// </summary>
+        /// <param name="value">The separated list of short guids.</param>
+        /// <param name="separator">The separator between entries. Defaults to a comma.</param>
+        /// <returns>The set of <see cref="Guid" />s parsed from <paramref name="value" />.</returns>
+        public static HashSet<Guid> FromShortGuids(this string value, char separator = ',')
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return [];
+            }
+
+            return value
+                .Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(x => x.FromShortGuid())
+                .ToHashSet();
         }
     }
 }
