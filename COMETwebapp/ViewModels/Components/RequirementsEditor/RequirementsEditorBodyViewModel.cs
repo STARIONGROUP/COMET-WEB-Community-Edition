@@ -163,6 +163,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private Requirement scrollTarget;
 
         /// <summary>
+        /// Backing field for <see cref="ScrollTargetGroup" />
+        /// </summary>
+        private RequirementsGroup scrollTargetGroup;
+
+        /// <summary>
         /// Memoised result of <see cref="GetSpecificationParameterTypes" /> - it is queried once per requirement row,
         /// so caching it keeps document rendering linear in the number of requirements.
         /// </summary>
@@ -353,6 +358,18 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         {
             get => this.scrollTarget;
             set => this.RaiseAndSetIfChanged(ref this.scrollTarget, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="RequirementsGroup" /> the document should scroll to on the next render, set by
+        /// <see cref="NavigateToGroup" /> when a table-of-contents entry is clicked and cleared by the component once the
+        /// scroll has happened. A dedicated JS scroll (not a native <c>#anchor</c>) is used so the click never triggers a
+        /// Blazor route navigation.
+        /// </summary>
+        public RequirementsGroup ScrollTargetGroup
+        {
+            get => this.scrollTargetGroup;
+            set => this.RaiseAndSetIfChanged(ref this.scrollTargetGroup, value);
         }
 
         /// <summary>
@@ -565,8 +582,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
             try
             {
-                this.IsLoading = true;
-
                 var clone = requirement.Clone(true);
                 var definition = clone.Definition.FirstOrDefault();
 
@@ -582,20 +597,13 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 var thingsToWrite = new List<Thing> { specificationClone, clone };
                 thingsToWrite.AddRange(clone.Definition);
 
-                var result = await this.SessionService.CreateOrUpdateThingsWithNotification(specificationClone, thingsToWrite, BuildNotification(requirement, "updated", "update"));
-
-                if (result.IsSuccess)
-                {
-                    await this.ReloadPreservingSelection();
-                }
+                // both the reload AND the loading indicator are owned by OnThingChanged (driven by the EndUpdate session
+                // event the write raises); doing them here as well is what made the document load twice on every save (GH897)
+                await this.SessionService.CreateOrUpdateThingsWithNotification(specificationClone, thingsToWrite, BuildNotification(requirement, "updated", "update"));
             }
             catch (Exception exception)
             {
                 this.logger.LogError(exception, "An error occurred while editing the definition of the Requirement with iid {Iid}", requirement.Iid);
-            }
-            finally
-            {
-                this.IsLoading = false;
             }
         }
 
@@ -678,33 +686,17 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 return Result.Fail("The group cannot be moved to that location.");
             }
 
-            try
-            {
-                // toggling IsLoading is what makes the body (tree AND document) re-render with the new nesting once the
-                // write returns — every other write in this VM follows the same IsLoading + ReloadPreservingSelection pattern
-                this.IsLoading = true;
+            // mirrors the desktop IME (RequirementsSpecificationRowViewModel.MoveGroup): only the NEW container is
+            // updated, with the moved group added to its Group list — the server re-parents it and removes it from
+            // its old container. Sending the old container or the group as separate updates trips the server's
+            // acyclic check (NullReferenceException in RequirementsGroupSideEffect) because it sees inconsistent state.
+            var newContainerClone = (RequirementsContainer)target.Clone(false);
+            newContainerClone.Group.Add(group.Clone(false));
 
-                // mirrors the desktop IME (RequirementsSpecificationRowViewModel.MoveGroup): only the NEW container is
-                // updated, with the moved group added to its Group list — the server re-parents it and removes it from
-                // its old container. Sending the old container or the group as separate updates trips the server's
-                // acyclic check (NullReferenceException in RequirementsGroupSideEffect) because it sees inconsistent state.
-                var newContainerClone = (RequirementsContainer)target.Clone(false);
-                newContainerClone.Group.Add(group.Clone(false));
-
-                var result = await this.SessionService.CreateOrUpdateThingsWithNotification(newContainerClone, [newContainerClone],
-                    BuildNotification(group, "moved", "move"));
-
-                if (result.IsSuccess)
-                {
-                    await this.ReloadPreservingSelection();
-                }
-
-                return result;
-            }
-            finally
-            {
-                this.IsLoading = false;
-            }
+            // the body re-renders with the new nesting through OnThingChanged (driven by the EndUpdate session event the
+            // write raises), which also owns the loading indicator — the VM no longer toggles IsLoading itself (GH897)
+            return await this.SessionService.CreateOrUpdateThingsWithNotification(newContainerClone, [newContainerClone],
+                BuildNotification(group, "moved", "move"));
         }
 
         /// <summary>
@@ -1130,6 +1122,22 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         }
 
         /// <summary>
+        /// Navigates the document to the given <paramref name="group" /> from a table-of-contents click: it expands the
+        /// group's ancestor document groups (so the target header is rendered) and flags it as the
+        /// <see cref="ScrollTargetGroup" /> so the component scrolls to it.
+        /// </summary>
+        /// <param name="group">The <see cref="RequirementsGroup" /> to navigate to</param>
+        public void NavigateToGroup(RequirementsGroup group)
+        {
+            for (var ancestor = group.Container as RequirementsGroup; ancestor != null; ancestor = ancestor.Container as RequirementsGroup)
+            {
+                this.collapsedDocumentGroups.Remove(ancestor.Iid);
+            }
+
+            this.ScrollTargetGroup = group;
+        }
+
+        /// <summary>
         /// Handles the refresh of the current session by reloading the specifications while preserving the selection.
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
@@ -1218,8 +1226,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
             try
             {
-                this.IsLoading = true;
-
                 var thingsToWrite = new List<Thing> { thing };
                 var topContainer = this.PrepareTopContainer(thing, thingsToWrite);
 
@@ -1235,17 +1241,14 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
                 if (result.IsSuccess)
                 {
+                    // both the reload AND the loading indicator are owned by OnThingChanged (driven by the EndUpdate session
+                    // event the write raises); doing them here as well is what made the document load twice on every save (GH897)
                     this.IsOnEditMode = false;
-                    await this.ReloadPreservingSelection();
                 }
             }
             catch (Exception exception)
             {
                 this.logger.LogError(exception, "An error occurred while saving the {ClassKind} with iid {Iid}", thing.ClassKind, thing.Iid);
-            }
-            finally
-            {
-                this.IsLoading = false;
             }
         }
 
@@ -1380,26 +1383,17 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
             try
             {
-                this.IsLoading = true;
-
                 var clone = thing.Clone(false);
                 ((IDeprecatableThing)clone).IsDeprecated = deprecate;
                 var containerClone = thing.Container.Clone(false);
 
-                var result = await this.SessionService.CreateOrUpdateThingsWithNotification(containerClone, [containerClone, clone], BuildNotification(thing, deprecate ? "deprecated" : "restored", deprecate ? "deprecate" : "restore"));
-
-                if (result.IsSuccess)
-                {
-                    await this.ReloadPreservingSelection();
-                }
+                // both the reload AND the loading indicator are owned by OnThingChanged (driven by the EndUpdate session
+                // event the write raises); doing them here as well is what made the document load twice on every save (GH897)
+                await this.SessionService.CreateOrUpdateThingsWithNotification(containerClone, [containerClone, clone], BuildNotification(thing, deprecate ? "deprecated" : "restored", deprecate ? "deprecate" : "restore"));
             }
             catch (Exception exception)
             {
                 this.logger.LogError(exception, "An error occurred while changing the deprecation of the {ClassKind} with iid {Iid}", thing.ClassKind, thing.Iid);
-            }
-            finally
-            {
-                this.IsLoading = false;
             }
         }
 
@@ -1414,30 +1408,18 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
             try
             {
-                this.IsLoading = true;
-
                 var containerClone = thing.Container.Clone(false);
                 var clone = thing.Clone(false);
 
-                var result = await this.SessionService.DeleteThingsWithNotification(containerClone, [clone], BuildNotification(thing, "deleted", "delete"));
-
-                if (result.IsSuccess)
-                {
-                    if (ReferenceEquals(this.SelectedSpecification, thing))
-                    {
-                        this.SelectedSpecification = null;
-                    }
-
-                    await this.ReloadPreservingSelection();
-                }
+                // both the reload AND the loading indicator are owned by OnThingChanged (driven by the EndUpdate session
+                // event the write raises) — see GH897. When the deleted thing was the selected specification,
+                // ReloadPreservingSelection cannot restore it (it is gone from AvailableSpecifications) so OnThingChanged
+                // falls back to the first remaining specification.
+                await this.SessionService.DeleteThingsWithNotification(containerClone, [clone], BuildNotification(thing, "deleted", "delete"));
             }
             catch (Exception exception)
             {
                 this.logger.LogError(exception, "An error occurred while deleting the {ClassKind} with iid {Iid}", thing.ClassKind, thing.Iid);
-            }
-            finally
-            {
-                this.IsLoading = false;
             }
         }
 

@@ -97,9 +97,18 @@ namespace COMET.Web.Common
                     {
                         var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(navigationContext.CancellationToken);
                         await cancellationTokenSource.CancelAsync();
-                        cancellationTokenSource.Dispose();
 
-                        await Task.Delay(1, cancellationTokenSource.Token);
+                        try
+                        {
+                           await Task.Delay(1, cancellationTokenSource.Token);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                        }
+                        finally
+                        {
+                            cancellationTokenSource.Dispose();
+                        }
 
                         this.NavigationManager.NavigateTo("/", replace: true);
                     }

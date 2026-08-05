@@ -76,7 +76,7 @@ else
                     {
                         <span class="req-tree-chevron-placeholder"></span>
                     }
-                    <a class="req-tree-group" draggable="false" href="#@RequirementsDocument.GroupAnchorId(group)" title="@group.Name">@(this.ViewModel.TreeUsesShortName ? group.ShortName : group.Name)</a>
+                    <button type="button" class="req-tree-group" title="@group.Name" @onclick="@(() => this.ViewModel.NavigateToGroup(group))">@(this.ViewModel.TreeUsesShortName ? group.ShortName : group.Name)</button>
                     <RequirementPills ViewModel="@this.ViewModel" Owner="@group.Owner" Categories="@group.Category" />
                 </div>
                 @if (hasChildren && !collapsed)

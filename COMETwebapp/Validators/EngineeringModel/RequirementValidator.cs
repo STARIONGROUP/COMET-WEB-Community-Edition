@@ -30,8 +30,8 @@ namespace COMETwebapp.Validators.EngineeringModel
     using FluentValidation;
 
     /// <summary>
-    /// A class to validate the <see cref="Requirement" />, enforcing the ECSS-E-TM-10-25 name and short-name rules
-    /// (e.g. a short name may not start with a digit).
+    /// A class to validate the <see cref="Requirement" />, enforcing the ECSS-E-TM-10-25 name and short-name rules while
+    /// allowing the name and short name to start with a digit (so requirements can be numbered to control their order).
     /// </summary>
     public class RequirementValidator : AbstractValidator<Requirement>
     {
@@ -41,8 +41,8 @@ namespace COMETwebapp.Validators.EngineeringModel
         /// <param name="validationService">The <see cref="IValidationService" /></param>
         public RequirementValidator(IValidationService validationService)
         {
-            this.RuleFor(x => x.Name).Validate(validationService, nameof(Requirement.Name));
-            this.RuleFor(x => x.ShortName).Validate(validationService, nameof(Requirement.ShortName));
+            this.RuleFor(x => x.Name).Matches(RequirementValidationRules.NameRule).WithMessage(RequirementValidationRules.NameRuleErrorText);
+            this.RuleFor(x => x.ShortName).Validate(validationService, RequirementValidationRules.ShortNameRuleKey);
         }
     }
 }
