@@ -1,13 +1,75 @@
-/* ::deep is required: the class sits on DxTreeView, which is a child component, so a plain scoped
-   rule would never reach it. */
+/* The "drop here to create new element" bar shown above the tree. */
+.drop-here-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    margin: 4px 0;
+    border: dashed 1px var(--colors-primary-600);
+    border-radius: 6px;
+    min-height: 38px;
+    color: var(--colors-primary-600);
+    background: var(--colors-primary-50);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.drop-here-bar-hidden {
+    visibility: hidden;
+}
+
 ::deep .sticky-scrollable-column {
     position: sticky;
     top: 0px;
-    /* Lay the tree out at its natural width so that a deeply nested or long-named node overflows the
-       panel and the scroll area scrolls to it, rather than being squeezed into the panel width (issue #742). */
-    min-width: max-content;
+   min-width: max-content;
 }
 
 ::deep .sticky-scrollable-column .dxbl-treeview-item-text {
     white-space: nowrap;
+}
+
+::deep .dxbl-treeview {
+    --dxbl-treeview-item-hover-bg: #f5f5f5;
+    --tree-indent-step: 18px;
+    --dxbl-treeview-item-indent: 0;
+}
+
+::deep .dxbl-treeview-item-content {
+    position: relative;
+    padding-left: calc(var(--dxbl-treeview-item-indent, 0) * var(--tree-indent-step)) !important;
+}
+
+::deep .dxbl-treeview-item-content::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    bottom: -8px;
+    left: calc(var(--dxbl-treeview-item-indent, 0) * var(--tree-indent-step) - (var(--tree-indent-step) / 2));
+    width: 1px;
+    background: #e5e9ee;
+}
+
+::deep .dxbl-treeview-items-container > .dxbl-treeview-item:last-child > .dxbl-treeview-item-content::before {
+    bottom: 50%;
+}
+
+::deep .dxbl-treeview-item-content::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: calc(var(--dxbl-treeview-item-indent, 0) * var(--tree-indent-step) - (var(--tree-indent-step) / 2));
+    width: calc(var(--tree-indent-step) / 2);
+    height: 1px;
+    background: #e5e9ee;
+}
+
+::deep .dxbl-treeview-item-container {
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+}
+
+::deep .dxbl-treeview-item-container.dxbl-active {
+    background-color: #e7f1ff;
+    border-left-color: #2b6cb0;
+    font-weight: 600;
 }

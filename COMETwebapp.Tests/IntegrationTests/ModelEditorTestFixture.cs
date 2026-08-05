@@ -50,12 +50,24 @@ namespace COMETwebapp.Tests.IntegrationTests
         /// <returns>The page object.</returns>
         protected override ModelEditorPageModel CreatePageModel(IPage page) => new(page);
 
+        /// <summary>
+        /// Verifies that the harmonized "View" display-options cog is shown in the upper-right of the toolbar.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyViewMenuButtonIsDisplayed()
+        {
+            await Expect(this.PageModel.ViewMenuButton).ToBeVisibleAsync();
+            await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
+        }
+
         [Test]
         public async Task VerifyOpeningAnElementShowsItsDetails()
         {
             await this.PageModel.SelectFirstSourceElementAsync();
 
-            await Expect(this.PageModel.DetailsPanel).ToContainTextAsync("Element Definition");
+            await Expect(this.PageModel.DetailsPanel.Locator("#element-details-new-button")).ToBeVisibleAsync();
+            await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
         }
     }
 }

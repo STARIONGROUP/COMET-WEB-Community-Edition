@@ -44,7 +44,7 @@ else
                 </div>
             </div>
             <div class="col align-self-center">
-                <DxButton CssClass="btn btn-outline-dark width-200 padding-bottom-1 padding-top-1" Text="Validate all changes" Click="@this.ViewModel.ValidateAllChanges"/>
+                <DxButton CssClass="width-200 padding-bottom-1 padding-top-1" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Validate all changes" Click="@this.ViewModel.ValidateAllChanges"/>
             </div>
         </div>
     }
@@ -74,7 +74,7 @@ else
                         if (revisions.Count >= 2)
                         {
                             var row = (ParameterSubscriptionRowViewModel)context.DataItem;
-                            <DxButton Text="More" Click="@(() => this.ShowEvolution(row))"/>
+                            <DxButton Text="More" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" Click="@(() => this.ShowEvolution(row))"/>
                         }
                     }
                 </CellDisplayTemplate>

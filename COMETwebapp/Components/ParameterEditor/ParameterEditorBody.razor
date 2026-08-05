@@ -26,39 +26,29 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
 <LoadingComponent IsVisible="@(this.ViewModel.IsLoading)">
     <div id="@WebAppConstantValues.ParameterEditorPage.QueryPageBodyName()" class="container-fluid">
-        <div class="row ">
-            <div class="col">
-                <div class="width-fit-content">
-                    <ElementBaseSelector ViewModel="this.ViewModel.ElementSelector"></ElementBaseSelector>
-                </div>
+        <div class="filter-bar">
+            <div class="filter-bar-item">
+                <MultiElementBaseSelector ViewModel="this.ViewModel.ElementSelector" DisplayText=""></MultiElementBaseSelector>
             </div>
-            <div class="col">
-                <div class="width-fit-content">
-                    <MultiParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelector"></MultiParameterTypeSelector>
-                </div>
+            <div class="filter-bar-item">
+                <MultiParameterTypeSelector ViewModel="this.ViewModel.ParameterTypeSelector" DisplayText=""></MultiParameterTypeSelector>
             </div>
-            <div class="col">
-                <div class="width-fit-content">
-                    <MultiCategorySelector ViewModel="this.ViewModel.CategorySelector"></MultiCategorySelector>
-                </div>
+            <div class="filter-bar-item">
+                <MultiCategorySelector ViewModel="this.ViewModel.CategorySelector" DisplayText=""></MultiCategorySelector>
             </div>
-            <div class="col">
-                <div class="width-fit-content">
-                    <OptionSelector ViewModel="this.ViewModel.OptionSelector"></OptionSelector>
-                </div>
+            <div class="filter-bar-item">
+                <MultiOptionSelector ViewModel="this.ViewModel.OptionSelector" DisplayText=""></MultiOptionSelector>
             </div>
-            <div class="col">
-                <div class="width-fit-content">
+            <div class="filter-bar-right">
+                <BatchParameterEditor ViewModel="@(this.ViewModel.BatchParameterEditorViewModel)"/>
+                <ViewOptionsMenu ButtonId="parameterEditorViewMenuButton">
                     <DxCheckBox Id="only-owned-parameters-toggle"
                                 @bind-Checked="@(this.ViewModel.IsOwnedParameters)"
                                 CheckType="CheckType.Switch">
                         Only Parameters owned by @this.ViewModel.CurrentDomain?.Name domain
                     </DxCheckBox>
-                </div>
+                </ViewOptionsMenu>
             </div>
-        </div>
-        <div class="pt-3">
-            <BatchParameterEditor ViewModel="@(this.ViewModel.BatchParameterEditorViewModel)"/>
         </div>
         <div id="parameter-table" class="row">
             <ParameterTable ViewModel="this.ViewModel.ParameterTableViewModel"/>

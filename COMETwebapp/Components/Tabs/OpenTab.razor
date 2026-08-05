@@ -27,7 +27,7 @@
     <DxFormLayoutItem ColSpanLg="12">
         <div style="display:flex; flex-direction: column; align-items: center;">
             <CometIcon Icon="IconName.Smile" Size="42" Color="var(--colors-primary-500)"/>
-            <h5 class="font-weight-bold mt-1 text-primary">You have no model selected</h5>
+            <h5 class="font-weight-bold mt-1" style="color: var(--colors-gray-800);">You have no model selected</h5>
             <span style="color: var(--colors-gray-600);">Select a model to start working on it</span>
         </div>
     </DxFormLayoutItem>
@@ -106,6 +106,7 @@
         <DxButton Id="opentab__button"
                   CssClass="btn btn-connect w-100 lh-lg mt-3"
                   Text="@($"{this.ButtonText} Tab")"
+                  RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                   Click="@(this.OpenModelAndNavigateToView)"
                   Enabled="@(this.ButtonEnabled)"/>
 
@@ -114,6 +115,7 @@
             <DxButton Id="closetab__button"
                       CssClass="btn btn-connect w-100 lh-lg mt-2"
                       Text="Close"
+                      RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())"
                       Click="@(() => this.OnCancel?.Invoke())"
                       RenderStyleMode="ButtonRenderStyleMode.Outline"/>
         }

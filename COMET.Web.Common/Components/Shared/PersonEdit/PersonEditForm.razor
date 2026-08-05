@@ -62,7 +62,7 @@
                     </DxFormLayoutItem>
                     <DxFormLayoutItem ColSpanMd="1">
                         <DxButton IconCssClass="@IconName.Delete.GetCssClass()"
-                                  RenderStyle="ButtonRenderStyle.Danger"
+                                  RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"
                                   RenderStyleMode="ButtonRenderStyleMode.Text"
                                   Click="@(() => this.ViewModel.RemoveEmail(email))"
                                   title="Remove this e-mail"/>
@@ -72,6 +72,7 @@
                     <DxButton Id="addEmailButton"
                               Text="Add e-mail"
                               IconCssClass="@IconName.Add.GetCssClass()"
+                              RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                               Click="@(this.ViewModel.AddEmail)"/>
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
@@ -91,7 +92,7 @@
                     </DxFormLayoutItem>
                     <DxFormLayoutItem ColSpanMd="1">
                         <DxButton IconCssClass="@IconName.Delete.GetCssClass()"
-                                  RenderStyle="ButtonRenderStyle.Danger"
+                                  RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"
                                   RenderStyleMode="ButtonRenderStyleMode.Text"
                                   Click="@(() => this.ViewModel.RemoveTelephone(telephone))"
                                   title="Remove this telephone"/>
@@ -101,6 +102,7 @@
                     <DxButton Id="addTelephoneButton"
                               Text="Add telephone"
                               IconCssClass="@IconName.Add.GetCssClass()"
+                              RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                               Click="@(this.ViewModel.AddTelephone)"/>
                 </DxFormLayoutItem>
             </DxFormLayoutTabPage>
@@ -132,12 +134,12 @@
     <div class="modal-footer">
         <DxButton Id="cancelPersonEdit"
                   Text="Cancel"
-                  RenderStyle="ButtonRenderStyle.Secondary"
+                  RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())"
                   Click="@(this.OnCancel)"
                   Enabled="@(!this.ViewModel.IsLoading)"/>
         <DxButton Id="savePersonEdit"
                   Text="Save"
-                  RenderStyle="ButtonRenderStyle.Primary"
+                  RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                   Click="@(this.ViewModel.SaveAsync)"
                   Enabled="@(this.ViewModel.IsValid && !this.ViewModel.IsLoading)"/>
     </div>

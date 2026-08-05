@@ -60,7 +60,7 @@
 }
 
 .color-title {
-    color: #008bd2;
+    color: var(--colors-gray-800);
 }
 
 .font-weight-100 {
@@ -80,6 +80,24 @@
 
 .font-size-small {
     font-size: small;
+}
+
+/* The shared "View" display-options trigger (ViewOptionsMenu). A minimum width lets it be sized to match a
+   sibling "Add" button, and the down-caret signals that it opens a dropdown of options. Kept global (not in the
+   component's scoped css) because the DxButton is that component's root element, leaving ::deep nothing to anchor to. */
+.view-options-button {
+    min-width: 88px;
+    height: 34px;
+}
+
+.view-options-button::after {
+    content: "";
+    display: inline-block;
+    margin-left: 6px;
+    vertical-align: middle;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
 }
 
 .card-btn {
@@ -561,12 +579,15 @@
     }
 
 .treeview-drag-over {
-    background-color: burlywood;
+    background-color: #ebf8ff;
+    outline: 2px dashed #3182ce;
+    outline-offset: -2px;
 }
 
 .treeview-item-drag-over {
-    background-color: burlywood !important;
-    box-shadow: 0px 0px 2px 10px burlywood !important;
+    background-color: #ebf8ff !important;
+    outline: 2px dashed #3182ce !important;
+    outline-offset: -2px;
 }
 
 .treeview-scrollarea {

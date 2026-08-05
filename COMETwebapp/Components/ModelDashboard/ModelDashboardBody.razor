@@ -23,16 +23,18 @@
 
 <LoadingComponent IsVisible="this.ViewModel.IsLoading">
     <div id="@WebAppConstantValues.ModelDashboardPage.QueryPageBodyName()" class="container-fluid">
+        <div class="filter-bar">
+            <div class="filter-bar-item">
+                <MultiOptionSelector ViewModel="@(this.ViewModel.OptionSelector)" DisplayText=""/>
+            </div>
+            <div class="filter-bar-item">
+                <MultiFiniteStateSelector ViewModel="@(this.ViewModel.FiniteStateSelector)" DisplayText=""/>
+            </div>
+            <div class="filter-bar-item">
+                <MultiParameterTypeSelector ViewModel="@(this.ViewModel.ParameterTypeSelector)" DisplayText=""/>
+            </div>
+        </div>
         <div class="row">
-            <div class="col-2 width-fit-content">
-                <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
-            </div>
-            <div class="col-2 width-fit-content">
-                <FiniteStateSelector ViewModel="@(this.ViewModel.FiniteStateSelector)"/>
-            </div>
-            <div class="col-2 width-fit-content">
-                <ParameterTypeSelector ViewModel="@(this.ViewModel.ParameterTypeSelector)"/>
-            </div>
             <div class="row">
                 <ParameterDashboard ViewModel="@(this.ViewModel.ParameterDashboard)" OnToDoClick="@(this.RedirectToParameterEditor)"/>
             </div>

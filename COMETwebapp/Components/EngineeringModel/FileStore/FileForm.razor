@@ -71,17 +71,18 @@ Copyright (c) 2023-2026 Starion Group S.A.
     <div class="dxbl-grid-edit-form-buttons">
         <DxButton Id="deleteFileButton"
                   Click="@(() => this.IsDeletePopupVisible = true)"
-                  RenderStyle="ButtonRenderStyle.Danger">
+                  RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())">
             Delete
         </DxButton>
         <DxButton SubmitFormOnClick="true"
-                  Enabled="@(this.ViewModel.SelectedFileRevisions.Any())">
+                  Enabled="@(this.ViewModel.SelectedFileRevisions.Any())"
+                  RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())">
             Save
         </DxButton>
 
         <DxButton Id="cancelFileButton"
                   Click="@(() => this.OnCancel())"
-                  RenderStyle="ButtonRenderStyle.Secondary">
+                  RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())">
             Cancel
         </DxButton>
     </div>
@@ -90,7 +91,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 <DxPopup @bind-Visible="@this.IsDeletePopupVisible" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
     You are about to delete the File: @(this.ViewModel.CurrentThing.CurrentFileRevision?.Name)
     <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@(() => this.IsDeletePopupVisible = false)" />
-        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@(() => this.OnDelete())" Id="deleteFilePopupButton" />
+        <DxButton Text="Cancel " RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Click="@(() => this.IsDeletePopupVisible = false)" />
+        <DxButton Text="Confirm" RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())" Click="@(() => this.OnDelete())" Id="deleteFilePopupButton" />
     </div>
 </DxPopup>

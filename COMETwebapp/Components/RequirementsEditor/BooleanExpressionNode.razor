@@ -98,8 +98,8 @@ else if (this.Row is CompositeExpressionRow group)
                         FooterVisible="false">
                 <BodyTemplate>
                     <div style="display:flex; flex-direction:column; min-width:170px;">
-                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Add.GetCssClass()" Text="Add Expression" Click="@(() => this.AddExpressionClicked(group))" />
-                        <DxButton RenderStyle="ButtonRenderStyle.Light" IconCssClass="@IconName.Branch.GetCssClass()" Text="Add Group" Click="@(() => this.AddGroupClicked(group))" />
+                        <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Add.GetCssClass()" Text="Add Expression" Click="@(() => this.AddExpressionClicked(group))" />
+                        <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Branch.GetCssClass()" Text="Add Group" Click="@(() => this.AddGroupClicked(group))" />
                     </div>
                 </BodyTemplate>
             </DxDropDown>

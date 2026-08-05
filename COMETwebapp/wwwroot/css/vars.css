@@ -26,7 +26,8 @@
     --colors-black: #111111;
     --colors-deep-black: #030511;
     --colors-white: #ffffff;
-    --bs-primary: var(--colors-primary-500);
+    --bs-primary: var(--colors-primary-600);
+    --colors-primary-accessible: var(--colors-primary-600);
     --bs-body-bg: var(--colors-gray-50);
     --text-2xl: 1.5rem;
     --text-3xl: 1.75rem;

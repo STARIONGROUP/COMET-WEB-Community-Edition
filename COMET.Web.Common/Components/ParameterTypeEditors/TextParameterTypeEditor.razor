@@ -71,7 +71,7 @@ else
         </Content>
         <FooterTemplate>
             <div class="modal-footer">
-                <DxButton Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@(() => this.IsOnEditMode = false)"/>
+                <DxButton Text="OK" RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Click="@(() => this.IsOnEditMode = false)"/>
             </div>
         </FooterTemplate>
     </DxPopup>

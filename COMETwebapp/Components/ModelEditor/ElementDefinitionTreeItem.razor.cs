@@ -44,7 +44,14 @@ namespace COMETwebapp.Components.ModelEditor
         public ElementBaseTreeRowViewModel ElementBaseTreeRowViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the owning domain of expertise pill is shown
+        /// Gets or sets a value indicating whether the node shows the element's full name (when <see langword="true" />)
+        /// or its short name (when <see langword="false" />)
+        /// </summary>
+        [Parameter]
+        public bool ShowName { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the owning domain of expertise pill is shown on the node
         /// </summary>
         [Parameter]
         public bool ShowOwner { get; set; } = true;

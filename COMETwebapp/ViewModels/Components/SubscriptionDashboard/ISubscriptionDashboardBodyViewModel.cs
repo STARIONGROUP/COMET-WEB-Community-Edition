@@ -41,14 +41,16 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
         IDomainOfExpertiseSubscriptionTableViewModel DomainOfExpertiseSubscriptionTable { get; }
 
         /// <summary>
-        /// Gets the <see cref="IOptionSelectorViewModel" />
+        /// Gets the <see cref="IMultiOptionSelectorViewModel" /> driving the option filter. An empty selection
+        /// means no option filtering is applied.
         /// </summary>
-        IOptionSelectorViewModel OptionSelector { get; }
+        IMultiOptionSelectorViewModel OptionSelector { get; }
 
         /// <summary>
-        /// Gets the <see cref="IParameterTypeSelectorViewModel" />
+        /// Gets the <see cref="IMultiParameterTypeSelectorViewModel" /> driving the parameter-type filter. An empty
+        /// selection means no parameter-type filtering is applied.
         /// </summary>
-        IParameterTypeSelectorViewModel ParameterTypeSelector { get; }
+        IMultiParameterTypeSelectorViewModel ParameterTypeSelector { get; }
 
         /// <summary>
         /// Updates the <see cref="ISubscribedTableViewModel" /> and <see cref="IDomainOfExpertiseSubscriptionTableViewModel" />

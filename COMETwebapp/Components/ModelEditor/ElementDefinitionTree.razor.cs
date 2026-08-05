@@ -31,6 +31,7 @@ namespace COMETwebapp.Components.ModelEditor
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
+    using Microsoft.JSInterop;
 
     /// <summary>
     /// Support class for the <see cref="ElementDefinitionTree" /> component
@@ -72,6 +73,21 @@ namespace COMETwebapp.Components.ModelEditor
         /// </summary>
         [Parameter]
         public bool ShowCategories { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether each node shows the element's full name (when
+        /// <see langword="true" />) or its short name (when <see langword="false" />)
+        /// </summary>
+        [Parameter]
+        public bool ShowName { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets optional content rendered at the start of the tree header, to the left of the model
+        /// selector or description (used by the Model Editor to place the panel-collapse chevron next to the
+        /// source-model dropdown).
+        /// </summary>
+        [Parameter]
+        public RenderFragment HeaderPrefix { get; set; }
 
         /// <summary>
         /// Fires after node selection has been changed for a specific item.
@@ -141,6 +157,12 @@ namespace COMETwebapp.Components.ModelEditor
         public string ScrollableAreaCssClass { get; set; } = string.Empty;
 
         /// <summary>
+        /// A unique id for this tree's scroll container, so the drag auto-scroll JS can target it. Two instances
+        /// (source and target) live side by side in the Model Editor, so a shared id would not be unique.
+        /// </summary>
+        public string ScrollAreaId { get; } = $"ed-tree-scrollarea-{Guid.NewGuid():N}";
+
+        /// <summary>
         /// Holds a reference to the object where the dragged node is dragged over
         /// </summary>
         private object dragOverNode;
@@ -191,14 +213,28 @@ namespace COMETwebapp.Components.ModelEditor
         /// Use the <paramref name="firstRender" /> parameter to ensure that initialization work is only performed
         /// once.
         /// </remarks>
-        protected override Task OnAfterRenderAsync(bool firstRender)
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (this.ViewModel.Iteration != this.InitialIteration)
             {
                 this.InitialIteration = this.ViewModel.Iteration;
             }
 
-            return Task.CompletedTask;
+            if (!firstRender)
+            {
+                return;
+            }
+
+            try
+            {
+                await this.JSRuntime.InvokeVoidAsync("cometDragScroll.init", this.ScrollAreaId);
+            }
+            catch (Exception exception)
+            {
+                // JS interop failures during pre-rendering or test environments are non-fatal, but log them so a
+                // genuine failure to wire the drag auto-scroll in the browser can be tracked.
+                this.Logger.LogWarning(exception, "Failed to initialise drag auto-scroll for the element definition tree.");
+            }
         }
 
         /// <summary>

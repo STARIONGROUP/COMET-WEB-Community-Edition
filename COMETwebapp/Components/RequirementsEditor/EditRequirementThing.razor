@@ -97,7 +97,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         </DxFormLayout>
         <ValidationSummary />
         <div class="modal-footer m-top-10px">
-            <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Save" SubmitFormOnClick="true"
+            <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Save" SubmitFormOnClick="true"
                       Enabled="@this.ViewModel.CanSave"
                       title="@(this.ViewModel.CanSave ? null : "A requirement must have a definition")" />
         </div>

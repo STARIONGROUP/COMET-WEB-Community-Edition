@@ -55,23 +55,25 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         private readonly ISessionService sessionService;
 
         /// <summary>
-        /// The currently selected <see cref="ElementBase" />
+        /// The set of <see cref="ElementBase" /> <c>Iid</c>s currently selected as a multi-select filter. Empty means
+        /// "no filter".
         /// </summary>
-        private ElementBase currentElementBase;
+        private HashSet<Guid> currentElementBaseIds = new();
 
         /// <summary>
-        /// The currently selected <see cref="Option" />
+        /// The currently effective <see cref="Option" />s. An empty selection resolves to the <see cref="Iteration" />'s
+        /// default <see cref="Option" />, mirroring the previous single-select behavior.
         /// </summary>
-        private Option currentOption;
+        private List<Option> currentOptions = new();
 
         /// <summary>
-        /// The set of <see cref="ParameterType.Iid" />s currently selected as a multi-select filter. Empty
+        /// The set of <see cref="ParameterType" /> <c>Iid</c>s currently selected as a multi-select filter. Empty
         /// means "no filter".
         /// </summary>
         private HashSet<Guid> currentParameterTypeIds = new();
 
         /// <summary>
-        /// The set of <see cref="Category.Iid" />s currently selected as a multi-select filter. Empty means
+        /// The set of <see cref="Category" /> <c>Iid</c>s currently selected as a multi-select filter. Empty means
         /// "no filter"; otherwise rows whose owning <see cref="ElementBase" /> does not carry (directly or
         /// through its referenced <see cref="ElementDefinition" /> / super-categories) at least one of these
         /// categories are removed.
@@ -143,20 +145,26 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// </summary>
         /// <param name="currentIteration">The current <see cref="Iteration" /></param>
         /// <param name="currentDomain">The <see cref="DomainOfExpertise" /></param>
-        /// <param name="selectedOption">The select <see cref="Option" /></param>
-        public void InitializeViewModel(Iteration currentIteration, DomainOfExpertise currentDomain, Option selectedOption)
+        /// <param name="selectedOptions">
+        /// The collection of selected <see cref="Option" />s. <c>null</c> or an empty collection falls back to the
+        /// <see cref="Iteration" />'s default <see cref="Option" />.
+        /// </param>
+        public void InitializeViewModel(Iteration currentIteration, DomainOfExpertise currentDomain, IEnumerable<Option> selectedOptions)
         {
             this.iteration = currentIteration;
             this.domainOfExpertise = currentDomain;
-            this.currentOption = selectedOption;
-            this.currentElementBase = null;
+            this.currentOptions = this.ResolveSelectedOptions(selectedOptions);
+            this.currentElementBaseIds = new HashSet<Guid>();
             this.currentParameterTypeIds = new HashSet<Guid>();
             this.Rows.Clear();
 
             if (this.iteration != null)
             {
-                var ownedNestedParameters = this.iteration.QueryParameterAndOverrideBases(this.currentOption, this.domainOfExpertise);
-                this.Rows.AddRange(this.CreateParameterBaseRowViewModels(ownedNestedParameters, this.currentOption.Iid));
+                var ownedNestedParameters = this.currentOptions
+                    .SelectMany(option => this.iteration.QueryParameterAndOverrideBases(option, this.domainOfExpertise))
+                    .DistinctBy(x => x.Iid);
+
+                this.Rows.AddRange(this.CreateParameterBaseRowViewModels(ownedNestedParameters, this.currentOptions.Select(x => x.Iid).ToHashSet()));
             }
         }
 
@@ -170,12 +178,19 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         }
 
         /// <summary>
-        /// Apply filters based on <see cref="Option" />, <see cref="ElementBase" />, a multi-select set of
-        /// <see cref="ParameterType" />s, a multi-select set of <see cref="Category" />s and
-        /// <see cref="DomainOfExpertise" />.
+        /// Apply filters based on a multi-select set of <see cref="Option" />s, a multi-select set of
+        /// <see cref="ElementBase" />s, a multi-select set of <see cref="ParameterType" />s, a multi-select set of
+        /// <see cref="Category" />s and <see cref="DomainOfExpertise" />.
         /// </summary>
-        /// <param name="selectedOption">The selected <see cref="Option" />.</param>
-        /// <param name="selectedElementBase">The selected <see cref="ElementBase" />.</param>
+        /// <param name="selectedOptions">
+        /// The collection of selected <see cref="Option" />s. <c>null</c> or an empty collection falls back to the
+        /// <see cref="Iteration" />'s default <see cref="Option" />.
+        /// </param>
+        /// <param name="selectedElementBases">
+        /// The collection of <see cref="ElementBase" />s to filter on. <c>null</c> or an empty collection means no
+        /// element filter is applied; otherwise rows whose owning <see cref="ElementBase" /> is not in the
+        /// collection are removed.
+        /// </param>
         /// <param name="selectedParameterTypes">
         /// The collection of <see cref="ParameterType" />s to filter on. <c>null</c> or an empty collection means
         /// no parameter-type filter is applied; otherwise rows whose <see cref="ParameterType" /> is not in the
@@ -192,15 +207,17 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// Value asserting that only <see cref="Thing" />s owned by the current <see cref="DomainOfExpertise" />
         /// should be visible.
         /// </param>
-        public void ApplyFilters(Option selectedOption, ElementBase selectedElementBase, IEnumerable<ParameterType> selectedParameterTypes, IEnumerable<Category> selectedCategories, bool isOwnedParameters)
+        public void ApplyFilters(IEnumerable<Option> selectedOptions, IEnumerable<ElementBase> selectedElementBases, IEnumerable<ParameterType> selectedParameterTypes, IEnumerable<Category> selectedCategories, bool isOwnedParameters)
         {
             if (this.iteration == null)
             {
                 return;
             }
 
-            this.currentOption = selectedOption;
-            this.currentElementBase = selectedElementBase;
+            this.currentOptions = this.ResolveSelectedOptions(selectedOptions);
+            this.currentElementBaseIds = selectedElementBases == null
+                ? new HashSet<Guid>()
+                : new HashSet<Guid>(selectedElementBases.Select(x => x.Iid));
             this.currentParameterTypeIds = selectedParameterTypes == null
                 ? new HashSet<Guid>()
                 : new HashSet<Guid>(selectedParameterTypes.Select(x => x.Iid));
@@ -209,8 +226,34 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 : new HashSet<Guid>(selectedCategories.Select(x => x.Iid));
             this.ownedParameters = isOwnedParameters;
 
-            var rows = this.CreateRowsBasedOnFilters(this.iteration.QueryParameterAndOverrideBases(selectedOption).ToList());
+            var parameters = this.currentOptions
+                .SelectMany(option => this.iteration.QueryParameterAndOverrideBases(option))
+                .DistinctBy(x => x.Iid)
+                .ToList();
+
+            var rows = this.CreateRowsBasedOnFilters(parameters);
             this.UpdateVisibleRows(rows);
+        }
+
+        /// <summary>
+        /// Resolves the effective collection of <see cref="Option" />s to filter on. An empty or <c>null</c>
+        /// <paramref name="selectedOptions" /> falls back to the current <see cref="Iteration" />'s default
+        /// <see cref="Option" /> (or its first <see cref="Option" /> if none is set as default), mirroring the
+        /// behavior of the former single-select <see cref="Option" /> filter.
+        /// </summary>
+        /// <param name="selectedOptions">The collection of <see cref="Option" />s selected by the user.</param>
+        /// <returns>A non-null collection of <see cref="Option" />s to filter on.</returns>
+        private List<Option> ResolveSelectedOptions(IEnumerable<Option> selectedOptions)
+        {
+            var options = selectedOptions?.ToList() ?? new List<Option>();
+
+            if (options.Count > 0)
+            {
+                return options;
+            }
+
+            var defaultOption = this.iteration?.DefaultOption ?? this.iteration?.Option.FirstOrDefault();
+            return defaultOption == null ? new List<Option>() : new List<Option> { defaultOption };
         }
 
         /// <summary>
@@ -326,9 +369,9 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 parameters.RemoveAll(x => x.Owner.Iid != this.domainOfExpertise.Iid);
             }
 
-            if (this.currentElementBase != null)
+            if (this.currentElementBaseIds.Count > 0)
             {
-                ApplyElementBaseFilter(parameters, this.currentElementBase.Iid);
+                ApplyElementBaseFilter(parameters, this.currentElementBaseIds);
             }
 
             if (this.currentParameterTypeIds.Count > 0)
@@ -341,7 +384,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 ApplyCategoryFilter(parameters, this.currentCategoryIds);
             }
 
-            return this.CreateParameterBaseRowViewModels(parameters, this.currentOption.Iid).DistinctBy(x => x.ValueSetId);
+            var optionIds = this.currentOptions.Select(x => x.Iid).ToHashSet();
+            return this.CreateParameterBaseRowViewModels(parameters, optionIds).DistinctBy(x => x.ValueSetId);
         }
 
         /// <summary>
@@ -366,8 +410,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <paramref name="parameterTypeIds" />. Mutates <paramref name="parameters" /> in place.
         /// </summary>
         /// <param name="parameters">A collection of <see cref="ParameterOrOverrideBase" /> to filter.</param>
-        /// <param name="parameterTypeIds">The <see cref="ISet{T}" /> of allowed <see cref="ParameterType.Iid" /> values.</param>
-        private static void ApplyParameterTypeFilter(List<ParameterOrOverrideBase> parameters, ISet<Guid> parameterTypeIds)
+        /// <param name="parameterTypeIds">The <see cref="HashSet{T}" /> of allowed <see cref="ParameterType" /> <c>Iid</c> values.</param>
+        private static void ApplyParameterTypeFilter(List<ParameterOrOverrideBase> parameters, HashSet<Guid> parameterTypeIds)
         {
             parameters.RemoveAll(x => !parameterTypeIds.Contains(x.ParameterType.Iid));
         }
@@ -380,8 +424,8 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// and super-categories are honoured. Mutates <paramref name="parameters" /> in place.
         /// </summary>
         /// <param name="parameters">A collection of <see cref="ParameterOrOverrideBase" /> to filter.</param>
-        /// <param name="categoryIds">The <see cref="ISet{T}" /> of allowed <see cref="Category.Iid" /> values.</param>
-        private static void ApplyCategoryFilter(List<ParameterOrOverrideBase> parameters, ISet<Guid> categoryIds)
+        /// <param name="categoryIds">The <see cref="HashSet{T}" /> of allowed <see cref="Category" /> <c>Iid</c> values.</param>
+        private static void ApplyCategoryFilter(List<ParameterOrOverrideBase> parameters, HashSet<Guid> categoryIds)
         {
             parameters.RemoveAll(p =>
             {
@@ -395,35 +439,29 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         }
 
         /// <summary>
-        /// Apply a filtering base on <see cref="ElementBase" />
+        /// Apply a filtering pass that retains only parameters whose owning <see cref="ElementBase" /> identifier
+        /// (or, for an <see cref="ElementUsage" />, its referenced <see cref="ElementDefinition" /> identifier) is
+        /// in <paramref name="elementBaseIds" />. Mutates <paramref name="parameters" /> in place.
         /// </summary>
         /// <param name="parameters">A collection of <see cref="ParameterOrOverrideBase" /> to filter</param>
-        /// <param name="elementBaseId">The <see cref="Guid" /> of the <see cref="ElementBase" /> for filtering</param>
-        private static void ApplyElementBaseFilter(List<ParameterOrOverrideBase> parameters, Guid elementBaseId)
+        /// <param name="elementBaseIds">The <see cref="HashSet{T}" /> of allowed <see cref="ElementBase" /> <c>Iid</c> values</param>
+        private static void ApplyElementBaseFilter(List<ParameterOrOverrideBase> parameters, HashSet<Guid> elementBaseIds)
         {
-            var parametersToRemove = new List<Guid>();
-
-            foreach (var parameterOrOverrideBase in parameters)
+            parameters.RemoveAll(x => x.Container switch
             {
-                switch (parameterOrOverrideBase.Container)
-                {
-                    case ElementDefinition elementDefinition when elementDefinition.Iid != elementBaseId:
-                    case ElementUsage elementUsage when elementUsage.Iid != elementBaseId && elementUsage.ElementDefinition.Iid != elementBaseId:
-                        parametersToRemove.Add(parameterOrOverrideBase.Iid);
-                        break;
-                }
-            }
-
-            parameters.RemoveAll(x => parametersToRemove.Contains(x.Iid));
+                ElementDefinition elementDefinition => !elementBaseIds.Contains(elementDefinition.Iid),
+                ElementUsage elementUsage => !elementBaseIds.Contains(elementUsage.Iid) && !elementBaseIds.Contains(elementUsage.ElementDefinition.Iid),
+                _ => true
+            });
         }
 
         /// <summary>
-        /// Creates <see cref="ParameterBaseRowViewModel" /> based on an <see cref="Option" />
+        /// Creates <see cref="ParameterBaseRowViewModel" /> based on a multi-select set of <see cref="Option" />s
         /// </summary>
         /// <param name="parameters">A collection of <see cref="ParameterOrOverrideBase" /></param>
-        /// <param name="optionId">The <see cref="Guid" /> of the <see cref="Option" /></param>
+        /// <param name="optionIds">The set of <see cref="Guid" /> of the selected <see cref="Option" />s</param>
         /// <returns>A collection of created <see cref="ParameterBaseRowViewModel" /></returns>
-        private IEnumerable<ParameterBaseRowViewModel> CreateParameterBaseRowViewModels(IEnumerable<ParameterOrOverrideBase> parameters, Guid optionId)
+        private List<ParameterBaseRowViewModel> CreateParameterBaseRowViewModels(IEnumerable<ParameterOrOverrideBase> parameters, HashSet<Guid> optionIds)
         {
             var rows = new List<ParameterBaseRowViewModel>();
 
@@ -431,7 +469,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             {
                 var isReadOnly = !this.permissionService.CanWrite(parameterOrOverrideBase);
 
-                rows.AddRange(parameterOrOverrideBase.ValueSets.Where(x => x.ActualOption == null || x.ActualOption.Iid == optionId)
+                rows.AddRange(parameterOrOverrideBase.ValueSets.Where(x => x.ActualOption == null || optionIds.Contains(x.ActualOption.Iid))
                     .Where(x => rows.TrueForAll(r => ((ParameterValueSetBase)r.ValueSet).Iid != ((ParameterValueSetBase)x).Iid))
                     .Select(x => new ParameterBaseRowViewModel(this.sessionService, isReadOnly, parameterOrOverrideBase, x, this.messageBus)));
             }

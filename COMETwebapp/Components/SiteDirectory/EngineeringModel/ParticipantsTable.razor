@@ -39,7 +39,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </DxGridDataColumn>
             <DxGridCommandColumn Width="100px">
                 <HeaderTemplate>
-                    <DxButton Id="addParticipantButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate" />
+                    <DxButton Id="addParticipantButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" />
                 </HeaderTemplate>
                 <CellDisplayTemplate>
                     @{
@@ -48,12 +48,14 @@ Copyright (c) 2023-2026 Starion Group S.A.
                         <DxButton Id="editParticipantButton"
                                   IconCssClass="@IconName.Edit.GetCssClass()"
                                   Click="@(() => this.StartEdit(row))"
-                                  Enabled="@(row.IsAllowedToWrite)"/>
+                                  Enabled="@(row.IsAllowedToWrite)"
+                                  RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"/>
 
                         <DxButton Id="deleteParticipantButton"
                                   IconCssClass="@IconName.Delete.GetCssClass()"
                                   Click="@(() => this.ViewModel.OnDeleteButtonClick(row))"
-                                  Enabled="@(row.IsAllowedToWrite)"/>
+                                  Enabled="@(row.IsAllowedToWrite)"
+                                  RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"/>
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
@@ -78,8 +80,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
 <DxPopup @bind-Visible="@this.ViewModel.IsOnDeletionMode" HeaderText="Please confirm" Width="auto" CloseOnOutsideClick="false">
     @this.ViewModel.PopupDialog
     <div class="dxbl-grid-confirm-dialog-buttons">
-        <DxButton Text="Cancel " RenderStyle="ButtonRenderStyle.Success" Click="@this.ViewModel.OnCancelPopupButtonClick" />
-        <DxButton Text="Confirm" RenderStyle="ButtonRenderStyle.Danger" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
+        <DxButton Text="Cancel " RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Click="@this.ViewModel.OnCancelPopupButtonClick" />
+        <DxButton Text="Confirm" RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())" Click="@this.ViewModel.OnConfirmPopupButtonClick" />
     </div>
 </DxPopup>
 

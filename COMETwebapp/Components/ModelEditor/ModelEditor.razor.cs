@@ -98,6 +98,13 @@ namespace COMETwebapp.Components.ModelEditor
         public bool ShowCategories { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets a value indicating whether the tree nodes of both trees show the full element name (when
+        /// <see langword="true" />) or the short name (when <see langword="false" />). Held here, not per tree, so
+        /// the source and target panels always display the same way.
+        /// </summary>
+        public bool ShowName { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the <see cref="IJSRuntime" /> used to initialise the column resizers
         /// </summary>
         [Inject]

@@ -154,6 +154,18 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
                 Assert.That(this.editor, Is.Not.Null);
                 Assert.That(this.editor.ViewModel, Is.Not.Null);
             });
+
+            var editButton = this.renderedComponent.FindComponent<DxButton>();
+            Assert.That(editButton.Instance.Text, Is.EqualTo("Edit"));
+        }
+
+        [Test]
+        public async Task VerifyEditButtonClickTriggersComponentSelection()
+        {
+            var editButton = this.renderedComponent.FindComponent<DxButton>();
+            await this.renderedComponent.InvokeAsync(editButton.Instance.Click.InvokeAsync);
+
+            this.viewModelMock.As<ICompoundParameterTypeEditorViewModel>().Verify(x => x.OnComponentSelected(), Times.Once);
         }
 
         [Test]

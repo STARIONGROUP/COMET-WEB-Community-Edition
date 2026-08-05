@@ -93,6 +93,35 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
             this.messageBus.ClearSubscriptions();
         }
 
+        /// <summary>
+        /// Verifies that <c>InitializeValues</c> reads the options/states/parameters URL keys on first
+        /// render, applying them (as an empty selection, since nothing is yet available) instead of
+        /// skipping the branch entirely.
+        /// </summary>
+        [Test]
+        public void VerifyInitializeValuesAppliesUrlFilters()
+        {
+            var navigation = this.context.Services.GetRequiredService<NavigationManager>();
+
+            var urlOptions = new Dictionary<string, string>
+            {
+                [QueryKeys.OptionsKey] = Guid.NewGuid().ToShortGuid(),
+                [QueryKeys.StatesKey] = Guid.NewGuid().ToShortGuid(),
+                [QueryKeys.ParametersKey] = Guid.NewGuid().ToShortGuid()
+            };
+
+            navigation.NavigateTo(QueryHelpers.AddQueryString("http://localhost/", urlOptions));
+
+            var rendered = this.context.Render<ModelDashboardBody>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rendered.Instance.ViewModel.OptionSelector.SelectedOptions, Is.Not.Null);
+                Assert.That(rendered.Instance.ViewModel.FiniteStateSelector.SelectedActualFiniteStates, Is.Not.Null);
+                Assert.That(rendered.Instance.ViewModel.ParameterTypeSelector.SelectedParameterTypes, Is.Not.Null);
+            });
+        }
+
         [Test]
         public async Task VerifyModelDashboardComponent()
         {
@@ -340,14 +369,14 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
                 Assert.That(() => parameterDashboard.Instance.OnAccessData(("Referenced", "THE")), Throws.Nothing);  
             });
 
-            this.viewModel.OptionSelector.SelectedOption = this.viewModel.OptionSelector.AvailableOptions.First();
-            Assert.That(navigation.Uri, Does.Contain("option="));
+            this.viewModel.OptionSelector.SelectedOptions = [this.viewModel.OptionSelector.AvailableOptions.First()];
+            Assert.That(navigation.Uri, Does.Contain("options="));
 
-            this.viewModel.FiniteStateSelector.SelectedActualFiniteState = this.viewModel.FiniteStateSelector.AvailableFiniteStates.First();
-            Assert.That(navigation.Uri, Does.Contain("state="));
+            this.viewModel.FiniteStateSelector.SelectedActualFiniteStates = [this.viewModel.FiniteStateSelector.AvailableFiniteStates.First()];
+            Assert.That(navigation.Uri, Does.Contain("states="));
 
-            this.viewModel.ParameterTypeSelector.SelectedParameterType = this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First();
-            Assert.That(navigation.Uri, Does.Contain("parameter="));
+            this.viewModel.ParameterTypeSelector.SelectedParameterTypes = [this.viewModel.ParameterTypeSelector.AvailableParameterTypes.First()];
+            Assert.That(navigation.Uri, Does.Contain("parameters="));
 
             Assert.That(() => this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.EndUpdate)), Throws.Nothing);
         }

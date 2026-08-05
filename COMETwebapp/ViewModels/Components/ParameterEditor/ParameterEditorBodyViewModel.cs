@@ -82,14 +82,16 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public ISubscriptionService SubscriptionService { get; set; }
 
         /// <summary>
-        /// Gets the <see cref="IElementBaseSelectorViewModel" />
+        /// Gets the <see cref="IMultiElementBaseSelectorViewModel" /> driving the building-block filter. An empty
+        /// selection means no element filtering is applied.
         /// </summary>
-        public IElementBaseSelectorViewModel ElementSelector { get; private set; } = new ElementBaseSelectorViewModel();
+        public IMultiElementBaseSelectorViewModel ElementSelector { get; private set; } = new MultiElementBaseSelectorViewModel();
 
         /// <summary>
-        /// Gets the <see cref="IOptionSelectorViewModel" />
+        /// Gets the <see cref="IMultiOptionSelectorViewModel" /> driving the option filter. An empty selection
+        /// falls back to the <see cref="Iteration" />'s default <see cref="Option" />.
         /// </summary>
-        public IOptionSelectorViewModel OptionSelector { get; private set; } = new OptionSelectorViewModel(false);
+        public IMultiOptionSelectorViewModel OptionSelector { get; private set; } = new MultiOptionSelectorViewModel();
 
         /// <summary>
         /// Gets the <see cref="IMultiParameterTypeSelectorViewModel" /> driving the parameter-type filter.
@@ -129,7 +131,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         {
             if (this.CurrentThing != null)
             {
-                this.ParameterTableViewModel.ApplyFilters(this.OptionSelector.SelectedOption, this.ElementSelector.SelectedElementBase,
+                this.ParameterTableViewModel.ApplyFilters(this.OptionSelector.SelectedOptions, this.ElementSelector.SelectedElementBases,
                     this.ParameterTypeSelector.SelectedParameterTypes, this.CategorySelector.SelectedCategories, this.IsOwnedParameters);
             }
         }
@@ -206,7 +208,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                 this.BatchParameterEditorViewModel.CurrentIteration = this.CurrentThing;
             }
 
-            this.ParameterTableViewModel.InitializeViewModel(this.CurrentThing, this.CurrentDomain, this.OptionSelector.SelectedOption);
+            this.ParameterTableViewModel.InitializeViewModel(this.CurrentThing, this.CurrentDomain, this.OptionSelector.SelectedOptions);
             this.ApplyFilters();
             this.IsLoading = false;
         }

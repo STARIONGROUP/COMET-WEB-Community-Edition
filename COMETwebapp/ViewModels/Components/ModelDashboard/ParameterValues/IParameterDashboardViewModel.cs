@@ -51,12 +51,21 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues
         /// Updates this view model properties
         /// </summary>
         /// <param name="iteration">The current <see cref="Iteration" /></param>
-        /// <param name="selectedOption">The current <see cref="Option" /></param>
-        /// <param name="selectedState">The current <see cref="ActualFiniteState" /></param>
-        /// <param name="selectedParameterType">The current <see cref="ParameterType" /></param>
+        /// <param name="selectedOptions">
+        /// The collection of selected <see cref="Option" />s. <c>null</c> or an empty collection means no option
+        /// filtering is applied.
+        /// </param>
+        /// <param name="selectedStates">
+        /// The collection of selected <see cref="ActualFiniteState" />s. <c>null</c> or an empty collection means
+        /// no state filtering is applied.
+        /// </param>
+        /// <param name="selectedParameterTypes">
+        /// The collection of selected <see cref="ParameterType" />s. <c>null</c> or an empty collection means no
+        /// parameter-type filtering is applied.
+        /// </param>
         /// <param name="currentDomain">The current <see cref="DomainOfExpertise"/></param>
         /// <param name="availableDomains">A collection of available <see cref="DomainOfExpertise"/></param>
-        void UpdateProperties(Iteration iteration, Option selectedOption, ActualFiniteState selectedState, ParameterType selectedParameterType, DomainOfExpertise currentDomain,
+        void UpdateProperties(Iteration iteration, IEnumerable<Option> selectedOptions, IEnumerable<ActualFiniteState> selectedStates, IEnumerable<ParameterType> selectedParameterTypes, DomainOfExpertise currentDomain,
 	        IEnumerable<DomainOfExpertise> availableDomains);
     }
 }

@@ -61,6 +61,11 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator DetailsPanel => this.Page.Locator("#detailsPanel");
 
         /// <summary>
+        /// Gets the "View" display-options cog in the upper-right of the toolbar (holds the Owner / Categories toggles).
+        /// </summary>
+        public ILocator ViewMenuButton => this.Page.Locator("#modelEditorViewMenuButton");
+
+        /// <summary>
         /// Gets the element search text box.
         /// </summary>
         public ILocator SearchBox => this.Page.Locator("#search-textbox");

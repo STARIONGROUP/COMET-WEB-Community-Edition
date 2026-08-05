@@ -9,8 +9,6 @@
 #leftColumn {
     flex: 0 0 320px;
     min-width: 280px;
-    position: sticky;
-    top: 8px;
     align-self: flex-start;
     max-height: 100%;
     display: flex;
@@ -21,8 +19,6 @@
 #rightColumn {
     flex: 1 1 auto;
     min-width: 350px;
-    position: sticky;
-    top: 8px;
     align-self: flex-start;
     max-height: 100%;
     display: flex;
@@ -43,7 +39,7 @@
 
 #option-filter {
     flex: 0 0 auto;
-    margin-bottom: 8px;
+    margin-bottom: 24px;
 }
 
 #option-filter ::deep h6 {
@@ -56,8 +52,6 @@
     cursor: col-resize;
     background: #e2e8f0;
     border-radius: 3px;
-    position: sticky;
-    top: 8px;
     max-height: 100%;
 }
 

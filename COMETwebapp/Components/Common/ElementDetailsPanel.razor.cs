@@ -44,10 +44,22 @@ namespace COMETwebapp.Components.Common
         public IElementDetailsPanelViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// Gets or sets optional content rendered on the element summary header row, next to the edit/delete
+        /// buttons (used by the Model Editor to place the panel-collapse chevron on the same line).
+        /// </summary>
+        [Parameter]
+        public RenderFragment DetailsHeaderActions { get; set; }
+
+        /// <summary>
         /// Gets or sets the current search term used to filter the parameter cards rendered by the
         /// <see cref="COMETwebapp.Components.ModelEditor.DetailsPanelEditor" />. Held here so the search box can share the action-bar row.
         /// </summary>
         private string SearchTerm { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the "New" dropdown menu is currently open.
+        /// </summary>
+        private bool IsNewMenuOpen { get; set; }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its initial parameters
@@ -79,6 +91,17 @@ namespace COMETwebapp.Components.Common
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
             return base.OnInitializedAsync();
+        }
+
+        /// <summary>
+        /// Closes the "New" dropdown menu and invokes the supplied action. Bound to each item of the
+        /// dropdown so that choosing an item both triggers its popup and dismisses the menu.
+        /// </summary>
+        /// <param name="action">The action to invoke, e.g. one of the <c>Open*Popup</c> methods on <see cref="ViewModel" />.</param>
+        private void OnNewMenuItemClicked(Action action)
+        {
+            this.IsNewMenuOpen = false;
+            action.Invoke();
         }
     }
 }

@@ -87,7 +87,7 @@
     </div>
 
     <div class="modal-footer m-top-10px">
-        <DxButton Text="Cancel" RenderStyle="ButtonRenderStyle.Secondary" Click="@(() => this.ViewModel.CancelAsync())"/>
-        <DxButton Text="OK" RenderStyle="ButtonRenderStyle.Primary" Click="@(() => this.ViewModel.SaveAsync())"/>
+        <DxButton Text="Cancel" RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Click="@(() => this.ViewModel.CancelAsync())"/>
+        <DxButton Text="OK" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Click="@(() => this.ViewModel.SaveAsync())"/>
     </div>
 }
