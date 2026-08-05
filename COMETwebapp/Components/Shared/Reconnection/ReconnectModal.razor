@@ -1,0 +1,58 @@
+﻿<!------------------------------------------------------------------------------
+// Copyright (c) 2023-2026 Starion Group S.A.
+//
+//   This file is part of CDP4-COMET WEB Community Edition
+//   The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25
+//   Annex A and Annex C.
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+--------------------------------------------------------------------------------->
+@namespace COMETwebapp.Components.Shared.Reconnection
+
+<div id="components-reconnect-modal" class="components-reconnect-hide comet-connection-banner">
+    <ReconnectStateBanner StateClass="components-reconnect-show"
+                          BadgeType="warning"
+                          IsSpinner="true"
+                          Title="Connection Lost"
+                          Text="Network connection to the server was lost. Attempting to reconnect... Unsaved changes are preserved while retrying." />
+
+    <ReconnectStateBanner StateClass="components-reconnect-retrying"
+                          BadgeType="warning"
+                          IsSpinner="true"
+                          Title="Retrying Connection"
+                          Text="Attempting to re-establish connection to the server... Unsaved changes are preserved while retrying." />
+
+    <ReconnectStateBanner StateClass="components-reconnect-paused"
+                          BadgeType="warning"
+                          IsSpinner="false"
+                          Title="Connection Paused"
+                          Text="The connection has been paused. Click to resume your session."
+                          ActionText="Resume Connection"
+                          ActionType="ReconnectActionType.Reconnect" />
+
+    <ReconnectStateBanner StateClass="components-reconnect-failed"
+                          BadgeType="danger"
+                          IsSpinner="false"
+                          Title="Reconnection Failed"
+                          Text="Server is unreachable. Retrying connection in a few seconds... Unsaved changes might be lost if connection cannot be restored."
+                          ActionText="Retry Now"
+                          ActionType="ReconnectActionType.Reconnect" />
+
+    <ReconnectStateBanner StateClass="components-reconnect-rejected"
+                          BadgeType="danger"
+                          IsSpinner="false"
+                          Title="Session Expired"
+                          Text="The server session has expired or was terminated. Reload the page to restore your connection."
+                          ActionText="Reload Page"
+                          ActionType="ReconnectActionType.Reload" />
+</div>

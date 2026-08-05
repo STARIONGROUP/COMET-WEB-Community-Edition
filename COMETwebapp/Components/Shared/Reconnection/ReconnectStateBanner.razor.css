@@ -1,0 +1,86 @@
+﻿.comet-reconnect-state {
+    display: none;
+    padding: 10px 20px;
+}
+
+.components-reconnect-show,
+.components-reconnect-retrying,
+.components-reconnect-paused {
+    background-color: #fffbe6;
+    border-bottom: 2px solid #ffe58f;
+    color: #8c4b00;
+}
+
+.components-reconnect-failed {
+    background-color: #fff2f0;
+    border-bottom: 2px solid #ffccc7;
+    color: #a8071a;
+}
+
+.components-reconnect-rejected {
+    background-color: #fff1f0;
+    border-bottom: 2px solid #ffa39e;
+    color: #820014;
+}
+
+.comet-reconnect-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 12px;
+    text-align: center;
+}
+
+.comet-reconnect-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.comet-reconnect-text {
+    text-align: center;
+}
+
+.comet-reconnect-action {
+    display: inline-block;
+    padding: 4px 12px;
+    background-color: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.comet-reconnect-action:hover {
+    background-color: rgba(0, 0, 0, 0.12);
+    text-decoration: none;
+    color: inherit;
+}
+
+.comet-reconnect-spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: comet-spin 0.75s linear infinite;
+}
+
+@keyframes comet-spin {
+    to { transform: rotate(360deg); }
+}
+
+.comet-reconnect-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
