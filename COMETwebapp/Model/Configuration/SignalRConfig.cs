@@ -22,10 +22,13 @@
 
 namespace COMETwebapp.Model.Configuration
 {
+    using System.Diagnostics.CodeAnalysis;
+
     /// <summary>
     /// Configuration options bound from the <c>SignalR</c> section of <c>appsettings.json</c> for SignalR connection timeouts.
     /// <see href="https://learn.microsoft.com/en-us/aspnet/core/signalr/configuration?view=aspnetcore-10.0"/>
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class SignalRConfig
     {
         /// <summary>
