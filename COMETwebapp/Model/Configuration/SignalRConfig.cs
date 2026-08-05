@@ -23,19 +23,19 @@
 namespace COMETwebapp.Model.Configuration
 {
     /// <summary>
-    /// Configuration constants for SignalR connection timeouts.
+    /// Configuration options bound from the <c>SignalR</c> section of <c>appsettings.json</c> for SignalR connection timeouts.
     /// <see href="https://learn.microsoft.com/en-us/aspnet/core/signalr/configuration?view=aspnetcore-10.0"/>
     /// </summary>
-    public static class SignalRConfig
+    public class SignalRConfig
     {
         /// <summary>
-        /// SignalR keep-alive interval in seconds (default is 15s; configured to 5s for faster drop detection).
+        /// Gets or sets the SignalR keep-alive interval in seconds (default is 15s; configured to 5s for faster drop detection).
         /// </summary>
-        public const int KeepAliveSeconds = 5;
+        public int KeepAliveSeconds { get; set; } = 5;
 
         /// <summary>
-        /// SignalR client timeout interval in seconds (default is 30s; recommended value is double <see cref="KeepAliveSeconds"/>).
+        /// Gets or sets the SignalR client timeout interval in seconds (default is 30s; recommended value is double <see cref="KeepAliveSeconds"/>).
         /// </summary>
-        public const int ClientTimeoutSeconds = 10;
+        public int ClientTimeoutSeconds { get; set; } = 10;
     }
 }

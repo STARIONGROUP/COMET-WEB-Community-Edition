@@ -62,10 +62,13 @@ namespace COMETwebapp
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
 
+            var signalRConfig = builder.Configuration.GetSection("SignalR").Get<SignalRConfig>() ?? new SignalRConfig();
+            builder.Services.Configure<SignalRConfig>(builder.Configuration.GetSection("SignalR"));
+
             builder.Services.Configure<HubOptions>(options =>
             {
-                options.KeepAliveInterval = TimeSpan.FromSeconds(SignalRConfig.KeepAliveSeconds);
-                options.ClientTimeoutInterval = TimeSpan.FromSeconds(SignalRConfig.ClientTimeoutSeconds);
+                options.KeepAliveInterval = TimeSpan.FromSeconds(signalRConfig.KeepAliveSeconds);
+                options.ClientTimeoutInterval = TimeSpan.FromSeconds(signalRConfig.ClientTimeoutSeconds);
             });
 
             RxAppBuilder.CreateReactiveUIBuilder()

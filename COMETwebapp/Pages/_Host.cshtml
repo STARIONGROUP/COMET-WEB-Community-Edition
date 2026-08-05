@@ -25,6 +25,8 @@
 @using COMETwebapp.Components.Shared.Reconnection
 @using COMETwebapp.Model.Configuration
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.Extensions.Options
+@inject IOptions<SignalRConfig> SignalRConfigOptions
 @namespace COMETwebapp.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
@@ -101,7 +103,7 @@
 <script src="_framework/blazor.server.js" autostart="false"></script>
 <script src="Scripts/blazorConfig.js"></script>
 <script>
-    initBlazor(@(SignalRConfig.ClientTimeoutSeconds * 1000), @(SignalRConfig.KeepAliveSeconds * 1000));
+    initBlazor(@(this.SignalRConfigOptions.Value.ClientTimeoutSeconds * 1000), @(this.SignalRConfigOptions.Value.KeepAliveSeconds * 1000));
 </script>
 <script src="_content/AntDesign/js/ant-design-blazor.js"></script>
 <script src="Scripts/sortable.min.js"></script>
