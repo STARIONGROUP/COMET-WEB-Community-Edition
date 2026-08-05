@@ -1,12 +1,11 @@
-﻿.node-inner-content {
+.node-inner-content {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 1%;
-    padding-left: 0;
-    border-radius: 5px;
-    margin-bottom: 2px;
+    padding: 0.25rem 0.25rem 0.25rem 0;
+    border-radius: 0.3rem;
+    margin-bottom: 0.2rem;
 }
 
 .treeNode {
@@ -37,9 +36,7 @@
 }
 
 .node-text {
-    margin: 0;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin: 0 0.6rem;
 }
 
 .node-label-tags {
@@ -47,7 +44,7 @@
     flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 0.5rem;
     flex: 1 1 auto;
     min-width: 0;
 }
@@ -57,7 +54,7 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
-    gap: 4px;
+    gap: 0.25rem;
     margin-left: auto;
     flex-shrink: 0;
 }
@@ -66,12 +63,12 @@
     width: 1.5rem;
     height: 1.5rem;
     background: #EEE;
-    padding: 5px;
+    padding: 0.3rem;
     border-radius: 50%;
 }
 
 .treeIcon {
-    margin-left: 5px;
+    margin-left: 0.3rem;
     width: 1.5rem;
     height: auto;
     max-height: 1.5rem;
