@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsPanelComponent.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -136,15 +136,17 @@ namespace COMETwebapp.Components.Tabs
         /// <summary>
         /// Gets the tab text for the given object of interest
         /// </summary>
-        /// <param name="tab">Thetab to get its text</param>
+        /// <param name="tab">The tab to get its text</param>
         /// <returns>The tab text</returns>
         private static string GetTabText(TabbedApplicationInformation tab)
         {
+            var applicationName = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ComponentType == tab.ComponentType).Name;
+
             return tab.ObjectOfInterest switch
             {
-                Iteration iteration => iteration.QueryName(),
-                EngineeringModel engineeringModel => engineeringModel.EngineeringModelSetup.Name,
-                _ => Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ComponentType == tab.ComponentType).Name
+                Iteration iteration => $"{applicationName} · {((EngineeringModel)iteration.Container).EngineeringModelSetup.Name} - It. {iteration.IterationSetup.IterationNumber}",
+                EngineeringModel engineeringModel => $"{applicationName} · {engineeringModel.EngineeringModelSetup.Name}",
+                _ => applicationName
             };
         }
 

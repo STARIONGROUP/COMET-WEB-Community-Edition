@@ -106,7 +106,7 @@ namespace COMETwebapp.Model
                 {
                     Name = "Model Editor",
                     Color = "#76fd98",
-                    Icon = IconName.Box,
+                    Icon = IconName.Layers,
                     Description = "Populate model",
                     Url = WebAppConstantValues.ModelEditorPage,
                     ComponentType = typeof(ModelEditor)
