@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -54,7 +54,6 @@ namespace COMETwebapp.Tests.Pages
     using Moq;
 
     using NUnit.Framework;
-
 
     [TestFixture]
     public class TabsTestFixture
@@ -128,12 +127,14 @@ namespace COMETwebapp.Tests.Pages
         [Test]
         public void VerifySidePanelIsOnlyAvailableWithMoreThanOneOpenTab()
         {
-            Assert.That(this.renderer.FindComponents<DxButton>().Any(x => x.Instance.Id == "new-side-panel-button"), Is.False);
+            var button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+            Assert.That(button.Instance.Enabled, Is.False);
 
             this.mainPanel.OpenTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
             this.renderer.Render();
 
-            Assert.That(this.renderer.FindComponents<DxButton>().Any(x => x.Instance.Id == "new-side-panel-button"), Is.True);
+            button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+            Assert.That(button.Instance.Enabled, Is.True);
         }
 
         [Test]

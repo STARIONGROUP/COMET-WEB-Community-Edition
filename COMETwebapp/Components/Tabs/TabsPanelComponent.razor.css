@@ -19,6 +19,8 @@
 }
 
 .panel-view {
+    container-type: inline-size;
+    container-name: pane;
     overflow-x: auto;
     width: 100%;
     height: 100%;
@@ -29,4 +31,19 @@
 
 .panel-view:not(:first-child) {
     border-left: solid 1px var(--colors-gray-100);
+}
+
+::deep #new-side-panel-button.disabled,
+::deep #new-side-panel-button:disabled,
+::deep #new-side-panel-button[disabled] {
+    opacity: 0.55 !important;
+    pointer-events: auto !important;
+    color: var(--colors-gray-400, #98a2b3) !important;
+}
+
+::deep #new-side-panel-button.disabled *,
+::deep #new-side-panel-button:disabled *,
+::deep #new-side-panel-button[disabled] * {
+    opacity: 0.55 !important;
+    color: var(--colors-gray-400, #98a2b3) !important;
 }

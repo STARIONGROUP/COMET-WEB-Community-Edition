@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2026 Starion Group S.A.
 //
 //    This file is part of COMET WEB Community Edition
@@ -26,23 +26,28 @@
 <div style="display: flex; height: 100%;">
     @if (this.ViewModel.MainPanel.CurrentTab is not null)
     {
-        <TabsPanelComponent Panel="@(this.ViewModel.MainPanel)"
-                            ViewModel="@(this.ViewModel)"
-                            OnTabClick="@(tuple => OnTabClick(tuple.Item1, tuple.Item2))"
-                            OnCreateTabForModel="@(tab => this.OnCreateTabForModel(tab))"
-                            OnRemoveTabClick="@(tab => OnRemoveTabClick(tab, this.ViewModel.MainPanel))"
-                            OnOpenTabClick="@(() => this.OnOpenTabClick(this.ViewModel.MainPanel))"
-                            IsSidePanelAvailable="@(this.ViewModel.SidePanel.OpenTabs.Count == 0 && this.ViewModel.MainPanel.OpenTabs.Count > 1)"/>
-
-        @if (this.ViewModel.SidePanel.CurrentTab is not null)
-        {
-            <TabsPanelComponent Panel="@(this.ViewModel.SidePanel)"
+        <CascadingValue Name="@WebAppConstantValues.IsSplitViewCascadingValueName" Value="@(this.ViewModel.SidePanel.CurrentTab is not null)">
+            <TabsPanelComponent Panel="@(this.ViewModel.MainPanel)"
                                 ViewModel="@(this.ViewModel)"
                                 OnTabClick="@(tuple => OnTabClick(tuple.Item1, tuple.Item2))"
                                 OnCreateTabForModel="@(tab => this.OnCreateTabForModel(tab))"
-                                OnRemoveTabClick="@(tab => OnRemoveTabClick(tab, this.ViewModel.SidePanel))"
-                                OnOpenTabClick="@(() => this.OnOpenTabClick(this.ViewModel.SidePanel))" />
-        }
+                                OnRemoveTabClick="@(tab => OnRemoveTabClick(tab, this.ViewModel.MainPanel))"
+                                OnOpenTabClick="@(() => this.OnOpenTabClick(this.ViewModel.MainPanel))"
+                                IsSplitViewVisible="@(this.ViewModel.MainPanel.OpenTabs.Count >= 1 && this.ViewModel.SidePanel.OpenTabs.Count == 0)"
+                                IsSplitViewEnabled="@(this.ViewModel.MainPanel.OpenTabs.Count > 1)"/>
+
+            @if (this.ViewModel.SidePanel.CurrentTab is not null)
+            {
+                <TabsPanelComponent Panel="@(this.ViewModel.SidePanel)"
+                                    ViewModel="@(this.ViewModel)"
+                                    OnTabClick="@(tuple => OnTabClick(tuple.Item1, tuple.Item2))"
+                                    OnCreateTabForModel="@(tab => this.OnCreateTabForModel(tab))"
+                                    OnRemoveTabClick="@(tab => OnRemoveTabClick(tab, this.ViewModel.SidePanel))"
+                                    OnOpenTabClick="@(() => this.OnOpenTabClick(this.ViewModel.SidePanel))"
+                                    IsSplitViewVisible="false"
+                                    IsSplitViewEnabled="false"/>
+            }
+        </CascadingValue>
     }
     else
     {

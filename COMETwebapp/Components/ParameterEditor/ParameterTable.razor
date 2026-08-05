@@ -1,4 +1,4 @@
-<!------------------------------------------------------------------------------
+﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of CDP4-COMET WEB Community Edition
@@ -17,18 +17,16 @@
 //     You should have received a copy of the GNU Affero General Public License
 //     along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using CDP4Common.EngineeringModelData
-@using CDP4Common.SiteDirectoryData
 @using COMET.Web.Common.ViewModels.Components.ParameterEditors
 @using COMETwebapp.ViewModels.Components.ParameterEditor
 @inherits DisposableComponent
 
 @if (this.ViewModel.IsOnEditMode)
 {
-    var parameters = new Dictionary<string, object>()
+    var parameters = new Dictionary<string, object>
     {
-        {"ViewModel", this.ViewModel.HaveComponentParameterTypeEditorViewModel},
-        {"IsOnEditMode", true},
+        { "ViewModel", this.ViewModel.HaveComponentParameterTypeEditorViewModel },
+        { "IsOnEditMode", true }
     };
 
     Type type = null;
@@ -54,7 +52,7 @@
         }
     }
 
-    <DxPopup @bind-Visible="@this.ViewModel.IsOnEditMode" HeaderText="@headerText" Width="auto" CloseOnOutsideClick="false" CloseOnEscape="@isCloseButtonAvailable" 
+    <DxPopup @bind-Visible="@(this.ViewModel.IsOnEditMode)" HeaderText="@headerText" Width="auto" CloseOnOutsideClick="false" CloseOnEscape="@isCloseButtonAvailable"
              ShowCloseButton="@isCloseButtonAvailable">
         <DynamicComponent Type="type" Parameters="parameters"/>
     </DxPopup>
@@ -69,35 +67,61 @@
             AllowSelectRowByClick="false"
             ShowFilterRow="true"
             DetailExpandButtonDisplayMode="GridDetailExpandButtonDisplayMode.Auto"
-            VerticalScrollBarMode="ScrollBarMode.Visible"
-            HorizontalScrollBarMode="ScrollBarMode.Visible"
             CustomizeElement="this.OnCustomizeElement">
         <Columns>
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ElementBaseName)" GroupIndex="0" GroupInterval="GridColumnGroupInterval.Value" Caption="@("Element Name")" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterName)" Caption="@("Parameter")" AllowGroup="false" AllowSort="true">
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ElementBaseName)"
+                              GroupIndex="0"
+                              GroupInterval="GridColumnGroupInterval.Value"
+                              Caption="@("Element Name")"
+                              AllowSort="true"/>
+
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterName)"
+                              Caption="@("Parameter")"
+                              AllowGroup="false"
+                              AllowSort="true">
                 <CellDisplayTemplate>
                     @context.DisplayText
-                    
+
                     @if (context.DataItem is ParameterBaseRowViewModel { Parameter: ParameterOverride })
                     {
                         <span class="fw-bold"> [Override]</span>
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.Option)" Caption="@("Option")" AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.State)" Caption="@("State")" AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.PublishedValue)" Caption="@("Published Value")" AllowGroup="false" AllowSort="false" />
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterType)" Caption="@("Value")" AllowGroup="false" AllowSort="false">
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.Option)"
+                              Caption="@("Option")"
+                              AllowGroup="false"
+                              AllowSort="true"
+                              Visible="@(!this.IsSplitView)"/>
+
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.State)"
+                              Caption="@("State")"
+                              AllowGroup="false"
+                              AllowSort="true"
+                              Visible="@(!this.IsSplitView)"/>
+
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.PublishedValue)"
+                              Caption="@("Published Value")"
+                              AllowGroup="false"
+                              AllowSort="false"/>
+
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterType)"
+                              Caption="@("Value")"
+                              AllowGroup="false"
+                              AllowSort="false">
                 <CellDisplayTemplate>
                     @if (context.DataItem is ParameterBaseRowViewModel parameterBaseRowViewModel)
                     {
-                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.ParameterTypeEditorSelectorViewModel" 
+                        <ParameterTypeEditorSelector ViewModel="parameterBaseRowViewModel.ParameterTypeEditorSelectorViewModel"
                                                      BindValueMode="BindValueMode.OnLostFocus"/>
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
 
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.Switch)" Caption="@("Switch")" AllowGroup="false" AllowSort="true">
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.Switch)"
+                              Caption="@("Switch")"
+                              AllowGroup="false"
+                              AllowSort="true">
                 <CellDisplayTemplate>
                     @if (context.DataItem is ParameterBaseRowViewModel parameterBaseRowViewModel)
                     {
@@ -105,10 +129,22 @@
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ModelCode)" Caption="@("Model Code")" AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.OwnerName)" Caption="@("Owner")" AllowGroup="false" AllowSort="true" />
-            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterGroupPath)" Caption="@("Parameter Group Path")" AllowGroup="false" AllowSort="true" />
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ModelCode)"
+                              Caption="@("Model Code")"
+                              AllowGroup="false"
+                              AllowSort="true"
+                              Visible="@(!this.IsSplitView)"/>
+
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.OwnerName)"
+                              Caption="@("Owner")"
+                              AllowGroup="false"
+                              AllowSort="true"/>
+
+            <DxGridDataColumn FieldName="@nameof(ParameterBaseRowViewModel.ParameterGroupPath)"
+                              Caption="@("Parameter Group Path")"
+                              AllowGroup="false"
+                              AllowSort="true"
+                              Visible="@(!this.IsSplitView)"/>
         </Columns>
     </DxGrid>
 </div>
-

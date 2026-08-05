@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsPanelComponentTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -51,7 +51,6 @@ namespace COMETwebapp.Tests.Components.Tabs
     using Moq;
 
     using NUnit.Framework;
-
 
     [TestFixture]
     public class TabsPanelComponentTestFixture
@@ -120,7 +119,8 @@ namespace COMETwebapp.Tests.Components.Tabs
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
                 parameters.Add(p => p.Panel, this.mainPanel);
                 parameters.Add(p => p.CssClass, "css-test-class");
-                parameters.Add(p => p.IsSidePanelAvailable, true);
+                parameters.Add(p => p.IsSplitViewVisible, true);
+                parameters.Add(p => p.IsSplitViewEnabled, true);
             });
         }
 
@@ -149,12 +149,29 @@ namespace COMETwebapp.Tests.Components.Tabs
         [Test]
         public void VerifyComponent()
         {
+            var button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ViewModel, Is.EqualTo(this.viewModel.Object));
                 Assert.That(this.renderer.Instance, Is.Not.Null);
                 Assert.That(this.renderer.Markup, Does.Contain("css-test-class"));
+                Assert.That(button.Instance.Enabled, Is.True);
             });
+
+            this.renderer.Render(parameters => { parameters.Add(p => p.IsSplitViewEnabled, false); });
+
+            button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(button.Instance.Enabled, Is.False);
+                Assert.That(this.renderer.Markup, Does.Contain("Split view requires at least two open tabs"));
+            });
+
+            this.renderer.Render(parameters => { parameters.Add(p => p.IsSplitViewVisible, false); });
+
+            Assert.That(this.renderer.FindComponents<DxButton>().Any(x => x.Instance.Id == "new-side-panel-button"), Is.False);
         }
 
         [Test]
@@ -192,10 +209,7 @@ namespace COMETwebapp.Tests.Components.Tabs
                 Assert.That(this.sidePanel.OpenTabs.Items[0], Is.EqualTo(newTab));
             });
 
-            this.renderer.Render(parameters =>
-            {
-                parameters.Add(p => p.Panel, this.sidePanel);
-            });
+            this.renderer.Render(parameters => { parameters.Add(p => p.Panel, this.sidePanel); });
 
             sortableList = this.renderer.FindComponent<SortableList<TabbedApplicationInformation>>();
             await this.renderer.InvokeAsync(() => sortableList.Instance.OnRemove.InvokeAsync((0, 0)));

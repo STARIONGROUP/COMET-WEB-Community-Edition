@@ -17,9 +17,8 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using COMETwebapp.Model
 @using CDP4Common.CommonData
-
+@using COMETwebapp.Model
 @inherits DisposableComponent
 
 <div class="panel-view @(this.CssClass)">
@@ -27,11 +26,11 @@
     {
         <div class="tabs-row">
             <div class="d-flex gap-2">
-                <SortableList Group="tabs-panel" 
-                              Items="@(this.Panel.OpenTabs.Items.ToList())" 
+                <SortableList Group="tabs-panel"
+                              Items="@(this.Panel.OpenTabs.Items.ToList())"
                               OnUpdate="@(indexes => this.SortTabs(indexes.oldIndex, indexes.newIndex))"
                               OnRemove="@(indexes => this.OnMovedTab(indexes.oldIndex, indexes.newIndex))"
-                              Context="tab" 
+                              Context="tab"
                               CssClass="d-flex gap-2">
                     <SortableItemTemplate>
                         <TabComponent Text="@(GetTabText(tab))"
@@ -53,16 +52,18 @@
                               Icon="IconName.Add"
                               OnClick="@(() => this.OnOpenTabClick.Invoke())"/>
             </div>
-            @if (this.IsSidePanelAvailable)
-            {
-                <DxButton Click="@(() => this.AddSidePanel())"
-                          RenderStyle="ButtonRenderStyle.None"
-                          Id="new-side-panel-button"
-                          CssClass="ml-auto p-0">
-                    <CometIcon Icon="IconName.Columns" Size="30"/>
-                </DxButton>
-            }
-
+            
+            <DxButton Click="@(this.AddSidePanel)"
+                      Enabled="@(this.IsSplitViewEnabled)"
+                      RenderStyle="ButtonRenderStyle.None"
+                      Id="new-side-panel-button"
+                      CssClass="ml-auto p-0"
+                      Visible="this.IsSplitViewVisible"
+                      title="@this.GetSplitViewTooltip()"
+                      aria-label="Split View">
+                <CometIcon Icon="IconName.Columns"
+                           Size="30"/>
+            </DxButton>
         </div>
         <div class="template-container" id="tabs-page-content">
             <DynamicApplicationBase ViewModel="this.Panel.CurrentTab.ApplicationBaseViewModel"

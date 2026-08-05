@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="DonutDashboard.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -26,6 +26,7 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Model;
+    using COMETwebapp.Utilities;
 
     using DevExpress.Blazor;
 
@@ -36,6 +37,17 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
     /// </summary>
     public partial class DonutDashboard
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the component is rendered inside a split view pane.
+        /// </summary>
+        [CascadingParameter(Name = WebAppConstantValues.IsSplitViewCascadingValueName)]
+        public bool IsSplitView { get; set; }
+
+        /// <summary>
+        /// Gets the container CSS class
+        /// </summary>
+        private string ContainerCssClass => $"{(this.IsSplitView ? "col-12" : "col col-xxl-8")} donut-chart-container d-flex justify-content-center";
+
         /// <summary>
         /// A collection of <see cref="ParameterValueSetBase"/> to display
         /// </summary>
