@@ -42,8 +42,8 @@ namespace COMET.Web.Common.Validators
                 .When(x => x.ShouldValidateSourceAddress);
 
             this.RuleFor(x => x.SourceAddress).Must(BeAValidHttpOrHttpsUrl)
-                .When(x => !string.IsNullOrEmpty(x.SourceAddress))
-                .WithMessage("The Source Address should be a valid HTTP or HTTPS URL.");
+                .WithMessage("The Source Address should be a valid HTTP or HTTPS URL.")
+                .When(x => !string.IsNullOrEmpty(x.SourceAddress));
 
             this.RuleFor(x => x.UserName).NotEmpty()
                 .WithMessage("The Username is required.")

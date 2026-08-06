@@ -29,7 +29,7 @@
 <EditForm Context="editFormContext" Model="@this.ViewModel.AuthenticationDto" OnValidSubmit="this.HandleSubmitAsync" id="login-form" data-app-ready="@(this.formReady ? "true" : null)">
     <FluentValidationValidator />
     <DxFormLayout CaptionPosition="CaptionPosition.Vertical">
-        @if (string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress) && this.ShouldProvideServerInformationInput())
+        @if (this.ShouldProvideSourceAddressInput())
         {
             <DxFormLayoutItem Caption="Source Address:" ColSpanLg="12">
                 <Template>
@@ -76,10 +76,11 @@
                 <Template>
                     <DxCheckBox Id="fulltrust"
                                 @bind-Checked="@(this.ViewModel.AuthenticationDto.FullTrust)"
-                                Enabled="@(this.ServerConfiguration.FullTrustConfiguration?.IsTrusted == FullTrustTrustedKind.UserDefined)">
+                                Enabled="@(this.ServerConfiguration.FullTrustConfiguration?.IsTrusted == FullTrustTrustedKind.UserDefined)"
+                                Attributes="@(new Dictionary<string, object> { ["aria-describedby"] = "fulltrust-hint" })">
                         @this.FullTrustLabel
                     </DxCheckBox>
-                    <div class="full-trust-hint font-size-small">Allow connecting to servers that present a self-signed certificate.</div>
+                    <div id="fulltrust-hint" class="full-trust-hint font-size-small">Allow connecting to servers that present a self-signed certificate.</div>
                 </Template>
             </DxFormLayoutItem>
         }

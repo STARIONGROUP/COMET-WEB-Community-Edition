@@ -83,7 +83,7 @@
 }
 
 .full-trust-hint {
-    color: var(--colors-gray-600);
+    color: var(--colors-gray-600, #505B6A);
     margin-top: 2px;
 }
 
