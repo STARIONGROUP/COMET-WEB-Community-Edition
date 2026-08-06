@@ -38,24 +38,11 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <DxChart Data="@this.ValueSets" CssClass="justify-content-center width-100">
             <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
                 @{
-                    var total = this.ValueSets.Count(d => d.Owner.ShortName.Equals(@context.Point.Argument));
-                    var count = this.CountValueSetPerDomain(@context.Point.SeriesName, @context.Point.Argument);
-                    var number = Math.Round((double)count / total * 100);
+                    var count = this.CountValueSetPerDomain(context.Point.SeriesName, context.Point.Argument);
                 }
-                <div class="small-margin">
-                    <div class="fw-bold">@(this.GetDomainName(context.Point.Argument))</div>
-                    @if (!double.IsNaN(number))
-                    {
-                        <button class="card-btn" @onclick="@(() => this.AccessData(context.Point))">
-                            <div>@count (@number %)</div>
-                        </button>
-                    }
-                    else
-                    {
-                        <div>-</div>
-                    }
-
-                </div>
+                <DomainValueTooltip DomainName="@(this.GetDomainName(context.Point.Argument))" Count="count"
+                                    Percentage="this.GetDomainPercentage(context.Point.Argument, count)"
+                                    OnMore="@(() => this.AccessData(context.Point))"/>
             </DxChartTooltip>
             <DxChartStackedBarSeries Color="HaveChartData.PublishedChartColor" Name="@WebAppConstantValues.PublishedParameters" Filter="@((ParameterValueSetBase p) => p.Published.SequenceEqual(p.ActualValue))"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"

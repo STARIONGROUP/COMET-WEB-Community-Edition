@@ -145,5 +145,83 @@ namespace COMETwebapp.Tests.Components.ModelDashboard.ParameterValues
                 Assert.That(renderer.FindComponents<DxChartStackedBarSeries<ParameterValueSetBase, string, int>>(), Is.Not.Empty);
             });
         }
+
+        /// <summary>
+        /// Verifies that an argument not covered by the palette maps to no color, so the donut leaves such a point's
+        /// appearance untouched.
+        /// </summary>
+        [Test]
+        public void VerifyUnknownArgumentHasNoSeriesColor()
+        {
+            Assert.That(DonutDashboard.GetSeriesColor("not a known series"), Is.EqualTo(System.Drawing.Color.Empty));
+        }
+
+        /// <summary>
+        /// Verifies the hover helpers spell out the domain short name and compute its completion percentage, falling
+        /// back to the argument itself and to <see cref="double.NaN"/> for an unknown domain.
+        /// </summary>
+        [Test]
+        public void VerifyDomainNameAndPercentageHoverHelpers()
+        {
+            var domain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
+            IEnumerable<ParameterValueSetBase> valueSets = [CreateValueSet(domain, ["12"])];
+
+            var renderer = this.context.Render<PublishedParameters>(parameters => parameters.Add(p => p.ValueSets, valueSets));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Instance.GetDomainName("SYS"), Is.EqualTo("System"));
+                Assert.That(renderer.Instance.GetDomainName("UNKNOWN"), Is.EqualTo("UNKNOWN"));
+                Assert.That(renderer.Instance.GetDomainPercentage("SYS", 1), Is.EqualTo(100));
+                Assert.That(renderer.Instance.GetDomainPercentage("UNKNOWN", 0), Is.NaN);
+            });
+        }
+
+        /// <summary>
+        /// Verifies the donut renders its two rings from the domain value sets without throwing.
+        /// </summary>
+        [Test]
+        public void VerifyDonutRendersRingsFromValueSets()
+        {
+            var domain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
+            IEnumerable<ParameterValueSetBase> valueSets = [CreateValueSet(domain, ["12"]), CreateValueSet(domain, ["-"])];
+
+            var renderer = this.context.Render<DonutDashboard>(parameters =>
+            {
+                parameters.Add(p => p.ValueSets, valueSets);
+                parameters.Add(p => p.Domains, [domain]);
+            });
+
+            Assert.That(renderer.Find("[data-testid=dashboard-chart]"), Is.Not.Null);
+        }
+
+        /// <summary>
+        /// Verifies the tooltip body shows the domain name and a clickable count/percentage when the domain owns value
+        /// sets, and a dash when the percentage is not a number.
+        /// </summary>
+        [Test]
+        public void VerifyDomainValueTooltipRendersCountAndDash()
+        {
+            var withValue = this.context.Render<DomainValueTooltip>(parameters =>
+            {
+                parameters.Add(p => p.DomainName, "System");
+                parameters.Add(p => p.Count, 12);
+                parameters.Add(p => p.Percentage, 80);
+            });
+
+            var dash = this.context.Render<DomainValueTooltip>(parameters =>
+            {
+                parameters.Add(p => p.DomainName, "System");
+                parameters.Add(p => p.Percentage, double.NaN);
+            });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(withValue.Markup, Does.Contain("System").And.Contain("12").And.Contain("80"));
+                Assert.That(withValue.FindAll("button.card-btn"), Is.Not.Empty);
+                Assert.That(dash.Markup, Does.Contain("-"));
+                Assert.That(dash.FindAll("button.card-btn"), Is.Empty);
+            });
+        }
     }
 }

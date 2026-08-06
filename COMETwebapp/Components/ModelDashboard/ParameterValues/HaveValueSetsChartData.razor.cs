@@ -45,9 +45,24 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
 		/// </summary>
 		/// <param name="argument">The argument shown on the axis, i.e. the domain short name</param>
 		/// <returns>The domain's full name, or the argument itself when it cannot be resolved</returns>
-		protected string GetDomainName(object argument)
+		public string GetDomainName(object argument)
 		{
 			return this.ValueSets.FirstOrDefault(d => d.Owner.ShortName.Equals(argument))?.Owner.Name ?? argument?.ToString();
+		}
+
+		/// <summary>
+		/// Computes the share, in percent, that the given series-point count represents of all value sets owned by the
+		/// domain behind an axis argument. Returned as <see cref="double.NaN"/> when that domain owns no value sets, so
+		/// the tooltip can fall back to a dash rather than dividing by zero.
+		/// </summary>
+		/// <param name="argument">The argument shown on the axis, i.e. the domain short name</param>
+		/// <param name="count">The series-point count for that argument</param>
+		/// <returns>The rounded percentage, or <see cref="double.NaN"/> when the domain owns no value sets</returns>
+		public double GetDomainPercentage(object argument, int count)
+		{
+			var total = this.ValueSets.Count(d => d.Owner.ShortName.Equals(argument));
+
+			return total == 0 ? double.NaN : Math.Round((double)count / total * 100);
 		}
 	}
 }
