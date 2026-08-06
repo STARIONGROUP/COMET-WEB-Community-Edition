@@ -33,9 +33,10 @@
                 <div class="row m-0">
                     @for (var columnIndex = 0; columnIndex < nbColumns; columnIndex++)
                     {
-                        var scale = this.ArrayParameterType.Component.ElementAt(rowIndex * nbRows + columnIndex).Scale;
+                        var index = rowIndex * nbColumns + columnIndex;
+                        var scale = this.ArrayParameterType.Component.ElementAt(index).Scale;
 
-                        <ScalarParameter Value="@(this.Values.ElementAt(rowIndex * nbRows + columnIndex))"
+                        <ScalarParameter Value="@(this.Values.ElementAt(index))"
                                          Scale="@scale"/>
                     }
                 </div>
@@ -59,8 +60,9 @@
                     <div class="row m-0">
                         @for (var columnIndex = 0; columnIndex < nbColumns; columnIndex++)
                         {
-                            var scale = this.ArrayParameterType.Component.ElementAt(rowIndex * nbRows + columnIndex).Scale;
-                            <ScalarParameter Value="@(this.Values.ElementAt(rowIndex * nbRows + columnIndex))"
+                            var index = (z - 1) * nbRows * nbColumns + rowIndex * nbColumns + columnIndex;
+                            var scale = this.ArrayParameterType.Component.ElementAt(index).Scale;
+                            <ScalarParameter Value="@(this.Values.ElementAt(index))"
                                              Scale="@scale"/>
                         }
                     </div>

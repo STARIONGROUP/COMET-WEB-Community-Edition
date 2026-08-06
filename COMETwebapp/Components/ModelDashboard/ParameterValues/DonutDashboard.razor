@@ -28,13 +28,17 @@
                           ValueField="@(d => d.Value)"
                           ArgumentField="@(d => d.Argument)"
                           SummaryMethod="Enumerable.Sum">
-            <DxChartSeriesLabel Visible="true"/>
+            <DxChartSeriesLabel Visible="true" Position="RelativePosition.Outside" ShowForZeroValues="false">
+                <DxChartSeriesLabelConnector Visible="true" Width="1"/>
+            </DxChartSeriesLabel>
         </DxPieChartSeries>
         <DxPieChartSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Published Parameters") || d.Argument.Equals("Publishable Parameters")))"
                           ValueField="@(d => d.Value)"
                           ArgumentField="@(d => d.Argument)"
                           SummaryMethod="Enumerable.Sum">
-            <DxChartSeriesLabel Visible="true"/>
+            <DxChartSeriesLabel Visible="true" Position="RelativePosition.Outside" ShowForZeroValues="false">
+                <DxChartSeriesLabelConnector Visible="true" Width="1"/>
+            </DxChartSeriesLabel>
         </DxPieChartSeries>
         <DxChartLegend AllowToggleSeries="false" 
                        Orientation="@(this.IsSplitView ? Orientation.Horizontal : Orientation.Vertical)" 

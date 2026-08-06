@@ -56,5 +56,20 @@ namespace COMETwebapp.Tests.IntegrationTests
         {
             await Expect(this.PageModel.Charts.First).ToBeVisibleAsync();
         }
+
+        /// <summary>
+        /// Verifies that after the issue #892 rework the parameter-value charts (the donut plus the two
+        /// count-based bar charts) all render, i.e. converting the misleading full-stacked (percentage) bars
+        /// to count-based stacked bars did not break the dashboard.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        [Test]
+        public async Task VerifyParameterValueChartsRender()
+        {
+            await Expect(this.PageModel.Charts.First).ToBeVisibleAsync();
+            var chartCount = await this.PageModel.Charts.CountAsync();
+            Assume.That(chartCount, Is.GreaterThan(0), "the seeded model must expose parameter values for the dashboard charts to render");
+            Assert.That(chartCount, Is.GreaterThanOrEqualTo(3), "expected the donut and both count-based bar charts to render");
+        }
     }
 }

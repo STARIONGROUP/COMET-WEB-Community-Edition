@@ -1,5 +1,5 @@
-// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="DonutDashboard.cs" company="Starion Group S.A.">
+﻿// --------------------------------------------------------------------------------------------------------------------
+//  <copyright file="DonutDashboard.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of CDP4-COMET WEB Community Edition
@@ -71,15 +71,31 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
         /// <param name="settings">The <see cref="ChartSeriesPointCustomizationSettings"/> associated with the series point</param>
         private static void CustomizeSeriesPoint(ChartSeriesPointCustomizationSettings settings)
         {
-            var argument = settings.Point.Argument.ToString();
+            var color = GetSeriesColor(settings.Point.Argument.ToString());
 
-            settings.PointAppearance.Color = argument switch
+            if (!color.IsEmpty)
             {
-                "Published Parameters" => System.Drawing.Color.SteelBlue,
-                "Publishable Parameters" => System.Drawing.Color.LightCoral,
-                "Missing Values" => System.Drawing.Color.DarkSeaGreen,
-                "Complete Values" => System.Drawing.Color.LightSlateGray,
-                _ => settings.PointAppearance.Color
+                settings.PointAppearance.Color = color;
+            }
+        }
+
+        /// <summary>
+        /// Maps a series argument to its chart color so that a "done" outcome (published/complete values)
+        /// reads as green and a state needing attention (publishable/missing values) reads as the warning
+        /// color. See issue #892 - the previous palette painted "Missing Values" green, which read as
+        /// reassuring while meaning the opposite.
+        /// </summary>
+        /// <param name="argument">The series argument</param>
+        /// <returns>The <see cref="System.Drawing.Color"/> to paint the series point with</returns>
+        public static System.Drawing.Color GetSeriesColor(string argument)
+        {
+            return argument switch
+            {
+                "Published Parameters" => HaveChartData.PublishedChartColor,
+                "Publishable Parameters" => HaveChartData.PublishableChartColor,
+                "Missing Values" => HaveChartData.MissingChartColor,
+                "Complete Values" => HaveChartData.CompleteChartColor,
+                _ => System.Drawing.Color.Empty
             };
         }
 
@@ -106,17 +122,17 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
                 var domainParameterValueSets = this.ValueSets.Where(x => x.Owner.Iid == domain.Iid).ToList();
                 var defaultValues = domainParameterValueSets.Count(p => p.Published.Any(v =>  v is "-"));
 
-                donutData.Add(new DataChart
-                {
-                    Value = defaultValues,
-                    Argument = "Missing Values",
-                    Domain = domain.ShortName
-                });
-
                 donutData.Add(new DataChart()
                 {
                     Value = domainParameterValueSets.Count - defaultValues,
                     Argument = "Complete Values",
+                    Domain = domain.ShortName
+                });
+
+                donutData.Add(new DataChart
+                {
+                    Value = defaultValues,
+                    Argument = "Missing Values",
                     Domain = domain.ShortName
                 });
 

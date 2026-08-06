@@ -17,7 +17,6 @@ Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see http://www.gnu.org/licenses/.
 ------------------------------------------------------------------------------->
-@using System.Drawing
 @using CDP4Common.EngineeringModelData
 @using COMETwebapp.Utilities
 @inherits HaveValueSetsChartData
@@ -37,38 +36,19 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 	</div>
 	@if (this.ValueSets.Any())
 	{
-		<DxChart Data="@(this.ValueSets)" CustomizeSeriesPoint="@PreparePointLabel">
-			<DxChartFullStackedBarSeries Color="Color.LightSlateGray" Name="@WebAppConstantValues.ParametersWithValues" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) != 0)"
-			                             ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-			                             AggregationMethod="Enumerable.Sum">
-				<DxChartSeriesLabel Position="RelativePosition.Inside"/>
-			</DxChartFullStackedBarSeries>
-			<DxChartFullStackedBarSeries Color="Color.DarkSeaGreen" Name="@WebAppConstantValues.ParametersWithMissingValues" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) == 0)"
-			                             ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-			                             AggregationMethod="Enumerable.Sum">
-				<DxChartSeriesLabel Position="RelativePosition.Inside"/>
-			</DxChartFullStackedBarSeries>
-			<DxChartLegend Visible="false"/>
-			<DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
-				<div class="small-margin">
-					<button class="card-btn" @onclick="@(() => this.AccessData(context.Point))">
-						More
-					</button>
-				</div>
-			</DxChartTooltip>
-		</DxChart>
-
 		<DxChart Data="@(this.ValueSets)" CssClass="justify-content-center">
 			<DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
 				@{
 					var total = this.ValueSets.Count(d => d.Owner.ShortName.Equals(context.Point.Argument));
-					var number = Math.Round((double)this.CountValueSetPerDomain(context.Point.SeriesName, context.Point.Argument) / total * 100);
+					var count = this.CountValueSetPerDomain(context.Point.SeriesName, context.Point.Argument);
+					var number = Math.Round((double)count / total * 100);
 				}
 				<div class="small-margin">
+					<div class="fw-bold">@(this.GetDomainName(context.Point.Argument))</div>
 					@if (!double.IsNaN(number))
 					{
 						<button class="card-btn" @onclick="@(() => this.AccessData(context.Point))">
-							<div>@number %</div>
+							<div>@count (@number %)</div>
 						</button>
 					}
 					else
@@ -78,12 +58,16 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 
 				</div>
 			</DxChartTooltip>
-			<DxChartStackedBarSeries Color="Color.LightSlateGray" Name="Complete Values" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) != 0)"
+			<DxChartStackedBarSeries Color="HaveChartData.CompleteChartColor" Name="@WebAppConstantValues.ParametersWithValues" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) != 0)"
 			                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-			                         AggregationMethod="Enumerable.Sum"/>
-			<DxChartStackedBarSeries Color="Color.DarkSeaGreen" Name="Missing Values" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) == 0)"
+			                         AggregationMethod="Enumerable.Sum">
+				<DxChartSeriesLabel Position="RelativePosition.Inside" ShowForZeroValues="false"/>
+			</DxChartStackedBarSeries>
+			<DxChartStackedBarSeries Color="HaveChartData.MissingChartColor" Name="@WebAppConstantValues.ParametersWithMissingValues" Filter="@((ParameterValueSetBase p) => p.Published.Count(el => !el.Equals("-")) == 0)"
 			                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
-			                         AggregationMethod="Enumerable.Sum"/>
+			                         AggregationMethod="Enumerable.Sum">
+				<DxChartSeriesLabel Position="RelativePosition.Inside" ShowForZeroValues="false"/>
+			</DxChartStackedBarSeries>
 			<DxChartLegend Position="RelativePosition.Outside" HorizontalAlignment="HorizontalAlignment.Center"/>
 		</DxChart>
 	}

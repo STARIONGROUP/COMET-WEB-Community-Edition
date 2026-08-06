@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="HaveValueSetsChartData.cs" company="Starion Group S.A.">
+//  <copyright file="HaveValueSetsChartData.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of CDP4-COMET WEB Community Edition
@@ -38,5 +38,16 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
 		/// </summary>
 		[Parameter]
 		public IEnumerable<ParameterValueSetBase> ValueSets { get; set; }
+
+		/// <summary>
+		/// Resolves the full name of the domain of expertise behind an axis argument (its short name),
+		/// so the acronyms shown on the chart axis can be spelled out on hover (see issue #892).
+		/// </summary>
+		/// <param name="argument">The argument shown on the axis, i.e. the domain short name</param>
+		/// <returns>The domain's full name, or the argument itself when it cannot be resolved</returns>
+		protected string GetDomainName(object argument)
+		{
+			return this.ValueSets.FirstOrDefault(d => d.Owner.ShortName.Equals(argument))?.Owner.Name ?? argument?.ToString();
+		}
 	}
 }

@@ -141,7 +141,8 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
             arrayParameterType.Dimension.Add(2);
             arrayParameterType.Dimension.Add(2);
 
-            for (var componentIndex = 0; componentIndex < arrayParameterType.Dimension.Sum(); componentIndex++)
+            // an array's cell count is the product of its dimensions (2*2*2 = 8), not their sum.
+            for (var componentIndex = 0; componentIndex < arrayParameterType.Dimension.Aggregate(1, (accumulator, size) => accumulator * size); componentIndex++)
             {
                 arrayParameterType.Component.Add(new ParameterTypeComponent
                 {
@@ -158,6 +159,33 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
             });
 
             Assert.That(renderer.FindComponents<ScalarParameter>(), Has.Count.EqualTo(8));
+        }
+
+        [Test]
+        public void VerifyWithNonSquareArrayParameterType()
+        {
+            var booleanParameterType = new BooleanParameterType();
+            var arrayParameterType = new ArrayParameterType();
+            arrayParameterType.Dimension.Add(3);
+            arrayParameterType.Dimension.Add(2);
+
+            for (var componentIndex = 0; componentIndex < arrayParameterType.Dimension.Aggregate(1, (accumulator, size) => accumulator * size); componentIndex++)
+            {
+                arrayParameterType.Component.Add(new ParameterTypeComponent
+                {
+                    ParameterType = booleanParameterType
+                });
+            }
+
+            var valueArray = new ValueArray<string>(new[] { "-", "false", "true", "-", "true", "false" });
+
+            var renderer = this.context.Render<ValueArrayDetails>(parameters =>
+            {
+                parameters.Add(p => p.ParameterType, arrayParameterType);
+                parameters.Add(p => p.Value, valueArray);
+            });
+
+            Assert.That(renderer.FindComponents<ScalarParameter>(), Has.Count.EqualTo(6));
         }
 
         [Test]

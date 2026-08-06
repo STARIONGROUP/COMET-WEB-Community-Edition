@@ -25,8 +25,8 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 	var otherElements = 100 - identifiedElements;
 	<div class="container-fluid p-0">
 		<div class="row m-0">
-			<Progress Percent="otherElements" ></Progress>
-			<Progress Percent="identifiedElements" StrokeColor="HaveChartData.WarningColor"></Progress>
+			<Progress Percent="otherElements" StrokeColor="@(this.GoodStrokeColor)"></Progress>
+			<Progress Percent="identifiedElements" StrokeColor="@(this.WarningStrokeColor)"></Progress>
 		</div>
 
 		<ElementTable Elements="@(this.IdentifiedElements)"/>
