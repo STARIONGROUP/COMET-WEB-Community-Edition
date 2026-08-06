@@ -74,6 +74,14 @@ namespace COMETwebapp.Components.Tabs
         private bool IsIterationView => this.ViewModel.SelectedApplication?.ThingTypeOfInterest == typeof(Iteration);
 
         /// <summary>
+        /// Gets a value indicating whether the selected domain is different from the iteration's currently active domain
+        /// </summary>
+        public bool IsSelectedDomainDifferentFromActiveDomain => this.ViewModel.IsCurrentIterationOpened &&
+                                                                 this.ViewModel.SelectedDomainOfExpertise != null &&
+                                                                 this.ViewModel.SelectedIterationDomainOfExpertise != null &&
+                                                                 this.ViewModel.SelectedDomainOfExpertise.Iid != this.ViewModel.SelectedIterationDomainOfExpertise.Iid;
+
+        /// <summary>
         /// Asserts that the open-tab form has rendered and its combo boxes are interactive. Exposed to the DOM as the
         /// application-owned <c>data-app-ready</c> readiness marker the end-to-end tests wait on before opening a combo,
         /// so the tests no longer depend on a third-party "editor loaded" attribute.
