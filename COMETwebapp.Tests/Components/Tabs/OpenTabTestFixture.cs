@@ -37,6 +37,7 @@ namespace COMETwebapp.Tests.Components.Tabs
     using COMETwebapp.Components.Tabs;
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Components.Common.OpenTab;
+    using COMETwebapp.ViewModels.Pages;
 
     using DevExpress.Blazor;
 
@@ -185,6 +186,50 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.renderer.Render();
             await this.renderer.InvokeAsync(openButton.Instance.Click.InvokeAsync);
             this.viewModel.Verify(x => x.OpenTab(It.IsAny<TabPanelInformation>()), Times.Exactly(3));
+        }
+
+        [Test]
+        public void VerifyHeaderTexts()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.HeaderText, Is.EqualTo("You have no model selected"));
+                Assert.That(this.renderer.Instance.SubtitleText, Is.EqualTo("Select a model to start working on it"));
+            });
+
+            this.viewModel.Setup(x => x.SelectedEngineeringModel).Returns(new EngineeringModelSetup { Name = "Model" });
+            this.renderer.Render();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.renderer.Instance.HeaderText, Is.EqualTo("Model selected"));
+                Assert.That(this.renderer.Instance.SubtitleText, Is.EqualTo("Select options to start working on it"));
+            });
+        }
+
+        [Test]
+        public async Task VerifyGoToOpenTab()
+        {
+            var tabOpenedCalled = false;
+            this.renderer.Render(parameters => { parameters.Add(p => p.OnTabOpened, () => tabOpenedCalled = true); });
+
+            this.viewModel.Setup(x => x.HasOpenTab).Returns(true);
+            this.viewModel.Setup(x => x.NavigateToOpenTab()).Returns(true);
+
+            this.renderer.Render();
+
+            Assert.That(this.renderer.Instance.ViewModel.HasOpenTab, Is.True);
+
+            var alreadyOpenButton = this.renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "already-open-tab-button");
+            Assert.That(alreadyOpenButton, Is.Not.Null);
+
+            await this.renderer.InvokeAsync(alreadyOpenButton.Instance.Click.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
+            {
+                this.viewModel.Verify(x => x.NavigateToOpenTab(), Times.Once);
+                Assert.That(tabOpenedCalled, Is.True);
+            }
         }
     }
 }

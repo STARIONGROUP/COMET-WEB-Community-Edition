@@ -274,5 +274,55 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
                 this.tabsViewModel.Verify(x => x.CreateNewTab(engineeringModelBodyApplication, secondIteration.Iid, panel), Times.Once);
             }
         }
+
+        [Test]
+        public void VerifyNavigateToOpenTab()
+        {
+            var mainPanel = new TabPanelInformation();
+            var sidePanel = new TabPanelInformation();
+            this.tabsViewModel.Setup(x => x.MainPanel).Returns(mainPanel);
+            this.tabsViewModel.Setup(x => x.SidePanel).Returns(sidePanel);
+
+            var resultWhenNoModel = this.viewModel.NavigateToOpenTab();
+
+            var alreadyOpenIteration = this.alreadyOpenIterations.Items[0];
+            alreadyOpenIteration.IterationSetup.IterationIid = alreadyOpenIteration.Iid;
+            var engineeringModelSetup = ((EngineeringModel)alreadyOpenIteration.Container).EngineeringModelSetup;
+
+            var application = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ThingTypeOfInterest == typeof(Iteration));
+            this.viewModel.SelectedApplication = application;
+            this.viewModel.SelectedEngineeringModel = engineeringModelSetup;
+            this.viewModel.SelectedIterationSetup = new IterationData(alreadyOpenIteration.IterationSetup);
+
+            var hasOpenTabBeforeAdd = this.viewModel.HasOpenTab;
+            var resultWhenNoTabs = this.viewModel.NavigateToOpenTab();
+
+            var dummyViewModel = new Mock<COMET.Web.Common.ViewModels.Components.Applications.IApplicationBaseViewModel>();
+            var existingTab = new TabbedApplicationInformation(dummyViewModel.Object, application.ComponentType, alreadyOpenIteration);
+            mainPanel.OpenTabs.Add(existingTab);
+
+            var hasOpenTabAfterAdd = this.viewModel.HasOpenTab;
+            var resultMainPanel = this.viewModel.NavigateToOpenTab();
+            var currentTabMain = mainPanel.CurrentTab;
+
+            mainPanel.OpenTabs.Remove(existingTab);
+            mainPanel.CurrentTab = null;
+            sidePanel.OpenTabs.Add(existingTab);
+
+            var resultSidePanel = this.viewModel.NavigateToOpenTab();
+            var currentTabSide = sidePanel.CurrentTab;
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(resultWhenNoModel, Is.False);
+                Assert.That(hasOpenTabBeforeAdd, Is.False);
+                Assert.That(resultWhenNoTabs, Is.False);
+                Assert.That(hasOpenTabAfterAdd, Is.True);
+                Assert.That(resultMainPanel, Is.True);
+                Assert.That(currentTabMain, Is.EqualTo(existingTab));
+                Assert.That(resultSidePanel, Is.True);
+                Assert.That(currentTabSide, Is.EqualTo(existingTab));
+            }
+        }
     }
 }

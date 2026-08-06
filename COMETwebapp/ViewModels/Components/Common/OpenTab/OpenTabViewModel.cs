@@ -101,6 +101,11 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         public DomainOfExpertise SelectedIterationDomainOfExpertise => this.sessionService.GetDomainOfExpertise(this.SelectedEngineeringModelIteration);
 
         /// <summary>
+        /// Gets a value indicating whether a tab for the selected application and model is already open
+        /// </summary>
+        public bool HasOpenTab => this.GetExistingTab() != null;
+
+        /// <summary>
         /// The selected <see cref="TabbedApplication" />
         /// </summary>
         public TabbedApplication SelectedApplication
@@ -161,6 +166,49 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
             {
                 this.tabsViewModel.CreateNewTab(this.SelectedApplication, isIteration ? this.SelectedEngineeringModelIteration.Iid : this.SelectedEngineeringModel.EngineeringModelIid, panel);
             }
+        }
+
+        /// <summary>
+        /// Navigates to an already open tab for the selected engineering model or iteration if it exists
+        /// </summary>
+        /// <returns>True if a tab was navigated to; otherwise, false.</returns>
+        public bool NavigateToOpenTab()
+        {
+            var existingTab = this.GetExistingTab();
+
+            if (existingTab == null)
+            {
+                return false;
+            }
+
+            var targetPanel = this.tabsViewModel.MainPanel.OpenTabs.Items.Contains(existingTab)
+                ? this.tabsViewModel.MainPanel
+                : this.tabsViewModel.SidePanel;
+
+            targetPanel.CurrentTab = existingTab;
+            return true;
+        }
+
+        /// <summary>
+        /// Gets the existing tab for the selected application and engineering model or iteration if it exists
+        /// </summary>
+        /// <returns>The existing tab, or null if no matching tab is found.</returns>
+        private TabbedApplicationInformation GetExistingTab()
+        {
+            if (this.SelectedApplication == null)
+            {
+                return null;
+            }
+
+            IEnumerable<TabbedApplicationInformation> allTabs = 
+            [
+                .. this.tabsViewModel.MainPanel.OpenTabs.Items,
+                .. this.tabsViewModel.SidePanel.OpenTabs.Items
+            ];
+
+            return allTabs.FirstOrDefault(x => 
+                x.ObjectOfInterest == this.SelectedEngineeringModelIteration && 
+                x.ComponentType == this.SelectedApplication.ComponentType);
         }
     }
 }
