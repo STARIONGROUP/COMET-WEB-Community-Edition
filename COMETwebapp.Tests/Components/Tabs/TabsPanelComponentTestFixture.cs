@@ -27,6 +27,8 @@ namespace COMETwebapp.Tests.Components.Tabs
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -51,7 +53,6 @@ namespace COMETwebapp.Tests.Components.Tabs
     using Moq;
 
     using NUnit.Framework;
-
 
     [TestFixture]
     public class TabsPanelComponentTestFixture
@@ -110,7 +111,10 @@ namespace COMETwebapp.Tests.Components.Tabs
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise());
 
+            var messageBus = new Mock<ICDPMessageBus>();
+
             this.context.Services.AddSingleton(sessionService.Object);
+            this.context.Services.AddSingleton(messageBus.Object);
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(this.engineeringModelBodyViewModel.Object);
             this.context.Services.AddSingleton(configuration.Object);

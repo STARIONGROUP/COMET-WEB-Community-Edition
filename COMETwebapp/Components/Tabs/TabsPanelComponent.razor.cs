@@ -27,7 +27,11 @@ namespace COMETwebapp.Components.Tabs
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+    using CDP4Dal.Events;
+
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Model;
@@ -36,6 +40,8 @@ namespace COMETwebapp.Components.Tabs
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
+
+    using ReactiveUI;
 
     /// <summary>
     /// Core component for the Tabs page
@@ -97,9 +103,29 @@ namespace COMETwebapp.Components.Tabs
         public ISessionService SessionService { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="ICDPMessageBus" />
+        /// </summary>
+        [Inject]
+        public ICDPMessageBus MessageBus { get; set; }
+
+        /// <summary>
         /// Gets the active <see cref="DomainOfExpertise" /> for the current tab panel
         /// </summary>
         public DomainOfExpertise CurrentDomainOfExpertise => this.ViewModel.GetCurrentDomainOfExpertise(this.Panel);
+
+        /// <summary>
+        /// Method invoked when the component is ready to start
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnSwitchDomainMode)
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.MessageBus.Listen<DomainChangedEvent>()
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
 
         /// <summary>
         /// Sorts the tabs by the means of drag and drop

@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -26,6 +26,8 @@ namespace COMETwebapp.Tests.Pages
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+
+    using CDP4Dal;
 
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
@@ -107,10 +109,13 @@ namespace COMETwebapp.Tests.Pages
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise());
 
+            var messageBus = new Mock<ICDPMessageBus>();
+
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(this.engineeringModelBodyViewModel.Object);
             this.context.Services.AddSingleton(configuration.Object);
+            this.context.Services.AddSingleton(messageBus.Object);
             this.context.Services.AddSingleton(new Mock<IOpenTabViewModel>().Object);
             this.context.Services.AddSingleton(new Mock<IOpenModelViewModel>().Object);
             this.context.Services.AddSingleton(new Mock<IStringTableService>().Object);
