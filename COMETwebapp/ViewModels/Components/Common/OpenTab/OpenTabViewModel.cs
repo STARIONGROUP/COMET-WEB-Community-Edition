@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="OpenTabViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -22,6 +22,7 @@
 
 namespace COMETwebapp.ViewModels.Components.Common.OpenTab
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -206,8 +207,12 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
                 .. this.tabsViewModel.SidePanel.OpenTabs.Items
             ];
 
+            Thing targetObjectOfInterest = this.SelectedApplication.ThingTypeOfInterest == typeof(Iteration) 
+                ? this.SelectedEngineeringModelIteration
+                : this.sessionService.OpenEngineeringModels.FirstOrDefault(x => x.Iid == this.SelectedEngineeringModel?.EngineeringModelIid);
+
             return allTabs.FirstOrDefault(x => 
-                x.ObjectOfInterest == this.SelectedEngineeringModelIteration && 
+                x.ObjectOfInterest == targetObjectOfInterest && 
                 x.ComponentType == this.SelectedApplication.ComponentType);
         }
     }
