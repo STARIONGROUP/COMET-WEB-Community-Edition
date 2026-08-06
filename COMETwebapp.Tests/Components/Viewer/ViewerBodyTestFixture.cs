@@ -1,12 +1,143 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// --------------------------------------------------------------------------------------------------------------------
+//  <copyright file="ViewerBodyTestFixture.cs" company="Starion Group S.A.">
+//     Copyright (c) 2023-2026 Starion Group S.A.
+// 
+//     This file is part of CDP4-COMET WEB Community Edition
+//     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+// 
+//     The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+//     modify it under the terms of the GNU Affero General Public
+//     License as published by the Free Software Foundation; either
+//     version 3 of the License, or (at your option) any later version.
+// 
+//     The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//     Affero General Public License for more details.
+// 
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  </copyright>
+//   --------------------------------------------------------------------------------------------------------------------
 
 namespace COMETwebapp.Tests.Components.Viewer
 {
-    internal class ViewerBodyTestFixture
+    using Bunit;
+
+    using CDP4Dal;
+
+    using COMET.Web.Common.Model.Configuration;
+    using COMET.Web.Common.Services.ConfigurationService;
+    using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Services.StringTableService;
+    using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.ViewModels.Components.Selectors;
+
+    using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Viewer;
+    using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
+
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
+
+    using NUnit.Framework;
+
+    /// <summary>
+    /// Test fixture for <see cref="ViewerBody" /> component.
+    /// </summary>
+    [TestFixture]
+    public class ViewerBodyTestFixture
     {
+        /// <summary>
+        /// The <see cref="BunitContext" /> used for rendering components.
+        /// </summary>
+        private BunitContext context;
+
+        /// <summary>
+        /// The <see cref="ICDPMessageBus" /> used for testing.
+        /// </summary>
+        private CDPMessageBus messageBus;
+
+        /// <summary>
+        /// Sets up the test context and dependencies before each test execution.
+        /// </summary>
+        [SetUp]
+        public void SetUp()
+        {
+            this.context = new BunitContext();
+            this.context.ConfigureDevExpressBlazor();
+
+            var sessionService = new Mock<ISessionService>();
+            this.messageBus = new CDPMessageBus();
+
+            var mockViewerBodyViewModel = new Mock<IViewerBodyViewModel>();
+            var mockOptionSelector = new Mock<IOptionSelectorViewModel>();
+            var mockMultipleFiniteStateSelector = new Mock<IMultipleActualFiniteStateSelectorViewModel>();
+            mockMultipleFiniteStateSelector.Setup(x => x.ActualFiniteStateSelectorViewModels).Returns([]);
+
+            var selectionMediator = new Mock<ISelectionMediator>();
+            var canvasViewModel = new Mock<ICanvasViewModel>();
+            var mockConfigurationService = new Mock<IConfigurationService>();
+            mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
+
+            var stringTableService = new Mock<IStringTableService>();
+            stringTableService.Setup(x => x.GetText(It.IsAny<string>())).Returns("something");
+
+            var mockPropertiesViewModel = new Mock<IPropertiesComponentViewModel>();
+            var mockDetailsViewModel = new Mock<IDetailsComponentViewModel>();
+            mockPropertiesViewModel.Setup(x => x.CreateDetailsComponentViewModel()).Returns(mockDetailsViewModel.Object);
+
+            mockViewerBodyViewModel.Setup(x => x.OptionSelector).Returns(mockOptionSelector.Object);
+            mockViewerBodyViewModel.Setup(x => x.MultipleFiniteStateSelector).Returns(mockMultipleFiniteStateSelector.Object);
+            mockViewerBodyViewModel.Setup(x => x.ProductTreeViewModel).Returns(new ViewerProductTreeViewModel(selectionMediator.Object));
+            mockViewerBodyViewModel.Setup(x => x.CanvasViewModel).Returns(canvasViewModel.Object);
+            mockViewerBodyViewModel.Setup(x => x.PropertiesViewModel).Returns(mockPropertiesViewModel.Object);
+
+            this.context.Services.AddSingleton(sessionService.Object);
+            this.context.Services.AddSingleton(mockViewerBodyViewModel.Object);
+            this.context.Services.AddSingleton(selectionMediator.Object);
+            this.context.Services.AddSingleton(mockConfigurationService.Object);
+            this.context.Services.AddSingleton(stringTableService.Object);
+            this.context.Services.AddSingleton(this.messageBus);
+        }
+
+        /// <summary>
+        /// Cleans up the test context after each test execution.
+        /// </summary>
+        [TearDown]
+        public void TearDown()
+        {
+            this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
+        }
+
+        /// <summary>
+        /// Verifies that <see cref="ViewerBody" /> renders correctly and updates gridParent CSS class in split view mode.
+        /// </summary>
+        [Test]
+        public void VerifyViewerBodyRendering()
+        {
+            var renderedComponent = this.context.Render<ViewerBody>();
+
+            var gridParent = renderedComponent.Find("#gridParent");
+
+            var splitViewRenderedComponent = this.context.Render<ViewerBody>(parameters => { parameters.AddCascadingValue(WebAppConstantValues.IsSplitViewCascadingValueName, true); });
+
+            var splitGridParent = splitViewRenderedComponent.Find("#gridParent");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderedComponent.Instance, Is.Not.Null);
+                Assert.That(gridParent, Is.Not.Null);
+                Assert.That(renderedComponent.Instance.IsSplitView, Is.False);
+                Assert.That(gridParent.ClassList, Does.Not.Contain("split-mode"));
+                Assert.That(splitViewRenderedComponent.Instance, Is.Not.Null);
+                Assert.That(splitGridParent, Is.Not.Null);
+                Assert.That(splitViewRenderedComponent.Instance.IsSplitView, Is.True);
+                Assert.That(splitGridParent.ClassList, Does.Contain("split-mode"));
+            });
+        }
     }
 }

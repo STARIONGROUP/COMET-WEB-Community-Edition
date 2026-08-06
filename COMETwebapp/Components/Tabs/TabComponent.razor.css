@@ -1,4 +1,4 @@
-﻿.tab-component {
+.tab-component {
     border-radius: 7.5px;
     padding: 2px 10px 2px 10px;
     display: flex;
@@ -7,7 +7,16 @@
     background-color: var(--colors-white);
     color: var(--colors-primary-800);
     font-weight: 500;
-    width: max-content;
+    max-width: 280px;
+    min-width: 0;
+    flex-shrink: 0;
+}
+
+.tab-component > span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .current-tab {

@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2026 Starion Group S.A.
 //
 //    This file is part of CDP4-COMET WEB Community Edition
@@ -24,14 +24,14 @@
 <div class="panel-view @(this.CssClass)">
     @if (this.Panel.CurrentTab is not null)
     {
-        <div class="tabs-row">
-            <div class="d-flex gap-2">
+        <div class="tabs-row align-items-center">
+            <div class="tabs-container">
                 <SortableList Group="tabs-panel"
                               Items="@(this.Panel.OpenTabs.Items.ToList())"
                               OnUpdate="@(indexes => this.SortTabs(indexes.oldIndex, indexes.newIndex))"
                               OnRemove="@(indexes => this.OnMovedTab(indexes.oldIndex, indexes.newIndex))"
                               Context="tab"
-                              CssClass="d-flex gap-2">
+                              CssClass="d-flex gap-2 flex-shrink-0">
                     <SortableItemTemplate>
                         <TabComponent Text="@(GetTabText(tab))"
                                       Caption="@(this.GetCaptionText(tab.ObjectOfInterest))"
@@ -53,17 +53,18 @@
                               OnClick="@(() => this.OnOpenTabClick.Invoke())"/>
             </div>
             
-            <DxButton Click="@(this.AddSidePanel)"
-                      Enabled="@(this.IsSplitViewEnabled)"
-                      RenderStyle="@(CometButtonStyle.None.ToButtonRenderStyle())"
-                      Id="new-side-panel-button"
-                      CssClass="ml-auto p-0"
-                      Visible="this.IsSplitViewVisible"
-                      title="@this.GetSplitViewTooltip()"
-                      aria-label="Split View">
-                <CometIcon Icon="IconName.Columns"
-                           Size="30"/>
-            </DxButton>
+            <span title="@(this.GetSplitViewTooltip())" class="ms-auto flex-shrink-0 pl-2">
+                <DxButton Click="@(this.AddSidePanel)"
+                          Enabled="@(this.IsSplitViewEnabled)"
+                          RenderStyle="@(CometButtonStyle.None.ToButtonRenderStyle())"
+                          Id="new-side-panel-button"
+                          CssClass="p-0"
+                          Visible="@(this.IsSplitViewVisible)"
+                          aria-label="@(this.GetSplitViewTooltip())">
+                    <CometIcon Icon="IconName.Columns"
+                               Size="30"/>
+                </DxButton>
+            </span>
         </div>
         <div class="template-container" id="tabs-page-content">
             <DynamicApplicationBase ViewModel="this.Panel.CurrentTab.ApplicationBaseViewModel"

@@ -46,7 +46,7 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
         /// <summary>
         /// Gets the container CSS class
         /// </summary>
-        private string ContainerCssClass => $"{(this.IsSplitView ? "col-12" : "col col-xxl-8")} donut-chart-container d-flex justify-content-center";
+        private string ContainerCssClass => $"{(this.IsSplitView ? "col-12" : "col col-xxl-8")} donut-chart-container";
 
         /// <summary>
         /// A collection of <see cref="ParameterValueSetBase"/> to display

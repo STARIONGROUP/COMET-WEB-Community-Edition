@@ -33,7 +33,7 @@
                                 OnCreateTabForModel="@(tab => this.OnCreateTabForModel(tab))"
                                 OnRemoveTabClick="@(tab => OnRemoveTabClick(tab, this.ViewModel.MainPanel))"
                                 OnOpenTabClick="@(() => this.OnOpenTabClick(this.ViewModel.MainPanel))"
-                                IsSplitViewVisible="@(this.ViewModel.MainPanel.OpenTabs.Count >= 1 && this.ViewModel.SidePanel.OpenTabs.Count == 0)"
+                                IsSplitViewVisible="@(this.ViewModel.SidePanel.OpenTabs.Count == 0)"
                                 IsSplitViewEnabled="@(this.ViewModel.MainPanel.OpenTabs.Count > 1)"/>
 
             @if (this.ViewModel.SidePanel.CurrentTab is not null)

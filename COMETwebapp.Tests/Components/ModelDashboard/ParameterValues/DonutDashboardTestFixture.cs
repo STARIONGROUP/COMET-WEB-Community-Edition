@@ -145,9 +145,11 @@ namespace COMETwebapp.Tests.Components.ModelDashboard.ParameterValues
             {
                 Assert.That(renderedComponent.Instance, Is.Not.Null);
                 Assert.That(chartContainer, Is.Not.Null);
+                Assert.That(chartContainer.ClassList, Does.Contain("col-xxl-8"));
                 Assert.That(renderedComponent.Instance.IsSplitView, Is.False);
                 Assert.That(splitViewRenderedComponent.Instance, Is.Not.Null);
                 Assert.That(splitChartContainer, Is.Not.Null);
+                Assert.That(splitChartContainer.ClassList, Does.Contain("col-12"));
                 Assert.That(splitViewRenderedComponent.Instance.IsSplitView, Is.True);
             });
         }
