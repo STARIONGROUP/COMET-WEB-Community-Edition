@@ -23,15 +23,19 @@
 namespace COMETwebapp.ViewModels.Pages
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Model;
 
     using DynamicData;
+
+    using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
@@ -51,6 +55,16 @@ namespace COMETwebapp.ViewModels.Pages
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// The currently selected <see cref="Iteration" /> for domain switching
+        /// </summary>
+        private Iteration selectedDomainSwitchIteration;
+
+        /// <summary>
+        /// Backing field for <see cref="IsOnSwitchDomainMode" />
+        /// </summary>
+        private bool isOnSwitchDomainMode;
+
+        /// <summary>
         /// Backing field for <see cref="SelectedApplication" />
         /// </summary>
         private TabbedApplication selectedApplication;
@@ -65,6 +79,15 @@ namespace COMETwebapp.ViewModels.Pages
         {
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
+
+            var eventCallbackFactory = new EventCallbackFactory();
+
+            this.SwitchDomainViewModel = new SwitchDomainViewModel
+            {
+                OnSubmit = eventCallbackFactory.Create<DomainOfExpertise>(this, this.SwitchDomain),
+                OnCancel = eventCallbackFactory.Create(this, () => this.IsOnSwitchDomainMode = false)
+            };
+
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedApplication).Subscribe(_ => this.OnSelectedApplicationChange()));
             this.Disposables.Add(this.WhenAnyValue(x => x.MainPanel.CurrentTab).Subscribe(_ => this.OnCurrentTabChange(this.MainPanel)));
             this.Disposables.Add(this.WhenAnyValue(x => x.SidePanel.CurrentTab).Subscribe(_ => this.OnCurrentTabChange(this.SidePanel)));
@@ -99,6 +122,20 @@ namespace COMETwebapp.ViewModels.Pages
             get => this.selectedApplication;
             set => this.RaiseAndSetIfChanged(ref this.selectedApplication, value);
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the domain switch popup dialog is visible
+        /// </summary>
+        public bool IsOnSwitchDomainMode
+        {
+            get => this.isOnSwitchDomainMode;
+            set => this.RaiseAndSetIfChanged(ref this.isOnSwitchDomainMode, value);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="ISwitchDomainViewModel" /> for domain switching
+        /// </summary>
+        public ISwitchDomainViewModel SwitchDomainViewModel { get; }
 
         /// <summary>
         /// Creates a new tab and sets it to current
@@ -195,6 +232,64 @@ namespace COMETwebapp.ViewModels.Pages
             List<TabbedApplicationInformation> thingTabsToClose = [.. iterationTabsToClose, .. engineeringModelTabsToClose];
             this.MainPanel.CloseTabs(thingTabsToClose);
             this.SidePanel.CloseTabs(thingTabsToClose);
+        }
+
+        /// <summary>
+        /// Gets the active <see cref="DomainOfExpertise" /> for the given tab panel's current tab
+        /// </summary>
+        /// <param name="panel">The <see cref="TabPanelInformation" /></param>
+        /// <returns>The active <see cref="DomainOfExpertise" />, or null if none</returns>
+        public DomainOfExpertise GetCurrentDomainOfExpertise(TabPanelInformation panel)
+        {
+            var iteration = GetIterationFromTab(panel.CurrentTab);
+
+            return iteration != null 
+                ? this.sessionService.GetDomainOfExpertise(iteration) 
+                : null;
+        }
+
+        /// <summary>
+        /// Opens the domain switch dialog for the given tab panel's current tab
+        /// </summary>
+        /// <param name="panel">The <see cref="TabPanelInformation" /></param>
+        public void AskToSwitchDomain(TabPanelInformation panel)
+        {
+            var iteration = GetIterationFromTab(panel.CurrentTab);
+
+            if (iteration == null)
+            {
+                return;
+            }
+
+            this.selectedDomainSwitchIteration = iteration;
+            this.SwitchDomainViewModel.AvailableDomains = this.sessionService.GetModelDomains((EngineeringModelSetup)iteration.IterationSetup.Container);
+            this.SwitchDomainViewModel.SelectedDomainOfExpertise = this.sessionService.GetDomainOfExpertise(iteration);
+            this.IsOnSwitchDomainMode = true;
+        }
+
+        /// <summary>
+        /// Switches the <see cref="DomainOfExpertise" /> for the selected iteration
+        /// </summary>
+        /// <param name="domainOfExpertise">The selected <see cref="DomainOfExpertise" /></param>
+        private void SwitchDomain(DomainOfExpertise domainOfExpertise)
+        {
+            this.sessionService.SwitchDomain(this.selectedDomainSwitchIteration, domainOfExpertise);
+            this.IsOnSwitchDomainMode = false;
+        }
+
+        /// <summary>
+        /// Gets the active <see cref="Iteration" /> from a <see cref="TabbedApplicationInformation" />
+        /// </summary>
+        /// <param name="tab">The <see cref="TabbedApplicationInformation" /></param>
+        /// <returns>The active <see cref="Iteration" />, or null</returns>
+        private static Iteration GetIterationFromTab(TabbedApplicationInformation tab)
+        {
+            return tab.ObjectOfInterest switch
+            {
+                Iteration iteration => iteration,
+                EngineeringModel engineeringModel => engineeringModel.Iteration.FirstOrDefault(x => x.IterationSetup.FrozenOn == null),
+                _ => null
+            };
         }
     }
 }

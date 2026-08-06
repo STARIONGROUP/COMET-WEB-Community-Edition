@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsPanelComponentTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -147,14 +147,24 @@ namespace COMETwebapp.Tests.Components.Tabs
         }
 
         [Test]
-        public void VerifyComponent()
+        public async Task VerifyComponent()
         {
+            var domain = new DomainOfExpertise { ShortName = "DOM" };
+            this.viewModel.Setup(x => x.GetCurrentDomainOfExpertise(this.mainPanel)).Returns(domain);
+            this.renderer.Render();
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ViewModel, Is.EqualTo(this.viewModel.Object));
                 Assert.That(this.renderer.Instance, Is.Not.Null);
+                Assert.That(this.renderer.Instance.CurrentDomainOfExpertise, Is.EqualTo(domain));
                 Assert.That(this.renderer.Markup, Does.Contain("css-test-class"));
+                Assert.That(this.renderer.Markup, Does.Contain("DOM"));
             });
+
+            var badgeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "switch-domain-badge-button");
+            await this.renderer.InvokeAsync(() => badgeButton.Instance.Click.InvokeAsync());
+            this.viewModel.Verify(x => x.AskToSwitchDomain(this.mainPanel), Times.Once);
         }
 
         [Test]

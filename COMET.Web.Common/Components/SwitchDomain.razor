@@ -29,6 +29,14 @@
         </DxFormLayoutItem>
     </DxFormLayout>
     <div class="modal-footer">
-        <DxButton id="switch-domain-button" Text="Switch" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Click="@(() => this.ViewModel.OnSubmit.InvokeAsync(this.ViewModel.SelectedDomainOfExpertise))"/>
+        <DxButton id="switch-domain-close-button"
+                  Text="Close"
+                  RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())"
+                  Click="@(() => this.ViewModel.OnCancel.InvokeAsync())"/>
+
+        <DxButton id="switch-domain-button"
+                  Text="Switch"
+                  RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                  Click="@(() => this.ViewModel.OnSubmit.InvokeAsync(this.ViewModel.SelectedDomainOfExpertise))"/>
     </div> 
 </span>

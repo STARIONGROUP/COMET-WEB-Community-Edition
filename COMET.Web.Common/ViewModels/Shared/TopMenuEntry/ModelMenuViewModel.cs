@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ModelMenuViewModel.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -87,7 +87,8 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry
 
             this.SwitchDomainViewModel = new SwitchDomainViewModel
             {
-                OnSubmit = new EventCallbackFactory().Create<DomainOfExpertise>(this, this.SwitchDomain)
+                OnSubmit = new EventCallbackFactory().Create<DomainOfExpertise>(this, this.SwitchDomain),
+                OnCancel = new EventCallbackFactory().Create(this, () => this.IsOnSwitchDomainMode = false)
             };
 
             this.Disposables.Add(this.SessionService.OpenIterations.CountChanged.Subscribe(_ => { this.IsOnOpenIterationMode = false; }));

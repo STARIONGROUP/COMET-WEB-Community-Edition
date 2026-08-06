@@ -25,6 +25,7 @@ namespace COMETwebapp.Components.Tabs
     using System.Text;
 
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Services.SessionManagement;
@@ -94,6 +95,11 @@ namespace COMETwebapp.Components.Tabs
         /// </summary>
         [Inject]
         public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets the active <see cref="DomainOfExpertise" /> for the current tab panel
+        /// </summary>
+        public DomainOfExpertise CurrentDomainOfExpertise => this.ViewModel.GetCurrentDomainOfExpertise(this.Panel);
 
         /// <summary>
         /// Sorts the tabs by the means of drag and drop

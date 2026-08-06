@@ -25,6 +25,13 @@
 <div class="panel-view @(this.CssClass)">
     @if (this.Panel.CurrentTab is not null)
     {
+        <DxPopup @bind-Visible="@this.ViewModel.IsOnSwitchDomainMode"
+                 CloseOnOutsideClick="false"
+                 HeaderText="Switch domain"
+                 ShowCloseButton="true">
+            <SwitchDomain ViewModel="@this.ViewModel.SwitchDomainViewModel"/>
+        </DxPopup>
+
         <div class="tabs-row">
             <div class="d-flex gap-2">
                 <SortableList Group="tabs-panel" 
@@ -53,15 +60,28 @@
                               Icon="IconName.Add"
                               OnClick="@(() => this.OnOpenTabClick.Invoke())"/>
             </div>
-            @if (this.IsSidePanelAvailable)
-            {
-                <DxButton Click="@(() => this.AddSidePanel())"
-                          RenderStyle="@(CometButtonStyle.None.ToButtonRenderStyle())"
-                          Id="new-side-panel-button"
-                          CssClass="ml-auto p-0">
-                    <CometIcon Icon="IconName.Columns" Size="30"/>
-                </DxButton>
-            }
+
+            <div class="d-flex align-items-center gap-2 ml-auto">
+                @if (this.CurrentDomainOfExpertise != null)
+                {
+                    <DxButton Id="switch-domain-badge-button"
+                              Click="@(() => this.ViewModel.AskToSwitchDomain(this.Panel))"
+                              RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())"
+                              Text="@(this.CurrentDomainOfExpertise.ShortName)"
+                              title="Click to switch Domain of Expertise"
+                              IconCssClass="@IconName.Transfer.GetCssClass()" />
+                }
+
+                @if (this.IsSidePanelAvailable)
+                {
+                    <DxButton Click="@(() => this.AddSidePanel())"
+                              RenderStyle="@(CometButtonStyle.None.ToButtonRenderStyle())"
+                              Id="new-side-panel-button"
+                              CssClass="p-0">
+                        <CometIcon Icon="IconName.Columns" Size="30"/>
+                    </DxButton>
+                }
+            </div>
 
         </div>
         <div class="template-container" id="tabs-page-content">

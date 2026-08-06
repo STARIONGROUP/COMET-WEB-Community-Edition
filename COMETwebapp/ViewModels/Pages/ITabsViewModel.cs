@@ -23,6 +23,9 @@
 namespace COMETwebapp.ViewModels.Pages
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
+
+    using COMET.Web.Common.ViewModels.Components;
 
     using COMETwebapp.Model;
 
@@ -52,6 +55,16 @@ namespace COMETwebapp.ViewModels.Pages
         TabPanelInformation MainPanel { get; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the domain switch popup dialog is visible
+        /// </summary>
+        bool IsOnSwitchDomainMode { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="ISwitchDomainViewModel" /> for domain switching
+        /// </summary>
+        ISwitchDomainViewModel SwitchDomainViewModel { get; }
+
+        /// <summary>
         /// Creates a new tab and sets it to current
         /// </summary>
         /// <param name="application">The <see cref="TabbedApplication" /> for which the tab will be created</param>
@@ -61,5 +74,18 @@ namespace COMETwebapp.ViewModels.Pages
         /// </param>
         /// <param name="panel">The panel to open the new tab in</param>
         void CreateNewTab(TabbedApplication application, Guid objectOfInterestId, TabPanelInformation panel);
+
+        /// <summary>
+        /// Gets the active <see cref="DomainOfExpertise" /> for the given tab panel's current tab
+        /// </summary>
+        /// <param name="panel">The <see cref="TabPanelInformation" /></param>
+        /// <returns>The active <see cref="DomainOfExpertise" />, or null if none</returns>
+        DomainOfExpertise GetCurrentDomainOfExpertise(TabPanelInformation panel);
+
+        /// <summary>
+        /// Opens the domain switch popup dialog for the given tab panel's current tab
+        /// </summary>
+        /// <param name="panel">The <see cref="TabPanelInformation" /></param>
+        void AskToSwitchDomain(TabPanelInformation panel);
     }
 }

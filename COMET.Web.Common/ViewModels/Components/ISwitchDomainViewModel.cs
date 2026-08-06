@@ -47,5 +47,10 @@ namespace COMET.Web.Common.ViewModels.Components
         /// The <see cref="EventCallback{TValue}" /> to call when submitting the switch of <see cref="DomainOfExpertise" />
         /// </summary>
         EventCallback<DomainOfExpertise> OnSubmit { get; set; }
+
+        /// <summary>
+        /// The <see cref="EventCallback" /> to call when canceling the switch of <see cref="DomainOfExpertise" />
+        /// </summary>
+        EventCallback OnCancel { get; set; }
     }
 }
