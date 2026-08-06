@@ -205,6 +205,40 @@ namespace COMET.Web.Common.Tests.Components
         }
 
         [Test]
+        public void VerifyFullTrustHintIsShownAndSourceAddressNotRequiredWhenPreconfigured()
+        {
+            var renderer = this.context.Render<Login>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.Find(".full-trust-hint").TextContent, Is.Not.Empty);
+                Assert.That(this.viewModel.AuthenticationDto.ShouldValidateSourceAddress, Is.False);
+            });
+        }
+
+        [Test]
+        public void VerifySourceAddressRequiredWhenNotPreconfigured()
+        {
+            this.serverConfiguration.ServerAddress = null;
+
+            this.context.Render<Login>();
+
+            Assert.That(this.viewModel.AuthenticationDto.ShouldValidateSourceAddress, Is.True);
+        }
+
+        [Test]
+        public async Task VerifySourceAddressRequiredMessageIsRendered()
+        {
+            this.serverConfiguration.ServerAddress = null;
+
+            var renderer = this.context.Render<Login>();
+
+            await renderer.Find("#connectbtn").ClickAsync(new MouseEventArgs());
+
+            Assert.That(renderer.Find(".validation-errors").TextContent, Does.Contain("The Source Address is required."));
+        }
+
+        [Test]
         public async Task VerifyMultipleAuthenticationSchemeFlowWithInternalToken()
         {
             this.serverConfiguration.ServerAddress = null;

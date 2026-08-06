@@ -75,7 +75,7 @@ namespace COMET.Web.Common.Components
         /// The label for the username input field
         /// </summary>
         [Parameter]
-        public string UsernameLabel { get; set; } = "UserName:";
+        public string UsernameLabel { get; set; } = "Username:";
 
         /// <summary>
         /// The label for the password input field
@@ -87,7 +87,7 @@ namespace COMET.Web.Common.Components
         /// The label for the full trust checkbox field
         /// </summary>
         [Parameter]
-        public string FullTrustLabel { get; set; } = "Full Trust:";
+        public string FullTrustLabel { get; set; } = "Full Trust";
         
         /// <summary>
         /// The text of the login button
@@ -258,6 +258,7 @@ namespace COMET.Web.Common.Components
 
             this.ErrorMessages = errors;
             this.ViewModel.AuthenticationDto.ShouldValidateCredentials = this.RequiresUserNameAndPasswordInput();
+            this.ViewModel.AuthenticationDto.ShouldValidateSourceAddress = this.ShouldProvideSourceAddressInput();
             this.InvokeAsync(this.StateHasChanged);
         }
 
@@ -317,6 +318,16 @@ namespace COMET.Web.Common.Components
         {
             return this.ViewModel.AuthenticationSchemeResponseResult == null
                    || this.ViewModel.AuthenticationSchemeResponseResult.IsFailed;
+        }
+
+        /// <summary>
+        /// Asserts that the source address input is presented to the user, i.e. no server address is preconfigured and
+        /// the server-information step is active. The source address is required exactly when it is shown
+        /// </summary>
+        /// <returns>True when the source address input is displayed</returns>
+        private bool ShouldProvideSourceAddressInput()
+        {
+            return string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress) && this.ShouldProvideServerInformationInput();
         }
 
         /// <summary>

@@ -54,6 +54,16 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator UnauthorizedNotice => this.page.Locator("#unauthorized-notice");
 
         /// <summary>
+        /// Gets the Connect submit button of the credentials step.
+        /// </summary>
+        public ILocator ConnectButton => this.page.Locator("#connectbtn");
+
+        /// <summary>
+        /// Gets the list of client-side validation messages shown on the login form.
+        /// </summary>
+        public ILocator ValidationErrors => this.page.Locator(".validation-errors");
+
+        /// <summary>
         /// Navigates to the application root and waits for the unauthenticated landing page to appear.
         /// </summary>
         /// <param name="appUrl">The base URL of the application under test.</param>
