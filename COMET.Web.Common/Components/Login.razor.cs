@@ -87,7 +87,7 @@ namespace COMET.Web.Common.Components
         /// The label for the full trust checkbox field
         /// </summary>
         [Parameter]
-        public string FullTrustLabel { get; set; } = "Full Trust:";
+        public string FullTrustLabel { get; set; } = "Full Trust";
         
         /// <summary>
         /// The text of the login button
@@ -258,6 +258,7 @@ namespace COMET.Web.Common.Components
 
             this.ErrorMessages = errors;
             this.ViewModel.AuthenticationDto.ShouldValidateCredentials = this.RequiresUserNameAndPasswordInput();
+            this.ViewModel.AuthenticationDto.ShouldValidateSourceAddress = this.ShouldProvideServerInformationInput() && string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress);
             this.InvokeAsync(this.StateHasChanged);
         }
 

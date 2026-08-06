@@ -49,8 +49,14 @@ namespace COMET.Web.Common.Model.DTO
         public bool FullTrust { get; set; } = false;
         
         /// <summary>
-        /// Asserts that credentials should be validated or no 
+        /// Asserts that credentials should be validated or no
         /// </summary>
         public bool ShouldValidateCredentials { get; set; } = true;
+
+        /// <summary>
+        /// Asserts that the source address should be validated as a required field. Set by the login component when the
+        /// address input is presented to the user, i.e. when no server address is preconfigured
+        /// </summary>
+        public bool ShouldValidateSourceAddress { get; set; }
     }
 }
