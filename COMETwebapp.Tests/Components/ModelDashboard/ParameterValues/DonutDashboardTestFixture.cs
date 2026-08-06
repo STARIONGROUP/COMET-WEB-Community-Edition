@@ -38,6 +38,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard.ParameterValues
     /// <summary>
     /// Test fixture for <see cref="DonutDashboard" /> component.
     /// </summary>
+    [TestFixture]
     public class DonutDashboardTestFixture
     {
         /// <summary>
