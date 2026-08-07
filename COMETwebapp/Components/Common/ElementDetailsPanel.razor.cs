@@ -62,6 +62,11 @@ namespace COMETwebapp.Components.Common
         private bool IsNewMenuOpen { get; set; }
 
         /// <summary>
+        /// The unique ID for the "New" button and dropdown target.
+        /// </summary>
+        private string uniqueNewButtonId;
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its initial parameters
         /// from its parent in the render tree. Subscribes to the three mode flags that control popup
         /// visibility so the component re-renders when they change.
@@ -69,25 +74,16 @@ namespace COMETwebapp.Components.Common
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         protected override Task OnInitializedAsync()
         {
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnCreationMode)
-                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.uniqueNewButtonId = $"element-details-new-button-{Guid.NewGuid():N}";
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnAddingParameterMode)
-                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditMode)
-                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditParameterMode)
-                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnEditSubscriptionMode)
-                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnParameterGroupEditMode)
-                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedElement)
+            this.Disposables.Add(this.WhenAnyValue(
+                    x => x.ViewModel.IsOnCreationMode,
+                    x => x.ViewModel.IsOnAddingParameterMode,
+                    x => x.ViewModel.IsOnEditMode,
+                    x => x.ViewModel.IsOnEditParameterMode,
+                    x => x.ViewModel.IsOnEditSubscriptionMode,
+                    x => x.ViewModel.IsOnParameterGroupEditMode,
+                    x => x.ViewModel.SelectedElement)
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
             return base.OnInitializedAsync();

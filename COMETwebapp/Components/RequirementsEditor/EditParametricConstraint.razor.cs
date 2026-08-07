@@ -132,11 +132,17 @@ namespace COMETwebapp.Components.RequirementsEditor
         private bool CanConfirmRelational => this.relationalParameterType != null && !string.IsNullOrWhiteSpace(this.relationalValue);
 
         /// <summary>
+        /// The unique ID for the root add button and dropdown position target.
+        /// </summary>
+        private string uniqueRootAddId;
+
+        /// <summary>
         /// Loads the tree from the constraint when the component is initialized.
         /// </summary>
         protected override void OnInitialized()
         {
             base.OnInitialized();
+            this.uniqueRootAddId = $"pc-root-add-{Guid.NewGuid():N}";
             this.viewModel.AvailableParameterTypes = this.AvailableParameterTypes;
             this.viewModel.LoadFrom(this.Constraint);
         }

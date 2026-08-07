@@ -469,7 +469,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             var detailsPanel = renderedComponent.FindComponent<ElementDetailsPanel>();
             Assert.That(detailsPanel, Is.Not.Null, "The details panel must mount once an ElementDefinition is selected.");
 
-            var addButton = renderedComponent.Find("#element-details-new-button");
+            var addButton = renderedComponent.Find("[id^='element-details-new-button']");
             addButton.Click();
 
             renderedComponent.WaitForAssertion(() =>
