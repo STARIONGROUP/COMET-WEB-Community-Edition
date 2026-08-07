@@ -35,17 +35,17 @@
             </div>
         </div>
 
-            <DxChart Data="@this.Elements" CustomizeSeriesPoint="@PreparePointLabel">
-                <DxChartFullStackedBarSeries Color="System.Drawing.Color.MediumPurple" Name="@WebAppConstantValues.ReferencedElements" Filter="@((ElementDefinition e) => this.UnreferencedElementDefinitions.All(x => x.Iid != e.Iid))"
+            <DxChart Data="@this.Elements">
+                <DxChartStackedBarSeries Color="ChartColors.ReferencedChartColor" Name="@WebAppConstantValues.ReferencedElements" Filter="@((ElementDefinition e) => this.UnreferencedElementDefinitions.All(x => x.Iid != e.Iid))"
                                     ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
                                     AggregationMethod="Enumerable.Sum">
-                <DxChartSeriesLabel Position="RelativePosition.Inside"/>
-                </DxChartFullStackedBarSeries>
-            <DxChartFullStackedBarSeries Color="System.Drawing.Color.Orchid" Name="@WebAppConstantValues.UnreferencedElements" Filter="@((ElementDefinition e) => this.UnreferencedElementDefinitions.Any(x => x.Iid == e.Iid))"
+                <DxChartSeriesLabel Position="RelativePosition.Inside" ShowForZeroValues="false"/>
+                </DxChartStackedBarSeries>
+            <DxChartStackedBarSeries Color="ChartColors.UnreferencedChartColor" Name="@WebAppConstantValues.UnreferencedElements" Filter="@((ElementDefinition e) => this.UnreferencedElementDefinitions.Any(x => x.Iid == e.Iid))"
                                                 ArgumentField="@(e => e.Owner.ShortName)" ValueField="@(e => 1)"
                                                 AggregationMethod="Enumerable.Sum">
-                    <DxChartSeriesLabel Position="RelativePosition.Inside" />
-                </DxChartFullStackedBarSeries>
+                    <DxChartSeriesLabel Position="RelativePosition.Inside" ShowForZeroValues="false"/>
+                </DxChartStackedBarSeries>
             <DxChartTooltip Enabled="true" Position="RelativePosition.Inside">
                     <div class="small-margin">
                         <button class="card-btn" @onclick="@(() => this.AccessData(context.Point))">
@@ -56,7 +56,8 @@
                 <DxChartLegend Visible="true" Position="RelativePosition.Outside" VerticalAlignment="VerticalEdge.Bottom" />
             </DxChart>
 
-        <ElementDomainProgress ElementDefinitions="this.FilterOnDomain(this.Elements)" IdentifiedElements="this.FilterOnDomain(this.UnreferencedElementDefinitions)" />
+        <ElementDomainProgress ElementDefinitions="this.FilterOnDomain(this.Elements)" IdentifiedElements="this.FilterOnDomain(this.UnreferencedElementDefinitions)"
+                               GoodStrokeColor="@(ChartColors.ReferencedColor)" WarningStrokeColor="@(ChartColors.UnreferencedColor)" />
     </div>
 }
 

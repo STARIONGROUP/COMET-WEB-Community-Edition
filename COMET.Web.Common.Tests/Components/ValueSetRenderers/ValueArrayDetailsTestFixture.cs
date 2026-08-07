@@ -38,6 +38,8 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
     {
         private BunitContext context;
         private static readonly string[] SfptValuesArray = ["1", "10", "2", "20"];
+        private static readonly string[] ThreeDimensionsValues = ["-", "false", "true", "-", "-", "false", "true", "true"];
+        private static readonly string[] NonSquareValues = ["-", "false", "true", "-", "true", "false"];
 
         [SetUp]
         public void Setup()
@@ -141,7 +143,8 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
             arrayParameterType.Dimension.Add(2);
             arrayParameterType.Dimension.Add(2);
 
-            for (var componentIndex = 0; componentIndex < arrayParameterType.Dimension.Sum(); componentIndex++)
+            // an array's cell count is the product of its dimensions (2*2*2 = 8), not their sum.
+            for (var componentIndex = 0; componentIndex < arrayParameterType.Dimension.Aggregate(1, (accumulator, size) => accumulator * size); componentIndex++)
             {
                 arrayParameterType.Component.Add(new ParameterTypeComponent
                 {
@@ -149,7 +152,7 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
                 });
             }
 
-            var valueArray = new ValueArray<string>(new[] { "-", "false", "true", "-", "-", "false", "true", "true" });
+            var valueArray = new ValueArray<string>(ThreeDimensionsValues);
 
             var renderer = this.context.Render<ValueArrayDetails>(parameters =>
             {
@@ -158,6 +161,33 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
             });
 
             Assert.That(renderer.FindComponents<ScalarParameter>(), Has.Count.EqualTo(8));
+        }
+
+        [Test]
+        public void VerifyWithNonSquareArrayParameterType()
+        {
+            var booleanParameterType = new BooleanParameterType();
+            var arrayParameterType = new ArrayParameterType();
+            arrayParameterType.Dimension.Add(3);
+            arrayParameterType.Dimension.Add(2);
+
+            for (var componentIndex = 0; componentIndex < arrayParameterType.Dimension.Aggregate(1, (accumulator, size) => accumulator * size); componentIndex++)
+            {
+                arrayParameterType.Component.Add(new ParameterTypeComponent
+                {
+                    ParameterType = booleanParameterType
+                });
+            }
+
+            var valueArray = new ValueArray<string>(NonSquareValues);
+
+            var renderer = this.context.Render<ValueArrayDetails>(parameters =>
+            {
+                parameters.Add(p => p.ParameterType, arrayParameterType);
+                parameters.Add(p => p.Value, valueArray);
+            });
+
+            Assert.That(renderer.FindComponents<ScalarParameter>(), Has.Count.EqualTo(6));
         }
 
         [Test]

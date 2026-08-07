@@ -37,8 +37,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
 				var publishedValues = Math.Round(this.ValueSets.Count(d => d.Published.SequenceEqual(d.ActualValue)) * 100.0 / this.ValueSets.Count());
 				var publishableValues = 100 - publishedValues;
 				<div class="row m-0">
-					<AntDesign.Progress Percent="publishedValues"></AntDesign.Progress>
-					<AntDesign.Progress Percent="publishableValues" StrokeColor="HaveChartData.WarningColor"></AntDesign.Progress>
+					<AntDesign.Progress Percent="publishedValues" StrokeColor="ChartColors.PublishedColor"></AntDesign.Progress>
+					<AntDesign.Progress Percent="publishableValues" StrokeColor="ChartColors.PublishableColor"></AntDesign.Progress>
 				</div>
 
 				<ToDoTable ParameterValueSets="this.ValueSets.Where(d => !d.Published.SequenceEqual(d.ActualValue))"/>
@@ -61,8 +61,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
 				var notDefaultValues = 100 - defaultValues;
 				var parameterValueSets = this.ValueSets.Where(d => d.ActualValue.Count(el => !el.Equals("-")) == 0);
 				<div class="row m-0">
-					<AntDesign.Progress Percent="notDefaultValues"></AntDesign.Progress>
-					<AntDesign.Progress Percent="defaultValues" StrokeColor="HaveChartData.WarningColor"></AntDesign.Progress>
+					<AntDesign.Progress Percent="notDefaultValues" StrokeColor="ChartColors.CompleteColor"></AntDesign.Progress>
+					<AntDesign.Progress Percent="defaultValues" StrokeColor="ChartColors.MissingColor"></AntDesign.Progress>
 				</div>
             
 				<button class="todo-btn" @onclick="@(this.OnToDoClick)">

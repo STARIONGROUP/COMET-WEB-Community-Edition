@@ -37,11 +37,6 @@ namespace COMETwebapp.Components.ModelDashboard
 		[Parameter]
 		public EventCallback<(string serieName, object argument)> OnAccessDataCallback { get; set; }
 
-		/// <summary>
-		/// The color of the warning progress bar
-		/// </summary>
-        public const string WarningColor = "#d21f04";
-
         /// <summary>
         /// Access the data related to a <see cref="ChartSeriesPoint" />
         /// </summary>
@@ -50,20 +45,6 @@ namespace COMETwebapp.Components.ModelDashboard
         protected Task AccessData(ChartSeriesPoint point)
 		{
 			return this.OnAccessDataCallback.InvokeAsync((point.SeriesName, point.Argument));
-		}
-
-		/// <summary>
-		/// Set the point label on the graph
-		/// </summary>
-		/// <param name="pointSettings">The <see cref="ChartSeriesPointCustomizationSettings" /> providing data of the selected point in the graph</param>
-		protected static void PreparePointLabel(ChartSeriesPointCustomizationSettings pointSettings)
-		{
-			var value = pointSettings.Point.Value;
-
-			if (!value.Equals(0))
-			{
-				pointSettings.PointLabel.Visible = true;
-			}
 		}
 	}
 }
