@@ -57,7 +57,6 @@ namespace COMETwebapp.Tests.Pages
 
     using NUnit.Framework;
 
-
     [TestFixture]
     public class TabsTestFixture
     {
@@ -67,6 +66,7 @@ namespace COMETwebapp.Tests.Pages
         private IRenderedComponent<Tabs> renderer;
         private Iteration iteration;
         private TabPanelInformation mainPanel;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
@@ -109,13 +109,13 @@ namespace COMETwebapp.Tests.Pages
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise());
 
-            var messageBus = new Mock<ICDPMessageBus>();
+            this.messageBus = new CDPMessageBus();
 
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(this.engineeringModelBodyViewModel.Object);
             this.context.Services.AddSingleton(configuration.Object);
-            this.context.Services.AddSingleton(messageBus.Object);
+            this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.context.Services.AddSingleton(new Mock<IOpenTabViewModel>().Object);
             this.context.Services.AddSingleton(new Mock<IOpenModelViewModel>().Object);
             this.context.Services.AddSingleton(new Mock<IStringTableService>().Object);
@@ -128,6 +128,8 @@ namespace COMETwebapp.Tests.Pages
         public void Teardown()
         {
             this.context.CleanContext();
+            this.messageBus.ClearSubscriptions();
+            this.messageBus.Dispose();
         }
 
         [Test]

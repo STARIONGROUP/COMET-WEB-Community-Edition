@@ -64,6 +64,7 @@ namespace COMETwebapp.Tests.Components.Tabs
         private Iteration iteration;
         private TabPanelInformation mainPanel;
         private TabPanelInformation sidePanel;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -111,10 +112,10 @@ namespace COMETwebapp.Tests.Components.Tabs
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise());
 
-            var messageBus = new Mock<ICDPMessageBus>();
+            this.messageBus = new CDPMessageBus();
 
             this.context.Services.AddSingleton(sessionService.Object);
-            this.context.Services.AddSingleton(messageBus.Object);
+            this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(this.engineeringModelBodyViewModel.Object);
             this.context.Services.AddSingleton(configuration.Object);
@@ -133,6 +134,8 @@ namespace COMETwebapp.Tests.Components.Tabs
         {
             this.context.CleanContext();
             this.context.Dispose();
+            this.messageBus.ClearSubscriptions();
+            this.messageBus.Dispose();
         }
 
         [Test]
