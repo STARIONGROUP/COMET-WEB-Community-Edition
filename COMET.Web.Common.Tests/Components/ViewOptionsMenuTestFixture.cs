@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ViewOptionsMenuTestFixture.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -110,22 +110,27 @@ namespace COMET.Web.Common.Tests.Components
         [Test]
         public void VerifyTwoInstancesWithSameButtonIdProduceDifferentDomIds()
         {
-            var firstRenderer = this.context.Render<ViewOptionsMenu>(parameters => parameters
-                .Add(p => p.ButtonId, "sharedPrefix")
-                .Add(p => p.ChildContent, "<span>option</span>"));
+            var renderer = this.context.Render(builder =>
+            {
+                builder.OpenComponent<ViewOptionsMenu>(0);
+                builder.AddAttribute(1, nameof(ViewOptionsMenu.ButtonId), "sharedPrefix");
+                builder.AddAttribute(2, nameof(ViewOptionsMenu.ChildContent), (RenderFragment)(b => b.AddContent(0, "option")));
+                builder.CloseComponent();
 
-            var secondRenderer = this.context.Render<ViewOptionsMenu>(parameters => parameters
-                .Add(p => p.ButtonId, "sharedPrefix")
-                .Add(p => p.ChildContent, "<span>option</span>"));
+                builder.OpenComponent<ViewOptionsMenu>(3);
+                builder.AddAttribute(4, nameof(ViewOptionsMenu.ButtonId), "sharedPrefix");
+                builder.AddAttribute(5, nameof(ViewOptionsMenu.ChildContent), (RenderFragment)(b => b.AddContent(0, "option")));
+                builder.CloseComponent();
+            });
 
-            var firstButton = firstRenderer.FindComponent<DxButton>();
-            var secondButton = secondRenderer.FindComponent<DxButton>();
+            var buttons = renderer.FindComponents<DxButton>();
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(firstButton.Instance.Id, Does.StartWith("sharedPrefix"));
-                Assert.That(secondButton.Instance.Id, Does.StartWith("sharedPrefix"));
-                Assert.That(firstButton.Instance.Id, Is.Not.EqualTo(secondButton.Instance.Id));
+                Assert.That(buttons, Has.Count.EqualTo(2));
+                Assert.That(buttons[0].Instance.Id, Does.StartWith("sharedPrefix"));
+                Assert.That(buttons[1].Instance.Id, Does.StartWith("sharedPrefix"));
+                Assert.That(buttons[0].Instance.Id, Is.Not.EqualTo(buttons[1].Instance.Id));
             }
         }
     }
