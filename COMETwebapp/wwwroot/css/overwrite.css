@@ -28,7 +28,7 @@ h2, .h2 {
 h3, .h3 {
     font-size: var(--text-xl);
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 120%;
     margin: 0;
 }
