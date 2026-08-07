@@ -20,9 +20,10 @@
 @using COMETwebapp.Model
 @using Orientation = DevExpress.Blazor.Orientation
 
-<div class="col col-xxl-8" data-testid="dashboard-chart">
+<div class="@this.ContainerCssClass" data-testid="dashboard-chart">
     <DxPieChart Data="@(this.dataCharts)" CustomizeSeriesPoint="@CustomizeSeriesPoint"
-                InnerDiameter="0.5">
+                InnerDiameter="0.50"
+                Width="90%">
         <DxPieChartSeries Filter="@((DataChart d) => d.Argument != null && (d.Argument.Equals("Missing Values") || d.Argument.Equals("Complete Values")))"
                           ValueField="@(d => d.Value)"
                           ArgumentField="@(d => d.Argument)"
@@ -35,6 +36,10 @@
                           SummaryMethod="Enumerable.Sum">
             <DxChartSeriesLabel Visible="true"/>
         </DxPieChartSeries>
-        <DxChartLegend AllowToggleSeries="false" Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside"/>
+        <DxChartLegend AllowToggleSeries="false" 
+                       Orientation="@(this.IsSplitView ? Orientation.Horizontal : Orientation.Vertical)" 
+                       HorizontalAlignment="@(this.IsSplitView ? HorizontalAlignment.Center : HorizontalAlignment.Right)" 
+                       VerticalAlignment="VerticalEdge.Bottom" 
+                       Position="RelativePosition.Outside"/>
     </DxPieChart>
 </div>

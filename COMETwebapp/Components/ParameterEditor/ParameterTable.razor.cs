@@ -29,6 +29,7 @@ namespace COMETwebapp.Components.ParameterEditor
     using COMET.Web.Common.Extensions;
 
     using COMETwebapp.Comparer;
+    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using DevExpress.Blazor;
@@ -58,6 +59,12 @@ namespace COMETwebapp.Components.ParameterEditor
         /// The sorted collection of <see cref="ParameterBaseRowViewModel" />
         /// </summary>
         private ReadOnlyObservableCollection<ParameterBaseRowViewModel> sortedCollection;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the component is rendered inside a split view pane.
+        /// </summary>
+        [CascadingParameter(Name = WebAppConstantValues.IsSplitViewCascadingValueName)]
+        public bool IsSplitView { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="IParameterTableViewModel" />

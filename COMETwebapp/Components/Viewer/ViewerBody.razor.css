@@ -1,4 +1,4 @@
-﻿.viewer-page-body {
+.viewer-page-body {
     height: 100%;
 }
 
@@ -8,9 +8,9 @@
     display: grid;
     grid-template-columns: 0.2fr 1fr 0.2fr;
     grid-template-rows: 1fr;
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
-    gap: 10px;
+    grid-column-gap: 0;
+    grid-row-gap: 0;
+    gap: 0.6rem;
     height: 100%;
     overflow: hidden;
 }
@@ -18,7 +18,7 @@
 #leftColumn {
     grid-area: 1 / 1 / 2 / 2;
     margin: 0;
-    margin-right: 2%;
+    margin-right: 0.5rem;
     height: 100%;
     top: 0;
     display: flex;
@@ -29,7 +29,7 @@
 
 #option-filter {
     flex: 0 0 auto;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
 }
 
 #option-filter ::deep h6 {
@@ -44,6 +44,37 @@
 #rightColumn {
     grid-area: 1 / 3 / 2 / 4;
     margin: 0;
-    margin-left: 2%;
+    margin-left: 0.5rem;
     top: 0;
+}
+
+#gridParent.split-mode {
+    display: grid;
+    grid-template-columns: 0.35fr 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+        "left center"
+        "left right";
+    gap: 0.625rem;
+    height: 100%;
+    overflow-y: auto;
+}
+
+#gridParent.split-mode #leftColumn {
+    grid-area: left;
+    margin-right: 0;
+    height: 100%;
+}
+
+#gridParent.split-mode #center-container {
+    grid-area: center;
+    width: 100%;
+    margin: 0;
+    margin-bottom: 0.75rem;
+}
+
+#gridParent.split-mode #rightColumn {
+    grid-area: right;
+    margin-left: 0;
+    width: 100%;
 }

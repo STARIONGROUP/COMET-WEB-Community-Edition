@@ -84,10 +84,16 @@ namespace COMETwebapp.Components.Tabs
         public EventCallback<(TabbedApplicationInformation, TabPanelInformation)> OnTabClick { get; set; }
 
         /// <summary>
-        /// Gets or sets the condition to check if the side panel should be available
+        /// Gets or sets a value indicating whether the split view button should be visible
         /// </summary>
         [Parameter]
-        public bool IsSidePanelAvailable { get; set; }
+        public bool IsSplitViewVisible { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the split view button should be enabled
+        /// </summary>
+        [Parameter]
+        public bool IsSplitViewEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="ISessionService" />
@@ -130,15 +136,17 @@ namespace COMETwebapp.Components.Tabs
         /// <summary>
         /// Gets the tab text for the given object of interest
         /// </summary>
-        /// <param name="tab">Thetab to get its text</param>
+        /// <param name="tab">The tab to get its text</param>
         /// <returns>The tab text</returns>
         private static string GetTabText(TabbedApplicationInformation tab)
         {
+            var applicationName = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ComponentType == tab.ComponentType).Name;
+
             return tab.ObjectOfInterest switch
             {
-                Iteration iteration => iteration.QueryName(),
-                EngineeringModel engineeringModel => engineeringModel.EngineeringModelSetup.Name,
-                _ => Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ComponentType == tab.ComponentType).Name
+                Iteration iteration => $"{applicationName} · {((EngineeringModel)iteration.Container).EngineeringModelSetup.Name} - It. {iteration.IterationSetup.IterationNumber}",
+                EngineeringModel engineeringModel => $"{applicationName} · {engineeringModel.EngineeringModelSetup.Name}",
+                _ => applicationName
             };
         }
 
@@ -186,6 +194,17 @@ namespace COMETwebapp.Components.Tabs
             this.ViewModel.SidePanel.OpenTabs.Add(currentTab);
             this.ViewModel.SidePanel.CurrentTab = currentTab;
             this.ViewModel.MainPanel.OpenTabs.Remove(currentTab);
+        }
+
+        /// <summary>
+        /// Gets the tooltip explanation text for the split view button
+        /// </summary>
+        /// <returns>The tooltip string</returns>
+        private string GetSplitViewTooltip()
+        {
+            return this.IsSplitViewEnabled
+                ? "Split View"
+                : "Split view requires at least two open tabs";
         }
     }
 }

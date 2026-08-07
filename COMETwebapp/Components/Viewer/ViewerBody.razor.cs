@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ViewerBody.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -38,6 +38,12 @@ namespace COMETwebapp.Components.Viewer
     /// </summary>
     public partial class ViewerBody
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the component is rendered inside a split view pane.
+        /// </summary>
+        [CascadingParameter(Name = WebAppConstantValues.IsSplitViewCascadingValueName)]
+        public bool IsSplitView { get; set; }
+
         /// <summary>
         /// The reference to the <see cref="CanvasComponent" /> component
         /// </summary>
