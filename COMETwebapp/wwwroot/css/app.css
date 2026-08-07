@@ -234,7 +234,7 @@ html, body, #app {
 
 .todo-table {
     border: 2px solid #008bd2;
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
 }
 
@@ -249,7 +249,7 @@ html, body, #app {
     justify-content: center;
     width:30px;
     top: 4px;
-    border-radius: 3px
+    border-radius: var(--radius-sm)
 }
 
 .textBoxEllipsis {
@@ -323,7 +323,7 @@ sub {
 }
 
 .page-layout-item-content {
-    border-radius: 24px 0px 0px 24px;
+    border-radius: var(--radius-lg) 0px 0px var(--radius-lg);
     background-color: white !important;
     border-left: solid 1px var(--colors-gray-100);
     overflow: auto;
@@ -366,7 +366,7 @@ sub {
     border: dashed 1px red;
     padding-top: 1rem;
     padding-right: 1rem;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
 }
 
 .validation-container:not(:has(li)) {

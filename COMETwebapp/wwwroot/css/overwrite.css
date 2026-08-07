@@ -10,7 +10,7 @@ html {
 }
 
 h1, .h1 {
-    font-size: 2.5rem;
+    font-size: var(--text-4xl);
     font-style: normal;
     font-weight: 700;
     line-height: 120%;
@@ -18,7 +18,7 @@ h1, .h1 {
 }
 
 h2, .h2 {
-    font-size: 1.5rem;
+    font-size: var(--text-2xl);
     font-style: normal;
     font-weight: 700;
     line-height: 120%;
@@ -26,7 +26,7 @@ h2, .h2 {
 }
 
 h3, .h3 {
-    font-size: 1.25rem;
+    font-size: var(--text-xl);
     font-style: normal;
     font-weight: 700;
     line-height: 120%;
@@ -34,13 +34,39 @@ h3, .h3 {
 }
 
 .body {
-    font-size: 1rem;
+    font-size: var(--text-base);
     font-style: normal;
     font-weight: 400;
     line-height: 130%;
     margin: 0;
 }
 
+.label {
+    font-size: var(--text-sm);
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
+    margin: 0;
+}
+
+.caption {
+    font-size: var(--text-xs);
+    font-style: normal;
+    font-weight: 400;
+    line-height: 130%;
+    color: var(--colors-gray-500);
+    margin: 0;
+}
+
+.dxbl-grid,
+.dxbl-treelist {
+    font-size: var(--text-sm);
+}
+
+.dxbl-fl-cpt.dxbl-text {
+    font-size: var(--text-sm);
+    font-weight: 500;
+}
 
 .dxbl-text-edit.dxbl-lg {
     --dxbl-text-edit-padding-y: var(--spacing-3);
@@ -48,7 +74,7 @@ h3, .h3 {
 }
 
 .dxbl-text-edit {
-    --dxbl-text-edit-border-radius: var(--spacing-1);
+    --dxbl-text-edit-border-radius: var(--radius-sm);
     --dxbl-text-edit-padding-y: var(--spacing-2);
     --dxbl-text-edit-padding-x: var(--spacing-2);
 }
