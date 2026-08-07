@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SystemRepresentationBodyTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -336,7 +336,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             });
 
             // Toggle the tree's View display-options dropdown to cover its click handler.
-            renderer.Find("#systemTreeViewMenuButton").Click();
+            renderer.Find("[id^='systemTreeViewMenuButton']").Click();
 
             // Drive the details-panel search box to cover the SearchTerm binding and the owner-aware parameter filter.
             var detailsSearch = renderer.FindComponents<SearchBar>()

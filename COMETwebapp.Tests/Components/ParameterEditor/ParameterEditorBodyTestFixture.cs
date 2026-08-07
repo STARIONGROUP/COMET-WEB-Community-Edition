@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParameterEditorBodyTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -234,7 +234,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
                 Assert.That(parameterFilterCombo, Is.Not.Null);
                 Assert.That(categoryFilterCombo, Is.Not.Null);
                 Assert.That(optionFilterCombo, Is.Not.Null);
-                Assert.That(() => this.renderedComponent.Find("#parameterEditorViewMenuButton"), Throws.Nothing);
+                Assert.That(() => this.renderedComponent.Find("[id^='parameterEditorViewMenuButton']"), Throws.Nothing);
                 Assert.That(parameterTable, Is.Not.Null);
                 Assert.That(batchParameterEditor, Is.Not.Null);
             });

@@ -73,7 +73,7 @@ namespace COMET.Web.Common.Tests.Components
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(() => renderer.Find("#testViewMenuButton"), Throws.Nothing);
+                Assert.That(() => renderer.Find("[id^='testViewMenuButton']"), Throws.Nothing);
                 Assert.That(button.Instance.Text, Is.EqualTo("View"));
                 Assert.That(button.Instance.IconCssClass, Is.EqualTo(IconName.Settings.GetCssClass()));
             }

@@ -18,7 +18,7 @@
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components
 
-<DxButton Id="@this.ButtonId"
+<DxButton Id="@this.uniqueId"
           CssClass="view-options-button"
           RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
           IconCssClass="@IconName.Settings.GetCssClass()"
@@ -28,7 +28,7 @@
 
 <DxDropDown @bind-IsOpen="@this.IsOpen"
             PositionMode="DropDownPositionMode.Bottom"
-            PositionTarget="@($"#{this.ButtonId}")"
+            PositionTarget="@($"#{this.uniqueId}")"
             CloseMode="DropDownCloseMode.Close"
             HeaderVisible="false"
             FooterVisible="false">

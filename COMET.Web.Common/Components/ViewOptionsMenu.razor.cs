@@ -23,6 +23,8 @@
 
 namespace COMET.Web.Common.Components
 {
+    using System;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -34,12 +36,27 @@ namespace COMET.Web.Common.Components
     public partial class ViewOptionsMenu
     {
         /// <summary>
+        /// The unique id for the trigger button and dropdown position target.
+        /// </summary>
+        private string uniqueId;
+
+        /// <summary>
         /// Gets or sets the id given to the trigger button, also used as the dropdown's position target. Must be
         /// unique per page so several menus can coexist.
         /// </summary>
         [Parameter]
         [EditorRequired]
         public string ButtonId { get; set; }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its initial parameters from its parent in the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            this.uniqueId = $"{this.ButtonId}-{Guid.NewGuid():N}";
+        }
 
         /// <summary>
         /// Gets or sets the option controls rendered inside the dropdown.
