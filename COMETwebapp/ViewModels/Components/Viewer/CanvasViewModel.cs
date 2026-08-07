@@ -113,6 +113,11 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         private Action onParameterSubmittedHandler;
 
         /// <summary>
+        /// Backing field to ensure event subscriptions are only registered once per <see cref="CanvasViewModel"/> instance
+        /// </summary>
+        private bool isInitialized;
+
+        /// <summary>
         /// Gets or sets if the user is about to change the selected primitive
         /// </summary>
         public bool IsOnChangePrimitiveMode
@@ -149,6 +154,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer
         /// </summary>
         public void InitializeViewModel()
         {
+            if (this.isInitialized)
+            {
+                return;
+            }
+
+            this.isInitialized = true;
             this.SelectionMediator.SceneObjectHasChanges = false;
 
             this.onTreeSelectionChangedHandler = async nodeViewModel => await this.OnTreeSelectionChanged(nodeViewModel);

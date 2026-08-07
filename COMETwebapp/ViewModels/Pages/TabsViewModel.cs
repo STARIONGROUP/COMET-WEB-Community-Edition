@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -177,7 +177,9 @@ namespace COMETwebapp.ViewModels.Pages
         /// </summary>
         private void OnSelectedApplicationChange()
         {
-            if (this.SelectedApplication == null || this.MainPanel.CurrentTab?.ComponentType == this.SelectedApplication?.ComponentType)
+            if (this.SelectedApplication == null ||
+                this.MainPanel.CurrentTab?.ComponentType == this.SelectedApplication?.ComponentType ||
+                this.SidePanel.CurrentTab?.ComponentType == this.SelectedApplication?.ComponentType)
             {
                 return;
             }
