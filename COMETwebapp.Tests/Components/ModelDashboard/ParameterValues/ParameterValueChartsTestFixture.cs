@@ -97,14 +97,14 @@ namespace COMETwebapp.Tests.Components.ModelDashboard.ParameterValues
         {
             Assert.Multiple(() =>
             {
-                Assert.That(DonutDashboard.GetSeriesColor("Complete Values"), Is.EqualTo(HaveChartData.CompleteChartColor));
-                Assert.That(DonutDashboard.GetSeriesColor("Published Parameters"), Is.EqualTo(HaveChartData.PublishedChartColor));
-                Assert.That(DonutDashboard.GetSeriesColor("Missing Values"), Is.EqualTo(HaveChartData.MissingChartColor));
-                Assert.That(DonutDashboard.GetSeriesColor("Publishable Parameters"), Is.EqualTo(HaveChartData.PublishableChartColor));
-                Assert.That(HaveChartData.CompleteChartColor.ToArgb(), Is.EqualTo(System.Drawing.Color.SeaGreen.ToArgb()));
-                Assert.That(HaveChartData.MissingChartColor, Is.Not.EqualTo(HaveChartData.CompleteChartColor));
-                Assert.That(HaveChartData.PublishedChartColor, Is.Not.EqualTo(HaveChartData.CompleteChartColor));
-                Assert.That(HaveChartData.PublishableChartColor, Is.Not.EqualTo(HaveChartData.MissingChartColor));
+                Assert.That(DonutDashboard.GetSeriesColor("Complete Values"), Is.EqualTo(ChartColors.CompleteChartColor));
+                Assert.That(DonutDashboard.GetSeriesColor("Published Parameters"), Is.EqualTo(ChartColors.PublishedChartColor));
+                Assert.That(DonutDashboard.GetSeriesColor("Missing Values"), Is.EqualTo(ChartColors.MissingChartColor));
+                Assert.That(DonutDashboard.GetSeriesColor("Publishable Parameters"), Is.EqualTo(ChartColors.PublishableChartColor));
+                Assert.That(ChartColors.CompleteChartColor.ToArgb(), Is.EqualTo(System.Drawing.Color.SeaGreen.ToArgb()));
+                Assert.That(ChartColors.MissingChartColor, Is.Not.EqualTo(ChartColors.CompleteChartColor));
+                Assert.That(ChartColors.PublishedChartColor, Is.Not.EqualTo(ChartColors.CompleteChartColor));
+                Assert.That(ChartColors.PublishableChartColor, Is.Not.EqualTo(ChartColors.MissingChartColor));
             });
         }
 

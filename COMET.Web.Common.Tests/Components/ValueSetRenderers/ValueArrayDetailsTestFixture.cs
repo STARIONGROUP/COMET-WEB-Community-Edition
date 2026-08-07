@@ -38,6 +38,8 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
     {
         private BunitContext context;
         private static readonly string[] SfptValuesArray = ["1", "10", "2", "20"];
+        private static readonly string[] ThreeDimensionsValues = ["-", "false", "true", "-", "-", "false", "true", "true"];
+        private static readonly string[] NonSquareValues = ["-", "false", "true", "-", "true", "false"];
 
         [SetUp]
         public void Setup()
@@ -150,7 +152,7 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
                 });
             }
 
-            var valueArray = new ValueArray<string>(new[] { "-", "false", "true", "-", "-", "false", "true", "true" });
+            var valueArray = new ValueArray<string>(ThreeDimensionsValues);
 
             var renderer = this.context.Render<ValueArrayDetails>(parameters =>
             {
@@ -177,7 +179,7 @@ namespace COMET.Web.Common.Tests.Components.ValueSetRenderers
                 });
             }
 
-            var valueArray = new ValueArray<string>(new[] { "-", "false", "true", "-", "true", "false" });
+            var valueArray = new ValueArray<string>(NonSquareValues);
 
             var renderer = this.context.Render<ValueArrayDetails>(parameters =>
             {

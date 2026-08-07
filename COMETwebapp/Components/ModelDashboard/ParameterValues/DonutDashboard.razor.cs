@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.Components.ModelDashboard.ParameterValues
 {
+    using System.Drawing;
+
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -86,16 +88,16 @@ namespace COMETwebapp.Components.ModelDashboard.ParameterValues
         /// reassuring while meaning the opposite.
         /// </summary>
         /// <param name="argument">The series argument</param>
-        /// <returns>The <see cref="System.Drawing.Color"/> to paint the series point with</returns>
-        public static System.Drawing.Color GetSeriesColor(string argument)
+        /// <returns>The <see cref="Color"/> to paint the series point with</returns>
+        public static Color GetSeriesColor(string argument)
         {
             return argument switch
             {
-                "Published Parameters" => HaveChartData.PublishedChartColor,
-                "Publishable Parameters" => HaveChartData.PublishableChartColor,
-                "Missing Values" => HaveChartData.MissingChartColor,
-                "Complete Values" => HaveChartData.CompleteChartColor,
-                _ => System.Drawing.Color.Empty
+                "Published Parameters" => ChartColors.PublishedChartColor,
+                "Publishable Parameters" => ChartColors.PublishableChartColor,
+                "Missing Values" => ChartColors.MissingChartColor,
+                "Complete Values" => ChartColors.CompleteChartColor,
+                _ => Color.Empty
             };
         }
 

@@ -44,12 +44,12 @@ Copyright (c) 2023-2026 Starion Group S.A.
                                     Percentage="this.GetDomainPercentage(context.Point.Argument, count)"
                                     OnMore="@(() => this.AccessData(context.Point))"/>
             </DxChartTooltip>
-            <DxChartStackedBarSeries Color="HaveChartData.PublishedChartColor" Name="@WebAppConstantValues.PublishedParameters" Filter="@((ParameterValueSetBase p) => p.Published.SequenceEqual(p.ActualValue))"
+            <DxChartStackedBarSeries Color="ChartColors.PublishedChartColor" Name="@WebAppConstantValues.PublishedParameters" Filter="@((ParameterValueSetBase p) => p.Published.SequenceEqual(p.ActualValue))"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                         AggregationMethod="Enumerable.Sum">
                 <DxChartSeriesLabel Position="RelativePosition.Inside" ShowForZeroValues="false"/>
             </DxChartStackedBarSeries>
-            <DxChartStackedBarSeries Color="HaveChartData.PublishableChartColor" Name="@WebAppConstantValues.PublishableParameters" Filter="@((ParameterValueSetBase p) => !p.Published.SequenceEqual(p.ActualValue))"
+            <DxChartStackedBarSeries Color="ChartColors.PublishableChartColor" Name="@WebAppConstantValues.PublishableParameters" Filter="@((ParameterValueSetBase p) => !p.Published.SequenceEqual(p.ActualValue))"
                                         ArgumentField="@(p => p.Owner.ShortName)" ValueField="@(p => 1)"
                                         AggregationMethod="Enumerable.Sum">
                 <DxChartSeriesLabel Position="RelativePosition.Inside" ShowForZeroValues="false"/>

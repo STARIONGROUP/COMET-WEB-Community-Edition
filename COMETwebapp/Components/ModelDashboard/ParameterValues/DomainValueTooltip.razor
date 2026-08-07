@@ -22,7 +22,7 @@
     <div class="fw-bold">@this.DomainName</div>
     @if (!double.IsNaN(this.Percentage))
     {
-        <button class="card-btn" @onclick="@this.OnMore">
+        <button class="card-btn" title="See More" @onclick="@this.OnMore">
             <div>@this.Count (@this.Percentage %)</div>
         </button>
     }

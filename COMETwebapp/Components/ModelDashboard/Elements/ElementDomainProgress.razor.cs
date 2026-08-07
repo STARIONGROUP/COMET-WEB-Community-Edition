@@ -47,16 +47,16 @@ namespace COMETwebapp.Components.ModelDashboard.Elements
 
 		/// <summary>
 		/// The hex stroke color of the "done" progress bar (the elements NOT flagged), matching the green of the chart
-		/// above it so the whole feature shares one color. Defaults to <see cref="HaveChartData.UsedColor" />.
+		/// above it so the whole feature shares one color. Defaults to <see cref="ChartColors.UsedColor" />.
 		/// </summary>
 		[Parameter]
-		public string GoodStrokeColor { get; set; } = HaveChartData.UsedColor;
+		public string GoodStrokeColor { get; set; } = ChartColors.UsedColor;
 
 		/// <summary>
 		/// The hex stroke color of the "attention" progress bar (the identified elements), matching the red of the chart
-		/// above it. Defaults to <see cref="HaveChartData.UnusedColor" />.
+		/// above it. Defaults to <see cref="ChartColors.UnusedColor" />.
 		/// </summary>
 		[Parameter]
-		public string WarningStrokeColor { get; set; } = HaveChartData.UnusedColor;
+		public string WarningStrokeColor { get; set; } = ChartColors.UnusedColor;
 	}
 }
