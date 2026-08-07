@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="OpenTab.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -29,6 +29,7 @@ namespace COMETwebapp.Components.Tabs
 
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Components.Common.OpenTab;
+    using COMETwebapp.ViewModels.Pages;
 
     using Microsoft.AspNetCore.Components;
 
@@ -80,6 +81,16 @@ namespace COMETwebapp.Components.Tabs
                                                                  this.ViewModel.SelectedDomainOfExpertise != null &&
                                                                  this.ViewModel.SelectedIterationDomainOfExpertise != null &&
                                                                  this.ViewModel.SelectedDomainOfExpertise.Iid != this.ViewModel.SelectedIterationDomainOfExpertise.Iid;
+
+        /// <summary>
+        /// Gets the header text displayed at the top of the form
+        /// </summary>
+        public string HeaderText => this.ViewModel.SelectedEngineeringModel == null ? "You have no model selected" : "Model selected";
+
+        /// <summary>
+        /// Gets the subtitle text displayed at the top of the form
+        /// </summary>
+        public string SubtitleText => this.ViewModel.SelectedEngineeringModel == null ? "Select a model to start working on it" : "Select options to start working on it";
 
         /// <summary>
         /// Asserts that the open-tab form has rendered and its combo boxes are interactive. Exposed to the DOM as the
@@ -139,6 +150,17 @@ namespace COMETwebapp.Components.Tabs
             await this.ViewModel.OpenTab(this.Panel);
             await this.InvokeAsync(this.StateHasChanged);
             this.OnTabOpened?.Invoke();
+        }
+
+        /// <summary>
+        /// Navigates to the already open tab and triggers <see cref="OnTabOpened"/>
+        /// </summary>
+        private void GoToOpenTab()
+        {
+            if (this.ViewModel.NavigateToOpenTab() && this.OnTabOpened != null)
+            {
+                this.OnTabOpened.Invoke();
+            }
         }
     }
 }

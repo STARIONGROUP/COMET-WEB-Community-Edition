@@ -135,12 +135,14 @@ namespace COMETwebapp.Tests.Pages
         [Test]
         public void VerifySidePanelIsOnlyAvailableWithMoreThanOneOpenTab()
         {
-            Assert.That(this.renderer.FindComponents<DxButton>().Any(x => x.Instance.Id == "new-side-panel-button"), Is.False);
+            var button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+            Assert.That(button.Instance.Enabled, Is.False);
 
             this.mainPanel.OpenTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
             this.renderer.Render();
 
-            Assert.That(this.renderer.FindComponents<DxButton>().Any(x => x.Instance.Id == "new-side-panel-button"), Is.True);
+            button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+            Assert.That(button.Instance.Enabled, Is.True);
         }
 
         [Test]

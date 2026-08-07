@@ -57,6 +57,7 @@ namespace COMETwebapp.Components.ParameterEditor
                 .Subscribe(_ => this.UpdateUrl()));
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.BatchParameterEditorViewModel.IsLoading).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.ViewModel.ParameterTableViewModel.Rows.CountChanged.SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>

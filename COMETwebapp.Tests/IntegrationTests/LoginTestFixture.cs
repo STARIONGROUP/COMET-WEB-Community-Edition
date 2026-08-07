@@ -57,6 +57,19 @@ namespace COMETwebapp.Tests.IntegrationTests
         }
 
         [Test]
+        public async Task VerifyRequiredFieldValidationIsShown()
+        {
+            await this.Login.NavigateAsync(AppUrl);
+
+            Assume.That(await this.Login.ConnectButton.IsVisibleAsync(), Is.True, "The credentials step is not reachable in a single click for this server configuration.");
+
+            await this.Login.ConnectButton.ClickAsync();
+
+            await Expect(this.Login.ValidationErrors).ToContainTextAsync("The Username is required.");
+            await Expect(this.Login.ValidationErrors).ToContainTextAsync("The Password is required.");
+        }
+
+        [Test]
         public async Task VerifyUserCanLogin()
         {
             await this.Login.NavigateAsync(AppUrl);

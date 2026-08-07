@@ -23,7 +23,7 @@
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <div id="@WebAppConstantValues.ViewerPage.QueryPageBodyName()" class="viewer-page-body">
-        <div id="gridParent">
+        <div id="gridParent" class="@(this.IsSplitView ? "split-mode" : "")">
             <div id="leftColumn">
                 <div id="option-filter">
                     <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>

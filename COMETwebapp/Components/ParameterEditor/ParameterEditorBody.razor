@@ -1,4 +1,4 @@
-﻿<!------------------------------------------------------------------------------
+<!------------------------------------------------------------------------------
 Copyright (c) 2023-2026 Starion Group S.A.
 
     This file is part of COMET WEB Community Edition
@@ -18,9 +18,9 @@ Copyright (c) 2023-2026 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
+@using COMETwebapp.Components.ParameterEditor.BatchParameterEditor
 @using COMETwebapp.Utilities
 @using COMETwebapp.Extensions
-@using COMETwebapp.Components.ParameterEditor.BatchParameterEditor
 
 @inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.ParameterEditor.IParameterEditorBodyViewModel>
 
@@ -40,6 +40,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <MultiOptionSelector ViewModel="this.ViewModel.OptionSelector" DisplayText=""></MultiOptionSelector>
             </div>
             <div class="filter-bar-right">
+                <span class="text-secondary small text-nowrap me-2">Showing @(this.ViewModel.ParameterTableViewModel.Rows.Count) of @(this.ViewModel.ParameterTableViewModel.TotalParametersCount) parameters</span>
                 <BatchParameterEditor ViewModel="@(this.ViewModel.BatchParameterEditorViewModel)"/>
                 <ViewOptionsMenu ButtonId="parameterEditorViewMenuButton">
                     <DxCheckBox Id="only-owned-parameters-toggle"

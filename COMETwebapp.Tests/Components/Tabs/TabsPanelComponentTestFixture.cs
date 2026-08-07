@@ -81,12 +81,16 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.engineeringModelBodyViewModel.SetupProperty(x => x.IsAllowedToDispose, false);
             this.engineeringModelBodyViewModel.Setup(x => x.OptionsTableViewModel).Returns(optionsTableViewModel.Object);
 
-            var engineeringModelSetup = new EngineeringModelSetup();
+            var engineeringModelSetup = new EngineeringModelSetup
+            {
+                Name = "LOFT"
+            };
 
             this.iteration = new Iteration
             {
                 IterationSetup = new IterationSetup
                 {
+                    IterationNumber = 1,
                     Container = engineeringModelSetup
                 },
                 Container = new EngineeringModel
@@ -125,7 +129,8 @@ namespace COMETwebapp.Tests.Components.Tabs
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
                 parameters.Add(p => p.Panel, this.mainPanel);
                 parameters.Add(p => p.CssClass, "css-test-class");
-                parameters.Add(p => p.IsSidePanelAvailable, true);
+                parameters.Add(p => p.IsSplitViewVisible, true);
+                parameters.Add(p => p.IsSplitViewEnabled, true);
             });
         }
 
@@ -160,6 +165,8 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.viewModel.Setup(x => x.GetCurrentDomainOfExpertise(this.mainPanel)).Returns(domain);
             this.renderer.Render();
 
+            var button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ViewModel, Is.EqualTo(this.viewModel.Object));
@@ -167,11 +174,28 @@ namespace COMETwebapp.Tests.Components.Tabs
                 Assert.That(this.renderer.Instance.CurrentDomainOfExpertise, Is.EqualTo(domain));
                 Assert.That(this.renderer.Markup, Does.Contain("css-test-class"));
                 Assert.That(this.renderer.Markup, Does.Contain("DOM"));
+                Assert.That(button.Instance.Enabled, Is.True);
             });
 
             var badgeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "switch-domain-badge-button");
             await this.renderer.InvokeAsync(() => badgeButton.Instance.Click.InvokeAsync());
             this.viewModel.Verify(x => x.AskToSwitchDomain(this.mainPanel), Times.Once);
+
+            this.renderer.Render(parameters => { parameters.Add(p => p.IsSplitViewEnabled, false); });
+
+            button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(button.Instance.Enabled, Is.False);
+                Assert.That(this.renderer.Markup, Does.Contain("Split view requires at least two open tabs"));
+            });
+
+            this.renderer.Render(parameters => { parameters.Add(p => p.IsSplitViewVisible, false); });
+
+            button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+
+            Assert.That(button.Instance.Visible, Is.False);
         }
 
         [Test]
@@ -209,10 +233,7 @@ namespace COMETwebapp.Tests.Components.Tabs
                 Assert.That(this.sidePanel.OpenTabs.Items[0], Is.EqualTo(newTab));
             });
 
-            this.renderer.Render(parameters =>
-            {
-                parameters.Add(p => p.Panel, this.sidePanel);
-            });
+            this.renderer.Render(parameters => { parameters.Add(p => p.Panel, this.sidePanel); });
 
             sortableList = this.renderer.FindComponent<SortableList<TabbedApplicationInformation>>();
             await this.renderer.InvokeAsync(() => sortableList.Instance.OnRemove.InvokeAsync((0, 0)));
@@ -223,6 +244,29 @@ namespace COMETwebapp.Tests.Components.Tabs
                 Assert.That(this.sidePanel.OpenTabs, Has.Count.EqualTo(0));
                 Assert.That(this.mainPanel.OpenTabs.Items[0], Is.EqualTo(newTab));
             });
+        }
+
+        [Test]
+        public void VerifyGetTabText()
+        {
+            var tabComponent = this.renderer.FindComponents<TabComponent>().First(x => x.Instance.Text != "Select Model");
+            Assert.That(tabComponent.Instance.Text, Is.EqualTo("Engineering Model · LOFT - It. 1"));
+
+            var engineeringModel = (EngineeringModel)this.iteration.Container;
+            engineeringModel.Iteration.Add(this.iteration);
+            var tabModel = new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), engineeringModel);
+            this.mainPanel.OpenTabs.Add(tabModel);
+            this.renderer.Render();
+
+            tabComponent = this.renderer.FindComponents<TabComponent>().Last(x => x.Instance.Text != "Select Model");
+            Assert.That(tabComponent.Instance.Text, Is.EqualTo("Engineering Model · LOFT"));
+
+            var tabNoObject = new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), null);
+            this.mainPanel.OpenTabs.Add(tabNoObject);
+            this.renderer.Render();
+
+            tabComponent = this.renderer.FindComponents<TabComponent>().Last(x => x.Instance.Text != "Select Model");
+            Assert.That(tabComponent.Instance.Text, Is.EqualTo("Engineering Model"));
         }
     }
 }

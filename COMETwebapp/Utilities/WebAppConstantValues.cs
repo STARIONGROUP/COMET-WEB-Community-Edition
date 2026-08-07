@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="WebAppConstantValues.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -138,5 +138,10 @@ namespace COMETwebapp.Utilities
         /// The page that support multi tabs 
         /// </summary>
         public const string TabsPage = "Tabs";
+
+        /// <summary>
+        /// Name of the cascading parameter for checking if split view is active.
+        /// </summary>
+        public const string IsSplitViewCascadingValueName = "IsSplitView";
     }
 }

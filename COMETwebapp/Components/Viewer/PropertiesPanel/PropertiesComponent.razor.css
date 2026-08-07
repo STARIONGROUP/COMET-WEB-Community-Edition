@@ -1,16 +1,16 @@
-﻿#properties-header {
+#properties-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin: 0;
     background: #eaecee;
     font-weight: bold;
-    padding: 2%;
+    padding: 0.5rem;
 }
 
 #properties-title {
     background: #eaecee;
-    padding: 2%;
+    padding: 0.5rem;
     font-size: 1rem;
     font-weight: bold;
 }
@@ -30,17 +30,17 @@
 }
 
 #parameters-section {
-    margin: 2%;
+    margin: 0.5rem;
     display: flex;
     align-items: start;
     flex-wrap: wrap;
 }
 
 .parameter-item {
-    margin: 1%;
+    margin: 0.25rem;
     background: #EAECEE;
-    border-radius: 5px;
-    padding: 1%;
+    border-radius: 0.3rem;
+    padding: 0.25rem;
     box-shadow: 0 0 0 2px #CCCCCC;
     cursor: pointer;
     transition: all 0.3s;
@@ -58,6 +58,6 @@
     border: 1px solid lightgray;
     overflow-y: auto;
     overflow-x: hidden;
-    border-radius: 5px;
-    margin-bottom: 2%;
+    border-radius: 0.3rem;
+    margin-bottom: 0.5rem;
 }

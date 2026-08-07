@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParameterTableTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -34,6 +34,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.ParameterEditor;
+    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
 
     using DevExpress.Blazor;
@@ -120,6 +121,18 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             {
                 Assert.That(grid.Instance.GetVisibleRowCount(), Is.EqualTo(expectedNumberOfDataRows + expectedNumberOfGroups));
                 Assert.That(highlightedRows.Count, Is.EqualTo(2));
+            });
+
+            var splitViewRenderedComponent = this.context.Render<ParameterTable>(parameters =>
+            {
+                parameters.AddCascadingValue(WebAppConstantValues.IsSplitViewCascadingValueName, true);
+                parameters.Add(p => p.ViewModel, this.parameterTableViewModel.Object);
+            });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(splitViewRenderedComponent.Instance, Is.Not.Null);
+                Assert.That(splitViewRenderedComponent.Instance.IsSplitView, Is.True);
             });
         }
 
