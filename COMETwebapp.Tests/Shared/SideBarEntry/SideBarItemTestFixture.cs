@@ -83,6 +83,67 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         }
 
         [Test]
+        public async Task VerifySideBarItemIsKeyboardOperable()
+        {
+            var activations = 0;
+
+            var renderer = this.context.Render<SideBarItem>(parameters =>
+            {
+                parameters.Add(p => p.Text, "txt");
+                parameters.Add(p => p.Id, "id");
+                parameters.Add(p => p.OnClick, () => { activations++; });
+            });
+
+            var item = renderer.Find("#id");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(item.GetAttribute("tabindex"), Is.EqualTo("0"));
+                Assert.That(item.GetAttribute("role"), Is.EqualTo("button"));
+            });
+
+            await renderer.InvokeAsync(() => item.KeyDownAsync(new KeyboardEventArgs { Key = "Enter" }));
+            await renderer.InvokeAsync(() => item.KeyDownAsync(new KeyboardEventArgs { Key = " " }));
+            await renderer.InvokeAsync(() => item.KeyDownAsync(new KeyboardEventArgs { Key = "a" }));
+
+            Assert.That(activations, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void VerifySelectedSideBarItemIsMarkedAsCurrent()
+        {
+            var renderer = this.context.Render<SideBarItem>(parameters =>
+            {
+                parameters.Add(p => p.Id, "id");
+                parameters.Add(p => p.Selected, true);
+            });
+
+            Assert.That(renderer.Find("#id").GetAttribute("aria-current"), Is.EqualTo("page"));
+
+            renderer.Render(parameters => { parameters.Add(p => p.Selected, false); });
+
+            Assert.That(renderer.Find("#id").HasAttribute("aria-current"), Is.False);
+        }
+
+        [Test]
+        public void VerifyDisabledSideBarItemIsNotAFocusStop()
+        {
+            var renderer = this.context.Render<SideBarItem>(parameters =>
+            {
+                parameters.Add(p => p.Id, "id");
+                parameters.Add(p => p.Enabled, false);
+            });
+
+            var item = renderer.Find("#id");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(item.GetAttribute("tabindex"), Is.EqualTo("-1"));
+                Assert.That(item.GetAttribute("aria-disabled"), Is.EqualTo("true"));
+            });
+        }
+
+        [Test]
         public void VerifySideBarItemIconDisplay()
         {
             var renderer = this.context.Render<SideBarItem>(parameters => { parameters.Add(p => p.Icon, IconName.Check); });

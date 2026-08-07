@@ -8,6 +8,28 @@ html, body, #app {
     overflow: hidden;
 }
 
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 2000;
+    padding: 8px 16px;
+    background: var(--colors-primary-600, #006DA4);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 0 0 var(--radius-sm, 4px) 0;
+}
+
+.skip-link:focus {
+    left: 0;
+}
+
+*:focus-visible {
+    outline: 2px solid var(--colors-primary-600, #006DA4) !important;
+    outline-offset: 1px;
+    border-radius: 2px;
+}
+
 .valid.modified:not([type=checkbox]) { outline: 1px solid #26b050; }
 
 .invalid { outline: 1px solid red; }

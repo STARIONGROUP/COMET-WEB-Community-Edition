@@ -24,7 +24,14 @@
 <div class="panel-view @(this.CssClass)">
     @if (this.Panel.CurrentTab is not null)
     {
-        <div class="tabs-row align-items-center">
+        <DxPopup @bind-Visible="@this.ViewModel.IsOnSwitchDomainMode"
+                 CloseOnOutsideClick="false"
+                 HeaderText="Switch domain"
+                 ShowCloseButton="true">
+            <SwitchDomain ViewModel="@this.ViewModel.SwitchDomainViewModel"/>
+        </DxPopup>
+
+        <div class="tabs-row align-items-center" role="group" aria-label="Open tabs" aria-keyshortcuts="Alt+Shift+T">
             <div class="tabs-container">
                 <SortableList Group="tabs-panel"
                               Items="@(this.Panel.OpenTabs.Items.ToList())"

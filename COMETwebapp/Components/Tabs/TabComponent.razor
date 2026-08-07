@@ -22,6 +22,9 @@
 <div id="@this.Id"
      class="@($"tab-component {(this.OnClick != null ? "cursor-pointer" : "")} {(this.IsCurrent ? "current-tab" : "")}")"
      @onclick="@(() => this.OnClick?.Invoke())"
+     @onkeydown="@(this.HandleKeyDown)"
+     tabindex="@(this.OnClick != null ? 0 : -1)"
+     aria-current="@(this.IsCurrent ? "page" : null)"
      title="@(this.Caption)">
 
     @if (this.ApplicationIcon is not null)

@@ -21,12 +21,14 @@
 
 <DxLayoutBreakpoint MaxWidth="1200" @bind-IsActive="@this.IsNarrowViewport"/>
 
-<nav class="@($"{(this.IsCollapsed ? "collapsed" : "")} main-side-bar")">
+<nav id="main-side-bar" tabindex="-1" class="@($"{(this.IsCollapsed ? "collapsed" : "")} main-side-bar")" aria-label="Main navigation" aria-keyshortcuts="Alt+Shift+N">
     <div class="@(this.IsCollapsed ? "text-center" : "text-end")">
         <DxButton Text="Collapse"
                   Click="@this.ToggleCollapsed"
                   RenderStyle="@(CometButtonStyle.None.ToButtonRenderStyle())"
-                  Id="side-bar-collapse-button">
+                  Id="side-bar-collapse-button"
+                  aria-keyshortcuts="Alt+Shift+B"
+                  aria-label="@(this.IsCollapsed ? "Expand navigation" : "Collapse navigation")">
             @if (this.IsCollapsed)
             {
                 <CometIcon Icon="IconName.ArrowRight" Size="24"/>
