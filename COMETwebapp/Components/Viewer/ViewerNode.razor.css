@@ -1,10 +1,10 @@
-.node-inner-content {
+﻿.node-inner-content {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     padding: 0.25rem 0.25rem 0.25rem 0;
-    border-radius: 0.3rem;
+    border-radius: var(--radius-sm);
     margin-bottom: 0.2rem;
 }
 

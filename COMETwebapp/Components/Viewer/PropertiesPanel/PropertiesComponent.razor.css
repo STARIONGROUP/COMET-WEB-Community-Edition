@@ -1,4 +1,4 @@
-#properties-header {
+﻿#properties-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -39,7 +39,7 @@
 .parameter-item {
     margin: 0.25rem;
     background: #EAECEE;
-    border-radius: 0.3rem;
+    border-radius: var(--radius-sm);
     padding: 0.25rem;
     box-shadow: 0 0 0 2px #CCCCCC;
     cursor: pointer;
@@ -58,6 +58,6 @@
     border: 1px solid lightgray;
     overflow-y: auto;
     overflow-x: hidden;
-    border-radius: 0.3rem;
+    border-radius: var(--radius-sm);
     margin-bottom: 0.5rem;
 }

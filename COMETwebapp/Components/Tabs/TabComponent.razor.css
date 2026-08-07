@@ -1,5 +1,5 @@
-.tab-component {
-    border-radius: 7.5px;
+﻿.tab-component {
+    border-radius: var(--radius-md);
     padding: 2px 10px 2px 10px;
     display: flex;
     align-items: center;

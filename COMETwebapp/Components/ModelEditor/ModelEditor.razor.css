@@ -92,7 +92,7 @@
     padding: 8px 4px;
     cursor: pointer;
     border: solid 1px #e2e8f0;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     background: #f8fafc;
 }
 
@@ -112,7 +112,7 @@
     align-self: stretch;
     cursor: col-resize;
     background: #e2e8f0;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
 }
 
 .model-editor-resizer:hover {

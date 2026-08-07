@@ -3,7 +3,7 @@
     min-height: 0;
     overflow: auto;
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
 }
 
 .matrix-table {
@@ -76,7 +76,7 @@
     min-width: 180px;
     background: #fff;
     border: 1px solid #d4d9df;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     padding: 4px 0;
 }
@@ -118,7 +118,7 @@
     flex: 0 0 auto;
     margin-top: 8px;
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     background: #fff;
     overflow: hidden;
 }
@@ -155,7 +155,7 @@
     min-width: 0;
     max-height: 170px;
     border: 1px solid #eaecef;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     background: #fafbfc;
     overflow: hidden;
 }

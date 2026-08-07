@@ -1,7 +1,7 @@
 .application-item-container {
     color: var(--colors-gray-500);
     margin: 0px 10px 0px 10px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     padding: 16px;
     text-align: center;
     display: flex;

@@ -3,7 +3,7 @@
     width: 100%;
     min-width: 0;
     border: 1px solid #d0d7de;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     padding: 10px;
     background: #ffffff;
     cursor: grab;

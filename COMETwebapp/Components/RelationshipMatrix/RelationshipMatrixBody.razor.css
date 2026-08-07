@@ -16,7 +16,7 @@
     padding: 8px;
     overflow-y: auto;
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     background: #fff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     font-size: 0.85rem;
@@ -66,7 +66,7 @@
     padding: 8px 4px;
     cursor: pointer;
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     background: #fff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
