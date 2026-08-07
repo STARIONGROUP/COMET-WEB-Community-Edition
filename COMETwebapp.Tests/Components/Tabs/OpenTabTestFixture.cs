@@ -231,5 +231,31 @@ namespace COMETwebapp.Tests.Components.Tabs
                 Assert.That(tabOpenedCalled, Is.True);
             }
         }
+
+        [Test]
+        public void VerifyDomainSwitchWarning()
+        {
+            var domain1 = new DomainOfExpertise { Iid = Guid.NewGuid(), Name = "Domain 1" };
+            var domain2 = new DomainOfExpertise { Iid = Guid.NewGuid(), Name = "Domain 2" };
+
+            this.viewModel.Setup(x => x.IsCurrentIterationOpened).Returns(true);
+            this.viewModel.Setup(x => x.SelectedDomainOfExpertise).Returns(domain1);
+            this.viewModel.Setup(x => x.SelectedIterationDomainOfExpertise).Returns(domain2);
+
+            this.renderer.Render();
+
+            var warning = this.renderer.Find("#opentab-domain-switch-warning");
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(warning, Is.Not.Null);
+                Assert.That(warning.TextContent, Contains.Substring("This domain change will apply to all open tabs for this iteration."));
+            });
+
+            this.viewModel.Setup(x => x.SelectedDomainOfExpertise).Returns(domain2);
+            this.renderer.Render();
+
+            Assert.That(this.renderer.FindAll("#opentab-domain-switch-warning"), Has.Count.EqualTo(0));
+        }
     }
 }

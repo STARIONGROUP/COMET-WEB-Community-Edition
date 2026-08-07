@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsPanelComponent.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -40,8 +40,6 @@ namespace COMETwebapp.Components.Tabs
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
 
     /// <summary>
     /// Core component for the Tabs page
@@ -125,9 +123,6 @@ namespace COMETwebapp.Components.Tabs
         protected override void OnInitialized()
         {
             base.OnInitialized();
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsOnSwitchDomainMode)
-                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.MessageBus.Listen<DomainChangedEvent>()
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));

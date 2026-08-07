@@ -72,3 +72,10 @@
              IterationId="this.IterationId"
              DomainId="this.DomainId"/>
 </DxPopup>
+
+<DxPopup @bind-Visible="@this.ViewModel.IsOnSwitchDomainMode"
+         CloseOnOutsideClick="false"
+         HeaderText="Switch domain"
+         ShowCloseButton="true">
+    <SwitchDomain ViewModel="@this.ViewModel.SwitchDomainViewModel"/>
+</DxPopup>
