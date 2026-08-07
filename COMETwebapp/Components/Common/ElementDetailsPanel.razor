@@ -63,7 +63,7 @@
 
 <DxDropDown @bind-IsOpen="@this.IsNewMenuOpen"
             PositionMode="DropDownPositionMode.Bottom"
-            PositionTarget="@($"#{this.uniqueNewButtonId}")"
+            PositionTarget="@this.NewButtonSelector"
             CloseMode="DropDownCloseMode.Close"
             HeaderVisible="false"
             FooterVisible="false">

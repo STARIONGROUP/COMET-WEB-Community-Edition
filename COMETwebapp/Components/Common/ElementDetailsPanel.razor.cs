@@ -62,9 +62,16 @@ namespace COMETwebapp.Components.Common
         private bool IsNewMenuOpen { get; set; }
 
         /// <summary>
-        /// The unique ID for the "New" button and dropdown target.
+        /// The unique DOM id for the "New" dropdown trigger button, generated once at field initialization
+        /// so it is stable and immutable for the component's lifetime.
         /// </summary>
-        private string uniqueNewButtonId;
+        private readonly string uniqueNewButtonId = $"element-details-new-button-{Guid.NewGuid():N}";
+
+        /// <summary>
+        /// Gets the CSS selector that targets the "New" dropdown trigger button by its unique DOM id,
+        /// used as the dropdown's <c>PositionTarget</c>.
+        /// </summary>
+        private string NewButtonSelector => $"#{this.uniqueNewButtonId}";
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its initial parameters
@@ -74,8 +81,6 @@ namespace COMETwebapp.Components.Common
         /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
         protected override Task OnInitializedAsync()
         {
-            this.uniqueNewButtonId = $"element-details-new-button-{Guid.NewGuid():N}";
-
             this.Disposables.Add(this.WhenAnyValue(
                     x => x.ViewModel.IsOnCreationMode,
                     x => x.ViewModel.IsOnAddingParameterMode,

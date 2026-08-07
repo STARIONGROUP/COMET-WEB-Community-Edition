@@ -101,5 +101,32 @@ namespace COMET.Web.Common.Tests.Components
             await renderer.InvokeAsync(() => button.Instance.Click.InvokeAsync(new MouseEventArgs()));
             Assert.That(dropDown.Instance.IsOpen, Is.False);
         }
+
+        /// <summary>
+        /// Verifies that two <see cref="ViewOptionsMenu" /> instances rendered in the same tree with the same
+        /// <c>ButtonId</c> prefix produce different DOM ids, and that both ids still start with that prefix.
+        /// This is the regression assertion for issue #913: duplicate DOM ids across split-view panels.
+        /// </summary>
+        [Test]
+        public void VerifyTwoInstancesWithSameButtonIdProduceDifferentDomIds()
+        {
+            var firstRenderer = this.context.Render<ViewOptionsMenu>(parameters => parameters
+                .Add(p => p.ButtonId, "sharedPrefix")
+                .Add(p => p.ChildContent, "<span>option</span>"));
+
+            var secondRenderer = this.context.Render<ViewOptionsMenu>(parameters => parameters
+                .Add(p => p.ButtonId, "sharedPrefix")
+                .Add(p => p.ChildContent, "<span>option</span>"));
+
+            var firstButton = firstRenderer.FindComponent<DxButton>();
+            var secondButton = secondRenderer.FindComponent<DxButton>();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(firstButton.Instance.Id, Does.StartWith("sharedPrefix"));
+                Assert.That(secondButton.Instance.Id, Does.StartWith("sharedPrefix"));
+                Assert.That(firstButton.Instance.Id, Is.Not.EqualTo(secondButton.Instance.Id));
+            }
+        }
     }
 }

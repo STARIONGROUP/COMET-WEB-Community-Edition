@@ -59,7 +59,7 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <summary>
         /// Gets the tree "View" display-options cog button.
         /// </summary>
-        public ILocator ViewMenuButton => this.Page.Locator("[id^='systemTreeViewMenuButton']");
+        public ILocator ViewMenuButton => this.ProductTree.Locator("[id^='systemTreeViewMenuButton']");
 
         /// <summary>
         /// Gets the option filter selector.

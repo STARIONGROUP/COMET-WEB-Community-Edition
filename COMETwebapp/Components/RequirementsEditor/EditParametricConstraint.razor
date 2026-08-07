@@ -54,7 +54,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 </span>
                 <DxDropDown @bind-IsOpen="@this.rootAddMenuOpen"
                             PositionMode="DropDownPositionMode.Bottom"
-                            PositionTarget="@($"#{this.uniqueRootAddId}")"
+                            PositionTarget="@this.RootAddSelector"
                             CloseMode="DropDownCloseMode.Close"
                             HeaderVisible="false"
                             FooterVisible="false">

@@ -59,7 +59,7 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <summary>
         /// Gets the "View" display-and-filter options cog in the upper-right of the toolbar.
         /// </summary>
-        public ILocator ViewMenuButton => this.Page.Locator("[id^='parameterEditorViewMenuButton']");
+        public ILocator ViewMenuButton => this.Body.Locator("[id^='parameterEditorViewMenuButton']");
 
         /// <summary>
         /// Gets the "Only Parameters owned by … domain" toggle, which lives inside the <see cref="ViewMenuButton" />
