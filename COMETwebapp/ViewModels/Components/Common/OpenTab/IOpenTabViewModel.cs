@@ -50,6 +50,11 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         bool IsCurrentIterationOpened { get; }
 
         /// <summary>
+        /// Gets a value indicating whether a tab for the selected application and model is already open
+        /// </summary>
+        bool HasOpenTab { get; }
+
+        /// <summary>
         /// Gets the <see cref="DomainOfExpertise" /> from the <see cref="OpenModelViewModel.SelectedIterationSetup" />
         /// </summary>
         DomainOfExpertise SelectedIterationDomainOfExpertise { get; }
@@ -60,5 +65,11 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// <param name="panel">The <see cref="TabPanelInformation"/> for which the new tab will be opened</param>
         /// <returns>A <see cref="Task" /></returns>
         Task OpenTab(TabPanelInformation panel);
+
+        /// <summary>
+        /// Navigates to an already open tab for the selected engineering model or iteration if it exists
+        /// </summary>
+        /// <returns>True if a tab was navigated to; otherwise, false.</returns>
+        bool NavigateToOpenTab();
     }
 }

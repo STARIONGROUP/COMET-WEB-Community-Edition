@@ -42,6 +42,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         SourceList<ParameterBaseRowViewModel> Rows { get; }
 
         /// <summary>
+        /// Gets the total count of parameters available before applying filters
+        /// </summary>
+        int TotalParametersCount { get; }
+
+        /// <summary>
         /// The <see cref="IHaveComponentParameterTypeEditor"/> to show in the popup
         /// </summary>
         IHaveComponentParameterTypeEditor HaveComponentParameterTypeEditorViewModel { get; set; }

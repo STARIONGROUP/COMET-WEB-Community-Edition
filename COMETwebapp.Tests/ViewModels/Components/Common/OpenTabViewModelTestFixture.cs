@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
     using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Model;
     using COMETwebapp.Utilities;
@@ -272,6 +273,75 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
                 this.sessionService.Verify(x => x.ReadIteration(secondIterationSetup, It.IsAny<DomainOfExpertise>()), Times.Once);
                 this.sessionService.Verify(x => x.SwitchDomain(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>()), Times.Never);
                 this.tabsViewModel.Verify(x => x.CreateNewTab(engineeringModelBodyApplication, secondIteration.Iid, panel), Times.Once);
+            }
+        }
+
+        [Test]
+        public void VerifyNavigateToOpenTab()
+        {
+            // When no application or model is selected, navigation fails
+            var mainPanel = new TabPanelInformation();
+            var sidePanel = new TabPanelInformation();
+            this.tabsViewModel.Setup(x => x.MainPanel).Returns(mainPanel);
+            this.tabsViewModel.Setup(x => x.SidePanel).Returns(sidePanel);
+
+            Assert.That(this.viewModel.NavigateToOpenTab(), Is.False);
+
+            // When an iteration view is selected but no tabs are currently open for it
+            var alreadyOpenIteration = this.alreadyOpenIterations.Items[0];
+            alreadyOpenIteration.IterationSetup.IterationIid = alreadyOpenIteration.Iid;
+            var engineeringModelSetup = ((EngineeringModel)alreadyOpenIteration.Container).EngineeringModelSetup;
+
+            var application = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ThingTypeOfInterest == typeof(Iteration));
+            this.viewModel.SelectedApplication = application;
+            this.viewModel.SelectedEngineeringModel = engineeringModelSetup;
+            this.viewModel.SelectedIterationSetup = new IterationData(alreadyOpenIteration.IterationSetup);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.HasOpenTab, Is.False);
+                Assert.That(this.viewModel.NavigateToOpenTab(), Is.False);
+            }
+
+            // When a matching iteration tab is open in the main panel, navigate to it
+            var dummyViewModel = new Mock<IApplicationBaseViewModel>();
+            var existingTab = new TabbedApplicationInformation(dummyViewModel.Object, application.ComponentType, alreadyOpenIteration);
+            mainPanel.OpenTabs.Add(existingTab);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.HasOpenTab, Is.True);
+                Assert.That(this.viewModel.NavigateToOpenTab(), Is.True);
+                Assert.That(mainPanel.CurrentTab, Is.EqualTo(existingTab));
+            }
+
+            // When a matching iteration tab is open in the side panel, navigate to it
+            mainPanel.OpenTabs.Remove(existingTab);
+            mainPanel.CurrentTab = null;
+            sidePanel.OpenTabs.Add(existingTab);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.NavigateToOpenTab(), Is.True);
+                Assert.That(sidePanel.CurrentTab, Is.EqualTo(existingTab));
+            }
+
+            // When an engineering-model-level view tab is open in the side panel, navigate to it
+            var engModelApp = Applications.ExistingApplications.OfType<TabbedApplication>().First(x => x.ThingTypeOfInterest == typeof(EngineeringModel));
+            this.viewModel.SelectedApplication = engModelApp;
+
+            var openEngModel = (EngineeringModel)alreadyOpenIteration.Container;
+            openEngModel.Iid = Guid.NewGuid();
+            engineeringModelSetup.EngineeringModelIid = openEngModel.Iid;
+            this.sessionService.Setup(x => x.OpenEngineeringModels).Returns([openEngModel]);
+
+            var engModelTab = new TabbedApplicationInformation(dummyViewModel.Object, engModelApp.ComponentType, openEngModel);
+            sidePanel.OpenTabs.Add(engModelTab);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.HasOpenTab, Is.True);
+                Assert.That(this.viewModel.NavigateToOpenTab(), Is.True);
             }
         }
     }

@@ -27,8 +27,8 @@
     <DxFormLayoutItem ColSpanLg="12">
         <div style="display:flex; flex-direction: column; align-items: center;">
             <CometIcon Icon="IconName.Smile" Size="42" Color="var(--colors-primary-500)"/>
-            <h5 class="font-weight-bold mt-1" style="color: var(--colors-gray-800);">You have no model selected</h5>
-            <span style="color: var(--colors-gray-600);">Select a model to start working on it</span>
+            <h5 class="font-weight-bold mt-1" style="color: var(--colors-gray-800);">@(this.HeaderText)</h5>
+            <span style="color: var(--colors-gray-600);">@(this.SubtitleText)</span>
         </div>
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="View" ColSpanLg="12">
@@ -87,17 +87,22 @@
                             @bind-Value="@(this.ViewModel.SelectedIterationSetup)"
                             NullText="Select an Iteration"
                             Enabled="@(this.IterationId == Guid.Empty)">
-                    <ItemTemplate Context="iterationData">
+                <ItemTemplate Context="iterationData">
                         <span data-testid="combo-item">@(iterationData.IterationName)</span>
                     </ItemTemplate>
                 </DxComboBox>
             </DxFormLayoutItem>
         }
 
-        @if (this.ViewModel.IsCurrentIterationOpened)
+        @if (this.ViewModel.HasOpenTab)
         {
             <DxFormLayoutItem ColSpanLg="12">
-                <sub class="my-1">Iteration already opened</sub>
+                <DxButton Id="already-open-tab-button"
+                          CssClass="p-0 my-1 sub text-primary"
+                          Text="Already open - go to that tab"
+                          RenderStyle="@(CometButtonStyle.Link.ToButtonRenderStyle())"
+                          RenderStyleMode="ButtonRenderStyleMode.Text"
+                          Click="this.GoToOpenTab" />
             </DxFormLayoutItem>
         }
     }

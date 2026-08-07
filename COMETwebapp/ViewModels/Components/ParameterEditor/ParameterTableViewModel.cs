@@ -141,6 +141,11 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         public SourceList<ParameterBaseRowViewModel> Rows { get; } = new();
 
         /// <summary>
+        /// Gets the total count of parameters available before applying filters
+        /// </summary>
+        public int TotalParametersCount { get; private set; }
+
+        /// <summary>
         /// Initializes this <see cref="IParameterTableViewModel" />
         /// </summary>
         /// <param name="currentIteration">The current <see cref="Iteration" /></param>
@@ -164,6 +169,7 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
                     .SelectMany(option => this.iteration.QueryParameterAndOverrideBases(option, this.domainOfExpertise))
                     .DistinctBy(x => x.Iid);
 
+                this.TotalParametersCount = this.GetAllParameters().Count;
                 this.Rows.AddRange(this.CreateParameterBaseRowViewModels(ownedNestedParameters, this.currentOptions.Select(x => x.Iid).ToHashSet()));
             }
         }
@@ -215,24 +221,38 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
             }
 
             this.currentOptions = this.ResolveSelectedOptions(selectedOptions);
+
             this.currentElementBaseIds = selectedElementBases == null
                 ? new HashSet<Guid>()
                 : new HashSet<Guid>(selectedElementBases.Select(x => x.Iid));
+
             this.currentParameterTypeIds = selectedParameterTypes == null
                 ? new HashSet<Guid>()
                 : new HashSet<Guid>(selectedParameterTypes.Select(x => x.Iid));
+
             this.currentCategoryIds = selectedCategories == null
                 ? new HashSet<Guid>()
                 : new HashSet<Guid>(selectedCategories.Select(x => x.Iid));
+
             this.ownedParameters = isOwnedParameters;
 
-            var parameters = this.currentOptions
-                .SelectMany(option => this.iteration.QueryParameterAndOverrideBases(option))
-                .DistinctBy(x => x.Iid)
-                .ToList();
+            var parameters = this.GetAllParameters();
+            this.TotalParametersCount = parameters.Count;
 
             var rows = this.CreateRowsBasedOnFilters(parameters);
             this.UpdateVisibleRows(rows);
+        }
+
+        /// <summary>
+        /// Queries all <see cref="ParameterOrOverrideBase" /> from the current <see cref="Iteration" /> based on the current <see cref="Option" />s.
+        /// </summary>
+        /// <returns>A list of <see cref="ParameterOrOverrideBase" /> instances.</returns>
+        private List<ParameterOrOverrideBase> GetAllParameters()
+        {
+            return this.currentOptions
+                    .SelectMany(option => this.iteration.QueryParameterAndOverrideBases(option))
+                    .DistinctBy(x => x.Iid)
+                    .ToList();
         }
 
         /// <summary>
