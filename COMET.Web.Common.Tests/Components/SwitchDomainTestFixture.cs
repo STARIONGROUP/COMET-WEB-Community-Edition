@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SwitchDomainTestFixture.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -74,6 +74,9 @@ namespace COMET.Web.Common.Tests.Components
         [Test]
         public async Task VerifySwitchDomainComponent()
         {
+            var isCancelled = false;
+            this.viewModel.Setup(x => x.OnCancel).Returns(new EventCallbackFactory().Create(this, () => isCancelled = true));
+
             var renderer = this.context.Render<SwitchDomain>(parameters =>
             {
                 parameters.Add(p => p.ViewModel, this.viewModel.Object);
@@ -83,9 +86,10 @@ namespace COMET.Web.Common.Tests.Components
             // onto its own instance under bunit, so behaviour is verified through the switch button instead.
             Assert.That(renderer.FindComponent<DxComboBox<DomainOfExpertise, DomainOfExpertise>>(), Is.Not.Null);
 
-            var switchButton = renderer.FindComponent<DxButton>();
-            await renderer.InvokeAsync(switchButton.Instance.Click.InvokeAsync);
+            await renderer.InvokeAsync(() => renderer.Find("#switch-domain-close-button").ClickAsync());
+            Assert.That(isCancelled, Is.True);
 
+            await renderer.InvokeAsync(() => renderer.Find("#switch-domain-button").ClickAsync());
             Assert.That(this.submittedDomain, Is.EqualTo(this.availableDomains[0]));
         }
     }

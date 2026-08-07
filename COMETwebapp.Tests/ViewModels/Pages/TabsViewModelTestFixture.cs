@@ -23,6 +23,7 @@
 namespace COMETwebapp.Tests.ViewModels.Pages
 {
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.SessionManagement;
@@ -155,7 +156,50 @@ namespace COMETwebapp.Tests.ViewModels.Pages
                 Assert.That(this.viewModel.AvailableApplications, Is.Not.Empty);
                 Assert.That(this.viewModel.SelectedApplication, Is.Null);
                 Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(0));
+                Assert.That(this.viewModel.IsOnSwitchDomainMode, Is.False);
+                Assert.That(this.viewModel.SwitchDomainViewModel, Is.Not.Null);
             });
+        }
+
+        [Test]
+        public void VerifyDomainSwitching()
+        {
+            var iteration = new Iteration
+            {
+                IterationSetup = new IterationSetup
+                {
+                    Container = new EngineeringModelSetup()
+                }
+            };
+
+            var domain = new DomainOfExpertise { Name = "Domain 1" };
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(domain);
+            this.sessionService.Setup(x => x.GetModelDomains(It.IsAny<EngineeringModelSetup>())).Returns([domain]);
+
+            var tab = new TabbedApplicationInformation(new Mock<IApplicationBaseViewModel>().Object, typeof(EngineeringModelBody), iteration);
+            this.viewModel.MainPanel.OpenTabs.Add(tab);
+            this.viewModel.MainPanel.CurrentTab = tab;
+
+            var activeDomain = this.viewModel.GetCurrentDomainOfExpertise(this.viewModel.MainPanel);
+            Assert.That(activeDomain, Is.EqualTo(domain));
+
+            this.viewModel.AskToSwitchDomain(this.viewModel.MainPanel);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsOnSwitchDomainMode, Is.True);
+                Assert.That(this.viewModel.SwitchDomainViewModel.AvailableDomains, Has.Member(domain));
+                Assert.That(this.viewModel.SwitchDomainViewModel.SelectedDomainOfExpertise, Is.EqualTo(domain));
+            });
+
+            this.viewModel.SwitchDomainViewModel.OnSubmit.InvokeAsync(domain);
+            this.sessionService.Verify(x => x.SwitchDomain(iteration, domain), Times.Once);
+            Assert.That(this.viewModel.IsOnSwitchDomainMode, Is.False);
+
+            this.viewModel.AskToSwitchDomain(this.viewModel.MainPanel);
+            Assert.That(this.viewModel.IsOnSwitchDomainMode, Is.True);
+            this.viewModel.SwitchDomainViewModel.OnCancel.InvokeAsync();
+            Assert.That(this.viewModel.IsOnSwitchDomainMode, Is.False);
         }
     }
 }

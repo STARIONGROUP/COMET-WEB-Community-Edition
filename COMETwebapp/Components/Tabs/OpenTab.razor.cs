@@ -75,6 +75,14 @@ namespace COMETwebapp.Components.Tabs
         private bool IsIterationView => this.ViewModel.SelectedApplication?.ThingTypeOfInterest == typeof(Iteration);
 
         /// <summary>
+        /// Gets a value indicating whether the selected domain is different from the iteration's currently active domain
+        /// </summary>
+        public bool IsSelectedDomainDifferentFromActiveDomain => this.ViewModel.IsCurrentIterationOpened &&
+                                                                 this.ViewModel.SelectedDomainOfExpertise != null &&
+                                                                 this.ViewModel.SelectedIterationDomainOfExpertise != null &&
+                                                                 this.ViewModel.SelectedDomainOfExpertise.Iid != this.ViewModel.SelectedIterationDomainOfExpertise.Iid;
+
+        /// <summary>
         /// Gets the header text displayed at the top of the form
         /// </summary>
         public string HeaderText => this.ViewModel.SelectedEngineeringModel == null ? "You have no model selected" : "Model selected";

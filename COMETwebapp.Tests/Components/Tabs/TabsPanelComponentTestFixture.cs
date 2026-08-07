@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsPanelComponentTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -26,6 +26,8 @@ namespace COMETwebapp.Tests.Components.Tabs
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+
+    using CDP4Dal;
 
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
@@ -62,6 +64,7 @@ namespace COMETwebapp.Tests.Components.Tabs
         private Iteration iteration;
         private TabPanelInformation mainPanel;
         private TabPanelInformation sidePanel;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
@@ -113,7 +116,10 @@ namespace COMETwebapp.Tests.Components.Tabs
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise());
 
+            this.messageBus = new CDPMessageBus();
+
             this.context.Services.AddSingleton(sessionService.Object);
+            this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(this.engineeringModelBodyViewModel.Object);
             this.context.Services.AddSingleton(configuration.Object);
@@ -133,6 +139,8 @@ namespace COMETwebapp.Tests.Components.Tabs
         {
             this.context.CleanContext();
             this.context.Dispose();
+            this.messageBus.ClearSubscriptions();
+            this.messageBus.Dispose();
         }
 
         [Test]
@@ -151,17 +159,27 @@ namespace COMETwebapp.Tests.Components.Tabs
         }
 
         [Test]
-        public void VerifyComponent()
+        public async Task VerifyComponent()
         {
+            var domain = new DomainOfExpertise { ShortName = "DOM" };
+            this.viewModel.Setup(x => x.GetCurrentDomainOfExpertise(this.mainPanel)).Returns(domain);
+            this.renderer.Render();
+
             var button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.renderer.Instance.ViewModel, Is.EqualTo(this.viewModel.Object));
                 Assert.That(this.renderer.Instance, Is.Not.Null);
+                Assert.That(this.renderer.Instance.CurrentDomainOfExpertise, Is.EqualTo(domain));
                 Assert.That(this.renderer.Markup, Does.Contain("css-test-class"));
+                Assert.That(this.renderer.Markup, Does.Contain("DOM"));
                 Assert.That(button.Instance.Enabled, Is.True);
             });
+
+            var badgeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "switch-domain-badge-button");
+            await this.renderer.InvokeAsync(() => badgeButton.Instance.Click.InvokeAsync());
+            this.viewModel.Verify(x => x.AskToSwitchDomain(this.mainPanel), Times.Once);
 
             this.renderer.Render(parameters => { parameters.Add(p => p.IsSplitViewEnabled, false); });
 
