@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsPanelComponentTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -22,8 +22,13 @@
 
 namespace COMETwebapp.Tests.Components.Tabs
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+
     using Bunit;
 
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -32,6 +37,7 @@ namespace COMETwebapp.Tests.Components.Tabs
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Services.StringTableService;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.EngineeringModel;
@@ -44,10 +50,14 @@ namespace COMETwebapp.Tests.Components.Tabs
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
     using COMETwebapp.ViewModels.Pages;
 
+
+    using COMETwebapp.Components.Shared.PageIntroBox;
+
     using DevExpress.Blazor;
 
     using DynamicData;
 
+    using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -65,6 +75,7 @@ namespace COMETwebapp.Tests.Components.Tabs
         private TabPanelInformation mainPanel;
         private TabPanelInformation sidePanel;
         private CDPMessageBus messageBus;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void SetUp()
@@ -113,12 +124,20 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.viewModel.Setup(x => x.SidePanel).Returns(this.sidePanel);
             this.viewModel.Setup(x => x.SelectedApplication).Returns(engineeringModelBodyApplication);
 
-            var sessionService = new Mock<ISessionService>();
-            sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise());
+            this.sessionService = new Mock<ISessionService>();
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise());
+            var person = new Person();
+            var siteDirectory = new SiteDirectory();
+            var session = new Mock<ISession>();
+            session.Setup(x => x.ActivePerson).Returns(person);
+            session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
 
             this.messageBus = new CDPMessageBus();
 
-            this.context.Services.AddSingleton(sessionService.Object);
+            var stringTableService = new Mock<IStringTableService>();
+            this.context.Services.AddSingleton(stringTableService.Object);
+            this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(this.engineeringModelBodyViewModel.Object);
@@ -146,16 +165,17 @@ namespace COMETwebapp.Tests.Components.Tabs
         [Test]
         public async Task VerifyAddSidePanel()
         {
-            var sidePanelButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+            var sidePanelButton = this.renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "new-side-panel-button");
+            Assert.That(sidePanelButton, Is.Not.Null);
             await this.renderer.InvokeAsync(sidePanelButton.Instance.Click.InvokeAsync);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.viewModel.Object.SidePanel.OpenTabs, Has.Count.GreaterThan(0));
                 Assert.That(this.viewModel.Object.SidePanel.CurrentTab, Is.Not.Null);
                 Assert.That(this.viewModel.Object.MainPanel.OpenTabs, Has.Count.EqualTo(0));
                 Assert.That(this.engineeringModelBodyViewModel.Object.IsAllowedToDispose, Is.False);
-            });
+            }
         }
 
         [Test]
@@ -165,9 +185,10 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.viewModel.Setup(x => x.GetCurrentDomainOfExpertise(this.mainPanel)).Returns(domain);
             this.renderer.Render();
 
-            var button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+            var button = this.renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "new-side-panel-button");
+            Assert.That(button, Is.Not.Null);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.renderer.Instance.ViewModel, Is.EqualTo(this.viewModel.Object));
                 Assert.That(this.renderer.Instance, Is.Not.Null);
@@ -175,25 +196,28 @@ namespace COMETwebapp.Tests.Components.Tabs
                 Assert.That(this.renderer.Markup, Does.Contain("css-test-class"));
                 Assert.That(this.renderer.Markup, Does.Contain("DOM"));
                 Assert.That(button.Instance.Enabled, Is.True);
-            });
+            }
 
-            var badgeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "switch-domain-badge-button");
+            var badgeButton = this.renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "switch-domain-badge-button");
+            Assert.That(badgeButton, Is.Not.Null);
             await this.renderer.InvokeAsync(() => badgeButton.Instance.Click.InvokeAsync());
             this.viewModel.Verify(x => x.AskToSwitchDomain(this.mainPanel), Times.Once);
 
             this.renderer.Render(parameters => { parameters.Add(p => p.IsSplitViewEnabled, false); });
 
-            button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+            button = this.renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "new-side-panel-button");
+            Assert.That(button, Is.Not.Null);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(button.Instance.Enabled, Is.False);
                 Assert.That(this.renderer.Markup, Does.Contain("Split view requires at least two open tabs"));
-            });
+            }
 
             this.renderer.Render(parameters => { parameters.Add(p => p.IsSplitViewVisible, false); });
 
-            button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
+            button = this.renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Instance.Id == "new-side-panel-button");
+            Assert.That(button, Is.Not.Null);
 
             Assert.That(button.Instance.Visible, Is.False);
         }
@@ -204,46 +228,46 @@ namespace COMETwebapp.Tests.Components.Tabs
             var newTab = new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration);
             this.mainPanel.OpenTabs.Add(newTab);
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.mainPanel.OpenTabs, Has.Count.EqualTo(2));
                 Assert.That(this.sidePanel.OpenTabs, Has.Count.EqualTo(0));
                 Assert.That(this.mainPanel.OpenTabs.Items[0], Is.Not.EqualTo(newTab));
                 Assert.That(this.mainPanel.OpenTabs.Items[1], Is.EqualTo(newTab));
-            });
+            }
 
             var sortableList = this.renderer.FindComponent<SortableList<TabbedApplicationInformation>>();
             await this.renderer.InvokeAsync(() => sortableList.Instance.OnUpdate.InvokeAsync((0, 1)));
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.mainPanel.OpenTabs, Has.Count.EqualTo(2));
                 Assert.That(this.mainPanel.OpenTabs.Items[0], Is.EqualTo(newTab));
                 Assert.That(this.mainPanel.OpenTabs.Items[1], Is.Not.EqualTo(newTab));
-            });
+            }
 
             await this.renderer.InvokeAsync(() => sortableList.Instance.OnRemove.InvokeAsync((0, 0)));
             this.sidePanel.CurrentTab = this.sidePanel.OpenTabs.Items[0];
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.mainPanel.OpenTabs, Has.Count.EqualTo(1));
                 Assert.That(this.sidePanel.OpenTabs, Has.Count.EqualTo(1));
                 Assert.That(this.mainPanel.OpenTabs.Items[0], Is.Not.EqualTo(newTab));
                 Assert.That(this.sidePanel.OpenTabs.Items[0], Is.EqualTo(newTab));
-            });
+            }
 
             this.renderer.Render(parameters => { parameters.Add(p => p.Panel, this.sidePanel); });
 
             sortableList = this.renderer.FindComponent<SortableList<TabbedApplicationInformation>>();
             await this.renderer.InvokeAsync(() => sortableList.Instance.OnRemove.InvokeAsync((0, 0)));
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.mainPanel.OpenTabs, Has.Count.EqualTo(2));
                 Assert.That(this.sidePanel.OpenTabs, Has.Count.EqualTo(0));
                 Assert.That(this.mainPanel.OpenTabs.Items[0], Is.EqualTo(newTab));
-            });
+            }
         }
 
         [Test]
@@ -267,6 +291,50 @@ namespace COMETwebapp.Tests.Components.Tabs
 
             tabComponent = this.renderer.FindComponents<TabComponent>().Last(x => x.Instance.Text != "Select Model");
             Assert.That(tabComponent.Instance.Text, Is.EqualTo("Engineering Model"));
+        }
+
+        [Test]
+        public void VerifyPageIntroBoxRendersInPanel()
+        {
+            var domain = new DomainOfExpertise { ShortName = "DOM" };
+            this.viewModel.Setup(x => x.GetCurrentDomainOfExpertise(this.mainPanel)).Returns(domain);
+            this.renderer.Render();
+
+            var pageIntroBox = this.renderer.FindComponent<PageIntroBox>();
+            
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(pageIntroBox, Is.Not.Null);
+                Assert.That(pageIntroBox.Instance.Application.Url, Is.EqualTo(WebAppConstantValues.EngineeringModelPage));
+            }
+        }
+
+        [Test]
+        public async Task VerifyReopenIntroBox()
+        {
+            var person = this.sessionService.Object.Session.ActivePerson;
+            var app = Applications.ExistingApplications.OfType<TabbedApplication>().FirstOrDefault(x => x.Url == WebAppConstantValues.EngineeringModelPage);
+            Assert.That(app, Is.Not.Null);
+            
+            person.UserPreference.Add(new UserPreference { ShortName = app.GetPageIntroUserPreferenceKey(), Value = "true" });
+
+            this.mainPanel.CurrentTab = null;
+            this.mainPanel.CurrentTab = this.mainPanel.OpenTabs.Items[0];
+            this.renderer.Render();
+
+            var reopenButton = this.renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Markup.Contains("Show introduction for"));
+            Assert.That(reopenButton, Is.Not.Null);
+
+            await this.renderer.InvokeAsync(() => reopenButton.Instance.Click.InvokeAsync());
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.renderer.Instance.IsPageIntroductionVisible, Is.True);
+                
+                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(
+                    It.IsAny<SiteDirectory>(),
+                    It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
+            }
         }
     }
 }

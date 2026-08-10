@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="Tabs.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -25,12 +25,11 @@ namespace COMETwebapp.Pages
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
-
-    using DynamicData;
 
     using Microsoft.AspNetCore.Components;
 
@@ -41,6 +40,11 @@ namespace COMETwebapp.Pages
     /// </summary>
     public partial class Tabs
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the page introduction box is visible.
+        /// </summary>
+        private bool IsPageIntroductionVisible { get; set; }
+
         /// <summary>
         /// Gets or sets the selected panel
         /// </summary>
@@ -79,6 +83,11 @@ namespace COMETwebapp.Pages
         public bool IsOpenTabVisible { get; private set; }
 
         /// <summary>
+        /// Gets the <see cref="Application"/> instance corresponding to the Tabs application
+        /// </summary>
+        public Application TabsApplication => Applications.ExistingApplications.FirstOrDefault(x => x.Name == "Tabs");
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -95,6 +104,22 @@ namespace COMETwebapp.Pages
 
             this.Disposables.Add(this.ViewModel.MainPanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.SidePanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start asynchronously
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        protected override async Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+
+            if (this.TabsApplication != null)
+            {
+                var prefKey = this.TabsApplication.GetPageIntroUserPreferenceKey();
+                var pref = this.SessionService.Session.ActivePerson.UserPreference.FirstOrDefault(x => x.ShortName == prefKey);
+                this.IsPageIntroductionVisible = pref is not { Value: "true" };
+            }
         }
 
         /// <summary>
@@ -172,6 +197,17 @@ namespace COMETwebapp.Pages
             this.ModelId = ((CDP4Common.EngineeringModelData.EngineeringModel)iterationOfInterest.Container).Iid;
             this.DomainId = this.SessionService.GetDomainOfExpertise(iterationOfInterest).Iid;
             this.SetOpenTabVisibility(true);
+        }
+
+        /// <summary>
+        /// Re-opens the Tabs application introduction box without modifying the persisted preference.
+        /// The box will appear again on the current session; the dismissed preference remains unchanged on the server.
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task ReopenTabsIntroAsync()
+        {
+            this.IsPageIntroductionVisible = true;
+            await this.InvokeAsync(this.StateHasChanged);
         }
     }
 }

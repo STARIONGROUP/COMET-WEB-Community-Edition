@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsPanelComponent.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -32,6 +32,7 @@ namespace COMETwebapp.Components.Tabs
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Model;
@@ -41,11 +42,18 @@ namespace COMETwebapp.Components.Tabs
 
     using Microsoft.AspNetCore.Components;
 
+    using ReactiveUI;
+
     /// <summary>
     /// Core component for the Tabs page
     /// </summary>
     public partial class TabsPanelComponent : DisposableComponent
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the page introduction box is visible.
+        /// </summary>
+        public bool IsPageIntroductionVisible { get; set; }
+
         /// <summary>
         /// Gets or sets the custom css class to be used in the container component
         /// </summary>
@@ -118,6 +126,13 @@ namespace COMETwebapp.Components.Tabs
         public DomainOfExpertise CurrentDomainOfExpertise => this.ViewModel.GetCurrentDomainOfExpertise(this.Panel);
 
         /// <summary>
+        /// Gets the currently active application based on the current tab
+        /// </summary>
+        public Application CurrentApplication => this.Panel?.CurrentTab != null
+            ? Applications.ExistingApplications.OfType<TabbedApplication>().FirstOrDefault(x => x.ComponentType == this.Panel.CurrentTab.ComponentType)
+            : null;
+
+        /// <summary>
         /// Method invoked when the component is ready to start
         /// </summary>
         protected override void OnInitialized()
@@ -126,6 +141,29 @@ namespace COMETwebapp.Components.Tabs
 
             this.Disposables.Add(this.MessageBus.Listen<DomainChangedEvent>()
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.Panel.CurrentTab)
+                .SubscribeAsync(_ => this.UpdateShowReopenIntroButtonAsync()));
+        }
+
+        /// <summary>
+        /// Updates the state of the Reopen Intro Box button
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task UpdateShowReopenIntroButtonAsync()
+        {
+            if (this.CurrentApplication != null)
+            {
+                var prefKey = this.CurrentApplication.GetPageIntroUserPreferenceKey();
+                var pref = this.SessionService.Session.ActivePerson.UserPreference.FirstOrDefault(x => x.ShortName == prefKey);
+                this.IsPageIntroductionVisible = pref is not { Value: "true" };
+            }
+            else
+            {
+                this.IsPageIntroductionVisible = false;
+            }
+            
+            await this.InvokeAsync(this.StateHasChanged);
         }
 
         /// <summary>
@@ -232,6 +270,17 @@ namespace COMETwebapp.Components.Tabs
             return this.IsSplitViewEnabled
                 ? "Split View"
                 : "Split view requires at least two open tabs";
+        }
+
+        /// <summary>
+        /// Re-opens the introduction box for the current application without modifying the persisted preference.
+        /// The box will appear again on the current session; the dismissed preference remains unchanged on the server.
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task ReopenIntroAsync()
+        {
+            this.IsPageIntroductionVisible = true;
+            await this.InvokeAsync(this.StateHasChanged);
         }
     }
 }

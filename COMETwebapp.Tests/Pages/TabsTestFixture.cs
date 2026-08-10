@@ -110,6 +110,12 @@ namespace COMETwebapp.Tests.Pages
 
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise());
+            var person = new Person();
+            var siteDirectory = new SiteDirectory();
+            var session = new Mock<ISession>();
+            session.Setup(x => x.ActivePerson).Returns(person);
+            session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
+            sessionService.Setup(x => x.Session).Returns(session.Object);
 
             this.messageBus = new CDPMessageBus();
 
