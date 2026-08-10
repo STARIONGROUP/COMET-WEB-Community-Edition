@@ -146,8 +146,6 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             this.configurationService = new Mock<IStringTableService>();
             this.context.Services.AddSingleton(this.configurationService.Object);
             this.context.ConfigureDevExpressBlazor();
-            this.context.JSInterop.SetupVoid("cometKeyboard.focusFirstIn", _ => true);
-            this.context.JSInterop.SetupVoid("cometKeyboard.focusElement", _ => true);
         }
 
         [TearDown]
@@ -259,6 +257,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         [Test]
         public async Task VerifyModelDropdownManagesKeyboardFocus()
         {
+            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
             var renderer = this.context.Render<SideBar>();
             var dropdown = renderer.FindComponent<ModelSideBar>().FindComponent<DxDropDown>();
 
@@ -280,6 +279,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         [Test]
         public async Task VerifySessionDropdownManagesKeyboardFocus()
         {
+            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
             var renderer = this.context.Render<SideBar>();
             var dropdown = renderer.FindComponent<SessionSideBar>().FindComponent<DxDropDown>();
 
