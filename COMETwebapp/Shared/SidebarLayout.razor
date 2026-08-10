@@ -19,6 +19,9 @@
 ------------------------------------------------------------------------------->
 @inherits LayoutComponentBase
 
+<a class="skip-link" href="#main-side-bar" @onclick="@(() => this.MoveFocusTo("cometKeyboard.focusSidebar"))">Skip to navigation</a>
+<a class="skip-link" href="#main-content" @onclick="@(() => this.MoveFocusTo("cometKeyboard.focusMainContent"))">Skip to main content</a>
+
 <DxLayoutBreakpoint MaxWidth="1200"/>
 <div class="page">
     <DxGridLayout CssClass="page-layout">
@@ -37,7 +40,9 @@
             </DxGridLayoutItem>
             <DxGridLayoutItem Column="1" CssClass="page-layout-item-content">
                 <Template>
-                    @(this.Body)
+                    <main id="main-content" tabindex="-1" aria-keyshortcuts="Alt+Shift+3">
+                        @(this.Body)
+                    </main>
                 </Template>
             </DxGridLayoutItem>
         </Items>

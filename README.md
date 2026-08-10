@@ -70,6 +70,10 @@ $ ./solutionfolder# docker push stariongroup/comet-web-community-edition:<specif
 
 The CDP4-COMET-WEB Community Edition make use of the [COMET-SDK](https://github.com/STARIONGROUP/COMET-SDK-Community-Edition).
 
+## Keyboard navigation
+
+The application shell (the side bar, the open-tabs strip and the page landmarks) can be operated from the keyboard. See [docs/keyboard-shortcuts.md](docs/keyboard-shortcuts.md) for the full list of shortcuts.
+
 # License
 
 The CDP4-COMET-WEB Community Edition is provided to the community under the GNU Affero General Public License. The COMET Community Edition relies on open source and proprietary licensed components. Some of these components have a license that is not compatible with the GPL or AGPL. For these components Additional permission under GNU GPL version 3 section 7 are granted. See the license files for the details. The license can be found [here](LICENSE).

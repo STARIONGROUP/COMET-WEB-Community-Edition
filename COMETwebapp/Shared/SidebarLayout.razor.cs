@@ -25,6 +25,7 @@ namespace COMETwebapp.Shared
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.JSInterop;
 
     /// <summary>
     /// Class used to support the <see cref="SidebarLayout" /> component
@@ -36,5 +37,39 @@ namespace COMETwebapp.Shared
         /// </summary>
         [Inject]
         public ISessionMenuViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// The <see cref="IJSRuntime" /> used to wire up the shell's keyboard-accessibility helpers
+        /// </summary>
+        [Inject]
+        public IJSRuntime JsRuntime { get; set; }
+
+        /// <summary>
+        /// Wires up the global keyboard-navigation helpers (landmark hotkeys and side bar arrow navigation) once the
+        /// layout has first rendered. The helper attaches a single document-level listener and is a no-op on later calls.
+        /// </summary>
+        /// <param name="firstRender">A value indicating whether this is the first render of the component</param>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
+            {
+                await this.JsRuntime.InvokeVoidAsync("cometKeyboard.init");
+            }
+        }
+
+        /// <summary>
+        /// Moves keyboard focus to a shell landmark by invoking the named helper. A skip link keeps its fragment
+        /// <c>href</c> as a no-JavaScript fallback, but Blazor intercepts same-document navigation and only scrolls the
+        /// target into view without focusing it, so the actual focus move is driven from here.
+        /// </summary>
+        /// <param name="focusFunction">The <c>cometKeyboard</c> focus helper to invoke</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task MoveFocusTo(string focusFunction)
+        {
+            await this.JsRuntime.InvokeVoidAsync(focusFunction);
+        }
     }
 }

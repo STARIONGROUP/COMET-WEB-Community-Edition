@@ -25,6 +25,11 @@ namespace COMETwebapp.Shared.SideBarEntry
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Shared.TopMenuEntry;
 
+    using DevExpress.Blazor;
+
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.JSInterop;
+
     /// <summary>
     /// Side bar entry to list the model actions
     /// </summary>
@@ -36,12 +41,39 @@ namespace COMETwebapp.Shared.SideBarEntry
         public bool Expanded { get; private set; }
 
         /// <summary>
+        /// The <see cref="IJSRuntime" /> used to move keyboard focus into and out of the model drop-down
+        /// </summary>
+        [Inject]
+        public IJSRuntime JsRuntime { get; set; }
+
+        /// <summary>
         /// Expands the dropdown present in the navbar
         /// </summary>
         public void ExpandDropdown()
         {
             this.Expanded = true;
             this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Moves keyboard focus into the model drop-down once it is shown, so a keyboard user can reach its menu (the
+        /// drop-down renders in a body-level portal that Tab order would otherwise never reach, see issue #885).
+        /// </summary>
+        /// <param name="eventArgs">The <see cref="DropDownShownEventArgs" /></param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task OnDropdownShown(DropDownShownEventArgs eventArgs)
+        {
+            await this.JsRuntime.InvokeVoidAsync("cometKeyboard.focusFirstIn", "#model-dropdown-body");
+        }
+
+        /// <summary>
+        /// Returns keyboard focus to the model entry when its drop-down closes, so focus is not lost.
+        /// </summary>
+        /// <param name="eventArgs">The <see cref="DropDownClosedEventArgs" /></param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task OnDropdownClosed(DropDownClosedEventArgs eventArgs)
+        {
+            await this.JsRuntime.InvokeVoidAsync("cometKeyboard.focusElement", "#model-entry");
         }
 
         /// <summary>

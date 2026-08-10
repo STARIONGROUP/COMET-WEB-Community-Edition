@@ -30,6 +30,7 @@
     <SideBarItem Text="@applicationEntry.Name"
                  OnClick="@(() => this.NavigateToApplication(applicationEntry))"
                  CssClass="@(this.IsCurrentApplication(applicationEntry) ? "selected-application-item" : "")"
+                 Selected="@(this.IsCurrentApplication(applicationEntry))"
                  Icon="@(applicationEntry.Icon)"
                  Enabled="@(this.IsApplicationEnabled(applicationEntry))"/>
 }
@@ -43,6 +44,7 @@
     <SideBarItem Text="@applicationEntry.Name"
                  OnClick="@(() => this.NavigateToApplication(applicationEntry))"
                  CssClass="@(this.IsCurrentApplication(applicationEntry) ? "selected-application-item" : "")"
+                 Selected="@(this.IsCurrentApplication(applicationEntry))"
                  Icon="@(applicationEntry.Icon)"
                  Enabled="@(this.IsApplicationEnabled(applicationEntry))" />
 }

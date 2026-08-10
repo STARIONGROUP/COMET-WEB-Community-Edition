@@ -26,7 +26,8 @@
              OnClick="@(this.ExpandDropdown)"
              Icon="IconName.Database"
              Id="session-side-bar-item"
-             DropdownSelector="true"/>
+             DropdownSelector="true"
+             Expanded="@(this.Expanded)"/>
 
 <DxDropDown @bind-IsOpen="@(this.Expanded)"
             PositionMode="DropDownPositionMode.Right"
@@ -34,8 +35,11 @@
             CloseMode="DropDownCloseMode.Close"
             PreventCloseOnPositionTargetClick="false"
             HeaderVisible="false"
-            FooterVisible="false">
+            FooterVisible="false"
+            Shown="@(this.OnDropdownShown)"
+            Closed="@(this.OnDropdownClosed)">
     <BodyContentTemplate>
+        <div id="session-dropdown-body" tabindex="-1">
         <div class="session__header">
             <div class="row justify-content-center">
                 @(this.AuthorizedMenuEntryViewModel.UserName)
@@ -64,6 +68,7 @@
                 <DxButton Id="refresh-button" CssClass="btn btn-connect" Text="@(this.RefreshButtonText)" IconCssClass="@IconName.Refresh.GetCssClass()" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" Enabled="@(!this.IsRefreshing)" Click="@(this.OnRefreshClick)"/>
                 <DxButton Id="logout-button" CssClass="btn btn-connect" Text="Log out" IconCssClass="@IconName.LogOut.GetCssClass()" RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Click="@(this.Logout)"/>
             </div>
+        </div>
         </div>
     </BodyContentTemplate>
 </DxDropDown>
