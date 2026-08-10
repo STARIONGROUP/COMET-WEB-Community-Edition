@@ -28,19 +28,19 @@ along with this program. If not, see http://www.gnu.org/licenses/.
     <div class="page-intro-box__accent"></div>
     <div class="page-intro-box__content">
         <div class="page-intro-box__header">
-            <CometIcon Icon="IconName.Info" />
+            <CometIcon Icon="IconName.Info"/>
 
-            <span class="page-intro-box__title">@this.Application.Name</span>
+            <span class="page-intro-box__title">@(this.Application.Name)</span>
             <DxButton CssClass="page-intro-box__dismiss"
                       aria-label="@($"Dismiss introduction for {this.Application.Name}")"
-                      Click="@this.DismissAsync"
+                      Click="@(this.DismissAsync)"
                       RenderStyle="@(ButtonRenderStyle.None)">
-                <CometIcon Icon="IconName.Close" />
+                <CometIcon Icon="IconName.Close"/>
             </DxButton>
         </div>
         @if (!string.IsNullOrEmpty(this.summary))
         {
-            <p class="page-intro-box__summary">@this.summary</p>
+            <p class="page-intro-box__summary">@(this.summary)</p>
         }
         @if (this.points.Count > 0)
         {

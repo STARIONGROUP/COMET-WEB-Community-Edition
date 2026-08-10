@@ -130,7 +130,7 @@ namespace COMETwebapp.Components.Shared.PageIntroBox
             await this.IsPageIntroductionVisibleChanged.InvokeAsync(false);
 
             var preferenceKey = this.Application.GetPageIntroUserPreferenceKey();
-            var siteDirectory = this.SessionService.Session.RetrieveSiteDirectory();
+            var siteDirectory = this.SessionService.Session.RetrieveSiteDirectory().Clone(false);
             var clonedPerson = this.SessionService.Session.ActivePerson.Clone(false);
 
             var existingPref = this.SessionService.Session.ActivePerson.UserPreference.FirstOrDefault(x => x.ShortName == preferenceKey);
