@@ -55,6 +55,8 @@ namespace COMETwebapp.Tests.Shared
             this.context.Services.AddSingleton(sessionMenuViewModel.Object);
             this.context.ConfigureDevExpressBlazor();
             this.context.JSInterop.SetupVoid("cometKeyboard.init").SetVoidResult();
+            this.context.JSInterop.SetupVoid("cometKeyboard.focusSidebar").SetVoidResult();
+            this.context.JSInterop.SetupVoid("cometKeyboard.focusMainContent").SetVoidResult();
         }
 
         [TearDown]
@@ -87,6 +89,23 @@ namespace COMETwebapp.Tests.Shared
             this.context.Render<SidebarLayout>(parameters => parameters.Add(p => p.Body, "<span>content</span>"));
 
             this.context.JSInterop.VerifyInvoke("cometKeyboard.init");
+        }
+
+        [Test]
+        public async Task VerifySkipLinksMoveFocusToTheirLandmark()
+        {
+            var renderer = this.context.Render<SidebarLayout>(parameters => parameters.Add(p => p.Body, "<span>content</span>"));
+
+            var skipLinks = renderer.FindAll(".skip-link");
+
+            await renderer.InvokeAsync(() => skipLinks[0].ClickAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs()));
+            await renderer.InvokeAsync(() => skipLinks[1].ClickAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs()));
+
+            Assert.Multiple(() =>
+            {
+                this.context.JSInterop.VerifyInvoke("cometKeyboard.focusSidebar");
+                this.context.JSInterop.VerifyInvoke("cometKeyboard.focusMainContent");
+            });
         }
     }
 }

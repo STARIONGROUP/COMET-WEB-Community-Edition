@@ -146,6 +146,8 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             this.configurationService = new Mock<IStringTableService>();
             this.context.Services.AddSingleton(this.configurationService.Object);
             this.context.ConfigureDevExpressBlazor();
+            this.context.JSInterop.SetupVoid("cometKeyboard.focusFirstIn", _ => true);
+            this.context.JSInterop.SetupVoid("cometKeyboard.focusElement", _ => true);
         }
 
         [TearDown]
@@ -246,6 +248,48 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
                 Assert.That(nav.GetAttribute("aria-keyshortcuts"), Is.EqualTo("Alt+Shift+1"));
                 Assert.That(activeItem.Instance.Selected, Is.True);
                 Assert.That(activeItem.Find(".application-item-container").GetAttribute("aria-current"), Is.EqualTo("page"));
+            });
+        }
+
+        /// <summary>
+        /// Verifies that the model side bar drop-down moves keyboard focus into itself when shown and back to its entry
+        /// when closed, so a keyboard user can reach its menu (issue #885).
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        [Test]
+        public async Task VerifyModelDropdownManagesKeyboardFocus()
+        {
+            var renderer = this.context.Render<SideBar>();
+            var dropdown = renderer.FindComponent<ModelSideBar>().FindComponent<DxDropDown>();
+
+            await renderer.InvokeAsync(() => dropdown.Instance.Shown.InvokeAsync(null));
+            await renderer.InvokeAsync(() => dropdown.Instance.Closed.InvokeAsync(null));
+
+            Assert.Multiple(() =>
+            {
+                this.context.JSInterop.VerifyInvoke("cometKeyboard.focusFirstIn");
+                this.context.JSInterop.VerifyInvoke("cometKeyboard.focusElement");
+            });
+        }
+
+        /// <summary>
+        /// Verifies that the session side bar drop-down moves keyboard focus into itself when shown and back to its
+        /// entry when closed, so a keyboard user can reach its buttons (issue #885).
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        [Test]
+        public async Task VerifySessionDropdownManagesKeyboardFocus()
+        {
+            var renderer = this.context.Render<SideBar>();
+            var dropdown = renderer.FindComponent<SessionSideBar>().FindComponent<DxDropDown>();
+
+            await renderer.InvokeAsync(() => dropdown.Instance.Shown.InvokeAsync(null));
+            await renderer.InvokeAsync(() => dropdown.Instance.Closed.InvokeAsync(null));
+
+            Assert.Multiple(() =>
+            {
+                this.context.JSInterop.VerifyInvoke("cometKeyboard.focusFirstIn");
+                this.context.JSInterop.VerifyInvoke("cometKeyboard.focusElement");
             });
         }
 
