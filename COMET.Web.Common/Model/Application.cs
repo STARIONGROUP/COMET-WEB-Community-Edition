@@ -68,6 +68,9 @@ namespace COMET.Web.Common.Model
         /// <summary>
         /// Short, verb-led statements of what the user can do on this application's page.
         /// </summary>
+        /// <remarks>
+        /// A maximum of four bullet points is suggested.
+        /// </remarks>
         public IEnumerable<string> PageIntroPoints { get; set; } = [];
 
         /// <summary>

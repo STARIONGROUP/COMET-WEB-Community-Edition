@@ -38,6 +38,7 @@ namespace COMETwebapp.Tests.Pages
     using COMET.Web.Common.ViewModels.Components;
 
     using COMETwebapp.Components.EngineeringModel;
+    using COMETwebapp.Components.Shared.PageIntroBox;
     using COMETwebapp.Components.Tabs;
     using COMETwebapp.Model;
     using COMETwebapp.Pages;
@@ -240,6 +241,32 @@ namespace COMETwebapp.Tests.Pages
                 Assert.That(openTab, Has.Count.EqualTo(0));
                 Assert.That(componentOfSelectedTab.Instance, Is.Not.Null);
             });
+        }
+
+        [Test]
+        public async Task VerifyReopenTabsIntroAsync()
+        {
+            var tabsApp = Applications.ExistingApplications.FirstOrDefault(x => x.Name == "Tabs");
+            Assert.That(tabsApp, Is.Not.Null);
+
+            var person = this.context.Services.GetRequiredService<ISessionService>().Session.ActivePerson;
+            
+            person.UserPreference.Add(new UserPreference
+            {
+                ShortName = tabsApp.GetPageIntroUserPreferenceKey(),
+                Value = "true"
+            });
+
+            this.viewModel.Setup(x => x.MainPanel).Returns(new TabPanelInformation());
+            this.renderer.Render();
+
+            var reopenButton = this.renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Markup.Contains("Show introduction for Tabs"));
+            Assert.That(reopenButton, Is.Not.Null);
+
+            await this.renderer.InvokeAsync(() => reopenButton.Instance.Click.InvokeAsync());
+
+            var pageIntroBox = this.renderer.FindComponent<PageIntroBox>();
+            Assert.That(pageIntroBox.Markup, Does.Contain("Tabs"));
         }
     }
 }

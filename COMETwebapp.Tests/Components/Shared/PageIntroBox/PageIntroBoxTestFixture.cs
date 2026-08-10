@@ -182,6 +182,11 @@ namespace COMETwebapp.Tests.Components.Shared.PageIntroBox
                 .Add(p => p.IsPageIntroductionVisible, true));
 
             Assert.That(pageIntroBox.Markup, Does.Contain("Test App"));
+
+            pageIntroBox.Render(parameters => parameters
+                .Add(p => p.Application, null));
+
+            Assert.That(pageIntroBox.Markup, Is.Empty);
         }
     }
 }
