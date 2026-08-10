@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ViewOptionsMenuTestFixture.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -73,7 +73,7 @@ namespace COMET.Web.Common.Tests.Components
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(() => renderer.Find("#testViewMenuButton"), Throws.Nothing);
+                Assert.That(() => renderer.Find("[id^='testViewMenuButton']"), Throws.Nothing);
                 Assert.That(button.Instance.Text, Is.EqualTo("View"));
                 Assert.That(button.Instance.IconCssClass, Is.EqualTo(IconName.Settings.GetCssClass()));
             }
@@ -100,6 +100,38 @@ namespace COMET.Web.Common.Tests.Components
 
             await renderer.InvokeAsync(() => button.Instance.Click.InvokeAsync(new MouseEventArgs()));
             Assert.That(dropDown.Instance.IsOpen, Is.False);
+        }
+
+        /// <summary>
+        /// Verifies that two <see cref="ViewOptionsMenu" /> instances rendered in the same tree with the same
+        /// <c>ButtonId</c> prefix produce different DOM ids, and that both ids still start with that prefix.
+        /// This is the regression assertion for issue #913: duplicate DOM ids across split-view panels.
+        /// </summary>
+        [Test]
+        public void VerifyTwoInstancesWithSameButtonIdProduceDifferentDomIds()
+        {
+            var renderer = this.context.Render(builder =>
+            {
+                builder.OpenComponent<ViewOptionsMenu>(0);
+                builder.AddAttribute(1, nameof(ViewOptionsMenu.ButtonId), "sharedPrefix");
+                builder.AddAttribute(2, nameof(ViewOptionsMenu.ChildContent), (RenderFragment)(b => b.AddContent(0, "option")));
+                builder.CloseComponent();
+
+                builder.OpenComponent<ViewOptionsMenu>(3);
+                builder.AddAttribute(4, nameof(ViewOptionsMenu.ButtonId), "sharedPrefix");
+                builder.AddAttribute(5, nameof(ViewOptionsMenu.ChildContent), (RenderFragment)(b => b.AddContent(0, "option")));
+                builder.CloseComponent();
+            });
+
+            var buttons = renderer.FindComponents<DxButton>();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(buttons, Has.Count.EqualTo(2));
+                Assert.That(buttons[0].Instance.Id, Does.StartWith("sharedPrefix"));
+                Assert.That(buttons[1].Instance.Id, Does.StartWith("sharedPrefix"));
+                Assert.That(buttons[0].Instance.Id, Is.Not.EqualTo(buttons[1].Instance.Id));
+            }
         }
     }
 }

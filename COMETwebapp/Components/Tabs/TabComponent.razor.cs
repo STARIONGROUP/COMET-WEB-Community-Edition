@@ -28,6 +28,7 @@ namespace COMETwebapp.Components.Tabs
     using COMET.Web.Common.Enumerations;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Web;
 
     /// <summary>
     /// Core component for the System Representation application
@@ -99,5 +100,18 @@ namespace COMETwebapp.Components.Tabs
         /// </summary>
         [Parameter]
         public bool IsCurrent { get; set; }
+
+        /// <summary>
+        /// Activates the tab from the keyboard so the open-tabs strip can be operated without a mouse (issue #885),
+        /// mirroring the native behaviour of a button on <c>Enter</c> and <c>Space</c>.
+        /// </summary>
+        /// <param name="eventArgs">The <see cref="KeyboardEventArgs" /> of the key that was pressed</param>
+        private void HandleKeyDown(KeyboardEventArgs eventArgs)
+        {
+            if (eventArgs.Key is "Enter" or " " or "Spacebar")
+            {
+                this.OnClick?.Invoke();
+            }
+        }
     }
 }

@@ -78,7 +78,7 @@ namespace COMETwebapp.Tests.Components.Shared
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(() => component.FindComponent<COMET.Web.Common.Components.SearchBar>(), Throws.Nothing);
-                Assert.That(() => component.Find("#testTreeViewMenuButton"), Throws.Nothing);
+                Assert.That(() => component.Find("[id^='testTreeViewMenuButton']"), Throws.Nothing);
             }
         }
     }

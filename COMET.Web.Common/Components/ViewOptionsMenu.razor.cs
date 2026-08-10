@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ViewOptionsMenu.razor.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -34,8 +34,15 @@ namespace COMET.Web.Common.Components
     public partial class ViewOptionsMenu
     {
         /// <summary>
-        /// Gets or sets the id given to the trigger button, also used as the dropdown's position target. Must be
-        /// unique per page so several menus can coexist.
+        /// The random suffix appended to <see cref="ButtonId" /> to guarantee a unique DOM id even when
+        /// multiple <see cref="ViewOptionsMenu" /> instances share the same <see cref="ButtonId" /> prefix.
+        /// </summary>
+        private readonly string idSuffix = Guid.NewGuid().ToString("N");
+
+        /// <summary>
+        /// Gets or sets the id prefix given to the trigger button. The component appends a random suffix so
+        /// that several menus with the same prefix can coexist on the same page. Useful as a stable selector
+        /// prefix in tests (e.g. <c>[id^='myButton']</c>).
         /// </summary>
         [Parameter]
         [EditorRequired]
@@ -64,5 +71,17 @@ namespace COMET.Web.Common.Components
         /// Gets or sets a value indicating whether the dropdown is currently open.
         /// </summary>
         private bool IsOpen { get; set; }
+
+        /// <summary>
+        /// Gets the unique DOM id for the trigger button, formed by combining <see cref="ButtonId" /> with
+        /// <see cref="idSuffix" />.
+        /// </summary>
+        private string UniqueId => $"{this.ButtonId}-{this.idSuffix}";
+
+        /// <summary>
+        /// Gets the CSS selector that targets the trigger button by its unique DOM id, used as the
+        /// dropdown's <c>PositionTarget</c>.
+        /// </summary>
+        private string UniqueIdSelector => $"#{this.UniqueId}";
     }
 }

@@ -185,8 +185,14 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         }
 
         [Test]
-        public void VerifyDomainSwitching()
+        public async Task VerifyDomainSwitching()
         {
+            var emptyPanel = new TabPanelInformation();
+            Assert.That(this.viewModel.GetCurrentDomainOfExpertise(emptyPanel), Is.Null);
+
+            this.viewModel.AskToSwitchDomain(emptyPanel);
+            Assert.That(this.viewModel.IsOnSwitchDomainMode, Is.False);
+
             var iteration = new Iteration
             {
                 IterationSetup = new IterationSetup
@@ -215,13 +221,13 @@ namespace COMETwebapp.Tests.ViewModels.Pages
                 Assert.That(this.viewModel.SwitchDomainViewModel.SelectedDomainOfExpertise, Is.EqualTo(domain));
             });
 
-            this.viewModel.SwitchDomainViewModel.OnSubmit.InvokeAsync(domain);
+            await this.viewModel.SwitchDomainViewModel.OnSubmit.InvokeAsync(domain);
             this.sessionService.Verify(x => x.SwitchDomain(iteration, domain), Times.Once);
             Assert.That(this.viewModel.IsOnSwitchDomainMode, Is.False);
 
             this.viewModel.AskToSwitchDomain(this.viewModel.MainPanel);
             Assert.That(this.viewModel.IsOnSwitchDomainMode, Is.True);
-            this.viewModel.SwitchDomainViewModel.OnCancel.InvokeAsync();
+            await this.viewModel.SwitchDomainViewModel.OnCancel.InvokeAsync();
             Assert.That(this.viewModel.IsOnSwitchDomainMode, Is.False);
         }
     }

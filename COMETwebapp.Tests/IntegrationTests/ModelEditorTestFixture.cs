@@ -66,7 +66,7 @@ namespace COMETwebapp.Tests.IntegrationTests
         {
             await this.PageModel.SelectFirstSourceElementAsync();
 
-            await Expect(this.PageModel.DetailsPanel.Locator("#element-details-new-button")).ToBeVisibleAsync();
+            await Expect(this.PageModel.DetailsPanel.Locator("[id^='element-details-new-button']")).ToBeVisibleAsync();
             await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
         }
     }

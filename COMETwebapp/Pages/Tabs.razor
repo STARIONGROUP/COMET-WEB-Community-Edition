@@ -1,4 +1,4 @@
-<!------------------------------------------------------------------------------
+﻿<!------------------------------------------------------------------------------
 // Copyright (c) 2023-2026 Starion Group S.A.
 //
 //    This file is part of COMET WEB Community Edition
@@ -73,4 +73,11 @@
              ModelId="this.ModelId"
              IterationId="this.IterationId"
              DomainId="this.DomainId"/>
+</DxPopup>
+
+<DxPopup @bind-Visible="@this.ViewModel.IsOnSwitchDomainMode"
+         CloseOnOutsideClick="false"
+         HeaderText="Switch domain"
+         ShowCloseButton="true">
+    <SwitchDomain ViewModel="@this.ViewModel.SwitchDomainViewModel"/>
 </DxPopup>

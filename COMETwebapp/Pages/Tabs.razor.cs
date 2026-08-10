@@ -95,7 +95,8 @@ namespace COMETwebapp.Pages
             this.Disposables.Add(this.WhenAnyValue(
                     x => x.ViewModel.SelectedApplication,
                     x => x.ViewModel.MainPanel.CurrentTab,
-                    x => x.ViewModel.SidePanel.CurrentTab)
+                    x => x.ViewModel.SidePanel.CurrentTab,
+                    x => x.ViewModel.IsOnSwitchDomainMode)
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SidePanel.CurrentTab)

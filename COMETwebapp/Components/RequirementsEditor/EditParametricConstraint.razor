@@ -49,12 +49,12 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <span class="pc-add pc-split">
                     <button type="button" class="pc-split-main" title="Add a relational expression"
                             @onclick="@(() => this.RootAddExpression())"><CometIcon Icon="IconName.Add"/> Add Expression</button>
-                    <button type="button" class="pc-split-arrow" id="pc-root-add" title="More…"
+                    <button type="button" class="pc-split-arrow" id="@this.uniqueRootAddId" title="More…"
                             @onclick="@(() => this.rootAddMenuOpen = !this.rootAddMenuOpen)">▾</button>
                 </span>
                 <DxDropDown @bind-IsOpen="@this.rootAddMenuOpen"
                             PositionMode="DropDownPositionMode.Bottom"
-                            PositionTarget="#pc-root-add"
+                            PositionTarget="@this.RootAddSelector"
                             CloseMode="DropDownCloseMode.Close"
                             HeaderVisible="false"
                             FooterVisible="false">
