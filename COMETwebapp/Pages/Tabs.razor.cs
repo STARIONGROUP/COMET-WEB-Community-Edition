@@ -104,22 +104,15 @@ namespace COMETwebapp.Pages
 
             this.Disposables.Add(this.ViewModel.MainPanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.SidePanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-        }
 
-        /// <summary>
-        /// Method invoked when the component is ready to start asynchronously
-        /// </summary>
-        /// <returns>A <see cref="Task"/></returns>
-        protected override async Task OnInitializedAsync()
-        {
-            await base.OnInitializedAsync();
-
-            if (this.TabsApplication != null)
+            if (this.TabsApplication == null)
             {
-                var prefKey = this.TabsApplication.GetPageIntroUserPreferenceKey();
-                var pref = this.SessionService.Session.ActivePerson.UserPreference.FirstOrDefault(x => x.ShortName == prefKey);
-                this.IsPageIntroductionVisible = pref is not { Value: "true" };
+                return;
             }
+
+            var preferenceKey = this.TabsApplication.GetPageIntroUserPreferenceKey();
+            var preference = this.SessionService.Session.ActivePerson.UserPreference.FirstOrDefault(x => x.ShortName == preferenceKey);
+            this.IsPageIntroductionVisible = preference is not { Value: "true" };
         }
 
         /// <summary>

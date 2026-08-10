@@ -153,7 +153,7 @@ namespace COMETwebapp.Components.Shared.PageIntroBox
                 clonedPerson.UserPreference.Add(userPreference);
             }
 
-            await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectory, new List<Thing> { clonedPerson, userPreference }.AsReadOnly());
+            await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectory, [clonedPerson, userPreference]);
             await this.InvokeAsync(this.StateHasChanged);
         }
     }

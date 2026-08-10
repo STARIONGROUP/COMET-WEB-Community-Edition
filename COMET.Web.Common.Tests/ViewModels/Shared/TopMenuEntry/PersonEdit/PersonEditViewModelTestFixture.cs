@@ -95,8 +95,13 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry.PersonEdit
 
             this.sessionService = new Mock<ISessionService>();
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(this.siteDirectory);
+            
             this.sessionService
                 .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Ok());
+            
+            this.sessionService
+                .Setup(x => x.CreateUpdateAndDeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
                 .ReturnsAsync(Result.Ok());
 
             var logger = new Mock<ILogger<PersonEditViewModel>>();
@@ -333,6 +338,45 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry.PersonEdit
             this.viewModel.RemoveEmail(row);
 
             Assert.That(this.viewModel.EmailAddresses, Is.Empty);
+        }
+
+        [Test]
+        public async Task VerifyResetPreferencesAsync()
+        {
+            var userPreference = new UserPreference
+            {
+                Iid = Guid.NewGuid(),
+                ShortName = "comet.intro.dismissed.test",
+                Value = "true"
+            };
+
+            this.activePerson.UserPreference.Add(userPreference);
+            this.viewModel.Initialize(this.activePerson);
+
+            this.viewModel.ConfirmCancelViewModel.IsVisible = true;
+
+            await this.viewModel.ResetPreferencesAsync();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.ConfirmCancelViewModel.IsVisible, Is.False);
+
+                this.sessionService.Verify(
+                    x => x.CreateUpdateAndDeleteThingsWithNotification(
+                        It.Is<Thing>(t => t is SiteDirectory && t.Iid == this.siteDirectory.Iid),
+                        It.Is<IReadOnlyCollection<Thing>>(c => c.Count == 1 && c.OfType<Person>().Any(p => p.Iid == this.activePerson.Iid && p.UserPreference.Count == 0)),
+                        It.Is<IReadOnlyCollection<Thing>>(d => d.Count == 1 && d.OfType<UserPreference>().Any(up => up.Iid == userPreference.Iid)),
+                        It.IsAny<NotificationDescription>()),
+                    Times.Once);
+            }
+
+            // Test when person has no preferences
+            this.activePerson.UserPreference.Clear();
+            this.viewModel.Initialize(this.activePerson);
+
+            await this.viewModel.ResetPreferencesAsync();
+
+            Assert.That(this.viewModel.ConfirmCancelViewModel.IsVisible, Is.False);
         }
     }
 }
