@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SystemRepresentationBodyTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -331,12 +331,12 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             renderer.WaitForAssertion(() =>
             {
                 Assert.That(this.viewModel.DetailsPanelViewModel.SelectedElementDefinition, Is.Not.Null, "Selecting an ElementDefinition must set SelectedElementDefinition.");
-                Assert.That(() => renderer.Find("#element-details-new-button"), Throws.Nothing, "The consolidated 'New' add-actions dropdown button must render (its Parameter / Parameter Group / Element Definition items live in the DxDropDown body, which bunit does not render).");
+                Assert.That(() => renderer.Find("[id^='element-details-new-button']"), Throws.Nothing, "The consolidated 'New' add-actions dropdown button must render (its Parameter / Parameter Group / Element Definition items live in the DxDropDown body, which bunit does not render).");
                 Assert.That(renderer.Markup, Does.Contain("STR"), "The tree node's category pill must render.");
             });
 
             // Toggle the tree's View display-options dropdown to cover its click handler.
-            renderer.Find("#systemTreeViewMenuButton").Click();
+            renderer.Find("[id^='systemTreeViewMenuButton']").Click();
 
             // Drive the details-panel search box to cover the SearchTerm binding and the owner-aware parameter filter.
             var detailsSearch = renderer.FindComponents<SearchBar>()

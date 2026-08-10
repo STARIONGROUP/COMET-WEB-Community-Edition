@@ -61,7 +61,7 @@ namespace COMETwebapp.Tests.IntegrationTests
             await Expect(this.PageModel.TreeNodes).Not.ToHaveCountAsync(initialNodeCount);
 
             await this.PageModel.SelectRootNodeAsync();
-            await Expect(this.PageModel.DetailsPanel.Locator("#element-details-new-button")).ToBeVisibleAsync();
+            await Expect(this.PageModel.DetailsPanel.Locator("[id^='element-details-new-button']")).ToBeVisibleAsync();
 
             await this.PageModel.CollapseFirstExpandedNodeAsync();
             await Expect(this.PageModel.TreeNodes).ToHaveCountAsync(initialNodeCount);

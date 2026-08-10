@@ -24,13 +24,6 @@
 <div class="panel-view @(this.CssClass)">
     @if (this.Panel.CurrentTab is not null)
     {
-        <DxPopup @bind-Visible="@this.ViewModel.IsOnSwitchDomainMode"
-                 CloseOnOutsideClick="false"
-                 HeaderText="Switch domain"
-                 ShowCloseButton="true">
-            <SwitchDomain ViewModel="@this.ViewModel.SwitchDomainViewModel"/>
-        </DxPopup>
-
         <div class="tabs-row align-items-center">
             <div class="tabs-container">
                 <SortableList Group="tabs-panel"
@@ -59,7 +52,7 @@
                               Icon="IconName.Add"
                               OnClick="@(() => this.OnOpenTabClick.Invoke())"/>
             </div>
-            <div class="d-flex align-items-center gap-2 ml-auto">
+            <div class="d-flex align-items-center gap-2 ms-auto">
                 @if (this.CurrentDomainOfExpertise != null)
                 {
                     <DxButton Id="switch-domain-badge-button"
@@ -70,7 +63,7 @@
                               IconCssClass="@IconName.Transfer.GetCssClass()" />
                 }
 
-                <span title="@(this.GetSplitViewTooltip())" class="ms-auto flex-shrink-0 pl-2 d-flex">
+                <span title="@(this.GetSplitViewTooltip())" class="flex-shrink-0 pl-2 d-flex">
                     <DxButton Click="@(this.AddSidePanel)"
                               Enabled="@(this.IsSplitViewEnabled)"
                               RenderStyle="@(CometButtonStyle.None.ToButtonRenderStyle())"

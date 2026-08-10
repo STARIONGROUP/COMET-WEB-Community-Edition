@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -284,7 +284,7 @@ namespace COMETwebapp.ViewModels.Pages
         /// <returns>The active <see cref="Iteration" />, or null</returns>
         private static Iteration GetIterationFromTab(TabbedApplicationInformation tab)
         {
-            return tab.ObjectOfInterest switch
+            return tab?.ObjectOfInterest switch
             {
                 Iteration iteration => iteration,
                 EngineeringModel engineeringModel => engineeringModel.Iteration.FirstOrDefault(x => x.IterationSetup.FrozenOn == null),

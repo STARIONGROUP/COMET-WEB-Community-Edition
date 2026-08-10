@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.Pages
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Components;
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
@@ -102,6 +103,7 @@ namespace COMETwebapp.Tests.Pages
             this.viewModel.Setup(x => x.MainPanel).Returns(this.mainPanel);
             this.viewModel.Setup(x => x.SidePanel).Returns(new TabPanelInformation());
             this.viewModel.Setup(x => x.SelectedApplication).Returns(engineeringModelBodyApplication);
+            this.viewModel.Setup(x => x.SwitchDomainViewModel).Returns(new Mock<ISwitchDomainViewModel>().Object);
 
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
@@ -143,6 +145,21 @@ namespace COMETwebapp.Tests.Pages
 
             button = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "new-side-panel-button");
             Assert.That(button.Instance.Enabled, Is.True);
+        }
+
+        [Test]
+        public void VerifyOnlyOneSwitchDomainPopupIsRenderedInSplitView()
+        {
+            this.mainPanel.OpenTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
+            this.viewModel.Object.SidePanel.OpenTabs.Add(new TabbedApplicationInformation(this.engineeringModelBodyViewModel.Object, typeof(EngineeringModelBody), this.iteration));
+            this.viewModel.Object.SidePanel.CurrentTab = this.viewModel.Object.SidePanel.OpenTabs.Items[0];
+            
+            this.viewModel.Setup(x => x.IsOnSwitchDomainMode).Returns(true);
+
+            this.renderer.Render();
+
+            var switchDomainPopups = this.renderer.FindComponents<SwitchDomain>();
+            Assert.That(switchDomainPopups, Has.Count.EqualTo(1));
         }
 
         [Test]
