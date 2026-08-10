@@ -126,6 +126,48 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         }
 
         [Test]
+        public void VerifyDropdownSelectorAnnouncesItsPopupState()
+        {
+            var renderer = this.context.Render<SideBarItem>(parameters =>
+            {
+                parameters.Add(p => p.Id, "id");
+                parameters.Add(p => p.DropdownSelector, true);
+                parameters.Add(p => p.Expanded, false);
+            });
+
+            var item = renderer.Find("#id");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(item.GetAttribute("aria-haspopup"), Is.EqualTo("true"));
+                Assert.That(item.GetAttribute("aria-expanded"), Is.EqualTo("false"));
+                Assert.That(item.HasAttribute("aria-disabled"), Is.False);
+            });
+
+            renderer.Render(parameters => { parameters.Add(p => p.Expanded, true); });
+
+            Assert.That(renderer.Find("#id").GetAttribute("aria-expanded"), Is.EqualTo("true"));
+        }
+
+        [Test]
+        public void VerifyPlainEntryHasNoPopupSemantics()
+        {
+            var renderer = this.context.Render<SideBarItem>(parameters =>
+            {
+                parameters.Add(p => p.Id, "id");
+                parameters.Add(p => p.OnClick, () => { });
+            });
+
+            var item = renderer.Find("#id");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(item.HasAttribute("aria-haspopup"), Is.False);
+                Assert.That(item.HasAttribute("aria-expanded"), Is.False);
+            });
+        }
+
+        [Test]
         public void VerifyDisabledSideBarItemIsNotAFocusStop()
         {
             var renderer = this.context.Render<SideBarItem>(parameters =>

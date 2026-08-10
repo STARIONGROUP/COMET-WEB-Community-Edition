@@ -68,7 +68,8 @@ namespace COMETwebapp.Tests.Components.Tabs
             Assert.Multiple(() =>
             {
                 Assert.That(tab.GetAttribute("tabindex"), Is.EqualTo("0"));
-                Assert.That(tab.GetAttribute("aria-current"), Is.EqualTo("page"));
+                Assert.That(tab.GetAttribute("role"), Is.EqualTo("button"));
+                Assert.That(tab.GetAttribute("aria-current"), Is.EqualTo("true"));
             });
         }
 

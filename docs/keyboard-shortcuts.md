@@ -1,8 +1,8 @@
-    # Keyboard navigation and shortcuts
+# Keyboard navigation and shortcuts
 
-The COMET WEB application can be operated without a mouse. This page lists the keyboard controls that are available.
+The COMET WEB shell (the side bar, the open-tabs strip and the page landmarks) can be operated without a mouse. This page lists the keyboard controls that are available. The individual application pages are not yet fully keyboard-navigable.
 
-The custom shortcuts use **Alt+Shift+&lt;key&gt;**, chosen to avoid clashing with browser menu access keys. On Windows, `Alt+Shift` on its own can also switch the keyboard layout; pressing it together with the letter performs the application shortcut.
+The custom shortcuts use **Alt+Shift+&lt;digit&gt;**. Digits are used rather than letters because several browsers reserve `Shift+Alt+<letter>` combinations (for example Chrome uses `Shift+Alt+T` to focus its toolbar), which a web page cannot override. On Windows, `Alt+Shift` on its own can also switch the keyboard layout; pressing it together with the digit performs the application shortcut.
 
 ## Global shortcuts
 
@@ -10,10 +10,10 @@ These work from anywhere in the application.
 
 | Shortcut | Action |
 |----------|--------|
-| `Alt` + `Shift` + `N` | Move focus to the **navigation** side bar |
-| `Alt` + `Shift` + `T` | Move focus to the open **tabs** strip (the current tab, or the first one) |
-| `Alt` + `Shift` + `M` | Move focus to the **main content** |
-| `Alt` + `Shift` + `B` | Fold / unfold (collapse / expand) the side **bar** |
+| `Alt` + `Shift` + `1` | Move focus to the **navigation** side bar |
+| `Alt` + `Shift` + `2` | Move focus to the open **tabs** strip (the current tab, or the first one) |
+| `Alt` + `Shift` + `3` | Move focus to the **main content** |
+| `Alt` + `Shift` + `4` | Fold / unfold (collapse / expand) the side bar |
 
 ## Skip links
 
@@ -60,6 +60,9 @@ A visible focus outline is shown on every element that receives keyboard focus, 
 
 ## Rebinding the shortcuts
 
-The `Alt+Shift` letters are defined in a single `shortcutKeys` map at the top of
-[`COMETwebapp/wwwroot/Scripts/cometKeyboard.js`](../COMETwebapp/wwwroot/Scripts/cometKeyboard.js);
-change them there if a combination clashes with your browser or operating system.
+The `Alt+Shift` shortcuts are defined in a single `shortcutCodes` map at the top of
+[`COMETwebapp/wwwroot/Scripts/cometKeyboard.js`](../COMETwebapp/wwwroot/Scripts/cometKeyboard.js). The values are
+physical [`KeyboardEvent.code`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code) identifiers (for
+example `Digit1`, `Digit2`), so the shortcuts stay on the same physical keys regardless of keyboard layout; change them
+there (and the `aria-keyshortcuts` hints on the nav, tab strip, main landmark and collapse button) if a combination
+clashes with your browser or operating system.

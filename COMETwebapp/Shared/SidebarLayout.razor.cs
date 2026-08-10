@@ -59,5 +59,17 @@ namespace COMETwebapp.Shared
                 await this.JsRuntime.InvokeVoidAsync("cometKeyboard.init");
             }
         }
+
+        /// <summary>
+        /// Moves keyboard focus to a shell landmark by invoking the named helper. A skip link keeps its fragment
+        /// <c>href</c> as a no-JavaScript fallback, but Blazor intercepts same-document navigation and only scrolls the
+        /// target into view without focusing it, so the actual focus move is driven from here.
+        /// </summary>
+        /// <param name="focusFunction">The <c>cometKeyboard</c> focus helper to invoke</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task MoveFocusTo(string focusFunction)
+        {
+            await this.JsRuntime.InvokeVoidAsync(focusFunction);
+        }
     }
 }

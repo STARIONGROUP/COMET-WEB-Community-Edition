@@ -83,6 +83,7 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
         private SourceList<Iteration> sourceList;
         private List<Type> registeredSideBarEntries;
         private List<Application> registeredApplications;
+        private Mock<ITabsViewModel> tabsViewModel;
         private CDPMessageBus messageBus;
 
         private class TestAuthorizedMenuEntry : AuthorizedMenuEntry
@@ -140,7 +141,8 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             this.context.Services.AddSingleton<IModelMenuViewModel, ModelMenuViewModel>();
             this.context.Services.AddSingleton(this.authorizedMenuEntryViewModel.Object);
             this.context.Services.AddSingleton<INotificationService, NotificationService>();
-            this.context.Services.AddSingleton(new Mock<ITabsViewModel>().Object);
+            this.tabsViewModel = new Mock<ITabsViewModel>();
+            this.context.Services.AddSingleton(this.tabsViewModel.Object);
             this.configurationService = new Mock<IStringTableService>();
             this.context.Services.AddSingleton(this.configurationService.Object);
             this.context.ConfigureDevExpressBlazor();
@@ -209,6 +211,41 @@ namespace COMETwebapp.Tests.Shared.SideBarEntry
             {
                 Assert.That(sideBarItems, Has.Count.EqualTo(1));
                 Assert.That(sideBarItems[0].Instance.Text, Is.EqualTo(modelDashboardApplication.Name));
+            });
+        }
+
+        /// <summary>
+        /// Verifies the navigation landmark carries its accessible name and shortcut hint (issue #885), and that the
+        /// active application entry is announced as current via <see cref="SideBarItem.Selected" />.
+        /// </summary>
+        [Test]
+        public void VerifyNavigationLandmarkAndActiveApplicationAreAnnounced()
+        {
+            var application = new Application
+            {
+                Name = "Model Dashboard",
+                Url = "ModelDashboard",
+                IsDisabled = false,
+                Description = "desc",
+                Icon = IconName.PieChart
+            };
+
+            this.registeredApplications.Add(application);
+
+            var renderer = this.context.Render<SideBar>();
+            var navigationManager = this.context.Services.GetService<NavigationManager>()!;
+            navigationManager.NavigateTo($"http://localhost/{application.Url}");
+
+            var nav = renderer.Find("nav.main-side-bar");
+            var applicationsSideBar = renderer.FindComponent<ApplicationsSideBar>();
+            var activeItem = applicationsSideBar.FindComponents<SideBarItem>().First(x => x.Instance.Text == application.Name);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(nav.GetAttribute("aria-label"), Is.EqualTo("Main navigation"));
+                Assert.That(nav.GetAttribute("aria-keyshortcuts"), Is.EqualTo("Alt+Shift+1"));
+                Assert.That(activeItem.Instance.Selected, Is.True);
+                Assert.That(activeItem.Find(".application-item-container").GetAttribute("aria-current"), Is.EqualTo("page"));
             });
         }
 

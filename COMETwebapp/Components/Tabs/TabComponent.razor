@@ -24,7 +24,8 @@
      @onclick="@(() => this.OnClick?.Invoke())"
      @onkeydown="@(this.HandleKeyDown)"
      tabindex="@(this.OnClick != null ? 0 : -1)"
-     aria-current="@(this.IsCurrent ? "page" : null)"
+     role="button"
+     aria-current="@(this.IsCurrent ? "true" : null)"
      title="@(this.Caption)">
 
     @if (this.ApplicationIcon is not null)

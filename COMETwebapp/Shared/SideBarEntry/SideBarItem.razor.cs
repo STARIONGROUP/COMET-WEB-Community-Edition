@@ -51,6 +51,13 @@ namespace COMETwebapp.Shared.SideBarEntry
         public bool DropdownSelector { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the drop-down opened by a <see cref="DropdownSelector" /> entry is
+        /// currently expanded, so it is announced to assistive technologies with <c>aria-expanded</c> (see issue #885)
+        /// </summary>
+        [Parameter]
+        public bool Expanded { get; set; }
+
+        /// <summary>
         /// Gets or sets the icon css class to be displayed
         /// </summary>
         [Parameter]
@@ -106,7 +113,9 @@ namespace COMETwebapp.Shared.SideBarEntry
 
         /// <summary>
         /// Activates the entry from the keyboard, so the side bar navigation can be reached and operated without a mouse,
-        /// mirroring the native behaviour of a button on <c>Enter</c> and <c>Space</c>.
+        /// mirroring the native behaviour of a button on <c>Enter</c> and <c>Space</c>. The entry stays a focusable
+        /// <c>div</c> with <c>role="button"</c> rather than a native <c>button</c> because the dropdown-selector entries
+        /// are the position target of a <c>DxDropDown</c>, which does not interact correctly with a native button trigger.
         /// </summary>
         /// <param name="eventArgs">The <see cref="KeyboardEventArgs" /> of the key that was pressed</param>
         private void HandleKeyDown(KeyboardEventArgs eventArgs)

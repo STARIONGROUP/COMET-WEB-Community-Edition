@@ -25,9 +25,8 @@ html, body, #app {
 }
 
 *:focus-visible {
-    outline: 2px solid var(--colors-primary-600, #006DA4) !important;
+    outline: 2px solid var(--colors-primary-600, #006DA4);
     outline-offset: 1px;
-    border-radius: 2px;
 }
 
 .valid.modified:not([type=checkbox]) { outline: 1px solid #26b050; }

@@ -72,7 +72,7 @@ The CDP4-COMET-WEB Community Edition make use of the [COMET-SDK](https://github.
 
 ## Keyboard navigation
 
-The application can be operated entirely from the keyboard. See [docs/keyboard-shortcuts.md](docs/keyboard-shortcuts.md) for the full list of shortcuts.
+The application shell (the side bar, the open-tabs strip and the page landmarks) can be operated from the keyboard. See [docs/keyboard-shortcuts.md](docs/keyboard-shortcuts.md) for the full list of shortcuts.
 
 # License
 
