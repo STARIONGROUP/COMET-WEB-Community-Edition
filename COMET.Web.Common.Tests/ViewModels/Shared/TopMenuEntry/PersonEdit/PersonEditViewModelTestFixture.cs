@@ -362,9 +362,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Shared.TopMenuEntry.PersonEdit
                 Assert.That(this.viewModel.ConfirmCancelViewModel.IsVisible, Is.False);
 
                 this.sessionService.Verify(
-                    x => x.CreateUpdateAndDeleteThingsWithNotification(
+                    x => x.DeleteThingsWithNotification(
                         It.Is<Thing>(t => t is SiteDirectory && t.Iid == this.siteDirectory.Iid),
-                        It.Is<IReadOnlyCollection<Thing>>(c => c.Count == 1 && c.OfType<Person>().Any(p => p.Iid == this.activePerson.Iid && p.UserPreference.Count == 0)),
                         It.Is<IReadOnlyCollection<Thing>>(d => d.Count == 1 && d.OfType<UserPreference>().Any(up => up.Iid == userPreference.Iid)),
                         It.IsAny<NotificationDescription>()),
                     Times.Once);
