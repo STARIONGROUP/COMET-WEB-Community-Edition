@@ -70,6 +70,16 @@ namespace COMETwebapp.Services.Interoperability
         public const string GetPrimitiveIdUnderMouseFunction = "GetPrimitiveIDUnderMouse";
 
         /// <summary>
+        /// JavaScript function name for disposing a viewer instance
+        /// </summary>
+        public const string DisposeViewerFunction = "DisposeViewer";
+
+        /// <summary>
+        /// Unique identifier for this BabylonInterop instance and associated JS viewer state
+        /// </summary>
+        private readonly string viewerId = Guid.NewGuid().ToString("N");
+
+        /// <summary>
         /// Creates a new instance of type <see cref="BabylonInterop" />
         /// </summary>
         /// <param name="jsRuntime">the <see cref="IJSRuntime" /></param>
@@ -86,7 +96,7 @@ namespace COMETwebapp.Services.Interoperability
         public async Task InitCanvas(ElementReference canvasReference, bool addAxes)
         {
             await this.EnsureScriptsLoadedAsync();
-            await this.JsRuntime.InvokeVoidAsync(InitCanvasFunction, canvasReference, addAxes);
+            await this.JsRuntime.InvokeVoidAsync(InitCanvasFunction, this.viewerId, canvasReference, addAxes);
         }
 
         /// <summary>
@@ -99,7 +109,7 @@ namespace COMETwebapp.Services.Interoperability
             ArgumentNullException.ThrowIfNull(sceneObject);
 
             var sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
-            await this.JsRuntime.InvokeVoidAsync(AddSceneObjectFunction, sceneObjectJson);
+            await this.JsRuntime.InvokeVoidAsync(AddSceneObjectFunction, this.viewerId, sceneObjectJson);
         }
 
         /// <summary>
@@ -125,7 +135,7 @@ namespace COMETwebapp.Services.Interoperability
             await this.EnsureScriptsLoadedAsync();
 
             var ids = sceneObjects.Select(x => x.ID).ToList();
-            await this.JsRuntime.InvokeVoidAsync(DisposeAllFunction, ids);
+            await this.JsRuntime.InvokeVoidAsync(DisposeAllFunction, this.viewerId, ids);
         }
 
         /// <summary>
@@ -138,7 +148,7 @@ namespace COMETwebapp.Services.Interoperability
         {
             ArgumentNullException.ThrowIfNull(sceneObject);
 
-            await this.JsRuntime.InvokeVoidAsync(SetMeshVisibilityFunction, sceneObject.ID, visibility);
+            await this.JsRuntime.InvokeVoidAsync(SetMeshVisibilityFunction, this.viewerId, sceneObject.ID, visibility);
         }
 
         /// <summary>
@@ -148,7 +158,7 @@ namespace COMETwebapp.Services.Interoperability
         public async Task RegenerateMesh(SceneObject sceneObject)
         {
             var sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
-            await this.JsRuntime.InvokeVoidAsync(RegenMeshFunction, sceneObjectJson);
+            await this.JsRuntime.InvokeVoidAsync(RegenMeshFunction, this.viewerId, sceneObjectJson);
         }
 
         /// <summary>
@@ -157,7 +167,7 @@ namespace COMETwebapp.Services.Interoperability
         /// <returns></returns>
         public async Task<Guid> GetPrimitiveIdUnderMouseAsync()
         {
-            var id = await this.JsRuntime.InvokeAsync<string>(GetPrimitiveIdUnderMouseFunction);
+            var id = await this.JsRuntime.InvokeAsync<string>(GetPrimitiveIdUnderMouseFunction, this.viewerId);
 
             if (id == null || !Guid.TryParse(id, out var parsedId))
             {
@@ -165,6 +175,15 @@ namespace COMETwebapp.Services.Interoperability
             }
 
             return parsedId;
+        }
+
+        /// <summary>
+        /// Disposes the Babylon engine and resources associated with this viewer instance
+        /// </summary>
+        /// <returns>an asynchronous task</returns>
+        public async Task DisposeViewer()
+        {
+            await this.JsRuntime.InvokeVoidAsync(DisposeViewerFunction, this.viewerId);
         }
 
         /// <summary>

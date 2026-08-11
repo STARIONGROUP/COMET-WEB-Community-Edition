@@ -32,7 +32,7 @@ namespace COMETwebapp.Components.Viewer
     /// <summary>
     /// Support class for the <see cref="Canvas3D"/>
     /// </summary>
-    public partial class Canvas3D
+    public partial class Canvas3D : IAsyncDisposable
     {
         /// <summary>
         /// Gets or sets the <see cref="ICanvasViewModel"/>
@@ -94,6 +94,16 @@ namespace COMETwebapp.Components.Viewer
         public void OnMouseMove(MouseEventArgs e)
         {
             this.IsMovingScene = this.IsMouseDown;
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources asynchronously.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous dispose operation.</returns>
+        public async ValueTask DisposeAsync()
+        {
+            await this.ViewModel.BabylonInterop.DisposeViewer();
+            GC.SuppressFinalize(this);
         }
     }
 }

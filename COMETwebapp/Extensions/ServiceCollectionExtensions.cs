@@ -82,8 +82,8 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddScoped<ISubscriptionService, SubscriptionService>();
             serviceCollection.AddScoped<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
             serviceCollection.AddScoped<ISceneSettings, SceneSettings>();
-            serviceCollection.AddScoped<ISelectionMediator, SelectionMediator>();
-            serviceCollection.AddScoped<IBabylonInterop, BabylonInterop>();
+            serviceCollection.AddTransient<ISelectionMediator, SelectionMediator>();
+            serviceCollection.AddTransient<IBabylonInterop, BabylonInterop>();
             serviceCollection.AddScoped<IDomDataService, DomDataService>();
             serviceCollection.AddScoped<IJsUtilitiesService, JsUtilitiesService>();
             serviceCollection.AddScoped<IExportService, ExportService>();

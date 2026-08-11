@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿/ --------------------------------------------------------------------------------------------------------------------
 // <copyright file="babylonSpecifics.js" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -26,21 +26,26 @@
  * Creates a babylon.js scene.
  * @param {any} engine - the babylon.js engine to attach the canvas to.
  * @param {HTMLElement} canvas - the HTML5 Canvas element.
+ * @param {object} state - the viewer state object.
  */
-function CreateScene(engine, canvas) {
+function CreateScene(engine, canvas, state) {
     const scene = new BABYLON.Scene(engine);
     scene.clearColor = new BABYLON.Color3(0.98, 0.98, 0.98);
 
-    Camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 10, new BABYLON.Vector3(0, 0, 0), scene);
-    Camera.setPosition(new BABYLON.Vector3(20, 10, -30));
-    Camera.attachControl(canvas, true);
-    Camera.lowerRadiusLimit = 5;
-    Camera.upperRadiusLimit = SkyboxSize / 2.0;
-    Camera.inertia = CameraInertia;
-    Camera.panningInertia = CameraInertia;
-    Camera.angularSensibilityX = Camera.angularSensibilityY = CameraRotationSensibility;
-    Camera.panningSensibility = CameraPanningSensibility;
-    Camera.wheelPrecision = CameraZoomSensibility;
+    let camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 10, new BABYLON.Vector3(0, 0, 0), scene);
+    camera.setPosition(new BABYLON.Vector3(20, 10, -30));
+    camera.attachControl(canvas, true);
+    camera.lowerRadiusLimit = 5;
+    camera.upperRadiusLimit = SkyboxSize / 2.0;
+    camera.inertia = CameraInertia;
+    camera.panningInertia = CameraInertia;
+    camera.angularSensibilityX = camera.angularSensibilityY = CameraRotationSensibility;
+    camera.panningSensibility = CameraPanningSensibility;
+    camera.wheelPrecision = CameraZoomSensibility;
+
+    if (state) {
+        state.Camera = camera;
+    }
 
     let light = new BABYLON.HemisphericLight("HemisphericLight", new BABYLON.Vector3(2, 1, 0));
     scene.light = light;
@@ -51,29 +56,30 @@ function CreateScene(engine, canvas) {
 /**
  * Register the mesh so it can be selected by the mouse cursor in real time.
  * @param {BABYLON.js mesh} mesh - the mesh to register.
+ * @param {BABYLON.Material} pickingMaterial - the picking material.
  */
-function RegisterMeshActions(mesh) {
+function RegisterMeshActions(mesh, pickingMaterial) {
     mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh.material, "emissiveColor", mesh.material.emissiveColor));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh.material, "emissiveColor", PickingMaterial.emissiveColor));
+    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh.material, "emissiveColor", pickingMaterial.emissiveColor));
     mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh.material, "diffuseColor", mesh.material.diffuseColor));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh.material, "diffuseColor", PickingMaterial.diffuseColor));
+    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh.material, "diffuseColor", pickingMaterial.diffuseColor));
     mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh.material, "specularColor", mesh.material.specularColor));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh.material, "specularColor", PickingMaterial.specularColor));
+    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh.material, "specularColor", pickingMaterial.specularColor));
     mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh.material, "ambientColor", mesh.material.ambientColor));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh.material, "ambientColor", PickingMaterial.ambientColor));
+    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh.material, "ambientColor", pickingMaterial.ambientColor));
 }
 
 /**
  * Creates a line primitive
  * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
+ * @param {BABYLON.Scene} scene - the target scene
  */
-function CreateLine(primitive) {
+function CreateLine(primitive, scene) {
     const lpoints = [
         new BABYLON.Vector3(primitive.P0.X, primitive.P0.Y, primitive.P0.Z),
         new BABYLON.Vector3(primitive.P1.X, primitive.P1.Y, primitive.P1.Z)
     ];
-    let line = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, Scene);
+    let line = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, scene);
     line.color = new BABYLON.Color3(primitive.Color.X, primitive.Color.Y, primitive.Color.Z);
     return line;
 }
@@ -81,114 +87,114 @@ function CreateLine(primitive) {
 /**
  * Creates a box primitive
  * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
+ * @param {BABYLON.Scene} scene - the target scene
  */
-function CreateBox(primitive) {
-    let mesh = BABYLON.MeshBuilder.CreateBox("box", { width: primitive.Width, height: primitive.Height, depth: primitive.Depth }, Scene);
+function CreateBox(primitive, scene) {
+    let mesh = BABYLON.MeshBuilder.CreateBox("box", { width: primitive.Width, height: primitive.Height, depth: primitive.Depth }, scene);
     return mesh;
 }
 
 /**
  * Creates a sphere primitive
  * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
+ * @param {BABYLON.Scene} scene - the target scene
  */
-function CreateSphere(primitive) {
-    let mesh = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: primitive.Radius * 2.0 }, Scene);
+function CreateSphere(primitive, scene) {
+    let mesh = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: primitive.Radius * 2.0 }, scene);
     return mesh;
 }
 
 /**
  * Creates a cylinder primitive
  * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
+ * @param {BABYLON.Scene} scene - the target scene
  */
-function CreateCylinder(primitive) {
-    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { diameter: primitive.Radius * 2.0, height: primitive.Height }, Scene);
+function CreateCylinder(primitive, scene) {
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { diameter: primitive.Radius * 2.0, height: primitive.Height }, scene);
     return mesh;
 }
 
 /**
  * Creates a cone primitive
  * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
+ * @param {BABYLON.Scene} scene - the target scene
  */
-function CreateCone(primitive) {
-    let mesh = BABYLON.MeshBuilder.CreateCylinder("cone", { diameterTop: 0, diameterBottom: primitive.Radius * 2.0, height: primitive.Height, tessellation: 36 }, Scene);
+function CreateCone(primitive, scene) {
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cone", { diameterTop: 0, diameterBottom: primitive.Radius * 2.0, height: primitive.Height, tessellation: 36 }, scene);
     return mesh;
 }
 
 /**
  * Creates a torus primitive
  * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
+ * @param {BABYLON.Scene} scene - the target scene
  */
-function CreateTorus(primitive) {
-    let mesh = BABYLON.MeshBuilder.CreateTorus("torus", { diameter: primitive.Diameter, thickness: primitive.Thickness, tessellation: 36 }, Scene);
+function CreateTorus(primitive, scene) {
+    let mesh = BABYLON.MeshBuilder.CreateTorus("torus", { diameter: primitive.Diameter, thickness: primitive.Thickness, tessellation: 36 }, scene);
     return mesh;
 }
 
 /**
  * Creates a triangular prism primitive
  * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
+ * @param {BABYLON.Scene} scene - the target scene
  */
-function CreateTriangularPrism(primitive) {
-    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Height, diameter: primitive.Radius * 2.0, tessellation: 3 }, Scene);
+function CreateTriangularPrism(primitive, scene) {
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Height, diameter: primitive.Radius * 2.0, tessellation: 3 }, scene);
     return mesh;
 }
 
 /**
  * Creates a hexagonal prism primitive
  * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
+ * @param {BABYLON.Scene} scene - the target scene
  */
-function CreateHexagonalPrism(primitive) {
-    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Height, diameter: primitive.Radius * 2.0, tessellation: 6 }, Scene);
+function CreateHexagonalPrism(primitive, scene) {
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Height, diameter: primitive.Radius * 2.0, tessellation: 6 }, scene);
     return mesh;
 }
 
 /**
  * Creates a disc primitive
  * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
+ * @param {BABYLON.Scene} scene - the target scene
  */
-function CreateDisc(primitive) {
-    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { diameter: primitive.Radius * 2.0, height: primitive.Radius/100.0 }, Scene);
+function CreateDisc(primitive, scene) {
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { diameter: primitive.Radius * 2.0, height: primitive.Radius/100.0 }, scene);
     return mesh;
 }
 
 /**
  * Creates a rectangle primitive
  * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
+ * @param {BABYLON.Scene} scene - the target scene
  */
-function CreateRectangle(primitive) {
+function CreateRectangle(primitive, scene) {
     let minValue = Math.min(primitive.Width, primitive.Height);
-    let mesh = BABYLON.MeshBuilder.CreateBox("box", { width: primitive.Width, height: minValue / 100.0, depth: primitive.Height }, Scene);
+    let mesh = BABYLON.MeshBuilder.CreateBox("box", { width: primitive.Width, height: minValue / 100.0, depth: primitive.Height }, scene);
     return mesh;
 }
 
 /**
  * Creates a triangle primitive
  * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
+ * @param {BABYLON.Scene} scene - the target scene
  */
-function CreateTriangle(primitive) {
-    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Radius/100.0, diameter: primitive.Radius * 2.0, tessellation: 3 }, Scene);
+function CreateTriangle(primitive, scene) {
+    let mesh = BABYLON.MeshBuilder.CreateCylinder("cylinder", { height: primitive.Radius/100.0, diameter: primitive.Radius * 2.0, tessellation: 3 }, scene);
     return mesh;
 }
 
 /**
  * Creates a custom primitive
  * @param {any} primitive - the primitive in JSON format
- * @param {any} color - the color in JSON format
+ * @param {BABYLON.Scene} scene - the target scene
  */
-async function LoadPrimitive(primitive) {
+async function LoadPrimitive(primitive, scene) {
     let path = primitive.Path;
     let fileName = primitive.FileName;
 
-    const result = await BABYLON.SceneLoader.ImportMeshAsync(null, path, fileName, Scene);
+    const result = await BABYLON.SceneLoader.ImportMeshAsync(null, path, fileName, scene);
     let meshes = result.meshes;
 
     for (let mesh of meshes) {
@@ -234,10 +240,11 @@ function CreateSkybox(scene, size) {
 
 /**
  * Creates the picking material used in the scene.
+ * @param {BABYLON.Scene} scene - the target scene
  * @returns {BABYLON.js material} - the material to use.
  */
-function SetUpPickingMaterial() {
-    let pickingMaterial = new BABYLON.StandardMaterial("PickingMaterial", Scene);
+function SetUpPickingMaterial(scene) {
+    let pickingMaterial = new BABYLON.StandardMaterial("PickingMaterial", scene);
     pickingMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.35, 0.35);
     pickingMaterial.specularColor = new BABYLON.Color3(1.0, 1.0, 1.0);
     pickingMaterial.emissiveColor = new BABYLON.Color3(0.15, 0.15, 0.15);
