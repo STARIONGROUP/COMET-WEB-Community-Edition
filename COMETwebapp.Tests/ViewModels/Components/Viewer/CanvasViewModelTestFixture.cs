@@ -145,6 +145,27 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         }
 
         /// <summary>
+        /// Verifies that calling <see cref="CanvasViewModel.InitializeViewModel" /> more than once does not
+        /// double-register event handlers, so callbacks fire exactly once regardless of how many times the
+        /// component lifecycle invokes the method (covers #907 Bug 2 fix).
+        /// </summary>
+        [Test]
+        public void VerifyInitializeViewModelIsIdempotent()
+        {
+            var original = new SceneObject(new Cube(1, 1, 1));
+            var clone = original.Clone();
+            this.selectionMediator.SetupGet(x => x.SelectedSceneObject).Returns(original);
+            this.selectionMediator.SetupGet(x => x.SelectedSceneObjectClone).Returns(clone);
+
+            this.viewModel.InitializeViewModel();
+            this.viewModel.InitializeViewModel();
+
+            this.selectionMediator.Raise(x => x.OnParameterSubmitted += null);
+
+            this.babylonInterop.Verify(x => x.RegenerateMesh(original), Times.Once);
+        }
+
+        /// <summary>
         /// Verifies the RemoveSceneObject method.
         /// </summary>
         [Test]

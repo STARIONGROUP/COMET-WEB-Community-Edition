@@ -27,7 +27,8 @@
     @if (this.ViewModel.MainPanel.CurrentTab is not null)
     {
         <CascadingValue Name="@WebAppConstantValues.IsSplitViewCascadingValueName" Value="@(this.ViewModel.SidePanel.CurrentTab is not null)">
-            <TabsPanelComponent Panel="@(this.ViewModel.MainPanel)"
+            <CascadingValue Name="@WebAppConstantValues.OnSplitViewValueChangedCascadingValueName" Value="@(this.OnSplitViewValueChanged)">
+                <TabsPanelComponent Panel="@(this.ViewModel.MainPanel)"
                                 ViewModel="@(this.ViewModel)"
                                 OnTabClick="@(tuple => OnTabClick(tuple.Item1, tuple.Item2))"
                                 OnCreateTabForModel="@(tab => this.OnCreateTabForModel(tab))"
@@ -47,6 +48,7 @@
                                     IsSplitViewVisible="false"
                                     IsSplitViewEnabled="false"/>
             }
+            </CascadingValue>
         </CascadingValue>
     }
     else

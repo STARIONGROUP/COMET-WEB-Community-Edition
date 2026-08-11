@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="PropertiesComponentTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -46,7 +46,6 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     using Moq;
 
     using NUnit.Framework;
-
 
     [TestFixture]
     public class PropertiesComponentTestFixture
@@ -197,6 +196,56 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             Assert.That(component, Is.Not.Null);
             this.properties.ViewModel.IsVisible = false;
             Assert.Throws<ElementNotFoundException>(() => this.renderedComponent.Find("#properties-header"));
+        }
+
+        [Test]
+        public void VerifyOnSelectionChanged()
+        {
+            var babylon = new Mock<IBabylonInterop>();
+            var session = new Mock<ISessionService>();
+            var mediator = new Mock<ISelectionMediator>();
+
+            var viewModelUnderTest = new PropertiesComponentViewModel(babylon.Object, session.Object, mediator.Object, this.messageBus)
+            {
+                IsVisible = false
+            };
+
+            // SelectedSceneObjectClone is null — all state must be cleared
+            mediator.Setup(x => x.SelectedSceneObjectClone).Returns((SceneObject)null);
+            mediator.Raise(x => x.OnModelSelectionChanged += null, ((SceneObject)null)!);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(viewModelUnderTest.ParameterValueSetRelations, Is.Empty);
+                Assert.That(viewModelUnderTest.ParametersInUse, Is.Empty);
+                Assert.That(viewModelUnderTest.SelectedParameter, Is.Null);
+            }
+
+            // SceneObject with no parameters — ParametersAsociated is empty,
+            // so ParametersInUse must be empty and SelectedParameter null.
+            // This also covers the filter: parameters absent from ParameterValueSetRelations are excluded.
+            var elementDef = new ElementDefinition()
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            var elementUsage = new ElementUsage
+            {
+                Iid = Guid.NewGuid(),
+                ElementDefinition = elementDef
+            };
+
+            elementDef.ContainedElement.Add(elementUsage);
+
+            var sceneObject = SceneObject.Create(elementUsage, null, []);
+            mediator.Setup(x => x.SelectedSceneObjectClone).Returns(sceneObject);
+            mediator.Raise(x => x.OnModelSelectionChanged += null, sceneObject);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(viewModelUnderTest.ParametersInUse, Is.Empty);
+                Assert.That(viewModelUnderTest.SelectedParameter, Is.Null);
+            }
         }
     }
 }

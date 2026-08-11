@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.Tests.Components.Viewer
 {
+    using System.Reactive.Subjects;
+
     using Bunit;
 
     using CDP4Dal;
@@ -61,6 +63,11 @@ namespace COMETwebapp.Tests.Components.Viewer
         private CDPMessageBus messageBus;
 
         /// <summary>
+        /// The mock <see cref="ICanvasViewModel" /> used for testing.
+        /// </summary>
+        private Mock<ICanvasViewModel> canvasViewModel;
+
+        /// <summary>
         /// Sets up the test context and dependencies before each test execution.
         /// </summary>
         [SetUp]
@@ -78,7 +85,7 @@ namespace COMETwebapp.Tests.Components.Viewer
             mockMultipleFiniteStateSelector.Setup(x => x.ActualFiniteStateSelectorViewModels).Returns([]);
 
             var selectionMediator = new Mock<ISelectionMediator>();
-            var canvasViewModel = new Mock<ICanvasViewModel>();
+            this.canvasViewModel = new Mock<ICanvasViewModel>();
             var mockConfigurationService = new Mock<IConfigurationService>();
             mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
 
@@ -92,7 +99,7 @@ namespace COMETwebapp.Tests.Components.Viewer
             mockViewerBodyViewModel.Setup(x => x.OptionSelector).Returns(mockOptionSelector.Object);
             mockViewerBodyViewModel.Setup(x => x.MultipleFiniteStateSelector).Returns(mockMultipleFiniteStateSelector.Object);
             mockViewerBodyViewModel.Setup(x => x.ProductTreeViewModel).Returns(new ViewerProductTreeViewModel(selectionMediator.Object));
-            mockViewerBodyViewModel.Setup(x => x.CanvasViewModel).Returns(canvasViewModel.Object);
+            mockViewerBodyViewModel.Setup(x => x.CanvasViewModel).Returns(this.canvasViewModel.Object);
             mockViewerBodyViewModel.Setup(x => x.PropertiesViewModel).Returns(mockPropertiesViewModel.Object);
 
             this.context.Services.AddSingleton(sessionService.Object);
@@ -138,6 +145,31 @@ namespace COMETwebapp.Tests.Components.Viewer
                 Assert.That(splitViewRenderedComponent.Instance.IsSplitView, Is.True);
                 Assert.That(splitGridParent.ClassList, Does.Contain("split-mode"));
             });
+        }
+
+        /// <summary>
+        /// Verifies that <see cref="ViewerBody" /> re-initializes canvas when <see cref="ViewerBody.OnSplitViewValueChanged" /> emits false.
+        /// </summary>
+        [Test]
+        public void VerifyOnSplitViewValueChangedHandler()
+        {
+            var subject = new Subject<bool>();
+
+            this.context.Render<ViewerBody>(parameters =>
+            {
+                parameters.AddCascadingValue(WebAppConstantValues.OnSplitViewValueChangedCascadingValueName, subject);
+            });
+
+            // Initial component render triggers InitCanvas(true) once via OnAfterRenderAsync
+            this.canvasViewModel.Verify(x => x.InitCanvas(true), Times.Once);
+
+            // Emitting true (split view enabled) should NOT re-init canvas again
+            subject.OnNext(true);
+            this.canvasViewModel.Verify(x => x.InitCanvas(true), Times.Once);
+
+            // Emitting false (split view disabled) SHOULD re-init canvas a second time
+            subject.OnNext(false);
+            this.canvasViewModel.Verify(x => x.InitCanvas(true), Times.Exactly(2));
         }
     }
 }
