@@ -32,6 +32,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 
     using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
 
     using FluentResults;
 
@@ -90,7 +91,12 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         public async Task VerifyLogout()
         {
             await this.authenticationService.Logout();
-            this.sessionService.Verify(x => x.CloseSession(), Times.Once);
+
+            Assert.Multiple(() =>
+            {
+                this.sessionService.Verify(x => x.CloseSession(), Times.Once);
+                this.sessionStorageService.Verify(x => x.SetItemAsync(ConstantValues.SavedTabsKey, string.Empty, default), Times.Once);
+            });
         }
 
         [Test]
@@ -160,16 +166,29 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
-        public async Task VerifyRetrieveLastUsedServerUrl()
+        public void VerifyRetrieveLastUsedServerUrl()
         {
-            this.sessionStorageService.Setup(x => x.GetItemAsync<string>("cdp4-comet-url", default)).ReturnsAsync((string)null);
+            this.sessionStorageService.Setup(x => x.GetItemAsync<string>("cdp4-comet-url", CancellationToken.None)).ReturnsAsync((string)null);
 
-            await Assert.ThatAsync(() => this.authenticationService.RetrieveLastUsedServerUrlAsync(), Is.Null);
+            Assert.That(async () => await this.authenticationService.RetrieveLastUsedServerUrlAsync(), Is.Null);
             
             const string serverUrl = "https://www.stariongroup.eu/";
-            this.sessionStorageService.Setup(x => x.GetItemAsync<string>("cdp4-comet-url", default)).ReturnsAsync(serverUrl);
+            this.sessionStorageService.Setup(x => x.GetItemAsync<string>("cdp4-comet-url", CancellationToken.None)).ReturnsAsync(serverUrl);
 
-            await Assert.ThatAsync(() => this.authenticationService.RetrieveLastUsedServerUrlAsync(), Is.EqualTo(serverUrl));
+            Assert.That(async () => await this.authenticationService.RetrieveLastUsedServerUrlAsync(), Is.EqualTo(serverUrl));
+        }
+
+        [Test]
+        public void VerifyRetrieveLastUsedUserName()
+        {
+            this.sessionStorageService.Setup(x => x.GetItemAsync<string>("cdp4-comet-username", CancellationToken.None)).ReturnsAsync((string)null);
+
+            Assert.That(async () => await this.authenticationService.RetrieveLastUsedUserNameAsync(), Is.Null);
+            
+            const string userName = "admin";
+            this.sessionStorageService.Setup(x => x.GetItemAsync<string>("cdp4-comet-username", CancellationToken.None)).ReturnsAsync(userName);
+
+            Assert.That(async () => await this.authenticationService.RetrieveLastUsedUserNameAsync(), Is.EqualTo(userName));
         }
 
         [Test]
@@ -225,8 +244,8 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             var authenticationSchemeResponse = new AuthenticationSchemeResponse()
             {
                 Schemes = [AuthenticationSchemeKind.Basic]
-            };            
-            
+            };
+
             await  Assert.MultipleAsync(async () =>
             {
                 await Assert.ThatAsync(() => this.authenticationService.ExchangeOpenIdConnectCodeAsync(null, authenticationSchemeResponse, redirect), Throws.Exception);
@@ -250,7 +269,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             this.openIdConnectService.Setup(x => x.RequestAuthenticationToken(code, authenticationSchemeResponse, redirect, null)).ThrowsAsync(new InvalidOperationException());
             await this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect);
 
-            this.sessionStorageService.Verify(x => x.SetItemAsync(It.IsAny<string>(), string.Empty, default), Times.Exactly(3));
+            this.sessionStorageService.Verify(x => x.SetItemAsync(It.IsAny<string>(), string.Empty, default), Times.Exactly(5));
         }
     }
 }

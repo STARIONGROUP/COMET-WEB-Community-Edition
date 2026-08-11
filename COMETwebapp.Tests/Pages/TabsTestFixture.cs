@@ -104,6 +104,7 @@ namespace COMETwebapp.Tests.Pages
             this.viewModel.Setup(x => x.SidePanel).Returns(new TabPanelInformation());
             this.viewModel.Setup(x => x.SelectedApplication).Returns(engineeringModelBodyApplication);
             this.viewModel.Setup(x => x.SwitchDomainViewModel).Returns(new Mock<ISwitchDomainViewModel>().Object);
+            this.viewModel.Setup(x => x.RestoreTabsPopupViewModel).Returns(new ConfirmCancelPopupViewModel());
 
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());

@@ -177,6 +177,20 @@ namespace COMET.Web.Common.Components
         {
             await base.OnInitializedAsync();
 
+            var savedServerUrl = await this.AuthenticationService.RetrieveLastUsedServerUrlAsync();
+
+            if (!string.IsNullOrEmpty(savedServerUrl) && string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.SourceAddress))
+            {
+                this.ViewModel.AuthenticationDto.SourceAddress = savedServerUrl;
+            }
+
+            var savedUserName = await this.AuthenticationService.RetrieveLastUsedUserNameAsync();
+
+            if (!string.IsNullOrEmpty(savedUserName) && string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.UserName))
+            {
+                this.ViewModel.AuthenticationDto.UserName = savedUserName;
+            }
+
             if (!string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress) && this.ServerConfiguration.AllowMultipleStepsAuthentication)
             {
                 await this.ViewModel.RequestAvailableAuthenticationSchemeAsync();

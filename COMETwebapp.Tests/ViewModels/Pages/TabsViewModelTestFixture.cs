@@ -25,8 +25,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.Services.Cache;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.EngineeringModel;
@@ -36,6 +36,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages
     using COMETwebapp.ViewModels.Pages;
 
     using DynamicData;
+
+    using Blazored.SessionStorage;
 
     using Moq;
 
@@ -47,7 +49,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         private TabsViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private Mock<IServiceProvider> serviceProvider;
-        private Mock<ICacheService> cacheService;
+        private Mock<ISessionStorageService> sessionStorageService;
         private SourceList<Iteration> openIterations;
 
         [SetUp]
@@ -55,7 +57,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         {
             this.serviceProvider = new Mock<IServiceProvider>();
             this.sessionService = new Mock<ISessionService>();
-            this.cacheService = new Mock<ICacheService>();
+            this.sessionStorageService = new Mock<ISessionStorageService>();
             this.openIterations = new SourceList<Iteration>();
             this.openIterations.Add(new Iteration());
 
@@ -64,7 +66,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             this.sessionService.Setup(x => x.OpenEngineeringModels).Returns(engineeringModels);
             this.serviceProvider.Setup(x => x.GetService(It.IsAny<Type>())).Returns(new Mock<IApplicationBaseViewModel>().Object);
 
-            this.viewModel = new TabsViewModel(this.sessionService.Object, this.serviceProvider.Object, this.cacheService.Object);
+            this.viewModel = new TabsViewModel(this.sessionService.Object, this.serviceProvider.Object, this.sessionStorageService.Object);
         }
 
         [Test]
@@ -206,6 +208,68 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             Assert.That(this.viewModel.IsOnSwitchDomainMode, Is.True);
             await this.viewModel.SwitchDomainViewModel.OnCancel.InvokeAsync();
             Assert.That(this.viewModel.IsOnSwitchDomainMode, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyCheckAndRestoreSavedTabsAsync()
+        {
+            this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(ConstantValues.SavedTabsKey, CancellationToken.None))
+                .ReturnsAsync((List<SavedTabDto>)null);
+
+            await this.viewModel.CheckAndRestoreSavedTabsAsync();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.RestoreTabsPopupViewModel, Is.Not.Null);
+                Assert.That(this.viewModel.RestoreTabsPopupViewModel.IsVisible, Is.False);
+            }
+
+            var savedTabs = new List<SavedTabDto>
+            {
+                new() { ApplicationName = "EngineeringModelBody", ObjectOfInterestId = Guid.NewGuid(), IsSidePanel = false }
+            };
+
+            this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(ConstantValues.SavedTabsKey, CancellationToken.None))
+                .ReturnsAsync(savedTabs);
+
+            await this.viewModel.CheckAndRestoreSavedTabsAsync();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.RestoreTabsPopupViewModel.IsVisible, Is.True);
+                Assert.That(this.viewModel.RestoreTabsPopupViewModel.ContentText, Does.Contain("restore your 1 previous tab"));
+            }
+
+            await this.viewModel.RestoreTabsPopupViewModel.OnCancel.InvokeAsync();
+            Assert.That(this.viewModel.RestoreTabsPopupViewModel.IsVisible, Is.False);
+            this.sessionStorageService.Verify(x => x.SetItemAsync(ConstantValues.SavedTabsKey, It.IsAny<List<SavedTabDto>>(), CancellationToken.None), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyRestoreSavedTabsAsync()
+        {
+            var iterationId = Guid.NewGuid();
+            var iteration = new Iteration { Iid = iterationId };
+            this.openIterations.Add(iteration);
+
+            var savedTabs = new List<SavedTabDto>
+            {
+                new() { ApplicationName = "Engineering Model", ObjectOfInterestId = iterationId, IsSidePanel = false }
+            };
+
+            this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(ConstantValues.SavedTabsKey, CancellationToken.None))
+                .ReturnsAsync(savedTabs);
+
+            await this.viewModel.CheckAndRestoreSavedTabsAsync();
+            Assert.That(this.viewModel.RestoreTabsPopupViewModel.IsVisible, Is.True);
+
+            await this.viewModel.RestoreTabsPopupViewModel.OnConfirm.InvokeAsync();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.RestoreTabsPopupViewModel.IsVisible, Is.False);
+                Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(1));
+            }
         }
     }
 }

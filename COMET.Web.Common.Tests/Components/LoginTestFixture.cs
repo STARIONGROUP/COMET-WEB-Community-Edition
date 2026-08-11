@@ -183,6 +183,9 @@ namespace COMET.Web.Common.Tests.Components
             });
 
             this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>())).ReturnsAsync(Result.Fail(["error"]));
+            this.viewModel.AuthenticationDto.SourceAddress = "http://localhost.com";
+            this.viewModel.AuthenticationDto.UserName = "user";
+            this.viewModel.AuthenticationDto.Password = "user1";
 
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
 

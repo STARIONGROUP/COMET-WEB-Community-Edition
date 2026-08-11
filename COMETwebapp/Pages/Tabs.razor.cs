@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="Tabs.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -90,11 +90,22 @@ namespace COMETwebapp.Pages
                     x => x.ViewModel.SelectedApplication,
                     x => x.ViewModel.MainPanel.CurrentTab,
                     x => x.ViewModel.SidePanel.CurrentTab,
-                    x => x.ViewModel.IsOnSwitchDomainMode)
+                    x => x.ViewModel.IsOnSwitchDomainMode,
+                    x => x.ViewModel.RestoreTabsPopupViewModel.IsVisible)
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.ViewModel.MainPanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.SidePanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its initial parameters from its parent in the render tree.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+            await this.ViewModel.CheckAndRestoreSavedTabsAsync();
         }
 
         /// <summary>

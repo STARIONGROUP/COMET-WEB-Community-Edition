@@ -22,11 +22,15 @@
 
 namespace COMETwebapp.ViewModels.Pages
 {
+    using Blazored.SessionStorage;
+
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
-    using COMET.Web.Common.Services.Cache;
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
@@ -55,6 +59,11 @@ namespace COMETwebapp.ViewModels.Pages
         private readonly ISessionService sessionService;
 
         /// <summary>
+        /// Gets the injected <see cref="ISessionStorageService" />
+        /// </summary>
+        private readonly ISessionStorageService sessionStorageService;
+
+        /// <summary>
         /// The currently selected <see cref="Iteration" /> for domain switching
         /// </summary>
         private Iteration selectedDomainSwitchIteration;
@@ -74,11 +83,12 @@ namespace COMETwebapp.ViewModels.Pages
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="serviceProvider">The <see cref="IServiceProvider" /></param>
-        /// <param name="cacheService">The <see cref="ICacheService"/></param>
-        public TabsViewModel(ISessionService sessionService, IServiceProvider serviceProvider, ICacheService cacheService)
+        /// <param name="sessionStorageService">The <see cref="ISessionStorageService"/></param>
+        public TabsViewModel(ISessionService sessionService, IServiceProvider serviceProvider, ISessionStorageService sessionStorageService)
         {
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
+            this.sessionStorageService = sessionStorageService;
 
             var eventCallbackFactory = new EventCallbackFactory();
 
@@ -88,10 +98,19 @@ namespace COMETwebapp.ViewModels.Pages
                 OnCancel = eventCallbackFactory.Create(this, () => this.IsOnSwitchDomainMode = false)
             };
 
+            this.RestoreTabsPopupViewModel = new ConfirmCancelPopupViewModel
+            {
+                HeaderText = "Restore previous tabs",
+                OnConfirm = eventCallbackFactory.Create(this, this.RestoreSavedTabsAsync),
+                OnCancel = eventCallbackFactory.Create(this, this.DiscardSavedTabsAsync)
+            };
+
             this.Disposables.Add(this.WhenAnyValue(x => x.SelectedApplication).Subscribe(_ => this.OnSelectedApplicationChange()));
             this.Disposables.Add(this.WhenAnyValue(x => x.MainPanel.CurrentTab).Subscribe(_ => this.OnCurrentTabChange(this.MainPanel)));
             this.Disposables.Add(this.WhenAnyValue(x => x.SidePanel.CurrentTab).Subscribe(_ => this.OnCurrentTabChange(this.SidePanel)));
             this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(this.CloseTabIfIterationClosed));
+            this.Disposables.Add(this.MainPanel.OpenTabs.Connect().SubscribeAsync(_ => this.SaveOpenTabsToSessionStorageAsync()));
+            this.Disposables.Add(this.SidePanel.OpenTabs.Connect().SubscribeAsync(_ => this.SaveOpenTabsToSessionStorageAsync()));
         }
 
         /// <summary>
@@ -136,6 +155,11 @@ namespace COMETwebapp.ViewModels.Pages
         /// Gets the <see cref="ISwitchDomainViewModel" /> for domain switching
         /// </summary>
         public ISwitchDomainViewModel SwitchDomainViewModel { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> for restoring previous tabs
+        /// </summary>
+        public IConfirmCancelPopupViewModel RestoreTabsPopupViewModel { get; }
 
         /// <summary>
         /// Creates a new tab and sets it to current
@@ -268,6 +292,21 @@ namespace COMETwebapp.ViewModels.Pages
         }
 
         /// <summary>
+        /// Checks if there are saved tabs in session storage and prompts the user to restore them
+        /// </summary>
+        /// <returns>An awaitable <see cref="Task" /></returns>
+        public async Task CheckAndRestoreSavedTabsAsync()
+        {
+            var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(ConstantValues.SavedTabsKey);
+
+            if (savedTabs is { Count: > 0 })
+            {
+                this.RestoreTabsPopupViewModel.ContentText = $"Would you like to restore your {savedTabs.Count} previous tab{(savedTabs.Count > 1 ? "s" : "")}?";
+                this.RestoreTabsPopupViewModel.IsVisible = true;
+            }
+        }
+
+        /// <summary>
         /// Switches the <see cref="DomainOfExpertise" /> for the selected iteration
         /// </summary>
         /// <param name="domainOfExpertise">The selected <see cref="DomainOfExpertise" /></param>
@@ -290,6 +329,81 @@ namespace COMETwebapp.ViewModels.Pages
                 EngineeringModel engineeringModel => engineeringModel.Iteration.FirstOrDefault(x => x.IterationSetup.FrozenOn == null),
                 _ => null
             };
+        }
+
+        /// <summary>
+        /// Saves all open tabs from MainPanel and SidePanel to session storage
+        /// </summary>
+        /// <returns>An awaitable <see cref="Task" /></returns>
+        private async Task SaveOpenTabsToSessionStorageAsync()
+        {
+            var savedTabs = new List<SavedTabDto>();
+
+            IEnumerable<TabbedApplicationInformation> allTabs =
+            [
+                ..this.MainPanel.OpenTabs.Items,
+                ..this.SidePanel.OpenTabs.Items
+            ];
+
+            foreach (var tab in allTabs)
+            {
+                var app = Applications.ExistingApplications.OfType<TabbedApplication>().FirstOrDefault(x => x.ComponentType == tab.ComponentType);
+
+                if (app == null)
+                {
+                    continue;
+                }
+
+                var isSidePanel = this.SidePanel.OpenTabs.Items.Contains(tab);
+                var thingId = (tab.ObjectOfInterest as Thing)?.Iid ?? Guid.Empty;
+
+                savedTabs.Add(new SavedTabDto
+                {
+                    ApplicationName = app.Name,
+                    ObjectOfInterestId = thingId,
+                    IsSidePanel = isSidePanel
+                });
+            }
+
+            await this.sessionStorageService.SetItemAsync(ConstantValues.SavedTabsKey, savedTabs);
+        }
+
+        /// <summary>
+        /// Restores open tabs saved in session storage
+        /// </summary>
+        /// <returns>An awaitable <see cref="Task" /></returns>
+        private async Task RestoreSavedTabsAsync()
+        {
+            this.RestoreTabsPopupViewModel.IsVisible = false;
+            var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(ConstantValues.SavedTabsKey);
+
+            if (savedTabs is not { Count: > 0 })
+            {
+                return;
+            }
+            
+            foreach (var savedTab in savedTabs)
+            {
+                var app = this.AvailableApplications.FirstOrDefault(x => x.Name == savedTab.ApplicationName);
+
+                if (app == null)
+                {
+                    continue;
+                }
+
+                var targetPanel = savedTab.IsSidePanel ? this.SidePanel : this.MainPanel;
+                this.CreateNewTab(app, savedTab.ObjectOfInterestId, targetPanel);
+            }
+        }
+
+        /// <summary>
+        /// Discards saved tabs in session storage
+        /// </summary>
+        /// <returns>An awaitable <see cref="Task" /></returns>
+        private async Task DiscardSavedTabsAsync()
+        {
+            this.RestoreTabsPopupViewModel.IsVisible = false;
+            await this.sessionStorageService.SetItemAsync(ConstantValues.SavedTabsKey, new List<SavedTabDto>());
         }
     }
 }

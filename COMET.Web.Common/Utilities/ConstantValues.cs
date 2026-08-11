@@ -42,5 +42,10 @@ namespace COMET.Web.Common.Utilities
         /// Position parameter short name
         /// </summary>
         public const string PositionShortName = "coord";
+
+        /// <summary>
+        /// Key name used for storing open tabs in session storage
+        /// </summary>
+        public const string SavedTabsKey = "cdp4-comet-saved-tabs";
     }
 }
