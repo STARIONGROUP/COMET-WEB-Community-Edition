@@ -143,5 +143,10 @@ namespace COMETwebapp.Utilities
         /// Name of the cascading parameter for checking if split view is active.
         /// </summary>
         public const string IsSplitViewCascadingValueName = "IsSplitView";
+
+        /// <summary>
+        /// Key name used for storing open tabs in session storage
+        /// </summary>
+        public const string SavedTabsKey = "cdp4-comet-saved-tabs";
     }
 }

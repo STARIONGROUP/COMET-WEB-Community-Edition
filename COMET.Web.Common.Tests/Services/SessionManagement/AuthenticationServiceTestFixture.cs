@@ -91,12 +91,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         public async Task VerifyLogout()
         {
             await this.authenticationService.Logout();
-
-            Assert.Multiple(() =>
-            {
-                this.sessionService.Verify(x => x.CloseSession(), Times.Once);
-                this.sessionStorageService.Verify(x => x.SetItemAsync(ConstantValues.SavedTabsKey, string.Empty, default), Times.Once);
-            });
+            this.sessionService.Verify(x => x.CloseSession(), Times.Once);
         }
 
         [Test]

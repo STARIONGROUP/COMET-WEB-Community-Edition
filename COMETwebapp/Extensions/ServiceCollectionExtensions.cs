@@ -27,6 +27,7 @@ namespace COMETwebapp.Extensions
     using COMETwebapp.Services.Export;
     using COMETwebapp.Services.FileStore;
     using COMETwebapp.Services.Interoperability;
+    using COMETwebapp.Services.SessionManagement;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
@@ -88,6 +89,7 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddScoped<IJsUtilitiesService, JsUtilitiesService>();
             serviceCollection.AddScoped<IExportService, ExportService>();
             serviceCollection.AddScoped<IFileStoreService, FileStoreService>();
+            serviceCollection.AddScoped<IWebAppSessionManagementService, WebAppSessionManagementService>();
             serviceCollection.AddHttpClient();
         }
 

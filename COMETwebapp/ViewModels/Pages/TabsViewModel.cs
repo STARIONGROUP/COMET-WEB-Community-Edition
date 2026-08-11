@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -30,12 +30,12 @@ namespace COMETwebapp.ViewModels.Pages
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.Utilities.DisposableObject;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Model;
+    using COMETwebapp.Utilities;
 
     using DynamicData;
 
@@ -297,7 +297,7 @@ namespace COMETwebapp.ViewModels.Pages
         /// <returns>An awaitable <see cref="Task" /></returns>
         public async Task CheckAndRestoreSavedTabsAsync()
         {
-            var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(ConstantValues.SavedTabsKey);
+            var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey);
 
             if (savedTabs is { Count: > 0 })
             {
@@ -378,7 +378,7 @@ namespace COMETwebapp.ViewModels.Pages
                 });
             }
 
-            await this.sessionStorageService.SetItemAsync(ConstantValues.SavedTabsKey, savedTabs);
+            await this.sessionStorageService.SetItemAsync(WebAppConstantValues.SavedTabsKey, savedTabs);
         }
 
         /// <summary>
@@ -387,8 +387,8 @@ namespace COMETwebapp.ViewModels.Pages
         /// <returns>An awaitable <see cref="Task" /></returns>
         private async Task RestoreSavedTabsAsync()
         {
-            var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(ConstantValues.SavedTabsKey);
-            await this.sessionStorageService.RemoveItemAsync(ConstantValues.SavedTabsKey);
+            var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey);
+            await this.sessionStorageService.RemoveItemAsync(WebAppConstantValues.SavedTabsKey);
 
             if (savedTabs is { Count: > 0 })
             {
@@ -464,7 +464,7 @@ namespace COMETwebapp.ViewModels.Pages
         private async Task DiscardSavedTabsAsync()
         {
             this.RestoreTabsPopupViewModel.IsVisible = false;
-            await this.sessionStorageService.RemoveItemAsync(ConstantValues.SavedTabsKey);
+            await this.sessionStorageService.RemoveItemAsync(WebAppConstantValues.SavedTabsKey);
         }
     }
 }
