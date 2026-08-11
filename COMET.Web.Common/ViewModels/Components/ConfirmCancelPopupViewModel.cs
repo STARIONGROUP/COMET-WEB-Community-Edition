@@ -99,5 +99,10 @@ namespace COMET.Web.Common.ViewModels.Components
         /// The content of the body of the popup
         /// </summary>
         public string ContentText { get; set; }
+
+        /// <summary>
+        /// Value indicating whether the close button is displayed in the popup header
+        /// </summary>
+        public bool ShowCloseButton { get; set; } = true;
     }
 }

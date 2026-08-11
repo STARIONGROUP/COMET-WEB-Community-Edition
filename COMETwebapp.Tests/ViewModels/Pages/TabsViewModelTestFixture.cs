@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -213,7 +213,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         [Test]
         public async Task VerifyCheckAndRestoreSavedTabsAsync()
         {
-            this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(ConstantValues.SavedTabsKey, CancellationToken.None))
+            this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey, CancellationToken.None))
                 .ReturnsAsync((List<SavedTabDto>)null);
 
             await this.viewModel.CheckAndRestoreSavedTabsAsync();
@@ -222,6 +222,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             {
                 Assert.That(this.viewModel.RestoreTabsPopupViewModel, Is.Not.Null);
                 Assert.That(this.viewModel.RestoreTabsPopupViewModel.IsVisible, Is.False);
+                Assert.That(this.viewModel.RestoreTabsPopupViewModel.ShowCloseButton, Is.False);
             }
 
             var savedTabs = new List<SavedTabDto>
@@ -229,7 +230,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
                 new() { ApplicationName = "EngineeringModelBody", ObjectOfInterestId = Guid.NewGuid(), IsSidePanel = false }
             };
 
-            this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(ConstantValues.SavedTabsKey, CancellationToken.None))
+            this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey, CancellationToken.None))
                 .ReturnsAsync(savedTabs);
 
             await this.viewModel.CheckAndRestoreSavedTabsAsync();
@@ -242,7 +243,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
 
             await this.viewModel.RestoreTabsPopupViewModel.OnCancel.InvokeAsync();
             Assert.That(this.viewModel.RestoreTabsPopupViewModel.IsVisible, Is.False);
-            this.sessionStorageService.Verify(x => x.SetItemAsync(ConstantValues.SavedTabsKey, It.IsAny<List<SavedTabDto>>(), CancellationToken.None), Times.Once);
+            this.sessionStorageService.Verify(x => x.SetItemAsync(WebAppConstantValues.SavedTabsKey, It.IsAny<List<SavedTabDto>>(), CancellationToken.None), Times.Once);
         }
 
         [Test]
@@ -257,7 +258,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
                 new() { ApplicationName = "Engineering Model", ObjectOfInterestId = iterationId, IsSidePanel = false }
             };
 
-            this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(ConstantValues.SavedTabsKey, CancellationToken.None))
+            this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey, CancellationToken.None))
                 .ReturnsAsync(savedTabs);
 
             await this.viewModel.CheckAndRestoreSavedTabsAsync();

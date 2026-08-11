@@ -54,6 +54,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
                 Assert.That(this.viewModel.ConfirmRenderStyle, Is.EqualTo(CometButtonStyle.Primary));
                 Assert.That(this.viewModel.HeaderText, Is.EqualTo("Please confirm"));
                 Assert.That(this.viewModel.IsVisible, Is.False);
+                Assert.That(this.viewModel.ShowCloseButton, Is.True);
             }
 
             this.viewModel.CancelStyle = CometButtonStyle.Danger;
