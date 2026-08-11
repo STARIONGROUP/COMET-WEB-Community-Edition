@@ -24,6 +24,7 @@ namespace COMETwebapp.Extensions
 {
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Utilities;
@@ -67,6 +68,24 @@ namespace COMETwebapp.Extensions
             return languagesByCode.Values
                 .OrderBy(x => string.IsNullOrWhiteSpace(x.NativeName) ? x.Name : x.NativeName, StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
+        }
+
+        /// <summary>
+        /// Determines whether the page introduction box should be visible based on user preferences.
+        /// </summary>
+        /// <param name="sessionService">The <see cref="ISessionService" />.</param>
+        /// <param name="application">The <see cref="Application" /> to check the introduction preference for.</param>
+        /// <returns>True if the introduction box should be visible; false otherwise.</returns>
+        public static bool ShouldShowPageIntroduction(this ISessionService sessionService, Application application)
+        {
+            if (application == null)
+            {
+                return true;
+            }
+
+            var preferenceKey = application.GetPageIntroUserPreferenceKey();
+            var preference = sessionService.Session.ActivePerson.UserPreference.FirstOrDefault(x => x.ShortName == preferenceKey);
+            return preference is not { Value: "true" };
         }
     }
 }

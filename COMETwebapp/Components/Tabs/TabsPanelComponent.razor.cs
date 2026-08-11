@@ -35,6 +35,7 @@ namespace COMETwebapp.Components.Tabs
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
 
@@ -152,17 +153,9 @@ namespace COMETwebapp.Components.Tabs
         /// <returns>A <see cref="Task" /></returns>
         private async Task UpdateShowReopenIntroButtonAsync()
         {
-            if (this.CurrentApplication != null)
-            {
-                var prefKey = this.CurrentApplication.GetPageIntroUserPreferenceKey();
-                var pref = this.SessionService.Session.ActivePerson.UserPreference.FirstOrDefault(x => x.ShortName == prefKey);
-                this.IsPageIntroductionVisible = pref is not { Value: "true" };
-            }
-            else
-            {
-                this.IsPageIntroductionVisible = false;
-            }
-            
+            this.IsPageIntroductionVisible = this.CurrentApplication != null && 
+                                             this.SessionService.ShouldShowPageIntroduction(this.CurrentApplication);
+
             await this.InvokeAsync(this.StateHasChanged);
         }
 

@@ -28,8 +28,10 @@ namespace COMETwebapp.Pages
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
+    using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
 
@@ -85,7 +87,7 @@ namespace COMETwebapp.Pages
         /// <summary>
         /// Gets the <see cref="Application"/> instance corresponding to the Tabs application
         /// </summary>
-        public Application TabsApplication => Applications.ExistingApplications.FirstOrDefault(x => x.Name == "Tabs");
+        public Application TabsApplication => Applications.ExistingApplications.FirstOrDefault(x => x.Url == WebAppConstantValues.TabsPage);
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -110,9 +112,7 @@ namespace COMETwebapp.Pages
                 return;
             }
 
-            var preferenceKey = this.TabsApplication.GetPageIntroUserPreferenceKey();
-            var preference = this.SessionService.Session.ActivePerson.UserPreference.FirstOrDefault(x => x.ShortName == preferenceKey);
-            this.IsPageIntroductionVisible = preference is not { Value: "true" };
+            this.IsPageIntroductionVisible = this.SessionService.ShouldShowPageIntroduction(this.TabsApplication);
         }
 
         /// <summary>
