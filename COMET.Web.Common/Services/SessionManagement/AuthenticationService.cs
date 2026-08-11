@@ -369,7 +369,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             await this.sessionStorageService.SetItemAsync(ServerUrlKey, string.Empty);
             await this.sessionStorageService.SetItemAsync(RefreshTokenKey, string.Empty);
             await this.sessionStorageService.SetItemAsync(UserNameKey, string.Empty);
-            await this.sessionStorageService.SetItemAsync(ConstantValues.SavedTabsKey, string.Empty);
+            await this.sessionStorageService.RemoveItemAsync(ConstantValues.SavedTabsKey);
         }
     }
 }

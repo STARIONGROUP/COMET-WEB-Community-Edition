@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="Login.razor.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -177,20 +177,6 @@ namespace COMET.Web.Common.Components
         {
             await base.OnInitializedAsync();
 
-            var savedServerUrl = await this.AuthenticationService.RetrieveLastUsedServerUrlAsync();
-
-            if (!string.IsNullOrEmpty(savedServerUrl) && string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.SourceAddress))
-            {
-                this.ViewModel.AuthenticationDto.SourceAddress = savedServerUrl;
-            }
-
-            var savedUserName = await this.AuthenticationService.RetrieveLastUsedUserNameAsync();
-
-            if (!string.IsNullOrEmpty(savedUserName) && string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.UserName))
-            {
-                this.ViewModel.AuthenticationDto.UserName = savedUserName;
-            }
-
             if (!string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress) && this.ServerConfiguration.AllowMultipleStepsAuthentication)
             {
                 await this.ViewModel.RequestAvailableAuthenticationSchemeAsync();
@@ -234,6 +220,24 @@ namespace COMET.Web.Common.Components
 
             if (firstRender)
             {
+                var savedServerUrl = await this.AuthenticationService.RetrieveLastUsedServerUrlAsync();
+
+                if (!string.IsNullOrEmpty(savedServerUrl) && string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.SourceAddress))
+                {
+                    this.ViewModel.AuthenticationDto.SourceAddress = savedServerUrl;
+                }
+                else if (string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.SourceAddress) && !string.IsNullOrEmpty(this.ServerConfiguration?.ServerAddress))
+                {
+                    this.ViewModel.AuthenticationDto.SourceAddress = this.ServerConfiguration.ServerAddress;
+                }
+
+                var savedUserName = await this.AuthenticationService.RetrieveLastUsedUserNameAsync();
+
+                if (!string.IsNullOrEmpty(savedUserName) && string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.UserName))
+                {
+                    this.ViewModel.AuthenticationDto.UserName = savedUserName;
+                }
+
                 await this.AuthenticationService.TryRestoreLastSessionAsync();
                 this.checkingRestoreSession = false;
                 await this.InvokeAsync(this.StateHasChanged);

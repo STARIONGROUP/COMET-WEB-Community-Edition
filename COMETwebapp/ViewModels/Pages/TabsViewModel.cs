@@ -354,13 +354,26 @@ namespace COMETwebapp.ViewModels.Pages
                     continue;
                 }
 
+                var objectOfInterestId = (tab.ObjectOfInterest as Thing)?.Iid ?? Guid.Empty;
                 var isSidePanel = this.SidePanel.OpenTabs.Items.Contains(tab);
-                var thingId = (tab.ObjectOfInterest as Thing)?.Iid ?? Guid.Empty;
+
+                var iterationSetupIid = tab.ObjectOfInterest switch
+                {
+                    Iteration iteration => iteration.IterationSetup.Iid,
+                    EngineeringModel engineeringModel => engineeringModel.EngineeringModelSetup.IterationSetup.Find(x => x.FrozenOn == null)?.Iid ?? Guid.Empty,
+                    EngineeringModelSetup engineeringModelSetup => engineeringModelSetup.IterationSetup.Find(x => x.FrozenOn == null)?.Iid ?? Guid.Empty,
+                    _ => Guid.Empty
+                };
+
+                var iterationOfIterationSetup = this.sessionService.OpenIterations.Items.FirstOrDefault(x => x.IterationSetup.Iid == iterationSetupIid);
+                var domainId = iterationOfIterationSetup != null ? this.sessionService.GetDomainOfExpertise(iterationOfIterationSetup)?.Iid ?? Guid.Empty : Guid.Empty;
 
                 savedTabs.Add(new SavedTabDto
                 {
+                    ObjectOfInterestId = objectOfInterestId,
                     ApplicationName = app.Name,
-                    ObjectOfInterestId = thingId,
+                    IterationSetupId = iterationSetupIid,
+                    DomainId = domainId,
                     IsSidePanel = isSidePanel
                 });
             }
@@ -374,26 +387,74 @@ namespace COMETwebapp.ViewModels.Pages
         /// <returns>An awaitable <see cref="Task" /></returns>
         private async Task RestoreSavedTabsAsync()
         {
-            this.RestoreTabsPopupViewModel.IsVisible = false;
             var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(ConstantValues.SavedTabsKey);
+            await this.sessionStorageService.RemoveItemAsync(ConstantValues.SavedTabsKey);
 
-            if (savedTabs is not { Count: > 0 })
+            if (savedTabs is { Count: > 0 })
+            {
+                foreach (var savedTab in savedTabs)
+                {
+                    var app = this.AvailableApplications.FirstOrDefault(x => x.Name == savedTab.ApplicationName);
+
+                    if (app == null)
+                    {
+                        continue;
+                    }
+
+                    var targetPanel = savedTab.IsSidePanel ? this.SidePanel : this.MainPanel;
+
+                    await this.OpenThingOfInterest(savedTab.IterationSetupId, savedTab.DomainId);
+                    this.CreateNewTab(app, savedTab.ObjectOfInterestId, targetPanel);
+                }
+            }
+       
+            this.RestoreTabsPopupViewModel.IsVisible = false;
+        }
+
+        /// <summary>
+        /// Opens the thing of interest (Iteration or EngineeringModel) based on its ID
+        /// </summary>
+        /// <param name="iterationSetupIid">The ID of the iteration setup to open</param>
+        /// <param name="domainId">The ID of the domain to select</param>
+        /// <returns>An awaitable <see cref="Task" /></returns>
+        private async Task OpenThingOfInterest(Guid iterationSetupIid, Guid domainId)
+        {
+            if (iterationSetupIid == Guid.Empty)
             {
                 return;
             }
-            
-            foreach (var savedTab in savedTabs)
+
+            var isIterationAlreadyOpen = this.sessionService.OpenIterations.Items.Any(x => x.IterationSetup.Iid == iterationSetupIid);
+
+            if (isIterationAlreadyOpen)
             {
-                var app = this.AvailableApplications.FirstOrDefault(x => x.Name == savedTab.ApplicationName);
-
-                if (app == null)
-                {
-                    continue;
-                }
-
-                var targetPanel = savedTab.IsSidePanel ? this.SidePanel : this.MainPanel;
-                this.CreateNewTab(app, savedTab.ObjectOfInterestId, targetPanel);
+                return;
             }
+
+            var iterationSetup = this.sessionService
+                .GetSiteDirectory()
+                .Model
+                .SelectMany(x => x.IterationSetup)
+                .FirstOrDefault(x => x.Iid == iterationSetupIid);
+
+            if (iterationSetup == null)
+            {
+                return;
+            }
+
+            var modelSetup = (EngineeringModelSetup)iterationSetup.Container;
+            var allDomains = this.sessionService.GetAvailableDomains(modelSetup).ToList();
+
+            var domainToUse = allDomains.Find(x => x.Iid == domainId) 
+                               ?? modelSetup.ActiveDomain.Find(x => x == this.sessionService.Session.ActivePerson.DefaultDomain)
+                               ?? modelSetup.ActiveDomain.FirstOrDefault();
+
+            if (domainToUse == null)
+            {
+                return;
+            }
+
+            await this.sessionService.ReadIteration(iterationSetup, domainToUse);
         }
 
         /// <summary>
@@ -403,7 +464,7 @@ namespace COMETwebapp.ViewModels.Pages
         private async Task DiscardSavedTabsAsync()
         {
             this.RestoreTabsPopupViewModel.IsVisible = false;
-            await this.sessionStorageService.SetItemAsync(ConstantValues.SavedTabsKey, new List<SavedTabDto>());
+            await this.sessionStorageService.RemoveItemAsync(ConstantValues.SavedTabsKey);
         }
     }
 }

@@ -33,9 +33,19 @@ namespace COMETwebapp.Model
         public string ApplicationName { get; set; }
 
         /// <summary>
-        /// Gets or sets the id of the object of interest
+        /// Gets or sets the unique identifier of the object of interest
         /// </summary>
         public Guid ObjectOfInterestId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the unique identifier of the iteration setup
+        /// </summary>
+        public Guid IterationSetupId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the unique identifier of the domain of expertise
+        /// </summary>
+        public Guid DomainId { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the tab belongs to the side panel
