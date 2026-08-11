@@ -31,12 +31,12 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
 
+    using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;
     
     using Moq;
 
     using NUnit.Framework;
-
 
     [TestFixture]
     public class CanvasTestFixture
@@ -96,6 +96,13 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             Assert.That(this.canvas.IsMouseDown, Is.EqualTo(this.canvas.IsMovingScene));
             this.canvas.OnMouseUp(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
             Assert.That(this.canvas.IsMouseDown, Is.False);
+        }
+
+        [Test]
+        public async Task VerifyInitCanvas()
+        {
+            await this.viewModel.InitCanvas(true);
+            this.babylonInterop.Verify(x => x.InitCanvas(It.IsAny<ElementReference>(), true), Times.Once);
         }
 
         [Test]
