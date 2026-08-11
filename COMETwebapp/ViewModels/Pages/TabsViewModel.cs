@@ -101,6 +101,7 @@ namespace COMETwebapp.ViewModels.Pages
             this.RestoreTabsPopupViewModel = new ConfirmCancelPopupViewModel
             {
                 HeaderText = "Restore previous tabs",
+                ShowCloseButton = false,
                 OnConfirm = eventCallbackFactory.Create(this, this.RestoreSavedTabsAsync),
                 OnCancel = eventCallbackFactory.Create(this, this.DiscardSavedTabsAsync)
             };

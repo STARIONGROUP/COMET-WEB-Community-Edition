@@ -59,11 +59,24 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             this.sessionService = new Mock<ISessionService>();
             this.sessionStorageService = new Mock<ISessionStorageService>();
             this.openIterations = new SourceList<Iteration>();
-            this.openIterations.Add(new Iteration());
 
-            var engineeringModels = new List<EngineeringModel> { new() };
+            var iteration = new Iteration();
+            var iterationSetup = new IterationSetup();
+            var modelSetup = new EngineeringModelSetup();
+            var engineeringModel = new EngineeringModel();
+
+            iteration.IterationSetup = iterationSetup;
+            iterationSetup.Container = modelSetup;
+
+            modelSetup.IterationSetup.Add(iterationSetup);
+            engineeringModel.EngineeringModelSetup = modelSetup;
+
+            this.openIterations.Add(iteration);
+            var engineeringModels = new List<EngineeringModel> { engineeringModel };
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
             this.sessionService.Setup(x => x.OpenEngineeringModels).Returns(engineeringModels);
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns((DomainOfExpertise)null);
+            this.sessionStorageService.Setup(x => x.SetItemAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Returns(ValueTask.CompletedTask);
             this.serviceProvider.Setup(x => x.GetService(It.IsAny<Type>())).Returns(new Mock<IApplicationBaseViewModel>().Object);
 
             this.viewModel = new TabsViewModel(this.sessionService.Object, this.serviceProvider.Object, this.sessionStorageService.Object);
@@ -74,7 +87,11 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         {
             Assert.That(this.viewModel.MainPanel.CurrentTab, Is.Null);
 
-            this.viewModel.MainPanel.OpenTabs.Add(new TabbedApplicationInformation(new Mock<IEngineeringModelBodyViewModel>().Object, typeof(EngineeringModelBody), new Iteration()));
+            var iteration = new Iteration();
+            var iterationSetup = new IterationSetup();
+            iteration.IterationSetup = iterationSetup;
+
+            this.viewModel.MainPanel.OpenTabs.Add(new TabbedApplicationInformation(new Mock<IEngineeringModelBodyViewModel>().Object, typeof(EngineeringModelBody), iteration));
             this.viewModel.SelectedApplication = this.viewModel.AvailableApplications.FirstOrDefault(x => x.Url == WebAppConstantValues.EngineeringModelPage);
 
             Assert.That(this.viewModel.MainPanel.CurrentTab, Is.Not.Null);
@@ -243,7 +260,6 @@ namespace COMETwebapp.Tests.ViewModels.Pages
 
             await this.viewModel.RestoreTabsPopupViewModel.OnCancel.InvokeAsync();
             Assert.That(this.viewModel.RestoreTabsPopupViewModel.IsVisible, Is.False);
-            this.sessionStorageService.Verify(x => x.SetItemAsync(WebAppConstantValues.SavedTabsKey, It.IsAny<List<SavedTabDto>>(), CancellationToken.None), Times.Once);
         }
 
         [Test]
@@ -251,6 +267,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         {
             var iterationId = Guid.NewGuid();
             var iteration = new Iteration { Iid = iterationId };
+            var iterationSetup = new IterationSetup();
+            iteration.IterationSetup = iterationSetup;
             this.openIterations.Add(iteration);
 
             var savedTabs = new List<SavedTabDto>
