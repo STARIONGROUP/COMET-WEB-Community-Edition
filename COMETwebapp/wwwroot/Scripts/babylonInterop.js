@@ -1,8 +1,6 @@
-/ --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="babylonInterop.js" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
-//
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
 //
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
@@ -194,7 +192,7 @@ function AddWorldAxes(state) {
 /**
  * Adds to scene an scene object containing the primitive
  * @param {string} viewerId - the viewer identifier.
- * @param {any} sceneObject
+ * @param {any} sceneObject - the scene object to add in JSON string format
  */
 async function AddSceneObject(viewerId, sceneObject) {
     let state = GetViewerState(viewerId);
@@ -364,15 +362,15 @@ function SetMeshVisibility(viewerId, ID, isVisible) {
 /**
  * Regenerates the mesh asociated to the scene object
  * @param {string} viewerId - the viewer identifier.
- * @param {object} JsonSceneObject - the scene object to regenerate in JSON string format
+ * @param {object} jsonSceneObject - the scene object to regenerate in JSON string format
  */
-async function RegenMesh(viewerId, JsonSceneObject) {
+async function RegenMesh(viewerId, jsonSceneObject) {
     let state = GetViewerState(viewerId);
-    let sceneFullObject = JSON.parse(JsonSceneObject);
+    let sceneFullObject = JSON.parse(jsonSceneObject);
 
     if (sceneFullObject != null)
     {
         Dispose(state, sceneFullObject.ID);
-        await AddSceneObject(viewerId, JsonSceneObject);
+        await AddSceneObject(viewerId, jsonSceneObject);
     }
 }

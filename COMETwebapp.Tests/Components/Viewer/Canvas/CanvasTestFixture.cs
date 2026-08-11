@@ -97,5 +97,12 @@ namespace COMETwebapp.Tests.Components.Viewer.Canvas
             this.canvas.OnMouseUp(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
             Assert.That(this.canvas.IsMouseDown, Is.False);
         }
+
+        [Test]
+        public async Task VerifyDisposeAsync()
+        {
+            await this.canvas.DisposeAsync();
+            this.babylonInterop.Verify(x => x.DisposeViewer(), Times.Once);
+        }
     }
 }

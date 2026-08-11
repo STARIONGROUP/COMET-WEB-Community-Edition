@@ -25,6 +25,7 @@ namespace COMETwebapp.Services.Interoperability
     using COMETwebapp.Model;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
     using Microsoft.JSInterop;
 
     using Newtonsoft.Json;
@@ -75,6 +76,11 @@ namespace COMETwebapp.Services.Interoperability
         public const string DisposeViewerFunction = "DisposeViewer";
 
         /// <summary>
+        /// The <see cref="ILogger{BabylonInterop}" />
+        /// </summary>
+        private readonly ILogger<BabylonInterop> logger;
+
+        /// <summary>
         /// Unique identifier for this BabylonInterop instance and associated JS viewer state
         /// </summary>
         private readonly string viewerId = Guid.NewGuid().ToString("N");
@@ -83,8 +89,10 @@ namespace COMETwebapp.Services.Interoperability
         /// Creates a new instance of type <see cref="BabylonInterop" />
         /// </summary>
         /// <param name="jsRuntime">the <see cref="IJSRuntime" /></param>
-        public BabylonInterop(IJSRuntime jsRuntime) : base(jsRuntime)
+        /// <param name="logger">the <see cref="ILogger{BabylonInterop}" /></param>
+        public BabylonInterop(IJSRuntime jsRuntime, ILogger<BabylonInterop> logger) : base(jsRuntime)
         {
+            this.logger = logger;
         }
 
         /// <summary>
@@ -164,7 +172,7 @@ namespace COMETwebapp.Services.Interoperability
         /// <summary>
         /// Tries to get the <see cref="SceneObject.ID" /> that's under the mouse cursor.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The <see cref="Guid" /> of the primitive under the mouse cursor, or <see cref="Guid.Empty" /> if none is found.</returns>
         public async Task<Guid> GetPrimitiveIdUnderMouseAsync()
         {
             var id = await this.JsRuntime.InvokeAsync<string>(GetPrimitiveIdUnderMouseFunction, this.viewerId);
@@ -183,7 +191,14 @@ namespace COMETwebapp.Services.Interoperability
         /// <returns>an asynchronous task</returns>
         public async Task DisposeViewer()
         {
-            await this.JsRuntime.InvokeVoidAsync(DisposeViewerFunction, this.viewerId);
+            try
+            {
+                await this.JsRuntime.InvokeVoidAsync(DisposeViewerFunction, this.viewerId);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogWarning(ex, "An error occurred while disposing viewer {ViewerId}.", this.viewerId);
+            }
         }
 
         /// <summary>
