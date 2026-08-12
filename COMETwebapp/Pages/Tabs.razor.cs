@@ -107,11 +107,6 @@ namespace COMETwebapp.Pages
             this.Disposables.Add(this.ViewModel.MainPanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.SidePanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
-            if (this.TabsApplication == null)
-            {
-                return;
-            }
-
             this.IsPageIntroductionVisible = this.SessionService.ShouldShowPageIntroduction(this.TabsApplication);
         }
 
@@ -194,7 +189,6 @@ namespace COMETwebapp.Pages
 
         /// <summary>
         /// Re-opens the Tabs application introduction box without modifying the persisted preference.
-        /// The box will appear again on the current session; the dismissed preference remains unchanged on the server.
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
         private async Task ReopenTabsIntroAsync()

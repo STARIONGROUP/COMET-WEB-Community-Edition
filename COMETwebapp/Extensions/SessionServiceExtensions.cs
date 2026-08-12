@@ -80,7 +80,7 @@ namespace COMETwebapp.Extensions
         {
             if (application == null)
             {
-                return true;
+                return false;
             }
 
             var preferenceKey = application.GetPageIntroUserPreferenceKey();

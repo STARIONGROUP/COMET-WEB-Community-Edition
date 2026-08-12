@@ -153,9 +153,7 @@ namespace COMETwebapp.Components.Tabs
         /// <returns>A <see cref="Task" /></returns>
         private async Task UpdateShowReopenIntroButtonAsync()
         {
-            this.IsPageIntroductionVisible = this.CurrentApplication != null && 
-                                             this.SessionService.ShouldShowPageIntroduction(this.CurrentApplication);
-
+            this.IsPageIntroductionVisible = this.SessionService.ShouldShowPageIntroduction(this.CurrentApplication);
             await this.InvokeAsync(this.StateHasChanged);
         }
 
@@ -267,7 +265,6 @@ namespace COMETwebapp.Components.Tabs
 
         /// <summary>
         /// Re-opens the introduction box for the current application without modifying the persisted preference.
-        /// The box will appear again on the current session; the dismissed preference remains unchanged on the server.
         /// </summary>
         /// <returns>A <see cref="Task"/></returns>
         private async Task ReopenIntroAsync()

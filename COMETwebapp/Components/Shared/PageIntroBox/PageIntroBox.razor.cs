@@ -22,12 +22,13 @@
 
 namespace COMETwebapp.Components.Shared.PageIntroBox
 {
-    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
+
+    using COMETwebapp.Extensions;
 
     using Microsoft.AspNetCore.Components;
 
@@ -100,11 +101,8 @@ namespace COMETwebapp.Components.Shared.PageIntroBox
             {
                 this.lastLoadedApplicationUrl = this.Application.Url;
 
-                var preferenceKey = this.Application.GetPageIntroUserPreferenceKey();
-                var preference = this.SessionService.Session.ActivePerson.UserPreference.FirstOrDefault(x => x.ShortName == preferenceKey);
-                var isVisible = preference is not { Value: "true" };
-                this.IsPageIntroductionVisible = isVisible;
-                await this.IsPageIntroductionVisibleChanged.InvokeAsync(isVisible);
+                this.IsPageIntroductionVisible = this.SessionService.ShouldShowPageIntroduction(this.Application);
+                await this.IsPageIntroductionVisibleChanged.InvokeAsync(this.IsPageIntroductionVisible);
             }
 
             this.summary = this.StringTableService.GetText($"{this.Application.Url}.PageIntro.Summary") ?? this.Application.PageIntroSummary;
@@ -121,13 +119,14 @@ namespace COMETwebapp.Components.Shared.PageIntroBox
         /// <returns>A <see cref="Task" /></returns>
         private async Task DismissAsync()
         {
-            if (this.Application == null)
+            this.IsPageIntroductionVisible = false;
+            await this.IsPageIntroductionVisibleChanged.InvokeAsync(false);
+
+            // If the info button was clicked, but the dismissal user preference is already set to true, we don't need to update the preference again.
+            if (!this.SessionService.ShouldShowPageIntroduction(this.Application))
             {
                 return;
             }
-
-            this.IsPageIntroductionVisible = false;
-            await this.IsPageIntroductionVisibleChanged.InvokeAsync(false);
 
             var preferenceKey = this.Application.GetPageIntroUserPreferenceKey();
             var siteDirectory = this.SessionService.Session.RetrieveSiteDirectory().Clone(false);
@@ -153,7 +152,7 @@ namespace COMETwebapp.Components.Shared.PageIntroBox
                 clonedPerson.UserPreference.Add(userPreference);
             }
 
-            await this.SessionService.CreateOrUpdateThingsWithNotification(siteDirectory, [clonedPerson, userPreference]);
+            await this.SessionService.CreateOrUpdateThings(siteDirectory, [clonedPerson, userPreference]);
             await this.InvokeAsync(this.StateHasChanged);
         }
     }
