@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="Tabs.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -80,11 +80,6 @@ namespace COMETwebapp.Pages
         public bool IsOpenTabVisible { get; private set; }
 
         /// <summary>
-        /// Gets the subject emitted whenever the split view state changes (true if split view active, false otherwise)
-        /// </summary>
-        public Subject<bool> OnSplitViewValueChanged { get; } = new();
-
-        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// </summary>
@@ -98,11 +93,6 @@ namespace COMETwebapp.Pages
                     x => x.ViewModel.SidePanel.CurrentTab,
                     x => x.ViewModel.IsOnSwitchDomainMode)
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SidePanel.CurrentTab)
-                .Select(tab => tab != null)
-                .DistinctUntilChanged()
-                .Subscribe(isSplitView => this.OnSplitViewValueChanged.OnNext(isSplitView)));
 
             this.Disposables.Add(this.ViewModel.MainPanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.SidePanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));

@@ -79,7 +79,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
             this.viewModel.IsVisible = true;
             Assert.That(this.viewModel.IsVisible, Is.True);
             this.viewModel.SelectionMediator.RaiseOnModelSelectionChanged(null);
-            Assert.That(this.viewModel.IsVisible, Is.False);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsVisible, Is.False);
+                Assert.That(this.viewModel.ParameterValueSetRelations, Is.Empty);
+                Assert.That(this.viewModel.ParametersInUse, Has.Count.EqualTo(0));
+                Assert.That(this.viewModel.SelectedParameter, Is.Null);
+            });
         }
 
         [Test]

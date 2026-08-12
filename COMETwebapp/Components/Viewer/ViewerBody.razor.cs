@@ -47,10 +47,9 @@ namespace COMETwebapp.Components.Viewer
         public bool IsSplitView { get; set; }
 
         /// <summary>
-        /// Gets or sets the cascading event subject triggered when the split view state changes.
+        /// Backing field for tracking the previous <see cref="IsSplitView" /> state
         /// </summary>
-        [CascadingParameter(Name = WebAppConstantValues.OnSplitViewValueChangedCascadingValueName)]
-        public Subject<bool> OnSplitViewValueChanged { get; set; }
+        private bool previousIsSplitView;
 
         /// <summary>
         /// The reference to the <see cref="CanvasComponent" /> component
@@ -84,38 +83,24 @@ namespace COMETwebapp.Components.Viewer
         }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its initial parameters.
+        /// Method invoked when the component has received parameters from its parent in the render tree.
         /// </summary>
-        protected override void OnInitialized()
+        /// <returns>A <see cref="Task" /> representing the async operation.</returns>
+        protected override async Task OnParametersSetAsync()
         {
-            base.OnInitialized();
+            await base.OnParametersSetAsync();
 
-            if (this.OnSplitViewValueChanged == null)
+            if (this.previousIsSplitView && !this.IsSplitView && this.CanvasComponent != null)
             {
-                return;
+                await this.CanvasComponent.ViewModel.InitCanvas(true);
+
+                if (this.ViewModel.ProductTreeViewModel.RootViewModel != null)
+                {
+                    await this.RepopulateScene(this.ViewModel.ProductTreeViewModel.RootViewModel);
+                }
             }
 
-            this.Disposables.Add(this.OnSplitViewValueChanged.SubscribeAsync(this.OnSplitViewValueChangedHandler));
-        }
-
-        /// <summary>
-        /// Handles the <see cref="OnSplitViewValueChanged" /> event to re-initialize canvas when split view is disabled
-        /// </summary>
-        /// <param name="isSplitView">Indicates whether split view is active</param>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task OnSplitViewValueChangedHandler(bool isSplitView)
-        {
-            if (isSplitView || this.CanvasComponent == null)
-            {
-                return;
-            }
-
-            await this.CanvasComponent.ViewModel.InitCanvas(true);
-
-            if (this.ViewModel.ProductTreeViewModel.RootViewModel != null)
-            {
-                await this.RepopulateScene(this.ViewModel.ProductTreeViewModel.RootViewModel);
-            }
+            this.previousIsSplitView = this.IsSplitView;
         }
 
         /// <summary>

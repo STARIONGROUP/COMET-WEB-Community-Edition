@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ServiceCollectionExtensions.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -82,6 +82,9 @@ namespace COMETwebapp.Extensions
             serviceCollection.AddScoped<ISubscriptionService, SubscriptionService>();
             serviceCollection.AddScoped<IShowHideDeprecatedThingsService, ShowHideDeprecatedThingsService>();
             serviceCollection.AddScoped<ISceneSettings, SceneSettings>();
+
+            // Note: ISelectionMediator and IBabylonInterop are intentionally registered as Transient so that
+            // each viewer instance (e.g., when split view is active) receives distinct instances with isolated viewerId and selection state.
             serviceCollection.AddTransient<ISelectionMediator, SelectionMediator>();
             serviceCollection.AddTransient<IBabylonInterop, BabylonInterop>();
             serviceCollection.AddScoped<IDomDataService, DomDataService>();

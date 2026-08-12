@@ -38,6 +38,7 @@ namespace COMETwebapp.Components.Viewer
         /// Gets or sets the <see cref="ICanvasViewModel"/>
         /// </summary>
         [Parameter]
+        [EditorRequired]
         public ICanvasViewModel ViewModel { get; set; }
 
         /// <summary>
@@ -103,6 +104,7 @@ namespace COMETwebapp.Components.Viewer
         public async ValueTask DisposeAsync()
         {
             await this.ViewModel.BabylonInterop.DisposeViewer();
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
     }

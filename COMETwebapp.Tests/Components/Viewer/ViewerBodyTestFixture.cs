@@ -22,8 +22,6 @@
 
 namespace COMETwebapp.Tests.Components.Viewer
 {
-    using System.Reactive.Subjects;
-
     using Bunit;
 
     using CDP4Dal;
@@ -148,27 +146,21 @@ namespace COMETwebapp.Tests.Components.Viewer
         }
 
         /// <summary>
-        /// Verifies that <see cref="ViewerBody" /> re-initializes canvas when <see cref="ViewerBody.OnSplitViewValueChanged" /> emits false.
+        /// Verifies that <see cref="ViewerBody" /> re-initializes canvas when <see cref="ViewerBody.IsSplitView" /> transitions from true to false.
         /// </summary>
         [Test]
         public void VerifyOnSplitViewValueChangedHandler()
         {
-            var subject = new Subject<bool>();
-
-            this.context.Render<ViewerBody>(parameters =>
+            var component = this.context.Render<ViewerBody>(parameters =>
             {
-                parameters.AddCascadingValue(WebAppConstantValues.OnSplitViewValueChangedCascadingValueName, subject);
+                parameters.AddCascadingValue(WebAppConstantValues.IsSplitViewCascadingValueName, true);
             });
 
             // Initial component render triggers InitCanvas(true) once via OnAfterRenderAsync
             this.canvasViewModel.Verify(x => x.InitCanvas(true), Times.Once);
 
-            // Emitting true (split view enabled) should NOT re-init canvas again
-            subject.OnNext(true);
-            this.canvasViewModel.Verify(x => x.InitCanvas(true), Times.Once);
-
-            // Emitting false (split view disabled) SHOULD re-init canvas a second time
-            subject.OnNext(false);
+            // Changing IsSplitView from true to false SHOULD re-init canvas a second time
+            component.Render(parameters => parameters.Add(p => p.IsSplitView, false));
             this.canvasViewModel.Verify(x => x.InitCanvas(true), Times.Exactly(2));
         }
     }

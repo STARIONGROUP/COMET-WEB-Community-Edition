@@ -93,6 +93,10 @@ function InitCanvas(viewerId, canvas, addAxes) {
         throw "The canvas can't be null or undefined";
     }
 
+    if (ViewerStates.has(viewerId)) {
+        DisposeViewer(viewerId);
+    }
+
     let state = GetViewerState(viewerId);
     state.BabylonCanvas = canvas;
     state.BabylonEngine = new BABYLON.Engine(state.BabylonCanvas, true, { stencil: true, antialias: true });
