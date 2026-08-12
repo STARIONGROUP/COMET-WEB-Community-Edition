@@ -22,6 +22,9 @@
 
 namespace COMETwebapp.Pages
 {
+    using System.Reactive.Linq;
+    using System.Reactive.Subjects;
+
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Extensions;
@@ -84,6 +87,11 @@ namespace COMETwebapp.Pages
         public bool IsOpenTabVisible { get; private set; }
 
         /// <summary>
+        /// Gets the subject emitted whenever the split view state changes (true if split view active, false otherwise)
+        /// </summary>
+        public Subject<bool> OnSplitViewValueChanged { get; } = new();
+
+        /// <summary>
         /// Gets the <see cref="Application"/> instance corresponding to the Tabs application
         /// </summary>
         public static Application TabsApplication => Applications.ExistingApplications.FirstOrDefault(x => x.Url == WebAppConstantValues.TabsPage);
@@ -102,6 +110,11 @@ namespace COMETwebapp.Pages
                     x => x.ViewModel.SidePanel.CurrentTab,
                     x => x.ViewModel.IsOnSwitchDomainMode)
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SidePanel.CurrentTab)
+                .Select(tab => tab != null)
+                .DistinctUntilChanged()
+                .Subscribe(isSplitView => this.OnSplitViewValueChanged.OnNext(isSplitView)));
 
             this.Disposables.Add(this.ViewModel.MainPanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.SidePanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));

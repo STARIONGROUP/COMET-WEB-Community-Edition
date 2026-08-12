@@ -143,5 +143,10 @@ namespace COMETwebapp.Utilities
         /// Name of the cascading parameter for checking if split view is active.
         /// </summary>
         public const string IsSplitViewCascadingValueName = "IsSplitView";
+
+        /// <summary>
+        /// Name of the cascading parameter for split view value change subject.
+        /// </summary>
+        public const string OnSplitViewValueChangedCascadingValueName = "OnSplitViewValueChanged";
     }
 }

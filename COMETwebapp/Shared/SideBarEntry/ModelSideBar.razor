@@ -37,7 +37,8 @@
              Enabled="@(this.AuthorizedMenuEntryViewModel.IsAuthenticated)"
              Icon="IconName.Folder"
              Id="model-entry"
-             DropdownSelector="true"/>
+             DropdownSelector="true"
+             Expanded="@(this.Expanded)"/>
 
 <DxDropDown @bind-IsOpen="@(this.Expanded)"
             PositionMode="DropDownPositionMode.Right"
@@ -46,8 +47,11 @@
             PreventCloseOnPositionTargetClick="false"
             HeaderVisible="false"
             FooterVisible="false"
-            Width="250px">
+            Width="250px"
+            Shown="@(this.OnDropdownShown)"
+            Closed="@(this.OnDropdownClosed)">
     <BodyContentTemplate>
+        <div id="model-dropdown-body" tabindex="-1">
         <DxMenu DropDownActionMode="MenuDropDownActionMode.Click"
                 Orientation="Orientation.Vertical"
                 HamburgerButtonPosition="MenuHamburgerButtonPosition.Right"
@@ -76,5 +80,6 @@
                 }
             </Items>
         </DxMenu>
+        </div>
     </BodyContentTemplate>
 </DxDropDown>

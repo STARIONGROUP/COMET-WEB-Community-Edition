@@ -177,7 +177,9 @@ namespace COMETwebapp.ViewModels.Pages
         /// </summary>
         private void OnSelectedApplicationChange()
         {
-            if (this.SelectedApplication == null || this.MainPanel.CurrentTab?.ComponentType == this.SelectedApplication?.ComponentType)
+            if (this.SelectedApplication == null ||
+                this.MainPanel.CurrentTab?.ComponentType == this.SelectedApplication?.ComponentType ||
+                this.SidePanel.CurrentTab?.ComponentType == this.SelectedApplication?.ComponentType)
             {
                 return;
             }
