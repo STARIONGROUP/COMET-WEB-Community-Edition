@@ -91,7 +91,7 @@ namespace COMETwebapp.Components.Viewer
                 {
                     return;
                 }
-                
+
                 await this.CanvasComponent.ViewModel.InitCanvas(true);
 
                 if (this.ViewModel.ProductTreeViewModel.RootViewModel != null)
@@ -124,7 +124,7 @@ namespace COMETwebapp.Components.Viewer
         {
             base.OnViewModelAssigned();
 
-            this.Disposables.Add(this.WhenAnyValue(x=>x.ViewModel.IsLoading).Subscribe(_=>this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsLoading).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption)
                 .Subscribe(_ => this.UpdateUrl()));

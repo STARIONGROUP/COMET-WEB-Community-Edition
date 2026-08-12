@@ -20,6 +20,7 @@
 @attribute [Route(WebAppConstantValues.TabsPage)]
 @attribute [Authorize]
 @using COMETwebapp.Components.Tabs
+@using COMETwebapp.Components.Shared.PageIntroBox
 @using COMETwebapp.Utilities
 @inherits DisposableComponent
 
@@ -52,8 +53,22 @@
     else
     {
         <div class="open-tab-box-container">
-            <div class="open-tab-box">
-                <OpenTab Panel="@(this.ViewModel.MainPanel)"/>
+            <div class="d-flex flex-column" style="width: 100%;">
+                @if (!this.IsPageIntroductionVisible)
+                {
+                    <DxButton Click="@(this.ReopenTabsIntroAsync)"
+                              RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())"
+                              title="Show application introduction"
+                              aria-label="Show introduction for Tabs"
+                              IconCssClass="@IconName.Info.GetCssClass()"
+                              CssClass="ms-auto mb-2" />
+                }
+                <PageIntroBox @bind-IsPageIntroductionVisible="@this.IsPageIntroductionVisible" 
+                              Application="@(TabsApplication)" />
+
+                <div class="open-tab-box mx-auto mt-4">
+                    <OpenTab Panel="@(this.ViewModel.MainPanel)"/>
+                </div>
             </div>
         </div>
     }

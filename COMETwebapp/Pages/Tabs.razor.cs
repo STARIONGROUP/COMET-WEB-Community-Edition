@@ -28,10 +28,12 @@ namespace COMETwebapp.Pages
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
+    using COMETwebapp.Utilities;
 
     using Microsoft.AspNetCore.Components;
 
@@ -42,6 +44,11 @@ namespace COMETwebapp.Pages
     /// </summary>
     public partial class Tabs
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the page introduction box is visible.
+        /// </summary>
+        private bool IsPageIntroductionVisible { get; set; }
+
         /// <summary>
         /// Gets or sets the selected panel
         /// </summary>
@@ -78,6 +85,11 @@ namespace COMETwebapp.Pages
         /// Gets the open tab component visibility
         /// </summary>
         public bool IsOpenTabVisible { get; private set; }
+
+        /// <summary>
+        /// Gets the <see cref="Application"/> instance corresponding to the Tabs application
+        /// </summary>
+        public static Application TabsApplication => Applications.ExistingApplications.FirstOrDefault(x => x.Url == WebAppConstantValues.TabsPage);
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -173,6 +185,16 @@ namespace COMETwebapp.Pages
             this.ModelId = ((CDP4Common.EngineeringModelData.EngineeringModel)iterationOfInterest.Container).Iid;
             this.DomainId = this.SessionService.GetDomainOfExpertise(iterationOfInterest).Iid;
             this.SetOpenTabVisibility(true);
+        }
+
+        /// <summary>
+        /// Re-opens the Tabs application introduction box without modifying the persisted preference.
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task ReopenTabsIntroAsync()
+        {
+            this.IsPageIntroductionVisible = true;
+            await this.InvokeAsync(this.StateHasChanged);
         }
     }
 }
