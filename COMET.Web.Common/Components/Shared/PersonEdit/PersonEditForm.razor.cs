@@ -102,5 +102,13 @@ namespace COMET.Web.Common.Components.Shared.PersonEdit
         {
             this.InvokeAsync(this.StateHasChanged);
         }
+
+        /// <summary>
+        /// Prompts the user with a confirmation popup before resetting user preferences.
+        /// </summary>
+        public void OnAskToResetPreferences()
+        {
+            this.ViewModel.ConfirmCancelViewModel.IsVisible = true;
+        }
     }
 }

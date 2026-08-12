@@ -129,8 +129,19 @@
                     </DxFormLayoutItem>
                 }
             </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Preferences">
+                <DxFormLayoutItem Caption="Reset user preferences:" ColSpanMd="10">
+                    <DxButton Id="resetPreferencesButton"
+                              Text="Reset my preferences"
+                              IconCssClass="@IconName.Refresh.GetCssClass()"
+                              RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"
+                              Click="@(this.OnAskToResetPreferences)"
+                              Enabled="@(!this.ViewModel.IsLoading)"/>
+                </DxFormLayoutItem>
+            </DxFormLayoutTabPage>
         </DxFormLayoutTabPages>
     </DxFormLayout>
+    <ConfirmCancelPopup ViewModel="@(this.ViewModel.ConfirmCancelViewModel)" />
     <div class="modal-footer">
         <DxButton Id="cancelPersonEdit"
                   Text="Cancel"

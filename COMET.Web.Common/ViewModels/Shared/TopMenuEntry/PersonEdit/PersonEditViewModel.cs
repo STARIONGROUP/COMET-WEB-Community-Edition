@@ -28,9 +28,11 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry.PersonEdit
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.Logging;
@@ -116,7 +118,25 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry.PersonEdit
         {
             this.sessionService = sessionService;
             this.logger = logger;
+
+            var onCancelCallback = new EventCallbackFactory().Create(this, () => { this.ConfirmCancelViewModel!.IsVisible = false; });
+            var onConfirmCallback = new EventCallbackFactory().Create(this, this.ResetPreferencesAsync);
+
+            this.ConfirmCancelViewModel = new ConfirmCancelPopupViewModel
+            {
+                CancelStyle = CometButtonStyle.Secondary,
+                ConfirmStyle = CometButtonStyle.Danger,
+                HeaderText = "Reset Preferences",
+                ContentText = "Resetting preferences cannot be reverted. Are you sure?",
+                OnCancel = onCancelCallback,
+                OnConfirm = onConfirmCallback
+            };
         }
+
+        /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> for confirming preference reset.
+        /// </summary>
+        public IConfirmCancelPopupViewModel ConfirmCancelViewModel { get; }
 
         /// <summary>
         /// Gets the live <see cref="Person" /> currently bound to the form.
@@ -535,6 +555,47 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry.PersonEdit
                 OnSuccess = "Profile updated",
                 OnError = "Failed to update profile"
             };
+        }
+
+        /// <summary>
+        /// Resets all user preferences for the active person after user confirmation.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
+        public async Task ResetPreferencesAsync()
+        {
+            this.ConfirmCancelViewModel.IsVisible = false;
+
+            if (this.CurrentPerson is null)
+            {
+                return;
+            }
+
+            try
+            {
+                this.IsLoading = true;
+
+                var siteDirectoryClone = this.sessionService.GetSiteDirectory().Clone(false);
+                var preferencesToDelete = this.CurrentPerson.UserPreference.Select(x => x.Clone(false)).ToList();
+
+                if (preferencesToDelete.Count > 0)
+                {
+                    var notificationDescription = new NotificationDescription
+                    {
+                        OnSuccess = "Preferences reset successfully",
+                        OnError = "Failed to reset preferences"
+                    };
+
+                    await this.sessionService.DeleteThingsWithNotification(siteDirectoryClone, preferencesToDelete, notificationDescription);
+                }
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while resetting preferences for Person with iid {Iid}", this.CurrentPerson.Iid);
+            }
+            finally
+            {
+                this.IsLoading = false;
+            }
         }
     }
 }

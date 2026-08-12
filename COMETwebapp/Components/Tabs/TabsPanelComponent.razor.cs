@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsPanelComponent.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -32,8 +32,9 @@ namespace COMETwebapp.Components.Tabs
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
-
+    
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
 
@@ -46,6 +47,11 @@ namespace COMETwebapp.Components.Tabs
     /// </summary>
     public partial class TabsPanelComponent : DisposableComponent
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the page introduction box is visible.
+        /// </summary>
+        public bool IsPageIntroductionVisible { get; set; }
+
         /// <summary>
         /// Gets or sets the custom css class to be used in the container component
         /// </summary>
@@ -116,6 +122,13 @@ namespace COMETwebapp.Components.Tabs
         /// Gets the active <see cref="DomainOfExpertise" /> for the current tab panel
         /// </summary>
         public DomainOfExpertise CurrentDomainOfExpertise => this.ViewModel.GetCurrentDomainOfExpertise(this.Panel);
+
+        /// <summary>
+        /// Gets the currently active application based on the current tab
+        /// </summary>
+        public Application CurrentApplication => this.Panel?.CurrentTab != null
+            ? Applications.ExistingApplications.OfType<TabbedApplication>().FirstOrDefault(x => x.ComponentType == this.Panel.CurrentTab.ComponentType)
+            : null;
 
         /// <summary>
         /// Method invoked when the component is ready to start
@@ -232,6 +245,16 @@ namespace COMETwebapp.Components.Tabs
             return this.IsSplitViewEnabled
                 ? "Split View"
                 : "Split view requires at least two open tabs";
+        }
+
+        /// <summary>
+        /// Re-opens the introduction box for the current application without modifying the persisted preference.
+        /// </summary>
+        /// <returns>A <see cref="Task"/></returns>
+        private async Task ReopenIntroAsync()
+        {
+            this.IsPageIntroductionVisible = true;
+            await this.InvokeAsync(this.StateHasChanged);
         }
     }
 }
