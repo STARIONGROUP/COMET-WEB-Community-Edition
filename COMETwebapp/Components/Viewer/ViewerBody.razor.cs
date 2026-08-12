@@ -22,8 +22,6 @@
 
 namespace COMETwebapp.Components.Viewer
 {
-    using System.Reactive.Subjects;
-
     using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Utilities;
@@ -50,6 +48,11 @@ namespace COMETwebapp.Components.Viewer
         /// Backing field for tracking the previous <see cref="IsSplitView" /> state
         /// </summary>
         private bool previousIsSplitView;
+
+        /// <summary>
+        /// Indicates whether the canvas needs to be re-initialized after layout rendering
+        /// </summary>
+        private bool needCanvasReinit;
 
         /// <summary>
         /// The reference to the <see cref="CanvasComponent" /> component
@@ -80,6 +83,22 @@ namespace COMETwebapp.Components.Viewer
             {
                 await this.CanvasComponent.ViewModel.InitCanvas(true);
             }
+            else if (this.needCanvasReinit)
+            {
+                this.needCanvasReinit = false;
+
+                if (this.CanvasComponent == null)
+                {
+                    return;
+                }
+                
+                await this.CanvasComponent.ViewModel.InitCanvas(true);
+
+                if (this.ViewModel.ProductTreeViewModel.RootViewModel != null)
+                {
+                    await this.RepopulateScene(this.ViewModel.ProductTreeViewModel.RootViewModel);
+                }
+            }
         }
 
         /// <summary>
@@ -90,14 +109,9 @@ namespace COMETwebapp.Components.Viewer
         {
             await base.OnParametersSetAsync();
 
-            if (this.previousIsSplitView && !this.IsSplitView && this.CanvasComponent != null)
+            if (this.previousIsSplitView && !this.IsSplitView)
             {
-                await this.CanvasComponent.ViewModel.InitCanvas(true);
-
-                if (this.ViewModel.ProductTreeViewModel.RootViewModel != null)
-                {
-                    await this.RepopulateScene(this.ViewModel.ProductTreeViewModel.RootViewModel);
-                }
+                this.needCanvasReinit = true;
             }
 
             this.previousIsSplitView = this.IsSplitView;
