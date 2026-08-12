@@ -100,7 +100,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         {
             this.viewModel.IsVisible = true;
             Assert.That(this.viewModel.IsVisible, Is.True);
-            this.viewModel.SelectionMediator.RaiseOnTreeSelectionChanged(null);
+
+            var nodeViewModel = new ViewerNodeViewModel(null);
+            this.viewModel.SelectionMediator.RaiseOnTreeSelectionChanged(nodeViewModel);
             Assert.That(this.viewModel.IsVisible, Is.False);
         }
 
