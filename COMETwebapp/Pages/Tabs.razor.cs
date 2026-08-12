@@ -28,7 +28,6 @@ namespace COMETwebapp.Pages
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
-    using COMETwebapp.Extensions;
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
     using COMETwebapp.Utilities;
@@ -106,8 +105,6 @@ namespace COMETwebapp.Pages
 
             this.Disposables.Add(this.ViewModel.MainPanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.SidePanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.IsPageIntroductionVisible = this.SessionService.ShouldShowPageIntroduction(TabsApplication);
         }
 
         /// <summary>

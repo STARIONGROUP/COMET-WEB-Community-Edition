@@ -34,16 +34,13 @@ namespace COMETwebapp.Components.Tabs
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
-
-    using COMETwebapp.Extensions;
+    
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
 
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
-
-    using ReactiveUI;
 
     /// <summary>
     /// Core component for the Tabs page
@@ -142,19 +139,6 @@ namespace COMETwebapp.Components.Tabs
 
             this.Disposables.Add(this.MessageBus.Listen<DomainChangedEvent>()
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
-
-            this.Disposables.Add(this.WhenAnyValue(x => x.Panel.CurrentTab)
-                .SubscribeAsync(_ => this.UpdateShowReopenIntroButtonAsync()));
-        }
-
-        /// <summary>
-        /// Updates the state of the Reopen Intro Box button
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task UpdateShowReopenIntroButtonAsync()
-        {
-            this.IsPageIntroductionVisible = this.SessionService.ShouldShowPageIntroduction(this.CurrentApplication);
-            await this.InvokeAsync(this.StateHasChanged);
         }
 
         /// <summary>

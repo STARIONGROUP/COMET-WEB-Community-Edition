@@ -312,14 +312,8 @@ namespace COMETwebapp.Tests.Components.Tabs
         [Test]
         public async Task VerifyReopenIntroBox()
         {
-            var person = this.sessionService.Object.Session.ActivePerson;
-            var app = Applications.ExistingApplications.OfType<TabbedApplication>().FirstOrDefault(x => x.Url == WebAppConstantValues.EngineeringModelPage);
-            Assert.That(app, Is.Not.Null);
-            
-            person.UserPreference.Add(new UserPreference { ShortName = app.GetPageIntroUserPreferenceKey(), Value = "true" });
-
-            this.mainPanel.CurrentTab = null;
-            this.mainPanel.CurrentTab = this.mainPanel.OpenTabs.Items[0];
+            // Manually set IsPageIntroductionVisible to false to simulate the state where the intro has been dismissed
+            this.renderer.Instance.IsPageIntroductionVisible = false;
             this.renderer.Render();
 
             var reopenButton = this.renderer.FindComponents<DxButton>().FirstOrDefault(x => x.Markup.Contains("Show introduction for"));
@@ -331,7 +325,7 @@ namespace COMETwebapp.Tests.Components.Tabs
             {
                 Assert.That(this.renderer.Instance.IsPageIntroductionVisible, Is.True);
                 
-                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(
                     It.IsAny<SiteDirectory>(),
                     It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
             }

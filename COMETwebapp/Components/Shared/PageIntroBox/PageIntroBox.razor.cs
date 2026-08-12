@@ -28,8 +28,6 @@ namespace COMETwebapp.Components.Shared.PageIntroBox
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Services.StringTableService;
 
-    using COMETwebapp.Extensions;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -101,7 +99,7 @@ namespace COMETwebapp.Components.Shared.PageIntroBox
             {
                 this.lastLoadedApplicationUrl = this.Application.Url;
 
-                this.IsPageIntroductionVisible = this.SessionService.ShouldShowPageIntroduction(this.Application);
+                this.IsPageIntroductionVisible = this.ShouldShowPageIntroduction(this.Application);
                 await this.IsPageIntroductionVisibleChanged.InvokeAsync(this.IsPageIntroductionVisible);
             }
 
@@ -123,7 +121,7 @@ namespace COMETwebapp.Components.Shared.PageIntroBox
             await this.IsPageIntroductionVisibleChanged.InvokeAsync(false);
 
             // If the info button was clicked, but the dismissal user preference is already set to true, we don't need to update the preference again.
-            if (!this.SessionService.ShouldShowPageIntroduction(this.Application))
+            if (!this.ShouldShowPageIntroduction(this.Application))
             {
                 return;
             }
@@ -154,6 +152,23 @@ namespace COMETwebapp.Components.Shared.PageIntroBox
 
             await this.SessionService.CreateOrUpdateThings(siteDirectory, [clonedPerson, userPreference]);
             await this.InvokeAsync(this.StateHasChanged);
+        }
+
+        /// <summary>
+        /// Determines whether the page introduction box should be visible based on user preferences.
+        /// </summary>
+        /// <param name="application">The <see cref="Application" /> to check the introduction preference for.</param>
+        /// <returns>True if the introduction box should be visible; false otherwise.</returns>
+        public bool ShouldShowPageIntroduction(Application application)
+        {
+            if (application == null)
+            {
+                return false;
+            }
+
+            var preferenceKey = application.GetPageIntroUserPreferenceKey();
+            var preference = this.SessionService.Session.ActivePerson.UserPreference.FirstOrDefault(x => x.ShortName == preferenceKey);
+            return preference is not { Value: "true" };
         }
     }
 }
