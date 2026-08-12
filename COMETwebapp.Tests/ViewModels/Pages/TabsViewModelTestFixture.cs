@@ -306,7 +306,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         [Test]
         public async Task VerifySessionClosed()
         {
-            this.viewModel.MainPanel.OpenTabs.Add(new TabbedApplicationInformation(new Mock<IEngineeringModelBodyViewModel>().Object, typeof(EngineeringModelBody), new Iteration()));
+            this.viewModel.MainPanel.OpenTabs.Add(new TabbedApplicationInformation(new Mock<IEngineeringModelBodyViewModel>().Object, typeof(EngineeringModelBody), this.openIterations.Items.First()));
             Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(1));
 
             this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.Closed));
