@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -77,6 +77,11 @@ namespace COMETwebapp.ViewModels.Pages
         /// Backing field for <see cref="IsOnSwitchDomainMode" />
         /// </summary>
         private bool isOnSwitchDomainMode;
+
+        /// <summary>
+        /// Indicates whether tab restoration is currently in progress
+        /// </summary>
+        private bool isRestoringSavedTabs;
 
         /// <summary>
         /// Backing field for <see cref="SelectedApplication" />
@@ -305,6 +310,11 @@ namespace COMETwebapp.ViewModels.Pages
         /// <returns>An awaitable <see cref="Task" /></returns>
         public async Task CheckAndRestoreSavedTabsAsync()
         {
+            if (this.isRestoringSavedTabs)
+            {
+                return;
+            }
+
             var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey);
 
             if (savedTabs is { Count: > 0 })
@@ -345,9 +355,14 @@ namespace COMETwebapp.ViewModels.Pages
         /// <returns>An awaitable <see cref="Task" /></returns>
         private async Task SaveOpenTabsToSessionStorageAsync()
         {
+            if (this.isRestoringSavedTabs)
+            {
+                return;
+            }
+
             var savedTabs = new List<SavedTabDto>();
 
-            foreach (var tab in this.OpenTabs)
+            foreach (var tab in this.OpenTabs.Distinct())
             {
                 var app = Applications.ExistingApplications.OfType<TabbedApplication>().FirstOrDefault(x => x.ComponentType == tab.ComponentType);
 
@@ -389,6 +404,13 @@ namespace COMETwebapp.ViewModels.Pages
         /// <returns>An awaitable <see cref="Task" /></returns>
         private async Task RestoreSavedTabsAsync()
         {
+            if (this.isRestoringSavedTabs)
+            {
+                return;
+            }
+
+            this.isRestoringSavedTabs = true;
+           
             var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey);
             await this.sessionStorageService.RemoveItemAsync(WebAppConstantValues.SavedTabsKey);
 
@@ -409,8 +431,10 @@ namespace COMETwebapp.ViewModels.Pages
                     this.CreateNewTab(app, savedTab.ObjectOfInterestId, targetPanel);
                 }
             }
-       
+            
+            this.isRestoringSavedTabs = false;
             this.RestoreTabsPopupViewModel.IsVisible = false;
+            await this.SaveOpenTabsToSessionStorageAsync();
         }
 
         /// <summary>
