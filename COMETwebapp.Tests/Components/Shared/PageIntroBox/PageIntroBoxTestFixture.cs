@@ -95,7 +95,7 @@ namespace COMETwebapp.Tests.Components.Shared.PageIntroBox
 
             using (Assert.EnterMultipleScope())
             {
-                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(
+                this.sessionService.Verify(x => x.CreateOrUpdateThings(
                     It.IsAny<SiteDirectory>(),
                     It.Is<IReadOnlyCollection<Thing>>(things => things.Count == 2 && things.OfType<UserPreference>().Any(up => up.ShortName == application.GetPageIntroUserPreferenceKey() && up.Value == "true"))), Times.Once);
 

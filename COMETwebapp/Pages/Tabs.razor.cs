@@ -87,7 +87,7 @@ namespace COMETwebapp.Pages
         /// <summary>
         /// Gets the <see cref="Application"/> instance corresponding to the Tabs application
         /// </summary>
-        public Application TabsApplication => Applications.ExistingApplications.FirstOrDefault(x => x.Url == WebAppConstantValues.TabsPage);
+        public static Application TabsApplication => Applications.ExistingApplications.FirstOrDefault(x => x.Url == WebAppConstantValues.TabsPage);
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its
@@ -107,7 +107,7 @@ namespace COMETwebapp.Pages
             this.Disposables.Add(this.ViewModel.MainPanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.SidePanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
-            this.IsPageIntroductionVisible = this.SessionService.ShouldShowPageIntroduction(this.TabsApplication);
+            this.IsPageIntroductionVisible = this.SessionService.ShouldShowPageIntroduction(TabsApplication);
         }
 
         /// <summary>
