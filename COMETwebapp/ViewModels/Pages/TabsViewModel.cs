@@ -22,11 +22,16 @@
 
 namespace COMETwebapp.ViewModels.Pages
 {
+    using System.Reactive.Linq;
+
     using Blazored.SessionStorage;
 
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
+
+    using CDP4Dal;
+    using CDP4Dal.Events;
 
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Services.SessionManagement;
@@ -84,7 +89,8 @@ namespace COMETwebapp.ViewModels.Pages
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="serviceProvider">The <see cref="IServiceProvider" /></param>
         /// <param name="sessionStorageService">The <see cref="ISessionStorageService"/></param>
-        public TabsViewModel(ISessionService sessionService, IServiceProvider serviceProvider, ISessionStorageService sessionStorageService)
+        /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
+        public TabsViewModel(ISessionService sessionService, IServiceProvider serviceProvider, ISessionStorageService sessionStorageService, ICDPMessageBus messageBus)
         {
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
@@ -112,6 +118,7 @@ namespace COMETwebapp.ViewModels.Pages
             this.Disposables.Add(this.sessionService.OpenIterations.CountChanged.Subscribe(this.CloseTabIfIterationClosed));
             this.Disposables.Add(this.MainPanel.OpenTabs.Connect().SubscribeAsync(_ => this.SaveOpenTabsToSessionStorageAsync()));
             this.Disposables.Add(this.SidePanel.OpenTabs.Connect().SubscribeAsync(_ => this.SaveOpenTabsToSessionStorageAsync()));
+            this.Disposables.Add(messageBus.Listen<SessionEvent>().Where(x => x.Status == SessionStatus.Closed).SubscribeAsync(_ => this.OnSessionClosedAsync()));
         }
 
         /// <summary>
@@ -340,13 +347,7 @@ namespace COMETwebapp.ViewModels.Pages
         {
             var savedTabs = new List<SavedTabDto>();
 
-            IEnumerable<TabbedApplicationInformation> allTabs =
-            [
-                ..this.MainPanel.OpenTabs.Items,
-                ..this.SidePanel.OpenTabs.Items
-            ];
-
-            foreach (var tab in allTabs)
+            foreach (var tab in this.OpenTabs)
             {
                 var app = Applications.ExistingApplications.OfType<TabbedApplication>().FirstOrDefault(x => x.ComponentType == tab.ComponentType);
 
@@ -465,6 +466,17 @@ namespace COMETwebapp.ViewModels.Pages
         private async Task DiscardSavedTabsAsync()
         {
             this.RestoreTabsPopupViewModel.IsVisible = false;
+            await this.sessionStorageService.RemoveItemAsync(WebAppConstantValues.SavedTabsKey);
+        }
+
+        /// <summary>
+        /// Handles the <see cref="SessionStatus.Closed" /> message by closing all open tabs and clearing saved tabs from session storage
+        /// </summary>
+        /// <returns>An awaitable <see cref="Task" /></returns>
+        private async Task OnSessionClosedAsync()
+        {
+            this.MainPanel.OpenTabs.Clear();
+            this.SidePanel.OpenTabs.Clear();
             await this.sessionStorageService.RemoveItemAsync(WebAppConstantValues.SavedTabsKey);
         }
     }

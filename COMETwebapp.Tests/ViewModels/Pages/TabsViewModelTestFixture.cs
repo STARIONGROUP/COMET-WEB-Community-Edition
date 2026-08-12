@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -26,7 +26,6 @@ namespace COMETwebapp.Tests.ViewModels.Pages
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Services.SessionManagement;
-    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Components.EngineeringModel;
@@ -34,6 +33,9 @@ namespace COMETwebapp.Tests.ViewModels.Pages
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.EngineeringModel;
     using COMETwebapp.ViewModels.Pages;
+
+    using CDP4Dal;
+    using CDP4Dal.Events;
 
     using DynamicData;
 
@@ -51,6 +53,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         private Mock<IServiceProvider> serviceProvider;
         private Mock<ISessionStorageService> sessionStorageService;
         private SourceList<Iteration> openIterations;
+        private CDPMessageBus messageBus;
 
         [SetUp]
         public void Setup()
@@ -59,6 +62,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             this.sessionService = new Mock<ISessionService>();
             this.sessionStorageService = new Mock<ISessionStorageService>();
             this.openIterations = new SourceList<Iteration>();
+            this.messageBus = new CDPMessageBus();
 
             var iteration = new Iteration();
             var iterationSetup = new IterationSetup();
@@ -79,7 +83,15 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             this.sessionStorageService.Setup(x => x.SetItemAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Returns(ValueTask.CompletedTask);
             this.serviceProvider.Setup(x => x.GetService(It.IsAny<Type>())).Returns(new Mock<IApplicationBaseViewModel>().Object);
 
-            this.viewModel = new TabsViewModel(this.sessionService.Object, this.serviceProvider.Object, this.sessionStorageService.Object);
+            this.viewModel = new TabsViewModel(this.sessionService.Object, this.serviceProvider.Object, this.sessionStorageService.Object, this.messageBus);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            this.viewModel.Dispose();
+            this.messageBus.ClearSubscriptions();
+            this.messageBus.Dispose();
         }
 
         [Test]
@@ -288,6 +300,22 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             {
                 Assert.That(this.viewModel.RestoreTabsPopupViewModel.IsVisible, Is.False);
                 Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(1));
+            }
+        }
+
+        [Test]
+        public async Task VerifySessionClosed()
+        {
+            this.viewModel.MainPanel.OpenTabs.Add(new TabbedApplicationInformation(new Mock<IEngineeringModelBodyViewModel>().Object, typeof(EngineeringModelBody), new Iteration()));
+            Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(1));
+
+            this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.Closed));
+            await Task.Delay(100);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(0));
+                this.sessionStorageService.Verify(x => x.RemoveItemAsync(WebAppConstantValues.SavedTabsKey, CancellationToken.None), Times.AtLeastOnce);
             }
         }
     }

@@ -30,8 +30,6 @@ namespace COMETwebapp.Pages
     using COMETwebapp.Model;
     using COMETwebapp.ViewModels.Pages;
 
-    using DynamicData;
-
     using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
