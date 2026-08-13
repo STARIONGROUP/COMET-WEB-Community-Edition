@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -355,7 +355,7 @@ namespace COMETwebapp.ViewModels.Pages
         /// <returns>An awaitable <see cref="Task" /></returns>
         private async Task SaveOpenTabsToSessionStorageAsync()
         {
-            if (this.isRestoringSavedTabs)
+            if (this.isRestoringSavedTabs || !this.sessionService.IsSessionOpen)
             {
                 return;
             }
@@ -377,7 +377,6 @@ namespace COMETwebapp.ViewModels.Pages
                 var iterationSetupIid = tab.ObjectOfInterest switch
                 {
                     Iteration iteration => iteration.IterationSetup.Iid,
-                    EngineeringModel engineeringModel => engineeringModel.EngineeringModelSetup.IterationSetup.Find(x => x.FrozenOn == null)?.Iid ?? Guid.Empty,
                     EngineeringModelSetup engineeringModelSetup => engineeringModelSetup.IterationSetup.Find(x => x.FrozenOn == null)?.Iid ?? Guid.Empty,
                     _ => Guid.Empty
                 };

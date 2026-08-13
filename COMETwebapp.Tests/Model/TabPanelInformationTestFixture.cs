@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabPanelInformationTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -135,6 +135,18 @@ namespace COMETwebapp.Tests.Model
                 Assert.That(this.panel.OpenTabs.Items, Is.Empty);
                 Assert.That(this.panel.CurrentTab, Is.Null);
                 Assert.That(this.applicationBaseViewModel.Object.IsAllowedToDispose, Is.False);
+            });
+        }
+
+        [Test]
+        public void VerifyOpenTabsClearResetCurrentTab()
+        {
+            this.panel.OpenTabs.Clear();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.panel.OpenTabs.Items, Is.Empty);
+                Assert.That(this.panel.CurrentTab, Is.Null);
             });
         }
     }

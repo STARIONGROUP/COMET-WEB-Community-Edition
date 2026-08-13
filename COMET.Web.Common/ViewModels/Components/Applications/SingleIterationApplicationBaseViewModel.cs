@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SingleIterationApplicationBaseViewModel.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -58,7 +58,10 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         /// <returns>A <see cref="Task" /></returns>
         protected virtual Task OnDomainChanged()
         {
-            this.CurrentDomain = this.CurrentThing == null ? null : this.SessionService.GetDomainOfExpertise(this.CurrentThing);
+            this.CurrentDomain = this.CurrentThing != null && this.SessionService.OpenIterations.Items.Contains(this.CurrentThing)
+                ? this.SessionService.GetDomainOfExpertise(this.CurrentThing)
+                : null;
+
             return Task.CompletedTask;
         }
 
@@ -69,7 +72,11 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         protected override async Task OnThingChanged()
         {
             this.IsLoading = true;
-            this.CurrentDomain = this.CurrentThing == null ? null : this.SessionService.GetDomainOfExpertise(this.CurrentThing);
+
+            this.CurrentDomain = this.CurrentThing != null && this.SessionService.OpenIterations.Items.Contains(this.CurrentThing)
+                ? this.SessionService.GetDomainOfExpertise(this.CurrentThing)
+                : null;
+
             await Task.CompletedTask;
         }
 
