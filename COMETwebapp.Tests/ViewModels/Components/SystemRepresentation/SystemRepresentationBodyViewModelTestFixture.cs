@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SystemRepresentationBodyViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -31,8 +31,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
     using CDP4Dal.Events;
     using CDP4Dal.Operations;
     using CDP4Dal.Permission;
-
-    using CDP4Web.Enumerations;
 
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
@@ -96,6 +94,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
         private DomainOfExpertise currentDomain;
 
         /// <summary>
+        /// The list of open iterations.
+        /// </summary>
+        private SourceList<Iteration> openIterations;
+
+        /// <summary>
         /// Builds the iteration graph and the view model with mocked dependencies.
         /// </summary>
         [SetUp]
@@ -105,7 +108,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
             this.sessionService = new Mock<ISessionService>();
             this.session = new Mock<ISession>();
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
-            this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
+            this.openIterations = new SourceList<Iteration>();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
 
             this.permissionService = new Mock<IPermissionService>();
             this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
@@ -140,6 +144,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
                 IterationSetup = iterationSetup,
                 Container = new EngineeringModel { EngineeringModelSetup = modelSetup }
             };
+
+            this.openIterations.Add(this.iteration);
 
             var panelLogger = new Mock<ILogger<ElementDetailsPanelViewModel>>();
             var panelVm = new ElementDetailsPanelViewModel(this.sessionService.Object, this.messageBus, panelLogger.Object);
@@ -218,7 +224,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SystemRepresentation
         }
         
         [Test]
-        public async Task VerifyOwnParameterOverrideWritePropagatesToOwnPanelAfterEndUpdate()
+        public void VerifyOwnParameterOverrideWritePropagatesToOwnPanelAfterEndUpdate()
         {
             var referencedElementDefinition = new ElementDefinition
             {

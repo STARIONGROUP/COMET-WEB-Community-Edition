@@ -29,6 +29,8 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
     using CDP4Dal;
 
+    using DynamicData;
+
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
@@ -48,7 +50,6 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
 
     using NUnit.Framework;
 
-
     [TestFixture]
     public class SubscriptionDashboardBodyTestFixture
     {
@@ -58,12 +59,15 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         private Mock<ISessionService> sessionService;
         private ISubscribedTableViewModel subscribedTableViewModel;
         private CDPMessageBus messageBus;
+        private SourceList<Iteration> openIterations;
 
         [SetUp]
         public void Setup()
         {
             this.context = new BunitContext();
             this.sessionService = new Mock<ISessionService>();
+            this.openIterations = new SourceList<Iteration>();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
             this.subscriptionService = new Mock<ISubscriptionService>();
             this.subscriptionService.Setup(x => x.SubscriptionsWithUpdate).Returns(new Dictionary<Guid, List<Guid>>());
             this.subscribedTableViewModel = new SubscribedTableViewModel(this.subscriptionService.Object);
@@ -89,9 +93,12 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
         {
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(new DomainOfExpertise() { Name = "Thermal" });
             
+            var iteration = new Iteration();
+            this.openIterations.Add(iteration);
+
             _ = this.context.Render<SubscriptionDashboardBody>(parameters =>
             {
-                parameters.Add(p => p.CurrentThing, new Iteration());
+                parameters.Add(p => p.CurrentThing, iteration);
             });
 
             Assert.Multiple(() =>
@@ -137,6 +144,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             var iteration = new Iteration { Element = { new ElementDefinition { Parameter = { parameter } } } };
             iteration.TopElement = iteration.Element[0];
             iteration.Option.Add(new Option { Iid = optionId });
+            this.openIterations.Add(iteration);
 
             var rendered = this.context.Render<SubscriptionDashboardBody>(parameters => parameters.Add(p => p.CurrentThing, iteration));
 
@@ -210,6 +218,7 @@ namespace COMETwebapp.Tests.Components.SubscriptionDashboard
             });
 
             iteration.TopElement = iteration.Element[0];
+            this.openIterations.Add(iteration);
 
             _ = this.context.Render<SubscriptionDashboardBody>(parameters =>
             {

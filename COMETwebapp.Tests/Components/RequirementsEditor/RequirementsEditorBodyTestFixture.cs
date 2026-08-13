@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="RequirementsEditorBodyTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -31,6 +31,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
     using CDP4Dal;
     using CDP4Dal.Permission;
+
+    using DynamicData;
 
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
@@ -96,7 +98,10 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             iteration.RequirementsSpecification.Add(specification);
             iteration.Relationship.Add(new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.requirement, Target = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT", Name = "Satellite" } });
 
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(iteration);
             var sessionService = new Mock<ISessionService>();
+            sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
             var session = new Mock<ISession>();
             var permissionService = new Mock<IPermissionService>();
             permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);

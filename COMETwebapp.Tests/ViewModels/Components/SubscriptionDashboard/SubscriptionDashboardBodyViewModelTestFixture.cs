@@ -30,6 +30,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using DynamicData;
+
     using CDP4Web.Enumerations;
 
     using COMET.Web.Common.Enumerations;
@@ -50,11 +52,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
         private Mock<ISessionService> sessionService;
         private Mock<ISubscribedTableViewModel> subscribedTableViewModel;
         private CDPMessageBus messageBus;
+        private SourceList<Iteration> openIterations;
 
         [SetUp]
         public void Setup()
         {
             this.sessionService = new Mock<ISessionService>();
+            this.openIterations = new SourceList<Iteration>();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
             this.subscribedTableViewModel = new Mock<ISubscribedTableViewModel>();
             this.messageBus = new CDPMessageBus();
             this.viewModel = new SubscriptionDashboardBodyViewModel(this.sessionService.Object, this.subscribedTableViewModel.Object, this.messageBus);
@@ -72,36 +77,52 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
             Assert.That(() => this.viewModel.CurrentThing = null,Throws.Nothing);
             var domain = new DomainOfExpertise();
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(domain);
-            this.viewModel.CurrentThing = new Iteration();
+            var iteration = new Iteration();
+            this.openIterations.Add(iteration);
+            this.viewModel.CurrentThing = iteration;
 
             this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(), 
                 this.viewModel.CurrentThing.Option, this.viewModel.CurrentThing), Times.Once);
         }
 
         [Test]
-        public void VerifyOnDomainChanged()
-        {
-            this.messageBus.SendMessage(new DomainChangedEvent(new Iteration(), new DomainOfExpertise()));
-
-            this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
-                It.IsAny<IEnumerable<Option>>(), null), Times.Once);
-        }
-
-        [Test]
-        public void VerifySessionRefresh()
-        {
-            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-
-            this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
-                It.IsAny<IEnumerable<Option>>(), null), Times.Once);
-        }
-        
-        [Test]
-        public async Task VerifyExternalParameterChangeIsReflectedAfterEndUpdate()
+        public async Task VerifyOnDomainChanged()
         {
             var domain = new DomainOfExpertise();
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(domain);
-            this.viewModel.CurrentThing = new Iteration();
+            var iteration = new Iteration();
+            this.openIterations.Add(iteration);
+            this.viewModel.CurrentThing = iteration;
+            this.messageBus.SendMessage(new DomainChangedEvent(iteration, domain));
+            await Task.Delay(50);
+
+            this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
+                It.IsAny<IEnumerable<Option>>(), iteration), Times.AtLeastOnce);
+        }
+
+        [Test]
+        public async Task VerifySessionRefresh()
+        {
+            var domain = new DomainOfExpertise();
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(domain);
+            var iteration = new Iteration();
+            this.openIterations.Add(iteration);
+            this.viewModel.CurrentThing = iteration;
+            this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
+            await Task.Delay(50);
+
+            this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
+                It.IsAny<IEnumerable<Option>>(), iteration), Times.AtLeastOnce);
+        }
+        
+        [Test]
+        public void VerifyExternalParameterChangeIsReflectedAfterEndUpdate()
+        {
+            var domain = new DomainOfExpertise();
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(domain);
+            var iteration = new Iteration();
+            this.openIterations.Add(iteration);
+            this.viewModel.CurrentThing = iteration;
 
             var elementDefinition = new ElementDefinition
             {

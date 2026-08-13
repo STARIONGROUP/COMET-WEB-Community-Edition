@@ -34,6 +34,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
     using COMETwebapp.ViewModels.Components.EngineeringModel.Options;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Publications;
 
+    using DynamicData;
+
     using Moq;
 
     using NUnit.Framework;
@@ -48,11 +50,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
         private Mock<IPublicationsTableViewModel> publicationsTableViewModel;
         private Mock<ICommonFileStoreTableViewModel> commonFileStoreTableViewModel;
         private Mock<IDomainFileStoreTableViewModel> domainFileStoreTableViewModel;
+        private SourceList<Iteration> openIterations;
 
         [SetUp]
         public void Setup()
         {
             this.sessionService = new Mock<ISessionService>();
+            this.openIterations = new SourceList<Iteration>();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
             this.optionsTableViewModel = new Mock<IOptionsTableViewModel>();
             this.publicationsTableViewModel = new Mock<IPublicationsTableViewModel>();
             this.commonFileStoreTableViewModel = new Mock<ICommonFileStoreTableViewModel>();
@@ -74,6 +79,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
         public void VerifyThingChanged()
         {
             var newIteration = new Iteration();
+            this.openIterations.Add(newIteration);
             this.viewModel.CurrentThing = newIteration;
 
             this.optionsTableViewModel.Verify(x => x.SetCurrentIteration(newIteration), Times.Once);
