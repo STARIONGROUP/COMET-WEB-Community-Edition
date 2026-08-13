@@ -330,12 +330,19 @@ namespace COMETwebapp.ViewModels.Pages
 
             this.hasCheckedForSavedTabs = true;
 
-            var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey);
-
-            if (savedTabs is { Count: > 0 })
+            try
             {
-                this.RestoreTabsPopupViewModel.ContentText = $"Would you like to restore your {savedTabs.Count} previous tab{(savedTabs.Count > 1 ? "s" : string.Empty)}?";
-                this.RestoreTabsPopupViewModel.IsVisible = true;
+                var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey);
+
+                if (savedTabs is { Count: > 0 })
+                {
+                    this.RestoreTabsPopupViewModel.ContentText = $"Would you like to restore your {savedTabs.Count} previous tab{(savedTabs.Count > 1 ? "s" : string.Empty)}?";
+                    this.RestoreTabsPopupViewModel.IsVisible = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "An error occurred while checking for saved tabs from session storage.");
             }
         }
 
