@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -82,6 +82,11 @@ namespace COMETwebapp.ViewModels.Pages
         /// Indicates whether tab restoration is currently in progress
         /// </summary>
         private bool isRestoringSavedTabs;
+
+        /// <summary>
+        /// Indicates whether the saved tabs check has already been performed in the current session
+        /// </summary>
+        private bool hasCheckedForSavedTabs;
 
         /// <summary>
         /// Backing field for <see cref="SelectedApplication" />
@@ -310,10 +315,12 @@ namespace COMETwebapp.ViewModels.Pages
         /// <returns>An awaitable <see cref="Task" /></returns>
         public async Task CheckAndRestoreSavedTabsAsync()
         {
-            if (this.isRestoringSavedTabs)
+            if (this.isRestoringSavedTabs || this.hasCheckedForSavedTabs)
             {
                 return;
             }
+
+            this.hasCheckedForSavedTabs = true;
 
             var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey);
 

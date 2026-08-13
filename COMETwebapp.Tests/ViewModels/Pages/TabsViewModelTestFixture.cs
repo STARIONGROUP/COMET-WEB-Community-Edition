@@ -262,6 +262,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey, CancellationToken.None))
                 .ReturnsAsync(savedTabs);
 
+            this.viewModel = new TabsViewModel(this.sessionService.Object, this.serviceProvider.Object, this.sessionStorageService.Object, this.messageBus);
+
             await this.viewModel.CheckAndRestoreSavedTabsAsync();
 
             using (Assert.EnterMultipleScope())
