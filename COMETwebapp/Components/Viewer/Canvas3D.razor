@@ -20,14 +20,14 @@
 
 @inherits DisposableComponent
 
-<div id="canvas-wrap">
+<div class="canvas-wrap">
     @if (this.ViewModel.IsOnChangePrimitiveMode)
     {
         <ConfirmCancelPopup ViewModel="@this.ViewModel.ConfirmCancelPopupViewModel"/>
     }
 
     <canvas @ref="@this.ViewModel.CanvasReference"
-            id="babylon-canvas"
+            class="babylon-canvas"
             touch-action="none"
             @onpointerdown="@this.OnMouseDown"
             @onpointerup="@this.OnMouseUp"

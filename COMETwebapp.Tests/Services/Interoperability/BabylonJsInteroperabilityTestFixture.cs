@@ -27,6 +27,7 @@ namespace COMETwebapp.Tests.Services.Interoperability
     using COMETwebapp.Services.Interoperability;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
     using Microsoft.JSInterop;
     using Microsoft.JSInterop.Infrastructure;
 
@@ -38,12 +39,14 @@ namespace COMETwebapp.Tests.Services.Interoperability
     public class BabylonJsInteroperabilityTestFixture
     {
         private Mock<IJSRuntime> jsRuntimeMock;
+        private Mock<ILogger<BabylonInterop>> loggerMock;
         private BabylonInterop babylonInterop;
 
         [SetUp]
         public void SetUp()
         {
             this.jsRuntimeMock = new Mock<IJSRuntime>();
+            this.loggerMock = new Mock<ILogger<BabylonInterop>>();
 
             this.jsRuntimeMock
                 .Setup(x => x.InvokeAsync<IJSVoidResult>(It.IsAny<string>(), It.IsAny<object[]>()))
@@ -53,7 +56,7 @@ namespace COMETwebapp.Tests.Services.Interoperability
                 .Setup(x => x.InvokeAsync<string>(It.IsAny<string>(), It.IsAny<object[]>()))
                 .ReturnsAsync((string)null);
 
-            this.babylonInterop = new BabylonInterop(this.jsRuntimeMock.Object);
+            this.babylonInterop = new BabylonInterop(this.jsRuntimeMock.Object, this.loggerMock.Object);
         }
 
         [Test]
@@ -66,7 +69,7 @@ namespace COMETwebapp.Tests.Services.Interoperability
             this.jsRuntimeMock.Verify(
                 x => x.InvokeAsync<IJSVoidResult>(
                     BabylonInterop.AddSceneObjectFunction,
-                    It.Is<object[]>(args => args.Length == 1)),
+                    It.Is<object[]>(args => args.Length == 2)),
                 Times.Once());
         }
 
@@ -80,7 +83,7 @@ namespace COMETwebapp.Tests.Services.Interoperability
             this.jsRuntimeMock.Verify(
                 x => x.InvokeAsync<IJSVoidResult>(
                     BabylonInterop.DisposeAllFunction,
-                    It.Is<object[]>(args => args.Length == 1)),
+                    It.Is<object[]>(args => args.Length == 2)),
                 Times.Once());
         }
 
@@ -94,7 +97,7 @@ namespace COMETwebapp.Tests.Services.Interoperability
             this.jsRuntimeMock.Verify(
                 x => x.InvokeAsync<IJSVoidResult>(
                     BabylonInterop.DisposeAllFunction,
-                    It.Is<object[]>(args => args.Length == 1)),
+                    It.Is<object[]>(args => args.Length == 2)),
                 Times.Once());
         }
 
@@ -141,7 +144,7 @@ namespace COMETwebapp.Tests.Services.Interoperability
             this.jsRuntimeMock.Verify(
                 x => x.InvokeAsync<IJSVoidResult>(
                     BabylonInterop.InitCanvasFunction,
-                    It.Is<object[]>(args => args.Length == 2)),
+                    It.Is<object[]>(args => args.Length == 3)),
                 Times.Once());
         }
 
@@ -153,7 +156,7 @@ namespace COMETwebapp.Tests.Services.Interoperability
             this.jsRuntimeMock.Verify(
                 x => x.InvokeAsync<IJSVoidResult>(
                     BabylonInterop.RegenMeshFunction,
-                    It.Is<object[]>(args => args.Length == 1)),
+                    It.Is<object[]>(args => args.Length == 2)),
                 Times.Once());
         }
 
@@ -168,8 +171,57 @@ namespace COMETwebapp.Tests.Services.Interoperability
             this.jsRuntimeMock.Verify(
                 x => x.InvokeAsync<IJSVoidResult>(
                     BabylonInterop.SetMeshVisibilityFunction,
-                    It.Is<object[]>(args => args.Length == 2)),
+                    It.Is<object[]>(args => args.Length == 3)),
                 Times.Once());
+        }
+
+        [Test]
+        public async Task VerifyDisposeViewer()
+        {
+            await this.babylonInterop.DisposeViewer();
+
+            this.jsRuntimeMock.Verify(
+                x => x.InvokeAsync<IJSVoidResult>(
+                    BabylonInterop.DisposeViewerFunction,
+                    It.Is<object[]>(args => args.Length == 1)),
+                Times.Once());
+
+            this.jsRuntimeMock
+                .Setup(x => x.InvokeAsync<IJSVoidResult>(BabylonInterop.DisposeViewerFunction, It.IsAny<object[]>()))
+                .ThrowsAsync(new InvalidOperationException("JS error"));
+
+            Assert.DoesNotThrowAsync(async () => await this.babylonInterop.DisposeViewer());
+        }
+
+        [Test]
+        public async Task VerifyMultipleInstancesUseDistinctViewerIds()
+        {
+            var capturedViewerIds = new List<string>();
+
+            this.jsRuntimeMock
+                .Setup(x => x.InvokeAsync<IJSVoidResult>(
+                    BabylonInterop.InitCanvasFunction,
+                    It.IsAny<object[]>()))
+                .Callback<string, object[]>((_, args) =>
+                {
+                    if (args.Length > 0 && args[0] is string id)
+                    {
+                        capturedViewerIds.Add(id);
+                    }
+                })
+                .ReturnsAsync(Mock.Of<IJSVoidResult>());
+
+            var secondInterop = new BabylonInterop(this.jsRuntimeMock.Object, this.loggerMock.Object);
+            var canvasRef = new ElementReference();
+
+            await this.babylonInterop.InitCanvas(canvasRef, true);
+            await secondInterop.InitCanvas(canvasRef, true);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(capturedViewerIds, Has.Count.EqualTo(2));
+                Assert.That(capturedViewerIds[0], Is.Not.EqualTo(capturedViewerIds[1]));
+            }
         }
     }
 }

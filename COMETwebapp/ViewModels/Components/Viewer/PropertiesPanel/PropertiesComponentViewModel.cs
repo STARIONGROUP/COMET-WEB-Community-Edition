@@ -308,31 +308,22 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         {
             this.IsVisible = sceneObject is not null;
 
-            if (this.SelectionMediator.SelectedSceneObjectClone is not null)
-            {
-                this.ParameterValueSetRelations = this.SelectionMediator.SelectedSceneObjectClone.GetParameterValueSetRelations();
-
-                if (this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated is not null)
-                {
-                    this.ParametersInUse = this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated
-                        .Where(x => this.ParameterValueSetRelations.ContainsKey(x))
-                        .OrderBy(x => x.ParameterType.ShortName)
-                        .ToList();
-
-                    this.SelectedParameter = this.ParametersInUse.FirstOrDefault();
-                }
-                else
-                {
-                    this.ParametersInUse = [];
-                    this.SelectedParameter = null;
-                }
-            }
-            else
+            if (this.SelectionMediator.SelectedSceneObjectClone?.ParametersAsociated is null)
             {
                 this.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>();
                 this.ParametersInUse = [];
                 this.SelectedParameter = null;
+                return;
             }
+
+            this.ParameterValueSetRelations = this.SelectionMediator.SelectedSceneObjectClone.GetParameterValueSetRelations();
+
+            this.ParametersInUse = this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated
+                .Where(x => this.ParameterValueSetRelations.ContainsKey(x))
+                .OrderBy(x => x.ParameterType.ShortName)
+                .ToList();
+
+            this.SelectedParameter = this.ParametersInUse.FirstOrDefault();
         }
     }
 }

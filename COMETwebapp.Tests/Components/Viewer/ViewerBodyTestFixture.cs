@@ -22,8 +22,6 @@
 
 namespace COMETwebapp.Tests.Components.Viewer
 {
-    using System.Reactive.Subjects;
-
     using Bunit;
 
     using CDP4Dal;
@@ -36,6 +34,7 @@ namespace COMETwebapp.Tests.Components.Viewer
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
@@ -75,6 +74,9 @@ namespace COMETwebapp.Tests.Components.Viewer
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
+            this.context.JSInterop.SetupVoid("DxBlazor.Input.loadModule").SetVoidResult();
+            this.context.JSInterop.SetupVoid("DxBlazor.UiHandlersBridge.loadModule").SetVoidResult();
 
             var sessionService = new Mock<ISessionService>();
             this.messageBus = new CDPMessageBus();
@@ -85,7 +87,9 @@ namespace COMETwebapp.Tests.Components.Viewer
             mockMultipleFiniteStateSelector.Setup(x => x.ActualFiniteStateSelectorViewModels).Returns([]);
 
             var selectionMediator = new Mock<ISelectionMediator>();
+            var mockBabylonInterop = new Mock<IBabylonInterop>();
             this.canvasViewModel = new Mock<ICanvasViewModel>();
+            this.canvasViewModel.Setup(x => x.BabylonInterop).Returns(mockBabylonInterop.Object);
             var mockConfigurationService = new Mock<IConfigurationService>();
             mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
 
@@ -148,27 +152,24 @@ namespace COMETwebapp.Tests.Components.Viewer
         }
 
         /// <summary>
-        /// Verifies that <see cref="ViewerBody" /> re-initializes canvas when <see cref="ViewerBody.OnSplitViewValueChanged" /> emits false.
+        /// Verifies that <see cref="ViewerBody" /> re-initializes canvas when <see cref="ViewerBody.IsSplitView" /> transitions from true to false.
         /// </summary>
         [Test]
         public void VerifyOnSplitViewValueChangedHandler()
         {
-            var subject = new Subject<bool>();
-
-            this.context.Render<ViewerBody>(parameters =>
-            {
-                parameters.AddCascadingValue(WebAppConstantValues.OnSplitViewValueChangedCascadingValueName, subject);
-            });
+            var component = this.context.Render<ViewerBody>();
 
             // Initial component render triggers InitCanvas(true) once via OnAfterRenderAsync
             this.canvasViewModel.Verify(x => x.InitCanvas(true), Times.Once);
 
-            // Emitting true (split view enabled) should NOT re-init canvas again
-            subject.OnNext(true);
+            // Changing IsSplitView from false to true should not trigger InitCanvas(true) again
+            component.Instance.IsSplitView = true;
+            component.Render();
             this.canvasViewModel.Verify(x => x.InitCanvas(true), Times.Once);
 
-            // Emitting false (split view disabled) SHOULD re-init canvas a second time
-            subject.OnNext(false);
+            // Changing IsSplitView from true to false should trigger InitCanvas(true) again
+            component.Instance.IsSplitView = false;
+            component.Render();
             this.canvasViewModel.Verify(x => x.InitCanvas(true), Times.Exactly(2));
         }
     }

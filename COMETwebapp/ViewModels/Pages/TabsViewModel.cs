@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -168,8 +168,8 @@ namespace COMETwebapp.ViewModels.Pages
 
             var tabToCreate = new TabbedApplicationInformation(viewModel, application.ComponentType, thingOfInterest);
             panel.OpenTabs.Add(tabToCreate);
-            this.SelectedApplication = application;
             panel.CurrentTab = tabToCreate;
+            this.SelectedApplication = application;
         }
 
         /// <summary>

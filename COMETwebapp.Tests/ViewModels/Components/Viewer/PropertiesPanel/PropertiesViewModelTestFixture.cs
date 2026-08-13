@@ -28,8 +28,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
 
     using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.Model;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Viewer;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -38,12 +40,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
 
     using NUnit.Framework;
 
-
     [TestFixture]
     public class PropertiesViewModelTestFixture
     {
         private BunitContext context;
-        private IPropertiesComponentViewModel viewModel;
+        private PropertiesComponentViewModel viewModel;
         private Mock<IBabylonInterop> babylonInterop;
         private Mock<ISessionService> sessionService;
         private Mock<ISelectionMediator> selectionMediator;
@@ -55,8 +56,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
             this.context = new BunitContext();
             this.selectionMediator = new Mock<ISelectionMediator>();
 
-            this.selectionMediator.Setup(x => x.RaiseOnModelSelectionChanged(null)).Callback(() => this.viewModel.IsVisible = false);
-            this.selectionMediator.Setup(x => x.RaiseOnTreeSelectionChanged(null)).Callback(() => this.viewModel.IsVisible = false);
+            this.selectionMediator
+                .Setup(x => x.RaiseOnModelSelectionChanged(It.IsAny<SceneObject>()))
+                .Callback<SceneObject>(sceneObject => this.selectionMediator.Raise(x => x.OnModelSelectionChanged += null, sceneObject));
+
+            this.selectionMediator
+                .Setup(x => x.RaiseOnTreeSelectionChanged(It.IsAny<ViewerNodeViewModel>()))
+                .Callback<ViewerNodeViewModel>(nodeViewModel => this.selectionMediator.Raise(x => x.OnTreeSelectionChanged += null, nodeViewModel));
 
             this.context.Services.AddSingleton(this.selectionMediator.Object);
 
@@ -79,7 +85,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
             this.viewModel.IsVisible = true;
             Assert.That(this.viewModel.IsVisible, Is.True);
             this.viewModel.SelectionMediator.RaiseOnModelSelectionChanged(null);
-            Assert.That(this.viewModel.IsVisible, Is.False);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsVisible, Is.False);
+                Assert.That(this.viewModel.ParameterValueSetRelations, Has.Count.EqualTo(0));
+                Assert.That(this.viewModel.ParametersInUse, Has.Count.EqualTo(0));
+                Assert.That(this.viewModel.SelectedParameter, Is.Null);
+            });
         }
 
         [Test]
@@ -87,7 +100,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer.PropertiesPanel
         {
             this.viewModel.IsVisible = true;
             Assert.That(this.viewModel.IsVisible, Is.True);
-            this.viewModel.SelectionMediator.RaiseOnTreeSelectionChanged(null);
+
+            var nodeViewModel = new ViewerNodeViewModel(null);
+            this.viewModel.SelectionMediator.RaiseOnTreeSelectionChanged(nodeViewModel);
             Assert.That(this.viewModel.IsVisible, Is.False);
         }
 
