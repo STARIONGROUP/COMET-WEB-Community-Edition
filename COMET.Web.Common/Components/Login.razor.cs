@@ -222,13 +222,16 @@ namespace COMET.Web.Common.Components
             {
                 var savedServerUrl = await this.AuthenticationService.RetrieveLastUsedServerUrlAsync();
 
-                if (!string.IsNullOrEmpty(savedServerUrl) && string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.SourceAddress))
+                if (string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.SourceAddress))
                 {
-                    this.ViewModel.AuthenticationDto.SourceAddress = savedServerUrl;
-                }
-                else if (string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.SourceAddress) && !string.IsNullOrEmpty(this.ServerConfiguration?.ServerAddress))
-                {
-                    this.ViewModel.AuthenticationDto.SourceAddress = this.ServerConfiguration.ServerAddress;
+                    if (!string.IsNullOrEmpty(savedServerUrl))
+                    {
+                        this.ViewModel.AuthenticationDto.SourceAddress = savedServerUrl;
+                    }
+                    else if (!string.IsNullOrEmpty(this.ServerConfiguration?.ServerAddress))
+                    {
+                        this.ViewModel.AuthenticationDto.SourceAddress = this.ServerConfiguration.ServerAddress;
+                    }
                 }
 
                 var savedUserName = await this.AuthenticationService.RetrieveLastUsedUserNameAsync();

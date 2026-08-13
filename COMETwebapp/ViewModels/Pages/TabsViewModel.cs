@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -45,6 +45,7 @@ namespace COMETwebapp.ViewModels.Pages
     using DynamicData;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
 
     using ReactiveUI;
 
@@ -67,6 +68,11 @@ namespace COMETwebapp.ViewModels.Pages
         /// Gets the injected <see cref="ISessionStorageService" />
         /// </summary>
         private readonly ISessionStorageService sessionStorageService;
+
+        /// <summary>
+        /// Gets the injected <see cref="ILogger{TabsViewModel}" />
+        /// </summary>
+        private readonly ILogger<TabsViewModel> logger;
 
         /// <summary>
         /// The currently selected <see cref="Iteration" /> for domain switching
@@ -99,12 +105,14 @@ namespace COMETwebapp.ViewModels.Pages
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="serviceProvider">The <see cref="IServiceProvider" /></param>
         /// <param name="sessionStorageService">The <see cref="ISessionStorageService"/></param>
+        /// <param name="logger">The <see cref="ILogger{TabsViewModel}"/></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus"/></param>
-        public TabsViewModel(ISessionService sessionService, IServiceProvider serviceProvider, ISessionStorageService sessionStorageService, ICDPMessageBus messageBus)
+        public TabsViewModel(ISessionService sessionService, IServiceProvider serviceProvider, ISessionStorageService sessionStorageService, ILogger<TabsViewModel> logger, ICDPMessageBus messageBus)
         {
             this.sessionService = sessionService;
             this.serviceProvider = serviceProvider;
             this.sessionStorageService = sessionStorageService;
+            this.logger = logger;
 
             var eventCallbackFactory = new EventCallbackFactory();
 
@@ -326,7 +334,7 @@ namespace COMETwebapp.ViewModels.Pages
 
             if (savedTabs is { Count: > 0 })
             {
-                this.RestoreTabsPopupViewModel.ContentText = $"Would you like to restore your {savedTabs.Count} previous tab{(savedTabs.Count > 1 ? "s" : "")}?";
+                this.RestoreTabsPopupViewModel.ContentText = $"Would you like to restore your {savedTabs.Count} previous tab{(savedTabs.Count > 1 ? "s" : string.Empty)}?";
                 this.RestoreTabsPopupViewModel.IsVisible = true;
             }
         }
@@ -371,7 +379,7 @@ namespace COMETwebapp.ViewModels.Pages
 
             foreach (var tab in this.OpenTabs.Distinct())
             {
-                var app = Applications.ExistingApplications.OfType<TabbedApplication>().FirstOrDefault(x => x.ComponentType == tab.ComponentType);
+                var app = this.AvailableApplications.FirstOrDefault(x => x.ComponentType == tab.ComponentType);
 
                 if (app == null)
                 {
@@ -417,30 +425,40 @@ namespace COMETwebapp.ViewModels.Pages
 
             this.isRestoringSavedTabs = true;
            
-            var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey);
-            await this.sessionStorageService.RemoveItemAsync(WebAppConstantValues.SavedTabsKey);
-
-            if (savedTabs is { Count: > 0 })
+            try
             {
-                foreach (var savedTab in savedTabs)
+                var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey);
+                await this.sessionStorageService.RemoveItemAsync(WebAppConstantValues.SavedTabsKey);
+
+                if (savedTabs is { Count: > 0 })
                 {
-                    var app = this.AvailableApplications.FirstOrDefault(x => x.Name == savedTab.ApplicationName);
-
-                    if (app == null)
+                    foreach (var savedTab in savedTabs)
                     {
-                        continue;
+                        var app = this.AvailableApplications.FirstOrDefault(x => x.Name == savedTab.ApplicationName);
+
+                        if (app == null)
+                        {
+                            continue;
+                        }
+
+                        var targetPanel = savedTab.IsSidePanel ? this.SidePanel : this.MainPanel;
+
+                        await this.OpenThingOfInterest(savedTab.IterationSetupId, savedTab.DomainId);
+                        this.CreateNewTab(app, savedTab.ObjectOfInterestId, targetPanel);
                     }
-
-                    var targetPanel = savedTab.IsSidePanel ? this.SidePanel : this.MainPanel;
-
-                    await this.OpenThingOfInterest(savedTab.IterationSetupId, savedTab.DomainId);
-                    this.CreateNewTab(app, savedTab.ObjectOfInterestId, targetPanel);
                 }
+                
+                await this.SaveOpenTabsToSessionStorageAsync();
             }
-            
-            this.isRestoringSavedTabs = false;
-            this.RestoreTabsPopupViewModel.IsVisible = false;
-            await this.SaveOpenTabsToSessionStorageAsync();
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "An error occurred while restoring saved tabs from session storage.");
+            }
+            finally
+            {
+                this.isRestoringSavedTabs = false;
+                this.RestoreTabsPopupViewModel.IsVisible = false;
+            }
         }
 
         /// <summary>
@@ -475,9 +493,9 @@ namespace COMETwebapp.ViewModels.Pages
             }
 
             var modelSetup = (EngineeringModelSetup)iterationSetup.Container;
-            var allDomains = this.sessionService.GetAvailableDomains(modelSetup).ToList();
+            var allDomains = this.sessionService.GetAvailableDomains(modelSetup);
 
-            var domainToUse = allDomains.Find(x => x.Iid == domainId) 
+            var domainToUse = allDomains.FirstOrDefault(x => x.Iid == domainId) 
                                ?? modelSetup.ActiveDomain.Find(x => x == this.sessionService.Session.ActivePerson.DefaultDomain)
                                ?? modelSetup.ActiveDomain.FirstOrDefault();
 

@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="AuthenticationService.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -63,7 +63,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         private const string RefreshTokenKey = "refresh_token";
 
         /// <summary>
-        /// Gets the name of the key of the username that is store within the session storage
+        /// Gets the name of the key of the username that is stored within the session storage
         /// </summary>
         private const string UserNameKey = "cdp4-comet-username";
 

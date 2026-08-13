@@ -58,10 +58,7 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         /// <returns>A <see cref="Task" /></returns>
         protected virtual Task OnDomainChanged()
         {
-            this.CurrentDomain = this.CurrentThing != null && this.SessionService.OpenIterations.Items.Contains(this.CurrentThing)
-                ? this.SessionService.GetDomainOfExpertise(this.CurrentThing)
-                : null;
-
+            this.UpdateCurrentDomain();
             return Task.CompletedTask;
         }
 
@@ -69,15 +66,22 @@ namespace COMET.Web.Common.ViewModels.Components.Applications
         /// Update this view model properties when the <see cref="Iteration" /> has changed
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
-        protected override async Task OnThingChanged()
+        protected override Task OnThingChanged()
         {
             this.IsLoading = true;
+            this.UpdateCurrentDomain();
 
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Updates the current domain based on the current thing
+        /// </summary>
+        private void UpdateCurrentDomain()
+        {
             this.CurrentDomain = this.CurrentThing != null && this.SessionService.OpenIterations.Items.Contains(this.CurrentThing)
                 ? this.SessionService.GetDomainOfExpertise(this.CurrentThing)
                 : null;
-
-            await Task.CompletedTask;
         }
 
         /// <summary>

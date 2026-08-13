@@ -41,6 +41,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages
 
     using Blazored.SessionStorage;
 
+    using Microsoft.Extensions.Logging;
+
     using Moq;
 
     using NUnit.Framework;
@@ -52,6 +54,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         private Mock<ISessionService> sessionService;
         private Mock<IServiceProvider> serviceProvider;
         private Mock<ISessionStorageService> sessionStorageService;
+        private Mock<ILogger<TabsViewModel>> logger;
         private SourceList<Iteration> openIterations;
         private CDPMessageBus messageBus;
 
@@ -61,6 +64,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             this.serviceProvider = new Mock<IServiceProvider>();
             this.sessionService = new Mock<ISessionService>();
             this.sessionStorageService = new Mock<ISessionStorageService>();
+            this.logger = new Mock<ILogger<TabsViewModel>>();
             this.openIterations = new SourceList<Iteration>();
             this.messageBus = new CDPMessageBus();
 
@@ -83,7 +87,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             this.sessionStorageService.Setup(x => x.SetItemAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Returns(ValueTask.CompletedTask);
             this.serviceProvider.Setup(x => x.GetService(It.IsAny<Type>())).Returns(new Mock<IApplicationBaseViewModel>().Object);
 
-            this.viewModel = new TabsViewModel(this.sessionService.Object, this.serviceProvider.Object, this.sessionStorageService.Object, this.messageBus);
+            this.viewModel = new TabsViewModel(this.sessionService.Object, this.serviceProvider.Object, this.sessionStorageService.Object, this.logger.Object, this.messageBus);
         }
 
         [TearDown]
@@ -262,7 +266,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey, CancellationToken.None))
                 .ReturnsAsync(savedTabs);
 
-            this.viewModel = new TabsViewModel(this.sessionService.Object, this.serviceProvider.Object, this.sessionStorageService.Object, this.messageBus);
+            this.viewModel.Dispose();
+            this.viewModel = new TabsViewModel(this.sessionService.Object, this.serviceProvider.Object, this.sessionStorageService.Object, this.logger.Object, this.messageBus);
 
             await this.viewModel.CheckAndRestoreSavedTabsAsync();
 
