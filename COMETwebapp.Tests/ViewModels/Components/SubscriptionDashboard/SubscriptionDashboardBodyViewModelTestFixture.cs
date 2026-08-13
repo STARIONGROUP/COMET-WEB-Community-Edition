@@ -86,7 +86,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
         }
 
         [Test]
-        public async Task VerifyOnDomainChanged()
+        public void VerifyOnDomainChanged()
         {
             var domain = new DomainOfExpertise();
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(domain);
@@ -94,14 +94,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
             this.openIterations.Add(iteration);
             this.viewModel.CurrentThing = iteration;
             this.messageBus.SendMessage(new DomainChangedEvent(iteration, domain));
-            await Task.Delay(50);
 
             this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
                 It.IsAny<IEnumerable<Option>>(), iteration), Times.AtLeastOnce);
         }
 
         [Test]
-        public async Task VerifySessionRefresh()
+        public void VerifySessionRefresh()
         {
             var domain = new DomainOfExpertise();
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(domain);
@@ -109,7 +108,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.SubscriptionDashboard
             this.openIterations.Add(iteration);
             this.viewModel.CurrentThing = iteration;
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-            await Task.Delay(50);
 
             this.subscribedTableViewModel.Verify(x => x.UpdateProperties(It.IsAny<IEnumerable<ParameterSubscription>>(),
                 It.IsAny<IEnumerable<Option>>(), iteration), Times.AtLeastOnce);
