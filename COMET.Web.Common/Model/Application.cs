@@ -59,5 +59,27 @@ namespace COMET.Web.Common.Model
         /// Value asserting that the current <see cref="Application" /> is currently disabled
         /// </summary>
         public bool IsDisabled { get; set; }
+
+        /// <summary>
+        /// A one-sentence summary of what the user can accomplish on this application's page.
+        /// </summary>
+        public string PageIntroSummary { get; set; }
+
+        /// <summary>
+        /// Short, verb-led statements of what the user can do on this application's page.
+        /// </summary>
+        /// <remarks>
+        /// A maximum of four bullet points is suggested.
+        /// </remarks>
+        public IEnumerable<string> PageIntroPoints { get; set; } = [];
+
+        /// <summary>
+        /// Gets the user preference key used to persist the introduction box dismissal state for this application.
+        /// </summary>
+        /// <returns>The string key for the user preference.</returns>
+        public string GetPageIntroUserPreferenceKey()
+        {
+            return $"comet.intro.dismissed.{this.Url}";
+        }
     }
 }

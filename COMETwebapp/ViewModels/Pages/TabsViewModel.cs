@@ -218,8 +218,8 @@ namespace COMETwebapp.ViewModels.Pages
 
             var tabToCreate = new TabbedApplicationInformation(viewModel, application.ComponentType, thingOfInterest);
             panel.OpenTabs.Add(tabToCreate);
-            this.SelectedApplication = application;
             panel.CurrentTab = tabToCreate;
+            this.SelectedApplication = application;
         }
 
         /// <summary>
@@ -227,7 +227,9 @@ namespace COMETwebapp.ViewModels.Pages
         /// </summary>
         private void OnSelectedApplicationChange()
         {
-            if (this.SelectedApplication == null || this.MainPanel.CurrentTab?.ComponentType == this.SelectedApplication?.ComponentType)
+            if (this.SelectedApplication == null ||
+                this.MainPanel.CurrentTab?.ComponentType == this.SelectedApplication?.ComponentType ||
+                this.SidePanel.CurrentTab?.ComponentType == this.SelectedApplication?.ComponentType)
             {
                 return;
             }

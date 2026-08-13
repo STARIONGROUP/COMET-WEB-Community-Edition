@@ -28,6 +28,7 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry.PersonEdit
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Utilities.DisposableObject;
+    using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components;
 
@@ -145,11 +146,22 @@ namespace COMET.Web.Common.ViewModels.Shared.TopMenuEntry.PersonEdit
         void RemoveTelephone(TelephoneNumberRowViewModel row);
 
         /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> for confirming preference reset.
+        /// </summary>
+        IConfirmCancelPopupViewModel ConfirmCancelViewModel { get; }
+
+        /// <summary>
         /// Persists the edits via <c>ISessionService.CreateOrUpdateThingsWithNotification</c>. On success
         /// fires <see cref="OnSaved" /> and clears the password fields. Exceptions are logged and never
         /// propagated so the host popup is always restored to a sane state.
         /// </summary>
         /// <returns>A <see cref="Task" /> that completes when the save attempt has finished.</returns>
         Task SaveAsync();
+
+        /// <summary>
+        /// Resets all user preferences for the active person after user confirmation.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> that completes when the reset attempt has finished.</returns>
+        Task ResetPreferencesAsync();
     }
 }

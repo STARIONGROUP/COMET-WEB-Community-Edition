@@ -79,5 +79,12 @@ namespace COMETwebapp.Services.Interoperability
         /// </summary>
         /// <returns></returns>
         Task<Guid> GetPrimitiveIdUnderMouseAsync();
+
+        /// <summary>
+        /// Disposes the Babylon engine and resources associated with this viewer instance
+        /// </summary>
+        /// <returns>an asynchronous task</returns>
+        Task DisposeViewer();
     }
 }
+

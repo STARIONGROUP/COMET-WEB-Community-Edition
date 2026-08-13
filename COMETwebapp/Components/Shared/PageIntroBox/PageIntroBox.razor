@@ -1,0 +1,55 @@
+﻿<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+This file is part of CDP4-COMET WEB Community Edition
+The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+modify it under the terms of the GNU Affero General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
+
+The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see http://www.gnu.org/licenses/.
+------------------------------------------------------------------------------->
+@if (this.Application == null || !(this.IsPageIntroductionVisible && (!string.IsNullOrEmpty(this.summary) || this.points.Count > 0)))
+{
+    return;
+}
+
+<div role="note"
+     aria-label="@($"{this.Application.Name} introduction")"
+     class="page-intro-box">
+    <div class="page-intro-box__accent"></div>
+    <div class="page-intro-box__content">
+        <div class="page-intro-box__header">
+            <CometIcon Icon="IconName.Info"/>
+
+            <span class="page-intro-box__title">@(this.Application.Name)</span>
+            <DxButton CssClass="page-intro-box__dismiss"
+                      aria-label="@($"Dismiss introduction for {this.Application.Name}")"
+                      Click="@(this.DismissAsync)"
+                      RenderStyle="@(ButtonRenderStyle.None)">
+                <CometIcon Icon="IconName.Close"/>
+            </DxButton>
+        </div>
+        @if (!string.IsNullOrEmpty(this.summary))
+        {
+            <p class="page-intro-box__summary">@(this.summary)</p>
+        }
+        @if (this.points.Count > 0)
+        {
+            <ul class="page-intro-box__points">
+                @foreach (var point in this.points)
+                {
+                    <li>@point</li>
+                }
+            </ul>
+        }
+    </div>
+</div>

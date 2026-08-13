@@ -150,6 +150,29 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         }
 
         [Test]
+        public void VerifyOnSelectedApplicationDoesNotCrossPanel()
+        {
+            var engineeringModelApplication = this.viewModel.AvailableApplications.First(x => x.Url == WebAppConstantValues.EngineeringModelPage);
+            var bookEditorApplication = this.viewModel.AvailableApplications.First(x => x.Url == WebAppConstantValues.BookEditorPage);
+
+            this.viewModel.CreateNewTab(engineeringModelApplication, Guid.Empty, this.viewModel.MainPanel);
+            var mainTab = this.viewModel.MainPanel.CurrentTab;
+
+            this.viewModel.CreateNewTab(bookEditorApplication, Guid.Empty, this.viewModel.SidePanel);
+            var sideTab = this.viewModel.SidePanel.CurrentTab;
+
+            // Simulate clicking the SidePanel tab
+            this.viewModel.SidePanel.CurrentTab = sideTab;
+            this.viewModel.MainPanel.CurrentTab = mainTab;
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.MainPanel.CurrentTab, Is.EqualTo(mainTab));
+                Assert.That(this.viewModel.SidePanel.CurrentTab, Is.EqualTo(sideTab));
+            }
+        }
+
+        [Test]
         public async Task VerifyDomainSwitching()
         {
             var emptyPanel = new TabPanelInformation();

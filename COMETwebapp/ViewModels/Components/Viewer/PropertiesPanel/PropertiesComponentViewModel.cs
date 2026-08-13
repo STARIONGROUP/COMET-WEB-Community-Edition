@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="PropertiesComponentViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -69,7 +69,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         /// <summary>
         /// Backing field for the <see cref="ParametersInUse" />
         /// </summary>
-        private List<ParameterBase> parametersInUse = new();
+        private List<ParameterBase> parametersInUse = [];
 
         /// <summary>
         /// Backing field for the <see cref="SelectedParameter" />
@@ -308,20 +308,22 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         {
             this.IsVisible = sceneObject is not null;
 
-            if (this.SelectionMediator.SelectedSceneObjectClone is not null)
+            if (this.SelectionMediator.SelectedSceneObjectClone?.ParametersAsociated is null)
             {
-                this.ParameterValueSetRelations = this.SelectionMediator.SelectedSceneObjectClone.GetParameterValueSetRelations();
-
-                if (this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated is not null)
-                {
-                    this.ParametersInUse = this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated.OrderBy(x => x.ParameterType.ShortName).ToList();
-
-                    if (this.ParametersInUse is not null && this.ParametersInUse.Any())
-                    {
-                        this.SelectedParameter = this.ParametersInUse[0];
-                    }
-                }
+                this.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>();
+                this.ParametersInUse = [];
+                this.SelectedParameter = null;
+                return;
             }
+
+            this.ParameterValueSetRelations = this.SelectionMediator.SelectedSceneObjectClone.GetParameterValueSetRelations();
+
+            this.ParametersInUse = this.SelectionMediator.SelectedSceneObjectClone.ParametersAsociated
+                .Where(x => this.ParameterValueSetRelations.ContainsKey(x))
+                .OrderBy(x => x.ParameterType.ShortName)
+                .ToList();
+
+            this.SelectedParameter = this.ParametersInUse.FirstOrDefault();
         }
     }
 }

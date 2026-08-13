@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ViewerBody.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -45,6 +45,16 @@ namespace COMETwebapp.Components.Viewer
         public bool IsSplitView { get; set; }
 
         /// <summary>
+        /// Backing field for tracking the previous <see cref="IsSplitView" /> state
+        /// </summary>
+        private bool previousIsSplitView;
+
+        /// <summary>
+        /// Indicates whether the canvas needs to be re-initialized after layout rendering
+        /// </summary>
+        private bool needCanvasReinit;
+
+        /// <summary>
         /// The reference to the <see cref="CanvasComponent" /> component
         /// </summary>
         public Canvas3D CanvasComponent { get; private set; }
@@ -73,6 +83,38 @@ namespace COMETwebapp.Components.Viewer
             {
                 await this.CanvasComponent.ViewModel.InitCanvas(true);
             }
+            else if (this.needCanvasReinit)
+            {
+                this.needCanvasReinit = false;
+
+                if (this.CanvasComponent == null)
+                {
+                    return;
+                }
+
+                await this.CanvasComponent.ViewModel.InitCanvas(true);
+
+                if (this.ViewModel.ProductTreeViewModel.RootViewModel != null)
+                {
+                    await this.RepopulateScene(this.ViewModel.ProductTreeViewModel.RootViewModel);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Method invoked when the component has received parameters from its parent in the render tree.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the async operation.</returns>
+        protected override async Task OnParametersSetAsync()
+        {
+            await base.OnParametersSetAsync();
+
+            if (this.previousIsSplitView && !this.IsSplitView)
+            {
+                this.needCanvasReinit = true;
+            }
+
+            this.previousIsSplitView = this.IsSplitView;
         }
 
         /// <summary>
@@ -82,7 +124,7 @@ namespace COMETwebapp.Components.Viewer
         {
             base.OnViewModelAssigned();
 
-            this.Disposables.Add(this.WhenAnyValue(x=>x.ViewModel.IsLoading).Subscribe(_=>this.InvokeAsync(this.StateHasChanged)));
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsLoading).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption)
                 .Subscribe(_ => this.UpdateUrl()));

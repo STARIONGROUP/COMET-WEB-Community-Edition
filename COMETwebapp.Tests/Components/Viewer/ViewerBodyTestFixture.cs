@@ -34,6 +34,7 @@ namespace COMETwebapp.Tests.Components.Viewer
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
     using COMETwebapp.Components.Viewer;
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
@@ -61,6 +62,11 @@ namespace COMETwebapp.Tests.Components.Viewer
         private CDPMessageBus messageBus;
 
         /// <summary>
+        /// The mock <see cref="ICanvasViewModel" /> used for testing.
+        /// </summary>
+        private Mock<ICanvasViewModel> canvasViewModel;
+
+        /// <summary>
         /// Sets up the test context and dependencies before each test execution.
         /// </summary>
         [SetUp]
@@ -68,6 +74,9 @@ namespace COMETwebapp.Tests.Components.Viewer
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
+            this.context.JSInterop.SetupVoid("DxBlazor.Input.loadModule").SetVoidResult();
+            this.context.JSInterop.SetupVoid("DxBlazor.UiHandlersBridge.loadModule").SetVoidResult();
 
             var sessionService = new Mock<ISessionService>();
             this.messageBus = new CDPMessageBus();
@@ -78,7 +87,9 @@ namespace COMETwebapp.Tests.Components.Viewer
             mockMultipleFiniteStateSelector.Setup(x => x.ActualFiniteStateSelectorViewModels).Returns([]);
 
             var selectionMediator = new Mock<ISelectionMediator>();
-            var canvasViewModel = new Mock<ICanvasViewModel>();
+            var mockBabylonInterop = new Mock<IBabylonInterop>();
+            this.canvasViewModel = new Mock<ICanvasViewModel>();
+            this.canvasViewModel.Setup(x => x.BabylonInterop).Returns(mockBabylonInterop.Object);
             var mockConfigurationService = new Mock<IConfigurationService>();
             mockConfigurationService.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
 
@@ -92,7 +103,7 @@ namespace COMETwebapp.Tests.Components.Viewer
             mockViewerBodyViewModel.Setup(x => x.OptionSelector).Returns(mockOptionSelector.Object);
             mockViewerBodyViewModel.Setup(x => x.MultipleFiniteStateSelector).Returns(mockMultipleFiniteStateSelector.Object);
             mockViewerBodyViewModel.Setup(x => x.ProductTreeViewModel).Returns(new ViewerProductTreeViewModel(selectionMediator.Object));
-            mockViewerBodyViewModel.Setup(x => x.CanvasViewModel).Returns(canvasViewModel.Object);
+            mockViewerBodyViewModel.Setup(x => x.CanvasViewModel).Returns(this.canvasViewModel.Object);
             mockViewerBodyViewModel.Setup(x => x.PropertiesViewModel).Returns(mockPropertiesViewModel.Object);
 
             this.context.Services.AddSingleton(sessionService.Object);
@@ -138,6 +149,28 @@ namespace COMETwebapp.Tests.Components.Viewer
                 Assert.That(splitViewRenderedComponent.Instance.IsSplitView, Is.True);
                 Assert.That(splitGridParent.ClassList, Does.Contain("split-mode"));
             });
+        }
+
+        /// <summary>
+        /// Verifies that <see cref="ViewerBody" /> re-initializes canvas when <see cref="ViewerBody.IsSplitView" /> transitions from true to false.
+        /// </summary>
+        [Test]
+        public void VerifyOnSplitViewValueChangedHandler()
+        {
+            var component = this.context.Render<ViewerBody>();
+
+            // Initial component render triggers InitCanvas(true) once via OnAfterRenderAsync
+            this.canvasViewModel.Verify(x => x.InitCanvas(true), Times.Once);
+
+            // Changing IsSplitView from false to true should not trigger InitCanvas(true) again
+            component.Instance.IsSplitView = true;
+            component.Render();
+            this.canvasViewModel.Verify(x => x.InitCanvas(true), Times.Once);
+
+            // Changing IsSplitView from true to false should trigger InitCanvas(true) again
+            component.Instance.IsSplitView = false;
+            component.Render();
+            this.canvasViewModel.Verify(x => x.InitCanvas(true), Times.Exactly(2));
         }
     }
 }

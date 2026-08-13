@@ -25,6 +25,7 @@ namespace COMETwebapp.Services.Interoperability
     using COMETwebapp.Model;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
     using Microsoft.JSInterop;
 
     using Newtonsoft.Json;
@@ -70,11 +71,28 @@ namespace COMETwebapp.Services.Interoperability
         public const string GetPrimitiveIdUnderMouseFunction = "GetPrimitiveIDUnderMouse";
 
         /// <summary>
+        /// JavaScript function name for disposing a viewer instance
+        /// </summary>
+        public const string DisposeViewerFunction = "DisposeViewer";
+
+        /// <summary>
+        /// The <see cref="ILogger{BabylonInterop}" />
+        /// </summary>
+        private readonly ILogger<BabylonInterop> logger;
+
+        /// <summary>
+        /// Unique identifier for this BabylonInterop instance and associated JS viewer state
+        /// </summary>
+        private readonly string viewerId = Guid.NewGuid().ToString("N");
+
+        /// <summary>
         /// Creates a new instance of type <see cref="BabylonInterop" />
         /// </summary>
         /// <param name="jsRuntime">the <see cref="IJSRuntime" /></param>
-        public BabylonInterop(IJSRuntime jsRuntime) : base(jsRuntime)
+        /// <param name="logger">the <see cref="ILogger{BabylonInterop}" /></param>
+        public BabylonInterop(IJSRuntime jsRuntime, ILogger<BabylonInterop> logger) : base(jsRuntime)
         {
+            this.logger = logger;
         }
 
         /// <summary>
@@ -86,7 +104,7 @@ namespace COMETwebapp.Services.Interoperability
         public async Task InitCanvas(ElementReference canvasReference, bool addAxes)
         {
             await this.EnsureScriptsLoadedAsync();
-            await this.JsRuntime.InvokeVoidAsync(InitCanvasFunction, canvasReference, addAxes);
+            await this.JsRuntime.InvokeVoidAsync(InitCanvasFunction, this.viewerId, canvasReference, addAxes);
         }
 
         /// <summary>
@@ -99,7 +117,7 @@ namespace COMETwebapp.Services.Interoperability
             ArgumentNullException.ThrowIfNull(sceneObject);
 
             var sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
-            await this.JsRuntime.InvokeVoidAsync(AddSceneObjectFunction, sceneObjectJson);
+            await this.JsRuntime.InvokeVoidAsync(AddSceneObjectFunction, this.viewerId, sceneObjectJson);
         }
 
         /// <summary>
@@ -125,7 +143,7 @@ namespace COMETwebapp.Services.Interoperability
             await this.EnsureScriptsLoadedAsync();
 
             var ids = sceneObjects.Select(x => x.ID).ToList();
-            await this.JsRuntime.InvokeVoidAsync(DisposeAllFunction, ids);
+            await this.JsRuntime.InvokeVoidAsync(DisposeAllFunction, this.viewerId, ids);
         }
 
         /// <summary>
@@ -138,7 +156,7 @@ namespace COMETwebapp.Services.Interoperability
         {
             ArgumentNullException.ThrowIfNull(sceneObject);
 
-            await this.JsRuntime.InvokeVoidAsync(SetMeshVisibilityFunction, sceneObject.ID, visibility);
+            await this.JsRuntime.InvokeVoidAsync(SetMeshVisibilityFunction, this.viewerId, sceneObject.ID, visibility);
         }
 
         /// <summary>
@@ -148,16 +166,16 @@ namespace COMETwebapp.Services.Interoperability
         public async Task RegenerateMesh(SceneObject sceneObject)
         {
             var sceneObjectJson = JsonConvert.SerializeObject(sceneObject);
-            await this.JsRuntime.InvokeVoidAsync(RegenMeshFunction, sceneObjectJson);
+            await this.JsRuntime.InvokeVoidAsync(RegenMeshFunction, this.viewerId, sceneObjectJson);
         }
 
         /// <summary>
         /// Tries to get the <see cref="SceneObject.ID" /> that's under the mouse cursor.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The <see cref="Guid" /> of the primitive under the mouse cursor, or <see cref="Guid.Empty" /> if none is found.</returns>
         public async Task<Guid> GetPrimitiveIdUnderMouseAsync()
         {
-            var id = await this.JsRuntime.InvokeAsync<string>(GetPrimitiveIdUnderMouseFunction);
+            var id = await this.JsRuntime.InvokeAsync<string>(GetPrimitiveIdUnderMouseFunction, this.viewerId);
 
             if (id == null || !Guid.TryParse(id, out var parsedId))
             {
@@ -165,6 +183,22 @@ namespace COMETwebapp.Services.Interoperability
             }
 
             return parsedId;
+        }
+
+        /// <summary>
+        /// Disposes the Babylon engine and resources associated with this viewer instance
+        /// </summary>
+        /// <returns>an asynchronous task</returns>
+        public async Task DisposeViewer()
+        {
+            try
+            {
+                await this.JsRuntime.InvokeVoidAsync(DisposeViewerFunction, this.viewerId);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogWarning(ex, "An error occurred while disposing viewer {ViewerId}.", this.viewerId);
+            }
         }
 
         /// <summary>

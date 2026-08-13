@@ -2,8 +2,6 @@
 // <copyright file="babylonInterop.js" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
-//    Authors: Sam Gerené, Alex Vorobiev, Alexander van Delft, Jaime Bernar
-//
 //    This file is part of CDP4-COMET WEB Community Edition
 //    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 //
@@ -53,119 +51,129 @@ const CameraZoomSensibility = 0.3;
 const CameraInertia = 0.1;
 
 /**
- * The babylon.js scene.
- * @type {BABYLON.JS Scene}
+ * A map of viewer states indexed by viewerId.
  */
-let Scene;
+const ViewerStates = new Map();
 
 /**
- * A map of the SceneObjects that the Scene contains. 
+ * Gets or creates the viewer state for a given viewerId.
+ * @param {string} viewerId - the viewer identifier.
  */
-let SceneObjects = new Map();
+function GetViewerState(viewerId) {
+    let state = ViewerStates.get(viewerId);
 
-/**
- * Picking material used when a primitive is hover with the mouse.
- * @type {BABYLON.js material}
- */
-let PickingMaterial;
+    if (!state) {
+        state = {
+            Scene: null,
+            SceneObjects: new Map(),
+            PickingMaterial: null,
+            SceneSpecularColor: null,
+            SceneEmissiveColor: null,
+            SceneAmbientColor: null,
+            BabylonCanvas: null,
+            Camera: null,
+            BabylonEngine: null,
+            HighLightLayer: null
+        };
 
-/**
- * Scene specular color. 
- * @type {BABYLON.js Color}
- */
-let SceneSpecularColor;
-
-/**
- * Scene emissive color. 
- * @type {BABYLON.js Color}
- */
-let SceneEmissiveColor;
-
-/**
- * Scene ambient color. 
- * @type {BABYLON.js Color}
- */
-let SceneAmbientColor;
-
-/**
- * The HTML5 canvas where the scene is drawn.
- * @type {HTMLCanvasElement}
- */
-let BabylonCanvas;
-
-/**
- * The Babylon Camera
- * @type {Babylon.js Camera}
- */
-let Camera;
-
-/**
- * The Babylon Engine
- * @type {Babylon.js Engine}
- */
-let BabylonEngine;
-
-/**The layer used for highlightning */
-let HighLightLayer;
+        ViewerStates.set(viewerId, state);
+    }
+    return state;
+}
 
 /**
  * Inits the babylon.js scene on the canvas, the asociated resources and starts the render loop.
+ * @param {string} viewerId - the unique identifier for the viewer instance.
  * @param {HTMLCanvasElement} canvas - the canvas the scene it's attached to.
+ * @param {boolean} addAxes - whether to add world axes.
  */
-function InitCanvas(canvas, addAxes) {
+function InitCanvas(viewerId, canvas, addAxes) {
 
     if (canvas == null) {
         throw "The canvas can't be null or undefined";
     }
 
-    BabylonCanvas = canvas;
-    BabylonEngine = new BABYLON.Engine(BabylonCanvas, true, { stencil: true, antialias: true });
+    if (ViewerStates.has(viewerId)) {
+        DisposeViewer(viewerId);
+    }
 
-    if (BabylonEngine == null || BabylonEngine == undefined) {
+    let state = GetViewerState(viewerId);
+    state.BabylonCanvas = canvas;
+    state.BabylonEngine = new BABYLON.Engine(state.BabylonCanvas, true, { stencil: true, antialias: true });
+
+    if (state.BabylonEngine == null || state.BabylonEngine == undefined) {
         throw "The babylon engine cannot be initialized";
     }
 
-    Scene = CreateScene(BabylonEngine, BabylonCanvas);
+    state.Scene = CreateScene(state.BabylonEngine, state.BabylonCanvas, state);
 
-    if (Scene == null || Scene == undefined) {
+    if (state.Scene == null || state.Scene == undefined) {
         throw "The scene cannot be initialized";
     }
 
-    HighLightLayer = new BABYLON.HighlightLayer("highlightLayer", Scene, {renderingGroupId:0});
+    state.HighLightLayer = new BABYLON.HighlightLayer("highlightLayer", state.Scene, {renderingGroupId:0});
 
-    CreateSkybox(Scene, SkyboxSize);
+    CreateSkybox(state.Scene, SkyboxSize);
 
-    PickingMaterial = SetUpPickingMaterial();
+    state.PickingMaterial = SetUpPickingMaterial(state.Scene);
 
-    SceneSpecularColor = new BABYLON.Color3(1.0, 1.0, 1.0);
-    SceneEmissiveColor = new BABYLON.Color3(0.0, 0.0, 0.0);
-    SceneAmbientColor  = new BABYLON.Color3(1.0, 1.0, 1.0);
+    state.SceneSpecularColor = new BABYLON.Color3(1.0, 1.0, 1.0);
+    state.SceneEmissiveColor = new BABYLON.Color3(0.0, 0.0, 0.0);
+    state.SceneAmbientColor  = new BABYLON.Color3(1.0, 1.0, 1.0);
 
-    BabylonEngine.runRenderLoop(function () {
-        Scene.render();
+    state.BabylonEngine.runRenderLoop(function () {
+        state.Scene.render();
     });
 
-    window.addEventListener("resize", function () {
-        BabylonEngine.resize();
-    });
+    state.ResizeListener = function () {
+        if (state.BabylonEngine) {
+            state.BabylonEngine.resize();
+        }
+    };
+    window.addEventListener("resize", state.ResizeListener);
 
     if (addAxes)
     {
-        AddWorldAxes();
+        AddWorldAxes(state);
     }
 };
+
+/**
+ * Disposes the babylon engine and resources for a given viewer instance.
+ * @param {string} viewerId - the viewer identifier.
+ */
+function DisposeViewer(viewerId) {
+    let state = ViewerStates.get(viewerId);
+    if (state) {
+        if (state.ResizeListener) {
+            window.removeEventListener("resize", state.ResizeListener);
+        }
+        if (state.SceneObjects) {
+            for (let id of state.SceneObjects.keys()) {
+                Dispose(state, id);
+            }
+        }
+        if (state.Scene) {
+            state.Scene.dispose();
+        }
+        if (state.BabylonEngine) {
+            state.BabylonEngine.dispose();
+        }
+        ViewerStates.delete(viewerId);
+    }
+}
 
 /*
  * Adds the world axes to the scene
  */
-function AddWorldAxes() {
+function AddWorldAxes(state) {
     let size = SkyboxSize / 2.0;
     //X Axis
     let lpoints = [
         new BABYLON.Vector3(-size, 0, 0),
         new BABYLON.Vector3(+size, 0, 0)
     ];
-    let xaxis = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, Scene);
+    let xaxis = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, state.Scene);
     xaxis.color = new BABYLON.Color3(255,0,0);
 
     //Y Axis
@@ -173,7 +181,7 @@ function AddWorldAxes() {
         new BABYLON.Vector3(0,-size,0),
         new BABYLON.Vector3(0,+size,0)
     ];
-    let yaxis = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, Scene);
+    let yaxis = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, state.Scene);
     yaxis.color = new BABYLON.Color3(0, 255, 0);
 
     //Z Axis
@@ -181,52 +189,55 @@ function AddWorldAxes() {
         new BABYLON.Vector3(0,0,-size),
         new BABYLON.Vector3(0,0,+size)
     ];
-    let zaxis = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, Scene);
+    let zaxis = BABYLON.MeshBuilder.CreateLines("lines", { points: lpoints }, state.Scene);
     zaxis.color = new BABYLON.Color3(0,0,255);
 }
 
 /**
  * Adds to scene an scene object containing the primitive
- * @param {any} sceneObject
+ * @param {string} viewerId - the viewer identifier.
+ * @param {any} sceneObject - the scene object to add in JSON string format
  */
-async function AddSceneObject(sceneObject) {
+async function AddSceneObject(viewerId, sceneObject) {
+    let state = GetViewerState(viewerId);
     sceneObject = JSON.parse(sceneObject);
     let primitive = sceneObject.Primitive;
     let mesh = null;
 
     if (primitive != null && primitive != undefined)
     {
-        mesh = await AddPrimitive(primitive);
+        mesh = await AddPrimitive(primitive, state.Scene);
     }
     
     if (mesh != null) {
-        FillMeshWithPrimitiveData(mesh, primitive, sceneObject.ID);
+        FillMeshWithPrimitiveData(mesh, primitive, sceneObject.ID, state);
         let sceneObj = new SceneObject(sceneObject.ID, mesh, primitive);
-        SceneObjects.set(sceneObject.ID, sceneObj);
+        state.SceneObjects.set(sceneObject.ID, sceneObj);
     }
 }
 
 /**
  * Adds to scene an already parsed primitive. 
  * @param {any} primitive - already parsed
+ * @param {BABYLON.Scene} scene - the babylon scene
  */
-async function AddPrimitive(primitive) {
+async function AddPrimitive(primitive, scene) {
     let mesh;
 
     switch (primitive.Type) {
-        case "Line": mesh = CreateLine(primitive); break;
-        case "Cube": mesh = CreateBox(primitive); break;
-        case "Sphere": mesh = CreateSphere(primitive); break;
-        case "Cylinder": mesh = CreateCylinder(primitive); break;
-        case "Cone": mesh = CreateCone(primitive); break;
-        case "Torus": mesh = CreateTorus(primitive); break;
-        case "CustomPrimitive": await LoadPrimitive(primitive); break;
-        case "TriangularPrism": mesh = CreateTriangularPrism(primitive); break;
-        case "Disc": mesh = CreateDisc(primitive); break;
-        case "HexagonalPrism": mesh = CreateHexagonalPrism(primitive); break;
-        case "Rectangle": mesh = CreateRectangle(primitive); break;
-        case "Wedge": mesh = CreateWedge(primitive); break;
-        case "EquilateralTriangle": mesh = CreateTriangle(primitive); break;
+        case "Line": mesh = CreateLine(primitive, scene); break;
+        case "Cube": mesh = CreateBox(primitive, scene); break;
+        case "Sphere": mesh = CreateSphere(primitive, scene); break;
+        case "Cylinder": mesh = CreateCylinder(primitive, scene); break;
+        case "Cone": mesh = CreateCone(primitive, scene); break;
+        case "Torus": mesh = CreateTorus(primitive, scene); break;
+        case "CustomPrimitive": await LoadPrimitive(primitive, scene); break;
+        case "TriangularPrism": mesh = CreateTriangularPrism(primitive, scene); break;
+        case "Disc": mesh = CreateDisc(primitive, scene); break;
+        case "HexagonalPrism": mesh = CreateHexagonalPrism(primitive, scene); break;
+        case "Rectangle": mesh = CreateRectangle(primitive, scene); break;
+        case "Wedge": mesh = CreateWedge(primitive, scene); break;
+        case "EquilateralTriangle": mesh = CreateTriangle(primitive, scene); break;
 
         default: throw `The type of the primitive [${primitive.Type}] is not defined in the JS file`;
     }
@@ -238,8 +249,10 @@ async function AddPrimitive(primitive) {
  * Fills the Babylon.JS mesh with the data of the C# Primitive
  * @param {any} mesh - the mesh to fill the data with
  * @param {any} primitive - the primitive used for filling the data
+ * @param {string} ID - the object ID
+ * @param {object} state - the viewer state
  */
-function FillMeshWithPrimitiveData(mesh, primitive, ID) {
+function FillMeshWithPrimitiveData(mesh, primitive, ID, state) {
 
     mesh.position.x = primitive.X;
     mesh.position.y = primitive.Y;
@@ -256,42 +269,45 @@ function FillMeshWithPrimitiveData(mesh, primitive, ID) {
         Z: primitive.Color.Z / 255.0,
     }
 
-    let babylonMaterial = CreateMaterial(primitiveColor, SceneSpecularColor, SceneEmissiveColor, SceneAmbientColor, "DefaultMaterial", Scene);
+    let babylonMaterial = CreateMaterial(primitiveColor, state.SceneSpecularColor, state.SceneEmissiveColor, state.SceneAmbientColor, "DefaultMaterial", state.Scene);
     mesh.material = babylonMaterial;
     mesh.material.useLogarithmicDepth = true;
     mesh.renderingGroupId = primitive.RenderingGroup;
 
-    mesh.actionManager = new BABYLON.ActionManager(Scene);
-    RegisterMeshActions(mesh);
+    mesh.actionManager = new BABYLON.ActionManager(state.Scene);
+    RegisterMeshActions(mesh, state.PickingMaterial);
 
     //Custom properties for the object
     mesh.ObjectID = ID;
-    mesh.Materials = new MeshMaterial(mesh.material, PickingMaterial);
+    mesh.Materials = new MeshMaterial(mesh.material, state.PickingMaterial);
     if (primitive.HasHalo) {
-        HighLightLayer.addMesh(mesh, new BABYLON.Color3(1.0, 0.3, 0));
+        state.HighLightLayer.addMesh(mesh, new BABYLON.Color3(1.0, 0.3, 0));
     }
 }
 
 /** 
  * Dispose all the scene objects with the specified ids 
+ * @param {string} viewerId - the viewer identifier.
  * @param {any} IDs - a collection of ids  
  */
-function DisposeAll(IDs) {
+function DisposeAll(viewerId, IDs) {
+    let state = GetViewerState(viewerId);
     if (IDs != null && IDs != undefined) {
         for (let i = 0; i < IDs.length; i++) {
-            Dispose(IDs[i]);
+            Dispose(state, IDs[i]);
         }
     }
 } 
 
 /**
  * Removes the primitive with the specified ID from the scene.
+ * @param {object} state - the viewer state.
  * @param {number} ID - the ID of the primitive to delete.
  */
-function Dispose(ID) {
-    if (SceneObjects.size > 0)
+function Dispose(state, ID) {
+    if (state.SceneObjects.size > 0)
     {
-        let sceneObj = SceneObjects.get(ID);
+        let sceneObj = state.SceneObjects.get(ID);
 
         if (sceneObj != null && sceneObj != undefined)
         {
@@ -300,21 +316,28 @@ function Dispose(ID) {
             mesh = null;
         }
 
-        SceneObjects.delete(ID);
+        state.SceneObjects.delete(ID);
     }
 }
 
 /**
  * Get the ID of the primitive that is under the mouse cursor.
+ * @param {string} viewerId - the viewer identifier.
  * @returns {string} the ID.
  */
-function GetPrimitiveIDUnderMouse() {
-    let hit = Scene.pick(Scene.pointerX, Scene.pointerY)
-    let pickedMesh = hit.pickedMesh;
+function GetPrimitiveIDUnderMouse(viewerId) {
+    let state = GetViewerState(viewerId);
+    if (!state.Scene) {
+        return null;
+    }
+    let hit = state.Scene.pick(state.Scene.pointerX, state.Scene.pointerY);
+    if (hit && hit.pickedMesh) {
+        let pickedMesh = hit.pickedMesh;
 
-    if (pickedMesh.Name != "skyBox")
-    {
-        return pickedMesh.ObjectID;
+        if (pickedMesh.Name != "skyBox")
+        {
+            return pickedMesh.ObjectID;
+        }
     }
 
     return null;
@@ -322,14 +345,15 @@ function GetPrimitiveIDUnderMouse() {
 
 /**
  * Sets the visibility of the primitive
+ * @param {string} viewerId - the viewer identifier.
  * @param {string} ID - the ID of the primitive to select
  * @param {boolean} isVisible - the value of the new selection
  */
-function SetMeshVisibility(ID, isVisible) {
-
-    if (SceneObjects.size > 0)
+function SetMeshVisibility(viewerId, ID, isVisible) {
+    let state = GetViewerState(viewerId);
+    if (state.SceneObjects.size > 0)
     {
-        let sceneObj = SceneObjects.get(ID);
+        let sceneObj = state.SceneObjects.get(ID);
         if (sceneObj != null && sceneObj != undefined) {
             let mesh = sceneObj.Mesh;
             if (mesh != null && mesh != undefined) {
@@ -341,14 +365,16 @@ function SetMeshVisibility(ID, isVisible) {
 
 /**
  * Regenerates the mesh asociated to the scene object
- * @param {object} SceneObject - the scene object to regenerate in JSON string format
+ * @param {string} viewerId - the viewer identifier.
+ * @param {object} jsonSceneObject - the scene object to regenerate in JSON string format
  */
-async function RegenMesh(JsonSceneObject) {
-    let sceneFullObject = JSON.parse(JsonSceneObject);
+async function RegenMesh(viewerId, jsonSceneObject) {
+    let state = GetViewerState(viewerId);
+    let sceneFullObject = JSON.parse(jsonSceneObject);
 
     if (sceneFullObject != null)
     {
-        Dispose(sceneFullObject.ID);
-        await AddSceneObject(JsonSceneObject);
+        Dispose(state, sceneFullObject.ID);
+        await AddSceneObject(viewerId, jsonSceneObject);
     }
 }
