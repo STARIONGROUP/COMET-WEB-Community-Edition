@@ -93,11 +93,6 @@ namespace COMET.Web.Common.Pages
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
-
-            if (!firstRender)
-            {
-                return;
-            }
             
             if (string.IsNullOrEmpty(this.Code))
             {

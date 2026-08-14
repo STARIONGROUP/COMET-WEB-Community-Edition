@@ -252,5 +252,34 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 
             this.sessionStorageService.Verify(x => x.SetItemAsync(It.IsAny<string>(), string.Empty, default), Times.Exactly(3));
         }
+
+        [Test]
+        public async Task VerifyBuildExternalProviderLogoutUrl()
+        {
+            Assert.That(this.authenticationService.BuildExternalProviderLogoutUrl("http://localhost/"), Is.Null);
+
+            var basicSchemeResponse = new AuthenticationSchemeResponse
+            {
+                Schemes = [AuthenticationSchemeKind.Basic]
+            };
+
+            this.sessionService.Setup(x => x.InitializeSessionAndRequestServerSupportedAuthenticationScheme(It.IsAny<Credentials>())).ReturnsAsync(Result.Ok(basicSchemeResponse));
+            await this.authenticationService.RequestAvailableAuthenticationSchemeAsync("http://localhost:5000");
+
+            Assert.That(this.authenticationService.BuildExternalProviderLogoutUrl("http://localhost/"), Is.Null);
+
+            var externalSchemeResponse = new AuthenticationSchemeResponse
+            {
+                Schemes = [AuthenticationSchemeKind.ExternalJwtBearer],
+                Authority = "http://localhost:8080/realms/test",
+                ClientId = "comet-web"
+            };
+
+            this.sessionService.Setup(x => x.InitializeSessionAndRequestServerSupportedAuthenticationScheme(It.IsAny<Credentials>())).ReturnsAsync(Result.Ok(externalSchemeResponse));
+            await this.authenticationService.RequestAvailableAuthenticationSchemeAsync("http://localhost:5000");
+            var logoutUrl = this.authenticationService.BuildExternalProviderLogoutUrl("http://localhost/Logout?confirmed=true");
+
+            Assert.That(logoutUrl, Is.EqualTo("http://localhost:8080/realms/test/protocol/openid-connect/logout?client_id=comet-web&post_logout_redirect_uri=http%3A%2F%2Flocalhost%2FLogout%3Fconfirmed%3Dtrue"));
+        }
     }
 }

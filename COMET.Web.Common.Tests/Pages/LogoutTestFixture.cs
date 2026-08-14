@@ -27,6 +27,7 @@ namespace COMET.Web.Common.Tests.Pages
 
     using COMET.Web.Common.Pages;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Test.Helpers;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.DependencyInjection;
@@ -34,7 +35,6 @@ namespace COMET.Web.Common.Tests.Pages
     using Moq;
 
     using NUnit.Framework;
-
 
     [TestFixture]
     public class LogoutTestFixture
@@ -47,6 +47,7 @@ namespace COMET.Web.Common.Tests.Pages
         {
             this.authenticationService = new Mock<IAuthenticationService>();
             this.context = new BunitContext();
+            this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton(this.authenticationService.Object);
         }
 
@@ -55,13 +56,34 @@ namespace COMET.Web.Common.Tests.Pages
         {
             var navigation = this.context.Services.GetService<NavigationManager>();
             navigation.NavigateTo("/Logout");
-            _ = this.context.Render<Logout>();
+            this.context.Render<Logout>();
 
             Assert.Multiple(() =>
             {
                 this.authenticationService.Verify(x => x.Logout(), Times.Once);
                 Assert.That(navigation.Uri, Is.EqualTo("http://localhost/"));
                 Assert.That(navigation.Uri, Does.Not.Contain("Logout"));
+            });
+
+            const string externalLogoutUrl = "http://localhost:8080/realms/test/protocol/openid-connect/logout?client_id=test&post_logout_redirect_uri=http%3A%2F%2Flocalhost%2FLogout%3Fconfirmed%3Dtrue";
+            this.authenticationService.Setup(x => x.BuildExternalProviderLogoutUrl("http://localhost/Logout?confirmed=true")).Returns(externalLogoutUrl);
+
+            navigation.NavigateTo("/Logout");
+            this.context.Render<Logout>();
+
+            Assert.Multiple(() =>
+            {
+                this.authenticationService.Verify(x => x.Logout(), Times.Once);
+                Assert.That(navigation.Uri, Is.EqualTo(externalLogoutUrl));
+            });
+
+            navigation.NavigateTo("http://localhost/Logout?confirmed=true");
+            this.context.Render<Logout>();
+
+            Assert.Multiple(() =>
+            {
+                this.authenticationService.Verify(x => x.Logout(), Times.Exactly(2));
+                Assert.That(navigation.Uri, Is.EqualTo("http://localhost/"));
             });
         }
     }

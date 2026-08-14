@@ -168,6 +168,19 @@ namespace COMET.Web.Common.Tests.Pages
                 
                 Assert.That(navigation.Uri, Is.EqualTo("http://localhost/"));
             });
+
+            this.authenticationService.Setup(x => x.RetrieveLastUsedServerUrlAsync()).ReturnsAsync((string)null);
+            this.configurationService.Object.ServerConfiguration.ServerAddress = cometUrl;
+
+            navigation.NavigateTo(uri);
+
+            Assert.Multiple(() =>
+            {
+                this.authenticationService.Verify(x => x.RetrieveLastUsedServerUrlAsync(), Times.Exactly(5));
+                this.authenticationService.Verify(x => x.RequestAvailableAuthenticationSchemeAsync(cometUrl, false), Times.Exactly(4));
+                this.authenticationService.Verify(x => x.ExchangeOpenIdConnectCodeAsync(queryParameters["code"], authenticationResponse, It.IsAny<string>(), null), Times.Exactly(2));
+                Assert.That(navigation.Uri, Is.EqualTo("http://localhost/"));
+            });
         }
     }
 }
