@@ -436,36 +436,34 @@ namespace COMETwebapp.ViewModels.Pages
            
             try
             {
-                var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey);
+                var savedTabs = await this.sessionStorageService.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey) ?? [];
                 await this.sessionStorageService.RemoveItemAsync(WebAppConstantValues.SavedTabsKey);
 
-                if (savedTabs is { Count: > 0 })
+                foreach (var savedTab in savedTabs)
                 {
-                    foreach (var savedTab in savedTabs)
+                    var app = this.AvailableApplications.FirstOrDefault(x => x.Name == savedTab.ApplicationName);
+
+                    if (app == null)
                     {
-                        var app = this.AvailableApplications.FirstOrDefault(x => x.Name == savedTab.ApplicationName);
-
-                        if (app == null)
-                        {
-                            continue;
-                        }
-
-                        var targetPanel = savedTab.IsSidePanel ? this.SidePanel : this.MainPanel;
-
-                        await this.OpenThingOfInterest(savedTab.IterationSetupId, savedTab.DomainId);
-                        this.CreateNewTab(app, savedTab.ObjectOfInterestId, targetPanel);
+                        continue;
                     }
+
+                    var targetPanel = savedTab.IsSidePanel ? this.SidePanel : this.MainPanel;
+
+                    await this.OpenThingOfInterest(savedTab.IterationSetupId, savedTab.DomainId);
+                    this.CreateNewTab(app, savedTab.ObjectOfInterestId, targetPanel);
                 }
-                
+
+                this.isRestoringSavedTabs = false;
                 await this.SaveOpenTabsToSessionStorageAsync();
             }
             catch (Exception ex)
             {
+                this.isRestoringSavedTabs = false;
                 this.logger.LogError(ex, "An error occurred while restoring saved tabs from session storage.");
             }
             finally
             {
-                this.isRestoringSavedTabs = false;
                 this.RestoreTabsPopupViewModel.IsVisible = false;
             }
         }

@@ -22,9 +22,6 @@
 
 namespace COMETwebapp.Pages
 {
-    using System.Reactive.Linq;
-    using System.Reactive.Subjects;
-
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Extensions;
@@ -32,6 +29,7 @@ namespace COMETwebapp.Pages
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Model;
+    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Pages;
 
     using Microsoft.AspNetCore.Components;
