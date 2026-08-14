@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -340,7 +340,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         {
             // Case 1: Session not open guard clause
             this.sessionService.Setup(x => x.IsSessionOpen).Returns(false);
-            var iteration = this.openIterations.Items.First();
+            var iteration = this.openIterations.Items[0];
             var tab = new TabbedApplicationInformation(new Mock<IApplicationBaseViewModel>().Object, typeof(EngineeringModelBody), iteration);
 
             this.viewModel.MainPanel.OpenTabs.Add(tab);
@@ -363,7 +363,7 @@ namespace COMETwebapp.Tests.ViewModels.Pages
         [Test]
         public async Task VerifySessionClosed()
         {
-            this.viewModel.MainPanel.OpenTabs.Add(new TabbedApplicationInformation(new Mock<IEngineeringModelBodyViewModel>().Object, typeof(EngineeringModelBody), this.openIterations.Items.First()));
+            this.viewModel.MainPanel.OpenTabs.Add(new TabbedApplicationInformation(new Mock<IEngineeringModelBodyViewModel>().Object, typeof(EngineeringModelBody), this.openIterations.Items[0]));
             Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(1));
 
             this.messageBus.SendMessage(new SessionEvent(null, SessionStatus.Closed));
