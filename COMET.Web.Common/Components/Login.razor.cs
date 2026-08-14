@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="Login.razor.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -115,6 +115,14 @@ namespace COMET.Web.Common.Components
         private ServerConfiguration ServerConfiguration => this.ViewModel.ServerConnectionService.ServerConfiguration;
 
         /// <summary>
+        /// Asserts that the server requires external provider authentication
+        /// </summary>
+        private bool RequiresExternalAuthenticationProvider =>
+            this.ServerConfiguration.AllowMultipleStepsAuthentication
+            && this.ViewModel.AuthenticationSchemeResponseResult is { IsSuccess: true }
+            && this.ViewModel.AuthenticationSchemeResponseResult.Value.Schemes.Contains(AuthenticationSchemeKind.ExternalJwtBearer);
+
+        /// <summary>
         /// Asserts that the we attempt to restore a previous session
         /// </summary>
         private bool checkingRestoreSession = true;
@@ -167,23 +175,6 @@ namespace COMET.Web.Common.Components
         }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// Override this method if you will perform an asynchronous operation and
-        /// want the component to refresh when that operation is completed.
-        /// </summary>
-        /// <returns>A <see cref="T:System.Threading.Tasks.Task" /> representing any asynchronous operation.</returns>
-        protected override async Task OnInitializedAsync()
-        {
-            await base.OnInitializedAsync();
-
-            if (!string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress) && this.ServerConfiguration.AllowMultipleStepsAuthentication)
-            {
-                await this.ViewModel.RequestAvailableAuthenticationSchemeAsync();
-            }
-        }
-
-        /// <summary>
         /// Method invoked when the component has received parameters from its parent in
         /// the render tree, and the incoming values have been assigned to properties.
         /// </summary>
@@ -220,6 +211,11 @@ namespace COMET.Web.Common.Components
 
             if (firstRender)
             {
+                if (!string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress) && this.ServerConfiguration.AllowMultipleStepsAuthentication)
+                {
+                    await this.ViewModel.RequestAvailableAuthenticationSchemeAsync();
+                }
+
                 await this.AuthenticationService.TryRestoreLastSessionAsync();
                 this.checkingRestoreSession = false;
                 await this.InvokeAsync(this.StateHasChanged);
@@ -345,26 +341,43 @@ namespace COMET.Web.Common.Components
         /// <returns>An awaitable <see cref="Task" /></returns>
         private async Task HandleSubmitAsync()
         {
+            // Multi-step server information input required
             if (this.ServerConfiguration.AllowMultipleStepsAuthentication && this.ShouldProvideServerInformationInput())
             {
                 await this.ProvideServerInformation();
 
-                if (this.ViewModel.AuthenticationSchemeResponseResult.IsSuccess && this.ViewModel.AuthenticationSchemeResponseResult.Value.Schemes.Contains(AuthenticationSchemeKind.ExternalJwtBearer))
+                if (this.RequiresExternalAuthenticationProvider)
                 {
-                    var uri = new UriBuilder(new Uri($"{this.ViewModel.AuthenticationSchemeResponseResult.Value.Authority}/protocol/openid-connect/auth"));
-                    var queryParameters = HttpUtility.ParseQueryString(uri.Query);
-                    queryParameters["response_type"] = "code";
-                    queryParameters["client_id"] = this.ViewModel.AuthenticationSchemeResponseResult.Value.ClientId;
-                    queryParameters["redirect_uri"] = $"{this.NavigationManager.BaseUri.TrimEnd('/')}/callback";
-                    uri.Query = string.Join("&", queryParameters.AllKeys.Select(key => $"{key}={queryParameters[key]!}"));
-
-                    this.NavigationManager.NavigateTo(uri.ToString(), forceLoad: true);
+                    this.RedirectToExternalAuthenticationProvider();
                 }
+
+                return;
             }
-            else
+
+            // External authentication provider required
+            if (this.RequiresExternalAuthenticationProvider)
             {
-                await this.ExecuteLogin();
+                this.RedirectToExternalAuthenticationProvider();
+                return;
             }
+
+            // Standard login execution
+            await this.ExecuteLogin();
+        }
+
+        /// <summary>
+        /// Redirects the browser to the external authentication provider
+        /// </summary>
+        private void RedirectToExternalAuthenticationProvider()
+        {
+            var uri = new UriBuilder(new Uri($"{this.ViewModel.AuthenticationSchemeResponseResult.Value.Authority}/protocol/openid-connect/auth"));
+            var queryParameters = HttpUtility.ParseQueryString(uri.Query);
+            queryParameters["response_type"] = "code";
+            queryParameters["client_id"] = this.ViewModel.AuthenticationSchemeResponseResult.Value.ClientId;
+            queryParameters["redirect_uri"] = $"{this.NavigationManager.BaseUri.TrimEnd('/')}/callback";
+            uri.Query = string.Join("&", queryParameters.AllKeys.Select(key => $"{key}={queryParameters[key]!}"));
+
+            this.NavigationManager.NavigateTo(uri.ToString(), forceLoad: true);
         }
 
         /// <summary>

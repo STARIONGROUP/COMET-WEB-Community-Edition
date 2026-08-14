@@ -24,6 +24,7 @@
 namespace COMET.Web.Common.Pages
 {
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities;
 
     using Microsoft.AspNetCore.Components;
 
@@ -45,15 +46,37 @@ namespace COMET.Web.Common.Pages
         public NavigationManager NavigationManager { get; set; }
 
         /// <summary>
-        /// Method invoked when the component is ready to start, having received its
-        /// initial parameters from its parent in the render tree.
-        /// Override this method if you will perform an asynchronous operation and
-        /// want the component to refresh when that operation is completed.
+        /// Gets or sets a value indicating whether logout was confirmed by the external provider
         /// </summary>
-        /// <returns>A <see cref="T:System.Threading.Tasks.Task" /> representing any asynchronous operation.</returns>
-        protected override async Task OnInitializedAsync()
+        [SupplyParameterFromQuery(Name = QueryKeys.ConfirmedKey)]
+        public bool Confirmed { get; set; }
+
+        /// <summary>
+        /// Method invoked after each time the component has been rendered interactively and the UI has finished updating
+        /// </summary>
+        /// <param name="firstRender">Set to <c>true</c> if this is the first time OnAfterRenderAsync has been invoked; otherwise <c>false</c>.</param>
+        /// <returns>A <see cref="Task" /> representing any asynchronous operation.</returns>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await base.OnInitializedAsync();
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (!firstRender)
+            {
+                return;
+            }
+
+            if (!this.Confirmed)
+            {
+                var postLogoutRedirectUri = $"{this.NavigationManager.BaseUri.TrimEnd('/')}/Logout?{QueryKeys.ConfirmedKey}=true";
+                var externalLogoutUrl = this.AuthenticationService.BuildExternalProviderLogoutUrl(postLogoutRedirectUri);
+
+                if (!string.IsNullOrEmpty(externalLogoutUrl))
+                {
+                    this.NavigationManager.NavigateTo(externalLogoutUrl, forceLoad: true, replace: true);
+                    return;
+                }
+            }
+
             await this.AuthenticationService.Logout();
             this.NavigationManager.NavigateTo("/");
         }

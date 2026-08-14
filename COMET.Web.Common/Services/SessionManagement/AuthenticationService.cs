@@ -240,7 +240,7 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             if (string.IsNullOrEmpty(previousToken))
             {
-                await this.CleanupStorageAsync();
+                await this.CleanupStorageAsync(false);
                 return;
             }
 
@@ -270,6 +270,27 @@ namespace COMET.Web.Common.Services.SessionManagement
             {
                 await this.CleanupStorageAsync();
             }
+        }
+
+        /// <summary>
+        /// Builds the external authentication provider logout URL if the last authenticated session used an external
+        /// provider, allowing the caller to redirect the user to the provider's end-session endpoint so it clears its
+        /// own session.
+        /// Returns <c>null</c> when the last session did not use an external provider.
+        /// </summary>
+        /// <param name="postLogoutRedirectUri">The URI to redirect back to after the external provider completes logout</param>
+        /// <returns>The external provider end-session URL, or <c>null</c> if not applicable</returns>
+        public string BuildExternalProviderLogoutUrl(string postLogoutRedirectUri)
+        {
+            if (this.lastSupportedAuthenticationSchemeResponse == null
+                || !this.lastSupportedAuthenticationSchemeResponse.Schemes.Contains(AuthenticationSchemeKind.ExternalJwtBearer))
+            {
+                return null;
+            }
+
+            return $"{this.lastSupportedAuthenticationSchemeResponse.Authority}/protocol/openid-connect/logout"
+                   + $"?client_id={this.lastSupportedAuthenticationSchemeResponse.ClientId}"
+                   + $"&post_logout_redirect_uri={Uri.EscapeDataString(postLogoutRedirectUri)}";
         }
 
         /// <summary>
@@ -342,10 +363,17 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <summary>
         /// Cleans all values that could be present inside the Session Storage
         /// </summary>
-        private async Task CleanupStorageAsync()
+        /// <param name="clearServerUrl">A value indicating whether the stored server URL should also be cleared</param>
+        /// <returns>An awaitable <see cref="Task" /></returns>
+        private async Task CleanupStorageAsync(bool clearServerUrl = true)
         {
             await this.sessionStorageService.SetItemAsync(AccessTokenKey, string.Empty);
-            await this.sessionStorageService.SetItemAsync(ServerUrlKey, string.Empty);
+
+            if (clearServerUrl)
+            {
+                await this.sessionStorageService.SetItemAsync(ServerUrlKey, string.Empty);
+            }
+
             await this.sessionStorageService.SetItemAsync(RefreshTokenKey, string.Empty);
         }
     }

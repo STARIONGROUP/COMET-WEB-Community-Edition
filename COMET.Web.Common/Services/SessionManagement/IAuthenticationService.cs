@@ -94,5 +94,15 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// Tries to restore the last authenticated session, if applicable
         /// </summary>
         Task TryRestoreLastSessionAsync();
+
+        /// <summary>
+        /// Builds the external authentication provider logout URL if the last authenticated session used an external
+        /// provider, allowing the caller to redirect the user to the provider's end-session endpoint so it clears its
+        /// own session.
+        /// Returns <c>null</c> when the last session did not use an external provider.
+        /// </summary>
+        /// <param name="postLogoutRedirectUri">The URI to redirect back to after the external provider completes logout</param>
+        /// <returns>The external provider end-session URL, or <c>null</c> if not applicable</returns>
+        string BuildExternalProviderLogoutUrl(string postLogoutRedirectUri);
     }
 }

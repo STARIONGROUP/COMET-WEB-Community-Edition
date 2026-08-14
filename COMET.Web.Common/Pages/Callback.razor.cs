@@ -93,6 +93,11 @@ namespace COMET.Web.Common.Pages
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
+
+            if (!firstRender)
+            {
+                return;
+            }
             
             if (string.IsNullOrEmpty(this.Code))
             {
@@ -104,11 +109,17 @@ namespace COMET.Web.Common.Pages
 
             if (string.IsNullOrEmpty(serverUrl))
             {
+                serverUrl = this.ConfigurationService.ServerConfiguration.ServerAddress;
+            }
+
+            if (string.IsNullOrEmpty(serverUrl))
+            {
                 this.NavigationManager.NavigateTo("/");
                 return;
             }
-            
-            var possibleSchemes = await this.AuthenticationService.RequestAvailableAuthenticationSchemeAsync(serverUrl);
+
+            var fullTrust = this.ConfigurationService.ServerConfiguration?.FullTrustConfiguration?.IsTrusted == Enumerations.FullTrustTrustedKind.FullTrust;
+            var possibleSchemes = await this.AuthenticationService.RequestAvailableAuthenticationSchemeAsync(serverUrl, fullTrust);
 
             if (possibleSchemes.IsFailed || !possibleSchemes.Value.Schemes.Contains(AuthenticationSchemeKind.ExternalJwtBearer))
             {
