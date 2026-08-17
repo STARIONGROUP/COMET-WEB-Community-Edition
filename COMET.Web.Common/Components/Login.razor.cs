@@ -34,6 +34,7 @@ namespace COMET.Web.Common.Components
     using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
 
     using ReactiveUI;
 
@@ -58,6 +59,12 @@ namespace COMET.Web.Common.Components
         /// </summary>
         [Inject]
         public NavigationManager NavigationManager { get; set; }
+
+        /// <summary>
+        /// Gets or sets the injected <see cref="ILogger{T}" />
+        /// </summary>
+        [Inject]
+        public ILogger<Login> Logger { get; set; }
 
         /// <summary>
         /// Gets or sets the injected <see cref="IAuthenticationService" />
@@ -379,7 +386,14 @@ namespace COMET.Web.Common.Components
                     queryParameters["redirect_uri"] = $"{this.NavigationManager.BaseUri.TrimEnd('/')}/callback";
                     uri.Query = string.Join("&", queryParameters.AllKeys.Select(key => $"{key}={queryParameters[key]!}"));
 
-                    this.NavigationManager.NavigateTo(uri.ToString(), forceLoad: true);
+                    try
+                    {
+                        this.NavigationManager.NavigateTo(uri.ToString(), forceLoad: true);
+                    }
+                    catch (OperationCanceledException ex)
+                    {
+                        this.Logger.LogDebug(ex, "Navigation to external identity provider was interrupted.");
+                    }
                 }
             }
             else
