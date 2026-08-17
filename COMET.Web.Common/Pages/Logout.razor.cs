@@ -70,6 +70,9 @@ namespace COMET.Web.Common.Pages
                 var postLogoutRedirectUri = $"{this.NavigationManager.BaseUri.TrimEnd('/')}/Logout?{QueryKeys.ConfirmedKey}=true";
                 var externalLogoutUrl = this.AuthenticationService.BuildExternalProviderLogoutUrl(postLogoutRedirectUri);
 
+                // If an external provider logout URL exists, redirect to the provider to terminate the SSO session.
+                // The provider will redirect back to /Logout?confirmed=true, which will then execute AuthenticationService.Logout().
+                // If there is no external provider, externalLogoutUrl is null, then we just call AuthenticationService.Logout() directly.
                 if (!string.IsNullOrEmpty(externalLogoutUrl))
                 {
                     this.NavigationManager.NavigateTo(externalLogoutUrl, forceLoad: true, replace: true);
