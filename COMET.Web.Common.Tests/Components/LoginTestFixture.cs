@@ -303,10 +303,13 @@ namespace COMET.Web.Common.Tests.Components
                 .ReturnsAsync(Result.Ok(authenticationSchemeResponse));
             
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
-            Assert.That(renderer.FindComponents<DxTextBox>(), Has.Count.EqualTo(0));
-
             var navigationManager = this.context.Services.GetService<NavigationManager>();
-            Assert.That(navigationManager.Uri.StartsWith(authenticationSchemeResponse.Authority), Is.True);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.FindComponents<DxTextBox>(), Has.Count.EqualTo(0));
+                Assert.That(navigationManager.Uri.StartsWith(authenticationSchemeResponse.Authority), Is.True);
+            });
         }
 
         [Test]

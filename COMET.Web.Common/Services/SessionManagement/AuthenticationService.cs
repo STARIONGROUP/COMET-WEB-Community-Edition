@@ -240,7 +240,7 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             if (string.IsNullOrEmpty(previousToken))
             {
-                await this.CleanupStorageAsync(false);
+                await this.CleanupStorageAsync();
                 return;
             }
 
@@ -363,17 +363,11 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <summary>
         /// Cleans all values that could be present inside the Session Storage
         /// </summary>
-        /// <param name="clearServerUrl">A value indicating whether the stored server URL should also be cleared</param>
         /// <returns>An awaitable <see cref="Task" /></returns>
-        private async Task CleanupStorageAsync(bool clearServerUrl = true)
+        private async Task CleanupStorageAsync()
         {
             await this.sessionStorageService.SetItemAsync(AccessTokenKey, string.Empty);
-
-            if (clearServerUrl)
-            {
-                await this.sessionStorageService.SetItemAsync(ServerUrlKey, string.Empty);
-            }
-
+            await this.sessionStorageService.SetItemAsync(ServerUrlKey, string.Empty);
             await this.sessionStorageService.SetItemAsync(RefreshTokenKey, string.Empty);
         }
     }

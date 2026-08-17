@@ -97,7 +97,7 @@ namespace COMET.Web.Common.Utilities
         public const string StatesKey = "states";
 
         /// <summary>
-        /// The query key for the confirmed parameter used during logout callback
+        /// The query key for the confirmed parameter used during logout callback.
         /// </summary>
         public const string ConfirmedKey = "confirmed";
     }

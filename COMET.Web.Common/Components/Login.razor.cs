@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="Login.razor.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -115,7 +115,7 @@ namespace COMET.Web.Common.Components
         private ServerConfiguration ServerConfiguration => this.ViewModel.ServerConnectionService.ServerConfiguration;
 
         /// <summary>
-        /// Asserts that the server requires external provider authentication
+        /// Gets a value indicating whether the server requires external provider authentication
         /// </summary>
         private bool RequiresExternalAuthenticationProvider =>
             this.ServerConfiguration.AllowMultipleStepsAuthentication

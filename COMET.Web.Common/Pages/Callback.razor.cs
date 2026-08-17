@@ -113,8 +113,7 @@ namespace COMET.Web.Common.Pages
                 return;
             }
 
-            var fullTrust = this.ConfigurationService.ServerConfiguration?.FullTrustConfiguration?.IsTrusted == Enumerations.FullTrustTrustedKind.FullTrust;
-            var possibleSchemes = await this.AuthenticationService.RequestAvailableAuthenticationSchemeAsync(serverUrl, fullTrust);
+            var possibleSchemes = await this.AuthenticationService.RequestAvailableAuthenticationSchemeAsync(serverUrl);
 
             if (possibleSchemes.IsFailed || !possibleSchemes.Value.Schemes.Contains(AuthenticationSchemeKind.ExternalJwtBearer))
             {
