@@ -84,6 +84,15 @@
                 </Template>
             </DxFormLayoutItem>
         }
+
+        @if (this.RequiresExternalAuthenticationProvider)
+        {
+            <DxFormLayoutItem BeginRow="true" ColSpanLg="12">
+                <Template>
+                    <div id="external-auth-hint" class="font-size-small">Click Sign in to authenticate with the external identity provider.</div>
+                </Template>
+            </DxFormLayoutItem>
+        }
     </DxFormLayout>
 
     <ul class="validation-errors">
@@ -151,7 +160,11 @@
         }
         else
         {
-            <p>Redirecting to external authority provider</p>
+            <DxButton Id="signinBtn"
+                      Text="Sign in"
+                      CssClass="btn btn-connect"
+                      Enabled="@(!this.ViewModel.IsLoading)"
+                      SubmitFormOnClick="true" />
         }
     </div>
 </EditForm>

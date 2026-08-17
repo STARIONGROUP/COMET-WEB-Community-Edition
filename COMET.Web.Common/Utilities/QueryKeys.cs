@@ -95,5 +95,10 @@ namespace COMET.Web.Common.Utilities
         /// multi-select finite state filters.
         /// </summary>
         public const string StatesKey = "states";
+
+        /// <summary>
+        /// The query key for the confirmed parameter used during logout callback.
+        /// </summary>
+        public const string ConfirmedKey = "confirmed";
     }
 }

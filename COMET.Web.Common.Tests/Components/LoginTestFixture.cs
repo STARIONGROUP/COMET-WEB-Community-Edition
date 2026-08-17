@@ -306,7 +306,42 @@ namespace COMET.Web.Common.Tests.Components
                 .ReturnsAsync(Result.Ok(authenticationSchemeResponse));
             
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
-            Assert.That(renderer.FindComponents<DxTextBox>(), Has.Count.EqualTo(0));
+            var navigationManager = this.context.Services.GetService<NavigationManager>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.FindComponents<DxTextBox>(), Has.Count.EqualTo(0));
+                Assert.That(navigationManager.Uri.StartsWith(authenticationSchemeResponse.Authority), Is.True);
+            });
+        }
+
+        [Test]
+        public async Task VerifyPreconfiguredServerWithExternalAuthenticationScheme()
+        {
+            this.serverConfiguration.ServerAddress = "http://localhost:5000";
+            this.serverConfiguration.AllowMultipleStepsAuthentication = true;
+
+            var authenticationSchemeResponse = new AuthenticationSchemeResponse
+            {
+                Schemes = [AuthenticationSchemeKind.ExternalJwtBearer],
+                Authority = "http://localhost:8080/realms/MyRealm",
+                ClientId = "client"
+            };
+
+            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationSchemeAsync("http://localhost:5000", false))
+                .ReturnsAsync(Result.Ok(authenticationSchemeResponse));
+
+            var renderer = this.context.Render<Login>();
+            var editForm = renderer.FindComponent<EditForm>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(renderer.FindComponents<DxTextBox>(), Has.Count.EqualTo(0));
+                Assert.That(renderer.Find("#external-auth-hint"), Is.Not.Null);
+                Assert.That(renderer.Find("#signinBtn"), Is.Not.Null);
+            });
+
+            await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
 
             var navigationManager = this.context.Services.GetService<NavigationManager>();
             Assert.That(navigationManager.Uri.StartsWith(authenticationSchemeResponse.Authority), Is.True);

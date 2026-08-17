@@ -104,10 +104,15 @@ namespace COMET.Web.Common.Pages
 
             if (string.IsNullOrEmpty(serverUrl))
             {
+                serverUrl = this.ConfigurationService.ServerConfiguration.ServerAddress;
+            }
+
+            if (string.IsNullOrEmpty(serverUrl))
+            {
                 this.NavigationManager.NavigateTo("/");
                 return;
             }
-            
+
             var possibleSchemes = await this.AuthenticationService.RequestAvailableAuthenticationSchemeAsync(serverUrl);
 
             if (possibleSchemes.IsFailed || !possibleSchemes.Value.Schemes.Contains(AuthenticationSchemeKind.ExternalJwtBearer))
