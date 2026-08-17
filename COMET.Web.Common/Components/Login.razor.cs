@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="Login.razor.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -218,6 +218,11 @@ namespace COMET.Web.Common.Components
 
             if (firstRender)
             {
+                if (!string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress) && this.ServerConfiguration.AllowMultipleStepsAuthentication)
+                {
+                    await this.ProvideServerInformation();
+                }
+
                 var savedServerUrl = await this.AuthenticationService.RetrieveLastUsedServerUrlAsync();
 
                 if (string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.SourceAddress))
@@ -238,13 +243,6 @@ namespace COMET.Web.Common.Components
                 {
                     this.ViewModel.AuthenticationDto.UserName = savedUserName;
                 }
-
-                // TODO: check where to put this - maybe on the top of the method
-                /*
-                if (!string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress) && this.ServerConfiguration.AllowMultipleStepsAuthentication)
-                {
-                    await this.ViewModel.RequestAvailableAuthenticationSchemeAsync();
-                }*/
 
                 await this.AuthenticationService.TryRestoreLastSessionAsync();
                 this.checkingRestoreSession = false;
