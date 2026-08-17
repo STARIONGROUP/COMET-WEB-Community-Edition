@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="RelationshipMatrixBodyViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -35,6 +35,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RelationshipMatrix
     using CDP4Dal;
     using CDP4Dal.Events;
     using CDP4Dal.Permission;
+
+    using DynamicData;
 
     using CDP4Web.Enumerations;
 
@@ -151,6 +153,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.RelationshipMatrix
             this.iteration.Element.Add(this.rowEd2);
             this.iteration.Element.Add(this.colEd);
             this.iteration.Element.Add(this.colEd2);
+
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(this.iteration);
+            this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
 
             this.exportService = new Mock<IExportService>();
             this.exportService.Setup(x => x.ExportAndDownloadAsync(It.IsAny<IExporter>())).Returns(Task.CompletedTask);

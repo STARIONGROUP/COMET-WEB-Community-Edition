@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SystemRepresentationBodyTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -33,6 +33,8 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
     using CDP4Dal;
     using CDP4Dal.DAL;
     using CDP4Dal.Events;
+
+    using DynamicData;
 
     using CDP4Web.Enumerations;
 
@@ -75,6 +77,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
         private ConcurrentDictionary<Iteration, Tuple<DomainOfExpertise, Participant>> openIteration;
         private SiteDirectory siteDirectory;
         private CDPMessageBus messageBus;
+        private SourceList<Iteration> openIterations;
 
         [SetUp]
         public void SetUp()
@@ -86,6 +89,8 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.messageBus = new CDPMessageBus();
 
             this.sessionService = new Mock<ISessionService>();
+            this.openIterations = new SourceList<Iteration>();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
 
             this.context.Services.AddSingleton(this.sessionService);
@@ -207,6 +212,8 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
                     }
                 }
             };
+
+            this.openIterations.Add(this.iteration);
 
             elementDefinition.Category.Add(new Category(Guid.NewGuid(), this.assembler.Cache, this.uri)
             {

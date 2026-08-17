@@ -81,6 +81,12 @@ namespace COMET.Web.Common.Services.SessionManagement
         Task<string> RetrieveLastUsedServerUrlAsync();
 
         /// <summary>
+        /// Retrieves the last used user name
+        /// </summary>
+        /// <returns>An awaitable <see cref="Task{TResult}"/> with the retrieved user name</returns>
+        Task<string> RetrieveLastUsedUserNameAsync();
+
+        /// <summary>
         /// Exchange an OpenId connect to retrieve the generated JWT token
         /// </summary>
         /// <param name="code">The code provided by the issuer</param>

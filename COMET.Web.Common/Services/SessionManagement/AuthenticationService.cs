@@ -35,6 +35,7 @@ namespace COMET.Web.Common.Services.SessionManagement
     using CDP4Web.Extensions;
 
     using COMET.Web.Common.Model.DTO;
+    using COMET.Web.Common.Utilities;
 
     using FluentResults;
 
@@ -60,6 +61,11 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// Gets the name of the key of the refresh token value that is store within the session storage
         /// </summary>
         private const string RefreshTokenKey = "refresh_token";
+
+        /// <summary>
+        /// Gets the name of the key of the username that is stored within the session storage
+        /// </summary>
+        private const string UserNameKey = "cdp4-comet-username";
 
         /// <summary>
         /// The (injected) <see cref="AuthenticationStateProvider" />
@@ -140,6 +146,7 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             if (result.IsSuccess)
             {
+                await this.sessionStorageService.SetItemAsync(UserNameKey, authenticationDto.UserName);
                 ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
             }
 
@@ -158,6 +165,11 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             if (authenticationResult.IsSuccess)
             {
+                if (!string.IsNullOrEmpty(authenticationInformation.UserName))
+                {
+                    await this.sessionStorageService.SetItemAsync(UserNameKey, authenticationInformation.UserName);
+                }
+
                 ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
 
                 if (authenticationSchemeKind is AuthenticationSchemeKind.LocalJwtBearer or AuthenticationSchemeKind.ExternalJwtBearer)
@@ -211,6 +223,15 @@ namespace COMET.Web.Common.Services.SessionManagement
         public async Task<string> RetrieveLastUsedServerUrlAsync()
         {
             return await this.sessionStorageService.GetItemAsync<string>(ServerUrlKey);
+        }
+
+        /// <summary>
+        /// Retrieves the last used user name
+        /// </summary>
+        /// <returns>An awaitable <see cref="Task{TResult}" /> with the retrieved user name</returns>
+        public async Task<string> RetrieveLastUsedUserNameAsync()
+        {
+            return await this.sessionStorageService.GetItemAsync<string>(UserNameKey);
         }
 
         /// <summary>
@@ -347,6 +368,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             await this.sessionStorageService.SetItemAsync(AccessTokenKey, string.Empty);
             await this.sessionStorageService.SetItemAsync(ServerUrlKey, string.Empty);
             await this.sessionStorageService.SetItemAsync(RefreshTokenKey, string.Empty);
+            await this.sessionStorageService.SetItemAsync(UserNameKey, string.Empty);
         }
     }
 }

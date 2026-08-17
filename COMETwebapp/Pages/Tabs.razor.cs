@@ -22,9 +22,6 @@
 
 namespace COMETwebapp.Pages
 {
-    using System.Reactive.Linq;
-    using System.Reactive.Subjects;
-
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Extensions;
@@ -32,8 +29,8 @@ namespace COMETwebapp.Pages
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Model;
-    using COMETwebapp.ViewModels.Pages;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Pages;
 
     using Microsoft.AspNetCore.Components;
 
@@ -103,11 +100,22 @@ namespace COMETwebapp.Pages
                     x => x.ViewModel.SelectedApplication,
                     x => x.ViewModel.MainPanel.CurrentTab,
                     x => x.ViewModel.SidePanel.CurrentTab,
-                    x => x.ViewModel.IsOnSwitchDomainMode)
+                    x => x.ViewModel.IsOnSwitchDomainMode,
+                    x => x.ViewModel.RestoreTabsPopupViewModel.IsVisible)
                 .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.ViewModel.MainPanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
             this.Disposables.Add(this.ViewModel.SidePanel.OpenTabs.Connect().SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+        }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its initial parameters from its parent in the render tree.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+            await this.ViewModel.CheckAndRestoreSavedTabsAsync();
         }
 
         /// <summary>

@@ -144,7 +144,6 @@ namespace COMETwebapp.ViewModels.Components.ModelDashboard
                 ? Enumerable.Empty<DomainOfExpertise>()
                 : this.SessionService.GetModelDomains((EngineeringModelSetup)this.CurrentThing.IterationSetup.Container);
 
-            this.CurrentDomain = this.CurrentThing == null ? null : this.SessionService.GetDomainOfExpertise(this.CurrentThing);
             this.UpdateDashboards();
         }
     }

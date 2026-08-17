@@ -20,7 +20,7 @@
 @namespace COMET.Web.Common.Components
 @inherits DisposableComponent
 
-<DxPopup @bind-Visible="@this.ViewModel.IsVisible" CloseOnOutsideClick="false" HeaderText="@this.ViewModel.HeaderText" ShowCloseButton="true" ShowFooter="true">
+<DxPopup @bind-Visible="@this.ViewModel.IsVisible" CloseOnOutsideClick="false" HeaderText="@this.ViewModel.HeaderText" ShowCloseButton="@this.ViewModel.ShowCloseButton" ShowFooter="true">
 	<Content>
 		@this.ViewModel.ContentText
 	</Content>

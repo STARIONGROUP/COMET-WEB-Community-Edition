@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ViewerBodyViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -32,6 +32,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using DynamicData;
+
     using CDP4Web.Enumerations;
 
     using COMET.Web.Common.Services.SessionManagement;
@@ -53,6 +55,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         private Mock<ISelectionMediator> selectionMediator;
         private Mock<IBabylonInterop> babylonInterop;
         private CDPMessageBus messageBus;
+        private SourceList<Iteration> openIterations;
 
         private ViewerBodyViewModel viewModel;
 
@@ -60,6 +63,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         public void SetUp()
         {
             this.sessionService = new Mock<ISessionService>();
+            this.openIterations = new SourceList<Iteration>();
+            this.sessionService.SetupGet(x => x.OpenIterations).Returns(this.openIterations);
             var session = new Mock<ISession>();
             this.sessionService.SetupGet(x => x.Session).Returns(session.Object);
 
@@ -78,6 +83,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         public void VerifyInitializeElementsAndCreateTree()
         {
             var iteration = new Iteration { Iid = Guid.NewGuid() };
+            this.openIterations.Add(iteration);
             var elementDef = new ElementDefinition { Iid = Guid.NewGuid() };
             iteration.Element.Add(elementDef);
             iteration.TopElement = elementDef;
@@ -100,6 +106,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
         public async Task VerifyInitializeViewModel()
         {
             var iteration = new Iteration { Iid = Guid.NewGuid() };
+            this.openIterations.Add(iteration);
             var elementDef = new ElementDefinition { Iid = Guid.NewGuid() };
             iteration.Element.Add(elementDef);
             iteration.TopElement = elementDef;
@@ -134,6 +141,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             shapeKindParameter.ValueSet.Add(shapeKindParameterValueSet);
 
             var iteration = new Iteration(Guid.NewGuid(), cache, uri);
+            this.openIterations.Add(iteration);
 
             var elementDefWithShape = new ElementDefinition(Guid.NewGuid(), cache, uri) { Container = iteration, Owner = domain };
             elementDefWithShape.Parameter.Add(shapeKindParameter);

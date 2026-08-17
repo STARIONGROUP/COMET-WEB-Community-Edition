@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ModelDashboardBodyViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -28,12 +28,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelDashboard
     using CDP4Dal;
     using CDP4Dal.Events;
 
-    using CDP4Web.Enumerations;
-
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.ModelDashboard;
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
+
+    using DynamicData;
 
     using Moq;
 
@@ -93,6 +93,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.ModelDashboard
                 Iid = Guid.NewGuid(),
                 IterationSetup = new IterationSetup { IterationNumber = 1, Container = modelSetup }
             };
+
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(this.iteration);
+            this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
 
             this.viewModel = new ModelDashboardBodyViewModel(this.sessionService.Object, this.parameterDashboard.Object, this.messageBus)
             {

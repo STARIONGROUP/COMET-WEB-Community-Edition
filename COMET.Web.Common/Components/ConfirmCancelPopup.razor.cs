@@ -23,6 +23,7 @@
 
 namespace COMET.Web.Common.Components
 {
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components;
@@ -54,7 +55,7 @@ namespace COMET.Web.Common.Components
             base.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsVisible)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>

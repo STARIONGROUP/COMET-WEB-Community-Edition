@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="RequirementsEditorBodyViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -38,6 +38,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
+
+    using DynamicData;
 
     using FluentResults;
 
@@ -128,6 +130,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             this.iteration.RequirementsSpecification.AddRange([this.specification, this.deprecatedSpecification]);
 
             this.sessionService = new Mock<ISessionService>();
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(this.iteration);
+            this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
             this.session = new Mock<ISession>();
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.sessionService.Setup(x => x.GetDomainOfExpertise(this.iteration)).Returns(this.systemDomain);

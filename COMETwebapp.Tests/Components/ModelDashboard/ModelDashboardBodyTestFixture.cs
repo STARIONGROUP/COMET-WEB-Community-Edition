@@ -36,6 +36,8 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using DynamicData;
+
     using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
@@ -59,19 +61,22 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
 
     using NUnit.Framework;
 
-
+    [TestFixture]
     public class ModelDashboardBodyTestFixture
     {
         private BunitContext context;
         private ModelDashboardBodyViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private CDPMessageBus messageBus;
+        private SourceList<Iteration> openIterations;
             
         [SetUp]
         public void Setup()
         {
             this.context = new BunitContext();
             this.sessionService = new Mock<ISessionService>();
+            this.openIterations = new SourceList<Iteration>();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
             this.messageBus = new CDPMessageBus();
 
             this.context.ConfigureDevExpressBlazor();
@@ -318,6 +323,7 @@ namespace COMETwebapp.Tests.Components.ModelDashboard
 
             iteration.Element.AddRange(new List<ElementDefinition>{element1, element2, element3});
             iteration.TopElement = element1;
+            this.openIterations.Add(iteration);
             this.viewModel.CurrentThing = iteration;
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 

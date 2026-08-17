@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="RequirementDetailsTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -29,6 +29,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using CDP4Common.Types;
 
     using CDP4Dal;
+
+    using DynamicData;
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
@@ -108,7 +110,10 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             iteration.Relationship.Add(new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.linkedRequirement, Target = this.requirement });
             iteration.Relationship.Add(new MultiRelationship { Iid = Guid.NewGuid(), RelatedThing = { this.requirement, this.deprecatedRequirement } });
 
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(iteration);
             var sessionService = new Mock<ISessionService>();
+            sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
             var session = new Mock<ISession>();
             session.Setup(x => x.OpenReferenceDataLibraries).Returns([]);
             sessionService.Setup(x => x.Session).Returns(session.Object);
