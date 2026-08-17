@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="AuthenticationService.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -35,7 +35,6 @@ namespace COMET.Web.Common.Services.SessionManagement
     using CDP4Web.Extensions;
 
     using COMET.Web.Common.Model.DTO;
-    using COMET.Web.Common.Utilities;
 
     using FluentResults;
 
@@ -206,11 +205,17 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             var result = await this.sessionService.InitializeSessionAndRequestServerSupportedAuthenticationScheme(credentials);
 
-            if (result.IsSuccess && result.Value.Schemes.Intersect([AuthenticationSchemeKind.ExternalJwtBearer, AuthenticationSchemeKind.LocalJwtBearer]).Any())
+            if (!result.IsSuccess)
+            {
+                return result;
+            }
+
+            await this.sessionStorageService.SetItemAsync(ServerUrlKey, serverUrl);
+
+            if (result.Value.Schemes.Intersect([AuthenticationSchemeKind.ExternalJwtBearer, AuthenticationSchemeKind.LocalJwtBearer]).Any())
             {
                 // Required to be able to restore a session
                 this.lastSupportedAuthenticationSchemeResponse = result.Value;
-                await this.sessionStorageService.SetItemAsync(ServerUrlKey, serverUrl);
             }
 
             return result;
@@ -382,13 +387,12 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
-        /// Cleans all values that could be present inside the Session Storage
+        /// Cleans session token and user values that could be present inside the Session Storage
         /// </summary>
         /// <returns>An awaitable <see cref="Task" /></returns>
         private async Task CleanupStorageAsync()
         {
             await this.sessionStorageService.SetItemAsync(AccessTokenKey, string.Empty);
-            await this.sessionStorageService.SetItemAsync(ServerUrlKey, string.Empty);
             await this.sessionStorageService.SetItemAsync(RefreshTokenKey, string.Empty);
             await this.sessionStorageService.SetItemAsync(UserNameKey, string.Empty);
         }

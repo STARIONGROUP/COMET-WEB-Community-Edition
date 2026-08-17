@@ -264,7 +264,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             this.openIdConnectService.Setup(x => x.RequestAuthenticationToken(code, authenticationSchemeResponse, redirect, null)).ThrowsAsync(new InvalidOperationException());
             await this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect);
 
-            this.sessionStorageService.Verify(x => x.SetItemAsync(It.IsAny<string>(), string.Empty, CancellationToken.None), Times.Exactly(4));
+            this.sessionStorageService.Verify(x => x.SetItemAsync(It.IsAny<string>(), string.Empty, CancellationToken.None), Times.Exactly(3));
         }
 
         [Test]
