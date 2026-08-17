@@ -101,6 +101,11 @@ namespace COMETwebapp.ViewModels.Components.SubscriptionDashboard
             this.OptionSelector.CurrentIteration = this.CurrentThing;
             this.ParameterTypeSelector.CurrentIteration = this.CurrentThing;
 
+            if (this.CurrentDomain == null)
+            {
+                return;
+            }
+
             var ownedSubscriptions = this.CurrentThing?.QueryOwnedParameterSubscriptions(this.CurrentDomain).ToList()
                                      ?? new List<ParameterSubscription>();
 

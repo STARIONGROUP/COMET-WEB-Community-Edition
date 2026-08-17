@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="RequirementsEditorCrudTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -31,6 +31,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using CDP4Common.Types;
 
     using CDP4Dal;
+
+    using DynamicData;
 
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
@@ -127,6 +129,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
             this.iteration = new Iteration { Iid = Guid.NewGuid(), Container = new EngineeringModel { EngineeringModelSetup = modelSetup } };
             this.iteration.RequirementsSpecification.Add(this.specification);
+
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(this.iteration);
+            this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
 
             this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, new ShowHideDeprecatedThingsService(), new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object)
             {

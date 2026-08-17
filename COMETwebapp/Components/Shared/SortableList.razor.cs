@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SortableList.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -44,6 +44,12 @@ namespace COMETwebapp.Components.Shared
         /// </summary>
         [Inject]
         public IJSRuntime JsRuntime { get; set; }
+
+        /// <summary>
+        /// The injected logger
+        /// </summary>
+        [Inject]
+        public ILogger<SortableList<T>> Logger { get; set; }
 
         /// <summary>
         /// The sortable item template to be displayed in the listing
@@ -174,10 +180,17 @@ namespace COMETwebapp.Components.Shared
         {
             if (firstRender)
             {
-                this.selfReference = DotNetObjectReference.Create(this);
-                this.Disposables.Add(this.selfReference);
-                var module = await this.JsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/Shared/SortableList.razor.js");
-                await module.InvokeAsync<string>("init", this.Id, this.Group, this.Pull, this.Put, this.Sort, this.Handle, this.Filter, this.selfReference, this.ForceFallback);
+                try
+                {
+                    this.selfReference = DotNetObjectReference.Create(this);
+                    this.Disposables.Add(this.selfReference);
+                    var module = await this.JsRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/Shared/SortableList.razor.js");
+                    await module.InvokeAsync<string>("init", this.Id, this.Group, this.Pull, this.Put, this.Sort, this.Handle, this.Filter, this.selfReference, this.ForceFallback);
+                }
+                catch (Exception ex)
+                {
+                    this.Logger.LogWarning(ex, "An error occurred while initializing the sortable list.");
+                }
             }
         }
     }

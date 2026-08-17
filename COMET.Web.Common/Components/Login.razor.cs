@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="Login.razor.cs" company="Starion Group S.A.">
 //    Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -34,6 +34,7 @@ namespace COMET.Web.Common.Components
     using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
 
     using ReactiveUI;
 
@@ -58,6 +59,12 @@ namespace COMET.Web.Common.Components
         /// </summary>
         [Inject]
         public NavigationManager NavigationManager { get; set; }
+
+        /// <summary>
+        /// Gets or sets the injected <see cref="ILogger{T}" />
+        /// </summary>
+        [Inject]
+        public ILogger<Login> Logger { get; set; }
 
         /// <summary>
         /// Gets or sets the injected <see cref="IAuthenticationService" />
@@ -211,10 +218,33 @@ namespace COMET.Web.Common.Components
 
             if (firstRender)
             {
+                var savedServerUrl = await this.AuthenticationService.RetrieveLastUsedServerUrlAsync();
+
+                if (string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.SourceAddress))
+                {
+                    if (!string.IsNullOrEmpty(savedServerUrl))
+                    {
+                        this.ViewModel.AuthenticationDto.SourceAddress = savedServerUrl;
+                    }
+                    else if (!string.IsNullOrEmpty(this.ServerConfiguration?.ServerAddress))
+                    {
+                        this.ViewModel.AuthenticationDto.SourceAddress = this.ServerConfiguration.ServerAddress;
+                    }
+                }
+
+                var savedUserName = await this.AuthenticationService.RetrieveLastUsedUserNameAsync();
+
+                if (!string.IsNullOrEmpty(savedUserName) && string.IsNullOrEmpty(this.ViewModel.AuthenticationDto.UserName))
+                {
+                    this.ViewModel.AuthenticationDto.UserName = savedUserName;
+                }
+
+                // TODO: check where to put this - maybe on the top of the method
+                /*
                 if (!string.IsNullOrEmpty(this.ServerConfiguration.ServerAddress) && this.ServerConfiguration.AllowMultipleStepsAuthentication)
                 {
                     await this.ViewModel.RequestAvailableAuthenticationSchemeAsync();
-                }
+                }*/
 
                 await this.AuthenticationService.TryRestoreLastSessionAsync();
                 this.checkingRestoreSession = false;
@@ -377,7 +407,14 @@ namespace COMET.Web.Common.Components
             queryParameters["redirect_uri"] = $"{this.NavigationManager.BaseUri.TrimEnd('/')}/callback";
             uri.Query = string.Join("&", queryParameters.AllKeys.Select(key => $"{key}={queryParameters[key]!}"));
 
-            this.NavigationManager.NavigateTo(uri.ToString(), forceLoad: true);
+            try
+            {
+                this.NavigationManager.NavigateTo(uri.ToString(), forceLoad: true);
+            }
+            catch (OperationCanceledException ex)
+            {
+                this.Logger.LogDebug(ex, "Navigation to external identity provider was interrupted.");
+            }
         }
 
         /// <summary>

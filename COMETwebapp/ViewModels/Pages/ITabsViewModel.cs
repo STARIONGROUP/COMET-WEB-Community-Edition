@@ -65,6 +65,11 @@ namespace COMETwebapp.ViewModels.Pages
         ISwitchDomainViewModel SwitchDomainViewModel { get; }
 
         /// <summary>
+        /// Gets the <see cref="IConfirmCancelPopupViewModel" /> for restoring previous tabs
+        /// </summary>
+        IConfirmCancelPopupViewModel RestoreTabsPopupViewModel { get; }
+
+        /// <summary>
         /// Creates a new tab and sets it to current
         /// </summary>
         /// <param name="application">The <see cref="TabbedApplication" /> for which the tab will be created</param>
@@ -87,5 +92,11 @@ namespace COMETwebapp.ViewModels.Pages
         /// </summary>
         /// <param name="panel">The <see cref="TabPanelInformation" /></param>
         void AskToSwitchDomain(TabPanelInformation panel);
+
+        /// <summary>
+        /// Checks if there are saved tabs in session storage and prompts the user to restore them
+        /// </summary>
+        /// <returns>An awaitable <see cref="Task" /></returns>
+        Task CheckAndRestoreSavedTabsAsync();
     }
 }

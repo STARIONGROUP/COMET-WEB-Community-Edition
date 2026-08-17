@@ -183,6 +183,9 @@ namespace COMET.Web.Common.Tests.Components
             });
 
             this.authenticationService.Setup(x => x.Login(It.IsAny<AuthenticationDto>())).ReturnsAsync(Result.Fail(["error"]));
+            this.viewModel.AuthenticationDto.SourceAddress = "http://localhost.com";
+            this.viewModel.AuthenticationDto.UserName = "user";
+            this.viewModel.AuthenticationDto.Password = "user1";
 
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
 
@@ -342,6 +345,25 @@ namespace COMET.Web.Common.Tests.Components
 
             var navigationManager = this.context.Services.GetService<NavigationManager>();
             Assert.That(navigationManager.Uri.StartsWith(authenticationSchemeResponse.Authority), Is.True);
+        }
+
+        [Test]
+        public async Task VerifySavedCredentialsRestoredOnFirstRender()
+        {
+            this.authenticationService.Setup(x => x.RetrieveLastUsedServerUrlAsync()).ReturnsAsync("http://saved-server.com");
+            this.authenticationService.Setup(x => x.RetrieveLastUsedUserNameAsync()).ReturnsAsync("savedUser");
+            this.viewModel.AuthenticationDto.SourceAddress = null;
+            this.viewModel.AuthenticationDto.UserName = null;
+
+            this.context.Render<Login>();
+            await Task.Yield();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.AuthenticationDto.SourceAddress, Is.EqualTo("http://saved-server.com"));
+                Assert.That(this.viewModel.AuthenticationDto.UserName, Is.EqualTo("savedUser"));
+                Assert.That(this.viewModel.AuthenticationDto.Password, Is.Null.Or.Empty);
+            }
         }
     }
 }

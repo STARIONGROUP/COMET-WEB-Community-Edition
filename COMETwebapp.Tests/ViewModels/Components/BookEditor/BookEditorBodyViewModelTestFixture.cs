@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
+    using CDP4Dal.Events;
 
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -40,7 +41,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
     using System.Collections.Generic;
 
     using CDP4Web.Enumerations;
-    using CDP4Dal.Events;
+
+    using DynamicData;
 
     [TestFixture]
     public class BookEditorBodyViewModelTestFixture
@@ -53,6 +55,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
         public void SetUp()
         {
             this.sessionService = new Mock<ISessionService>();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
             this.messageBus = new CDPMessageBus();
             this.viewModel = new BookEditorBodyViewModel(this.sessionService.Object, this.messageBus);
         }

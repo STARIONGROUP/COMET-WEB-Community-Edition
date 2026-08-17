@@ -34,6 +34,8 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using DynamicData;
+
     using Moq;
 
     using NUnit.Framework;
@@ -79,6 +81,7 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
         {
             this.sessionService = new Mock<ISessionService>();
             this.messageBus = new CDPMessageBus();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
             this.viewModel = new SingleIterationApplicationViewModel(this.sessionService.Object, this.messageBus);
         }
 
@@ -114,6 +117,9 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
         {
             var iteration = new Iteration();
             var domain = new DomainOfExpertise();
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(iteration);
+            this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
             this.sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(domain);
             Assert.That(this.viewModel.CurrentDomain, Is.Null);
             this.viewModel.CurrentThing = iteration;
@@ -123,6 +129,11 @@ namespace COMET.Web.Common.Tests.ViewModels.Components.Applications
             this.sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(newDomain);
             this.messageBus.SendMessage(new DomainChangedEvent(iteration, newDomain));
             Assert.That(this.viewModel.CurrentDomain, Is.EqualTo(newDomain));
+
+            openIterations.Clear();
+            this.messageBus.SendMessage(new DomainChangedEvent(iteration, newDomain));
+            Assert.That(this.viewModel.CurrentDomain, Is.Null);
+
             this.viewModel.CurrentThing = null;
             Assert.That(this.viewModel.CurrentDomain, Is.Null);
         }

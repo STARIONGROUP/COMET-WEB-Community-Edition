@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ParameterEditorBodyViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -41,6 +41,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.ViewModels.Components.ParameterEditor;
     using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
+
+    using DynamicData;
 
     using Moq;
 
@@ -218,6 +220,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             this.iteration.DefaultOption = this.iteration.Option.First();
 
             var sessionService = new Mock<ISessionService>();
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(this.iteration);
+            sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
             this.session = new Mock<ISession>();
             var permissionService = new Mock<IPermissionService>();
             permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);

@@ -45,6 +45,7 @@ namespace COMETwebapp.Model
         public TabPanelInformation()
         {
             this.Disposables.Add(this.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Remove, ListChangeReason.RemoveRange).Subscribe(this.OnOpenTabRemoved));
+            this.Disposables.Add(this.OpenTabs.Connect().WhereReasonsAre(ListChangeReason.Clear).Subscribe(this.OnOpenTabsCleared));
         }
 
         /// <summary>
@@ -105,6 +106,15 @@ namespace COMETwebapp.Model
             {
                 this.CurrentTab = this.OpenTabs.Items.FirstOrDefault();
             }
+        }
+
+        /// <summary>
+        /// Method executed when all open tabs are cleared
+        /// </summary>
+        /// <param name="changeSet">The change set containing the clear operation</param>
+        private void OnOpenTabsCleared(IChangeSet<TabbedApplicationInformation> changeSet)
+        {
+            this.CurrentTab = null;
         }
     }
 }

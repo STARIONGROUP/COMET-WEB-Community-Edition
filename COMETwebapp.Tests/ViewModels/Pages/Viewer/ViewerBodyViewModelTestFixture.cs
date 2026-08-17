@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ViewerBodyViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -26,6 +26,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
+
+    using DynamicData;
 
     using CDP4Web.Enumerations;
 
@@ -167,6 +169,10 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
             actualFiniteStateList.ActualState.Add(actualState2);
 
             iteration.ActualFiniteStateList.Add(actualFiniteStateList);
+
+            var openIterations = new SourceList<Iteration>();
+            openIterations.Add(iteration);
+            this.sessionServiceMock.Setup(x => x.OpenIterations).Returns(openIterations);
 
             var selectionMediatorMock = new Mock<ISelectionMediator>();
 
