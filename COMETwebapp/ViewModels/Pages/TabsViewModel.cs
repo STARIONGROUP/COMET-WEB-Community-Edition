@@ -449,8 +449,13 @@ namespace COMETwebapp.ViewModels.Pages
                     }
 
                     var targetPanel = savedTab.IsSidePanel ? this.SidePanel : this.MainPanel;
+                    var isOpened = await this.OpenThingOfInterest(savedTab.IterationSetupId, savedTab.DomainId);
 
-                    await this.OpenThingOfInterest(savedTab.IterationSetupId, savedTab.DomainId);
+                    if (!isOpened)
+                    {
+                        continue;
+                    }
+
                     this.CreateNewTab(app, savedTab.ObjectOfInterestId, targetPanel);
                 }
 
@@ -473,19 +478,21 @@ namespace COMETwebapp.ViewModels.Pages
         /// </summary>
         /// <param name="iterationSetupIid">The ID of the iteration setup to open</param>
         /// <param name="domainId">The ID of the domain to select</param>
-        /// <returns>An awaitable <see cref="Task" /></returns>
-        private async Task OpenThingOfInterest(Guid iterationSetupIid, Guid domainId)
+        /// <returns>
+        /// An awaitable <see cref="Task{Boolean}" /> indicating whether the thing of interest was opened, is already open, or does not require opening
+        /// </returns>
+        private async Task<bool> OpenThingOfInterest(Guid iterationSetupIid, Guid domainId)
         {
             if (iterationSetupIid == Guid.Empty)
             {
-                return;
+                return true;
             }
 
             var isIterationAlreadyOpen = this.sessionService.OpenIterations.Items.Any(x => x.IterationSetup.Iid == iterationSetupIid);
 
             if (isIterationAlreadyOpen)
             {
-                return;
+                return true;
             }
 
             var iterationSetup = this.sessionService
@@ -496,7 +503,7 @@ namespace COMETwebapp.ViewModels.Pages
 
             if (iterationSetup == null)
             {
-                return;
+                return false;
             }
 
             var modelSetup = (EngineeringModelSetup)iterationSetup.Container;
@@ -508,10 +515,11 @@ namespace COMETwebapp.ViewModels.Pages
 
             if (domainToUse == null)
             {
-                return;
+                return false;
             }
 
             await this.sessionService.ReadIteration(iterationSetup, domainToUse);
+            return true;
         }
 
         /// <summary>

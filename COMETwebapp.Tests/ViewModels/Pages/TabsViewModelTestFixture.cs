@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="TabsViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -265,7 +265,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             var savedTabs = new List<SavedTabDto>
             {
                 new() { ApplicationName = "Engineering Model", IterationSetupId = Guid.Empty, DomainId = domainId },
-                new() { ApplicationName = "Engineering Model", IterationSetupId = iterationSetupId, DomainId = domainId }
+                new() { ApplicationName = "Engineering Model", IterationSetupId = iterationSetupId, DomainId = domainId },
+                new() { ApplicationName = "Engineering Model", IterationSetupId = Guid.NewGuid(), DomainId = domainId }
             };
 
             this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey, CancellationToken.None))
@@ -293,6 +294,15 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             await this.viewModel.RestoreTabsPopupViewModel.OnConfirm.InvokeAsync();
 
             this.sessionService.Verify(x => x.ReadIteration(iterationSetup, defaultDomain), Times.Once);
+
+            modelSetup.ActiveDomain.Clear();
+            this.sessionService.Setup(x => x.GetAvailableDomains(modelSetup)).Returns([]);
+
+            this.CreateViewModel();
+            await this.viewModel.CheckAndRestoreSavedTabsAsync();
+            await this.viewModel.RestoreTabsPopupViewModel.OnConfirm.InvokeAsync();
+
+            Assert.That(this.viewModel.MainPanel.OpenTabs, Has.Count.EqualTo(0));
         }
 
         [Test]

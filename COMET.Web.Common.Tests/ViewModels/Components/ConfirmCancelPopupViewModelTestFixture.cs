@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="ConfirmCancelPopupViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -27,8 +27,6 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
 
     using NUnit.Framework;
 
-#pragma warning disable CS0618
-
     /// <summary>
     /// Suite of tests for the <see cref="ConfirmCancelPopupViewModel" /> class.
     /// </summary>
@@ -50,8 +48,6 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             {
                 Assert.That(this.viewModel.CancelStyle, Is.EqualTo(CometButtonStyle.Secondary));
                 Assert.That(this.viewModel.ConfirmStyle, Is.EqualTo(CometButtonStyle.Primary));
-                Assert.That(this.viewModel.CancelRenderStyle, Is.EqualTo(CometButtonStyle.Secondary));
-                Assert.That(this.viewModel.ConfirmRenderStyle, Is.EqualTo(CometButtonStyle.Primary));
                 Assert.That(this.viewModel.HeaderText, Is.EqualTo("Please confirm"));
                 Assert.That(this.viewModel.IsVisible, Is.False);
                 Assert.That(this.viewModel.ShowCloseButton, Is.True);
@@ -64,17 +60,6 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             {
                 Assert.That(this.viewModel.CancelStyle, Is.EqualTo(CometButtonStyle.Danger));
                 Assert.That(this.viewModel.ConfirmStyle, Is.EqualTo(CometButtonStyle.Success));
-                Assert.That(this.viewModel.CancelRenderStyle, Is.EqualTo(CometButtonStyle.Danger));
-                Assert.That(this.viewModel.ConfirmRenderStyle, Is.EqualTo(CometButtonStyle.Success));
-            }
-
-            this.viewModel.CancelRenderStyle = CometButtonStyle.Warning;
-            this.viewModel.ConfirmRenderStyle = CometButtonStyle.Info;
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(this.viewModel.CancelStyle, Is.EqualTo(CometButtonStyle.Warning));
-                Assert.That(this.viewModel.ConfirmStyle, Is.EqualTo(CometButtonStyle.Info));
             }
         }
     }
