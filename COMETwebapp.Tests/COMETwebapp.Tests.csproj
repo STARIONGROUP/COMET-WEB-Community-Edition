@@ -5,7 +5,7 @@
       <LangVersion>latest</LangVersion>
       <Description>Unit tests for the COMET Web Application</Description>
       <Company>Starion Group S.A.</Company>
-      <Copyright>Copyright 2023-2025 Starion Group S.A.</Copyright>
+      <Copyright>Copyright 2023-2026 Starion Group S.A.</Copyright>
       <RepositoryUrl>https://github.com/STARIONGROUP/COMET-WEB-Community-Edition.git</RepositoryUrl>
       <RepositoryType>Git</RepositoryType>
       <Nullable>disable</Nullable>

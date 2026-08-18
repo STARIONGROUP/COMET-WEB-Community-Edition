@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <LangVersion>Latest</LangVersion>
-    <Version>8.1.0</Version>
+    <Version>9.0.0</Version>
     <Title>CDP4 WEB Common</Title>
     <Description>A Common Library for any Blazor based application related to ECSS-E-TM-10-25</Description>
     <Company>Starion Group S.A.</Company>
-    <Copyright>Copyright 2023-2025 Starion Group S.A.</Copyright>
+    <Copyright>Copyright 2023-2026 Starion Group S.A.</Copyright>
     <PackageId>CDP4.WEB.Common</PackageId>
     <AssemblyTitle>COMET.WEB.Common</AssemblyTitle>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -21,7 +21,16 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>
-      Breaking change: Replaced ButtonRenderStyle references in ViewModels with presentation-agnostic CometButtonStyle enum (CancelStyle and ConfirmStyle properties on IConfirmCancelPopupViewModel). CancelRenderStyle and ConfirmRenderStyle have been removed.
+      [Update] Dependendencies
+      [Update] Reusable Components
+      [Add] support to open multiple iterations per engineeringmodel; fixes #729
+      [Update] to use one consolidated icon system; fixes #845
+      [Harmonize] filter settings and button coloring; fixes #812 and #887
+      [Fix] login validation; fixes #894
+      [Make] active domain visible; fixes #893
+      [Add] a dismissible page introduction box explaining what the user can do on each application; fixes #915
+      [Fix] refreshing browser page keeps app loaded; fixes #896
+      [Fix] Setting server with external authentication provider in appsettings throws exception; fixes #924
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
