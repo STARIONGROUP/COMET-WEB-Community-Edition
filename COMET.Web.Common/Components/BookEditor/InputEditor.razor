@@ -28,7 +28,7 @@
 <div class="input-content">
     @if (this.Item is INamedThing namedThing && this.ShowName)
     {
-        <div class="w-100 editor-row">
+        <div id="editor-row-name" class="w-100 editor-row">
             <p>Name:</p>
             <DxTextBox CssClass="w-100" @bind-Text="@namedThing.Name" />
         </div>
@@ -36,7 +36,7 @@
 
     @if (this.Item is IShortNamedThing shortNamedThing && this.ShowShortName)
     {
-        <div class="w-100 editor-row">
+        <div id="editor-row-shortname" class="w-100 editor-row">
             <p>ShortName:</p>
             <DxTextBox CssClass="w-100" @bind-Text="@shortNamedThing.ShortName" />
         </div>
@@ -44,7 +44,7 @@
 
     @if (this.Item is IOwnedThing ownedThing)
     {
-        <div class="w-100 editor-row">
+        <div id="editor-row-owner" class="w-100 editor-row">
             <p>Owner:</p>
             <DxComboBox @bind-Value="@ownedThing.Owner"
                         Data="@this.ActiveDomains"
@@ -57,7 +57,7 @@
 
     @if (this.Item is TextualNote textualNote)
     {
-        <div class="w-100 editor-row">
+        <div id="editor-row-content" class="w-100 editor-row">
             <p>Content:</p>
             <DxMemo @bind-Text="textualNote.Content"
                     CssClass="w-100"
@@ -67,7 +67,7 @@
 
     @if (this.Item is ICategorizableThing categorizableThing)
     {
-        <div class="w-100 editor-row category-row">
+        <div id="editor-row-category" class="w-100 editor-row category-row">
             <p>Category:</p>
             <MultiComboBox TItem="Category"
                            Values="@categorizableThing.Category"

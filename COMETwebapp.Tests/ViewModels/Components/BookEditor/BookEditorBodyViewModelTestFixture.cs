@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.BookEditor;
@@ -44,9 +45,16 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
 
     using DynamicData;
 
+    using FluentResults;
+
     [TestFixture]
     public class BookEditorBodyViewModelTestFixture
     {
+        /// <summary>
+        /// The message a COMET server answers a refused write with, as reported in issue #938
+        /// </summary>
+        private const string ServerError = "The person admin does not have an appropriate create permission for Book.";
+
         private BookEditorBodyViewModel viewModel;
         private Mock<ISessionService> sessionService;
         private CDPMessageBus messageBus;
@@ -56,6 +64,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
         {
             this.sessionService = new Mock<ISessionService>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
+
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()))
+                .ReturnsAsync(Result.Ok());
+
+            this.sessionService.Setup(x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Ok());
+
             this.messageBus = new CDPMessageBus();
             this.viewModel = new BookEditorBodyViewModel(this.sessionService.Object, this.messageBus);
         }
@@ -286,12 +301,114 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
 
             Assert.That(() => this.viewModel.OnDeleteThing(), Throws.Nothing);
 
-            this.sessionService.Verify(x => x.DeleteThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+            this.sessionService.Verify(x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
 
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.ThingToDelete, Is.Null);
                 Assert.That(this.viewModel.EditorPopupViewModel.IsVisible, Is.False);
+            });
+        }
+
+        [Test]
+        public async Task VerifyOnCreateThingReportsAFailedWrite()
+        {
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()))
+                .ReturnsAsync(Result.Fail(ServerError));
+
+            this.viewModel.CurrentThing = new EngineeringModel
+            {
+                EngineeringModelSetup = new EngineeringModelSetup()
+            };
+
+            this.viewModel.SetThingToCreate(new Book());
+            await this.viewModel.OnCreateThing();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.EditorPopupViewModel.IsVisible, Is.True);
+                Assert.That(this.viewModel.EditorPopupViewModel.ValidationErrors.Items, Has.Member(ServerError));
+                Assert.That(this.viewModel.ThingToCreate, Is.Not.Null);
+            });
+        }
+
+        [Test]
+        public async Task VerifyOnEditThingReportsAFailedWrite()
+        {
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()))
+                .ReturnsAsync(Result.Fail(ServerError));
+
+            var section = new Section
+            {
+                Container = new Book()
+            };
+
+            this.viewModel.SetThingToEdit(section);
+            await this.viewModel.OnEditThing();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.EditorPopupViewModel.IsVisible, Is.True);
+                Assert.That(this.viewModel.EditorPopupViewModel.ValidationErrors.Items, Has.Member(ServerError));
+                Assert.That(this.viewModel.ThingToEdit, Is.Not.Null);
+            });
+        }
+
+        [Test]
+        public async Task VerifySuccessfulWriteClearsThePreviousErrors()
+        {
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()))
+                .ReturnsAsync(Result.Fail("failed"));
+
+            this.viewModel.CurrentThing = new EngineeringModel
+            {
+                EngineeringModelSetup = new EngineeringModelSetup()
+            };
+
+            this.viewModel.SetThingToCreate(new Book());
+            await this.viewModel.OnCreateThing();
+
+            Assert.That(this.viewModel.EditorPopupViewModel.ValidationErrors.Items, Is.Not.Empty);
+
+            this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()))
+                .ReturnsAsync(Result.Ok());
+
+            await this.viewModel.OnCreateThing();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.EditorPopupViewModel.ValidationErrors.Items, Is.Empty);
+                Assert.That(this.viewModel.EditorPopupViewModel.IsVisible, Is.False);
+                Assert.That(this.viewModel.ThingToCreate, Is.Null);
+            });
+        }
+
+        [Test]
+        public void VerifyCreationIsAllowedOnlyWhenTheContainerIsSelected()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CanCreateBook, Is.False);
+                Assert.That(this.viewModel.CanCreateSection, Is.False);
+                Assert.That(this.viewModel.CanCreatePage, Is.False);
+                Assert.That(this.viewModel.CanCreateNote, Is.False);
+            });
+
+            this.viewModel.CurrentThing = new EngineeringModel
+            {
+                EngineeringModelSetup = new EngineeringModelSetup()
+            };
+
+            this.viewModel.SelectedBook = new Book();
+            this.viewModel.SelectedSection = new Section();
+            this.viewModel.SelectedPage = new Page();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CanCreateBook, Is.True);
+                Assert.That(this.viewModel.CanCreateSection, Is.True);
+                Assert.That(this.viewModel.CanCreatePage, Is.True);
+                Assert.That(this.viewModel.CanCreateNote, Is.True);
             });
         }
 

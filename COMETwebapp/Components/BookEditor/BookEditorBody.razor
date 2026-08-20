@@ -39,7 +39,8 @@
                           CssClass="book-node"
                           OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Book()))"
                           OnEditClicked="@((b) => this.ViewModel.SetThingToEdit(b))"
-                          OnDeleteClicked="@((b) => this.ViewModel.SetThingToDelete(b))">
+                          OnDeleteClicked="@((b) => this.ViewModel.SetThingToDelete(b))"
+                          IsAddButtonDisabled="@(!this.ViewModel.CanCreateBook)">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
@@ -55,13 +56,13 @@
                           OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Section()))"
                           OnEditClicked="@((s) => this.ViewModel.SetThingToEdit(s))"
                           OnDeleteClicked="@((s) => this.ViewModel.SetThingToDelete(s))"
-                          IsAddButtonDisabled="@(this.ViewModel.SelectedBook == null)">
+                          IsAddButtonDisabled="@(!this.ViewModel.CanCreateSection)">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
         </BookEditorColumn>
 
-        <BookEditorColumn TItem="Page" HeaderHexColor="#51dded" HeaderTitle="Pages"
+        <BookEditorColumn TItem="Page" Id="pages-column" HeaderHexColor="#51dded" HeaderTitle="Pages"
                           Items="@this.ViewModel.SelectedSection?.Page.ToList()"
                           @bind-SelectedValue="@this.ViewModel.SelectedPage"
                           IsCollapsed="@this.IsPageColumnCollapsed"
@@ -71,13 +72,13 @@
                           OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new Page()))"
                           OnEditClicked="@((p) => this.ViewModel.SetThingToEdit(p))"
                           OnDeleteClicked="@((p) => this.ViewModel.SetThingToDelete(p))"
-                          IsAddButtonDisabled="@(this.ViewModel.SelectedSection == null)">
+                          IsAddButtonDisabled="@(!this.ViewModel.CanCreatePage)">
             <ContentTemplate>
                 @context.Name
             </ContentTemplate>
         </BookEditorColumn>
 
-        <BookEditorColumn TItem="Note" HeaderHexColor="#eb6075" HeaderTitle="Notes"
+        <BookEditorColumn TItem="Note" Id="notes-column" HeaderHexColor="#eb6075" HeaderTitle="Notes"
                           Items="@this.ViewModel.SelectedPage?.Note.ToList()"
                           @bind-SelectedValue="@this.ViewModel.SelectedNote"
                           OnCollapseClicked="@(() => this.IsPageColumnCollapsed = !this.IsPageColumnCollapsed)"
@@ -86,7 +87,7 @@
                           OnCreateNewItemClick="@(() => this.ViewModel.SetThingToCreate(new TextualNote(){ LanguageCode = "es" }))"
                           OnEditClicked="@((n) => this.ViewModel.SetThingToEdit(n))"
                           OnDeleteClicked="@((n) => this.ViewModel.SetThingToDelete(n))"
-                          IsAddButtonDisabled="@(this.ViewModel.SelectedPage == null)">
+                          IsAddButtonDisabled="@(!this.ViewModel.CanCreateNote)">
             <ContentTemplate>
                 @if (context is TextualNote textualNote)
                 {
