@@ -88,16 +88,26 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public async Task LoginAsync(string serverUrl, string username, string password)
         {
             // The source-address box is shown when the server is not pre-configured.
-            if (await this.TextInput("sourceaddress").IsVisibleAsync())
+            var isSourceAddressRequested = await this.TextInput("sourceaddress").IsVisibleAsync();
+
+            if (isSourceAddressRequested)
             {
                 await this.TypeCredentialAsync("sourceaddress", serverUrl);
             }
 
             var nextButton = this.page.Locator("#nextBtn");
 
-            // Multi-step configuration only: a "Next" screen takes the server address before asking for credentials.
-            if (await nextButton.IsVisibleAsync())
+            // Multi-step configuration only: a "Next" screen takes the server address before asking for credentials. It
+            // exists only when the source address was asked for - against a pre-configured server the form goes straight
+            // to the credentials and leaves a permanently disabled "Next" button behind, which is still "visible", so
+            // testing visibility alone sends the login into a branch that can never complete.
+            if (isSourceAddressRequested && await nextButton.IsVisibleAsync())
             {
+                // The button only enables once the app has asked the server which authentication schemes it supports, a
+                // network round-trip that can outlast the 10s action default, so give it the same budget as the other
+                // server-dependent steps.
+                await Expect(nextButton).ToBeEnabledAsync(new LocatorAssertionsToBeEnabledOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
+
                 await nextButton.ClickAsync();
                 await Expect(this.TextInput("username")).ToBeVisibleAsync();
             }

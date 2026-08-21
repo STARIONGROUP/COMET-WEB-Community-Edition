@@ -362,7 +362,8 @@ sub {
     padding-top: 16px!important;
 }
 
-#tabs-page-content:has(> .model-editor-root) {
+#tabs-page-content:has(> .model-editor-root),
+#tabs-page-content:has(> #gridParent) {
     display: flex;
     flex-direction: column;
     overflow: hidden;

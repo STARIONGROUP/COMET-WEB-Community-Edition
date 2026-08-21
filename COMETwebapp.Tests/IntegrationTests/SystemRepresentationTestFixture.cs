@@ -68,5 +68,35 @@ namespace COMETwebapp.Tests.IntegrationTests
 
             await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
         }
+
+        /// <summary>
+        /// Verifies that the product tree scrolls independently (issue #931): once the tree holds more nodes than fit
+        /// on one screen, neither the shell nor the tab content area scrolls as a whole, so the tree scrolls inside its
+        /// own section and the selected element's cards stay in view instead of being scrolled away.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyTreeScrollsIndependently()
+        {
+            await this.PageModel.SelectRootNodeAsync();
+            await this.PageModel.ExpandNodesAsync(12);
+
+            var treeContentHeight = await ApplicationPageModel.GetContentHeightAsync(this.PageModel.TreeNodesSection);
+            Assume.That(treeContentHeight, Is.GreaterThan(this.Page.ViewportSize.Height), "the seed model must hold more tree nodes than fit on one screen");
+
+            var shellOverflow = await ApplicationPageModel.GetVerticalOverflowAsync(this.PageModel.ShellContentArea);
+            var tabContentOverflow = await ApplicationPageModel.GetVerticalOverflowAsync(this.PageModel.TabContentArea);
+            var treeSectionOverflow = await ApplicationPageModel.GetVerticalOverflowAsync(this.PageModel.TreeNodesSection);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(shellOverflow, Is.Zero, "the page must not scroll as a whole");
+                Assert.That(tabContentOverflow, Is.Zero, "the tab content area must not scroll as a whole");
+                Assert.That(treeSectionOverflow, Is.GreaterThan(0), "the tree node section must be the element that scrolls");
+            });
+
+            await Expect(this.PageModel.DetailsPanel).ToBeInViewportAsync();
+            await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
+        }
     }
 }

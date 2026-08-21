@@ -77,17 +77,6 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator SourceElements => this.Page.Locator("#sourcePanel [data-testid=element-node]");
 
         /// <summary>
-        /// Gets the main content area of the application shell, which is the element that scrolls when a page
-        /// does not fit the viewport.
-        /// </summary>
-        public ILocator ShellContentArea => this.Page.Locator(".page-layout-item-content");
-
-        /// <summary>
-        /// Gets the tab content area that hosts the page introduction box and the application itself.
-        /// </summary>
-        public ILocator TabContentArea => this.Page.Locator("#tabs-page-content");
-
-        /// <summary>
         /// Gets the scrollable area of the source model tree.
         /// </summary>
         public ILocator SourceTreeScrollArea => this.Page.Locator("#sourcePanel .treeview-scrollarea");
@@ -119,26 +108,6 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
             }
 
             await this.Page.Locator(".page-intro-box").First.WaitForAsync();
-        }
-
-        /// <summary>
-        /// Gets the number of pixels by which the content of the given element overflows it vertically.
-        /// </summary>
-        /// <param name="locator">The <see cref="ILocator" /> of the element to measure.</param>
-        /// <returns>The vertical overflow, in pixels; zero when the content fits.</returns>
-        public static Task<int> GetVerticalOverflowAsync(ILocator locator)
-        {
-            return locator.EvaluateAsync<int>("element => Math.max(0, element.scrollHeight - element.clientHeight)");
-        }
-
-        /// <summary>
-        /// Gets the total height of the content of the given element, whether or not it fits.
-        /// </summary>
-        /// <param name="locator">The <see cref="ILocator" /> of the element to measure.</param>
-        /// <returns>The content height, in pixels.</returns>
-        public static Task<int> GetContentHeightAsync(ILocator locator)
-        {
-            return locator.EvaluateAsync<int>("element => element.scrollHeight");
         }
     }
 }
