@@ -1,6 +1,8 @@
 ﻿.data-item-details-section {
     padding: 4px 12px 12px 12px;
-    border: none;
+    border: 1px solid var(--colors-gray-200);
+    border-radius: var(--radius-md);
+    background: var(--colors-white);
     height: 100%;
     overflow: auto;
 }

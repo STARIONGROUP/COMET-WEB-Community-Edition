@@ -135,3 +135,13 @@ h3, .h3 {
     height: auto;
     align-items: center;
 }
+
+.dxbl-grid {
+    --dxbl-grid-border-radius: var(--radius-md);
+}
+
+.dxbl-toolbar,
+.dxbl-toolbar.dxbl-sm,
+.dxbl-toolbar.dxbl-lg {
+    --dxbl-toolbar-btn-border-radius: var(--radius-md);
+}

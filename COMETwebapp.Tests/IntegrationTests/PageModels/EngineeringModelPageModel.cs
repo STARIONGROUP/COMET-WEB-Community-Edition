@@ -50,5 +50,24 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// Gets a selector for an element that is only present once this page has rendered.
         /// </summary>
         protected override string LandmarkSelector => "#engineering-model-toolbar";
+
+        /// <summary>
+        /// Gets the view/edit details panel shown next to the table of the current section. It is the shared
+        /// <c>DataItemDetailsComponent</c>, so what holds here holds on every table-plus-details application page.
+        /// It is matched by its application-owned class rather than an id, because a split view renders one panel per
+        /// open tab.
+        /// </summary>
+        public ILocator DetailsPanel => this.Page.Locator(".data-item-details-section").First;
+
+        /// <summary>
+        /// Gets the table of the current section, matched by the application-owned class every one of these grids
+        /// carries.
+        /// </summary>
+        public ILocator SectionTable => this.Page.Locator(".selected-data-item-table").First;
+
+        /// <summary>
+        /// Gets the section buttons rendered above the table by the toolbar.
+        /// </summary>
+        public ILocator SectionButtons => this.Toolbar.Locator("button");
     }
 }
