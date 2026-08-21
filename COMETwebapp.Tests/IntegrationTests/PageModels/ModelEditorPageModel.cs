@@ -77,12 +77,37 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator SourceElements => this.Page.Locator("#sourcePanel [data-testid=element-node]");
 
         /// <summary>
+        /// Gets the scrollable area of the source model tree.
+        /// </summary>
+        public ILocator SourceTreeScrollArea => this.Page.Locator("#sourcePanel .treeview-scrollarea");
+
+        /// <summary>
+        /// Gets the toolbar button that re-opens the page introduction box, shown only while it is dismissed.
+        /// </summary>
+        public ILocator ShowIntroductionButton => this.Page.Locator("[id^='show-page-introduction-button']");
+
+        /// <summary>
         /// Selects the first element in the source model tree, which opens it in the details panel.
         /// </summary>
         /// <returns>A <see cref="Task" />.</returns>
         public Task SelectFirstSourceElementAsync()
         {
             return this.SourceElements.First.ClickAsync();
+        }
+
+        /// <summary>
+        /// Shows the page introduction box if it is currently dismissed, so that the space available to the
+        /// application is smaller than the full tab content area.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        public async Task ShowIntroductionAsync()
+        {
+            if (await this.ShowIntroductionButton.CountAsync() > 0)
+            {
+                await this.ShowIntroductionButton.ClickAsync();
+            }
+
+            await this.Page.Locator(".page-intro-box").First.WaitForAsync();
         }
     }
 }

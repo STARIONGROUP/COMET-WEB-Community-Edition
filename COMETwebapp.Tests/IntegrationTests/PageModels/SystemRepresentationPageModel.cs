@@ -26,6 +26,8 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
 
     using Microsoft.Playwright;
 
+    using static Microsoft.Playwright.Assertions;
+
     /// <summary>
     /// Page object for the System Representation application: the product tree (expand/collapse/select), the element
     /// details panel and the surrounding controls.
@@ -77,6 +79,11 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator TreeNodes => this.Page.Locator(".treeNode");
 
         /// <summary>
+        /// Gets the scrollable area that holds the tree node rows.
+        /// </summary>
+        public ILocator TreeNodesSection => this.Page.Locator("#product-tree-nodes-section");
+
+        /// <summary>
         /// Expands the first collapsed node in the tree.
         /// </summary>
         /// <returns>A <see cref="Task" />.</returns>
@@ -101,6 +108,29 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public Task SelectRootNodeAsync()
         {
             return this.TreeNodes.First.ClickAsync();
+        }
+
+        /// <summary>
+        /// Expands collapsed tree nodes, one at a time, until none is left or the given limit is reached. Used to grow
+        /// the tree beyond the height of a single screen.
+        /// </summary>
+        /// <param name="maximumNodes">The maximum number of nodes to expand.</param>
+        /// <returns>A <see cref="Task" />.</returns>
+        public async Task ExpandNodesAsync(int maximumNodes)
+        {
+            for (var expanded = 0; expanded < maximumNodes; expanded++)
+            {
+                var collapsedNodes = this.Page.Locator("img.expandIcon[src*=Collapsed]");
+
+                if (await collapsedNodes.CountAsync() == 0)
+                {
+                    return;
+                }
+
+                var nodeCountBeforeExpanding = await this.TreeNodes.CountAsync();
+                await collapsedNodes.First.ClickAsync();
+                await Expect(this.TreeNodes).Not.ToHaveCountAsync(nodeCountBeforeExpanding);
+            }
         }
     }
 }
