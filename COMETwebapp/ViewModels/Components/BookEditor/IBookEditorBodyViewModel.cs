@@ -99,6 +99,26 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; set; }
 
         /// <summary>
+        /// Gets the value asserting that a <see cref="Book"/> can be created in the current <see cref="EngineeringModel"/>
+        /// </summary>
+        bool CanCreateBook { get; }
+
+        /// <summary>
+        /// Gets the value asserting that a <see cref="Section"/> can be created in the <see cref="SelectedBook"/>
+        /// </summary>
+        bool CanCreateSection { get; }
+
+        /// <summary>
+        /// Gets the value asserting that a <see cref="Page"/> can be created in the <see cref="SelectedSection"/>
+        /// </summary>
+        bool CanCreatePage { get; }
+
+        /// <summary>
+        /// Gets the value asserting that a <see cref="Note"/> can be created in the <see cref="SelectedPage"/>
+        /// </summary>
+        bool CanCreateNote { get; }
+
+        /// <summary>
         /// Sets the thing to be created
         /// </summary>
         /// <param name="thing">the thing</param>

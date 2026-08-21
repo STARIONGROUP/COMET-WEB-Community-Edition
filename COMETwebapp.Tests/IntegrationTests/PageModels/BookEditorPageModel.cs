@@ -66,9 +66,51 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator AddBookButton => this.Page.Locator("#books-column .add-item-button");
 
         /// <summary>
-        /// Gets the create/edit popup, targeted by the application-owned <c>book-editor-popup</c> class set on it. 
+        /// Gets the book nodes of the Books column. A repeated element, so matched by its app-owned class.
+        /// </summary>
+        public ILocator BookNodes => this.Page.Locator("#books-column .node-button");
+
+        /// <summary>
+        /// Gets the "delete" button shown on the selected book.
+        /// </summary>
+        public ILocator DeleteBookButton => this.Page.Locator("#books-column .delete-button");
+
+        /// <summary>
+        /// Gets the create/edit popup, targeted by the application-owned <c>book-editor-popup</c> class set on it.
         /// </summary>
         public ILocator EditorPopup => this.Page.Locator(".book-editor-popup");
+
+        /// <summary>
+        /// Gets the "Name" text box of the editor popup.
+        /// </summary>
+        public ILocator EditorNameInput => this.EditorPopup.Locator("#editor-row-name input");
+
+        /// <summary>
+        /// Gets the "ShortName" text box of the editor popup.
+        /// </summary>
+        public ILocator EditorShortNameInput => this.EditorPopup.Locator("#editor-row-shortname input");
+
+        /// <summary>
+        /// Gets the "Owner" combo box of the editor popup.
+        /// </summary>
+        public ILocator EditorOwnerComboBox => this.EditorPopup.Locator("#editor-row-owner input");
+
+        /// <summary>
+        /// Gets the "OK" button of the editor popup.
+        /// </summary>
+        public ILocator EditorOkButton => this.EditorPopup.Locator(".ok-button");
+
+        /// <summary>
+        /// Gets the error messages the editor popup reports, both the client-side validation ones and the ones the
+        /// COMET server answered a refused write with.
+        /// </summary>
+        public ILocator EditorErrors => this.EditorPopup.Locator("li.text-danger");
+
+        /// <summary>
+        /// Gets the "Confirm" button of the deletion confirmation popup. The popup's content is teleported out of its
+        /// own element, so its buttons are matched from the page by their application-owned class.
+        /// </summary>
+        public ILocator ConfirmDeletionButton => this.Page.Locator(".confirm-button");
 
         /// <summary>
         /// Opens the "add book" editor dialog.
@@ -88,6 +130,57 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         {
             await this.EditorPopup.GetByText("Cancel").First.ClickAsync();
             await this.EditorPopup.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Detached });
+        }
+
+        /// <summary>
+        /// Fills the open editor popup with a name, a short name and the first available owner, then confirms it.
+        /// </summary>
+        /// <param name="name">The name to give the item.</param>
+        /// <param name="shortName">The short name to give the item.</param>
+        /// <returns>A <see cref="Task" />.</returns>
+        public async Task SubmitEditorAsync(string name, string shortName)
+        {
+            await this.EditorNameInput.FillAsync(name);
+            await this.EditorShortNameInput.FillAsync(shortName);
+
+            // The combo's drop-down list is rendered outside the popup, so its items are matched from the page.
+            await this.EditorOwnerComboBox.ClickAsync();
+            await this.Page.Locator(".dxbl-listbox-item").First.ClickAsync();
+
+            await this.EditorOkButton.ClickAsync();
+        }
+
+        /// <summary>
+        /// Waits until the confirmed editor has settled on one of its two outcomes - the named book showing up in the
+        /// Books column, or the popup reporting why the COMET server refused the write - so that a caller does not race
+        /// the server round-trip the confirmation triggers.
+        /// </summary>
+        /// <param name="name">The name given to the book being created.</param>
+        /// <returns>A <see cref="Task" />.</returns>
+        public Task WaitForCreatedBookOrErrorAsync(string name)
+        {
+            return this.Page.Locator($"#books-column .node-button:has-text(\"{name}\"), .book-editor-popup li.text-danger")
+                .First.WaitForAsync();
+        }
+
+        /// <summary>
+        /// Selects the book carrying the supplied name.
+        /// </summary>
+        /// <param name="name">The name of the book to select.</param>
+        /// <returns>A <see cref="Task" />.</returns>
+        public Task SelectBookAsync(string name)
+        {
+            return this.BookNodes.Filter(new LocatorFilterOptions { HasTextString = name }).First.ClickAsync();
+        }
+
+        /// <summary>
+        /// Deletes the currently selected book and confirms the removal.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        public async Task DeleteSelectedBookAsync()
+        {
+            await this.DeleteBookButton.First.ClickAsync();
+            await this.ConfirmDeletionButton.ClickAsync();
         }
     }
 }

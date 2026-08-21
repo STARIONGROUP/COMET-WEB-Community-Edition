@@ -20,14 +20,14 @@
 @namespace COMET.Web.Common.Components
 @inherits DisposableComponent
 
-<DxPopup @bind-Visible="@this.ViewModel.IsVisible" CloseOnOutsideClick="false" HeaderText="@this.ViewModel.HeaderText" ShowCloseButton="@this.ViewModel.ShowCloseButton" ShowFooter="true">
+<DxPopup @bind-Visible="@this.ViewModel.IsVisible" CssClass="confirm-cancel-popup" CloseOnOutsideClick="false" HeaderText="@this.ViewModel.HeaderText" ShowCloseButton="@this.ViewModel.ShowCloseButton" ShowFooter="true">
 	<Content>
 		@this.ViewModel.ContentText
 	</Content>
 	<FooterTemplate>
 		<div class="modal-footer">
-			<DxButton Text="Cancel" RenderStyle="@this.ViewModel.CancelStyle.ToButtonRenderStyle()" Click="@this.ViewModel.OnCancel" Enabled="this.buttonsEnabled"/>
-			<DxButton Text="Confirm" RenderStyle="@this.ViewModel.ConfirmStyle.ToButtonRenderStyle()" Click="@this.OnConfirmClicked" Enabled="this.buttonsEnabled"/>
+			<DxButton CssClass="cancel-button" Text="Cancel" RenderStyle="@this.ViewModel.CancelStyle.ToButtonRenderStyle()" Click="@this.ViewModel.OnCancel" Enabled="this.buttonsEnabled"/>
+			<DxButton CssClass="confirm-button" Text="Confirm" RenderStyle="@this.ViewModel.ConfirmStyle.ToButtonRenderStyle()" Click="@this.OnConfirmClicked" Enabled="this.buttonsEnabled"/>
 		</div>
 	</FooterTemplate>
 </DxPopup>

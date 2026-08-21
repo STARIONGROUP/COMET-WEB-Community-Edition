@@ -22,6 +22,7 @@
 
 namespace COMETwebapp.Tests.IntegrationTests
 {
+    using System;
     using System.Threading.Tasks;
 
     using COMETwebapp.Tests.IntegrationTests.PageModels;
@@ -53,12 +54,64 @@ namespace COMETwebapp.Tests.IntegrationTests
         [Test]
         public async Task VerifyCanOpenTheAddBookDialog()
         {
+            await AssumeTheParticipantMayCreateABookAsync();
+
             // Non-mutating: this exercises the create-book flow up to the editor without persisting a book.
             await this.PageModel.OpenAddBookDialogAsync();
 
             await Expect(this.PageModel.EditorPopup).ToBeVisibleAsync();
 
             await this.PageModel.CancelDialogAsync();
+        }
+
+        /// <summary>
+        /// Covers issue #938: confirming the add-book editor used to close the popup whatever the COMET server
+        /// answered, so a refused write was indistinguishable from a successful one. The new book must now either show
+        /// up in the Books column, or the popup must stay open carrying the reason it did not.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyCreatingABookEitherShowsItOrReportsWhyItFailed()
+        {
+            await AssumeTheParticipantMayCreateABookAsync();
+
+            // A fresh name per run, so that a run interrupted before its clean-up cannot collide with the next one.
+            var suffix = Guid.NewGuid().ToString("N")[..8];
+            var name = "E2EBook" + suffix;
+            var namedBook = this.PageModel.BookNodes.Filter(new LocatorFilterOptions { HasTextString = name });
+
+            await this.PageModel.OpenAddBookDialogAsync();
+            await this.PageModel.SubmitEditorAsync(name, "e2ebook" + suffix);
+            await this.PageModel.WaitForCreatedBookOrErrorAsync(name);
+
+            if (await namedBook.CountAsync() == 0)
+            {
+                // The server refused the write, so the popup has to still be there, carrying the reason.
+                await Expect(this.PageModel.EditorPopup).ToBeVisibleAsync();
+                await Expect(this.PageModel.EditorErrors.First).ToBeVisibleAsync();
+                await this.PageModel.CancelDialogAsync();
+                return;
+            }
+
+            await Expect(this.PageModel.EditorPopup).ToBeHiddenAsync();
+            await Expect(namedBook).ToHaveCountAsync(1);
+
+            // This is the one test in the suite that writes, so it removes what it created.
+            await this.PageModel.SelectBookAsync(name);
+            await this.PageModel.DeleteSelectedBookAsync();
+
+            await Expect(namedBook).ToHaveCountAsync(0);
+        }
+
+        /// <summary>
+        /// Goes inconclusive when the active participant may not create a <c>Book</c> in the model under test - the
+        /// default participant role ships the whole Book hierarchy with an access right of NONE, and the application
+        /// then disables the add button.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        private async Task AssumeTheParticipantMayCreateABookAsync()
+        {
+            Assume.That(await this.PageModel.AddBookButton.IsEnabledAsync(), "The participant may not create a Book in this model.");
         }
     }
 }

@@ -30,12 +30,15 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
     using CDP4Dal;
     using CDP4Dal.Events;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
     using COMET.Web.Common.ViewModels.Components.BookEditor;
 
     using DynamicData;
+
+    using FluentResults;
 
     using Microsoft.AspNetCore.Components;
 
@@ -143,6 +146,26 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         public IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; set; }
 
         /// <summary>
+        /// Gets the value asserting that a <see cref="Book"/> can be created in the current <see cref="EngineeringModel"/>
+        /// </summary>
+        public bool CanCreateBook => this.CanWrite(ClassKind.Book, this.CurrentThing);
+
+        /// <summary>
+        /// Gets the value asserting that a <see cref="Section"/> can be created in the <see cref="SelectedBook"/>
+        /// </summary>
+        public bool CanCreateSection => this.CanWrite(ClassKind.Section, this.SelectedBook);
+
+        /// <summary>
+        /// Gets the value asserting that a <see cref="Page"/> can be created in the <see cref="SelectedSection"/>
+        /// </summary>
+        public bool CanCreatePage => this.CanWrite(ClassKind.Page, this.SelectedSection);
+
+        /// <summary>
+        /// Gets the value asserting that a <see cref="Note"/> can be created in the <see cref="SelectedPage"/>
+        /// </summary>
+        public bool CanCreateNote => this.CanWrite(ClassKind.Note, this.SelectedPage);
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BookEditorBodyViewModel" /> class.
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -245,6 +268,36 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         }
 
         /// <summary>
+        /// Asserts that the active participant is allowed to create a <see cref="Thing"/> of the given
+        /// <paramref name="classKind"/> inside <paramref name="container"/>.
+        /// </summary>
+        /// <param name="classKind">The <see cref="ClassKind"/> of the <see cref="Thing"/> to create</param>
+        /// <param name="container">The <see cref="Thing"/> the new <see cref="Thing"/> would be contained by</param>
+        /// <returns>true if the creation is allowed, otherwise false</returns>
+        /// <remarks>
+        /// The default participant role ships the whole Book hierarchy with an access right of NONE, so without this
+        /// check the user is offered an editor for a write the server will refuse.
+        /// </remarks>
+        private bool CanWrite(ClassKind classKind, Thing container)
+        {
+            return container != null && this.SessionService.Session.PermissionService.CanWrite(classKind, container);
+        }
+
+        /// <summary>
+        /// Reports the errors of a failed write onto the <see cref="EditorPopupViewModel"/>, which keeps the editor open
+        /// so that the user sees why the operation did not go through.
+        /// </summary>
+        /// <param name="result">The failed <see cref="ResultBase"/></param>
+        private void ReportErrors(ResultBase result)
+        {
+            this.EditorPopupViewModel.ValidationErrors.Edit(inner =>
+            {
+                inner.Clear();
+                inner.AddRange(result.Errors.Select(x => x.Message));
+            });
+        }
+
+        /// <summary>
         /// Validates that the thing is a valid thing for the operations in this ViewModel
         /// </summary>
         /// <param name="thing">the thing to validate</param>
@@ -330,7 +383,15 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
                     return;
             }
 
-            await this.SessionService.CreateOrUpdateThings(thingContainer, [thingContainer, this.ThingToCreate]);
+            var result = await this.SessionService.CreateOrUpdateThings(thingContainer, [thingContainer, this.ThingToCreate]);
+
+            if (result.IsFailed)
+            {
+                this.ReportErrors(result);
+                return;
+            }
+
+            this.EditorPopupViewModel.ValidationErrors.Clear();
             this.ThingToCreate = null;
             this.EditorPopupViewModel.IsVisible = false;
         }
@@ -385,8 +446,15 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 
             var thingContainer = this.ThingToEdit.Container;
             var thingContainerClone = thingContainer.Clone(false);
-            await this.SessionService.CreateOrUpdateThings(thingContainerClone, [this.ThingToEdit.Clone(false)]);
+            var result = await this.SessionService.CreateOrUpdateThings(thingContainerClone, [this.ThingToEdit.Clone(false)]);
 
+            if (result.IsFailed)
+            {
+                this.ReportErrors(result);
+                return;
+            }
+
+            this.EditorPopupViewModel.ValidationErrors.Clear();
             this.ThingToEdit = null;
             this.EditorPopupViewModel.IsVisible = false;
         }
@@ -419,7 +487,14 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
 
             var thingContainer = this.ThingToDelete.Container;
             var thingContainerClone = thingContainer.Clone(false);
-            await this.SessionService.DeleteThings(thingContainerClone, [this.ThingToDelete.Clone(false)]);
+
+            var notificationDescription = new NotificationDescription
+            {
+                OnSuccess = $"The {this.ThingToDelete.ClassKind} was deleted",
+                OnError = $"The {this.ThingToDelete.ClassKind} could not be deleted"
+            };
+
+            await this.SessionService.DeleteThingsWithNotification(thingContainerClone, [this.ThingToDelete.Clone(false)], notificationDescription);
             this.ThingToDelete = null;
         }
     }
