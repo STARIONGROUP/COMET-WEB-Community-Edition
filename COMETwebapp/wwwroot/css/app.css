@@ -350,12 +350,22 @@ sub {
     overflow: auto;
 }
 
+.page-layout-item-content > main {
+    height: 100%;
+}
+
 .template-container {
     padding: 32px 20px 10px 20px !important;
 }
 
 #tabs-page-content{
     padding-top: 16px!important;
+}
+
+#tabs-page-content:has(> .model-editor-root) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .selected-data-item-page {

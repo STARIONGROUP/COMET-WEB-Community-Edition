@@ -61,6 +61,32 @@ namespace COMETwebapp.Tests.IntegrationTests
             await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
         }
 
+        /// <summary>
+        /// Verifies that the Model Editor panels scroll independently (issue #934): even with the page introduction
+        /// box shown, the application fits both the shell content area and the tab content area, so a vertical scroll
+        /// no longer moves everything at once but scrolls the model tree panel it happens over.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyPanelsScrollIndependently()
+        {
+            await this.PageModel.ShowIntroductionAsync();
+
+            var treeContentHeight = await ModelEditorPageModel.GetContentHeightAsync(this.PageModel.SourceTreeScrollArea);
+            Assume.That(treeContentHeight, Is.GreaterThan(this.Page.ViewportSize.Height), "the seed model must hold more elements than fit on one screen");
+
+            var shellOverflow = await ModelEditorPageModel.GetVerticalOverflowAsync(this.PageModel.ShellContentArea);
+            var tabContentOverflow = await ModelEditorPageModel.GetVerticalOverflowAsync(this.PageModel.TabContentArea);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(shellOverflow, Is.Zero, "the page must not scroll as a whole");
+                Assert.That(tabContentOverflow, Is.Zero, "the tab content area must not scroll as a whole");
+            });
+
+            await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
+        }
+
         [Test]
         public async Task VerifyOpeningAnElementShowsItsDetails()
         {
