@@ -103,5 +103,17 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         {
             return this.TableOfContentsRows.First.ClickAsync();
         }
+
+        /// <summary>
+        /// Computes how many pixels the right edge of the requirements document sticks out past the right edge of the
+        /// viewport. The owner pill and the row actions are aligned against that edge, so any positive value means they
+        /// are rendered off the visible area.
+        /// </summary>
+        /// <returns>The number of pixels the document overshoots the viewport by; zero or less when it fits.</returns>
+        public Task<double> GetDocumentRightOvershootAsync()
+        {
+            return this.Page.EvaluateAsync<double>(
+                "() => document.querySelector('.req-document').getBoundingClientRect().right - document.documentElement.clientWidth");
+        }
     }
 }

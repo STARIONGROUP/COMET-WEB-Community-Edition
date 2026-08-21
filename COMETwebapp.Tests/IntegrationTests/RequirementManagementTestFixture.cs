@@ -50,6 +50,21 @@ namespace COMETwebapp.Tests.IntegrationTests
         /// <returns>The page object.</returns>
         protected override RequirementManagementPageModel CreatePageModel(IPage page) => new(page);
 
+        /// <summary>
+        /// The width, in pixels, of the narrow viewport the responsive layout is asserted against.
+        /// </summary>
+        private const int NarrowViewportWidth = 700;
+
+        /// <summary>
+        /// The width, in pixels, of the viewport the shared page is restored to, matching the Playwright default.
+        /// </summary>
+        private const int DefaultViewportWidth = 1280;
+
+        /// <summary>
+        /// The height, in pixels, of the viewport the shared page is restored to, matching the Playwright default.
+        /// </summary>
+        private const int DefaultViewportHeight = 720;
+
         [Test]
         public async Task VerifyOpeningASpecificationShowsItInTheDocument()
         {
@@ -59,6 +74,37 @@ namespace COMETwebapp.Tests.IntegrationTests
             await this.PageModel.OpenFirstSpecificationAsync();
 
             await Expect(this.PageModel.DocumentSpecificationTitle).ToBeVisibleAsync();
+        }
+
+        /// <summary>
+        /// Regression test for the table of contents used to be unshrinkable and the document had a hard minimum
+        /// width, which pinned the document's right edge past a narrow viewport. Everything aligned against that edge —
+        /// the owner pill in particular — was then rendered off the visible area.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyTheDocumentFitsANarrowViewport()
+        {
+            // Data-dependent: the open model must contain at least one specification.
+            Assume.That(await this.PageModel.HasSpecificationsAsync(), Is.True, "the open model has no requirement specifications to open");
+
+            await this.PageModel.OpenFirstSpecificationAsync();
+            await Expect(this.PageModel.DocumentSpecificationTitle).ToBeVisibleAsync();
+
+            try
+            {
+                await this.Page.SetViewportSizeAsync(NarrowViewportWidth, DefaultViewportHeight);
+                await Expect(this.PageModel.DocumentSpecificationTitle).ToBeVisibleAsync();
+
+                var overshoot = await this.PageModel.GetDocumentRightOvershootAsync();
+
+                Assert.That(overshoot, Is.LessThanOrEqualTo(1),
+                    $"the requirements document sticks out {overshoot}px past a {NarrowViewportWidth}px viewport, so the owner pill is cut off");
+            }
+            finally
+            {
+                await this.Page.SetViewportSizeAsync(DefaultViewportWidth, DefaultViewportHeight);
+            }
         }
     }
 }

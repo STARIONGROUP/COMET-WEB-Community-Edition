@@ -66,7 +66,8 @@
 }
 
 .req-toc {
-    flex: 0 0 300px;
+    flex: 0 1 300px;
+    min-width: 0;
     min-height: 0;
     overflow: auto;
     border-right: 1px solid #eaecef;
@@ -84,7 +85,7 @@
 
 .req-document {
     flex: 1 1 auto;
-    min-width: 400px;
+    min-width: 0;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
