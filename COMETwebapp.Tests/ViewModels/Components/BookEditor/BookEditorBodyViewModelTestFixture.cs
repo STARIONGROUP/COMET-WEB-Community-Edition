@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
 
     using CDP4Dal;
     using CDP4Dal.Events;
+    using CDP4Dal.Permission;
 
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
@@ -57,12 +58,20 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
 
         private BookEditorBodyViewModel viewModel;
         private Mock<ISessionService> sessionService;
+        private Mock<IPermissionService> permissionService;
         private CDPMessageBus messageBus;
 
         [SetUp]
         public void SetUp()
         {
+            this.permissionService = new Mock<IPermissionService>();
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
+
+            var session = new Mock<ISession>();
+            session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
+
             this.sessionService = new Mock<ISessionService>();
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.OpenIterations).Returns(new SourceList<Iteration>());
 
             this.sessionService.Setup(x => x.CreateOrUpdateThings(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>()))
@@ -384,7 +393,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
         }
 
         [Test]
-        public void VerifyCreationIsAllowedOnlyWhenTheContainerIsSelected()
+        public void VerifyCreationRequiresBothAContainerAndThePermission()
         {
             Assert.Multiple(() =>
             {
@@ -409,6 +418,17 @@ namespace COMETwebapp.Tests.ViewModels.Components.BookEditor
                 Assert.That(this.viewModel.CanCreateSection, Is.True);
                 Assert.That(this.viewModel.CanCreatePage, Is.True);
                 Assert.That(this.viewModel.CanCreateNote, Is.True);
+            });
+
+            // The default participant role denies the whole Book hierarchy, which is what issue #938 reported.
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(false);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CanCreateBook, Is.False);
+                Assert.That(this.viewModel.CanCreateSection, Is.False);
+                Assert.That(this.viewModel.CanCreatePage, Is.False);
+                Assert.That(this.viewModel.CanCreateNote, Is.False);
             });
         }
 

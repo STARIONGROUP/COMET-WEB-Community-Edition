@@ -276,13 +276,11 @@ namespace COMETwebapp.ViewModels.Components.BookEditor
         /// <returns>true if the creation is allowed, otherwise false</returns>
         /// <remarks>
         /// The default participant role ships the whole Book hierarchy with an access right of NONE, so without this
-        /// check the user is offered an editor for a write the server will refuse. When no
-        /// <see cref="CDP4Dal.Permission.IPermissionService"/> is available the creation is allowed - the server remains
-        /// the authority and <see cref="ReportErrors"/> surfaces its answer.
+        /// check the user is offered an editor for a write the server will refuse.
         /// </remarks>
         private bool CanWrite(ClassKind classKind, Thing container)
         {
-            return container != null && (this.SessionService.Session?.PermissionService?.CanWrite(classKind, container) ?? true);
+            return container != null && this.SessionService.Session.PermissionService.CanWrite(classKind, container);
         }
 
         /// <summary>
