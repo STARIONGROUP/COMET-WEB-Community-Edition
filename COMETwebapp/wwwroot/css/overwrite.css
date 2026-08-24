@@ -140,8 +140,29 @@ h3, .h3 {
     --dxbl-grid-border-radius: var(--radius-md);
 }
 
-.dxbl-toolbar,
-.dxbl-toolbar.dxbl-sm,
-.dxbl-toolbar.dxbl-lg {
-    --dxbl-toolbar-btn-border-radius: var(--radius-md);
+.section-tabs .dxbl-btn-group {
+    gap: 4px;
+}
+
+.section-tabs .dxbl-toolbar-group > .dxbl-toolbar-item > .dxbl-toolbar-btn {
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 4px 12px;
+    background-color: transparent;
+    color: var(--colors-gray-600);
+    font-weight: 500;
+    box-shadow: none;
+}
+
+.section-tabs .dxbl-toolbar-group > .dxbl-toolbar-item > .dxbl-toolbar-btn:not(.dxbl-btn-text-primary):hover {
+    background-color: var(--colors-primary-50);
+    color: var(--colors-primary-800);
+}
+
+.section-tabs .dxbl-toolbar-group > .dxbl-toolbar-item > .dxbl-btn-text-primary {
+    border-color: var(--colors-gray-200);
+    background-color: var(--colors-white);
+    color: var(--colors-primary-800);
+    font-weight: bold;
+    box-shadow: 0 4px 8px 0 #090E110A;
 }

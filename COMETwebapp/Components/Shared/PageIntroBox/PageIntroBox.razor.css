@@ -1,6 +1,7 @@
 .page-intro-box {
     display: flex;
     background: var(--colors-gray-50);
+    border: 1px solid var(--colors-gray-200);
     border-radius: var(--radius-md);
     padding: var(--spacing-4);
     margin-bottom: var(--spacing-4);

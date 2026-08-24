@@ -23,6 +23,7 @@
 namespace COMETwebapp.Tests.IntegrationTests.PageModels
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     using Microsoft.Playwright;
 
@@ -66,8 +67,41 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator SectionTable => this.Page.Locator(".selected-data-item-table").First;
 
         /// <summary>
-        /// Gets the section buttons rendered above the table by the toolbar.
+        /// Gets the section tabs rendered above the table by the toolbar. The toolbar keeps a hidden copy of every
+        /// item in a <c>dxbl-virtual-toolbar</c> it measures against, so the tabs must be taken from the real one or
+        /// each of these locators resolves to two elements; the trailing "More items..." button carries no
+        /// <c>dxbl-toolbar-btn</c> and is left out.
         /// </summary>
-        public ILocator SectionButtons => this.Toolbar.Locator("button");
+        public ILocator SectionTabs => this.Toolbar.Locator(".dxbl-btn-toolbar:not(.dxbl-virtual-toolbar) button.dxbl-toolbar-btn");
+
+        /// <summary>
+        /// Gets the tab of the section currently shown. DevExpress marks it with the primary render style, which its
+        /// Plain toolbar mode emits as <c>dxbl-btn-text-primary</c>.
+        /// </summary>
+        public ILocator CurrentSectionTab => this.Toolbar.Locator(".dxbl-btn-toolbar:not(.dxbl-virtual-toolbar) button.dxbl-toolbar-btn.dxbl-btn-text-primary");
+
+        /// <summary>
+        /// Gets the page introduction box shown above the section tabs.
+        /// </summary>
+        public ILocator IntroductionBox => this.Page.Locator(".page-intro-box").First;
+
+        /// <summary>
+        /// Gets the information glyph in the introduction box header.
+        /// </summary>
+        public ILocator IntroductionIcon => this.IntroductionBox.Locator(".comet-icon").First;
+
+        /// <summary>
+        /// Switches to a section and waits until its content has actually been swapped in. Measuring straight after
+        /// <see cref="ToolbarApplicationPageModel.SelectSectionAsync" /> can still resolve the outgoing section's
+        /// elements, and a detached element reports every computed style as an empty string.
+        /// </summary>
+        /// <param name="sectionName">The section's toolbar text (see <see cref="Sections" />).</param>
+        /// <returns>A <see cref="Task" />.</returns>
+        public async Task OpenSectionAsync(string sectionName)
+        {
+            await this.SelectSectionAsync(sectionName);
+            await Assertions.Expect(this.CurrentSectionTab).ToHaveTextAsync(sectionName);
+            await this.SectionTable.WaitForAsync();
+        }
     }
 }

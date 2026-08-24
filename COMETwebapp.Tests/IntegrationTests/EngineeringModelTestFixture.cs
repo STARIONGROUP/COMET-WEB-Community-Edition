@@ -57,8 +57,7 @@ namespace COMETwebapp.Tests.IntegrationTests
         [Test]
         public async Task VerifyDetailsPanelIsBordered()
         {
-            await this.PageModel.SelectSectionAsync("Domain File Store");
-            await this.PageModel.DetailsPanel.WaitForAsync();
+            await this.PageModel.OpenSectionAsync("Domain File Store");
 
             var style = await this.PageModel.DetailsPanel.EvaluateAsync<string[]>(
                 "panel => { const s = getComputedStyle(panel); return [s.borderTopStyle, s.borderTopWidth, s.borderTopColor, s.borderRadius]; }");
@@ -81,18 +80,86 @@ namespace COMETwebapp.Tests.IntegrationTests
         [Test]
         public async Task VerifyTableAndSectionButtonsShareThePanelCornerRadius()
         {
-            await this.PageModel.SelectSectionAsync("Domain File Store");
-            await this.PageModel.SectionTable.WaitForAsync();
+            await this.PageModel.OpenSectionAsync("Domain File Store");
 
             var panelRadius = await GetTopLeftRadiusAsync(this.PageModel.DetailsPanel);
             var tableRadius = await GetTopLeftRadiusAsync(this.PageModel.SectionTable);
-            var buttonRadius = await GetTopLeftRadiusAsync(this.PageModel.SectionButtons.First);
+            var buttonRadius = await GetTopLeftRadiusAsync(this.PageModel.SectionTabs.First);
 
             Assert.Multiple(() =>
             {
                 Assert.That(tableRadius, Is.EqualTo(panelRadius), "the table must share the details panel's corner radius");
                 Assert.That(buttonRadius, Is.EqualTo(panelRadius), "the section buttons must share the details panel's corner radius");
             });
+        }
+
+        /// <summary>
+        /// Verifies that the page introduction box is outlined like the table and the details panel below it, and
+        /// that its information glyph is drawn large enough to read as a full "i" rather than a smudged circle.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyIntroductionBoxMatchesTheSurfacesBelowIt()
+        {
+            await this.PageModel.OpenSectionAsync("Options");
+
+            var introduction = await GetOutlineAsync(this.PageModel.IntroductionBox);
+            var panel = await GetOutlineAsync(this.PageModel.DetailsPanel);
+            var iconBox = await this.PageModel.IntroductionIcon.BoundingBoxAsync();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(introduction[0], Is.EqualTo(panel[0]), "the introduction box must carry the same border as the details panel");
+                Assert.That(introduction[1], Is.EqualTo(panel[1]), "the introduction box must carry the same border colour as the details panel");
+                Assert.That(introduction[2], Is.EqualTo(panel[2]), "the introduction box must carry the same corner radius as the details panel");
+                Assert.That(iconBox.Width, Is.GreaterThan(16), "the information glyph is unreadable at the inherited font size");
+            });
+        }
+
+        /// <summary>
+        /// Verifies that the section tabs read like the application tabs above the page (issue #932): the current
+        /// section is a raised white card and the others are flat, rather than every section being an identical
+        /// DevExpress button.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyCurrentSectionTabIsRaised()
+        {
+            await this.PageModel.OpenSectionAsync("Options");
+
+            var current = await GetTabAppearanceAsync(this.PageModel.CurrentSectionTab);
+            var other = await GetTabAppearanceAsync(this.PageModel.SectionTabs.Last);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(current[0], Is.EqualTo("rgb(255, 255, 255)"), "the current section tab must be a white card");
+                Assert.That(current[1], Is.Not.EqualTo("none"), "the current section tab must be raised");
+                Assert.That(current[2], Is.EqualTo("700"), "the current section tab must be bold");
+                Assert.That(other[0], Is.EqualTo("rgba(0, 0, 0, 0)"), "the other section tabs must stay flat");
+                Assert.That(other[1], Is.EqualTo("none"), "the other section tabs must not be raised");
+            });
+        }
+
+        /// <summary>
+        /// Reads the computed border width, border colour and corner radius that make a surface read as a card.
+        /// </summary>
+        /// <param name="locator">The surface to measure.</param>
+        /// <returns>The border width, the border colour and the corner radius, in that order.</returns>
+        private static Task<string[]> GetOutlineAsync(ILocator locator)
+        {
+            return locator.EvaluateAsync<string[]>(
+                "surface => { const s = getComputedStyle(surface); return [s.borderTopWidth, s.borderTopColor, s.borderTopLeftRadius]; }");
+        }
+
+        /// <summary>
+        /// Reads the computed background, shadow and weight that tell a raised section tab from a flat one.
+        /// </summary>
+        /// <param name="locator">The section tab to measure.</param>
+        /// <returns>The background colour, the box shadow and the font weight, in that order.</returns>
+        private static Task<string[]> GetTabAppearanceAsync(ILocator locator)
+        {
+            return locator.EvaluateAsync<string[]>(
+                "tab => { const s = getComputedStyle(tab); return [s.backgroundColor, s.boxShadow, s.fontWeight]; }");
         }
 
         /// <summary>
