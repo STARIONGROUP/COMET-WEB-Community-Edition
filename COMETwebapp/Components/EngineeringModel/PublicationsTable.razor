@@ -56,11 +56,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 AllowSelectRowByClick="true"
                 SelectionMode="GridSelectionMode.Single"
                 SelectedDataItemChanged="@((row) => this.OnSelectedDataItemChanged((PublicationRowViewModel)row))"
-                PageSize="20"
-                PagerNavigationMode="PagerNavigationMode.Auto"
-                PageSizeSelectorVisible="true"
-                PageSizeSelectorItems="@(new int[] { 20, 35, 50 })"
-                PageSizeSelectorAllRowsItemVisible="true">
+                VirtualScrollingEnabled="true">
             <Columns>
                 <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.CreatedOn)" MinWidth="150"/>
                 <DxGridDataColumn FieldName="@nameof(PublicationRowViewModel.Domains)" MinWidth="80"/>

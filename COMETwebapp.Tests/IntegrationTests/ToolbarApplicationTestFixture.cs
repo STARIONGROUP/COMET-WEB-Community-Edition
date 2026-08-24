@@ -48,5 +48,32 @@ namespace COMETwebapp.Tests.IntegrationTests
                 await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
             }
         }
+
+        /// <summary>
+        /// Verifies that the section table scrolls its rows itself rather than paging them (issue #933): the pager
+        /// is gone, the rows sit in a scroll box of the table's own, and the page does not grow to show them. None
+        /// of this depends on how much data the seed holds, so it holds for every section of every toolbar
+        /// application.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifySectionTableScrollsInsteadOfPaging()
+        {
+            await this.PageModel.SectionTable.WaitForAsync();
+
+            var pagerCount = await this.PageModel.SectionTablePager.CountAsync();
+            var pageOverflow = await ApplicationPageModel.GetVerticalOverflowAsync(this.PageModel.TabContentArea);
+
+            var scrollBox = await this.PageModel.SectionTableScrollArea.EvaluateAsync<string[]>(
+                "area => [getComputedStyle(area).overflowY, String(area.clientHeight)]");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(pagerCount, Is.Zero, "the table must not page its rows");
+                Assert.That(pageOverflow, Is.Zero, "the rows must not grow the page beyond the tab content area");
+                Assert.That(scrollBox[0], Is.EqualTo("auto"), "the table must keep its rows in a scroll box of its own");
+                Assert.That(int.Parse(scrollBox[1]), Is.GreaterThan(100), "that scroll box must have a height to scroll within");
+            });
+        }
     }
 }

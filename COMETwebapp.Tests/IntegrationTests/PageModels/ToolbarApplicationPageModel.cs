@@ -53,6 +53,24 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator Toolbar => this.Landmark;
 
         /// <summary>
+        /// Gets the table of the current section, matched by the application-owned class every one of these grids
+        /// carries.
+        /// </summary>
+        public ILocator SectionTable => this.Page.Locator(".selected-data-item-table").First;
+
+        /// <summary>
+        /// Gets the element that scrolls the rows of the current section's table. This is DevExpress chrome rather
+        /// than application markup, because whether the grid scrolls itself is exactly what is under test. Note that
+        /// the scrolling element is the content of the viewer, not the <c>dxbl-scroll-viewer</c> around it.
+        /// </summary>
+        public ILocator SectionTableScrollArea => this.SectionTable.Locator(".dxbl-scroll-viewer-content").First;
+
+        /// <summary>
+        /// Gets the pager of the current section's table, which continuous scrolling replaced (issue #933).
+        /// </summary>
+        public ILocator SectionTablePager => this.SectionTable.Locator(".dxbl-grid-pager");
+
+        /// <summary>
         /// Clicks the toolbar item that switches to the given section.
         /// </summary>
         /// <param name="sectionName">The section's toolbar text (see the fixture's section list).</param>
