@@ -36,6 +36,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMETwebapp.Components.RequirementsEditor;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
+    using DevExpress.Blazor;
+
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Forms;
 
@@ -128,6 +130,40 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             await renderer.InvokeAsync(editForm.Instance.OnValidSubmit.InvokeAsync);
 
             Assert.That(submitted, Is.True);
+        }
+
+        /// <summary>
+        /// Regression test for the "Definition language:" selector used to be laid out on a 4-column span while
+        /// every other captioned editor on the Basic tab spans 10, which left the combo box too narrow to read. The
+        /// three edited thing kinds (requirement, group and specification) all share this single form.
+        /// </summary>
+        [Test]
+        public void VerifyDefinitionLanguageSelectorIsAsWideAsTheOtherEditors()
+        {
+            Thing[] editableThings =
+            [
+                new Requirement { Iid = Guid.NewGuid(), Owner = this.domain },
+                new RequirementsGroup { Iid = Guid.NewGuid(), Owner = this.domain },
+                new RequirementsSpecification { Iid = Guid.NewGuid(), Owner = this.domain }
+            ];
+
+            foreach (var thing in editableThings)
+            {
+                this.viewModel.InitializeViewModel(thing, this.iteration, []);
+
+                var renderer = this.context.Render<EditRequirementThing>(parameters => parameters
+                    .Add(p => p.ViewModel, this.viewModel));
+
+                var layoutItems = renderer.FindComponents<DxFormLayoutItem>()
+                    .Select(x => x.Instance)
+                    .ToList();
+
+                var languageItem = layoutItems.Single(x => x.Caption == "Definition language:");
+                var nameItem = layoutItems.Single(x => x.Caption == "Name:");
+
+                Assert.That(languageItem.ColSpanMd, Is.EqualTo(nameItem.ColSpanMd),
+                    $"The definition language selector of a {thing.ClassKind} must span as wide as the other editors.");
+            }
         }
 
         [Test]
