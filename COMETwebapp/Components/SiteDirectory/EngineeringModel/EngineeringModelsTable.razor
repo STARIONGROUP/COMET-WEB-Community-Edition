@@ -24,11 +24,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 AllowSelectRowByClick="true"
                 SelectionMode="GridSelectionMode.Single"
                 SelectedDataItemChanged="@(row => this.OnSelectedDataItemChanged((EngineeringModelRowViewModel)row))"
-                PageSize="20"
-                PagerNavigationMode="PagerNavigationMode.Auto"
-                PageSizeSelectorVisible="true"
-                PageSizeSelectorItems="@(new[] { 20, 35, 50 })"
-                PageSizeSelectorAllRowsItemVisible="true"
+                VirtualScrollingEnabled="true"
                 FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                 CssClass="selected-data-item-table">
             <Columns>

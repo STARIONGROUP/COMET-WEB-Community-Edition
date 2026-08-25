@@ -363,10 +363,15 @@ sub {
 }
 
 #tabs-page-content:has(> .model-editor-root),
-#tabs-page-content:has(> #gridParent) {
+#tabs-page-content:has(> #gridParent),
+#tabs-page-content:has(> .selected-data-item-page) {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+#tabs-page-content:has(> .selected-data-item-page) > *:not(.selected-data-item-page) {
+    flex: 0 0 auto;
 }
 
 .selected-data-item-page {
@@ -374,19 +379,22 @@ sub {
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 10px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
 }
 
 .selected-data-item-table {
-    flex: 1 1 63%;
+    flex: 63 1 0;
     min-width: 300px;
-    height: fit-content;
+    height: 100%;
+    min-height: 0;
 }
 
 .data-items-panel-container {
-    max-height: 88vh;
-    position: sticky;
-    top: 0;
-    flex: 1 1 35%;
+    height: 100%;
+    min-height: 0;
+    flex: 35 1 0;
     min-width: 350px;
 }
 
