@@ -18,23 +18,27 @@
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components
 
-<DxButton Id="@this.UniqueId"
-          CssClass="view-options-button"
-          RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
-          IconCssClass="@IconName.Settings.GetCssClass()"
-          Text="@this.ButtonText"
-          title="@this.ButtonTitle"
-          Click="@(() => this.IsOpen = !this.IsOpen)" />
+@* The drop down renders a host element of its own, which would otherwise sit next to the button as a second
+   item of the host's flex row and leave a trailing gap after the button. Both are wrapped in a single host. *@
+<div class="view-options-host">
+    <DxButton Id="@this.UniqueId"
+              CssClass="view-options-button"
+              RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+              IconCssClass="@IconName.Settings.GetCssClass()"
+              Text="@this.ButtonText"
+              title="@this.ButtonTitle"
+              Click="@(() => this.IsOpen = !this.IsOpen)" />
 
-<DxDropDown @bind-IsOpen="@this.IsOpen"
-            PositionMode="DropDownPositionMode.Bottom"
-            PositionTarget="@this.UniqueIdSelector"
-            CloseMode="DropDownCloseMode.Close"
-            HeaderVisible="false"
-            FooterVisible="false">
-    <BodyTemplate>
-        <div class="view-options-menu">
-            @this.ChildContent
-        </div>
-    </BodyTemplate>
-</DxDropDown>
+    <DxDropDown @bind-IsOpen="@this.IsOpen"
+                PositionMode="DropDownPositionMode.Bottom"
+                PositionTarget="@this.UniqueIdSelector"
+                CloseMode="DropDownCloseMode.Close"
+                HeaderVisible="false"
+                FooterVisible="false">
+        <BodyTemplate>
+            <div class="view-options-menu">
+                @this.ChildContent
+            </div>
+        </BodyTemplate>
+    </DxDropDown>
+</div>

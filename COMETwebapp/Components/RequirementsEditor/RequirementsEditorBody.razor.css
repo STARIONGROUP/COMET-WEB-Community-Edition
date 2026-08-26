@@ -53,7 +53,7 @@
 }
 
 .req-toolbar ::deep .dxbl-btn:not(.dxbl-edit-btn-clear):not(.dxbl-tag-btn-close) {
-    height: 34px;
+    height: var(--control-height, 38px);
 }
 
 .req-editor-layout {

@@ -24,19 +24,69 @@
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <div id="@WebAppConstantValues.ViewerPage.QueryPageBodyName()" class="viewer-page-body">
         <div id="gridParent" class="@(this.IsSplitView ? "split-mode" : "")">
-            <div id="leftColumn">
+            @* The panels are hidden with CSS rather than removed from the render tree, so their view models keep
+               the subscriptions they registered when they were first rendered. *@
+            <div id="leftColumn" class="@(this.IsProductTreeCollapsed ? CollapsedPanelClass : string.Empty)">
                 <div id="option-filter">
-                    <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
+                    <DxButton Id="collapseProductTreePanel"
+                              IconCssClass="@IconName.ChevronLeft.GetCssClass()"
+                              RenderStyle="@(CometButtonStyle.Link.ToButtonRenderStyle())"
+                              SizeMode="SizeMode.Small"
+                              Click="@(() => this.IsProductTreeCollapsed = true)"
+                              title="Minimize the product tree panel"/>
+                    <div id="option-selector-wrapper">
+                        <OptionSelector ViewModel="@(this.ViewModel.OptionSelector)"/>
+                    </div>
                 </div>
                 <ViewerProductTree ViewModel="this.ViewModel.ProductTreeViewModel" />
             </div>
+            @if (this.IsProductTreeCollapsed)
+            {
+                <div id="expandProductTreePanel" class="viewer-collapsed-strip" title="Restore the product tree panel" @onclick="@(() => this.IsProductTreeCollapsed = false)">
+                    <CometIcon Icon="IconName.ChevronRight"/>
+                    <span class="viewer-collapsed-strip-text">Product tree</span>
+                </div>
+            }
+            <div id="left-resizer" class="viewer-resizer @(this.IsProductTreeCollapsed ? CollapsedPanelClass : string.Empty)" title="Drag to resize"></div>
             <div id="center-container">
                 <Canvas3D @ref="@(this.CanvasComponent)" ViewModel="this.ViewModel.CanvasViewModel" />
             </div>
-            <div id="rightColumn">
-                <PropertiesComponent ViewModel="this.ViewModel.PropertiesViewModel" />
-                <MultipleActualFiniteStateSelector ViewModel="this.ViewModel.MultipleFiniteStateSelector" />
+            <div id="right-resizer" class="viewer-resizer @(this.IsPropertiesPanelCollapsed ? CollapsedPanelClass : string.Empty)" title="Drag to resize"></div>
+            @* The chevron always belongs to whichever panel is currently on top of the right column. The properties
+               header only exists while something is selected - which is exactly when the finite state header is no
+               longer the top one - so the two conditions are mutually exclusive. *@
+            <div id="rightColumn" class="@(this.IsPropertiesPanelCollapsed ? CollapsedPanelClass : string.Empty)">
+                <PropertiesComponent ViewModel="this.ViewModel.PropertiesViewModel">
+                    <HeaderActions>
+                        <DxButton Id="collapsePropertiesPanel"
+                                  IconCssClass="@IconName.ChevronRight.GetCssClass()"
+                                  RenderStyle="@(CometButtonStyle.Link.ToButtonRenderStyle())"
+                                  SizeMode="SizeMode.Small"
+                                  Click="@(() => this.IsPropertiesPanelCollapsed = true)"
+                                  title="Minimize the properties panel"/>
+                    </HeaderActions>
+                </PropertiesComponent>
+                <MultipleActualFiniteStateSelector ViewModel="this.ViewModel.MultipleFiniteStateSelector">
+                    <HeaderActions>
+                        @if (!this.ViewModel.PropertiesViewModel.IsVisible)
+                        {
+                            <DxButton Id="collapsePropertiesPanel"
+                                      IconCssClass="@IconName.ChevronRight.GetCssClass()"
+                                      RenderStyle="@(CometButtonStyle.Link.ToButtonRenderStyle())"
+                                      SizeMode="SizeMode.Small"
+                                      Click="@(() => this.IsPropertiesPanelCollapsed = true)"
+                                      title="Minimize the properties panel"/>
+                        }
+                    </HeaderActions>
+                </MultipleActualFiniteStateSelector>
             </div>
+            @if (this.IsPropertiesPanelCollapsed)
+            {
+                <div id="expandPropertiesPanel" class="viewer-collapsed-strip" title="Restore the properties panel" @onclick="@(() => this.IsPropertiesPanelCollapsed = false)">
+                    <CometIcon Icon="IconName.ChevronLeft"/>
+                    <span class="viewer-collapsed-strip-text">Parameters</span>
+                </div>
+            }
         </div>
     </div> 
 </LoadingComponent>

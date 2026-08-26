@@ -73,5 +73,35 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// Gets the actual finite state selector container.
         /// </summary>
         public ILocator StateSelector => this.Page.Locator("#state-selector-container");
+
+        /// <summary>
+        /// Gets the chevron that minimizes the product tree panel.
+        /// </summary>
+        public ILocator CollapseProductTreeButton => this.Page.Locator("#collapseProductTreePanel");
+
+        /// <summary>
+        /// Gets the strip that restores a minimized product tree panel.
+        /// </summary>
+        public ILocator ExpandProductTreeStrip => this.Page.Locator("#expandProductTreePanel");
+
+        /// <summary>
+        /// Gets the chevron that minimizes the properties panel.
+        /// </summary>
+        public ILocator CollapsePropertiesButton => this.Page.Locator("#collapsePropertiesPanel");
+
+        /// <summary>
+        /// Gets the strip that restores a minimized properties panel.
+        /// </summary>
+        public ILocator ExpandPropertiesStrip => this.Page.Locator("#expandPropertiesPanel");
+
+        /// <summary>
+        /// Gets the drag handle that sizes the product tree panel.
+        /// </summary>
+        public ILocator LeftResizer => this.Page.Locator("#left-resizer");
+
+        /// <summary>
+        /// Gets the drag handle that sizes the properties panel.
+        /// </summary>
+        public ILocator RightResizer => this.Page.Locator("#right-resizer");
     }
 }

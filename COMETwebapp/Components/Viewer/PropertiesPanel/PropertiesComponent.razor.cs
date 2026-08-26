@@ -43,6 +43,13 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         public IPropertiesComponentViewModel ViewModel { get; set; }
 
         /// <summary>
+        /// Gets or sets the content rendered next to the Submit button, used by the host to place panel-level
+        /// actions such as the collapse chevron.
+        /// </summary>
+        [Parameter]
+        public RenderFragment HeaderActions { get; set; }
+
+        /// <summary>
         /// Gets the properties component title
         /// </summary>
         private string Title => this.ViewModel.SelectionMediator.SelectedSceneObject is not null ? this.ViewModel.SelectionMediator.SelectedSceneObject.ElementBase.Name + " - Properties:" : "Properties";

@@ -40,12 +40,18 @@ namespace COMETwebapp.Components.Viewer
         public IMultipleActualFiniteStateSelectorViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Method invoked when the component has received parameters from its parent in
-        /// the render tree, and the incoming values have been assigned to properties.
+        /// Gets or sets the content rendered next to the "Actual Finite States" header, used by the host to place
+        /// panel-level actions such as the collapse chevron.
         /// </summary>
-        protected override void OnParametersSet()
+        [Parameter]
+        public RenderFragment HeaderActions { get; set; }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start.
+        /// </summary>
+        protected override void OnInitialized()
         {
-            base.OnParametersSet();
+            base.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ActualFiniteStateSelectorViewModels).Subscribe(_ =>
             {

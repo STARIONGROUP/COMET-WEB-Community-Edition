@@ -129,7 +129,7 @@ html, body, #app {
 }
 
 .filter-bar-right .dxbl-btn {
-    height: 34px;
+    height: var(--control-height, 38px);
 }
 
 .max-width-40 { max-width: 40%; }

@@ -8,11 +8,22 @@
     padding: 0.5rem;
 }
 
+#properties-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+}
+
 #properties-title {
     background: #eaecee;
     padding: 0.5rem;
     font-size: 1rem;
     font-weight: bold;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .submit-button {

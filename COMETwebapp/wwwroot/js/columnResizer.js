@@ -76,12 +76,14 @@
         /**
          * Initialises a drag-to-resize handle between two flex columns.
          * @param {string} resizerId - The id of the resizer element.
-         * @param {string} leftId    - The id of the left (resizable) column element.
+         * @param {string} leftId    - The id of the resizable column element.
          * @param {number} minPx     - Minimum width in pixels.
          * @param {number} [maxPx]   - Optional maximum width in pixels. When omitted (or 0), the only limit is the room
          *                             left in the flex row, so the panel can be widened up to (nearly) the full row.
+         * @param {boolean} [fromRight] - Set when the handle sits on the left of the resized column (a trailing panel):
+         *                             the width then grows as the pointer moves towards the start of the row.
          */
-        init: function (resizerId, leftId, minPx, maxPx) {
+        init: function (resizerId, leftId, minPx, maxPx, fromRight) {
             const resizerEl = document.getElementById(resizerId);
             const leftEl = document.getElementById(leftId);
 
@@ -103,7 +105,9 @@
                 const effectiveMax = cometResizer.computeMaxWidth(leftEl.parentElement, leftEl, maxPx);
 
                 function onMouseMove(moveEvent) {
-                    const w = Math.min(effectiveMax, Math.max(minPx, moveEvent.clientX - leftEl.getBoundingClientRect().left));
+                    const bounds = leftEl.getBoundingClientRect();
+                    const dragged = fromRight ? bounds.right - moveEvent.clientX : moveEvent.clientX - bounds.left;
+                    const w = Math.min(effectiveMax, Math.max(minPx, dragged));
                     leftEl.style.flex = '0 0 ' + w + 'px';
                     leftEl.style.maxWidth = w + 'px';
                 }

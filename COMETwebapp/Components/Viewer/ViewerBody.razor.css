@@ -5,20 +5,16 @@
 #gridParent {
     position: relative;
     margin: 0;
-    display: grid;
-    grid-template-columns: 0.2fr 1fr 0.2fr;
-    grid-template-rows: 1fr;
-    grid-column-gap: 0;
-    grid-row-gap: 0;
-    gap: 0.6rem;
+    display: flex;
+    column-gap: 0.6rem;
     height: 100%;
     overflow: hidden;
 }
 
 #leftColumn {
-    grid-area: 1 / 1 / 2 / 2;
     margin: 0;
-    margin-right: 0.5rem;
+    flex: 0 1 16%;
+    min-width: 200px;
     height: 100%;
     top: 0;
     display: flex;
@@ -30,24 +26,81 @@
 #option-filter {
     flex: 0 0 auto;
     margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 #option-filter ::deep h6 {
     display: none;
 }
 
+#option-selector-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
 #center-container {
     margin: 0;
-    grid-area: 1 / 2 / 2 / 3;
+    flex: 1 1 0;
+    min-width: 200px;
 }
 
 #rightColumn {
-    grid-area: 1 / 3 / 2 / 4;
     margin: 0;
-    margin-left: 0.5rem;
+    flex: 0 1 16%;
+    min-width: 200px;
     top: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden auto;
 }
 
+#leftColumn.viewer-panel-collapsed,
+#rightColumn.viewer-panel-collapsed,
+.viewer-resizer.viewer-panel-collapsed {
+    display: none;
+}
+
+.viewer-collapsed-strip {
+    flex: 0 0 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 4px;
+    cursor: pointer;
+    border: solid 1px #e2e8f0;
+    border-radius: var(--radius-md);
+    background: #f8fafc;
+}
+
+.viewer-collapsed-strip:hover {
+    background: #e2e8f0;
+}
+
+.viewer-collapsed-strip-text {
+    writing-mode: vertical-rl;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    color: #475569;
+}
+
+.viewer-resizer {
+    flex: 0 0 6px;
+    align-self: stretch;
+    cursor: col-resize;
+    background: #e2e8f0;
+    border-radius: var(--radius-sm);
+}
+
+.viewer-resizer:hover {
+    background: #94a3b8;
+}
+
+/* The split view keeps the stacked grid: the 3D canvas and the properties panel share the right hand
+   side while the tree spans both rows. The resizers do not apply there. */
 #gridParent.split-mode {
     display: grid;
     grid-template-columns: 0.35fr 1fr;
@@ -60,7 +113,12 @@
     overflow-y: auto;
 }
 
-#gridParent.split-mode #leftColumn {
+#gridParent.split-mode .viewer-resizer {
+    display: none;
+}
+
+#gridParent.split-mode #leftColumn,
+#gridParent.split-mode #expandProductTreePanel {
     grid-area: left;
     margin-right: 0;
     height: 100%;
@@ -73,7 +131,8 @@
     margin-bottom: 0.75rem;
 }
 
-#gridParent.split-mode #rightColumn {
+#gridParent.split-mode #rightColumn,
+#gridParent.split-mode #expandPropertiesPanel {
     grid-area: right;
     margin-left: 0;
     width: 100%;

@@ -1,7 +1,14 @@
-﻿#state-selector-title {
+﻿#state-selector-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background: #eaecee;
+}
+
+#state-selector-title {
     padding: 2%;
     font-weight: bold;
+    margin: 0;
 }
 
 #state-selector-container {

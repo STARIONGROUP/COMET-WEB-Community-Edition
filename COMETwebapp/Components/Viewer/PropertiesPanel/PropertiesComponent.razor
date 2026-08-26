@@ -25,10 +25,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
     {
         <div id="properties-header">
             <h4 id="properties-title">@(this.Title)</h4>
-            <DxButton Click="@(() => this.ViewModel.OnSubmit())"
-                      Text="Submit"
-                      RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
-                      Enabled="@(this.ViewModel.ParameterHaveChanges)"/>
+            <div id="properties-header-actions">
+                <DxButton Click="@(() => this.ViewModel.OnSubmit())"
+                          Text="Submit"
+                          RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                          Enabled="@(this.ViewModel.ParameterHaveChanges)"/>
+                @this.HeaderActions
+            </div>
         </div>
 
         <div id="parameters-section">
