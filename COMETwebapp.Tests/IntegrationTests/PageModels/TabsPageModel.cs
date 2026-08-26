@@ -60,6 +60,18 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator BlazorError => this.page.Locator("#blazor-error-ui");
 
         /// <summary>
+        /// Gets the horizontally scrolling strip that holds the open tabs of the first (left-most) panel. It is matched
+        /// on its application-owned class rather than on an id because a split view renders one strip per panel.
+        /// </summary>
+        public ILocator TabStrip => this.page.Locator(".tabs-container").First;
+
+        /// <summary>
+        /// Gets the row of the first (left-most) panel that holds the tab strip and the row's own buttons. It is matched
+        /// on its application-owned class rather than on an id because a split view renders one row per panel.
+        /// </summary>
+        public ILocator TabRow => this.page.Locator(".tabs-row").First;
+
+        /// <summary>
         /// Gets the items of the currently open combo drop-down. Each item's content carries the application-owned
         /// <c>data-testid="combo-item"</c> attribute (set by every combo's <c>ItemTemplate</c>), so this does not depend
         /// on a DevExpress internal class. Only the open combo renders its items, and <see cref="OpenComboAsync" /> waits
@@ -98,6 +110,34 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
             // Opening a tab loads the selected iteration from the COMET server, a network round-trip that can be slow on
             // CI. Once it completes the tab content replaces the "Open Tab" selection card.
             await Expect(this.page.Locator("#view-selection")).ToBeHiddenAsync(new LocatorAssertionsToBeHiddenOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
+        }
+
+        /// <summary>
+        /// Measures how the tab strip's horizontal scrollbar sits relative to the tabs it scrolls: by how many pixels the
+        /// tabs overflow the strip (the scrollbar only shows when that is positive) and how many pixels of clear space are
+        /// left between the bottom of the tabs and the band the scrollbar occupies.
+        /// </summary>
+        /// <returns>The horizontal overflow and the clear space below the tabs, both in pixels.</returns>
+        public async Task<(int Overflow, int SpaceBelowTabs)> GetTabStripScrollbarMetricsAsync()
+        {
+            var metrics = await this.TabStrip.EvaluateAsync<int[]>(
+                @"strip => {
+                    const tabs = [...strip.querySelectorAll('.tab-component')];
+                    const tabsBottom = Math.max(...tabs.map(tab => tab.getBoundingClientRect().bottom));
+                    const clientBottom = strip.getBoundingClientRect().top + strip.clientHeight;
+                    return [strip.scrollWidth - strip.clientWidth, Math.round(clientBottom - tabsBottom)];
+                }");
+
+            return (metrics[0], metrics[1]);
+        }
+
+        /// <summary>
+        /// Gets the rendered height of the tab row, rounded to whole pixels.
+        /// </summary>
+        /// <returns>The height of the tab row, in pixels.</returns>
+        public Task<int> GetTabRowHeightAsync()
+        {
+            return this.TabRow.EvaluateAsync<int>("row => Math.round(row.getBoundingClientRect().height)");
         }
 
         /// <summary>

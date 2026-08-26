@@ -5,6 +5,9 @@
     border-radius: var(--radius-lg) 0px 0px 0px;
     user-select: none;
     justify-content: space-between;
+    /* The tab strip is top-aligned rather than centred so that its height, which grows by the scrollbar's when the tabs
+       overflow, cannot shift the tabs off the line the row's buttons sit on. */
+    align-items: flex-start;
     display: flex;
     flex: 0 0 auto;
     overflow: hidden;
@@ -18,8 +21,10 @@
     flex: 1 1 auto;
     overflow-x: auto;
     align-items: center;
-    padding: 2px 0px 2px 2px;
+    padding: 0px 0px 4px 2px;
+    margin-bottom: -16px;
     scrollbar-width: thin;
+    scrollbar-color: var(--colors-gray-300, #d1d5db) transparent;
 }
 
 /* Fills the remaining height below the tab row (the .page → .panel-view chain is height:100%),
