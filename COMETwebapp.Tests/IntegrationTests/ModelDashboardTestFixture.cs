@@ -40,6 +40,28 @@ namespace COMETwebapp.Tests.IntegrationTests
     public class ModelDashboardTestFixture : ApplicationPageTestBase<ModelDashboardPageModel>
     {
         /// <summary>
+        /// The width, in pixels, of the narrow viewport that forces the open tabs to overflow the tab strip, so that its
+        /// horizontal scrollbar shows.
+        /// </summary>
+        private const int NarrowViewportWidth = 500;
+
+        /// <summary>
+        /// The width, in pixels, of the viewport the shared page is restored to, matching the Playwright default.
+        /// </summary>
+        private const int DefaultViewportWidth = 1280;
+
+        /// <summary>
+        /// The height, in pixels, of the viewport the shared page is restored to, matching the Playwright default.
+        /// </summary>
+        private const int DefaultViewportHeight = 720;
+
+        /// <summary>
+        /// The largest growth, in pixels, the tab row may show when its horizontal scrollbar appears. The bar is drawn
+        /// into the padding the row already has, so what is left is only the few pixels by which it overhangs it.
+        /// </summary>
+        private const int MaximumRowGrowthWithScrollbar = 4;
+
+        /// <summary>
         /// Gets the display name of the application under test, exactly as it appears in the "View" selector.
         /// </summary>
         protected override string ApplicationName => "Model Dashboard";
@@ -70,6 +92,41 @@ namespace COMETwebapp.Tests.IntegrationTests
             var chartCount = await this.PageModel.Charts.CountAsync();
             Assume.That(chartCount, Is.GreaterThan(0), "the seeded model must expose parameter values for the dashboard charts to render");
             Assert.That(chartCount, Is.GreaterThanOrEqualTo(3), "expected the donut and both count-based bar charts to render");
+        }
+
+        /// <summary>
+        /// Verifies how the tab strip's horizontal scrollbar sits once the tabs overflow: it must keep clear of the bottom
+        /// edge of the tabs, where its track used to read as a grey line struck through them, and it must be drawn inside
+        /// the padding the tab row already has rather than making the row taller. The tab strip belongs to the tabbed
+        /// shell rather than to the dashboard, so this covers it through a single application instead of repeating it for
+        /// every one. The viewport is narrowed to force the overflow and restored afterwards, leaving the rest of the
+        /// fixture on the standard size.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyTabStripScrollbarKeepsClearOfTheTabsWithoutGrowingTheRow()
+        {
+            var rowHeightWithoutScrollbar = await this.Tabs.GetTabRowHeightAsync();
+
+            await this.Page.SetViewportSizeAsync(NarrowViewportWidth, DefaultViewportHeight);
+
+            try
+            {
+                var (overflow, spaceBelowTabs) = await this.Tabs.GetTabStripScrollbarMetricsAsync();
+                var rowHeightWithScrollbar = await this.Tabs.GetTabRowHeightAsync();
+
+                Assume.That(overflow, Is.GreaterThan(0), "the tabs must overflow the strip for its horizontal scrollbar to show");
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(spaceBelowTabs, Is.GreaterThanOrEqualTo(3), "the horizontal scrollbar must not be drawn against the bottom edge of the tabs");
+                    Assert.That(rowHeightWithScrollbar - rowHeightWithoutScrollbar, Is.LessThanOrEqualTo(MaximumRowGrowthWithScrollbar), "showing the horizontal scrollbar must not add its height to the tab row, it belongs in the padding the row already has");
+                });
+            }
+            finally
+            {
+                await this.Page.SetViewportSizeAsync(DefaultViewportWidth, DefaultViewportHeight);
+            }
         }
     }
 }
