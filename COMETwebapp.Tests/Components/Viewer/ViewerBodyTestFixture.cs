@@ -44,6 +44,7 @@ namespace COMETwebapp.Tests.Components.Viewer
     using DynamicData;
 
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
 
     using Moq;
 
@@ -128,6 +129,7 @@ namespace COMETwebapp.Tests.Components.Viewer
             this.context.Services.AddSingleton(mockConfigurationService.Object);
             this.context.Services.AddSingleton(stringTableService.Object);
             this.context.Services.AddSingleton(this.messageBus);
+            this.context.Services.AddSingleton(new Mock<ILogger<ViewerBody>>().Object);
         }
 
         /// <summary>
