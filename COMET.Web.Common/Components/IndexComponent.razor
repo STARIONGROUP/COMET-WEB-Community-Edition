@@ -67,7 +67,25 @@
                     <div id="unauthorized-notice" class="text-align-center font-weight-bold">Connect and Open a Model.</div>
                     <div class="m-top-10px color-title">
                         <h5 class="color-title font-weight-bold">Connect</h5>
-                        <Login RequestedServer="@(this.requestedServer)"/>
+                        <div class="connection-kind-selector">
+                            <label class="connection-kind-label" for="connection-kind">How do you want to connect?</label>
+                            <select id="connection-kind" class="form-select connection-kind-select"
+                                    value="@(this.selectedConnectionKind)"
+                                    @onchange="@(this.OnConnectionKindChanged)">
+                                @foreach (var connectionKind in AvailableConnectionKinds)
+                                {
+                                    <option value="@(connectionKind.Value)" selected="@(connectionKind.Value == this.selectedConnectionKind)">@(connectionKind.Name)</option>
+                                }
+                            </select>
+                        </div>
+                        @if (this.selectedConnectionKind == ArchiveConnectionKind)
+                        {
+                            <ArchiveLogin/>
+                        }
+                        else
+                        {
+                            <Login RequestedServer="@(this.requestedServer)"/>
+                        }
                     </div>
                 </div>
             </div>

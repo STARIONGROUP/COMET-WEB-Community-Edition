@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
@@ -43,6 +44,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
     using DynamicData;
 
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -55,6 +57,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         private BunitContext context;
         private IRenderedComponent<DomainFileStoresTable> renderer;
         private Mock<IDomainFileStoreTableViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
         private DomainFileStore domainFileStore;
 
         [SetUp]
@@ -62,6 +65,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         {
             this.context = new BunitContext();
             this.viewModel = new Mock<IDomainFileStoreTableViewModel>();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.domainFileStore = new DomainFileStore()
             {

@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="SimpleParameterValuesTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -31,6 +31,7 @@ namespace COMETwebapp.Components.RequirementsEditor
     using CDP4Dal;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     using COMETwebapp.Components.Common;
@@ -47,6 +48,28 @@ namespace COMETwebapp.Components.RequirementsEditor
     /// </summary>
     public partial class SimpleParameterValuesTable : DisposableComponent
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the active user may write the parent thing this table edits part of.
+        /// The rows here are parts of one aggregate saved atomically by the hosting form, so the permission is decided
+        /// once by that form and passed down rather than evaluated per row. Defaults to true so a host that does not
+        /// set it keeps its previous behaviour
+        /// </summary>
+        [Parameter]
+        public bool IsAllowedToWrite { get; set; } = true;
+
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. Create and delete controls bind their enabled state to
+        /// the inverse of this, so the data can still be inspected but never modified
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// The <see cref="Requirement" /> whose <see cref="SimpleParameterizableThing.ParameterValue" /> collection is edited.
         /// </summary>

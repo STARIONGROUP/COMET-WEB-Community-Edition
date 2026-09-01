@@ -30,9 +30,12 @@ namespace COMET.Web.Common.Services.SessionManagement
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
+    using CDP4Dal.DAL;
     using CDP4Dal.Exceptions;
     using CDP4Dal.Operations;
     using CDP4Dal.Utilities;
+
+    using CDP4JsonFileDal;
 
     using CDP4Web.Extensions;
 
@@ -59,6 +62,12 @@ namespace COMET.Web.Common.Services.SessionManagement
         private readonly ILogger<SessionService> logger;
 
         /// <summary>
+        /// The <see cref="ICDPMessageBus" /> that a manually constructed <see cref="ISession" /> has to be built with.
+        /// The base class keeps its own copy private, so it is held here as well
+        /// </summary>
+        private readonly ICDPMessageBus messageBus;
+
+        /// <summary>
         /// The <see cref="INotificationService" />
         /// </summary>
         private readonly INotificationService notificationService;
@@ -72,6 +81,7 @@ namespace COMET.Web.Common.Services.SessionManagement
         public SessionService(ILogger<SessionService> logger, ICDPMessageBus messageBus, INotificationService notificationService) : base(logger, messageBus)
         {
             this.logger = logger;
+            this.messageBus = messageBus;
             this.notificationService = notificationService;
         }
 
@@ -84,6 +94,63 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// A reactive collection of opened <see cref="Iteration" />
         /// </summary>
         public SourceList<Iteration> OpenIterations { get; private set; } = new();
+
+        /// <summary>
+        /// Gets a value indicating whether the current <see cref="ISession" /> is backed by a read-only data source,
+        /// which is the case for a session opened from an ECSS-E-TM-10-25 Annex C3 archive. No <see cref="Thing" /> may
+        /// be created, updated or deleted on such a session
+        /// </summary>
+        public bool IsReadOnly => this.Session?.Dal?.IsReadOnly == true;
+
+        /// <summary>
+        /// Opens an <see cref="ISession" /> against an ECSS-E-TM-10-25 Annex C3 archive. The resulting session is
+        /// read-only, see <see cref="IsReadOnly" />
+        /// </summary>
+        /// <param name="archivePath">The full path of the Annex C3 archive to open</param>
+        /// <param name="userName">
+        /// The short name of the <see cref="Person" /> contained by the archive that the session should be opened as
+        /// </param>
+        /// <param name="password">The password that the archive is encrypted with</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="archivePath" /> or <paramref name="userName" /> is null or empty</exception>
+        public async Task<Result> OpenArchiveSession(string archivePath, string userName, string password)
+        {
+            Guard.ThrowIfNullOrEmpty(archivePath, nameof(archivePath));
+            Guard.ThrowIfNullOrEmpty(userName, nameof(userName));
+
+            if (this.IsSessionOpen)
+            {
+                await this.CloseSession();
+            }
+
+            var stopWatch = Stopwatch.StartNew();
+
+            try
+            {
+                var credentials = new Credentials(userName, password, new Uri(archivePath));
+                var session = new Session(new JsonFileDal(), credentials, this.messageBus);
+                AssignSession(this, session);
+                await session.Open();
+                this.logger.LogInformation("Annex C3 session opened in {Time} [ms]", stopWatch.ElapsedMilliseconds);
+                return Result.Ok();
+            }
+            catch (UnauthorizedAccessException exception)
+            {
+                this.logger.LogError(exception, "The archive does not contain the requested person");
+                AssignSession(this, null);
+                return Result.Fail(new Error($"The archive does not contain a person with short name '{userName}'").AddReasonIdentifier(HttpStatusCode.Unauthorized));
+            }
+            catch (FileLoadException exception)
+            {
+                this.logger.LogError(exception, "The archive could not be read");
+                AssignSession(this, null);
+                return Result.Fail(new Error("The file could not be read as an Annex C3 archive. Verify that the file is a valid archive and that the password is correct").AddReasonIdentifier(HttpStatusCode.BadRequest));
+            }
+            finally
+            {
+                stopWatch.Stop();
+            }
+        }
 
         /// <summary>
         /// Closes an <see cref="Iteration" />
@@ -152,6 +219,11 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <remarks>The <paramref name="topContainer" /> have to be a cloned <see cref="Thing" /></remarks>
         public Task<Result> CreateOrUpdateThings(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate, IReadOnlyCollection<string> files)
         {
+            if (this.IsReadOnly)
+            {
+                return Task.FromResult(this.RefuseReadOnlyWrite());
+            }
+
             Guard.ThrowIfNotValidForTransaction(topContainer);
             Guard.ThrowIfNullOrEmpty(toUpdateOrCreate, nameof(toUpdateOrCreate));
 
@@ -171,6 +243,50 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             var operationContainer = transaction.FinalizeTransaction();
             return this.WriteTransaction(operationContainer, files);
+        }
+
+        /// <summary>
+        /// Creates or updates <see cref="Thing" />s
+        /// </summary>
+        /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
+        /// <param name="toUpdateOrCreate">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to create or update</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        /// <remarks>
+        /// Hides the CDP4Web base implementation, which writes through its own <c>WriteTransaction</c> and would
+        /// therefore escape the read-only check. Every write has to route through the local overloads
+        /// </remarks>
+        public new Task<Result> CreateOrUpdateThings(Thing topContainer, IReadOnlyCollection<Thing> toUpdateOrCreate)
+        {
+            return this.CreateOrUpdateThings(topContainer, toUpdateOrCreate, []);
+        }
+
+        /// <summary>
+        /// Deletes <see cref="Thing" />s
+        /// </summary>
+        /// <param name="topContainer">The <see cref="Thing" /> top container to use for the transaction</param>
+        /// <param name="toDelete">A <see cref="IReadOnlyCollection{T}" /> of <see cref="Thing" /> to delete</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        /// <remarks>
+        /// Hides the CDP4Web base implementation, which writes through its own <c>WriteTransaction</c> and would
+        /// therefore escape the read-only check
+        /// </remarks>
+        public new Task<Result> DeleteThings(Thing topContainer, IReadOnlyCollection<Thing> toDelete)
+        {
+            return this.IsReadOnly ? Task.FromResult(this.RefuseReadOnlyWrite()) : base.DeleteThings(topContainer, toDelete);
+        }
+
+        /// <summary>
+        /// Writes an <see cref="OperationContainer" /> to the <see cref="ISession" />
+        /// </summary>
+        /// <param name="operationContainer">The <see cref="OperationContainer" /> to write</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        /// <remarks>
+        /// Hides the CDP4Web base implementation so that a caller using the single-argument overload is subject to the
+        /// same read-only check as the local one
+        /// </remarks>
+        public new Task<Result> WriteTransaction(OperationContainer operationContainer)
+        {
+            return this.WriteTransaction(operationContainer, []);
         }
 
         /// <summary>
@@ -332,6 +448,11 @@ namespace COMET.Web.Common.Services.SessionManagement
                 throw new InvalidOperationException("Cannot write a transaction while the Session is not open");
             }
 
+            if (this.IsReadOnly)
+            {
+                return this.RefuseReadOnlyWrite();
+            }
+
             var stopWatch = Stopwatch.StartNew();
 
             try
@@ -354,6 +475,45 @@ namespace COMET.Web.Common.Services.SessionManagement
             {
                 stopWatch.Stop();
             }
+        }
+
+        /// <summary>
+        /// Builds the failed <see cref="Result" /> returned by every write entry point when the data source is
+        /// read-only, and logs the attempt
+        /// </summary>
+        /// <returns>A failed <see cref="Result" /> carrying a message suitable for display to the user</returns>
+        private Result RefuseReadOnlyWrite()
+        {
+            this.logger.LogWarning("Trying to write against a read-only data source");
+            return Result.Fail(new Error("This model was opened from an archive and cannot be modified").AddReasonIdentifier(HttpStatusCode.Forbidden));
+        }
+
+        /// <summary>
+        /// Assigns the provided <see cref="ISession" /> onto the CDP4Web <c>SessionService</c> base class
+        /// </summary>
+        /// <param name="sessionService">The <see cref="SessionService" /> to assign the session on</param>
+        /// <param name="session">The <see cref="ISession" /> to assign, may be null to clear a failed session</param>
+        /// <exception cref="InvalidOperationException">
+        /// If the CDP4-COMET-SDK no longer exposes a settable <c>Session</c> property, which means this workaround has to
+        /// be revisited against the new SDK version
+        /// </exception>
+        /// <remarks>
+        /// ponytail: the CDP4-COMET-SDK exposes <c>SessionService.Session</c> with an <c>internal</c> setter and its
+        /// <c>OpenSession</c> hard-wires <c>CdpServicesDal</c>, so there is no supported way to open a session against a
+        /// <see cref="JsonFileDal" />. Replace this with the supported call once the SDK offers an
+        /// <c>OpenSession(IDal, Credentials)</c> overload
+        /// </remarks>
+        private static void AssignSession(SessionService sessionService, ISession session)
+        {
+            var property = typeof(CDP4Web.Services.SessionService.SessionService)
+                .GetProperty(nameof(CDP4Web.Services.SessionService.SessionService.Session));
+
+            if (property?.SetMethod == null)
+            {
+                throw new InvalidOperationException("The CDP4Web SessionService no longer exposes a settable Session property, opening an archive has to be reworked against this SDK version");
+            }
+
+            property.SetValue(sessionService, session);
         }
 
         /// <summary>

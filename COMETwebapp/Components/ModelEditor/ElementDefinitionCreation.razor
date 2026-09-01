@@ -52,6 +52,9 @@
     </DxFormLayout>
     <ValidationSummary />
     <div class="modal-footer m-top-10px">
-        <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Create" SubmitFormOnClick="true" />
+        @if (!this.IsReadOnly)
+        {
+            <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Create" SubmitFormOnClick="true" />
+        }
     </div>
 </EditForm>

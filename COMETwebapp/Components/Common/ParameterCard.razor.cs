@@ -24,6 +24,8 @@ namespace COMETwebapp.Components.Common
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
     using Microsoft.AspNetCore.Components;
@@ -36,6 +38,20 @@ namespace COMETwebapp.Components.Common
     /// </summary>
     public partial class ParameterCard
     {
+        /// <summary>
+        ///     The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the open session forbids any modification, which is the case for a
+        ///     session opened from an ECSS-E-TM-10-25 Annex C3 archive. The card is not draggable and its
+        ///     create/delete affordances are disabled when this is <see langword="true" />, so the parameter can
+        ///     still be inspected but never modified.
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         ///     Tracks whether the per-state value breakdown is currently expanded. Toggled by
         ///     <see cref="ToggleStatesExpanded" />.

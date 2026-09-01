@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Common;
@@ -35,6 +36,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
     using COMETwebapp.ViewModels.Components.SiteDirectory.EngineeringModels;
 
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -49,6 +51,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         private BunitContext context;
         private IRenderedComponent<ParticipantsForm> renderer;
         private Mock<IParticipantsTableViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
         private bool isSaved;
         private bool isCanceled;
 
@@ -57,6 +60,8 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.viewModel = new Mock<IParticipantsTableViewModel>();
 

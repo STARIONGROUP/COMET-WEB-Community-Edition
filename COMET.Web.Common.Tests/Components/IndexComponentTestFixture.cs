@@ -98,6 +98,9 @@ namespace COMET.Web.Common.Tests.Components
             this.context.Services.AddSingleton(this.versionService.Object);
             this.context.Services.AddSingleton(this.serverConnectionService.Object);
             this.context.Services.AddSingleton<ILoginViewModel, LoginViewModel>();
+            this.context.Services.AddSingleton(new Mock<IArchiveFileService>().Object);
+            this.context.Services.AddSingleton(new Mock<Blazored.SessionStorage.ISessionStorageService>().Object);
+            this.context.Services.AddSingleton<IArchiveLoginViewModel, ArchiveLoginViewModel>();
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton(this.registrationService.Object);
             this.context.Services.AddSingleton(this.cacheService.Object);

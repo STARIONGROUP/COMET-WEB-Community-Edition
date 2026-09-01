@@ -48,6 +48,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                           ColSpanMd="12"
                           CaptionPosition="CaptionPosition.Vertical">
             <FileRevisionsTable @bind-FileRevisions="@(this.ViewModel.SelectedFileRevisions)"
+                                IsAllowedToWrite="@(this.IsAllowedToWriteCurrentThing)"
                                 ViewModel="@(this.ViewModel.FileRevisionHandlerViewModel)"/>
         </DxFormLayoutItem>
 
@@ -71,11 +72,12 @@ Copyright (c) 2023-2026 Starion Group S.A.
     <div class="dxbl-grid-edit-form-buttons">
         <DxButton Id="deleteFileButton"
                   Click="@(() => this.IsDeletePopupVisible = true)"
+                  Enabled="@(!this.IsReadOnly)"
                   RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())">
             Delete
         </DxButton>
         <DxButton SubmitFormOnClick="true"
-                  Enabled="@(this.ViewModel.SelectedFileRevisions.Any())"
+                  Enabled="@(this.ViewModel.SelectedFileRevisions.Any() && !this.IsReadOnly)"
                   RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())">
             Save
         </DxButton>
@@ -92,6 +94,6 @@ Copyright (c) 2023-2026 Starion Group S.A.
     You are about to delete the File: @(this.ViewModel.CurrentThing.CurrentFileRevision?.Name)
     <div class="dxbl-grid-confirm-dialog-buttons">
         <DxButton Text="Cancel " RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Click="@(() => this.IsDeletePopupVisible = false)" />
-        <DxButton Text="Confirm" RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())" Click="@(() => this.OnDelete())" Id="deleteFilePopupButton" />
+        <DxButton Text="Confirm" RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())" Click="@(() => this.OnDelete())" Id="deleteFilePopupButton" Enabled="@(!this.IsReadOnly)" />
     </div>
 </DxPopup>

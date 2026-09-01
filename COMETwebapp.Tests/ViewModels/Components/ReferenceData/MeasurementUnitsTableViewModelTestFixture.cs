@@ -90,6 +90,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.assembler.Cache.TryAdd(new CacheKey(), lazyMeasurementUnit);
 
             this.permissionService.Setup(x => x.CanWrite(this.measurementUnit.ClassKind, this.measurementUnit.Container)).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             session.Setup(x => x.Assembler).Returns(this.assembler);
@@ -173,7 +174,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Items.First().ContainerName, Is.EqualTo(siteReferenceDataLibrary.ShortName));
-                this.permissionService.Verify(x => x.CanWrite(measurementUnitTest.ClassKind, It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
+                this.permissionService.Verify(x => x.CanWrite(It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
             });
         }
 

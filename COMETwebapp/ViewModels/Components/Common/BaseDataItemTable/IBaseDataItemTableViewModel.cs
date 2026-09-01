@@ -37,6 +37,13 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         SourceList<TRow> Rows { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the active user may create a new <typeparamref name="T" /> in this table.
+        /// False when the user's participant permission for <typeparamref name="T" /> does not allow modification, and
+        /// false for a session opened from an ECSS-E-TM-10-25 Annex C3 archive
+        /// </summary>
+        bool IsAllowedToCreate { get; }
+
+        /// <summary>
         /// The thing to create or edit
         /// </summary>
         T CurrentThing { get; set; }

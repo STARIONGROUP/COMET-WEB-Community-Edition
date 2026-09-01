@@ -47,8 +47,16 @@
             }
         </DxFormLayout>
         <ValidationSummary />
-        <div class="modal-footer m-top-10px">
-            <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Save" SubmitFormOnClick="true" />
-        </div>
+        @if (!this.IsReadOnly)
+        {
+            <div class="modal-footer m-top-10px">
+                <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Save" SubmitFormOnClick="true" />
+            </div>
+        }
     </EditForm>
+}
+
+@if (this.IsReadOnly)
+{
+    <div id="form-read-only-notice" class="form-read-only-notice">This model was opened from an archive, so it can be inspected but not changed.</div>
 }

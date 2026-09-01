@@ -29,12 +29,15 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using DevExpress.Blazor;
+
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -45,6 +48,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     {
         private BunitContext context;
         private Mock<IRequirementsEditorBodyViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void SetUp()
@@ -52,6 +56,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
             this.viewModel = new Mock<IRequirementsEditorBodyViewModel>();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
         }
 
         [TearDown]

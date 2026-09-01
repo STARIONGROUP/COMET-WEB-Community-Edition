@@ -34,9 +34,9 @@
         {
             <div class="group-card-header group-card-header-draggable"
                  @onclick="this.ToggleCollapsed"
-                 draggable="true"
+                 draggable="@(this.IsReadOnly ? "false" : "true")"
                  @ondragstart:stopPropagation="true"
-                 @ondragstart="@(() => this.OnGroupDragStart.InvokeAsync(this.Group))"
+                 @ondragstart="@(() => this.IsReadOnly ? Task.CompletedTask : this.OnGroupDragStart.InvokeAsync(this.Group))"
                  @ondragend="@(() => this.OnGroupDragEnd.InvokeAsync())">
                 <span class="group-card-chevron @(this.IsExpanded ? "expanded" : "")">&#8250;</span>
                 <span class="group-card-name">@this.Name</span>
@@ -60,6 +60,7 @@
                                   RenderStyleMode="ButtonRenderStyleMode.Text"
                                   SizeMode="SizeMode.Small"
                                   CssClass="ms-1"
+                                  Enabled="@(!this.IsReadOnly)"
                                   title="Delete this Parameter Group"
                                   Click="@(() => this.OnDeleteGroup.InvokeAsync(this.Group))"/>
                     </span>

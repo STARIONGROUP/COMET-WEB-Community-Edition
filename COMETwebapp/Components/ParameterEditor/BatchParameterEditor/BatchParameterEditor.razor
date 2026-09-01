@@ -25,6 +25,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 <DxButton Id="openBatchParameterEditorButton"
           Click="(this.ViewModel.OpenPopup)"
           Text="Batch Update"
+          Enabled="@(!this.IsReadOnly)"
           RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"
           SizeMode="SizeMode.Medium"/>
 
@@ -104,7 +105,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                       Text="Apply Changes"
                       Click="(() => this.ViewModel.ConfirmCancelPopupViewModel.IsVisible = true)"
                       RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
-                      Enabled="@this.IsApplyButtonEnabled"/>
+                      Enabled="@(this.IsApplyButtonEnabled && !this.IsReadOnly)"/>
 
             <DxButton Id="closeButton"
                       Text="Close"

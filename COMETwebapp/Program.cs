@@ -26,6 +26,7 @@ namespace COMETwebapp
     using System.Reflection;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Extensions;
     using COMETwebapp.Health;
@@ -113,6 +114,8 @@ namespace COMETwebapp
                 logger.LogInformation("################################################################");
 
                 logger.LogInformation("Starting CDP4-COMET WEB v{Version}", resourceLoader.QueryVersion());
+
+                ArchiveFileService.RemoveOrphanedArchives(TimeSpan.FromDays(1), logger);
 
                 app.UseStaticFiles();
                 app.UseRouting();

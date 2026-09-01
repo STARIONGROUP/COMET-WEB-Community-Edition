@@ -85,6 +85,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 {
                     <DxFormLayoutTabPage Caption="Simple Parameter Values">
                         <SimpleParameterValuesTable Requirement="@this.ViewModel.RequirementThing"
+                                                    IsAllowedToWrite="@(this.IsAllowedToWriteCurrentThing)"
                                                     AvailableParameterTypes="@this.ViewModel.AvailableParameterTypes" />
                     </DxFormLayoutTabPage>
 
@@ -96,10 +97,18 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </DxFormLayoutTabPages>
         </DxFormLayout>
         <ValidationSummary />
-        <div class="modal-footer m-top-10px">
-            <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Save" SubmitFormOnClick="true"
-                      Enabled="@this.ViewModel.CanSave"
-                      title="@(this.ViewModel.CanSave ? null : "A requirement must have a definition")" />
-        </div>
+        @if (!this.IsReadOnly)
+        {
+            <div class="modal-footer m-top-10px">
+                <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Save" SubmitFormOnClick="true"
+                          Enabled="@this.ViewModel.CanSave"
+                          title="@(this.ViewModel.CanSave ? null : "A requirement must have a definition")" />
+            </div>
+        }
     </EditForm>
+}
+
+@if (this.IsReadOnly)
+{
+    <div id="form-read-only-notice" class="form-read-only-notice">This model was opened from an archive, so it can be inspected but not changed.</div>
 }

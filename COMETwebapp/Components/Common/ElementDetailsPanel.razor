@@ -33,7 +33,7 @@
                     OnEditElement="@this.ViewModel.OpenEditElementPopup"
                     OnEditDefinition="@this.ViewModel.OpenEditDefinitionPopup"
                     OnDeleteElement="@this.ViewModel.OpenDeleteElementPopup"
-                    DisableDelete="@this.ViewModel.IsSelectedElementTopElement"
+                    DisableDelete="@(this.ViewModel.IsSelectedElementTopElement || this.IsReadOnly)"
                     AvailableParameterGroups="@this.ViewModel.AvailableParameterGroups"
                     OnAssignParameterGroup="@(args => this.ViewModel.AssignParameterToGroupAsync(args))"
                     OnReassignGroupContaining="@(args => this.ViewModel.ReassignGroupContainingAsync(args))"
@@ -56,6 +56,7 @@
                       Text="Add"
                       IconCssClass="@IconName.Add.GetCssClass()"
                       RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                      Enabled="@(!this.IsReadOnly)"
                       Click="@(() => this.IsNewMenuOpen = !this.IsNewMenuOpen)"/>
         </div>
     </ActionBar>
@@ -71,10 +72,10 @@
         <div class="element-details-new-menu">
             @if (this.ViewModel.SelectedElementDefinition is not null)
             {
-                <DxButton Id="addParameter" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" CssClass="element-details-new-item" Text="Add Parameter" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenAddParameterPopup))"/>
-                <DxButton Id="addParameterGroup" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" CssClass="element-details-new-item" Text="Add Parameter Group" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenCreateParameterGroupPopup))"/>
+                <DxButton Id="addParameter" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" CssClass="element-details-new-item" Text="Add Parameter" Enabled="@(!this.IsReadOnly)" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenAddParameterPopup))"/>
+                <DxButton Id="addParameterGroup" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" CssClass="element-details-new-item" Text="Add Parameter Group" Enabled="@(!this.IsReadOnly)" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenCreateParameterGroupPopup))"/>
             }
-            <DxButton Id="addElementDefinition" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" CssClass="element-details-new-item" Text="Add Element Definition" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenCreateElementDefinitionCreationPopup))"/>
+            <DxButton Id="addElementDefinition" RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" CssClass="element-details-new-item" Text="Add Element Definition" Enabled="@(!this.IsReadOnly)" Click="@(() => this.OnNewMenuItemClicked(this.ViewModel.OpenCreateElementDefinitionCreationPopup))"/>
         </div>
     </BodyTemplate>
 </DxDropDown>
@@ -122,12 +123,15 @@
                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"/>
         </div>
         <div class="d-flex justify-content-end" style="gap:8px;">
-            <DxButton Text="Cancel"
+            <DxButton Text="@(this.IsReadOnly ? "Close" : "Cancel")"
                       RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())"
                       Click="@(() => this.ViewModel.IsOnParameterGroupEditMode = false)"/>
-            <DxButton Text="Save"
-                      RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
-                      Click="@this.ViewModel.SaveParameterGroupAsync"/>
+            @if (!this.IsReadOnly)
+            {
+                <DxButton Text="Save"
+                          RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                          Click="@this.ViewModel.SaveParameterGroupAsync"/>
+            }
         </div>
     </BodyContentTemplate>
 </DxPopup>
@@ -158,6 +162,13 @@
         else
         {
             <EditElementDefinition ViewModel="@this.ViewModel.EditElementDefinitionViewModel"/>
+        }
+
+        @if (this.IsReadOnly)
+        {
+            <div class="modal-footer m-top-10px">
+                <DxButton Id="closeElementEditButton" Text="Close" RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Click="@(() => this.ViewModel.IsOnEditMode = false)"/>
+            </div>
         }
     </BodyContentTemplate>
 </DxPopup>

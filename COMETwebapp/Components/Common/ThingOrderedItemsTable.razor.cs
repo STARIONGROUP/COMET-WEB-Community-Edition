@@ -26,6 +26,7 @@ namespace COMETwebapp.Components.Common
     using CDP4Common.Types;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.RowViewModelFactoryService;
     using COMETwebapp.ViewModels.Components.Common.Rows;
@@ -37,6 +38,19 @@ namespace COMETwebapp.Components.Common
     /// </summary>
     public abstract class ThingOrderedItemsTable<T, TItem, TItemRow> : DisposableComponent where T : Thing where TItem : Thing, new() where TItemRow : BaseDataItemRowViewModel<TItem>
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. Create and delete controls bind their enabled state to
+        /// the inverse of this, so the data can still be inspected but never modified
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// Gets or sets the parameter type
         /// </summary>
@@ -162,10 +176,20 @@ namespace COMETwebapp.Components.Common
         /// <returns>A collection of rows to display</returns>
         protected List<TItemRow> GetRows()
         {
-            return this.OrderedItemsList?
+            var rows = this.OrderedItemsList?
                 .Select(x => (TItemRow)RowViewModelFactory.CreateRow(x))
                 .OrderBy(x => x?.Name, StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
+
+            if (rows != null)
+            {
+                foreach (var row in rows)
+                {
+                    row.IsAllowedToWrite = this.SessionService.Session.PermissionService.CanWrite(row.Thing);
+                }
+            }
+
+            return rows;
         }
     }
 }

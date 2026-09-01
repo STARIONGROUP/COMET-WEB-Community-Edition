@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
@@ -37,6 +38,9 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -58,6 +62,9 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
+
+            var sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(sessionService.Object);
 
             this.alpha = new TextParameterType { Iid = Guid.NewGuid(), ShortName = "alpha", Name = "Alpha" };
             this.beta = new TextParameterType { Iid = Guid.NewGuid(), ShortName = "beta", Name = "Beta" };

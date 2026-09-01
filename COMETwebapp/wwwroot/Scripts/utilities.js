@@ -72,3 +72,25 @@ function loadBabylonScripts() {
 
     return babylonScriptsPromise;
 }
+
+/**
+ * Stops the browser from navigating to a file that the user drops outside a drop zone. Without this a near miss on the
+ * Annex C3 archive drop zone makes the browser open the archive instead of uploading it, which looks like the upload
+ * silently failed. Drops that land on a file input still reach it, so the drop zone keeps working.
+ */
+(function preventStrayFileDrops() {
+    const isFileDrop = event => Array.from(event.dataTransfer?.types ?? []).includes('Files');
+
+    window.addEventListener('dragover', event => {
+        if (isFileDrop(event) && event.target?.type !== 'file') {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'none';
+        }
+    });
+
+    window.addEventListener('drop', event => {
+        if (isFileDrop(event) && event.target?.type !== 'file') {
+            event.preventDefault();
+        }
+    });
+})();

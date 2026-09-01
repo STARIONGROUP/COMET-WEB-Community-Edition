@@ -84,6 +84,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory.EngineeringModel
             siteDirectory.Model.Add(this.model);
 
             this.permissionService.Setup(x => x.CanWrite(this.iteration.ClassKind, this.iteration.Container)).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
