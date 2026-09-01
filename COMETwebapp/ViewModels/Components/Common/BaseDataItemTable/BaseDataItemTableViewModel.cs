@@ -205,14 +205,47 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         }
 
         /// <summary>
+        /// Gets a value indicating whether the active user may create a new <typeparamref name="T" /> in this table.
+        /// False when the user's <see cref="ParticipantPermission" /> for <typeparamref name="T" /> is NONE or
+        /// READ_IF_PARTICIPANT, and false for a session opened from an ECSS-E-TM-10-25 Annex C3 archive
+        /// </summary>
+        public bool IsAllowedToCreate { get; protected set; }
+
+        /// <summary>
+        /// Gets the <see cref="Thing" /> that a newly created <typeparamref name="T" /> would be contained by, which is
+        /// what the create permission is evaluated against. Defaults to the container shared by the existing rows,
+        /// falling back to the <see cref="SiteDirectory" />; override where a table's container cannot be inferred
+        /// </summary>
+        protected virtual Thing CreationContainer => this.Rows.Items.FirstOrDefault()?.Thing?.Container ?? this.SessionService.GetSiteDirectory();
+
+        /// <summary>
         /// Updates the active user access rights
         /// </summary>
         protected virtual void RefreshAccessRight()
         {
             foreach (var row in this.Rows.Items)
             {
-                row.IsAllowedToWrite = this.PermissionService.CanWrite(row.Thing.ClassKind, row.Thing.Container);
+                // CanWrite(Thing) rather than CanWrite(ClassKind, container): the latter is the *creation* overload and
+                // answers true for MODIFY_IF_OWNER regardless of ownership, because a thing being created has no owner
+                // yet. For a row that already exists the ownership has to be honoured, which only this overload does.
+                row.IsAllowedToWrite = this.PermissionService.CanWrite(row.Thing);
             }
+
+            this.IsAllowedToCreate = this.QueryIsAllowedToCreate();
+        }
+
+        /// <summary>
+        /// Asserts whether the active user may create a new <typeparamref name="T" /> inside
+        /// <see cref="CreationContainer" />
+        /// </summary>
+        /// <returns>True if a new <typeparamref name="T" /> may be created</returns>
+        private bool QueryIsAllowedToCreate()
+        {
+            var container = this.CreationContainer;
+
+            return container != null
+                   && Enum.TryParse<ClassKind>(typeof(T).Name, out var classKind)
+                   && this.PermissionService.CanWrite(classKind, container);
         }
 
         /// <summary>

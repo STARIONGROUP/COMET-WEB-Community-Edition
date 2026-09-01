@@ -26,11 +26,16 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.SiteDirectory.EngineeringModel;
 
     using DevExpress.Blazor;
+
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -40,6 +45,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
     {
         private BunitContext context;
         private IRenderedComponent<ActiveDomainsTable> renderer;
+        private Mock<ISessionService> sessionService;
         private EngineeringModelSetup model;
         private DomainOfExpertise domain1;
         private DomainOfExpertise domain2;
@@ -48,6 +54,8 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         public void SetUp()
         {
             this.context = new BunitContext();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
             this.model = new EngineeringModelSetup();
 
             this.domain1 = new DomainOfExpertise

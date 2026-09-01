@@ -606,3 +606,71 @@
 .cardview-detailspanel-scrollarea {
     height: calc(90vh - 180px);
 }
+
+/* Connection-kind selector and Annex C3 archive drop zone on the landing page. These rules live here rather than in a
+   scoped ArchiveLogin.razor.css because this library's scoped CSS bundle is not served by the host application. */
+.connection-kind-selector {
+    margin-bottom: 16px;
+}
+
+.connection-kind-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.connection-kind-select {
+    width: 100%;
+    height: 38px;
+    padding: 0 8px;
+    border: 1px solid var(--colors-gray-300, #D1D5DB);
+    border-radius: 4px;
+    background-color: var(--colors-white, #ffffff);
+}
+
+.archive-drop-zone {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 90px;
+    padding: 12px;
+    text-align: center;
+    border: 2px dashed var(--colors-gray-300, #D1D5DB);
+    border-radius: 6px;
+    background-color: var(--colors-gray-50, #F9FAFB);
+    transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+
+/* The file input is laid transparently over the whole zone: a native <input type="file"> accepts a dropped file, so
+   this gives drag-and-drop and click-to-browse without any JavaScript interop. */
+.archive-drop-zone-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.archive-drop-zone-text {
+    pointer-events: none;
+    font-size: 0.875rem;
+    color: var(--colors-gray-600, #505B6A);
+}
+
+.archive-drop-zone:hover,
+.archive-drop-zone:focus-within {
+    border-color: var(--colors-primary-600, #006DA4);
+    background-color: var(--colors-primary-50, #F4F5F8);
+}
+
+.form-read-only-notice {
+    margin-top: 8px;
+    font-size: 0.875rem;
+    font-style: italic;
+    color: var(--colors-gray-600, #505B6A);
+}

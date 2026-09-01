@@ -112,6 +112,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             this.siteDirectory.SiteReferenceDataLibrary.Add(siteReferenceDataLibrary);
 
             this.permissionService.Setup(x => x.CanWrite(this.parameterType.ClassKind, this.parameterType.Container)).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);

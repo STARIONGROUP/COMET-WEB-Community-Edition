@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.SiteDirectory;
@@ -51,6 +52,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         private BunitContext context;
         private Mock<IDomainsOfExpertiseTableViewModel> viewModel;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
+        private Mock<ISessionService> sessionService;
         private DomainOfExpertise domainOfExpertise1;
         private DomainOfExpertise domainOfExpertise2;
 
@@ -61,6 +63,8 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
             this.viewModel = new Mock<IDomainsOfExpertiseTableViewModel>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
             this.showHideService.Setup(x => x.ShowDeprecatedThings).Returns(true);
 
             this.domainOfExpertise1 = new DomainOfExpertise

@@ -29,12 +29,17 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
     using COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstraints;
 
     using DevExpress.Blazor;
+
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -45,6 +50,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         private IRenderedComponent<ParametricConstraintsTable> renderer;
         private Requirement requirement;
         private TextParameterType parameterType;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void SetUp()
@@ -52,6 +58,9 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
+
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.parameterType = new TextParameterType { Iid = Guid.NewGuid(), ShortName = "a", Name = "Acceleration" };
 

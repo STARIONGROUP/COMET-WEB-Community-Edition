@@ -40,6 +40,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -87,6 +88,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             this.iteration = new Iteration { Iid = Guid.NewGuid(), Container = new EngineeringModel { EngineeringModelSetup = modelSetup } };
             this.viewModel = new EditRequirementThingViewModel(sessionService.Object, this.messageBus);
+            this.context.Services.AddSingleton(sessionService.Object);
         }
 
         [TearDown]

@@ -67,6 +67,11 @@ namespace COMET.Web.Common.Services.SessionManagement
         private const string UserNameKey = "cdp4-comet-username";
 
         /// <summary>
+        /// The injected <see cref="IArchiveFileService" /> that owns the temporary Annex C3 archive, if any
+        /// </summary>
+        private readonly IArchiveFileService archiveFileService;
+
+        /// <summary>
         /// The (injected) <see cref="AuthenticationStateProvider" />
         /// </summary>
         private readonly AuthenticationStateProvider authStateProvider;
@@ -108,14 +113,16 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="sessionStorageService">The injected <see cref="ISessionStorageService" /> that allows interaction with the browser session storage</param>
         /// <param name="openIdConnectService">The injected <see cref="IProvideExternalAuthenticationService" /> used to communicate with the external authentication provider</param>
         /// <param name="automaticTokenRefreshService">The injected <see cref="IAuthenticationRefreshService" /> that will provide token refresh features</param>
+        /// <param name="archiveFileService">The injected <see cref="IArchiveFileService" /> that owns the temporary Annex C3 archive, if any</param>
         public AuthenticationService(ISessionService sessionService, AuthenticationStateProvider authenticationStateProvider, ISessionStorageService sessionStorageService,
-            IProvideExternalAuthenticationService openIdConnectService, IAuthenticationRefreshService automaticTokenRefreshService)
+            IProvideExternalAuthenticationService openIdConnectService, IAuthenticationRefreshService automaticTokenRefreshService, IArchiveFileService archiveFileService)
         {
             this.authStateProvider = authenticationStateProvider;
             this.sessionService = sessionService;
             this.sessionStorageService = sessionStorageService;
             this.openIdConnectService = openIdConnectService;
             this.automaticTokenRefreshService = automaticTokenRefreshService;
+            this.archiveFileService = archiveFileService;
 
             this.automaticTokenRefreshService.AuthenticationRefreshed += this.StoreAuthenticationTokensAsync;
         }
@@ -141,11 +148,44 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             var uri = new Uri(authenticationDto.SourceAddress);
             var credentials = new Credentials(authenticationDto.UserName, authenticationDto.Password, uri, authenticationDto.FullTrust);
-            result = await this.sessionService.OpenSession(credentials);
+
+            try
+            {
+                result = await this.sessionService.OpenSession(credentials);
+            }
+            catch (Exception exception)
+            {
+                return Result.Fail(new Error($"Failed to authenticate against {uri}: {exception.Message}").AddReasonIdentifier(HttpStatusCode.Unauthorized));
+            }
 
             if (result.IsSuccess)
             {
                 await this.sessionStorageService.SetItemAsync(UserNameKey, authenticationDto.UserName);
+                ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Opens a read-only session against an uploaded ECSS-E-TM-10-25 Annex C3 archive
+        /// </summary>
+        /// <param name="archivePath">The full path of the archive on the server</param>
+        /// <param name="userName">The short name of the person, contained by the archive, to open the session as</param>
+        /// <param name="password">The password that the archive is encrypted with</param>
+        /// <returns>The <see cref="Result" /> of the request</returns>
+        public async Task<Result> LoginFromArchive(string archivePath, string userName, string password)
+        {
+            if (string.IsNullOrEmpty(archivePath))
+            {
+                return Result.Fail(new Error("No archive was uploaded").AddReasonIdentifier(HttpStatusCode.BadRequest));
+            }
+
+            var result = await this.sessionService.OpenArchiveSession(archivePath, userName, password);
+
+            if (result.IsSuccess)
+            {
+                await this.sessionStorageService.SetItemAsync(UserNameKey, userName);
                 ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
             }
 
@@ -160,7 +200,16 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <returns>An awaitable <see cref="Task" /> that contains the <see cref="Result" /> of the operation</returns>
         public async Task<Result> LoginAsync(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation)
         {
-            var authenticationResult = await this.sessionService.AuthenticateAndOpenSession(authenticationSchemeKind, authenticationInformation);
+            Result authenticationResult;
+
+            try
+            {
+                authenticationResult = await this.sessionService.AuthenticateAndOpenSession(authenticationSchemeKind, authenticationInformation);
+            }
+            catch (Exception exception)
+            {
+                return Result.Fail(new Error($"Failed to authenticate: {exception.Message}").AddReasonIdentifier(HttpStatusCode.Unauthorized));
+            }
 
             if (authenticationResult.IsSuccess)
             {
@@ -362,6 +411,7 @@ namespace COMET.Web.Common.Services.SessionManagement
                 await this.sessionService.CloseSession();
             }
 
+            this.archiveFileService.Remove();
             ((CometWebAuthStateProvider)this.authStateProvider).NotifyAuthenticationStateChanged();
             this.automaticTokenRefreshService.Dispose();
             await this.CleanupStorageAsync();

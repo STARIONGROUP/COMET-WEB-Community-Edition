@@ -639,8 +639,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
         /// <summary>
         /// Determines whether the given <paramref name="group" /> may be dropped onto the given <paramref name="target" />
-        /// container: the target must be a different container in the same specification, and must not be the group
-        /// itself or one of its descendants (which would create a cycle).
+        /// container: the target must be a different container in the same specification, must not be the group
+        /// itself or one of its descendants (which would create a cycle), and the current user must have write
+        /// permission on the target container.
         /// </summary>
         /// <param name="group">The <see cref="RequirementsGroup" /> being moved.</param>
         /// <param name="target">The target <see cref="RequirementsContainer" /> (a specification or a group).</param>
@@ -668,7 +669,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 }
             }
 
-            return true;
+            return this.SessionService.Session.PermissionService.CanWrite(ClassKind.RequirementsGroup, target);
         }
 
         /// <summary>

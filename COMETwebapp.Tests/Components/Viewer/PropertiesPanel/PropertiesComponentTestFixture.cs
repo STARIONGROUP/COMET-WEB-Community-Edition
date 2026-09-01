@@ -70,7 +70,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             selectionMediator.Setup(x => x.SelectedSceneObjectClone).Returns(new SceneObject(It.IsAny<Primitive>()));
 
             var sessionService = new Mock<ISessionService>();
-            this.context.Services.AddSingleton(sessionService);
+            this.context.Services.AddSingleton(sessionService.Object);
 
             var iterationService = new Mock<ISubscriptionService>();
             this.context.Services.AddSingleton(iterationService);

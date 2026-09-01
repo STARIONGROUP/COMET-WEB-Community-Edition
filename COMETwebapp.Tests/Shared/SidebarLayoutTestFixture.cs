@@ -24,6 +24,8 @@ namespace COMETwebapp.Tests.Shared
 {
     using Bunit;
 
+    using Microsoft.JSInterop;
+
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Shared.TopMenuEntry;
@@ -89,6 +91,33 @@ namespace COMETwebapp.Tests.Shared
             this.context.Render<SidebarLayout>(parameters => parameters.Add(p => p.Body, "<span>content</span>"));
 
             this.context.JSInterop.VerifyInvoke("cometKeyboard.init");
+        }
+
+        [Test]
+        public void VerifyKeyboardInitFailureDoesNotCrashTheLayout()
+        {
+            // On a hard reload the cometKeyboard script can be unavailable when the layout first renders, so the interop
+            // call throws. Keyboard navigation is a progressive enhancement, so a failure here must never terminate the
+            // circuit - which was the terminating error seen on Ctrl+F5 with an archive open.
+            this.context.JSInterop.SetupVoid("cometKeyboard.init").SetException(new JSException("cometKeyboard is undefined"));
+
+            Assert.That(() => this.context.Render<SidebarLayout>(parameters => parameters.Add(p => p.Body, "<span>content</span>")), Throws.Nothing);
+        }
+
+        [Test]
+        public void VerifyReadOnlyBannerVisibility()
+        {
+            this.sessionService.Setup(x => x.IsReadOnly).Returns(true);
+            var renderer = this.context.Render<SidebarLayout>(parameters => parameters.Add(p => p.Body, "<span>content</span>"));
+
+            var banner = renderer.Find("#read-only-banner");
+
+            Assert.That(banner.TextContent, Does.Contain("This model was opened from an archive and is read-only. No changes can be saved."));
+
+            this.sessionService.Setup(x => x.IsReadOnly).Returns(false);
+            renderer = this.context.Render<SidebarLayout>(parameters => parameters.Add(p => p.Body, "<span>content</span>"));
+
+            Assert.That(() => renderer.Find("#read-only-banner"), Throws.Exception);
         }
 
         [Test]

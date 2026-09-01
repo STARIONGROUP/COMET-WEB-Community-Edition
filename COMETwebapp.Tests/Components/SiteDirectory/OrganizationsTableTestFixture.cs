@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.SiteDirectory;
@@ -54,6 +55,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         private BunitContext context;
         private Mock<IOrganizationsTableViewModel> viewModel;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
+        private Mock<ISessionService> sessionService;
         private Organization organization1;
         private Organization organization2;
 
@@ -61,6 +63,8 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
         public void SetUp()
         {
             this.context = new BunitContext();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.viewModel = new Mock<IOrganizationsTableViewModel>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();

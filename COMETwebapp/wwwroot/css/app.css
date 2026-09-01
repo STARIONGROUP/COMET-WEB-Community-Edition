@@ -439,3 +439,14 @@ sub {
 .drop-area-color {
     color: var(--colors-primary-600) !important;
 }
+
+.read-only-banner {
+    width: 100%;
+    padding: var(--spacing-2) var(--spacing-4);
+    font-size: var(--text-sm);
+    color: var(--colors-gray-900);
+    background-color: var(--colors-amber-100);
+    border-left: 3px solid var(--colors-amber-700);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-3);
+}

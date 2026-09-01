@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.Components.RequirementsEditor
 {
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstraints;
 
     using Microsoft.AspNetCore.Components;
@@ -37,6 +39,19 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// The logical operators offered on a group's header.
         /// </summary>
         private static readonly LogicalOperatorKind[] Operators = [LogicalOperatorKind.And, LogicalOperatorKind.Or, LogicalOperatorKind.Xor];
+
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. When true, the buttons that add a new expression or group
+        /// are withdrawn
+        /// </summary>
+        private bool IsReadOnly => this.SessionService.IsReadOnly;
 
         /// <summary>
         /// Whether this group's "add" dropdown menu is open.

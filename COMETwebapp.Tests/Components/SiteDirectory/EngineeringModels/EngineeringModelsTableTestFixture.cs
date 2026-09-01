@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.SiteDirectory.EngineeringModel;
@@ -50,6 +51,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         private BunitContext context;
         private IRenderedComponent<EngineeringModelsTable> renderer;
         private Mock<IEngineeringModelsTableViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
         private EngineeringModelSetup engineeringModel1;
         private EngineeringModelSetup engineeringModel2;
 
@@ -59,6 +61,8 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
             this.context = new BunitContext();
 
             this.viewModel = new Mock<IEngineeringModelsTableViewModel>();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.engineeringModel1 = new EngineeringModelSetup
             {

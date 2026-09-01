@@ -23,6 +23,7 @@
 namespace COMETwebapp.Components.Common
 {
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Forms;
@@ -32,6 +33,19 @@ namespace COMETwebapp.Components.Common
     /// </summary>
     public partial class FormButtons : DisposableComponent
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. The form still renders so its data can be inspected, but
+        /// saving and deleting are withdrawn
+        /// </summary>
+        private bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// Gets or sets the condition to check if the save button is enabled
         /// </summary>

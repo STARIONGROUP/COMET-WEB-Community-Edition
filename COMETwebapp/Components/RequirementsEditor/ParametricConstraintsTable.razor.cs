@@ -28,6 +28,7 @@ namespace COMETwebapp.Components.RequirementsEditor
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstraints;
@@ -42,6 +43,19 @@ namespace COMETwebapp.Components.RequirementsEditor
     /// </summary>
     public partial class ParametricConstraintsTable : DisposableComponent
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. Create and delete controls bind their enabled state to
+        /// the inverse of this, so the data can still be inspected but never modified
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// The <see cref="Requirement" /> whose parametric constraints are edited.
         /// </summary>

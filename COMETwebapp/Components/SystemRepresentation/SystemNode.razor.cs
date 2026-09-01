@@ -24,6 +24,8 @@ namespace COMETwebapp.Components.SystemRepresentation
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Services.SessionManagement;
+
     using ViewModels.Components.SystemRepresentation;
     using ViewModels.Components.Shared;
 
@@ -36,6 +38,19 @@ namespace COMETwebapp.Components.SystemRepresentation
     /// </summary>
     public partial class SystemNode
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a
+        /// session opened from an ECSS-E-TM-10-25 Annex C3 archive. The node is not draggable and drops onto it
+        /// are ignored when this is <see langword="true" />, so the tree can still be inspected but never modified.
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// Gets or sets the <see cref="SystemNodeViewModel" /> for this node.
         /// </summary>
@@ -140,7 +155,7 @@ namespace COMETwebapp.Components.SystemRepresentation
         /// </summary>
         private void HandleDragStart()
         {
-            if (this.TreeViewModel is null)
+            if (this.TreeViewModel is null || this.IsReadOnly)
             {
                 return;
             }
@@ -185,7 +200,7 @@ namespace COMETwebapp.Components.SystemRepresentation
         /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
         private async Task HandleDropAsync()
         {
-            if (this.TreeViewModel is null)
+            if (this.TreeViewModel is null || this.IsReadOnly)
             {
                 return;
             }

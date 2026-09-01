@@ -61,6 +61,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         private RequirementsEditorBodyViewModel viewModel;
         private Mock<IDomDataService> domDataService;
         private Requirement requirement;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void SetUp()
@@ -100,20 +101,21 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             var openIterations = new SourceList<Iteration>();
             openIterations.Add(iteration);
-            var sessionService = new Mock<ISessionService>();
-            sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
+            this.sessionService = new Mock<ISessionService>();
+            this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
             var session = new Mock<ISession>();
             var permissionService = new Mock<IPermissionService>();
             permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             session.Setup(x => x.PermissionService).Returns(permissionService.Object);
             session.Setup(x => x.OpenReferenceDataLibraries).Returns([]);
-            sessionService.Setup(x => x.Session).Returns(session.Object);
-            sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(domain);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(domain);
+
 
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
 
-            this.viewModel = new RequirementsEditorBodyViewModel(sessionService.Object, this.messageBus, new ShowHideDeprecatedThingsService(), new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object)
+            this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, new ShowHideDeprecatedThingsService(), new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object)
             {
                 CurrentThing = iteration
             };
@@ -121,6 +123,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.domDataService = new Mock<IDomDataService>();
 
             this.context.Services.AddSingleton(configuration.Object);
+            this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton(this.domDataService.Object);
             this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.context.Services.AddSingleton<IRequirementsEditorBodyViewModel>(this.viewModel);

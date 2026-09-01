@@ -141,7 +141,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditParameterSubscriptio
             this.valueSetGroups = subscription.ValueSet
                 .OrderBy(vs => vs.ActualOption?.Name, StringComparer.InvariantCultureIgnoreCase)
                 .ThenBy(vs => vs.ActualState?.Name, StringComparer.InvariantCultureIgnoreCase)
-                .Select(vs => (vs, new EditParameterValueSetGroupViewModel(parameterType, CreateProxy(vs), this.messageBus)))
+                .Select(vs => (vs, new EditParameterValueSetGroupViewModel(parameterType, CreateProxy(vs), this.messageBus, this.sessionService.IsReadOnly)))
                 .ToList();
 
             this.ValueRows = this.valueSetGroups

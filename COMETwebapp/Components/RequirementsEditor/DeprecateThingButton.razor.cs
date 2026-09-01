@@ -25,6 +25,8 @@ namespace COMETwebapp.Components.RequirementsEditor
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using Microsoft.AspNetCore.Components;
@@ -35,6 +37,19 @@ namespace COMETwebapp.Components.RequirementsEditor
     /// </summary>
     public partial class DeprecateThingButton
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a
+        /// session opened from an ECSS-E-TM-10-25 Annex C3 archive. The button is disabled when this is
+        /// <see langword="true" />, so the deprecation state can still be inspected but never toggled.
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// Gets or sets the <see cref="IRequirementsEditorBodyViewModel" />.
         /// </summary>

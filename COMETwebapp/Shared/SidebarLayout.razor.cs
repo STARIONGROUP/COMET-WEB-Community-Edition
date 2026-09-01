@@ -56,7 +56,7 @@ namespace COMETwebapp.Shared
 
             if (firstRender)
             {
-                await this.JsRuntime.InvokeVoidAsync("cometKeyboard.init");
+                await this.InvokeKeyboardHelperAsync("cometKeyboard.init");
             }
         }
 
@@ -67,9 +67,33 @@ namespace COMETwebapp.Shared
         /// </summary>
         /// <param name="focusFunction">The <c>cometKeyboard</c> focus helper to invoke</param>
         /// <returns>A <see cref="Task" /></returns>
-        private async Task MoveFocusTo(string focusFunction)
+        private Task MoveFocusTo(string focusFunction)
         {
-            await this.JsRuntime.InvokeVoidAsync(focusFunction);
+            return this.InvokeKeyboardHelperAsync(focusFunction);
+        }
+
+        /// <summary>
+        /// Invokes a <c>cometKeyboard</c> JavaScript helper, swallowing the failures that occur when the helper script
+        /// is not available. Keyboard navigation is a progressive enhancement, so a missing script (which happens on a
+        /// hard reload before the script has loaded) or a disconnecting circuit must never terminate the circuit
+        /// </summary>
+        /// <param name="functionName">The fully qualified name of the <c>cometKeyboard</c> helper to invoke</param>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task InvokeKeyboardHelperAsync(string functionName)
+        {
+            try
+            {
+                await this.JsRuntime.InvokeVoidAsync(functionName);
+            }
+            catch (JSException)
+            {
+                // The cometKeyboard script is not loaded yet (typically a hard reload); keyboard navigation is a
+                // progressive enhancement, so this is safe to ignore.
+            }
+            catch (JSDisconnectedException)
+            {
+                // The circuit is disconnecting, so no interop can run; nothing to do.
+            }
         }
     }
 }

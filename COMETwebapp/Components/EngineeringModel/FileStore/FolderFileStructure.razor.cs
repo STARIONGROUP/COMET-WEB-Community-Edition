@@ -27,6 +27,7 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore;
 
@@ -41,6 +42,20 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
     /// </summary>
     public partial class FolderFileStructure
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a
+        /// session opened from an ECSS-E-TM-10-25 Annex C3 archive. Create controls are disabled and nodes are
+        /// not draggable when this is <see langword="true" />, so the structure can still be inspected but never
+        /// modified.
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// The <see cref="IFolderFileStructureViewModel" /> for this component
         /// </summary>
@@ -171,6 +186,11 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         /// <param name="node">The dragged node</param>
         private void OnDragNode(FileFolderNodeViewModel node)
         {
+            if (this.IsReadOnly)
+            {
+                return;
+            }
+
             this.DraggedNode = node;
         }
 
@@ -181,7 +201,7 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         /// <returns>A <see cref="Task"/></returns>
         private async Task OnDropNode(FileFolderNodeViewModel targetNode)
         {
-            if (targetNode.Thing is not Folder and not null)
+            if (this.IsReadOnly || (targetNode.Thing is not Folder and not null))
             {
                 return;
             }

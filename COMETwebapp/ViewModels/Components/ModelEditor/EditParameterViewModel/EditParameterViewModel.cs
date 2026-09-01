@@ -352,7 +352,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel
             this.valueSetGroups = valueSets
                 .OrderBy(vs => vs.ActualOption?.Name, StringComparer.InvariantCultureIgnoreCase)
                 .ThenBy(vs => vs.ActualState?.Name, StringComparer.InvariantCultureIgnoreCase)
-                .Select(vs => new EditParameterValueSetGroupViewModel(parameterType, vs, this.messageBus))
+                .Select(vs => new EditParameterValueSetGroupViewModel(parameterType, vs, this.messageBus, this.sessionService.IsReadOnly))
                 .ToList();
 
             this.ValueRows = this.valueSetGroups.SelectMany(valueSetGroup => valueSetGroup.Rows).ToList();
