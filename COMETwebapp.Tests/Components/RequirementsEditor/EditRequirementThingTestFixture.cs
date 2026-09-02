@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
+    using CDP4Dal.Permission;
 
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
@@ -54,6 +55,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         private EditRequirementThingViewModel viewModel;
         private Iteration iteration;
         private DomainOfExpertise domain;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void SetUp()
@@ -63,7 +65,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
 
             this.messageBus = new CDPMessageBus();
-            var sessionService = new Mock<ISessionService>();
+            this.sessionService = new Mock<ISessionService>();
             var session = new Mock<ISession>();
 
             this.domain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
@@ -82,13 +84,14 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             siteDirectory.Model.Add(modelSetup);
 
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
-            sessionService.Setup(x => x.Session).Returns(session.Object);
-            sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
-            sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(this.domain);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(this.domain);
 
             this.iteration = new Iteration { Iid = Guid.NewGuid(), Container = new EngineeringModel { EngineeringModelSetup = modelSetup } };
-            this.viewModel = new EditRequirementThingViewModel(sessionService.Object, this.messageBus);
-            this.context.Services.AddSingleton(sessionService.Object);
+            this.viewModel = new EditRequirementThingViewModel(this.sessionService.Object, this.messageBus);
+            this.context.Services.AddSingleton(this.sessionService.Object);
+            this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
         }
 
         [TearDown]
@@ -186,6 +189,69 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 Assert.That(renderer.Markup, Does.Contain("Category"));
                 Assert.That(renderer.Markup, Does.Contain("Definition"));
             });
+        }
+
+        [Test]
+        public void VerifySaveButtonAndReadOnlyNoticeAreGatedByReadOnlySession()
+        {
+            var requirement = new Requirement { Iid = Guid.NewGuid(), Owner = this.domain };
+            this.viewModel.InitializeViewModel(requirement, this.iteration, []);
+
+            var writable = this.context.Render<EditRequirementThing>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(writable.FindComponents<DxButton>().Select(b => b.Instance.Text), Does.Contain("Save"),
+                    "The Save button must render when the session is writable.");
+                Assert.That(writable.FindAll("#form-read-only-notice"), Is.Empty,
+                    "No read-only notice must render when the session is writable.");
+            });
+
+            this.sessionService.Setup(x => x.IsReadOnly).Returns(true);
+
+            var readOnly = this.context.Render<EditRequirementThing>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(readOnly.FindComponents<DxButton>().Select(b => b.Instance.Text), Does.Not.Contain("Save"),
+                    "The Save button must be withdrawn when the session is read-only.");
+                Assert.That(readOnly.Find("#form-read-only-notice"), Is.Not.Null,
+                    "The read-only notice must render when the session is read-only.");
+            });
+        }
+
+        [Test]
+        public void VerifySimpleParameterValuesWritePermissionFollowsSessionPermission()
+        {
+            var requirement = new Requirement { Iid = Guid.NewGuid(), Owner = this.domain, Container = new RequirementsSpecification { Iid = Guid.NewGuid() } };
+            this.viewModel.InitializeViewModel(requirement, this.iteration, []);
+
+            var permissionService = new Mock<IPermissionService>();
+            permissionService.Setup(x => x.CanWrite(requirement)).Returns(false);
+            var session = new Mock<ISession>();
+            session.Setup(x => x.PermissionService).Returns(permissionService.Object);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+            this.sessionService.Setup(x => x.IsReadOnly).Returns(false);
+
+            var denied = this.context.Render<EditRequirementThing>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel));
+
+            denied.FindAll("div[role='tab']").First(x => x.TextContent.Contains("Simple Parameter Values")).Click();
+
+            Assert.That(denied.FindComponent<SimpleParameterValuesTable>().Instance.IsAllowedToWrite, Is.False,
+                "The write permission must be denied when the session's permission service refuses CanWrite on the existing requirement.");
+
+            permissionService.Setup(x => x.CanWrite(requirement)).Returns(true);
+
+            var allowed = this.context.Render<EditRequirementThing>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel));
+
+            allowed.FindAll("div[role='tab']").First(x => x.TextContent.Contains("Simple Parameter Values")).Click();
+
+            Assert.That(allowed.FindComponent<SimpleParameterValuesTable>().Instance.IsAllowedToWrite, Is.True,
+                "The write permission must be granted when the session's permission service allows CanWrite on the existing requirement.");
         }
     }
 }

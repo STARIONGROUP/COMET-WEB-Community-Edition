@@ -121,7 +121,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Rows.Items.First().IsAllowedToWrite, Is.False, "a row the user does not own must not be writable");
+                Assert.That(this.viewModel.Rows.Items[0].IsAllowedToWrite, Is.False, "a row the user does not own must not be writable");
                 Assert.That(this.viewModel.IsAllowedToCreate, Is.True, "creating is still allowed under MODIFY_IF_OWNER");
             });
         }

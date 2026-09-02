@@ -55,7 +55,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// </summary>
         /// <remarks>
         /// Answers true when creating, and when the permission cannot be determined, so the form is never blocked by an
-        /// unexpected null <see cref="ISessionService.Session" /> or thing
+        /// unexpected null <c>ISessionService.Session</c> or thing
         /// </remarks>
         private bool IsAllowedToWriteCurrentThing
         {

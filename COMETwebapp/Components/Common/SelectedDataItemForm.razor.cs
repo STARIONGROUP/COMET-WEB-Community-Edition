@@ -124,7 +124,7 @@ namespace COMETwebapp.Components.Common
         /// <remarks>
         /// Answers true while creating, because the create permission was already asserted by the host table's add
         /// button, and true when the permission cannot be determined, so a form is never blocked by an unexpected null
-        /// <see cref="ISessionService.Session" /> or a non-<see cref="Thing" /> model
+        /// <c>ISessionService.Session</c> or a non-<see cref="Thing" /> model
         /// </remarks>
         protected bool IsAllowedToWriteCurrentThing
         {

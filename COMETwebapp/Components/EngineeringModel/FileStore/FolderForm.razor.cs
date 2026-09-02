@@ -39,12 +39,6 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
     public partial class FolderForm : SelectedDataItemForm
     {
         /// <summary>
-        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
-        /// </summary>
-        [Inject]
-        public ISessionService SessionService { get; set; }
-
-        /// <summary>
         /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
         /// opened from an ECSS-E-TM-10-25 Annex C3 archive. The delete control binds its enabled state to
         /// the inverse of this, so the folder can still be inspected but never modified
