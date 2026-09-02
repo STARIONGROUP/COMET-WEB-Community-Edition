@@ -122,6 +122,39 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
+        public async Task VerifyRemoveLogsWhenTheStoredArchiveIsLocked()
+        {
+            var content = "content"u8.ToArray();
+            var file = CreateMockedFile(content.Length, content);
+            var result = await this.archiveFileService.PersistAsync(file.Object);
+            var archivePath = result.Value;
+
+            try
+            {
+                await using (new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    Assert.That(() => this.archiveFileService.Remove(), Throws.Nothing);
+                }
+
+                this.logger.Verify(x => x.Log(
+                        LogLevel.Warning,
+                        It.IsAny<EventId>(),
+                        It.IsAny<It.IsAnyType>(),
+                        It.IsAny<IOException>(),
+                        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                    Times.Once);
+            }
+            finally
+            {
+                // Remove() already cleared ArchivePath before the lock was released, so this leaked file is no longer tracked.
+                if (File.Exists(archivePath))
+                {
+                    File.Delete(archivePath);
+                }
+            }
+        }
+
+        [Test]
         public async Task VerifyDisposeAsync()
         {
             var content = "content"u8.ToArray();
@@ -132,6 +165,37 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             await this.archiveFileService.DisposeAsync();
 
             Assert.That(File.Exists(archivePath), Is.False);
+        }
+
+        [Test]
+        public void VerifyRemoveOrphanedArchivesReturnsWhenDirectoryDoesNotExist()
+        {
+            var archiveDirectory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "comet-web-archives"));
+
+            if (archiveDirectory.Exists)
+            {
+                archiveDirectory.Delete(true);
+            }
+
+            var removalLogger = new Mock<ILogger>();
+
+            Assert.That(() => ArchiveFileService.RemoveOrphanedArchives(TimeSpan.FromHours(1), removalLogger.Object), Throws.Nothing);
+        }
+
+        [Test]
+        public async Task VerifyPersistAsyncFailsWhenTheArchiveCannotBeRead()
+        {
+            var file = new Mock<IBrowserFile>();
+            file.Setup(x => x.Size).Returns(1);
+            file.Setup(x => x.OpenReadStream(It.IsAny<long>(), It.IsAny<CancellationToken>())).Returns(new ThrowingStream());
+
+            var result = await this.archiveFileService.PersistAsync(file.Object);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsFailed, Is.True);
+                Assert.That(this.archiveFileService.ArchivePath, Is.Null);
+            });
         }
 
         [Test]
@@ -184,6 +248,56 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             file.Setup(x => x.Size).Returns(size);
             file.Setup(x => x.OpenReadStream(It.IsAny<long>(), It.IsAny<CancellationToken>())).Returns(new MemoryStream(content));
             return file;
+        }
+
+        /// <summary>
+        /// A readable <see cref="Stream" /> that always fails with an <see cref="IOException" />, used to exercise
+        /// <see cref="ArchiveFileService.PersistAsync" />'s failure path when the uploaded archive cannot be read
+        /// </summary>
+        private sealed class ThrowingStream : Stream
+        {
+            public override bool CanRead => true;
+
+            public override bool CanSeek => false;
+
+            public override bool CanWrite => false;
+
+            public override long Length => throw new NotSupportedException();
+
+            public override long Position
+            {
+                get => throw new NotSupportedException();
+                set => throw new NotSupportedException();
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                throw new IOException("The archive stream could not be read");
+            }
+
+            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                throw new IOException("The archive stream could not be read");
+            }
+
+            public override void Flush()
+            {
+            }
+
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void SetLength(long value)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                throw new NotSupportedException();
+            }
         }
     }
 }

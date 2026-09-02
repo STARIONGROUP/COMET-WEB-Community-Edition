@@ -256,7 +256,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
             // decides which of the Manual, Computed or Reference values is shown, so it must still be applied: a user
             // who may not edit has to be able to read every value.
             this.viewModel.InitializeViewModel(this.iteration, this.domain, [this.option]);
-            var parameterRow = this.viewModel.Rows.Items.First();
+            var parameterRow = this.viewModel.Rows.Items[0];
 
             Assert.That(parameterRow.IsReadOnly, Is.True, "the row should be read-only when the user cannot write");
 

@@ -131,7 +131,9 @@ namespace COMET.Web.Common.Services.SessionManagement
                 var session = new Session(new JsonFileDal(), credentials, this.messageBus);
                 AssignSession(this, session);
                 await session.Open();
-                this.logger.LogInformation("Annex C3 session opened in {Time} [ms]", stopWatch.ElapsedMilliseconds);
+                stopWatch.Stop();
+                var elapsedMilliseconds = stopWatch.ElapsedMilliseconds;
+                this.logger.LogInformation("Annex C3 session opened in {Time} [ms]", elapsedMilliseconds);
                 return Result.Ok();
             }
             catch (UnauthorizedAccessException exception)
