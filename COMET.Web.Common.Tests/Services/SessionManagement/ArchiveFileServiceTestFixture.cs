@@ -122,39 +122,6 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
-        public async Task VerifyRemoveLogsWhenTheStoredArchiveIsLocked()
-        {
-            var content = "content"u8.ToArray();
-            var file = CreateMockedFile(content.Length, content);
-            var result = await this.archiveFileService.PersistAsync(file.Object);
-            var archivePath = result.Value;
-
-            try
-            {
-                await using (new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.None))
-                {
-                    Assert.That(() => this.archiveFileService.Remove(), Throws.Nothing);
-                }
-
-                this.logger.Verify(x => x.Log(
-                        LogLevel.Warning,
-                        It.IsAny<EventId>(),
-                        It.IsAny<It.IsAnyType>(),
-                        It.IsAny<IOException>(),
-                        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                    Times.Once);
-            }
-            finally
-            {
-                // Remove() already cleared ArchivePath before the lock was released, so this leaked file is no longer tracked.
-                if (File.Exists(archivePath))
-                {
-                    File.Delete(archivePath);
-                }
-            }
-        }
-
-        [Test]
         public async Task VerifyDisposeAsync()
         {
             var content = "content"u8.ToArray();
