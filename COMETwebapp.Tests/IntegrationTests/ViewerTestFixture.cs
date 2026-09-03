@@ -39,6 +39,17 @@ namespace COMETwebapp.Tests.IntegrationTests
     public class ViewerTestFixture : ApplicationPageTestBase<ViewerPageModel>
     {
         /// <summary>
+        /// The distance, in pixels, over which a resize handle is dragged.
+        /// </summary>
+        private const float DragDistance = 200;
+
+        /// <summary>
+        /// The smallest width increase, in pixels, that still proves a panel followed its handle once the row has
+        /// little room left to give.
+        /// </summary>
+        private const float MinimumGrowth = 50;
+
+        /// <summary>
         /// Gets the display name of the application under test, exactly as it appears in the "View" selector.
         /// </summary>
         protected override string ApplicationName => "3D Viewer";
@@ -61,6 +72,85 @@ namespace COMETwebapp.Tests.IntegrationTests
             await Expect(this.PageModel.SearchBar).ToBeVisibleAsync();
             await Expect(this.PageModel.ViewMenuButton).ToBeVisibleAsync();
             await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
+        }
+
+        /// <summary>
+        /// Verifies that the product tree and the properties panel can each be minimized to a strip and restored,
+        /// so the 3D view can take the whole width (issue GH936).
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyPanelsCanBeCollapsedAndRestored()
+        {
+            await this.PageModel.CollapseProductTreeButton.ClickAsync();
+            await Expect(this.PageModel.ProductTree).ToBeHiddenAsync();
+            await Expect(this.PageModel.ExpandProductTreeStrip).ToBeVisibleAsync();
+
+            await this.PageModel.ExpandProductTreeStrip.ClickAsync();
+            await Expect(this.PageModel.ProductTree).ToBeVisibleAsync();
+
+            await this.PageModel.CollapsePropertiesButton.ClickAsync();
+            await Expect(this.PageModel.PropertiesPanel).ToBeHiddenAsync();
+            await Expect(this.PageModel.ExpandPropertiesStrip).ToBeVisibleAsync();
+
+            await this.PageModel.ExpandPropertiesStrip.ClickAsync();
+            await Expect(this.PageModel.PropertiesPanel).ToBeVisibleAsync();
+            await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
+        }
+
+        /// <summary>
+        /// Verifies that each drag handle widens the panel it belongs to: dragging the left handle to the right
+        /// widens the product tree, dragging the right handle to the left widens the properties panel (issue GH936).
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyPanelsCanBeResized()
+        {
+            var treeBox = await this.PageModel.ProductTree.BoundingBoxAsync();
+            var propertiesBox = await this.PageModel.PropertiesPanel.BoundingBoxAsync();
+
+            Assume.That(treeBox, Is.Not.Null);
+            Assume.That(propertiesBox, Is.Not.Null);
+
+            // The right handle sits on the left of the panel it sizes, so it has to be dragged towards the start of
+            // the row to widen it. Both drags pin their panel, which leaves the second one less room to grow.
+            await this.DragResizerAsync(this.PageModel.RightResizer, -DragDistance);
+            await this.DragResizerAsync(this.PageModel.LeftResizer, DragDistance);
+
+            var widenedTreeBox = await this.PageModel.ProductTree.BoundingBoxAsync();
+            var widenedPropertiesBox = await this.PageModel.PropertiesPanel.BoundingBoxAsync();
+
+            Assume.That(widenedTreeBox, Is.Not.Null);
+            Assume.That(widenedPropertiesBox, Is.Not.Null);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(widenedPropertiesBox.Width, Is.GreaterThan(propertiesBox.Width + (DragDistance / 2)));
+                Assert.That(widenedTreeBox.Width, Is.GreaterThan(treeBox.Width + MinimumGrowth));
+            });
+
+            await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
+        }
+
+        /// <summary>
+        /// Drags a resize handle horizontally over the given distance.
+        /// </summary>
+        /// <param name="resizer">The handle to drag.</param>
+        /// <param name="horizontalOffset">The distance in pixels, negative to drag towards the start of the row.</param>
+        /// <returns>A <see cref="Task" />.</returns>
+        private async Task DragResizerAsync(ILocator resizer, float horizontalOffset)
+        {
+            var resizerBox = await resizer.BoundingBoxAsync();
+
+            Assume.That(resizerBox, Is.Not.Null);
+
+            var centerX = resizerBox.X + (resizerBox.Width / 2);
+            var centerY = resizerBox.Y + (resizerBox.Height / 2);
+
+            await this.Page.Mouse.MoveAsync(centerX, centerY);
+            await this.Page.Mouse.DownAsync();
+            await this.Page.Mouse.MoveAsync(centerX + horizontalOffset, centerY);
+            await this.Page.Mouse.UpAsync();
         }
     }
 }

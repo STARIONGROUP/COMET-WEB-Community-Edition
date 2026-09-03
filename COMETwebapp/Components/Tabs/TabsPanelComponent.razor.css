@@ -48,6 +48,12 @@
     border-left: solid 1px var(--colors-gray-100);
 }
 
+::deep #show-page-introduction-button,
+::deep #switch-domain-badge-button,
+::deep #new-side-panel-button {
+    height: 36px;
+}
+
 ::deep #new-side-panel-button.disabled,
 ::deep #new-side-panel-button:disabled,
 ::deep #new-side-panel-button[disabled] {

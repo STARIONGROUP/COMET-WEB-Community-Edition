@@ -197,7 +197,7 @@
 ::deep .model-editor-details .cardview-detailspanel-summary {
     height: 46px;
     padding: 4px 8px !important;
-    margin-bottom: 14px !important;
+    margin-bottom: 13px !important;
 }
 
 ::deep .model-editor-details .cardview-detailspanel-summary .flex-wrap {

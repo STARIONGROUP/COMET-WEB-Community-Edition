@@ -30,6 +30,7 @@ namespace COMETwebapp.Components.Viewer
     using COMETwebapp.ViewModels.Components.Viewer;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.JSInterop;
 
     using ReactiveUI;
 
@@ -39,10 +40,42 @@ namespace COMETwebapp.Components.Viewer
     public partial class ViewerBody
     {
         /// <summary>
+        /// The css class that hides a collapsed panel while keeping it in the render tree.
+        /// </summary>
+        private const string CollapsedPanelClass = "viewer-panel-collapsed";
+
+        /// <summary>
+        /// The minimum width, in pixels, that a drag-resized column may take.
+        /// </summary>
+        private const int MinimumPanelWidth = 260;
+
+        /// <summary>
         /// Gets or sets a value indicating whether the component is rendered inside a split view pane.
         /// </summary>
         [CascadingParameter(Name = WebAppConstantValues.IsSplitViewCascadingValueName)]
         public bool IsSplitView { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IJSRuntime" /> used to initialise the column resizers.
+        /// </summary>
+        [Inject]
+        public IJSRuntime JsRuntime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the injected <see cref="ILogger{ViewerBody}" />.
+        /// </summary>
+        [Inject]
+        public ILogger<ViewerBody> Logger { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the product tree panel is minimized.
+        /// </summary>
+        public bool IsProductTreeCollapsed { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the properties panel is minimized.
+        /// </summary>
+        public bool IsPropertiesPanelCollapsed { get; set; }
 
         /// <summary>
         /// Backing field for tracking the previous <see cref="IsSplitView" /> state
@@ -81,6 +114,7 @@ namespace COMETwebapp.Components.Viewer
 
             if (firstRender)
             {
+                await this.InitializeResizers();
                 await this.CanvasComponent.ViewModel.InitCanvas(true);
             }
             else if (this.needCanvasReinit)
@@ -98,6 +132,24 @@ namespace COMETwebapp.Components.Viewer
                 {
                     await this.RepopulateScene(this.ViewModel.ProductTreeViewModel.RootViewModel);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Initialises the drag-to-resize handles that size the product tree and the properties panel.
+        /// </summary>
+        /// <returns>A <see cref="Task" /> representing the async operation.</returns>
+        private async Task InitializeResizers()
+        {
+            try
+            {
+                await this.JsRuntime.InvokeVoidAsync("cometResizer.init", "left-resizer", "leftColumn", MinimumPanelWidth);
+                await this.JsRuntime.InvokeVoidAsync("cometResizer.init", "right-resizer", "rightColumn", MinimumPanelWidth, 0, true);
+            }
+            catch (Exception exception)
+            {
+                // JS interop failures during pre-rendering or test environments are non-fatal.
+                this.Logger.LogWarning(exception, "Failed to initialise the column resizers for the 3D Viewer.");
             }
         }
 
@@ -125,6 +177,11 @@ namespace COMETwebapp.Components.Viewer
             base.OnViewModelAssigned();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsLoading).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            // The collapse chevron moves between the properties header and the finite state header depending on
+            // which of the two is on top, so the body has to re-render when the properties panel appears.
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.PropertiesViewModel.IsVisible)
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.OptionSelector.SelectedOption)
                 .Subscribe(_ => this.UpdateUrl()));

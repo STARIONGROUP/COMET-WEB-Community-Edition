@@ -32,6 +32,13 @@
     flex: 0 0 auto;
 }
 
+#rightColumn ::deep .cardview-detailspanel-summary {
+    height: 46px;
+    padding: 4px 8px !important;
+    margin-bottom: 14px !important;
+    overflow: hidden;
+}
+
 #rightColumn ::deep .param-groups-container {
     flex: 1 1 auto;
     min-height: 0;
@@ -40,7 +47,7 @@
 
 #option-filter {
     flex: 0 0 auto;
-    margin-bottom: 24px;
+    margin-bottom: 22px;
 }
 
 #option-filter ::deep h6 {

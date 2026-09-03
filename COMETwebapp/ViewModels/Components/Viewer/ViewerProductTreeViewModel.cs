@@ -116,6 +116,12 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             this.OnFilterChanged();
             this.OnSearchFilterChange();
 
+            // Every node here is brand new, so whatever used to be selected no longer exists and the properties
+            // panel would sit empty (or, worse, keep showing the scene object of the discarded tree). Selecting the
+            // top element gives the user something to look at, both when the Viewer opens and after an option or
+            // finite state change rebuilds the tree.
+            this.RootViewModel.RaiseTreeSelectionChanged();
+
             return this.RootViewModel;
         }
 

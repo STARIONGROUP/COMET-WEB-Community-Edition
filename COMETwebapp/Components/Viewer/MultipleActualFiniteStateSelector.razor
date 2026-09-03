@@ -22,7 +22,10 @@ along with this program. If not, see http://www.gnu.org/licenses/.
 @if (this.ViewModel.ActualFiniteStateListsCollection is not null)
 {
     <div id="state-selector-container">
-        <h6 id="state-selector-title">Actual Finite States</h6>
+        <div id="state-selector-header">
+            <h6 id="state-selector-title">Actual Finite States</h6>
+            @this.HeaderActions
+        </div>
         @foreach (var actualStateListViewModel in this.ViewModel.ActualFiniteStateSelectorViewModels)
         {
             <ActualFiniteStateSelector ViewModel="actualStateListViewModel"/>

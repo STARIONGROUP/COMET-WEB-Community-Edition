@@ -1,3 +1,7 @@
+.view-options-host {
+    flex: 0 0 auto;
+}
+
 .view-options-menu {
     display: flex;
     flex-direction: column;

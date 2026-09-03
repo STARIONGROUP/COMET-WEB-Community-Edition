@@ -1,6 +1,10 @@
 @import "comet-icons.css";
 @import "flatly/bootstrap.min.css";
 
+:root {
+    --control-height: 38px;
+}
+
 .logo-size {
     max-width: 95px;
     height: auto;
@@ -88,11 +92,11 @@
 }
 
 /* The shared "View" display-options trigger (ViewOptionsMenu). A minimum width lets it be sized to match a
-   sibling "Add" button, and the down-caret signals that it opens a dropdown of options. Kept global (not in the
-   component's scoped css) because the DxButton is that component's root element, leaving ::deep nothing to anchor to. */
+   sibling "Add" button, and the down-caret signals that it opens a dropdown of options. Kept global rather than in
+   the component's scoped css so it stays next to the other toolbar-control rules. */
 .view-options-button {
     min-width: 88px;
-    height: 34px;
+    height: var(--control-height, 38px);
 }
 
 .view-options-button::after {

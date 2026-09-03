@@ -132,6 +132,15 @@ function InitCanvas(viewerId, canvas, addAxes) {
     };
     window.addEventListener("resize", state.ResizeListener);
 
+    // Collapsing or drag-resizing a side panel changes the canvas box without raising a window resize event,
+    // so the back buffer is kept in sync by observing the canvas itself.
+    if (typeof ResizeObserver !== "undefined") {
+        state.CanvasResizeObserver = new ResizeObserver(function () {
+            window.requestAnimationFrame(state.ResizeListener);
+        });
+        state.CanvasResizeObserver.observe(state.BabylonCanvas);
+    }
+
     if (addAxes)
     {
         AddWorldAxes(state);
@@ -147,6 +156,9 @@ function DisposeViewer(viewerId) {
     if (state) {
         if (state.ResizeListener) {
             window.removeEventListener("resize", state.ResizeListener);
+        }
+        if (state.CanvasResizeObserver) {
+            state.CanvasResizeObserver.disconnect();
         }
         if (state.SceneObjects) {
             for (let id of state.SceneObjects.keys()) {

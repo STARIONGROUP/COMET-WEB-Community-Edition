@@ -229,6 +229,32 @@ namespace COMETwebapp.Tests.ViewModels.Pages.Viewer
             });
         }
 
+        /// <summary>
+        /// Verifies that building the tree selects its top element, so the properties panel shows something as soon
+        /// as the Viewer opens - and again after an option change rebuilds the tree with brand new nodes, which
+        /// would otherwise leave nothing selected (issue GH936).
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyTopElementIsSelectedOnInitialization()
+        {
+            await this.viewModel.InitializeViewModel();
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var initialRoot = this.viewModel.ProductTreeViewModel.RootViewModel;
+
+            Assert.That(initialRoot, Is.Not.Null);
+            Assert.That(initialRoot.IsSelected, Is.True);
+
+            this.viewModel.OptionSelector.SelectedOption = this.viewModel.OptionSelector.AvailableOptions.Last();
+            this.viewModel.InitializeElementsAndCreateTree();
+
+            var rebuiltRoot = this.viewModel.ProductTreeViewModel.RootViewModel;
+
+            Assert.That(rebuiltRoot, Is.Not.Null);
+            Assert.That(rebuiltRoot.IsSelected, Is.True);
+        }
+
         [Test]
         public async Task VerifyOnOptionChange()
         {

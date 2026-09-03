@@ -31,7 +31,7 @@
 
 ::deep .element-details-add-button {
     min-width: 88px;
-    height: 34px;
+    height: var(--control-height, 38px);
 }
 
 ::deep .element-details-add-button::after {
