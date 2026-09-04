@@ -93,7 +93,7 @@ namespace COMET.Web.Common.Services.SessionManagement
             {
                 await using (var target = File.Create(path))
                 {
-                    await file.OpenReadStream(MaximumArchiveSize).CopyToAsync(target);
+                    await file.OpenReadStream(file.Size).CopyToAsync(target);
                 }
 
                 this.ArchivePath = path;
