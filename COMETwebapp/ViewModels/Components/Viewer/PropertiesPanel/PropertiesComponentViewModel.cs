@@ -420,9 +420,21 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
                 return cachedEditor;
             }
 
-            var valueSet = this.ChangedParameterValueSetRelations.TryGetValue(parameter, out var changedValueSet)
-                ? changedValueSet
-                : this.ParameterValueSetRelations.TryGetValue(parameter, out var relatedValueSet) ? relatedValueSet : null;
+            IValueSet valueSet;
+
+            if (this.ChangedParameterValueSetRelations.TryGetValue(parameter, out var changedValueSet))
+            {
+                valueSet = changedValueSet;
+            }
+            else if (this.ParameterValueSetRelations.TryGetValue(parameter, out var relatedValueSet))
+            {
+                valueSet = relatedValueSet;
+            }
+            else
+            {
+                valueSet = null;
+            }
+
             var callback = new EventCallbackFactory().Create(this, async ((IValueSet, int) value) => { await this.ApplyParameterChange(parameter, value.Item1); });
             var editor = new DetailsComponentViewModel(this.IsVisible, parameter.ParameterType, valueSet, callback, this.messageBus);
             cache[parameter] = editor;

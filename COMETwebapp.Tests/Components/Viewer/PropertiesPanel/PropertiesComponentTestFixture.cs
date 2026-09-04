@@ -570,6 +570,109 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             }
         }
 
+        /// <summary>
+        /// Clicking Submit opens the confirmation dialog, and clicking OK submits the change and closes it
+        /// (covers OpenSubmitDialog, ConfirmSubmit success branch and OnSubmitDialogClosed).
+        /// </summary>
+        [Test]
+        public void VerifyOpenAndConfirmSubmitDialog()
+        {
+            var parameter = this.StageSingleChange();
+
+            this.renderedComponent.FindAll("button").First(button => button.TextContent.Contains("Submit")).Click();
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.renderedComponent.FindAll(".submit-changes-table"), Is.Not.Empty));
+
+            this.renderedComponent.FindAll("button").First(button => button.TextContent.Trim() == "OK").Click();
+
+            using (Assert.EnterMultipleScope())
+            {
+                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()), Times.Once);
+                Assert.That(this.viewModel.HasChanges(parameter), Is.False);
+            }
+        }
+
+        /// <summary>
+        /// When the submit write fails, the confirmation dialog stays open and the change stays tracked
+        /// so the user can retry (covers the ConfirmSubmit failure branch).
+        /// </summary>
+        [Test]
+        public void VerifySubmitDialogStaysOpenOnFailure()
+        {
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Fail("boom"));
+
+            var parameter = this.StageSingleChange();
+
+            this.renderedComponent.FindAll("button").First(button => button.TextContent.Contains("Submit")).Click();
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.renderedComponent.FindAll(".submit-changes-table"), Is.Not.Empty));
+
+            this.renderedComponent.FindAll("button").First(button => button.TextContent.Trim() == "OK").Click();
+
+            this.renderedComponent.WaitForAssertion(() =>
+            {
+                Assert.That(this.viewModel.HasChanges(parameter), Is.True);
+                Assert.That(this.renderedComponent.FindAll(".submit-changes-table"), Is.Not.Empty);
+            });
+        }
+
+        /// <summary>
+        /// Reverting the only change from inside the dialog discards it and closes the dialog (covers
+        /// RevertChangeInDialog).
+        /// </summary>
+        [Test]
+        public void VerifyRevertFromDialog()
+        {
+            var parameter = this.StageSingleChange();
+
+            this.renderedComponent.FindAll("button").First(button => button.TextContent.Contains("Submit")).Click();
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.renderedComponent.FindAll(".dialog-revert"), Is.Not.Empty));
+
+            this.renderedComponent.Find(".dialog-revert").Click();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.HasChanges(parameter), Is.False);
+                Assert.That(this.viewModel.GetChangedParameters(), Is.Empty);
+            }
+        }
+
+        /// <summary>
+        /// Stages a single pending change on a freshly selected parameter and renders the component, returning the
+        /// changed <see cref="Parameter" />.
+        /// </summary>
+        /// <returns>The changed <see cref="Parameter" /></returns>
+        private Parameter StageSingleChange()
+        {
+            var scale = new RatioScale { Iid = Guid.NewGuid(), ShortName = "kg" };
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+            var parameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = parameterType, Scale = scale };
+            var iteration = new Iteration { Iid = Guid.NewGuid() };
+
+            var originalValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["1"]),
+                Container = iteration
+            };
+
+            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet> { { parameter, originalValueSet } };
+            this.viewModel.ParametersInUse = [parameter];
+            this.viewModel.SelectedParameter = parameter;
+
+            this.viewModel.ParameterValueSetChanged((new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["5"]),
+                Container = iteration
+            }, 0));
+
+            this.renderedComponent.Render();
+            return parameter;
+        }
+
         [Test]
         public void VerifyThatComponentCanBeHidden()
         {

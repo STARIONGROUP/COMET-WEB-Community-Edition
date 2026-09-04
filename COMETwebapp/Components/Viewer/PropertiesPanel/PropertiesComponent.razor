@@ -67,34 +67,36 @@ Copyright (c) 2023-2026 Starion Group S.A.
          Closed="@this.OnSubmitDialogClosed"
          Width="min(480px, 90vw)">
     <div id="submit-dialog-body">
-        <table class="submit-changes-table">
-            <thead>
-                <tr>
-                    <th>Parameter</th>
-                    <th>Old value</th>
-                    <th>New value</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var parameter in this.ViewModel.GetChangedParameters())
-                {
-                    var dialogEditor = this.ViewModel.GetDialogEditor(parameter);
-
+        <div class="submit-changes-scroll">
+            <table class="submit-changes-table">
+                <thead>
                     <tr>
-                        <td>@this.ViewModel.GetParameterDisplayName(parameter)</td>
-                        <td class="old-value">@this.ViewModel.GetOriginalValue(parameter)</td>
-                        <td class="new-value">
-                            <div class="new-value-cell">
-                                <DetailsComponent @key="dialogEditor" ViewModel="dialogEditor"/>
-                                <span class="dialog-revert"
-                                      title="Discard this change and restore the original value"
-                                      @onclick="@(() => this.RevertChangeInDialog(parameter))">&#8635;</span>
-                            </div>
-                        </td>
+                        <th>Parameter</th>
+                        <th>Old value</th>
+                        <th>New value</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var parameter in this.ViewModel.GetChangedParameters())
+                    {
+                        var dialogEditor = this.ViewModel.GetDialogEditor(parameter);
+
+                        <tr>
+                            <td>@this.ViewModel.GetParameterDisplayName(parameter)</td>
+                            <td class="old-value">@this.ViewModel.GetOriginalValue(parameter)</td>
+                            <td class="new-value">
+                                <div class="new-value-cell">
+                                    <DetailsComponent @key="dialogEditor" ViewModel="dialogEditor"/>
+                                    <span class="dialog-revert"
+                                          title="Discard this change and restore the original value"
+                                          @onclick="@(() => this.RevertChangeInDialog(parameter))">&#8635;</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
         <div id="submit-dialog-actions">
             <DxButton Text="Cancel"
