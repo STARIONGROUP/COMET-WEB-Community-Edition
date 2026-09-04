@@ -24,12 +24,14 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
 {
     using Bunit;
 
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
@@ -40,6 +42,8 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     using COMETwebapp.Services.SubscriptionService;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
+
+    using FluentResults;
 
     using Microsoft.Extensions.DependencyInjection;
 
@@ -54,6 +58,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         private PropertiesComponent properties;
         private IRenderedComponent<PropertiesComponent> renderedComponent;
         private PropertiesComponentViewModel viewModel;
+        private Mock<ISessionService> sessionService;
         private CDPMessageBus messageBus;
 
         [SetUp]
@@ -69,14 +74,18 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             this.context.Services.AddSingleton(selectionMediator);
             selectionMediator.Setup(x => x.SelectedSceneObjectClone).Returns(new SceneObject(It.IsAny<Primitive>()));
 
-            var sessionService = new Mock<ISessionService>();
-            this.context.Services.AddSingleton(sessionService);
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService);
+
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Ok());
 
             var iterationService = new Mock<ISubscriptionService>();
             this.context.Services.AddSingleton(iterationService);
             this.messageBus = new CDPMessageBus();
 
-            this.viewModel = new PropertiesComponentViewModel(babylonService.Object, sessionService.Object, selectionMediator.Object, this.messageBus)
+            this.viewModel = new PropertiesComponentViewModel(babylonService.Object, this.sessionService.Object, selectionMediator.Object, this.messageBus)
             {
                 IsVisible = true,
                 ParameterValueSetRelations = []
@@ -186,6 +195,379 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             };
 
             Assert.That(() => this.viewModel.ParameterValueSetChanged((parameterValueSet1, 0)), Throws.Nothing);
+        }
+
+        /// <summary>
+        /// Editing a parameter value highlights its label as changed, the submit confirmation dialog
+        /// exposes the old and new values, and submitting persists the change through the notification (toast) write and
+        /// resets the changed-parameter tracking.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        [Test]
+        public async Task VerifyChangedParameterFeedbackAndSubmit()
+        {
+            var scale = new RatioScale { Iid = Guid.NewGuid(), ShortName = "kg" };
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+            var parameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = parameterType, Scale = scale };
+            var iteration = new Iteration { Iid = Guid.NewGuid() };
+
+            var originalValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["1"]),
+                Container = iteration
+            };
+
+            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet> { { parameter, originalValueSet } };
+            this.viewModel.ParametersInUse = [parameter];
+            this.viewModel.SelectedParameter = parameter;
+
+            var editedValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["5"]),
+                Container = iteration
+            };
+
+            await this.viewModel.ParameterValueSetChanged((editedValueSet, 0));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.HasChanges(parameter), Is.True);
+                Assert.That(this.viewModel.ParameterHaveChanges, Is.True);
+                Assert.That(this.viewModel.GetChangedParameters(), Has.Count.EqualTo(1));
+                Assert.That(this.viewModel.GetParameterDisplayName(parameter), Is.EqualTo("Mass [kg]"));
+                Assert.That(this.viewModel.GetOriginalValue(parameter), Is.EqualTo("1"));
+                Assert.That(this.viewModel.ChangedParameterValueSetRelations[parameter].ActualValue, Is.EqualTo(new ValueArray<string>(["5"])));
+            }
+
+            this.renderedComponent.Render();
+            this.renderedComponent.WaitForAssertion(() =>
+                Assert.That(this.renderedComponent.Find(".parameter-item").ClassList, Does.Contain("parameter-item-changed")));
+
+            await this.viewModel.OnSubmit();
+
+            using (Assert.EnterMultipleScope())
+            {
+                this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(),
+                    It.Is<NotificationDescription>(n => n.OnSuccess == "Parameter values updated successfully")), Times.Once);
+                Assert.That(this.viewModel.HasChanges(parameter), Is.False);
+                Assert.That(this.viewModel.OriginalValueSets, Is.Empty);
+            }
+        }
+
+        /// <summary>
+        /// When the write fails, the pending changes stay tracked and the Submit button stays enabled
+        /// (ParameterHaveChanges remains true) so the user can retry, instead of being silently stuck.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        [Test]
+        public async Task VerifyOnSubmitFailureKeepsPendingChanges()
+        {
+            this.sessionService
+                .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Fail("boom"));
+
+            var scale = new RatioScale { Iid = Guid.NewGuid(), ShortName = "kg" };
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+            var parameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = parameterType, Scale = scale };
+            var iteration = new Iteration { Iid = Guid.NewGuid() };
+
+            var originalValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["1"]),
+                Container = iteration
+            };
+
+            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet> { { parameter, originalValueSet } };
+            this.viewModel.ParametersInUse = [parameter];
+            this.viewModel.SelectedParameter = parameter;
+
+            var editedValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["5"]),
+                Container = iteration
+            };
+
+            await this.viewModel.ParameterValueSetChanged((editedValueSet, 0));
+            await this.viewModel.OnSubmit();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.HasChanges(parameter), Is.True);
+                Assert.That(this.viewModel.ParameterHaveChanges, Is.True);
+                Assert.That(this.viewModel.GetChangedParameters(), Has.Count.EqualTo(1));
+            }
+        }
+
+        /// <summary>
+        /// Reverting an unsubmitted change discards it, restores the original value in the tracked
+        /// relations and clears the changed state.
+        /// </summary>
+        [Test]
+        public void VerifyRevertChangeRestoresOriginalValue()
+        {
+            var scale = new RatioScale { Iid = Guid.NewGuid(), ShortName = "kg" };
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+            var parameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = parameterType, Scale = scale };
+            var iteration = new Iteration { Iid = Guid.NewGuid() };
+
+            var originalValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["1"]),
+                Container = iteration
+            };
+
+            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet> { { parameter, originalValueSet } };
+            this.viewModel.ParametersInUse = [parameter];
+            this.viewModel.SelectedParameter = parameter;
+
+            var editedValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["5"]),
+                Container = iteration
+            };
+
+            this.viewModel.ParameterValueSetChanged((editedValueSet, 0));
+            Assert.That(this.viewModel.HasChanges(parameter), Is.True);
+
+            this.viewModel.RevertChange(parameter);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.HasChanges(parameter), Is.False);
+                Assert.That(this.viewModel.GetChangedParameters(), Is.Empty);
+                Assert.That(this.viewModel.ParameterHaveChanges, Is.False);
+                Assert.That(this.viewModel.ParameterValueSetRelations[parameter].ActualValue, Is.EqualTo(new ValueArray<string>(["1"])));
+            }
+        }
+
+        /// <summary>
+        /// The parameter editor is memoized per parameter so it is not rebuilt on every render (which
+        /// would drop keyboard focus and deselect the value while the user is typing).
+        /// </summary>
+        [Test]
+        public void VerifyDetailsEditorIsMemoizedPerParameter()
+        {
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+            var parameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = parameterType };
+
+            var valueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["1"])
+            };
+
+            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet> { { parameter, valueSet } };
+            this.viewModel.ParametersInUse = [parameter];
+            this.viewModel.SelectedParameter = parameter;
+
+            var first = this.viewModel.CreateDetailsComponentViewModel();
+            var second = this.viewModel.CreateDetailsComponentViewModel();
+
+            Assert.That(first, Is.SameAs(second));
+        }
+
+        /// <summary>
+        /// When the value is edited through the editor's own callback (as the real DevExpress editor does)
+        /// and then reverted from the panel, the tracked value is restored - guarding against a parameter-identity
+        /// mismatch between the editor callback and the revert affordance.
+        /// </summary>
+        [Test]
+        public async Task VerifyRevertRestoresValueEditedThroughEditorCallback()
+        {
+            var scale = new RatioScale { Iid = Guid.NewGuid(), ShortName = "kg" };
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+            var parameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = parameterType, Scale = scale };
+            var iteration = new Iteration { Iid = Guid.NewGuid() };
+
+            var originalValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["1"]),
+                Container = iteration
+            };
+
+            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet> { { parameter, originalValueSet } };
+            this.viewModel.ParametersInUse = [parameter];
+            this.viewModel.SelectedParameter = parameter;
+            this.renderedComponent.Render();
+
+            // Edit through the editor's own callback, exactly as the DevExpress editor fires it.
+            var editor = this.renderedComponent.FindComponent<DetailsComponent>().Instance.ViewModel;
+
+            var editedValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["5"]),
+                Container = iteration
+            };
+
+            await this.renderedComponent.InvokeAsync(() => editor.ParameterEditorSelector.ParameterValueChanged.InvokeAsync((editedValueSet, 0)));
+            this.renderedComponent.Render();
+
+            Assert.That(this.viewModel.HasChanges(parameter), Is.True);
+
+            this.renderedComponent.Find(".parameter-item-revert").Click();
+            this.renderedComponent.Render();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.HasChanges(parameter), Is.False);
+                Assert.That(this.viewModel.ParameterValueSetRelations[parameter].ActualValue, Is.EqualTo(new ValueArray<string>(["1"])));
+                Assert.That(this.renderedComponent.FindComponent<DetailsComponent>().Instance.ViewModel.ParameterEditorSelector.ValueSet.ActualValue, Is.EqualTo(new ValueArray<string>(["1"])));
+            }
+        }
+
+        /// <summary>
+        /// A parameter edited on one scene object is still editable in the submit dialog after the user
+        /// selects a different object (which replaces ParameterValueSetRelations). The dialog editor must resolve the
+        /// staged value set instead of throwing on a null one.
+        /// </summary>
+        [Test]
+        public void VerifyDialogEditorResolvesAfterSelectionChangedToAnotherObject()
+        {
+            var scale = new RatioScale { Iid = Guid.NewGuid(), ShortName = "kg" };
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+            var parameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = parameterType, Scale = scale };
+            var iteration = new Iteration { Iid = Guid.NewGuid() };
+
+            var originalValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["1"]),
+                Container = iteration
+            };
+
+            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet> { { parameter, originalValueSet } };
+            this.viewModel.ParametersInUse = [parameter];
+            this.viewModel.SelectedParameter = parameter;
+
+            var editedValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["5"]),
+                Container = iteration
+            };
+
+            this.viewModel.ParameterValueSetChanged((editedValueSet, 0));
+
+            var otherParameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "x" }, Scale = scale };
+
+            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>
+            {
+                { otherParameter, new ParameterValueSet { Iid = Guid.NewGuid(), ValueSwitch = ParameterSwitchKind.MANUAL, Manual = new ValueArray<string>(["9"]), Container = iteration } }
+            };
+
+            IDetailsComponentViewModel editor = null;
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(() => editor = this.viewModel.GetDialogEditor(parameter), Throws.Nothing);
+                Assert.That(editor, Is.Not.Null);
+                Assert.That(editor.ParameterEditorSelector, Is.Not.Null);
+            }
+        }
+
+        /// <summary>
+        /// Clicking the revert affordance rendered on a changed parameter label discards the change.
+        /// </summary>
+        [Test]
+        public void VerifyRevertFromPanelList()
+        {
+            var scale = new RatioScale { Iid = Guid.NewGuid(), ShortName = "kg" };
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+            var parameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = parameterType, Scale = scale };
+            var iteration = new Iteration { Iid = Guid.NewGuid() };
+
+            var originalValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["1"]),
+                Container = iteration
+            };
+
+            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet> { { parameter, originalValueSet } };
+            this.viewModel.ParametersInUse = [parameter];
+            this.viewModel.SelectedParameter = parameter;
+
+            this.viewModel.ParameterValueSetChanged((new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["5"]),
+                Container = iteration
+            }, 0));
+
+            this.renderedComponent.Render();
+            this.renderedComponent.Find(".parameter-item-revert").Click();
+
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.HasChanges(parameter), Is.False));
+        }
+
+        /// <summary>
+        /// After editing a value and clicking revert, the rendered editor is remounted (a new
+        /// <see cref="DetailsComponent" /> view model) bound to the restored original value set, so the field shows the
+        /// original value again.
+        /// </summary>
+        [Test]
+        public void VerifyRevertRebuildsEditorWithOriginalValue()
+        {
+            var scale = new RatioScale { Iid = Guid.NewGuid(), ShortName = "kg" };
+            var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
+            var parameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = parameterType, Scale = scale };
+            var iteration = new Iteration { Iid = Guid.NewGuid() };
+
+            var originalValueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["1"]),
+                Container = iteration
+            };
+
+            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet> { { parameter, originalValueSet } };
+            this.viewModel.ParametersInUse = [parameter];
+            this.viewModel.SelectedParameter = parameter;
+            this.renderedComponent.Render();
+
+            var detailsBefore = this.renderedComponent.FindComponent<DetailsComponent>().Instance;
+
+            this.viewModel.ParameterValueSetChanged((new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["5"]),
+                Container = iteration
+            }, 0));
+
+            this.renderedComponent.Render();
+            this.renderedComponent.Find(".parameter-item-revert").Click();
+            this.renderedComponent.Render();
+
+            var detailsComponent = this.renderedComponent.FindComponent<DetailsComponent>().Instance;
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(detailsComponent, Is.Not.SameAs(detailsBefore), "the DetailsComponent should be remounted by @key after a revert");
+                Assert.That(detailsComponent.ViewModel.ParameterEditorSelector.ValueSet.ActualValue, Is.EqualTo(new ValueArray<string>(["1"])));
+            }
         }
 
         [Test]

@@ -65,6 +65,79 @@
     box-shadow: 0 0 0 3px #008bd2 !important;
 }
 
+.parameter-item-changed {
+    background: #fff3cd;
+    color: #7a5b00;
+    font-weight: bold;
+    box-shadow: 0 0 0 2px #e0a800;
+}
+
+.parameter-item-revert {
+    margin-left: 0.35rem;
+    padding: 0 0.2rem;
+    border-radius: var(--radius-sm);
+    color: #7a5b00;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+    .parameter-item-revert:hover {
+        background: #e0a800;
+        color: #ffffff;
+    }
+
+#submit-dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.submit-changes-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .submit-changes-table th,
+    .submit-changes-table td {
+        text-align: left;
+        padding: 0.35rem 0.5rem;
+        border-bottom: 1px solid #e0e0e0;
+        vertical-align: middle;
+    }
+
+    .submit-changes-table .old-value {
+        color: #888888;
+        white-space: nowrap;
+    }
+
+.new-value-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.dialog-revert {
+    flex: 0 0 auto;
+    padding: 0 0.2rem;
+    border-radius: var(--radius-sm);
+    color: #7a5b00;
+    font-weight: bold;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    .dialog-revert:hover {
+        background: #e0a800;
+        color: #ffffff;
+    }
+
+#submit-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
 #propertiesPanel {
     border: 1px solid lightgray;
     overflow-y: auto;

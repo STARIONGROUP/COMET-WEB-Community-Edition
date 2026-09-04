@@ -339,10 +339,16 @@ namespace COMETwebapp.ViewModels.Components.Viewer
             }
 
             var sceneObject = await this.GetSceneObjectUnderMouseAsync();
+
+            if (sceneObject is null)
+            {
+                return;
+            }
+
             this.SelectionMediator.RaiseOnModelSelectionChanged(sceneObject);
 
             await this.ClearTemporarySceneObjects();
-            
+
             if (this.SelectionMediator.SceneObjectHasChanges && this.SelectionMediator.SelectedSceneObjectClone?.Primitive != null)
             {
                 await this.AddTemporarySceneObject(this.SelectionMediator.SelectedSceneObjectClone);

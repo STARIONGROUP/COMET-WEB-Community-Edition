@@ -1,15 +1,15 @@
 ﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023-2026 Starion Group S.A.
 
-    This file is part of CDP4-COMET WEB Community Edition
-     The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
 
-    The CDP4-COMET WEB Community Edition is free software; you can redistribute it and/or
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
     modify it under the terms of the GNU Affero General Public
     License as published by the Free Software Foundation; either
     version 3 of the License, or (at your option) any later version.
 
-    The CDP4-COMET WEB Community Edition is distributed in the hope that it will be useful,
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     Affero General Public License for more details.
@@ -26,7 +26,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <div id="properties-header">
             <h4 id="properties-title">@(this.Title)</h4>
             <div id="properties-header-actions">
-                <DxButton Click="@(() => this.ViewModel.OnSubmit())"
+                <DxButton Click="@this.OpenSubmitDialog"
                           Text="Submit"
                           RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                           Enabled="@(this.ViewModel.ParameterHaveChanges)"/>
@@ -40,12 +40,69 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                 @foreach (var parameter in parameters)
                 {
-                    var classNames = parameter == this.ViewModel.SelectedParameter ? "parameter-item parameter-item-selected" : "parameter-item";
-                    <p class="@classNames" @onclick="() => this.ViewModel.SelectedParameter = parameter">@parameter.ParameterType?.Name</p>
+                    <p class="@this.GetParameterItemCssClass(parameter)" @onclick="() => this.ViewModel.SelectedParameter = parameter">
+                        @parameter.ParameterType?.Name
+                        @if (this.ViewModel.HasChanges(parameter))
+                        {
+                            <span class="parameter-item-revert"
+                                  title="Revert to the original value"
+                                  @onclick:stopPropagation="true"
+                                  @onclick="@(() => this.RevertChange(parameter))">&#8635;</span>
+                        }
+                    </p>
                 }
             }
         </div>
     }
 
-    <DetailsComponent ViewModel="this.ViewModel.CreateDetailsComponentViewModel()"/>
+    @{
+        var detailsEditor = this.ViewModel.CreateDetailsComponentViewModel();
+    }
+    <DetailsComponent @key="detailsEditor" ViewModel="detailsEditor"/>
 </div>
+
+<DxPopup CloseOnOutsideClick="false"
+         HeaderText="Confirm parameter changes"
+         @bind-Visible="@this.ShowSubmitDialog"
+         Closed="@this.OnSubmitDialogClosed"
+         Width="min(480px, 90vw)">
+    <div id="submit-dialog-body">
+        <table class="submit-changes-table">
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Old value</th>
+                    <th>New value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var parameter in this.ViewModel.GetChangedParameters())
+                {
+                    var dialogEditor = this.ViewModel.GetDialogEditor(parameter);
+
+                    <tr>
+                        <td>@this.ViewModel.GetParameterDisplayName(parameter)</td>
+                        <td class="old-value">@this.ViewModel.GetOriginalValue(parameter)</td>
+                        <td class="new-value">
+                            <div class="new-value-cell">
+                                <DetailsComponent @key="dialogEditor" ViewModel="dialogEditor"/>
+                                <span class="dialog-revert"
+                                      title="Discard this change and restore the original value"
+                                      @onclick="@(() => this.RevertChangeInDialog(parameter))">&#8635;</span>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div id="submit-dialog-actions">
+            <DxButton Text="Cancel"
+                      RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())"
+                      Click="@(() => this.ShowSubmitDialog = false)"/>
+            <DxButton Text="OK"
+                      RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                      Click="@this.ConfirmSubmit"/>
+        </div>
+    </div>
+</DxPopup>

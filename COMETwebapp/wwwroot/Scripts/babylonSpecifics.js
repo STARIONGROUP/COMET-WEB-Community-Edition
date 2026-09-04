@@ -35,6 +35,8 @@ function CreateScene(engine, canvas, state) {
     camera.attachControl(canvas, true);
     camera.lowerRadiusLimit = 5;
     camera.upperRadiusLimit = SkyboxSize / 2.0;
+    camera.lowerBetaLimit = null;
+    camera.upperBetaLimit = null;
     camera.inertia = CameraInertia;
     camera.panningInertia = CameraInertia;
     camera.angularSensibilityX = camera.angularSensibilityY = CameraRotationSensibility;
