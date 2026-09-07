@@ -170,5 +170,25 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
                 Assert.That(this.renderer.Markup, Does.Contain(this.parameterType.QuantityKindFactor.First().Exponent));
             });
         }
+
+        [Test]
+        public void VerifyAddButtonFollowsCreatePermission()
+        {
+            var permissionService = new Mock<IPermissionService>();
+            permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
+            permissionService.Setup(x => x.CanWrite(ClassKind.QuantityKindFactor, It.IsAny<Thing>())).Returns(false);
+            var session = new Mock<ISession>();
+            session.Setup(x => x.PermissionService).Returns(permissionService.Object);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+
+            this.renderer.Render();
+            var addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addQuantityKindFactorButton");
+            Assert.That(addButton.Instance.Enabled, Is.False, "the user may not add a quantity kind factor without the create permission on the parent thing");
+
+            permissionService.Setup(x => x.CanWrite(ClassKind.QuantityKindFactor, It.IsAny<Thing>())).Returns(true);
+            this.renderer.Render();
+            addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addQuantityKindFactorButton");
+            Assert.That(addButton.Instance.Enabled, Is.True, "the add button is enabled once the create permission is granted");
+        }
     }
 }

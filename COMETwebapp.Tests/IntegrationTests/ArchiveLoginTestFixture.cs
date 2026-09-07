@@ -80,8 +80,12 @@ namespace COMETwebapp.Tests.IntegrationTests
         {
             await this.Login.NavigateAsync(AppUrl);
 
+            // #login-form is present whether this server configuration needs the single-step or the multi-step
+            // (source-address-then-credentials) flow, so it proves the server form rendered without depending on which
+            // step is showing - unlike #connectbtn, which is only there once past a "Next" step some configurations
+            // require.
             await Expect(this.Archive.ConnectionKindSelector).ToBeVisibleAsync();
-            await Expect(this.Login.ConnectButton).ToBeVisibleAsync();
+            await Expect(this.Page.Locator("#login-form")).ToBeAttachedAsync();
             await Expect(this.Archive.Form).ToBeHiddenAsync();
         }
 

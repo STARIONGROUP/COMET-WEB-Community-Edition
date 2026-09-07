@@ -22,6 +22,7 @@
 
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
@@ -48,6 +49,14 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// opened from an ECSS-E-TM-10-25 Annex C3 archive
         /// </summary>
         private bool IsReadOnly => this.SessionService.IsReadOnly;
+
+        /// <summary>
+        /// Gets a value indicating whether the active user may add a new <see cref="IndependentParameterTypeAssignment" />
+        /// to <see cref="Thing" />. Unlike a row's write permission, which reflects whether an existing row may be
+        /// edited or deleted, this reflects the create permission on the parent <see cref="Thing" />, which under
+        /// MODIFY_IF_OWNER can differ from the edit permission on any one row
+        /// </summary>
+        private bool IsAllowedToCreate => this.SessionService.Session.PermissionService.CanWrite(ClassKind.IndependentParameterTypeAssignment, this.Thing);
 
         /// <summary>
         /// The compound parameter type

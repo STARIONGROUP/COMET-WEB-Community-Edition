@@ -72,6 +72,15 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.CommonFileStore
         private Iteration CurrentIteration { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="EngineeringModel" /> that a newly created <see cref="CommonFileStore" /> would be
+        /// contained by. The base default falls back to the <see cref="SiteDirectory" /> when there are no existing
+        /// rows to infer the container from, which is wrong here: a <see cref="CommonFileStore" /> is always contained
+        /// by <see cref="CurrentIteration" />'s <see cref="EngineeringModel" />, including on a brand-new model with
+        /// zero file stores
+        /// </summary>
+        protected override Thing CreationContainer => this.CurrentIteration != null ? (EngineeringModel)this.CurrentIteration.Container : base.CreationContainer;
+
+        /// <summary>
         /// Gets the <see cref="IFolderFileStructureViewModel" />
         /// </summary>
         public IFolderFileStructureViewModel FolderFileStructureViewModel { get; private set; }

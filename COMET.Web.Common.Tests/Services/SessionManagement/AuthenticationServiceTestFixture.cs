@@ -179,6 +179,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             // the crash seen when logging in as another user while an archive session is still open.
             this.sessionService.Setup(x => x.OpenSession(It.IsAny<Credentials>())).ThrowsAsync(new InvalidOperationException("User not found."));
             this.sessionService.Setup(x => x.AuthenticateAndOpenSession(It.IsAny<AuthenticationSchemeKind>(), It.IsAny<AuthenticationInformation>())).ThrowsAsync(new InvalidOperationException("Session is already open."));
+            this.sessionService.Setup(x => x.OpenArchiveSession(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ThrowsAsync(new InvalidOperationException("Session is already open."));
 
             Assert.Multiple(() =>
             {
@@ -186,6 +187,8 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
                 Assert.That(async () => (await this.authenticationService.Login(this.authenticationDto)).IsFailed, Is.True);
                 Assert.That(async () => await this.authenticationService.LoginAsync(AuthenticationSchemeKind.LocalJwtBearer, new AuthenticationInformation("user", "pass")), Throws.Nothing);
                 Assert.That(async () => (await this.authenticationService.LoginAsync(AuthenticationSchemeKind.LocalJwtBearer, new AuthenticationInformation("user", "pass"))).IsFailed, Is.True);
+                Assert.That(async () => await this.authenticationService.LoginFromArchive("archive.zip", "user", "pass"), Throws.Nothing);
+                Assert.That(async () => (await this.authenticationService.LoginFromArchive("archive.zip", "user", "pass")).IsFailed, Is.True);
             });
         }
 

@@ -146,6 +146,10 @@ namespace COMET.Web.Common.ViewModels.Components
                     this.ResetAuthenticationDto();
                     this.SelectedFile = null;
                 }
+                else
+                {
+                    this.archiveFileService.Remove();
+                }
             }
             finally
             {

@@ -57,6 +57,15 @@ namespace COMETwebapp.Components.RequirementsEditor
         public bool IsReadOnly => this.SessionService.IsReadOnly;
 
         /// <summary>
+        /// Gets or sets a value indicating whether the active user may write the parent <see cref="Requirement" /> this
+        /// table edits part of. These constraints are parts of one aggregate saved atomically by the hosting form, so
+        /// the permission is decided once by that form and passed down rather than evaluated per row. Defaults to true
+        /// so a host that does not set it keeps its previous behaviour
+        /// </summary>
+        [Parameter]
+        public bool IsAllowedToWrite { get; set; } = true;
+
+        /// <summary>
         /// The <see cref="Requirement" /> whose parametric constraints are edited.
         /// </summary>
         [Parameter]

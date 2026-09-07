@@ -172,6 +172,32 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
+        public async Task VerifyWriteGuardHoldsThroughEveryInterfaceReference()
+        {
+            // The read-only guard is implemented by hiding the CDP4Web base write methods with `new`, which only
+            // redirects call sites that resolve the interface member to this class's implementation. Because this class
+            // re-declares ISessionService (rather than relying solely on inheriting it), the compiler binds the write
+            // methods on BOTH interfaces to the guarded overrides here for every SessionService instance, regardless of
+            // which interface reference a caller holds. This test calls through the base CDP4Web interface directly to
+            // prove that boundary holds, not just through the local ISessionService callers actually use.
+            var session = CreateSessionMock(true);
+            InjectSession(this.sessionService, session.Object);
+
+            CDP4Web.Services.SessionService.ISessionService baseInterfaceReference = this.sessionService;
+            var siteDirectory = new SiteDirectory();
+            var domain = new DomainOfExpertise();
+            siteDirectory.Domain.Add(domain);
+
+            var result = await baseInterfaceReference.CreateOrUpdateThings(siteDirectory.Clone(false), [domain]);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsFailed, Is.True, "the guard must apply even through the base CDP4Web interface");
+                session.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>()), Times.Never);
+            });
+        }
+
+        [Test]
         public void VerifyIsReadOnly()
         {
             Assert.Multiple(() =>
@@ -197,6 +223,22 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
                 Assert.That(async () => await this.sessionService.OpenArchiveSession(missingArchive, null, "pass"), Throws.ArgumentNullException);
 
                 var result = await this.sessionService.OpenArchiveSession(missingArchive, "user", "pass");
+                Assert.That(result.IsFailed, Is.True);
+                Assert.That(this.sessionService.IsSessionOpen, Is.False);
+            });
+        }
+
+        [Test]
+        public async Task VerifyOpenArchiveSessionRecoversFromAnUnexpectedException()
+        {
+            // A malformed archive can fail in ways the DAL does not surface as UnauthorizedAccessException or
+            // FileLoadException. "not a valid uri" makes `new Uri(archivePath)` throw UriFormatException, a type neither
+            // existing catch handles, to prove the catch-all keeps such a failure from escaping and tearing down the
+            // circuit, and that it still clears the session so a broken open never leaves it half-assigned.
+            var result = await this.sessionService.OpenArchiveSession("not a valid uri", "user", "pass");
+
+            Assert.Multiple(() =>
+            {
                 Assert.That(result.IsFailed, Is.True);
                 Assert.That(this.sessionService.IsSessionOpen, Is.False);
             });
