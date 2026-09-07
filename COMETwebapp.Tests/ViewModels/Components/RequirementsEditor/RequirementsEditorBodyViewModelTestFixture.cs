@@ -36,6 +36,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
+    using COMETwebapp.Model.RequirementsEditor.Export;
+    using COMETwebapp.Services.Export;
+    using COMETwebapp.Services.RequirementsEditor;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
@@ -72,6 +75,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         private SimpleQuantityKind massParameterType;
         private SimpleQuantityKind lengthParameterType;
         private SimpleParameterValue massValue;
+        private Mock<IExportService> exportService;
 
         [SetUp]
         public void SetUp()
@@ -140,7 +144,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             this.messageBus = new CDPMessageBus();
             this.showHideService = new ShowHideDeprecatedThingsService();
 
-            this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, this.showHideService, new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object)
+            this.exportService = new Mock<IExportService>();
+
+            this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, this.showHideService, new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object, this.exportService.Object)
             {
                 CurrentThing = this.iteration
             };
@@ -740,6 +746,42 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         }
 
         [Test]
+        public async Task VerifyGetRelationshipDetails()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var verifiesCategory = new Category { Iid = Guid.NewGuid(), ShortName = "verifies", Name = "verifies" };
+            var rule = new BinaryRelationshipRule { Iid = Guid.NewGuid(), Name = "Requirement verification", ForwardRelationshipName = "verifies", InverseRelationshipName = "is verified by", RelationshipCategory = verifiesCategory };
+            var rdl = new SiteReferenceDataLibrary { Iid = Guid.NewGuid() };
+            rdl.Rule.Add(rule);
+            this.session.Setup(x => x.OpenReferenceDataLibraries).Returns([rdl]);
+
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT" };
+
+            var ruled = new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.topRequirement, Target = elementDefinition, Category = { verifiesCategory } };
+            var ruleless = new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.c4iRequirement, Target = this.topRequirement };
+            this.iteration.Relationship.AddRange([ruled, ruleless]);
+
+            var details = this.viewModel.GetRelationshipDetails(this.topRequirement);
+
+            Assert.That(details, Has.Count.EqualTo(2));
+
+            var ruledDetail = details.Single(x => x.Rule != null);
+            var rulelessDetail = details.Single(x => x.Rule == null);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(ruledDetail.Direction, Is.EqualTo(RelationshipDirection.Outgoing));
+                Assert.That(ruledDetail.RelatedThings, Is.EqualTo(new Thing[] { elementDefinition }));
+                Assert.That(ruledDetail.Rule.ForwardName, Is.EqualTo("verifies"));
+                Assert.That(ruledDetail.Rule.InverseName, Is.EqualTo("is verified by"));
+                Assert.That(ruledDetail.Rule.IsDirectional, Is.True);
+                Assert.That(rulelessDetail.Direction, Is.EqualTo(RelationshipDirection.Incoming));
+                Assert.That(rulelessDetail.RelatedThings, Is.EqualTo(new Thing[] { this.c4iRequirement }));
+            });
+        }
+
+        [Test]
         public async Task VerifyNavigateToRequirement()
         {
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
@@ -843,6 +885,31 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 Assert.That(this.showHideService.ShowDeprecatedThings, Is.True, "navigating to a deprecated target reveals deprecated things so its anchor renders");
                 Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.specification));
                 Assert.That(this.viewModel.ScrollTarget, Is.EqualTo(this.deprecatedRequirement));
+            });
+        }
+
+        [Test]
+        public async Task VerifyExportRunsTheExcelExporterAndClosesTheDialog()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.IsExportDialogVisible = true;
+
+            await this.viewModel.ExportAsync();
+
+            this.exportService.Verify(x => x.ExportAndDownloadAsync(It.IsAny<RequirementsExcelExporter>()), Times.Once);
+            Assert.That(this.viewModel.IsExportDialogVisible, Is.False, "a successful export closes the dialog");
+        }
+
+        [Test]
+        public void VerifyExportConfigurationSourcesAreExposed()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ExportConfiguration, Is.Not.Null);
+                Assert.That(this.viewModel.GetExportableParameterTypes(), Is.EquivalentTo(new[] { this.lengthParameterType, this.massParameterType }));
+                Assert.That(this.viewModel.GetExportableDefinitionLanguages(), Is.EqualTo(new[] { "en" }));
+                Assert.That(this.viewModel.GetExportableRelationshipCategories(), Is.Empty);
             });
         }
     }

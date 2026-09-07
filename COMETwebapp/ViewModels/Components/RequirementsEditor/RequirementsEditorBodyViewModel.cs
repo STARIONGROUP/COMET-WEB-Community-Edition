@@ -35,6 +35,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.Model.RequirementsEditor.Export;
+    using COMETwebapp.Services.Export;
+    using COMETwebapp.Services.RequirementsEditor;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Utilities;
 
@@ -133,6 +136,16 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private readonly ILogger<RequirementsEditorBodyViewModel> logger;
 
         /// <summary>
+        /// The <see cref="IExportService" /> used to run an exporter and offer its output for download.
+        /// </summary>
+        private readonly IExportService exportService;
+
+        /// <summary>
+        /// Backing field for <see cref="IsExportDialogVisible" />
+        /// </summary>
+        private bool isExportDialogVisible;
+
+        /// <summary>
         /// True when the create/edit form holds a fresh instance to add, false when it holds a clone to update.
         /// </summary>
         private bool isCreating;
@@ -180,10 +193,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
-        public RequirementsEditorBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ILogger<RequirementsEditorBodyViewModel> logger) : base(sessionService, messageBus)
+        /// <param name="exportService">The <see cref="IExportService" /></param>
+        public RequirementsEditorBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ILogger<RequirementsEditorBodyViewModel> logger, IExportService exportService) : base(sessionService, messageBus)
         {
             this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
             this.logger = logger;
+            this.exportService = exportService;
 
             this.ConfirmCancelPopupViewModel = new ConfirmCancelPopupViewModel
             {
@@ -195,6 +210,20 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// Gets the view model driving the confirm dialog used for deprecate, restore and delete actions.
         /// </summary>
         public IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; }
+
+        /// <summary>
+        /// Gets the mutable configuration bound to the export dialog and read by <see cref="ExportAsync" />.
+        /// </summary>
+        public RequirementsExportConfiguration ExportConfiguration { get; } = new();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the export configuration dialog is open.
+        /// </summary>
+        public bool IsExportDialogVisible
+        {
+            get => this.isExportDialogVisible;
+            set => this.RaiseAndSetIfChanged(ref this.isExportDialogVisible, value);
+        }
 
         /// <summary>
         /// Gets the view model driving the create/edit form, built lazily the first time a dialog is opened.
@@ -1095,6 +1124,174 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         }
 
         /// <summary>
+        /// Gets a relationship detail for every <see cref="BinaryRelationship" /> and <see cref="MultiRelationship" /> of
+        /// the iteration the given <paramref name="requirement" /> participates in, resolved to its matched rules so an
+        /// export can lay out a column per rule and direction. A relationship that matches several rules yields one
+        /// detail per matched rule; one that matches no rule yields a single detail with a null rule.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <returns>The relationship details</returns>
+        public IReadOnlyList<RequirementRelationshipDetail> GetRelationshipDetails(Requirement requirement)
+        {
+            if (this.CurrentThing == null)
+            {
+                return [];
+            }
+
+            var details = new List<RequirementRelationshipDetail>();
+
+            foreach (var relationship in this.CurrentThing.Relationship)
+            {
+                IReadOnlyList<Thing> relatedThings;
+                RelationshipDirection direction;
+
+                switch (relationship)
+                {
+                    case BinaryRelationship binary when binary.Source == requirement || binary.Target == requirement:
+                        direction = binary.Source == requirement ? RelationshipDirection.Outgoing : RelationshipDirection.Incoming;
+                        relatedThings = [binary.Source == requirement ? binary.Target : binary.Source];
+                        break;
+
+                    case MultiRelationship multi when multi.RelatedThing.Contains(requirement):
+                        direction = RelationshipDirection.Bidirectional;
+                        relatedThings = multi.RelatedThing.Where(x => x != requirement).ToList();
+                        break;
+
+                    default:
+                        continue;
+                }
+
+                var categories = relationship.Category.ToList();
+                var references = this.GetMatchingRules(relationship).Select(ToRuleReference).ToList();
+
+                if (references.Count == 0)
+                {
+                    details.Add(new RequirementRelationshipDetail { RelatedThings = relatedThings, Direction = direction, Rule = null, Categories = categories });
+                    continue;
+                }
+
+                details.AddRange(references.Select(reference => new RequirementRelationshipDetail { RelatedThings = relatedThings, Direction = direction, Rule = reference, Categories = categories }));
+            }
+
+            return details;
+        }
+
+        /// <summary>
+        /// Exports the requirements of the iteration to an Excel workbook, driven by <see cref="ExportConfiguration" />,
+        /// and offers it for download. Closes the export dialog on success.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task ExportAsync()
+        {
+            if (this.CurrentThing == null)
+            {
+                return;
+            }
+
+            try
+            {
+                var configuration = this.ExportConfiguration;
+
+                var specifications = configuration.SelectedSpecifications.Count == 0
+                    ? this.AvailableSpecifications.ToList()
+                    : configuration.SelectedSpecifications.ToList();
+
+                var payload = new RequirementsExportPayload(
+                    specifications,
+                    configuration,
+                    this.GetRelationshipDetails,
+                    constraint => this.GetConstraintExportText(constraint, configuration.IncludeConstraintLinkedElementAndValue));
+
+                await this.exportService.ExportAndDownloadAsync(new RequirementsExcelExporter(payload));
+                this.IsExportDialogVisible = false;
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while exporting the requirements");
+            }
+        }
+
+        /// <summary>
+        /// Gets the distinct <see cref="ParameterType" />s used by the simple parameter values of every specification's
+        /// requirements, offered as export column choices; ordered by short name.
+        /// </summary>
+        /// <returns>The exportable parameter types</returns>
+        public IReadOnlyList<ParameterType> GetExportableParameterTypes()
+        {
+            return this.AvailableSpecifications
+                .SelectMany(specification => specification.Requirement)
+                .SelectMany(requirement => requirement.ParameterValue)
+                .Select(value => value.ParameterType)
+                .Where(parameterType => parameterType != null)
+                .DistinctBy(parameterType => parameterType.Iid)
+                .OrderBy(parameterType => parameterType.ShortName)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Gets the distinct definition language codes used across every specification's requirements, offered as export
+        /// language choices; ordered alphabetically.
+        /// </summary>
+        /// <returns>The exportable definition language codes</returns>
+        public IReadOnlyList<string> GetExportableDefinitionLanguages()
+        {
+            return this.AvailableSpecifications
+                .SelectMany(specification => specification.Requirement)
+                .SelectMany(requirement => requirement.Definition)
+                .Select(definition => definition.LanguageCode)
+                .Where(languageCode => !string.IsNullOrWhiteSpace(languageCode))
+                .Distinct()
+                .OrderBy(languageCode => languageCode)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Gets the distinct <see cref="Category" />s carried by the iteration's relationships, offered as export
+        /// relationship-filter choices; ordered by name.
+        /// </summary>
+        /// <returns>The exportable relationship categories</returns>
+        public IReadOnlyList<Category> GetExportableRelationshipCategories()
+        {
+            if (this.CurrentThing == null)
+            {
+                return [];
+            }
+
+            return this.CurrentThing.Relationship
+                .SelectMany(relationship => relationship.Category)
+                .DistinctBy(category => category.Iid)
+                .OrderBy(category => category.Name)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Renders the given <paramref name="constraint" /> as a one-line export string: its top-level expressions,
+        /// optionally followed by the model code and published value of every parameter linked to its relational
+        /// expressions.
+        /// </summary>
+        /// <param name="constraint">The <see cref="ParametricConstraint" /></param>
+        /// <param name="includeLinkedElementAndValue">Whether to append the linked element and value</param>
+        /// <returns>The export string</returns>
+        private string GetConstraintExportText(ParametricConstraint constraint, bool includeLinkedElementAndValue)
+        {
+            var text = string.Join("; ", this.GetTopExpressions(constraint).Select(this.GetExpressionSummary));
+
+            if (!includeLinkedElementAndValue)
+            {
+                return text;
+            }
+
+            var links = constraint.Expression
+                .OfType<RelationalExpression>()
+                .Select(expression => (Code: this.GetBoundParameterModelCode(expression), Value: this.GetBoundParameterPublishedValue(expression)))
+                .Where(link => link.Code != null)
+                .Select(link => $"{link.Code} = {link.Value}")
+                .ToList();
+
+            return links.Count == 0 ? text : $"{text} (linked: {string.Join(", ", links)})";
+        }
+
+        /// <summary>
         /// Navigates the document to the given <paramref name="requirement" />: clears the active search and filters
         /// (so the target is guaranteed to render), selects its specification, expands its ancestor groups and flags
         /// it as the <see cref="ScrollTarget" />.
@@ -1586,13 +1783,35 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <returns>The matching rule names</returns>
         private List<string> GetMatchingRuleNames(Relationship relationship)
         {
+            return this.GetMatchingRules(relationship).Select(rule => rule.Name).ToList();
+        }
+
+        /// <summary>
+        /// Gets the <see cref="BinaryRelationshipRule" />s or <see cref="MultiRelationshipRule" />s of the open reference
+        /// data libraries whose relationship category is carried by the given <paramref name="relationship" />.
+        /// </summary>
+        /// <param name="relationship">The <see cref="Relationship" /></param>
+        /// <returns>The matching rules</returns>
+        private IReadOnlyList<Rule> GetMatchingRules(Relationship relationship)
+        {
             var rules = this.SessionService.Session.OpenReferenceDataLibraries.SelectMany(x => x.Rule);
 
-            var matching = relationship is BinaryRelationship
-                ? rules.OfType<BinaryRelationshipRule>().Where(x => RelationshipCarriesCategory(relationship, x.RelationshipCategory)).Select(x => x.Name)
-                : rules.OfType<MultiRelationshipRule>().Where(x => RelationshipCarriesCategory(relationship, x.RelationshipCategory)).Select(x => x.Name);
+            return relationship is BinaryRelationship
+                ? rules.OfType<BinaryRelationshipRule>().Where(x => RelationshipCarriesCategory(relationship, x.RelationshipCategory)).Cast<Rule>().ToList()
+                : rules.OfType<MultiRelationshipRule>().Where(x => RelationshipCarriesCategory(relationship, x.RelationshipCategory)).Cast<Rule>().ToList();
+        }
 
-            return matching.ToList();
+        /// <summary>
+        /// Builds a <see cref="RelationshipRuleReference" /> from the given <paramref name="rule" />: a binary rule keeps
+        /// its forward and inverse names (it is directional), a multi rule keeps only its name.
+        /// </summary>
+        /// <param name="rule">The <see cref="Rule" /></param>
+        /// <returns>The reference</returns>
+        private static RelationshipRuleReference ToRuleReference(Rule rule)
+        {
+            return rule is BinaryRelationshipRule binaryRule
+                ? new RelationshipRuleReference { Iid = rule.Iid, Name = rule.Name, ForwardName = binaryRule.ForwardRelationshipName, InverseName = binaryRule.InverseRelationshipName }
+                : new RelationshipRuleReference { Iid = rule.Iid, Name = rule.Name };
         }
 
         /// <summary>

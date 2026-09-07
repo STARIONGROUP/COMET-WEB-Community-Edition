@@ -65,6 +65,20 @@ namespace COMETwebapp.Tests.IntegrationTests
         /// </summary>
         private const int DefaultViewportHeight = 720;
 
+        /// <summary>
+        /// Verifies that the toolbar Export button opens the export configuration dialog and offers the confirm action.
+        /// Read-only: it opens and closes the dialog without triggering a download.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyExportDialogOpens()
+        {
+            await this.PageModel.OpenExportDialogAsync();
+
+            await Expect(this.PageModel.ExportConfirmButton).ToBeVisibleAsync();
+            await Expect(this.PageModel.ExportSpecificationSelector).ToBeVisibleAsync();
+        }
+
         [Test]
         public async Task VerifyOpeningASpecificationShowsItInTheDocument()
         {

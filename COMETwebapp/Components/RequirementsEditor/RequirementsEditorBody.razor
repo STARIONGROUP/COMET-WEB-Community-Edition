@@ -72,6 +72,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
             }
 
             <div class="req-toolbar-group req-toolbar-right">
+                <DxButton Id="requirement-export"
+                          RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                          IconCssClass="@IconName.Download.GetCssClass()"
+                          Text="Export"
+                          title="Export the requirements to Excel"
+                          Click="@(() => this.ViewModel.IsExportDialogVisible = true)" />
+
                 <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                           IconCssClass="@IconName.Add.GetCssClass()"
                           Text="Specification"
@@ -117,6 +124,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
         </DxPopup>
 
         <ConfirmCancelPopup ViewModel="@this.ViewModel.ConfirmCancelPopupViewModel" />
+
+        <RequirementsExportDialog ViewModel="@this.ViewModel" />
 
         <div class="req-editor-layout @(this.ViewModel.IsTocCollapsed ? "toc-collapsed" : string.Empty)">
             <div class="req-toc">

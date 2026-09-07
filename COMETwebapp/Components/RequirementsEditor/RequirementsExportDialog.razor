@@ -1,0 +1,135 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.EngineeringModelData
+@using CDP4Common.SiteDirectoryData
+@using COMETwebapp.Extensions
+@using COMETwebapp.Model.RequirementsEditor.Export
+@inherits COMET.Web.Common.Components.DisposableComponent
+
+<DxPopup @bind-Visible="@this.ViewModel.IsExportDialogVisible"
+         HeaderText="Export requirements to Excel"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Width="min(680px, 92vw)">
+    <div class="req-export-dialog">
+        <section class="req-export-section">
+            <h6>File</h6>
+            <div class="req-export-row">
+                <label>File name</label>
+                <DxTextBox @bind-Text="@this.Config.FileName" NullText="Requirements" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                <span class="req-export-suffix">.xlsx</span>
+            </div>
+        </section>
+
+        <section class="req-export-section">
+            <h6>Specifications</h6>
+            <FilterTagBox TItem="RequirementsSpecification"
+                          Id="requirement-export-specifications"
+                          Data="@this.ViewModel.AvailableSpecifications"
+                          Values="@this.Config.SelectedSpecifications"
+                          ValuesChanged="@((IEnumerable<RequirementsSpecification> values) => this.Config.SelectedSpecifications = values.ToList())"
+                          TextFieldName="@nameof(RequirementsSpecification.Name)"
+                          NullText="All specifications..." />
+            <DxCheckBox @bind-Checked="@this.Config.SpecificationPerSheet" CheckType="CheckType.Switch">Each specification on its own sheet</DxCheckBox>
+        </section>
+
+        <section class="req-export-section">
+            <h6>Columns</h6>
+            <div class="req-export-row">
+                <label title="How the name of every requirement, group, owner, category and value column is written">Name display</label>
+                <DxComboBox Data="@NamingModes" @bind-Value="@this.Config.NamingMode">
+                    <ItemTemplate>@NamingModeLabel(context)</ItemTemplate>
+                </DxComboBox>
+            </div>
+            <DxCheckBox @bind-Checked="@this.Config.IncludeOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
+            <DxCheckBox @bind-Checked="@this.Config.IncludeCategories" CheckType="CheckType.Switch">Categories</DxCheckBox>
+            <DxCheckBox @bind-Checked="@this.Config.GroupRequirements" CheckType="CheckType.Switch" title="Add a Group column and indent and outline the rows so they collapse and expand by group">Group requirements (collapsible rows)</DxCheckBox>
+            <DxCheckBox @bind-Checked="@this.Config.IncludeDeprecated" CheckType="CheckType.Switch">Include deprecated things</DxCheckBox>
+        </section>
+
+        <section class="req-export-section">
+            <h6>Definitions</h6>
+            <DxCheckBox @bind-Checked="@this.Config.IncludeDefinitions" CheckType="CheckType.Switch">Include definitions</DxCheckBox>
+            <div class="req-export-row">
+                <label>Language</label>
+                <DxComboBox Data="@this.ViewModel.GetExportableDefinitionLanguages()"
+                            @bind-Value="@this.Config.DefinitionLanguageCode"
+                            NullText="All languages"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            Enabled="@this.Config.IncludeDefinitions" />
+            </div>
+        </section>
+
+        <section class="req-export-section">
+            <h6>Simple parameter values</h6>
+            <div class="req-export-row">
+                <label>Include</label>
+                <DxComboBox Data="@SelectionModes" @bind-Value="@this.Config.SimpleParameterValues" />
+            </div>
+            @if (this.Config.SimpleParameterValues == RequirementsExportSelectionMode.Selection)
+            {
+                <FilterTagBox TItem="ParameterType"
+                              Data="@this.ViewModel.GetExportableParameterTypes()"
+                              Values="@this.Config.SelectedParameterTypes"
+                              ValuesChanged="@((IEnumerable<ParameterType> values) => this.Config.SelectedParameterTypes = values.ToList())"
+                              TextFieldName="@nameof(ParameterType.Name)"
+                              NullText="Choose parameter types..." />
+            }
+        </section>
+
+        <section class="req-export-section">
+            <h6>Parametric constraints</h6>
+            <DxCheckBox @bind-Checked="@this.Config.IncludeParametricConstraints" CheckType="CheckType.Switch">Include parametric constraints</DxCheckBox>
+            <DxCheckBox @bind-Checked="@this.Config.IncludeConstraintLinkedElementAndValue"
+                        CheckType="CheckType.Switch"
+                        Enabled="@this.Config.IncludeParametricConstraints">With linked element and value</DxCheckBox>
+        </section>
+
+        <section class="req-export-section">
+            <h6>Relationships</h6>
+            <div class="req-export-row">
+                <label>Include</label>
+                <DxComboBox Data="@SelectionModes" @bind-Value="@this.Config.Relationships" />
+            </div>
+            <div class="req-export-hint">One column per relationship rule (a forward and an inverse column for directional rules).</div>
+            @if (this.Config.Relationships == RequirementsExportSelectionMode.Selection)
+            {
+                <FilterTagBox TItem="Category"
+                              Data="@this.ViewModel.GetExportableRelationshipCategories()"
+                              Values="@this.Config.SelectedRelationshipCategories"
+                              ValuesChanged="@((IEnumerable<Category> values) => this.Config.SelectedRelationshipCategories = values.ToList())"
+                              TextFieldName="@nameof(Category.Name)"
+                              NullText="Choose relationship categories..." />
+            }
+        </section>
+
+        <div class="req-export-actions">
+            <DxButton Text="Cancel"
+                      RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                      Click="@(() => this.ViewModel.IsExportDialogVisible = false)" />
+            <DxButton Id="requirement-export-confirm"
+                      Text="Export"
+                      IconCssClass="@IconName.Download.GetCssClass()"
+                      RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                      Click="@(async () => await this.ViewModel.ExportAsync())" />
+        </div>
+    </div>
+</DxPopup>

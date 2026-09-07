@@ -29,6 +29,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.Model.RequirementsEditor.Export;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
 
     using FluentResults;
@@ -320,6 +321,52 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <param name="requirement">The <see cref="Requirement" /></param>
         /// <returns>The traceability rows</returns>
         IReadOnlyList<RequirementRelationshipRow> GetTraceability(Requirement requirement);
+
+        /// <summary>
+        /// Gets the mutable configuration bound to the export dialog and read by <see cref="ExportAsync" />.
+        /// </summary>
+        RequirementsExportConfiguration ExportConfiguration { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the export configuration dialog is open.
+        /// </summary>
+        bool IsExportDialogVisible { get; set; }
+
+        /// <summary>
+        /// Exports the requirements of the iteration to an Excel workbook, driven by <see cref="ExportConfiguration" />,
+        /// and offers it for download.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        Task ExportAsync();
+
+        /// <summary>
+        /// Gets the distinct <see cref="ParameterType" />s used by the simple parameter values of every specification's
+        /// requirements, offered as export column choices.
+        /// </summary>
+        /// <returns>The exportable parameter types</returns>
+        IReadOnlyList<ParameterType> GetExportableParameterTypes();
+
+        /// <summary>
+        /// Gets the distinct definition language codes used across every specification's requirements, offered as export
+        /// language choices.
+        /// </summary>
+        /// <returns>The exportable definition language codes</returns>
+        IReadOnlyList<string> GetExportableDefinitionLanguages();
+
+        /// <summary>
+        /// Gets the distinct <see cref="Category" />s carried by the iteration's relationships, offered as export
+        /// relationship-filter choices.
+        /// </summary>
+        /// <returns>The exportable relationship categories</returns>
+        IReadOnlyList<Category> GetExportableRelationshipCategories();
+
+        /// <summary>
+        /// Gets a relationship detail for every relationship of the iteration the given <paramref name="requirement" />
+        /// participates in, resolved to its matched rules so an export can lay out a column per rule and direction.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <returns>The relationship details</returns>
+        IReadOnlyList<RequirementRelationshipDetail> GetRelationshipDetails(Requirement requirement);
 
         /// <summary>
         /// Navigates the document to the given <paramref name="requirement" />: selects its specification, expands
