@@ -32,6 +32,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
@@ -41,6 +42,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Forms;
     using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -53,6 +56,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         private TextParameterType textParameterType;
         private TextParameterType unusedParameterType;
         private SimpleParameterValue existingValue;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void SetUp()
@@ -61,6 +65,9 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.context.ConfigureDevExpressBlazor();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
             this.context.Services.AddSingleton<ICDPMessageBus>(new CDPMessageBus());
+
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.textParameterType = new TextParameterType { Iid = Guid.NewGuid(), ShortName = "txt", Name = "Text" };
             this.unusedParameterType = new TextParameterType { Iid = Guid.NewGuid(), ShortName = "note", Name = "Note" };
@@ -240,6 +247,36 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             {
                 Assert.That(added.Value[0], Is.EqualTo("42"), "The value staged through the shared editor is committed.");
                 Assert.That(added.Scale, Is.SameAs(scale));
+            });
+        }
+
+        [Test]
+        public void VerifyControlsFollowTheParentWritePermission()
+        {
+            // These rows are parts of the Requirement and are saved atomically by the hosting form, so the permission is
+            // decided once by that form and passed down. Without this a user could stage edits into a dialog whose Save
+            // is withdrawn, and only discover it at the end.
+            var addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addSimpleParameterValueButton");
+            var removeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeSimpleParameterValueButton");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(addButton.Instance.Enabled, Is.True, "the default keeps a host that does not set the flag unchanged");
+                Assert.That(removeButton.Instance.Enabled, Is.True);
+            });
+
+            this.renderer.Render(parameters => parameters
+                .Add(p => p.Requirement, this.requirement)
+                .Add(p => p.AvailableParameterTypes, new[] { (ParameterType)this.textParameterType, this.unusedParameterType })
+                .Add(p => p.IsAllowedToWrite, false));
+
+            addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addSimpleParameterValueButton");
+            removeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeSimpleParameterValueButton");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(addButton.Instance.Enabled, Is.False, "the user may not add values to a thing they cannot write");
+                Assert.That(removeButton.Instance.Enabled, Is.False, "the user may not remove values from a thing they cannot write");
             });
         }
 

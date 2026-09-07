@@ -29,7 +29,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <DxButton Click="@(() => this.ViewModel.OnSubmit())"
                           Text="Submit"
                           RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
-                          Enabled="@(this.ViewModel.ParameterHaveChanges)"/>
+                          Enabled="@(this.ViewModel.ParameterHaveChanges && !this.IsReadOnly)"/>
                 @this.HeaderActions
             </div>
         </div>

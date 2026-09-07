@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.Components.Common
 {
+    using COMET.Web.Common.Services.SessionManagement;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -29,6 +31,19 @@ namespace COMETwebapp.Components.Common
     /// </summary>
     public partial class DataItemDetailsComponent
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. The add button binds its enabled state to the inverse of
+        /// this, so the details of an archived item can still be inspected but nothing new can be created
+        /// </summary>
+        private bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// Value asserting that the <see cref="DataItemDetailsComponent" /> is selected or not
         /// </summary>
@@ -70,5 +85,14 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         [Parameter]
         public string CssClass { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the active user is allowed to create a new item in the hosted
+        /// table. Defaults to false (fail-closed): every host that renders an Add button binds this from its
+        /// ViewModel's own permission check, and a host that forgets to bind it should get a disabled button rather
+        /// than one that silently ignores the user's actual write permission
+        /// </summary>
+        [Parameter]
+        public bool IsAllowedToCreate { get; set; }
     }
 }

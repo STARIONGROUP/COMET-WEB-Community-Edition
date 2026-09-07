@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.EngineeringModel;
@@ -40,6 +41,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
     using DevExpress.Blazor;
 
     using DynamicData;
+
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -52,6 +55,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         private BunitContext context;
         private IRenderedComponent<PublicationsTable> renderer;
         private Mock<IPublicationsTableViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
         private Publication publication;
         private Parameter parameter;
 
@@ -60,6 +64,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         {
             this.context = new BunitContext();
             this.viewModel = new Mock<IPublicationsTableViewModel>();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             var domain = new DomainOfExpertise()
             {

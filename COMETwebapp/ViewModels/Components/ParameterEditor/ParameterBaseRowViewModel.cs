@@ -259,10 +259,10 @@ namespace COMETwebapp.ViewModels.Components.ParameterEditor
         /// <returns>A <see cref="Task" /></returns>
         private void OnParameterValueSwitchChanged()
         {
-            if (!this.IsReadOnly)
-            {
-                this.ParameterTypeEditorSelectorViewModel.UpdateSwitchKind(this.ParameterSwitchKindSelectorViewModel.SwitchValue);
-            }
+            // Switching the kind only decides which of the Manual, Computed or Reference values is displayed, so it is
+            // applied even when this row is read-only: a user who may not edit must still be able to read every value.
+            // The editor keeps itself locked, see ParameterTypeEditorBaseViewModel.UpdateParameterSwitchKind.
+            this.ParameterTypeEditorSelectorViewModel.UpdateSwitchKind(this.ParameterSwitchKindSelectorViewModel.SwitchValue);
         }
 
         /// <summary>

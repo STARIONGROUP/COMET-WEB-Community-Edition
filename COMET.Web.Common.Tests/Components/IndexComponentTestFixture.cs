@@ -26,6 +26,7 @@ namespace COMET.Web.Common.Tests.Components
     using System.Reflection;
 
     using Bunit;
+    using Bunit.Rendering;
     using Bunit.TestDoubles;
 
     using CDP4Common.EngineeringModelData;
@@ -70,7 +71,14 @@ namespace COMET.Web.Common.Tests.Components
         private BunitAuthorizationContext authorization;
         private SourceList<Iteration> sourceList;
         private Mock<IRegistrationService> registrationService;
+        private Mock<Blazored.SessionStorage.ISessionStorageService> sessionStorageService;
         private readonly Guid modelId = Guid.NewGuid();
+
+        /// <summary>
+        /// The key under which <see cref="IndexComponent" /> keeps the last selected connection kind in the browser
+        /// session storage
+        /// </summary>
+        private const string ConnectionKindStorageKey = "cdp4-comet-connection-kind";
 
         [SetUp]
         public void Setup()
@@ -98,6 +106,11 @@ namespace COMET.Web.Common.Tests.Components
             this.context.Services.AddSingleton(this.versionService.Object);
             this.context.Services.AddSingleton(this.serverConnectionService.Object);
             this.context.Services.AddSingleton<ILoginViewModel, LoginViewModel>();
+            this.context.Services.AddSingleton(new Mock<IArchiveFileService>().Object);
+            this.sessionStorageService = new Mock<Blazored.SessionStorage.ISessionStorageService>();
+            this.sessionStorageService.Setup(x => x.GetItemAsync<string>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((string)null);
+            this.context.Services.AddSingleton(this.sessionStorageService.Object);
+            this.context.Services.AddSingleton<IArchiveLoginViewModel, ArchiveLoginViewModel>();
             this.context.Services.AddSingleton<IOpenModelViewModel, OpenModelViewModel>();
             this.context.Services.AddSingleton(this.registrationService.Object);
             this.context.Services.AddSingleton(this.cacheService.Object);
@@ -134,6 +147,64 @@ namespace COMET.Web.Common.Tests.Components
         {
             var renderer = this.context.Render<IndexComponent>();
             Assert.That(() => renderer.FindComponent<Login>(), Throws.Nothing);
+        }
+
+        [Test]
+        public void VerifyConnectionKindIsRestoredFromSessionStorage()
+        {
+            this.sessionStorageService.Setup(x => x.GetItemAsync<string>(ConnectionKindStorageKey, It.IsAny<CancellationToken>())).ReturnsAsync("archive");
+            var archiveRenderer = this.context.Render<IndexComponent>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => archiveRenderer.FindComponent<ArchiveLogin>(), Throws.Nothing);
+                Assert.That(() => archiveRenderer.FindComponent<Login>(), Throws.TypeOf<ComponentNotFoundException>());
+            });
+
+            this.sessionStorageService.Setup(x => x.GetItemAsync<string>(ConnectionKindStorageKey, It.IsAny<CancellationToken>())).ReturnsAsync((string)null);
+            var defaultRenderer = this.context.Render<IndexComponent>();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => defaultRenderer.FindComponent<Login>(), Throws.Nothing);
+                Assert.That(() => defaultRenderer.FindComponent<ArchiveLogin>(), Throws.TypeOf<ComponentNotFoundException>());
+            });
+
+            this.sessionStorageService.Setup(x => x.GetItemAsync<string>(ConnectionKindStorageKey, It.IsAny<CancellationToken>())).ReturnsAsync("server");
+            var serverRenderer = this.context.Render<IndexComponent>();
+            Assert.That(() => serverRenderer.FindComponent<Login>(), Throws.Nothing);
+        }
+
+        [Test]
+        public void VerifyDeepLinkedServerTakesPriorityOverARememberedArchiveSelection()
+        {
+            // A returning user who last chose the archive form (remembered in session storage) opening a deep link that
+            // pre-fills a server address must still see the server login pre-filled with it, not the archive form the
+            // session storage alone would otherwise restore.
+            this.sessionStorageService.Setup(x => x.GetItemAsync<string>(ConnectionKindStorageKey, It.IsAny<CancellationToken>())).ReturnsAsync("archive");
+
+            var renderer = this.context.Render<IndexComponent>(parameters => parameters.Add(p => p.Redirect, "/?server=http://localhost:5000"));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => renderer.FindComponent<Login>(), Throws.Nothing);
+                Assert.That(() => renderer.FindComponent<ArchiveLogin>(), Throws.TypeOf<ComponentNotFoundException>());
+            });
+        }
+
+        [Test]
+        public async Task VerifyConnectionKindChangeIsPersisted()
+        {
+            var renderer = this.context.Render<IndexComponent>();
+            Assert.That(() => renderer.FindComponent<Login>(), Throws.Nothing);
+
+            await renderer.InvokeAsync(() => renderer.Find("#connection-kind").Change("archive"));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => renderer.FindComponent<ArchiveLogin>(), Throws.Nothing);
+                this.sessionStorageService.Verify(x => x.SetItemAsync(ConnectionKindStorageKey, "archive", It.IsAny<CancellationToken>()), Times.Once);
+            });
         }
 
         [Test]

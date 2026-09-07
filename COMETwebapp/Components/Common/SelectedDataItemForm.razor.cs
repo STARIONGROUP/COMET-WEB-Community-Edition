@@ -22,7 +22,10 @@
 
 namespace COMETwebapp.Components.Common
 {
+    using CDP4Common.CommonData;
+
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Forms;
@@ -32,6 +35,13 @@ namespace COMETwebapp.Components.Common
     /// </summary>
     public abstract partial class SelectedDataItemForm : DisposableComponent
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the active user may write the
+        /// <see cref="Thing" /> currently bound to the form
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
         /// <summary>
         /// Gets or sets the value to check if the options form is visible
         /// </summary>
@@ -96,7 +106,41 @@ namespace COMETwebapp.Components.Common
         protected bool IsSaveButtonEnabled(EditContext editFormContext)
         {
             this.InitializeEditContext(editFormContext);
-            return this.EditFormContext.Validate() && (this.EditFormContext.IsModified() || !this.ShouldCreate);
+            return this.IsAllowedToWriteCurrentThing && this.EditFormContext.Validate() && (this.EditFormContext.IsModified() || !this.ShouldCreate);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Thing" /> whose write permission decides whether this form may be saved. Defaults to the
+        /// model the <see cref="EditContext" /> is bound to; override in a form that binds its <c>Model</c> to something
+        /// other than the <see cref="Thing" /> being edited, such as a row view model wrapping it
+        /// </summary>
+        protected virtual Thing ThingUnderEdit => this.EditFormContext?.Model as Thing;
+
+        /// <summary>
+        /// Gets a value indicating whether the active user may write <see cref="ThingUnderEdit" />. Sub-tables nested in
+        /// this form bind their create and delete controls to this, because they edit parts of one aggregate that is
+        /// saved atomically by this form, so the permission question is asked once about the parent
+        /// </summary>
+        /// <remarks>
+        /// Answers true while creating, because the create permission was already asserted by the host table's add
+        /// button, and true when the permission cannot be determined, so a form is never blocked by an unexpected null
+        /// <c>ISessionService.Session</c> or a non-<see cref="Thing" /> model
+        /// </remarks>
+        protected bool IsAllowedToWriteCurrentThing
+        {
+            get
+            {
+                var thing = this.ThingUnderEdit;
+
+                // A thing being created is not in its container yet, and asking CanWrite about a container-less thing
+                // would recurse into a null container for the SAME_AS_CONTAINER access right.
+                if (this.ShouldCreate || thing?.Container == null)
+                {
+                    return true;
+                }
+
+                return this.SessionService?.Session?.PermissionService?.CanWrite(thing) ?? true;
+            }
         }
 
         /// <summary>

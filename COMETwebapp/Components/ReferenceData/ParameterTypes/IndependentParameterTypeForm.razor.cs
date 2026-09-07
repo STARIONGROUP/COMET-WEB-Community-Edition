@@ -22,6 +22,7 @@
 
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.Components.Common;
@@ -39,6 +40,19 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// </summary>
         [Parameter]
         public IndependentParameterTypeRowViewModel Item { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="SampledFunctionParameterType" /> that owns the edited assignment.
+        /// </summary>
+        [Parameter]
+        public SampledFunctionParameterType OwningParameterType { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="Thing" /> whose write permission decides whether this form may be saved. This form binds
+        /// its model to a row view model rather than to a <see cref="Thing" />, and an assignment is only ever saved as
+        /// part of its owning <see cref="SampledFunctionParameterType" />, so the permission is asked about the owner
+        /// </summary>
+        protected override Thing ThingUnderEdit => this.OwningParameterType;
 
         /// <summary>
         /// Gets or sets the collection of available <see cref="ParameterType" />s.

@@ -24,6 +24,8 @@ namespace COMETwebapp.Components.Common
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
     using Microsoft.AspNetCore.Components;
@@ -39,6 +41,20 @@ namespace COMETwebapp.Components.Common
     /// </summary>
     public partial class ParameterGroupSection
     {
+        /// <summary>
+        ///     The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the open session forbids any modification, which is the case for a
+        ///     session opened from an ECSS-E-TM-10-25 Annex C3 archive. The group header is not draggable, drops
+        ///     onto it are ignored, and its delete affordance is disabled when this is <see langword="true" />, so
+        ///     the group can still be inspected but never modified.
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         ///     Gets or sets the <see cref="ParameterGroup" /> rendered by this section, or <c>null</c> to
         ///     render the special "Ungrouped" section that collects rows not assigned to any group.
@@ -258,6 +274,12 @@ namespace COMETwebapp.Components.Common
         private async Task HandleDrop()
         {
             this.dragDepth = 0;
+
+            if (this.IsReadOnly)
+            {
+                return;
+            }
+
             await this.OnSectionDrop.InvokeAsync(this.Group);
         }
 

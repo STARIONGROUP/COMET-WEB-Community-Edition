@@ -24,6 +24,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
     using CDP4Dal;
@@ -79,6 +80,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             this.assembler.Cache.TryAdd(new CacheKey(), lazyOption);
 
             this.permissionService.Setup(x => x.CanWrite(this.option.ClassKind, this.option.Container)).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             session.Setup(x => x.Assembler).Returns(this.assembler);
@@ -104,6 +106,46 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             {
                 Assert.That(this.viewModel.Rows.Count, Is.EqualTo(1));
                 Assert.That(this.viewModel.Rows.Items.First().Thing, Is.EqualTo(this.option));
+            });
+        }
+
+        [Test]
+        public void VerifyRowWriteAccessHonoursOwnership()
+        {
+            // MODIFY_IF_OWNER makes the two CanWrite overloads disagree on purpose: creating is allowed (a thing being
+            // created has no owner yet) while modifying an existing thing the user does not own is not. A row's write
+            // access therefore has to follow CanWrite(Thing), never the creation overload.
+            this.permissionService.Setup(x => x.CanWrite(this.option.ClassKind, this.option.Container)).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(false);
+
+            this.viewModel.InitializeViewModel();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows.Items[0].IsAllowedToWrite, Is.False, "a row the user does not own must not be writable");
+                Assert.That(this.viewModel.IsAllowedToCreate, Is.True, "creating is still allowed under MODIFY_IF_OWNER");
+            });
+        }
+
+        [Test]
+        public void VerifyCreationContainerFallsBackToIterationNotSiteDirectory()
+        {
+            // BaseDataItemTableViewModel.CreationContainer falls back to the SiteDirectory when there are no existing
+            // rows to infer the container from. An Option is always contained by its Iteration, even on a brand-new
+            // model with zero options, so the fallback must never reach the SiteDirectory here.
+            var emptyIteration = new Iteration { Container = new EngineeringModel() };
+            var siteDirectory = new SiteDirectory();
+
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
+            this.permissionService.Setup(x => x.CanWrite(ClassKind.Option, It.Is<Thing>(t => ReferenceEquals(t, emptyIteration)))).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.Is<Thing>(t => t is SiteDirectory))).Returns(false);
+
+            this.viewModel.SetCurrentIteration(emptyIteration);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows, Is.Empty);
+                Assert.That(this.viewModel.IsAllowedToCreate, Is.True, "the creation container must be the iteration, not the permission-denying SiteDirectory fallback");
             });
         }
 

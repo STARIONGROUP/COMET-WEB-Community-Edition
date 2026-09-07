@@ -56,7 +56,16 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="authenticationInformation">The <see cref="AuthenticationInformation"/> that contains required information that should be used for authentication</param>
         /// <returns>An awaitable <see cref="Task"/> that contains the <see cref="Result"/> of the operation</returns>
         Task<Result> LoginAsync(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation);
-        
+
+        /// <summary>
+        /// Opens a read-only session against an uploaded ECSS-E-TM-10-25 Annex C3 archive
+        /// </summary>
+        /// <param name="archivePath">The full path of the archive on the server</param>
+        /// <param name="userName">The short name of the person, contained by the archive, to open the session as</param>
+        /// <param name="password">The password that the archive is encrypted with</param>
+        /// <returns>An awaitable <see cref="Task"/> that contains the <see cref="Result"/> of the operation</returns>
+        Task<Result> LoginFromArchive(string archivePath, string userName, string password);
+
         /// <summary>
         /// Logout from the data source
         /// </summary>

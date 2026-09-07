@@ -27,10 +27,15 @@ namespace COMETwebapp.Tests.Components.Common
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
+
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -46,6 +51,11 @@ namespace COMETwebapp.Tests.Components.Common
         private BunitContext context;
 
         /// <summary>
+        ///     The mocked <see cref="ISessionService" /> registered in the DI container.
+        /// </summary>
+        private Mock<ISessionService> sessionService;
+
+        /// <summary>
         ///     Initializes the bunit context before each test.
         /// </summary>
         [SetUp]
@@ -53,6 +63,8 @@ namespace COMETwebapp.Tests.Components.Common
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
         }
 
         /// <summary>

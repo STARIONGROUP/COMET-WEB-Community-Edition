@@ -51,6 +51,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         private Mock<ISessionStorageService> sessionStorageService;
         private Mock<IProvideExternalAuthenticationService> openIdConnectService;
         private Mock<IAuthenticationRefreshService> automaticTokenRefreshService;
+        private Mock<IArchiveFileService> archiveFileService;
         private Credentials credentials;
 
         [SetUp]
@@ -61,14 +62,15 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             this.sessionStorageService = new Mock<ISessionStorageService>();
             this.openIdConnectService = new Mock<IProvideExternalAuthenticationService>();
             this.automaticTokenRefreshService = new Mock<IAuthenticationRefreshService>();
-            
+            this.archiveFileService = new Mock<IArchiveFileService>();
+
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.sessionService.Setup(x => x.IsSessionOpen).Returns(false);
 
             this.cometWebAuthStateProvider = new CometWebAuthStateProvider(this.sessionService.Object);
             
             this.authenticationService = new AuthenticationService(this.sessionService.Object, this.cometWebAuthStateProvider, this.sessionStorageService.Object,
-                this.openIdConnectService.Object, this.automaticTokenRefreshService.Object);
+                this.openIdConnectService.Object, this.automaticTokenRefreshService.Object, this.archiveFileService.Object);
 
             this.credentials = new Credentials(new Uri("http://localhost:5000/"));
             this.session.Setup(x => x.Credentials).Returns(this.credentials);
@@ -92,6 +94,58 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         {
             await this.authenticationService.Logout();
             this.sessionService.Verify(x => x.CloseSession(), Times.Once);
+            this.archiveFileService.Verify(x => x.Remove(), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyLoginFromArchive()
+        {
+            var authStateChanged = false;
+            this.cometWebAuthStateProvider.AuthenticationStateChanged += _ => authStateChanged = true;
+
+            var failedResult = await this.authenticationService.LoginFromArchive(null, "admin", "password");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(failedResult.IsFailed, Is.EqualTo(true));
+                this.sessionService.Verify(x => x.OpenArchiveSession(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            });
+
+            failedResult = await this.authenticationService.LoginFromArchive(string.Empty, "admin", "password");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(failedResult.IsFailed, Is.EqualTo(true));
+                this.sessionService.Verify(x => x.OpenArchiveSession(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            });
+
+            const string invalidArchivePath = "invalid-archive.zip";
+            const string archivePath = "archive.zip";
+            const string userName = "admin";
+            const string password = "password";
+
+            this.sessionService.Setup(x => x.OpenArchiveSession(invalidArchivePath, userName, password)).ReturnsAsync(Result.Fail("error"));
+
+            failedResult = await this.authenticationService.LoginFromArchive(invalidArchivePath, userName, password);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(failedResult.IsFailed, Is.EqualTo(true));
+                this.sessionStorageService.Verify(x => x.SetItemAsync("cdp4-comet-username", userName, default), Times.Never);
+                Assert.That(authStateChanged, Is.EqualTo(false));
+            });
+
+            this.sessionService.Setup(x => x.OpenArchiveSession(archivePath, userName, password)).ReturnsAsync(Result.Ok());
+
+            var successResult = await this.authenticationService.LoginFromArchive(archivePath, userName, password);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(successResult.IsSuccess, Is.EqualTo(true));
+                this.sessionService.Verify(x => x.OpenArchiveSession(archivePath, userName, password), Times.Once);
+                this.sessionStorageService.Verify(x => x.SetItemAsync("cdp4-comet-username", userName, default), Times.Once);
+                Assert.That(authStateChanged, Is.EqualTo(true));
+            });
         }
 
         [Test]
@@ -115,6 +169,27 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 
             loginResult = await this.authenticationService.Login(this.authenticationDto);
             Assert.That(loginResult.IsSuccess, Is.EqualTo(false));
+        }
+
+        [Test]
+        public void VerifyLoginDoesNotLeakExceptions()
+        {
+            // The SDK throws (for example InvalidOperationException "User not found." or "Session is already open.") for
+            // failures it does not translate to a Result. Left unhandled these terminate the Blazor circuit, which is
+            // the crash seen when logging in as another user while an archive session is still open.
+            this.sessionService.Setup(x => x.OpenSession(It.IsAny<Credentials>())).ThrowsAsync(new InvalidOperationException("User not found."));
+            this.sessionService.Setup(x => x.AuthenticateAndOpenSession(It.IsAny<AuthenticationSchemeKind>(), It.IsAny<AuthenticationInformation>())).ThrowsAsync(new InvalidOperationException("Session is already open."));
+            this.sessionService.Setup(x => x.OpenArchiveSession(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ThrowsAsync(new InvalidOperationException("Session is already open."));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(async () => await this.authenticationService.Login(this.authenticationDto), Throws.Nothing);
+                Assert.That(async () => (await this.authenticationService.Login(this.authenticationDto)).IsFailed, Is.True);
+                Assert.That(async () => await this.authenticationService.LoginAsync(AuthenticationSchemeKind.LocalJwtBearer, new AuthenticationInformation("user", "pass")), Throws.Nothing);
+                Assert.That(async () => (await this.authenticationService.LoginAsync(AuthenticationSchemeKind.LocalJwtBearer, new AuthenticationInformation("user", "pass"))).IsFailed, Is.True);
+                Assert.That(async () => await this.authenticationService.LoginFromArchive("archive.zip", "user", "pass"), Throws.Nothing);
+                Assert.That(async () => (await this.authenticationService.LoginFromArchive("archive.zip", "user", "pass")).IsFailed, Is.True);
+            });
         }
 
         [Test]

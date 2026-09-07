@@ -102,6 +102,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
 
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
             this.sessionService.Setup(x => x.Session.ActivePerson).Returns(person);
+            this.sessionService.Setup(x => x.Session.PermissionService.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
             this.viewModel = new FolderHandlerViewModel(this.sessionService.Object, this.messageBus);
         }
 

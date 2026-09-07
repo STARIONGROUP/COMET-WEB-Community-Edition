@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.Components.EngineeringModel.FileStore
 {
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.Components.Common;
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandler;
 
@@ -36,6 +38,13 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
     /// </summary>
     public partial class FileForm : SelectedDataItemForm
     {
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. The delete control binds its enabled state to
+        /// the inverse of this, so the file can still be inspected but never modified
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// The <see cref="IFileHandlerViewModel" /> for this component
         /// </summary>

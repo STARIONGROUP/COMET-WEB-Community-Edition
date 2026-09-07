@@ -29,7 +29,10 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
     using CDP4Common.SiteDirectoryData;
 
     using CDP4Dal;
+    using CDP4Dal.DAL;
+    using CDP4Dal.Operations;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.NotificationService;
     using COMET.Web.Common.Services.SessionManagement;
 
@@ -55,6 +58,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             var logger = new Mock<ILogger<SessionService>>();
             this.messageBus = new CDPMessageBus();
             this.notificationService = new Mock<INotificationService>();
+            this.notificationService.Setup(x => x.Results).Returns(new SourceList<ResultNotification>());
             this.sessionService = new SessionService(logger.Object, this.messageBus, this.notificationService.Object);
 
             var engineeringModel = new EngineeringModel();
@@ -109,6 +113,166 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         {
             var readingResult = await this.sessionService.ReadEngineeringModels([new EngineeringModelSetup()]);
             Assert.That(readingResult.IsSuccess, Is.EqualTo(false));
+        }
+
+        [Test]
+        public async Task VerifyWriteTransaction()
+        {
+            var readOnlySession = CreateSessionMock(true);
+            InjectSession(this.sessionService, readOnlySession.Object);
+
+            var readOnlyResult = await this.sessionService.WriteTransaction(new OperationContainer($"/SiteDirectory/{Guid.NewGuid()}"), []);
+
+            var writeableSession = CreateSessionMock(false);
+            InjectSession(this.sessionService, writeableSession.Object);
+
+            var writeableResult = await this.sessionService.WriteTransaction(new OperationContainer($"/SiteDirectory/{Guid.NewGuid()}"), []);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(readOnlyResult.IsFailed, Is.True);
+                readOnlySession.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>()), Times.Never);
+                Assert.That(writeableResult.IsSuccess, Is.True);
+                writeableSession.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>()), Times.Once);
+            });
+        }
+
+        [Test]
+        public async Task VerifyEveryWriteEntryPointIsBlockedWhenReadOnly()
+        {
+            var session = CreateSessionMock(true);
+            InjectSession(this.sessionService, session.Object);
+
+            var siteDirectory = new SiteDirectory();
+            var domain = new DomainOfExpertise();
+            siteDirectory.Domain.Add(domain);
+
+            // The CDP4Web base class carries its own two-argument overloads that write through its own WriteTransaction,
+            // so guarding only the local three-argument overload leaves these paths able to write to a read-only source.
+            var results = new[]
+            {
+                await this.sessionService.CreateOrUpdateThings(siteDirectory.Clone(false), [domain]),
+                await this.sessionService.CreateOrUpdateThings(siteDirectory.Clone(false), [domain], []),
+                await this.sessionService.CreateOrUpdateThingsWithNotification(siteDirectory.Clone(false), [domain]),
+                await this.sessionService.CreateOrUpdateThingsWithNotification(siteDirectory.Clone(false), [domain], []),
+                await this.sessionService.WriteTransaction(new OperationContainer($"/SiteDirectory/{Guid.NewGuid()}")),
+                await this.sessionService.WriteTransaction(new OperationContainer($"/SiteDirectory/{Guid.NewGuid()}"), [])
+            };
+
+            Assert.Multiple(() =>
+            {
+                foreach (var result in results)
+                {
+                    Assert.That(result.IsFailed, Is.True, "every write entry point should refuse a read-only data source");
+                }
+
+                session.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>()), Times.Never);
+                session.Verify(x => x.Write(It.IsAny<OperationContainer>()), Times.Never);
+            });
+        }
+
+        [Test]
+        public async Task VerifyWriteGuardHoldsThroughEveryInterfaceReference()
+        {
+            // The read-only guard is implemented by hiding the CDP4Web base write methods with `new`, which only
+            // redirects call sites that resolve the interface member to this class's implementation. Because this class
+            // re-declares ISessionService (rather than relying solely on inheriting it), the compiler binds the write
+            // methods on BOTH interfaces to the guarded overrides here for every SessionService instance, regardless of
+            // which interface reference a caller holds. This test calls through the base CDP4Web interface directly to
+            // prove that boundary holds, not just through the local ISessionService callers actually use.
+            var session = CreateSessionMock(true);
+            InjectSession(this.sessionService, session.Object);
+
+            CDP4Web.Services.SessionService.ISessionService baseInterfaceReference = this.sessionService;
+            var siteDirectory = new SiteDirectory();
+            var domain = new DomainOfExpertise();
+            siteDirectory.Domain.Add(domain);
+
+            var result = await baseInterfaceReference.CreateOrUpdateThings(siteDirectory.Clone(false), [domain]);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsFailed, Is.True, "the guard must apply even through the base CDP4Web interface");
+                session.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>()), Times.Never);
+            });
+        }
+
+        [Test]
+        public void VerifyIsReadOnly()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.sessionService.IsReadOnly, Is.False, "a service without an open session is not read only");
+
+                InjectSession(this.sessionService, CreateSessionMock(true).Object);
+                Assert.That(this.sessionService.IsReadOnly, Is.True);
+
+                InjectSession(this.sessionService, CreateSessionMock(false).Object);
+                Assert.That(this.sessionService.IsReadOnly, Is.False);
+            });
+        }
+
+        [Test]
+        public async Task VerifyOpenArchiveSession()
+        {
+            var missingArchive = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.zip");
+
+            Assert.Multiple(async () =>
+            {
+                Assert.That(async () => await this.sessionService.OpenArchiveSession(null, "user", "pass"), Throws.ArgumentNullException);
+                Assert.That(async () => await this.sessionService.OpenArchiveSession(missingArchive, null, "pass"), Throws.ArgumentNullException);
+
+                var result = await this.sessionService.OpenArchiveSession(missingArchive, "user", "pass");
+                Assert.That(result.IsFailed, Is.True);
+                Assert.That(this.sessionService.IsSessionOpen, Is.False);
+            });
+        }
+
+        [Test]
+        public async Task VerifyOpenArchiveSessionRecoversFromAnUnexpectedException()
+        {
+            // A malformed archive can fail in ways the DAL does not surface as UnauthorizedAccessException or
+            // FileLoadException. "not a valid uri" makes `new Uri(archivePath)` throw UriFormatException, a type neither
+            // existing catch handles, to prove the catch-all keeps such a failure from escaping and tearing down the
+            // circuit, and that it still clears the session so a broken open never leaves it half-assigned.
+            var result = await this.sessionService.OpenArchiveSession("not a valid uri", "user", "pass");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsFailed, Is.True);
+                Assert.That(this.sessionService.IsSessionOpen, Is.False);
+            });
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Mock{T}" /> of <see cref="ISession" /> that reports an open session backed by a
+        /// <see cref="IDal" /> with the provided read-only state
+        /// </summary>
+        /// <param name="isDalReadOnly">A value indicating whether the mocked <see cref="IDal" /> is read only</param>
+        /// <returns>The configured <see cref="Mock{T}" /></returns>
+        private static Mock<ISession> CreateSessionMock(bool isDalReadOnly)
+        {
+            var dal = new Mock<IDal>();
+            dal.Setup(x => x.IsReadOnly).Returns(isDalReadOnly);
+
+            var session = new Mock<ISession>();
+            session.Setup(x => x.Dal).Returns(dal.Object);
+            session.Setup(x => x.RetrieveSiteDirectory()).Returns(new SiteDirectory());
+            session.Setup(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>())).Returns(Task.CompletedTask);
+            return session;
+        }
+
+        /// <summary>
+        /// Assigns the provided <see cref="ISession" /> onto the CDP4Web <c>SessionService</c> base class, whose
+        /// <c>Session</c> property only exposes an <c>internal</c> setter
+        /// </summary>
+        /// <param name="service">The <see cref="SessionService" /> to assign the session on</param>
+        /// <param name="session">The <see cref="ISession" /> to assign</param>
+        private static void InjectSession(SessionService service, ISession session)
+        {
+            typeof(CDP4Web.Services.SessionService.SessionService)
+                .GetProperty(nameof(CDP4Web.Services.SessionService.SessionService.Session))
+                .SetValue(service, session);
         }
     }
 }

@@ -73,10 +73,16 @@ namespace COMETwebapp.Tests.Pages
             loginViewModel.Setup(x => x.AuthenticationResult).Returns(new Result());
             loginViewModel.Setup(x => x.AuthenticationDto).Returns(new AuthenticationDto());
 
+            var archiveLoginViewModel = new Mock<IArchiveLoginViewModel>();
+            archiveLoginViewModel.Setup(x => x.AuthenticationResult).Returns(new Result());
+            archiveLoginViewModel.Setup(x => x.AuthenticationDto).Returns(new AuthenticationDto());
+
             this.context.Services.AddSingleton(loginViewModel.Object);
+            this.context.Services.AddSingleton(archiveLoginViewModel.Object);
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton(new Mock<IAuthenticationService>().Object);
+            this.context.Services.AddSingleton(new Mock<Blazored.SessionStorage.ISessionStorageService>().Object);
         }
 
         [TearDown]

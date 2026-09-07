@@ -83,6 +83,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.SiteDirectory
             this.assembler.Cache.TryAdd(new CacheKey(), lazyOrganization);
 
             this.permissionService.Setup(x => x.CanWrite(this.organization.ClassKind, this.organization.Container)).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             session.Setup(x => x.Assembler).Returns(this.assembler);

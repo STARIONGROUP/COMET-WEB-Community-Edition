@@ -27,6 +27,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
@@ -37,6 +38,19 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
     /// </summary>
     public partial class ScaleValueDefinitionsTable : DisposableComponent
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. Create and delete controls bind their enabled state to
+        /// the inverse of this, so the data can still be inspected but never modified
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// The measurement scale that contains scale value definitions to display for selection
         /// </summary>
@@ -133,7 +147,17 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         /// <returns>A collection of <see cref="ScaleValueDefinitionRowViewModel" />s to display</returns>
         private List<ScaleValueDefinitionRowViewModel> GetRows()
         {
-            return this.MeasurementScale.ValueDefinition?.Select(x => new ScaleValueDefinitionRowViewModel(x)).ToList();
+            var rows = this.MeasurementScale.ValueDefinition?.Select(x => new ScaleValueDefinitionRowViewModel(x)).ToList();
+
+            if (rows != null)
+            {
+                foreach (var row in rows)
+                {
+                    row.IsAllowedToWrite = this.SessionService.Session.PermissionService.CanWrite(row.Thing);
+                }
+            }
+
+            return rows;
         }
     }
 }

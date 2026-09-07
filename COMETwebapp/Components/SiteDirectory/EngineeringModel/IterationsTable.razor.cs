@@ -91,7 +91,7 @@ namespace COMETwebapp.Components.SiteDirectory.EngineeringModel
         /// <returns>True if allowed to delete</returns>
         private bool IsDeleteEnabled(IterationSetupRowViewModel row)
         {
-            if (row.Thing.IsDeleted || !row.IsAllowedToWrite)
+            if (this.IsReadOnly || row.Thing.IsDeleted || !row.IsAllowedToWrite)
             {
                 return false;
             }

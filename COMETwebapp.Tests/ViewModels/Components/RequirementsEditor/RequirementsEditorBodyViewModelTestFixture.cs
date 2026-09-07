@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
     using CDP4Dal;
     using CDP4Dal.Events;
+    using CDP4Dal.Permission;
 
     using CDP4Web.Enumerations;
 
@@ -134,6 +135,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             openIterations.Add(this.iteration);
             this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
             this.session = new Mock<ISession>();
+            var permissionService = new Mock<IPermissionService>();
+            permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
+            this.session.Setup(x => x.PermissionService).Returns(permissionService.Object);
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.sessionService.Setup(x => x.GetDomainOfExpertise(this.iteration)).Returns(this.systemDomain);
             this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>())).ReturnsAsync(Result.Ok());

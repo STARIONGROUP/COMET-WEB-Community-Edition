@@ -62,7 +62,8 @@
         </DxGrid>
 
         <DataItemDetailsComponent IsSelected="@(this.IsOnEditMode)"
-                                  OnButtonClick="@(this.OnAddThingClick)">
+                                  OnButtonClick="@(this.OnAddThingClick)"
+                                  IsAllowedToCreate="@(this.ViewModel.IsAllowedToCreate)">
 
             <UserManagementForm ViewModel="@(this.ViewModel)"
                                 @bind-IsVisible="@(this.IsOnEditMode)"

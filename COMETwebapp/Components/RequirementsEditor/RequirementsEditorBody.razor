@@ -76,6 +76,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                           IconCssClass="@IconName.Add.GetCssClass()"
                           Text="Specification"
                           title="Create a new specification"
+                          Enabled="@(!this.IsReadOnly)"
                           Click="@(() => this.ViewModel.OpenCreateSpecification())" />
 
                 <ViewOptionsMenu ButtonId="reqViewMenuButton" ButtonTitle="Layout and display options">
@@ -113,6 +114,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <DxPopup CloseOnOutsideClick="false" HeaderText="@this.ViewModel.EditPopupHeader" @bind-Visible="@this.ViewModel.IsOnEditMode" Width="min(700px, 90vw)">
             <BodyContentTemplate>
                 <EditRequirementThing ViewModel="@this.ViewModel.EditViewModel" />
+
+                @if (this.IsReadOnly)
+                {
+                    <div class="modal-footer m-top-10px">
+                        <DxButton Id="closeRequirementEditButton" Text="Close" RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Click="@(() => this.ViewModel.IsOnEditMode = false)"/>
+                    </div>
+                }
             </BodyContentTemplate>
         </DxPopup>
 

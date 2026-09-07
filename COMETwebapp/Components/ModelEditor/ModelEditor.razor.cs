@@ -30,6 +30,7 @@ namespace COMETwebapp.Components.ModelEditor
 
     using COMET.Web.Common.Components.Applications;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.ModelEditor;
@@ -50,6 +51,20 @@ namespace COMETwebapp.Components.ModelEditor
         /// The minimum width, in pixels, that a panel can be dragged down to
         /// </summary>
         private const int MinimumPanelWidth = 260;
+
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a
+        /// session opened from an ECSS-E-TM-10-25 Annex C3 archive. Both trees become non-draggable and
+        /// non-droppable when this is <see langword="true" />, so their content can still be inspected but never
+        /// modified.
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
 
         /// <summary>
         /// Holds a reference to the data of the node where another node is dragged over
@@ -233,7 +248,7 @@ namespace COMETwebapp.Components.ModelEditor
         {
             this.ErrorMessage = string.Empty;
 
-            if (this.DragObject.Item2 is null)
+            if (this.IsReadOnly || this.DragObject.Item2 is null)
             {
                 return;
             }

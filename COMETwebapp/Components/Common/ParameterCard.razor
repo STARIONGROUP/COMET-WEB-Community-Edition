@@ -21,8 +21,8 @@
 @namespace COMETwebapp.Components.Common
 
 <div class="parameter-card"
-     draggable="true"
-     @ondragstart="@(() => this.OnCardDragStart.InvokeAsync(this.Row))"
+     draggable="@(this.IsReadOnly ? "false" : "true")"
+     @ondragstart="@(() => this.IsReadOnly ? Task.CompletedTask : this.OnCardDragStart.InvokeAsync(this.Row))"
      @ondragend="@(() => this.OnCardDragEnd.InvokeAsync(this.Row))">
 
     <div class="d-flex align-items-center" style="margin-bottom:2px;gap:6px;">
@@ -44,6 +44,7 @@
                           RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
+                          Enabled="@(!this.IsReadOnly)"
                           Click="@(() => this.OnCreateSubscription.InvokeAsync(this.Row.Parameter))"
                           title="Subscribe to this Parameter as the current Domain of Expertise"/>
             }
@@ -53,6 +54,7 @@
                           RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
+                          Enabled="@(!this.IsReadOnly)"
                           Click="@(() => this.OnDeleteSubscription.InvokeAsync(this.Row.CurrentDomainSubscription))"
                           title="Remove this Domain's subscription to the Parameter (the Parameter itself is kept)"/>
             }
@@ -62,6 +64,7 @@
                           RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
+                          Enabled="@(!this.IsReadOnly)"
                           Click="@(() => this.OnCreateOverride.InvokeAsync((this.Row.Parameter, this.Row.HostElementUsage)))"
                           title="Override this Parameter on the selected Element Usage"/>
             }
@@ -71,6 +74,7 @@
                           RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
+                          Enabled="@(!this.IsReadOnly)"
                           Click="@(() => this.OnDeleteOverride.InvokeAsync(this.Row.CurrentOverride))"
                           title="Delete this override (the underlying Parameter is preserved)"/>
             }
@@ -96,6 +100,7 @@
                           RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"
                           RenderStyleMode="ButtonRenderStyleMode.Text"
                           CssClass="ms-1 flex-shrink-0"
+                          Enabled="@(!this.IsReadOnly)"
                           Click="@(() => this.OnDeleteParameter.InvokeAsync(this.Row.Parameter))"
                           title="Delete this parameter"/>
             }

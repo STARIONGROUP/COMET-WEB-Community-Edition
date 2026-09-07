@@ -26,9 +26,14 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
     using Bunit;
 
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+    using CDP4Dal.Permission;
+
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.EngineeringModel.FileStore;
@@ -36,6 +41,9 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -45,11 +53,21 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         private BunitContext context;
         private IRenderedComponent<FileTypesTable> renderer;
         private FileRevision fileRevision;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new BunitContext();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
+
+            var permissionService = new Mock<IPermissionService>();
+            permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
+            var session = new Mock<ISession>();
+            session.Setup(x => x.PermissionService).Returns(permissionService.Object);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+
             this.fileRevision = new FileRevision();
 
             var pdfFileType = new FileType()

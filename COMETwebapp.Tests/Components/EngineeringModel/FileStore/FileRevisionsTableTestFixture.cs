@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Common;
@@ -37,6 +38,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -49,6 +51,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         private BunitContext context;
         private IRenderedComponent<FileRevisionsTable> renderer;
         private Mock<IFileRevisionHandlerViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
         private List<FileRevision> fileRevisions;
 
         [SetUp]
@@ -56,6 +59,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         {
             this.context = new BunitContext();
             this.viewModel = new Mock<IFileRevisionHandlerViewModel>();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
             this.fileRevisions = [new FileRevision()];
 
             this.viewModel.Setup(x => x.FileRevision).Returns(new FileRevision());

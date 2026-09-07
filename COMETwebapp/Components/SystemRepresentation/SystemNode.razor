@@ -65,7 +65,7 @@ along with this program. If not, see http://www.gnu.org/licenses/.
             }
 
             <div class="node-inner-content @(this.IsValidDropTarget ? "drop-target" : string.Empty)" style="margin-left: calc(20px * @this.ViewModel.Level)"
-                 draggable="true"
+                 draggable="@(this.IsReadOnly ? "false" : "true")"
                  @ondragstart="this.HandleDragStart"
                  @ondragend="this.HandleDragEnd"
                  @ondragenter="this.HandleDragEnter"

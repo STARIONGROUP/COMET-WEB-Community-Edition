@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.SiteDirectory.Roles;
@@ -50,6 +51,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
         private BunitContext context;
         private IRenderedComponent<ParticipantRolesTable> renderer;
         private Mock<IParticipantRolesTableViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
         private ParticipantRole participantRole1;
 
         [SetUp]
@@ -57,6 +59,8 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.Roles
         {
             this.context = new BunitContext();
             this.viewModel = new Mock<IParticipantRolesTableViewModel>();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.participantRole1 = new ParticipantRole
             {

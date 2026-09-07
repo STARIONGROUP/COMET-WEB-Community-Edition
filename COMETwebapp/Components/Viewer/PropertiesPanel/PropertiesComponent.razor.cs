@@ -24,6 +24,7 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
 {
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel;
 
@@ -36,6 +37,19 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
     /// </summary>
     public partial class PropertiesComponent : DisposableComponent
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. When true, the button that submits parameter value
+        /// changes made from the 3D viewer is withdrawn
+        /// </summary>
+        private bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// Gets or sets the <see cref="IPropertiesComponentViewModel" />
         /// </summary>
