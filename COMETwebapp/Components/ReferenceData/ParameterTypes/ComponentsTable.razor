@@ -37,7 +37,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <HeaderTemplate>
                 @if (this.Thing is not ArrayParameterType)
                 {
-                    <DxButton Id="addParameterTypeComponentButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate" Enabled="@(!this.IsReadOnly)" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"/>
+                    <DxButton Id="addParameterTypeComponentButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate" Enabled="@(!this.IsReadOnly && this.IsAllowedToCreate)" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"/>
                 }
                 else
                 {

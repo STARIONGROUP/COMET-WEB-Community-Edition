@@ -32,14 +32,14 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </DxGridDataColumn>
             <DxGridCommandColumn Width="90px">
                 <HeaderTemplate>
-                    <DxButton Id="addParametricConstraintButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Enabled="@(!this.IsReadOnly)" Click="@(() => this.OpenAdd())" />
+                    <DxButton Id="addParametricConstraintButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Enabled="@(!this.IsReadOnly && this.IsAllowedToWrite)" Click="@(() => this.OpenAdd())" />
                 </HeaderTemplate>
                 <CellDisplayTemplate>
                     @{
                         var constraint = (ParametricConstraint)context.DataItem;
                     }
                     <DxButton IconCssClass="@IconName.Edit.GetCssClass()" RenderStyle="@(CometButtonStyle.Edit.ToButtonRenderStyle())" Click="@(() => this.OpenEdit(constraint))" />
-                    <DxButton Id="removeParametricConstraintButton" IconCssClass="@IconName.Delete.GetCssClass()" RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())" Enabled="@(!this.IsReadOnly)" Click="@(() => this.RemovalPopup.Request(constraint))" />
+                    <DxButton Id="removeParametricConstraintButton" IconCssClass="@IconName.Delete.GetCssClass()" RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())" Enabled="@(!this.IsReadOnly && this.IsAllowedToWrite)" Click="@(() => this.RemovalPopup.Request(constraint))" />
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
         </Columns>

@@ -93,10 +93,16 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             this.viewModel.AuthenticationDto.UserName = "user";
             this.viewModel.AuthenticationDto.Password = "pass";
             this.authenticationService.Setup(x => x.LoginFromArchive(archivePath, "user", "pass")).ReturnsAsync(Result.Fail("invalid credentials"));
+            this.archiveFileService.Invocations.Clear();
 
             await this.viewModel.ExecuteLogin();
 
-            Assert.That(this.viewModel.AuthenticationResult.IsFailed, Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.AuthenticationResult.IsFailed, Is.True);
+
+               this.archiveFileService.Verify(x => x.Remove(), Times.Once);
+            });
         }
     }
 }

@@ -100,9 +100,16 @@ namespace COMET.Web.Common.Services.SessionManagement
                 return Result.Ok(path);
             }
             catch (IOException exception)
-            {
+            { 
+                TryDelete(path, this.logger);
                 this.logger.LogError(exception, "The uploaded archive could not be stored");
                 return Result.Fail<string>("The uploaded archive could not be stored on the server");
+            }
+            catch (OperationCanceledException exception)
+            {
+                TryDelete(path, this.logger);
+                this.logger.LogWarning(exception, "The archive upload was cancelled");
+                return Result.Fail<string>("The archive upload was cancelled");
             }
         }
 

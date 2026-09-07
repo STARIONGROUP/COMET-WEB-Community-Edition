@@ -176,6 +176,23 @@ namespace COMET.Web.Common.Tests.Components
         }
 
         [Test]
+        public void VerifyDeepLinkedServerTakesPriorityOverARememberedArchiveSelection()
+        {
+            // A returning user who last chose the archive form (remembered in session storage) opening a deep link that
+            // pre-fills a server address must still see the server login pre-filled with it, not the archive form the
+            // session storage alone would otherwise restore.
+            this.sessionStorageService.Setup(x => x.GetItemAsync<string>(ConnectionKindStorageKey, It.IsAny<CancellationToken>())).ReturnsAsync("archive");
+
+            var renderer = this.context.Render<IndexComponent>(parameters => parameters.Add(p => p.Redirect, "/?server=http://localhost:5000"));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => renderer.FindComponent<Login>(), Throws.Nothing);
+                Assert.That(() => renderer.FindComponent<ArchiveLogin>(), Throws.TypeOf<ComponentNotFoundException>());
+            });
+        }
+
+        [Test]
         public async Task VerifyConnectionKindChangeIsPersisted()
         {
             var renderer = this.context.Render<IndexComponent>();

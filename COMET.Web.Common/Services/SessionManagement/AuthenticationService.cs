@@ -181,7 +181,16 @@ namespace COMET.Web.Common.Services.SessionManagement
                 return Result.Fail(new Error("No archive was uploaded").AddReasonIdentifier(HttpStatusCode.BadRequest));
             }
 
-            var result = await this.sessionService.OpenArchiveSession(archivePath, userName, password);
+            Result result;
+
+            try
+            {
+                result = await this.sessionService.OpenArchiveSession(archivePath, userName, password);
+            }
+            catch (Exception exception)
+            {
+                return Result.Fail(new Error($"Failed to open the archive: {exception.Message}").AddReasonIdentifier(HttpStatusCode.BadRequest));
+            }
 
             if (result.IsSuccess)
             {

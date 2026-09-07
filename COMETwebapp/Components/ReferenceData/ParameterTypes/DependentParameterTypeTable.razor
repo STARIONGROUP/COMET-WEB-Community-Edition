@@ -28,7 +28,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         {
             <DxGridCommandColumn Width="100px">
                 <HeaderTemplate>
-                    <DxButton Id="addDependentParameterTypeButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate" Enabled="@(!this.IsReadOnly)" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"/>
+                    <DxButton Id="addDependentParameterTypeButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate" Enabled="@(!this.IsReadOnly && this.IsAllowedToCreate)" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"/>
                 </HeaderTemplate>
                 <CellDisplayTemplate>
                     @{

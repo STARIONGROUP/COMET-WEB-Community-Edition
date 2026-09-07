@@ -54,7 +54,7 @@ namespace COMET.Web.Common.Services.SessionManagement
     /// The purpose of the <see cref="SessionService" /> is to provide access to
     /// an instance of <see cref="ISession" />
     /// </summary>
-    public class SessionService : CDP4Web.Services.SessionService.SessionService, ISessionService
+    public sealed class SessionService : CDP4Web.Services.SessionService.SessionService, ISessionService
     {
         /// <summary>
         /// The <see cref="ILogger{T}" />
@@ -147,6 +147,12 @@ namespace COMET.Web.Common.Services.SessionManagement
                 this.logger.LogError(exception, "The archive could not be read");
                 AssignSession(this, null);
                 return Result.Fail(new Error("The file could not be read as an Annex C3 archive. Verify that the file is a valid archive and that the password is correct").AddReasonIdentifier(HttpStatusCode.BadRequest));
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "Failed to open the Annex C3 archive");
+                AssignSession(this, null);
+                return Result.Fail(new Error("The file could not be opened as an Annex C3 archive").AddReasonIdentifier(HttpStatusCode.BadRequest));
             }
             finally
             {

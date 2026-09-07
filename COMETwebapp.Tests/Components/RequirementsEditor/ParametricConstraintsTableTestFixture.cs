@@ -173,6 +173,36 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         }
 
         [Test]
+        public void VerifyControlsFollowTheParentWritePermission()
+        {
+            // These rows are parts of the Requirement and are saved atomically by the hosting form, so the permission is
+            // decided once by that form and passed down. Without this a user could stage edits into a dialog whose Save
+            // is withdrawn, and only discover it at the end.
+            var addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addParametricConstraintButton");
+            var removeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeParametricConstraintButton");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(addButton.Instance.Enabled, Is.True, "the default keeps a host that does not set the flag unchanged");
+                Assert.That(removeButton.Instance.Enabled, Is.True);
+            });
+
+            this.renderer.Render(parameters => parameters
+                .Add(p => p.Requirement, this.requirement)
+                .Add(p => p.AvailableParameterTypes, new[] { (ParameterType)this.parameterType })
+                .Add(p => p.IsAllowedToWrite, false));
+
+            addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addParametricConstraintButton");
+            removeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeParametricConstraintButton");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(addButton.Instance.Enabled, Is.False, "the user may not add constraints to a thing they cannot write");
+                Assert.That(removeButton.Instance.Enabled, Is.False, "the user may not remove constraints from a thing they cannot write");
+            });
+        }
+
+        [Test]
         public async Task VerifyClosingTheEditorPopupClosesIt()
         {
             await this.renderer.InvokeAsync(this.renderer.Instance.OpenAdd);

@@ -24,6 +24,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
     using CDP4Dal;
@@ -123,6 +124,28 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
             {
                 Assert.That(this.viewModel.Rows.Items[0].IsAllowedToWrite, Is.False, "a row the user does not own must not be writable");
                 Assert.That(this.viewModel.IsAllowedToCreate, Is.True, "creating is still allowed under MODIFY_IF_OWNER");
+            });
+        }
+
+        [Test]
+        public void VerifyCreationContainerFallsBackToIterationNotSiteDirectory()
+        {
+            // BaseDataItemTableViewModel.CreationContainer falls back to the SiteDirectory when there are no existing
+            // rows to infer the container from. An Option is always contained by its Iteration, even on a brand-new
+            // model with zero options, so the fallback must never reach the SiteDirectory here.
+            var emptyIteration = new Iteration { Container = new EngineeringModel() };
+            var siteDirectory = new SiteDirectory();
+
+            this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
+            this.permissionService.Setup(x => x.CanWrite(ClassKind.Option, It.Is<Thing>(t => ReferenceEquals(t, emptyIteration)))).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.Is<Thing>(t => t is SiteDirectory))).Returns(false);
+
+            this.viewModel.SetCurrentIteration(emptyIteration);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows, Is.Empty);
+                Assert.That(this.viewModel.IsAllowedToCreate, Is.True, "the creation container must be the iteration, not the permission-denying SiteDirectory fallback");
             });
         }
 

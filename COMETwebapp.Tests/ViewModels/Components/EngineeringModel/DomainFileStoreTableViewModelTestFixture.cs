@@ -132,5 +132,26 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
                 Assert.That(firstRow.OwnerShortName, Is.EqualTo(this.domainFileStore.Owner.ShortName));
             });
         }
+
+        [Test]
+        public void VerifyCreationContainerFallsBackToIterationNotSiteDirectory()
+        {
+            // BaseDataItemTableViewModel.CreationContainer falls back to the SiteDirectory when there are no existing
+            // rows to infer the container from. A DomainFileStore is always contained by its Iteration, even on a
+            // brand-new model with zero file stores, so the fallback must never reach the SiteDirectory here.
+            var emptyIteration = new Iteration();
+
+            this.permissionService.Setup(x => x.CanWrite(ClassKind.DomainFileStore, It.Is<Thing>(t => ReferenceEquals(t, emptyIteration)))).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.Is<Thing>(t => t is SiteDirectory))).Returns(false);
+
+            this.viewModel.SetCurrentIteration(emptyIteration);
+            this.viewModel.InitializeViewModel();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows, Is.Empty);
+                Assert.That(this.viewModel.IsAllowedToCreate, Is.True, "the creation container must be the iteration, not the permission-denying SiteDirectory fallback");
+            });
+        }
     }
 }

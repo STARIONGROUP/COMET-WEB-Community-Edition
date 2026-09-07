@@ -91,6 +91,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                     <DxFormLayoutTabPage Caption="Parametric Constraints">
                         <ParametricConstraintsTable Requirement="@this.ViewModel.RequirementThing"
+                                                    IsAllowedToWrite="@(this.IsAllowedToWriteCurrentThing)"
                                                     AvailableParameterTypes="@this.ViewModel.AvailableParameterTypes" />
                     </DxFormLayoutTabPage>
                 }

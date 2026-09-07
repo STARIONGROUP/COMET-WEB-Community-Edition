@@ -133,5 +133,28 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel
                 Assert.That(firstRow.CreatedOn, Is.EqualTo(this.commonFileStore.CreatedOn));
             });
         }
+
+        [Test]
+        public void VerifyCreationContainerFallsBackToEngineeringModelNotSiteDirectory()
+        {
+            // BaseDataItemTableViewModel.CreationContainer falls back to the SiteDirectory when there are no existing
+            // rows to infer the container from. A CommonFileStore is always contained by its EngineeringModel, even on
+            // a brand-new model with zero file stores, so the fallback must never reach the SiteDirectory here.
+            var emptyEngineeringModel = new EngineeringModel { EngineeringModelSetup = new EngineeringModelSetup() };
+            var emptyIteration = new Iteration();
+            emptyEngineeringModel.Iteration.Add(emptyIteration);
+
+            this.permissionService.Setup(x => x.CanWrite(ClassKind.CommonFileStore, It.Is<Thing>(t => ReferenceEquals(t, emptyEngineeringModel)))).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.Is<Thing>(t => t is SiteDirectory))).Returns(false);
+
+            this.viewModel.SetCurrentIteration(emptyIteration);
+            this.viewModel.InitializeViewModel();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows, Is.Empty);
+                Assert.That(this.viewModel.IsAllowedToCreate, Is.True, "the creation container must be the engineering model, not the permission-denying SiteDirectory fallback");
+            });
+        }
     }
 }

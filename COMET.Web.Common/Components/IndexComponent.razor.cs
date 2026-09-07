@@ -122,6 +122,11 @@ namespace COMET.Web.Common.Components
                 return;
             }
 
+            if (!string.IsNullOrEmpty(this.requestedServer))
+            {
+                return;
+            }
+
             var lastConnectionKind = await this.SessionStorageService.GetItemAsync<string>(ConnectionKindKey);
 
             if (!string.IsNullOrEmpty(lastConnectionKind) && lastConnectionKind != this.selectedConnectionKind)

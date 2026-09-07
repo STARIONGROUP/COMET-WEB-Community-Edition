@@ -88,9 +88,11 @@ namespace COMETwebapp.Components.Common
 
         /// <summary>
         /// Gets or sets a value indicating whether the active user is allowed to create a new item in the hosted
-        /// table. Defaults to true so that hosts that do not pass this parameter keep their previous behaviour
+        /// table. Defaults to false (fail-closed): every host that renders an Add button binds this from its
+        /// ViewModel's own permission check, and a host that forgets to bind it should get a disabled button rather
+        /// than one that silently ignores the user's actual write permission
         /// </summary>
         [Parameter]
-        public bool IsAllowedToCreate { get; set; } = true;
+        public bool IsAllowedToCreate { get; set; }
     }
 }
