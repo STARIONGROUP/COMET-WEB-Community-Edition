@@ -34,9 +34,11 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
+    using COMET.Web.Common.Utilities;
 
     using COMETwebapp.Components.Viewer.PropertiesPanel;
     using COMETwebapp.Model;
+    using COMETwebapp.Model.Viewer;
     using COMETwebapp.Model.Viewer.Primitives;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.SubscriptionService;
@@ -240,7 +242,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
                 Assert.That(this.viewModel.GetChangedParameters(), Has.Count.EqualTo(1));
                 Assert.That(this.viewModel.GetParameterDisplayName(parameter), Is.EqualTo("Mass [kg]"));
                 Assert.That(this.viewModel.GetOriginalValue(parameter), Is.EqualTo("1"));
-                Assert.That(this.viewModel.ChangedParameterValueSetRelations[parameter].ActualValue, Is.EqualTo(new ValueArray<string>(["5"])));
+                Assert.That(this.viewModel.ParameterValueSetRelations[parameter].ActualValue, Is.EqualTo(new ValueArray<string>(["5"])));
             }
 
             this.renderedComponent.Render();
@@ -254,7 +256,7 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
                 this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(),
                     It.Is<NotificationDescription>(n => n.OnSuccess == "Parameter values updated successfully")), Times.Once);
                 Assert.That(this.viewModel.HasChanges(parameter), Is.False);
-                Assert.That(this.viewModel.OriginalValueSets, Is.Empty);
+                Assert.That(this.viewModel.GetChangedParameters(), Is.Empty);
             }
         }
 
@@ -433,13 +435,23 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
         }
 
         /// <summary>
-        /// A parameter edited on one scene object is still editable in the submit dialog after the user
-        /// selects a different object (which replaces ParameterValueSetRelations). The dialog editor must resolve the
-        /// staged value set instead of throwing on a null one.
+        /// Verifies GH948 review: selecting a different scene object discards any unsubmitted change on the
+        /// previously-selected one. Pending edits are applied directly against
+        /// <see cref="ISelectionMediator.SelectedSceneObjectClone" />; keeping them staged past a selection change would
+        /// let a later revert or dialog edit for that parameter mutate the newly-selected (wrong) object's clone instead.
         /// </summary>
         [Test]
-        public void VerifyDialogEditorResolvesAfterSelectionChangedToAnotherObject()
+        public void VerifySelectionChangeDiscardsPendingChange()
         {
+            var mediator = new Mock<ISelectionMediator>();
+            var firstObjectClone = new SceneObject(new Cube(1, 1, 1));
+            mediator.SetupGet(x => x.SelectedSceneObjectClone).Returns(firstObjectClone);
+
+            var vm = new PropertiesComponentViewModel(new Mock<IBabylonInterop>().Object, new Mock<ISessionService>().Object, mediator.Object, this.messageBus)
+            {
+                IsVisible = true
+            };
+
             var scale = new RatioScale { Iid = Guid.NewGuid(), ShortName = "kg" };
             var parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), Name = "Mass", ShortName = "m" };
             var parameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = parameterType, Scale = scale };
@@ -453,35 +465,108 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
                 Container = iteration
             };
 
-            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet> { { parameter, originalValueSet } };
-            this.viewModel.ParametersInUse = [parameter];
-            this.viewModel.SelectedParameter = parameter;
+            vm.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet> { { parameter, originalValueSet } };
+            vm.ParametersInUse = [parameter];
+            vm.SelectedParameter = parameter;
 
-            var editedValueSet = new ParameterValueSet
+            vm.ParameterValueSetChanged((new ParameterValueSet
             {
                 Iid = Guid.NewGuid(),
                 ValueSwitch = ParameterSwitchKind.MANUAL,
                 Manual = new ValueArray<string>(["5"]),
                 Container = iteration
-            };
+            }, 0));
 
-            this.viewModel.ParameterValueSetChanged((editedValueSet, 0));
+            Assert.That(vm.HasChanges(parameter), Is.True);
 
-            var otherParameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "x" }, Scale = scale };
-
-            this.viewModel.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>
-            {
-                { otherParameter, new ParameterValueSet { Iid = Guid.NewGuid(), ValueSwitch = ParameterSwitchKind.MANUAL, Manual = new ValueArray<string>(["9"]), Container = iteration } }
-            };
-
-            IDetailsComponentViewModel editor = null;
+            // Selecting a different scene object clone must discard the pending change on the first one.
+            var secondObjectClone = new SceneObject(new Cube(1, 1, 1));
+            mediator.SetupGet(x => x.SelectedSceneObjectClone).Returns(secondObjectClone);
+            mediator.Raise(x => x.OnModelSelectionChanged += null, secondObjectClone);
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(() => editor = this.viewModel.GetDialogEditor(parameter), Throws.Nothing);
-                Assert.That(editor, Is.Not.Null);
-                Assert.That(editor.ParameterEditorSelector, Is.Not.Null);
+                Assert.That(vm.HasChanges(parameter), Is.False);
+                Assert.That(vm.GetChangedParameters(), Is.Empty);
+                Assert.That(vm.GetOriginalValue(parameter), Is.Empty);
+                Assert.That(vm.ParameterHaveChanges, Is.False);
             }
+        }
+
+        /// <summary>
+        /// Verifies GH948 review: reverting a ShapeKind change restores the original primitive type AND re-applies the
+        /// other associated parameters (e.g. position) onto it, mirroring what the edit path already does - otherwise the
+        /// reverted primitive is left with default (origin) geometry instead of the shape's actual position.
+        /// </summary>
+        [Test]
+        public void VerifyRevertOfShapeKindResyncsAssociatedParameters()
+        {
+            var mediator = new Mock<ISelectionMediator>();
+            var sceneObjectClone = new SceneObject(new Cube(1, 1, 1));
+            mediator.SetupGet(x => x.SelectedSceneObjectClone).Returns(sceneObjectClone);
+
+            var vm = new PropertiesComponentViewModel(new Mock<IBabylonInterop>().Object, new Mock<ISessionService>().Object, mediator.Object, this.messageBus)
+            {
+                IsVisible = true
+            };
+
+            var kindParameterType = new TextParameterType { Iid = Guid.NewGuid(), ShortName = SceneSettings.ShapeKindShortName };
+            var kindParameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = kindParameterType };
+
+            var positionParameterType = new TextParameterType { Iid = Guid.NewGuid(), ShortName = ConstantValues.PositionShortName };
+            var positionParameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = positionParameterType };
+
+            var iteration = new Iteration { Iid = Guid.NewGuid() };
+
+            var kindValueSet = new ParameterValueSet { Iid = Guid.NewGuid(), ValueSwitch = ParameterSwitchKind.MANUAL, Manual = new ValueArray<string>(["box"]), Container = iteration };
+            var positionValueSet = new ParameterValueSet { Iid = Guid.NewGuid(), ValueSwitch = ParameterSwitchKind.MANUAL, Manual = new ValueArray<string>(["5", "0", "0"]), Container = iteration };
+
+            vm.ParameterValueSetRelations = new Dictionary<ParameterBase, IValueSet>
+            {
+                { kindParameter, kindValueSet },
+                { positionParameter, positionValueSet }
+            };
+
+            vm.ParametersInUse = [kindParameter, positionParameter];
+            vm.SelectedParameter = kindParameter;
+
+            vm.ParameterValueSetChanged((new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(["sphere"]),
+                Container = iteration
+            }, 0));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(sceneObjectClone.Primitive, Is.TypeOf<Sphere>());
+                Assert.That(sceneObjectClone.Primitive.X, Is.EqualTo(5).Within(0.001), "the edit path should re-sync the position onto the new primitive");
+            }
+
+            vm.RevertChange(kindParameter);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(sceneObjectClone.Primitive, Is.TypeOf<Cube>(), "reverting the ShapeKind parameter should restore the original primitive type");
+                Assert.That(sceneObjectClone.Primitive.X, Is.EqualTo(5).Within(0.001), "the revert path should re-sync the position onto the reverted primitive");
+            }
+        }
+
+        /// <summary>
+        /// Verifies GH948 review: while nothing is selected, the empty details editor is memoized instead of being
+        /// rebuilt on every call - a new instance every render would force <c>DetailsComponent</c> (bound via
+        /// <c>@key</c>) to fully remount on every render while the properties panel is idle.
+        /// </summary>
+        [Test]
+        public void VerifyEmptyDetailsEditorIsMemoizedWhenNothingSelected()
+        {
+            this.viewModel.SelectedParameter = null;
+
+            var first = this.viewModel.CreateDetailsComponentViewModel();
+            var second = this.viewModel.CreateDetailsComponentViewModel();
+
+            Assert.That(first, Is.SameAs(second));
         }
 
         /// <summary>
