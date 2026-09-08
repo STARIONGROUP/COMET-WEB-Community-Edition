@@ -32,6 +32,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
     using CDP4Web.Enumerations;
 
+    using ClosedXML.Excel;
+
     using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
@@ -55,6 +57,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     [TestFixture]
     public class RequirementsEditorBodyViewModelTestFixture
     {
+        /// <summary>
+        /// The expected definition language codes exported by the fixture's model, which only carries "en" definitions.
+        /// </summary>
+        private static readonly string[] ExpectedDefinitionLanguages = ["en"];
+
         private RequirementsEditorBodyViewModel viewModel;
         private CDPMessageBus messageBus;
         private Mock<ISession> session;
@@ -760,14 +767,17 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
             var ruled = new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.topRequirement, Target = elementDefinition, Category = { verifiesCategory } };
             var ruleless = new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.c4iRequirement, Target = this.topRequirement };
-            this.iteration.Relationship.AddRange([ruled, ruleless]);
+            var multi = new MultiRelationship { Iid = Guid.NewGuid(), RelatedThing = { this.topRequirement, this.operateRequirement, elementDefinition } };
+            var unrelated = new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.c4iRequirement, Target = elementDefinition };
+            this.iteration.Relationship.AddRange([ruled, ruleless, multi, unrelated]);
 
             var details = this.viewModel.GetRelationshipDetails(this.topRequirement);
 
-            Assert.That(details, Has.Count.EqualTo(2));
+            Assert.That(details, Has.Count.EqualTo(3));
 
             var ruledDetail = details.Single(x => x.Rule != null);
-            var rulelessDetail = details.Single(x => x.Rule == null);
+            var rulelessDetail = details.Single(x => x.Rule == null && x.Direction == RelationshipDirection.Incoming);
+            var multiDetail = details.Single(x => x.Direction == RelationshipDirection.Bidirectional);
 
             Assert.Multiple(() =>
             {
@@ -776,9 +786,25 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 Assert.That(ruledDetail.Rule.ForwardName, Is.EqualTo("verifies"));
                 Assert.That(ruledDetail.Rule.InverseName, Is.EqualTo("is verified by"));
                 Assert.That(ruledDetail.Rule.IsDirectional, Is.True);
-                Assert.That(rulelessDetail.Direction, Is.EqualTo(RelationshipDirection.Incoming));
                 Assert.That(rulelessDetail.RelatedThings, Is.EqualTo(new Thing[] { this.c4iRequirement }));
+                Assert.That(multiDetail.RelatedThings, Is.EqualTo(new Thing[] { this.operateRequirement, elementDefinition }));
             });
+        }
+
+        [Test]
+        public void VerifyGetRelationshipDetailsReturnsEmptyWithoutACurrentIteration()
+        {
+            this.viewModel.CurrentThing = null;
+
+            Assert.That(this.viewModel.GetRelationshipDetails(this.topRequirement), Is.Empty);
+        }
+
+        [Test]
+        public void VerifyGetExportableRelationshipCategoriesReturnsEmptyWithoutACurrentIteration()
+        {
+            this.viewModel.CurrentThing = null;
+
+            Assert.That(this.viewModel.GetExportableRelationshipCategories(), Is.Empty);
         }
 
         [Test]
@@ -902,15 +928,111 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         }
 
         [Test]
+        public async Task VerifyExportAsyncRendersConstraintTextWithLinkedParameter()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var relationalExpression = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = this.massParameterType, RelationalOperator = RelationalOperatorKind.LE, Value = new ValueArray<string>(["100"]) };
+            this.topRequirement.ParametricConstraint.Add(new ParametricConstraint { Iid = Guid.NewGuid(), Expression = { relationalExpression }, TopExpression = relationalExpression });
+
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT" };
+            var boundParameter = new Parameter { Iid = Guid.NewGuid(), ParameterType = this.massParameterType };
+            boundParameter.ValueSet.Add(new ParameterValueSet { Iid = Guid.NewGuid(), Published = new ValueArray<string>(["100"]) });
+            elementDefinition.Parameter.Add(boundParameter);
+            this.iteration.Relationship.Add(new BinaryRelationship { Iid = Guid.NewGuid(), Source = boundParameter, Target = relationalExpression });
+
+            this.viewModel.ExportConfiguration.IncludeParametricConstraints = true;
+            this.viewModel.ExportConfiguration.IncludeConstraintLinkedElementAndValue = true;
+
+            Stream exported = null;
+
+            this.exportService.Setup(x => x.ExportAndDownloadAsync(It.IsAny<IExporter>()))
+                .Returns<IExporter>(exporter =>
+                {
+                    exported = exporter.Export();
+                    return Task.CompletedTask;
+                });
+
+            await this.viewModel.ExportAsync();
+
+            using var workbook = new XLWorkbook(exported);
+            var cellValues = workbook.Worksheets.SelectMany(sheet => sheet.CellsUsed()).Select(cell => cell.GetString()).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(cellValues, Has.Some.Contains("mass"), "the constraint summary must render the linked parameter type's short name");
+                Assert.That(cellValues, Has.Some.Contains(boundParameter.ModelCode()), "the linked element's model code must be rendered");
+            });
+        }
+
+        [Test]
+        public async Task VerifyExportAsyncOmitsLinkedElementAndValueWhenNotConfigured()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var relationalExpression = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = this.massParameterType, RelationalOperator = RelationalOperatorKind.LE, Value = new ValueArray<string>(["100"]) };
+            this.topRequirement.ParametricConstraint.Add(new ParametricConstraint { Iid = Guid.NewGuid(), Expression = { relationalExpression }, TopExpression = relationalExpression });
+
+            this.viewModel.ExportConfiguration.IncludeParametricConstraints = true;
+            this.viewModel.ExportConfiguration.IncludeConstraintLinkedElementAndValue = false;
+
+            Stream exported = null;
+
+            this.exportService.Setup(x => x.ExportAndDownloadAsync(It.IsAny<IExporter>()))
+                .Returns<IExporter>(exporter =>
+                {
+                    exported = exporter.Export();
+                    return Task.CompletedTask;
+                });
+
+            await this.viewModel.ExportAsync();
+
+            using var workbook = new XLWorkbook(exported);
+            var cellValues = workbook.Worksheets.SelectMany(sheet => sheet.CellsUsed()).Select(cell => cell.GetString()).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(cellValues, Has.Some.Contains("mass"), "the constraint summary must still render");
+                Assert.That(cellValues, Has.None.Contains("linked:"), "the linked element and value are omitted when not configured");
+            });
+        }
+
+        [Test]
         public void VerifyExportConfigurationSourcesAreExposed()
         {
+            var expectedParameterTypes = new[] { this.lengthParameterType, this.massParameterType };
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.ExportConfiguration, Is.Not.Null);
-                Assert.That(this.viewModel.GetExportableParameterTypes(), Is.EquivalentTo(new[] { this.lengthParameterType, this.massParameterType }));
-                Assert.That(this.viewModel.GetExportableDefinitionLanguages(), Is.EqualTo(new[] { "en" }));
+                Assert.That(this.viewModel.GetExportableParameterTypes(), Is.EquivalentTo(expectedParameterTypes));
+                Assert.That(this.viewModel.GetExportableDefinitionLanguages(), Is.EqualTo(ExpectedDefinitionLanguages));
                 Assert.That(this.viewModel.GetExportableRelationshipCategories(), Is.Empty);
             });
+        }
+
+        [Test]
+        public void VerifyGetExportableDefinitionLanguagesReturnsDistinctSortedLanguages()
+        {
+            this.topRequirement.Definition.Add(new Definition { LanguageCode = "fr", Content = "Le systeme doit exister." });
+
+            Assert.That(this.viewModel.GetExportableDefinitionLanguages(), Is.EqualTo(new[] { "en", "fr" }));
+        }
+
+        [Test]
+        public void VerifyGetExportableRelationshipCategoriesReturnsDistinctSortedCategories()
+        {
+            var traceCategory = new Category { Iid = Guid.NewGuid(), ShortName = "trace", Name = "Traces" };
+            var verifiesCategory = new Category { Iid = Guid.NewGuid(), ShortName = "verifies", Name = "Verifies" };
+            var elementDefinition = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT" };
+
+            this.iteration.Relationship.AddRange(
+            [
+                new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.topRequirement, Target = elementDefinition, Category = { verifiesCategory } },
+                new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.c4iRequirement, Target = elementDefinition, Category = { traceCategory, verifiesCategory } }
+            ]);
+
+            Assert.That(this.viewModel.GetExportableRelationshipCategories(), Is.EqualTo(new[] { traceCategory, verifiesCategory }));
         }
     }
 }

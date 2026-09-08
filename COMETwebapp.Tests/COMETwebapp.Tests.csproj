@@ -39,4 +39,8 @@
     <ProjectReference Include="..\COMETwebapp\COMETwebapp.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="coverage\reqexport2\" />
+  </ItemGroup>
+
 </Project>

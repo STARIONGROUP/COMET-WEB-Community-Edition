@@ -40,6 +40,21 @@ namespace COMETwebapp.Tests.Services.RequirementsEditor
     [TestFixture]
     public class RequirementsExcelExporterTestFixture
     {
+        /// <summary>
+        /// The expected header row of a default-configuration export.
+        /// </summary>
+        private static readonly string[] DefaultHeaders = ["Short Name", "Name", "Definition (en)", "Owner", "Categories", "Group", "mass (m)", "Parametric Constraints"];
+
+        /// <summary>
+        /// The expected header row once every optional section is switched off.
+        /// </summary>
+        private static readonly string[] MinimalHeaders = ["Short Name", "Name"];
+
+        /// <summary>
+        /// The expected worksheet names once every specification shares a single sheet.
+        /// </summary>
+        private static readonly string[] SingleSheetName = ["Requirements"];
+
         private DomainOfExpertise owner;
         private Category category;
         private SimpleQuantityKind parameterType;
@@ -103,7 +118,7 @@ namespace COMETwebapp.Tests.Services.RequirementsEditor
                 Assert.That(exporter.FileName, Is.EqualTo("Requirements.xlsx"));
                 Assert.That(worksheet.Name, Is.EqualTo("Specification"));
                 Assert.That(worksheet.Tables.Count(), Is.EqualTo(1), "the sheet must be an excel table");
-                Assert.That(headers, Is.EqualTo(new[] { "Short Name", "Name", "Definition (en)", "Owner", "Categories", "Group", "mass (m)", "Parametric Constraints" }));
+                Assert.That(headers, Is.EqualTo(DefaultHeaders));
                 Assert.That(worksheet.CellsUsed().Any(cell => cell.GetString() == "R01"), Is.True, "the grouped requirement must render");
                 Assert.That(worksheet.CellsUsed().Any(cell => cell.GetString() == "R02"), Is.True, "the ungrouped requirement must render");
                 Assert.That(worksheet.CellsUsed().Any(cell => cell.GetString() == "42"), Is.True, "the simple parameter value must render");
@@ -157,7 +172,7 @@ namespace COMETwebapp.Tests.Services.RequirementsEditor
             using var workbook = new XLWorkbook(stream);
             var headers = workbook.Worksheet(1).Row(1).CellsUsed().Select(cell => cell.GetString()).ToList();
 
-            Assert.That(headers, Is.EqualTo(new[] { "Short Name", "Name" }));
+            Assert.That(headers, Is.EqualTo(MinimalHeaders));
         }
 
         [Test]
@@ -488,9 +503,125 @@ namespace COMETwebapp.Tests.Services.RequirementsEditor
 
             Assert.Multiple(() =>
             {
-                Assert.That(workbook.Worksheets.Select(x => x.Name), Is.EqualTo(new[] { "Requirements" }));
+                Assert.That(workbook.Worksheets.Select(x => x.Name), Is.EqualTo(SingleSheetName));
                 Assert.That(headers, Does.Contain("Specification"));
                 Assert.That(worksheet.Cell(row, specificationColumn).GetString(), Is.EqualTo("Specification (SPEC)"));
+            });
+        }
+
+        [Test]
+        public void VerifyAllSpecificationsFilteredOutFallsBackToHeaderOnlySheet()
+        {
+            this.specification.IsDeprecated = true;
+            var exporter = new RequirementsExcelExporter(this.BuildPayload(new RequirementsExportConfiguration()));
+
+            using var stream = exporter.Export();
+            using var workbook = new XLWorkbook(stream);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(workbook.Worksheets.Select(x => x.Name), Is.EqualTo(SingleSheetName));
+                Assert.That(workbook.Worksheet(1).Tables.Count(), Is.EqualTo(0), "a header-only sheet is not turned into a table");
+                Assert.That(workbook.Worksheet(1).Row(1).CellsUsed().Select(cell => cell.GetString()), Is.Not.Empty, "the header row is still written");
+            });
+        }
+
+        [Test]
+        public void VerifyDuplicateColumnTitlesAreDisambiguated()
+        {
+            var secondMassParameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "m", Name = "another mass" };
+            this.groupedRequirement.ParameterValue.Add(new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = secondMassParameterType, Value = new ValueArray<string>(["7"]) });
+
+            var configuration = new RequirementsExportConfiguration { NamingMode = RequirementsExportNamingMode.ShortName };
+            var exporter = new RequirementsExcelExporter(this.BuildPayload(configuration));
+
+            using var stream = exporter.Export();
+            using var workbook = new XLWorkbook(stream);
+            var headers = workbook.Worksheet(1).Row(1).CellsUsed().Select(cell => cell.GetString()).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(headers, Does.Contain("m"));
+                Assert.That(headers, Does.Contain("m (2)"), "a colliding column title gets a numeric suffix");
+            });
+        }
+
+        [Test]
+        public void VerifySafeSheetNameFallsBackTruncatesAndDisambiguatesDuplicates()
+        {
+            var firstEmptyNamedSpecification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "S1" };
+            var secondEmptyNamedSpecification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "S2" };
+            var longNamedSpecification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "S3", Name = new string('X', 40) };
+
+            var payload = new RequirementsExportPayload(
+                [firstEmptyNamedSpecification, secondEmptyNamedSpecification, longNamedSpecification],
+                new RequirementsExportConfiguration(),
+                _ => [],
+                _ => string.Empty);
+
+            var exporter = new RequirementsExcelExporter(payload);
+
+            using var stream = exporter.Export();
+            using var workbook = new XLWorkbook(stream);
+            var sheetNames = workbook.Worksheets.Select(x => x.Name).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(sheetNames, Does.Contain("Specification"), "an empty name falls back to the default sheet name");
+                Assert.That(sheetNames, Does.Contain("Specification (1)"), "a colliding fallback name is disambiguated");
+                Assert.That(sheetNames.Single(name => name.StartsWith('X')), Has.Length.EqualTo(31), "a long name is truncated to the Excel sheet-name limit");
+            });
+        }
+
+        [Test]
+        public void VerifySelectedParameterTypesUsedWhenModeIsSelection()
+        {
+            var unselectedParameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "l", Name = "length" };
+            this.groupedRequirement.ParameterValue.Add(new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = unselectedParameterType, Value = new ValueArray<string>(["3"]) });
+
+            var configuration = new RequirementsExportConfiguration { SimpleParameterValues = RequirementsExportSelectionMode.Selection, SelectedParameterTypes = [this.parameterType] };
+            var exporter = new RequirementsExcelExporter(this.BuildPayload(configuration));
+
+            using var stream = exporter.Export();
+            using var workbook = new XLWorkbook(stream);
+            var headers = workbook.Worksheet(1).Row(1).CellsUsed().Select(cell => cell.GetString()).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(headers, Does.Contain("mass (m)"), "the selected parameter type is still exported");
+                Assert.That(headers, Does.Not.Contain("length (l)"), "a parameter type outside the selection is not exported");
+            });
+        }
+
+        [Test]
+        public void VerifyNonDirectionalRuleUsesSingleColumnAndRulesAreSortedByName()
+        {
+            var relatedElement = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT", Name = "Satellite" };
+            var directionalRule = new RelationshipRuleReference { Iid = Guid.NewGuid(), Name = "Z trace", ForwardName = "verifies", InverseName = "is verified by" };
+            var nonDirectionalRule = new RelationshipRuleReference { Iid = Guid.NewGuid(), Name = "A group", ForwardName = null, InverseName = null };
+
+            var directionalDetail = new RequirementRelationshipDetail { RelatedThings = [relatedElement], Direction = RelationshipDirection.Outgoing, Rule = directionalRule, Categories = [] };
+            var nonDirectionalDetail = new RequirementRelationshipDetail { RelatedThings = [relatedElement], Direction = RelationshipDirection.Bidirectional, Rule = nonDirectionalRule, Categories = [] };
+
+            var payload = new RequirementsExportPayload(
+                [this.specification],
+                new RequirementsExportConfiguration(),
+                requirement => requirement.Iid == this.ungroupedRequirement.Iid ? [directionalDetail, nonDirectionalDetail] : [],
+                _ => string.Empty);
+
+            var exporter = new RequirementsExcelExporter(payload);
+
+            using var stream = exporter.Export();
+            using var workbook = new XLWorkbook(stream);
+            var headers = workbook.Worksheet(1).Row(1).CellsUsed().Select(cell => cell.GetString()).ToList();
+            var nonDirectionalColumnIndex = headers.IndexOf("A group");
+            var forwardColumnIndex = headers.IndexOf("verifies");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(headers, Does.Contain("A group"), "a non-directional rule gets a single column named after the rule");
+                Assert.That(headers, Does.Contain("verifies").And.Contain("is verified by"));
+                Assert.That(nonDirectionalColumnIndex, Is.LessThan(forwardColumnIndex), "relationship columns are ordered by rule name: 'A group' sorts before 'Z trace'");
             });
         }
     }

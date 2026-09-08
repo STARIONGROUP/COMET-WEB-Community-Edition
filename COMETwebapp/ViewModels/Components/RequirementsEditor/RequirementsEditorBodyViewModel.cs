@@ -1792,7 +1792,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="relationship">The <see cref="Relationship" /></param>
         /// <returns>The matching rules</returns>
-        private IReadOnlyList<Rule> GetMatchingRules(Relationship relationship)
+        private List<Rule> GetMatchingRules(Relationship relationship)
         {
             var rules = this.SessionService.Session.OpenReferenceDataLibraries.SelectMany(x => x.Rule);
 

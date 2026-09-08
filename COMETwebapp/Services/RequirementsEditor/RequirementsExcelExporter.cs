@@ -42,17 +42,21 @@ namespace COMETwebapp.Services.RequirementsEditor
     /// <see cref="RequirementsExportPayload" /> so it is decoupled from the view model and unit-testable; new file
     /// formats are added as new <see cref="IExporter" /> implementations over the same payload.
     /// </summary>
-    public class RequirementsExcelExporter : IExporter
+    public partial class RequirementsExcelExporter : IExporter
     {
         /// <summary>
-        /// The characters Excel forbids in a worksheet name.
+        /// Matches the characters Excel forbids in a worksheet name.
         /// </summary>
-        private static readonly Regex InvalidSheetNameCharacters = new(@"[\[\]\*/\\\?:]", RegexOptions.Compiled);
+        /// <returns>The compiled, source-generated <see cref="Regex" /></returns>
+        [GeneratedRegex(@"[\[\]\*/\\\?:]")]
+        private static partial Regex InvalidSheetNameCharacters();
 
         /// <summary>
-        /// The characters not allowed in the downloaded file name.
+        /// Matches the characters not allowed in the downloaded file name.
         /// </summary>
-        private static readonly Regex InvalidFileNameCharacters = new(@"[<>:""/\\|\?\*\x00-\x1F]", RegexOptions.Compiled);
+        /// <returns>The compiled, source-generated <see cref="Regex" /></returns>
+        [GeneratedRegex(@"[<>:""/\\|\?\*\x00-\x1F]")]
+        private static partial Regex InvalidFileNameCharacters();
 
         /// <summary>
         /// The maximum outline level Excel supports.
@@ -348,63 +352,138 @@ namespace COMETwebapp.Services.RequirementsEditor
         private List<Column> BuildColumns(out int identityColumn, out int groupColumn)
         {
             var result = new List<Column>();
-            groupColumn = 0;
 
+            this.AddSpecificationColumn(result);
+            identityColumn = result.Count + 1;
+            this.AddIdentityColumns(result);
+            this.AddDefinitionColumns(result);
+            this.AddOwnerColumn(result);
+            this.AddCategoriesColumn(result);
+            groupColumn = this.AddGroupColumn(result);
+            this.AddDeprecatedColumn(result);
+            this.AddValueColumns(result);
+            result.AddRange(this.BuildRelationshipColumns());
+            this.AddConstraintsColumn(result);
+
+            EnsureUniqueTitles(result);
+            return result;
+        }
+
+        /// <summary>
+        /// Adds the "Specification" column when specifications share a single worksheet, so a row can still be traced
+        /// back to its specification.
+        /// </summary>
+        /// <param name="result">The columns to add to</param>
+        private void AddSpecificationColumn(List<Column> result)
+        {
             if (!this.Configuration.SpecificationPerSheet)
             {
                 result.Add(new Column("Specification", (_, specification) => this.Label(specification), false));
             }
+        }
 
-            identityColumn = result.Count + 1;
-
+        /// <summary>
+        /// Adds the requirement's identity column(s): "Short Name" and "Name" for
+        /// <see cref="RequirementsExportNamingMode.Both" />, otherwise the single configured one.
+        /// </summary>
+        /// <param name="result">The columns to add to</param>
+        private void AddIdentityColumns(List<Column> result)
+        {
             if (this.Configuration.NamingMode == RequirementsExportNamingMode.Both)
             {
                 result.Add(new Column("Short Name", (requirement, _) => requirement.ShortName, false));
                 result.Add(new Column("Name", (requirement, _) => requirement.Name, false));
-            }
-            else
-            {
-                var byName = this.Configuration.NamingMode == RequirementsExportNamingMode.Name;
-                result.Add(new Column(byName ? "Name" : "Short Name", (requirement, _) => byName ? requirement.Name : requirement.ShortName, false));
+                return;
             }
 
+            var byName = this.Configuration.NamingMode == RequirementsExportNamingMode.Name;
+            result.Add(new Column(byName ? "Name" : "Short Name", (requirement, _) => byName ? requirement.Name : requirement.ShortName, false));
+        }
+
+        /// <summary>
+        /// Adds one "Definition (&lt;language&gt;)" column per resolved <see cref="definitionLanguages" /> entry, when
+        /// definitions are included.
+        /// </summary>
+        /// <param name="result">The columns to add to</param>
+        private void AddDefinitionColumns(List<Column> result)
+        {
             if (this.Configuration.IncludeDefinitions)
             {
                 result.AddRange(this.definitionLanguages.Select(language => new Column($"Definition ({language})", (requirement, _) => Definition(requirement, language), true)));
             }
+        }
 
+        /// <summary>
+        /// Adds the "Owner" column, when configured.
+        /// </summary>
+        /// <param name="result">The columns to add to</param>
+        private void AddOwnerColumn(List<Column> result)
+        {
             if (this.Configuration.IncludeOwner)
             {
                 result.Add(new Column("Owner", (requirement, _) => requirement.Owner == null ? string.Empty : this.Label(requirement.Owner), false));
             }
+        }
 
+        /// <summary>
+        /// Adds the "Categories" column, when configured.
+        /// </summary>
+        /// <param name="result">The columns to add to</param>
+        private void AddCategoriesColumn(List<Column> result)
+        {
             if (this.Configuration.IncludeCategories)
             {
                 result.Add(new Column("Categories", (requirement, _) => string.Join(", ", requirement.Category.Select(this.Label)), false));
             }
+        }
 
-            if (this.Configuration.GroupRequirements)
+        /// <summary>
+        /// Adds the "Group" column, when requirements are grouped.
+        /// </summary>
+        /// <param name="result">The columns to add to</param>
+        /// <returns>The one-based index of the added column, or zero when requirements are not grouped</returns>
+        private int AddGroupColumn(List<Column> result)
+        {
+            if (!this.Configuration.GroupRequirements)
             {
-                result.Add(new Column("Group", (requirement, _) => requirement.Group == null ? string.Empty : this.Label(requirement.Group), false));
-                groupColumn = result.Count;
+                return 0;
             }
 
+            result.Add(new Column("Group", (requirement, _) => requirement.Group == null ? string.Empty : this.Label(requirement.Group), false));
+            return result.Count;
+        }
+
+        /// <summary>
+        /// Adds the "Deprecated" column, when configured.
+        /// </summary>
+        /// <param name="result">The columns to add to</param>
+        private void AddDeprecatedColumn(List<Column> result)
+        {
             if (this.Configuration.IncludeDeprecated)
             {
                 result.Add(new Column("Deprecated", (requirement, _) => requirement.IsDeprecated ? "Yes" : string.Empty, false));
             }
+        }
 
+        /// <summary>
+        /// Adds one column per resolved <see cref="valueColumns" /> parameter type.
+        /// </summary>
+        /// <param name="result">The columns to add to</param>
+        private void AddValueColumns(List<Column> result)
+        {
             result.AddRange(this.valueColumns.Select(parameterType => new Column(this.Label(parameterType), (requirement, _) => SimpleParameterValue(requirement, parameterType), false)));
+        }
 
-            result.AddRange(this.BuildRelationshipColumns());
-
+        /// <summary>
+        /// Adds the "Parametric Constraints" column, when configured.
+        /// </summary>
+        /// <param name="result">The columns to add to</param>
+        private void AddConstraintsColumn(List<Column> result)
+        {
             if (this.Configuration.IncludeParametricConstraints)
             {
                 result.Add(new Column("Parametric Constraints", (requirement, _) => string.Join("\n", requirement.ParametricConstraint.Select(this.payload.GetConstraintText)), true));
             }
-
-            EnsureUniqueTitles(result);
-            return result;
         }
 
         /// <summary>
@@ -412,7 +491,7 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// every non-directional rule, and a single generic "Relationships" column when any relationship matches no rule.
         /// </summary>
         /// <returns>The relationship columns</returns>
-        private IEnumerable<Column> BuildRelationshipColumns()
+        private List<Column> BuildRelationshipColumns()
         {
             if (this.Configuration.Relationships == RequirementsExportSelectionMode.None)
             {
@@ -463,12 +542,8 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// <returns>The joined related-thing labels, or an empty string when there are none</returns>
         private string RelationshipCell(Requirement requirement, Guid? ruleIid, RelationshipDirection? direction)
         {
-            if (!this.relationshipDetails.TryGetValue(requirement.Iid, out var details))
-            {
-                return string.Empty;
-            }
-
-            var matching = details
+            // every requirement reaching this cell was already cached by CacheRelationshipDetails, so the lookup cannot miss
+            var matching = this.relationshipDetails[requirement.Iid]
                 .Where(detail => detail.Rule?.Iid == ruleIid && (direction == null || detail.Direction == direction))
                 .SelectMany(detail => detail.RelatedThings)
                 .Select(this.ThingLabel);
@@ -508,7 +583,7 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// used by the exported requirements.
         /// </summary>
         /// <returns>The parameter types to write as columns, in short-name order</returns>
-        private IReadOnlyList<ParameterType> ResolveValueColumns()
+        private List<ParameterType> ResolveValueColumns()
         {
             switch (this.Configuration.SimpleParameterValues)
             {
@@ -534,7 +609,7 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// used by the exported requirements' definitions.
         /// </summary>
         /// <returns>The language codes, in alphabetical order</returns>
-        private IReadOnlyList<string> ResolveDefinitionLanguages()
+        private List<string> ResolveDefinitionLanguages()
         {
             if (!this.Configuration.IncludeDefinitions)
             {
@@ -701,7 +776,7 @@ namespace COMETwebapp.Services.RequirementsEditor
                 configured = configured[..^5];
             }
 
-            var sanitized = InvalidFileNameCharacters.Replace(configured, string.Empty).Trim();
+            var sanitized = InvalidFileNameCharacters().Replace(configured, string.Empty).Trim();
             return string.IsNullOrEmpty(sanitized) ? "Requirements" : sanitized;
         }
 
@@ -713,7 +788,7 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// <returns>A safe, unique worksheet name</returns>
         private string SafeSheetName(string name)
         {
-            var sanitized = InvalidSheetNameCharacters.Replace(name ?? string.Empty, " ").Trim();
+            var sanitized = InvalidSheetNameCharacters().Replace(name ?? string.Empty, " ").Trim();
 
             if (string.IsNullOrEmpty(sanitized))
             {

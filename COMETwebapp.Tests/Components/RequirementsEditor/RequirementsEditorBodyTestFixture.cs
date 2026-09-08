@@ -45,6 +45,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
+    using DevExpress.Blazor;
+
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -68,6 +70,10 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
+            this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init").SetVoidResult();
+            this.context.JSInterop.SetupVoid("DxBlazor.Input.loadModule").SetVoidResult();
+            this.context.JSInterop.SetupVoid("DxBlazor.UiHandlersBridge.loadModule").SetVoidResult();
 
             this.messageBus = new CDPMessageBus();
 
@@ -215,6 +221,16 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.renderedComponent.Find(".req-def-editor").KeyDown(new KeyboardEventArgs { Key = "Escape" });
 
             Assert.That(this.renderedComponent.Markup, Does.Not.Contain("req-def-editor"), "Escape closes the inline editor without saving.");
+        }
+
+        [Test]
+        public void VerifyExportButtonOpensDialog()
+        {
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
+
+            this.renderedComponent.Find("#requirement-export").Click();
+
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsExportDialogVisible, Is.True));
         }
 
         [Test]
