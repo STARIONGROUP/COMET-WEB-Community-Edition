@@ -187,6 +187,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private (RequirementsSpecification Specification, bool ShowDeprecated, IReadOnlyList<ParameterType> ParameterTypes) parameterTypesCache;
 
         /// <summary>
+        /// Backing field for <see cref="ActiveView" />
+        /// </summary>
+        private RequirementsEditorView activeView;
+
+        /// <summary>
         /// Creates a new instance of <see cref="RequirementsEditorBodyViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -204,6 +209,10 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 OnCancel = new EventCallbackFactory().Create(this, () => this.ConfirmCancelPopupViewModel.IsVisible = false)
             };
+
+            var changelogViewModel = new RequirementsChangelogViewModel(sessionService);
+            this.Disposables.Add(changelogViewModel);
+            this.ChangelogViewModel = changelogViewModel;
         }
 
         /// <summary>
@@ -223,6 +232,20 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         {
             get => this.isExportDialogVisible;
             set => this.RaiseAndSetIfChanged(ref this.isExportDialogVisible, value);
+        }
+
+        /// <summary>
+        /// Gets the view model driving the requirements changelog view.
+        /// </summary>
+        public IRequirementsChangelogViewModel ChangelogViewModel { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="RequirementsEditorView" /> currently shown.
+        /// </summary>
+        public RequirementsEditorView ActiveView
+        {
+            get => this.activeView;
+            set => this.RaiseAndSetIfChanged(ref this.activeView, value);
         }
 
         /// <summary>
@@ -1716,6 +1739,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         protected override async Task OnThingChanged()
         {
             await base.OnThingChanged();
+
+            this.ChangelogViewModel.SetIteration(this.CurrentThing, this.CurrentDomain);
 
             this.IsLoading = true;
             this.parameterTypesCache = default;
