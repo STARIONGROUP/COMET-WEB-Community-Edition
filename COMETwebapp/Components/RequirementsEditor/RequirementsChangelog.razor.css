@@ -1,0 +1,50 @@
+.req-changelog-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #eaecef;
+}
+
+.req-changelog-toolbar .req-toolbar-label {
+    font-size: 0.8rem;
+    color: #667085;
+}
+
+.req-changelog-empty {
+    color: #98a2b3;
+    font-style: italic;
+    padding: 24px;
+}
+
+.req-changelog-error {
+    color: #b42318;
+    padding: 16px 24px;
+}
+
+.req-changelog-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.req-changelog-chip {
+    border: 1px solid #d0d5dd;
+    background: #fff;
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    color: #667085;
+    cursor: pointer;
+}
+
+.req-changelog-chip-active {
+    background: #eef4ff;
+    border-color: #0d6efd;
+    color: #0d6efd;
+    font-weight: 600;
+}

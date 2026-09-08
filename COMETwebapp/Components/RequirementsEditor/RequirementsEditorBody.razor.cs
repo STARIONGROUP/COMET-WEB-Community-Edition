@@ -81,6 +81,9 @@ namespace COMETwebapp.Components.RequirementsEditor
                     x => x.ViewModel.ScrollTargetGroup,
                     x => x.ViewModel.ConfirmCancelPopupViewModel.IsVisible)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ActiveView)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>

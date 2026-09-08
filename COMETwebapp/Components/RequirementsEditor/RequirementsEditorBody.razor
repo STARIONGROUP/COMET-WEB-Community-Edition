@@ -27,87 +27,15 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <div id="@WebAppConstantValues.RequirementManagementPage.QueryPageBodyName()" class="req-editor">
-        <div class="req-toolbar">
-            <DxButton Id="requirement-toc-toggle"
-                      RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
-                      IconCssClass="@((this.ViewModel.IsTocCollapsed ? IconName.ChevronRight : IconName.ChevronLeft).GetCssClass())"
-                      title="Toggle table of contents"
-                      Click="@(() => this.ViewModel.IsTocCollapsed = !this.ViewModel.IsTocCollapsed)"
-                      CssClass="req-collapse-toggle" />
-
-            <div id="requirement-search" class="req-search">
-                <SearchBar @bind-Text="@this.ViewModel.SearchText" Placeholder="Search in definitions..."/>
-            </div>
-
-            <div class="filter-bar-item">
-                <FilterTagBox TItem="DomainOfExpertise"
-                              Id="requirement-owner-filter"
-                              Data="@this.ViewModel.AvailableOwners"
-                              Values="@this.ViewModel.SelectedOwners"
-                              ValuesChanged="@((IEnumerable<DomainOfExpertise> values) => this.ViewModel.SelectedOwners = values.ToList())"
-                              TextFieldName="@nameof(DomainOfExpertise.Name)"
-                              NullText="Filter by owner..." />
-            </div>
-
-            <div class="filter-bar-item">
-                <FilterTagBox TItem="Category"
-                              Id="requirement-category-filter"
-                              Data="@this.ViewModel.AvailableCategories"
-                              Values="@this.ViewModel.SelectedCategories"
-                              ValuesChanged="@((IEnumerable<Category> values) => this.ViewModel.SelectedCategories = values.ToList())"
-                              TextFieldName="@nameof(Category.Name)"
-                              NullText="Filter by category..." />
-            </div>
-
-            @if (this.ViewModel.ShowSimpleParameterValues && this.ViewModel.GetSpecificationParameterTypes().Count > 0)
-            {
-                <div class="filter-bar-item" title="Choose which simple parameter value columns to show">
-                    <FilterTagBox TItem="ParameterType"
-                                  Data="@this.ViewModel.GetSpecificationParameterTypes()"
-                                  Values="@this.ViewModel.SelectedParameterTypeColumns"
-                                  ValuesChanged="@((IEnumerable<ParameterType> values) => this.ViewModel.SelectedParameterTypeColumns = values.ToList())"
-                                  TextFieldName="@nameof(ParameterType.Name)"
-                                  NullText="All value columns..." />
-                </div>
-            }
-
-            <div class="req-toolbar-group req-toolbar-right">
-                <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
-                          IconCssClass="@IconName.Add.GetCssClass()"
-                          Text="Specification"
-                          title="Create a new specification"
-                          Click="@(() => this.ViewModel.OpenCreateSpecification())" />
-
-                <ViewOptionsMenu ButtonId="reqViewMenuButton" ButtonTitle="Layout and display options">
-                    <div class="req-view-section">
-                        <span class="req-toolbar-label">Layout</span>
-                        <div class="btn-group" role="group" aria-label="Requirement layout">
-                            @foreach (var mode in DisplayModes)
-                            {
-                                <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
-                                          CssClass="@(this.ViewModel.DisplayMode == mode ? "req-view-toggle-on" : string.Empty)"
-                                          Text="@GetDisplayModeLabel(mode)"
-                                          title="@GetDisplayModeTitle(mode)"
-                                          Click="@(() => this.ViewModel.DisplayMode = mode)" />
-                            }
-                        </div>
-                    </div>
-
-                    <div class="req-view-section">
-                        <span class="req-toolbar-label">Show</span>
-                        <DxCheckBox Checked="@(!this.ViewModel.TreeUsesShortName)"
-                                    CheckedChanged="@((bool value) => this.ViewModel.TreeUsesShortName = !value)"
-                                    CheckType="CheckType.Switch"
-                                    title="Label the table of contents and traceability by full name instead of short name">Full names</DxCheckBox>
-                        <DxCheckBox @bind-Checked="@this.ViewModel.IndentGroups" CheckType="CheckType.Switch">Indent groups</DxCheckBox>
-                        <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
-                        <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategory" CheckType="CheckType.Switch">Category</DxCheckBox>
-                        <DxCheckBox @bind-Checked="@this.ViewModel.ShowSimpleParameterValues" CheckType="CheckType.Switch" title="Show the simple parameter values of each requirement as editable columns">Values</DxCheckBox>
-                        <DxCheckBox @bind-Checked="@this.ViewModel.ShowParametricConstraints" CheckType="CheckType.Switch" title="Show the parametric constraints of each requirement">Constraints</DxCheckBox>
-                        <DxCheckBox @bind-Checked="@this.ViewModel.ShowTraceability" CheckType="CheckType.Switch" title="Show the relationships to and from each requirement">Traceability</DxCheckBox>
-                    </div>
-                </ViewOptionsMenu>
-            </div>
+        <div class="btn-group req-view-switch" role="group" aria-label="Requirements view">
+            <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                      CssClass="@(this.ViewModel.ActiveView == RequirementsEditorView.Document ? "req-view-toggle-on" : string.Empty)"
+                      Text="Document"
+                      Click="@(() => this.ViewModel.ActiveView = RequirementsEditorView.Document)" />
+            <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                      CssClass="@(this.ViewModel.ActiveView == RequirementsEditorView.Changelog ? "req-view-toggle-on" : string.Empty)"
+                      Text="Changes"
+                      Click="@(() => this.ViewModel.ActiveView = RequirementsEditorView.Changelog)" />
         </div>
 
         <DxPopup CloseOnOutsideClick="false" HeaderText="@this.ViewModel.EditPopupHeader" @bind-Visible="@this.ViewModel.IsOnEditMode" Width="min(700px, 90vw)">
@@ -118,13 +46,103 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
         <ConfirmCancelPopup ViewModel="@this.ViewModel.ConfirmCancelPopupViewModel" />
 
-        <div class="req-editor-layout @(this.ViewModel.IsTocCollapsed ? "toc-collapsed" : string.Empty)">
-            <div class="req-toc">
-                <RequirementsTree ViewModel="@this.ViewModel" />
+        @if (this.ViewModel.ActiveView == RequirementsEditorView.Document)
+        {
+            <div class="req-toolbar">
+                <DxButton Id="requirement-toc-toggle"
+                          RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                          IconCssClass="@((this.ViewModel.IsTocCollapsed ? IconName.ChevronRight : IconName.ChevronLeft).GetCssClass())"
+                          title="Toggle table of contents"
+                          Click="@(() => this.ViewModel.IsTocCollapsed = !this.ViewModel.IsTocCollapsed)"
+                          CssClass="req-collapse-toggle" />
+
+                <div id="requirement-search" class="req-search">
+                    <SearchBar @bind-Text="@this.ViewModel.SearchText" Placeholder="Search in definitions..."/>
+                </div>
+
+                <div class="filter-bar-item">
+                    <FilterTagBox TItem="DomainOfExpertise"
+                                  Id="requirement-owner-filter"
+                                  Data="@this.ViewModel.AvailableOwners"
+                                  Values="@this.ViewModel.SelectedOwners"
+                                  ValuesChanged="@((IEnumerable<DomainOfExpertise> values) => this.ViewModel.SelectedOwners = values.ToList())"
+                                  TextFieldName="@nameof(DomainOfExpertise.Name)"
+                                  NullText="Filter by owner..." />
+                </div>
+
+                <div class="filter-bar-item">
+                    <FilterTagBox TItem="Category"
+                                  Id="requirement-category-filter"
+                                  Data="@this.ViewModel.AvailableCategories"
+                                  Values="@this.ViewModel.SelectedCategories"
+                                  ValuesChanged="@((IEnumerable<Category> values) => this.ViewModel.SelectedCategories = values.ToList())"
+                                  TextFieldName="@nameof(Category.Name)"
+                                  NullText="Filter by category..." />
+                </div>
+
+                @if (this.ViewModel.ShowSimpleParameterValues && this.ViewModel.GetSpecificationParameterTypes().Count > 0)
+                {
+                    <div class="filter-bar-item" title="Choose which simple parameter value columns to show">
+                        <FilterTagBox TItem="ParameterType"
+                                      Data="@this.ViewModel.GetSpecificationParameterTypes()"
+                                      Values="@this.ViewModel.SelectedParameterTypeColumns"
+                                      ValuesChanged="@((IEnumerable<ParameterType> values) => this.ViewModel.SelectedParameterTypeColumns = values.ToList())"
+                                      TextFieldName="@nameof(ParameterType.Name)"
+                                      NullText="All value columns..." />
+                    </div>
+                }
+
+                <div class="req-toolbar-group req-toolbar-right">
+                    <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                              IconCssClass="@IconName.Add.GetCssClass()"
+                              Text="Specification"
+                              title="Create a new specification"
+                              Click="@(() => this.ViewModel.OpenCreateSpecification())" />
+
+                    <ViewOptionsMenu ButtonId="reqViewMenuButton" ButtonTitle="Layout and display options">
+                        <div class="req-view-section">
+                            <span class="req-toolbar-label">Layout</span>
+                            <div class="btn-group" role="group" aria-label="Requirement layout">
+                                @foreach (var mode in DisplayModes)
+                                {
+                                    <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                                              CssClass="@(this.ViewModel.DisplayMode == mode ? "req-view-toggle-on" : string.Empty)"
+                                              Text="@GetDisplayModeLabel(mode)"
+                                              title="@GetDisplayModeTitle(mode)"
+                                              Click="@(() => this.ViewModel.DisplayMode = mode)" />
+                                }
+                            </div>
+                        </div>
+
+                        <div class="req-view-section">
+                            <span class="req-toolbar-label">Show</span>
+                            <DxCheckBox Checked="@(!this.ViewModel.TreeUsesShortName)"
+                                        CheckedChanged="@((bool value) => this.ViewModel.TreeUsesShortName = !value)"
+                                        CheckType="CheckType.Switch"
+                                        title="Label the table of contents and traceability by full name instead of short name">Full names</DxCheckBox>
+                            <DxCheckBox @bind-Checked="@this.ViewModel.IndentGroups" CheckType="CheckType.Switch">Indent groups</DxCheckBox>
+                            <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
+                            <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategory" CheckType="CheckType.Switch">Category</DxCheckBox>
+                            <DxCheckBox @bind-Checked="@this.ViewModel.ShowSimpleParameterValues" CheckType="CheckType.Switch" title="Show the simple parameter values of each requirement as editable columns">Values</DxCheckBox>
+                            <DxCheckBox @bind-Checked="@this.ViewModel.ShowParametricConstraints" CheckType="CheckType.Switch" title="Show the parametric constraints of each requirement">Constraints</DxCheckBox>
+                            <DxCheckBox @bind-Checked="@this.ViewModel.ShowTraceability" CheckType="CheckType.Switch" title="Show the relationships to and from each requirement">Traceability</DxCheckBox>
+                        </div>
+                    </ViewOptionsMenu>
+                </div>
             </div>
-            <div class="req-document @(this.ViewModel.IndentGroups ? string.Empty : "no-indent")">
-                <RequirementsDocument ViewModel="@this.ViewModel" />
+
+            <div class="req-editor-layout @(this.ViewModel.IsTocCollapsed ? "toc-collapsed" : string.Empty)">
+                <div class="req-toc">
+                    <RequirementsTree ViewModel="@this.ViewModel" />
+                </div>
+                <div class="req-document @(this.ViewModel.IndentGroups ? string.Empty : "no-indent")">
+                    <RequirementsDocument ViewModel="@this.ViewModel" />
+                </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <RequirementsChangelog ViewModel="@this.ViewModel.ChangelogViewModel" />
+        }
     </div>
 </LoadingComponent>

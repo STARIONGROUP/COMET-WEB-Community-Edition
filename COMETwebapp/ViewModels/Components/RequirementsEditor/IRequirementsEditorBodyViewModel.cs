@@ -39,6 +39,16 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     public interface IRequirementsEditorBodyViewModel : ISingleIterationApplicationBaseViewModel
     {
         /// <summary>
+        /// Gets the view model driving the requirements changelog view.
+        /// </summary>
+        IRequirementsChangelogViewModel ChangelogViewModel { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="RequirementsEditorView" /> currently shown.
+        /// </summary>
+        RequirementsEditorView ActiveView { get; set; }
+
+        /// <summary>
         /// Gets the non-deprecated <see cref="RequirementsSpecification" />s of the current iteration.
         /// </summary>
         IEnumerable<RequirementsSpecification> AvailableSpecifications { get; }

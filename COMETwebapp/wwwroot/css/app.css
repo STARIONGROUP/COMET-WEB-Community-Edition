@@ -287,6 +287,18 @@ div[id^="dropdown-customization-target-container-"] { display: flex; }
     width: 100%;
 }
 
+.changelog-row-created {
+    background-color: rgba(18, 128, 92, 0.12);
+}
+
+.changelog-row-modified {
+    background-color: rgba(13, 110, 253, 0.14);
+}
+
+.changelog-row-deleted {
+    background-color: rgba(180, 35, 24, 0.12);
+}
+
 .ui-state-highlight {
     background-color: rgba(var(--bs-primary-rgb), .3);
 }

@@ -830,6 +830,22 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         }
 
         [Test]
+        public async Task VerifyChangelogWiring()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ChangelogViewModel, Is.Not.Null);
+                Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Document));
+                Assert.That(this.viewModel.ChangelogViewModel.CurrentIteration, Is.EqualTo(this.iteration));
+            });
+
+            this.viewModel.ActiveView = RequirementsEditorView.Changelog;
+            Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Changelog));
+        }
+
+        [Test]
         public async Task VerifyNavigateToDeprecatedRequirementShowsDeprecated()
         {
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
