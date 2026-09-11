@@ -45,8 +45,6 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
-    using DevExpress.Blazor;
-
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -70,10 +68,6 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
-            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
-            this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init").SetVoidResult();
-            this.context.JSInterop.SetupVoid("DxBlazor.Input.loadModule").SetVoidResult();
-            this.context.JSInterop.SetupVoid("DxBlazor.UiHandlersBridge.loadModule").SetVoidResult();
 
             this.messageBus = new CDPMessageBus();
 

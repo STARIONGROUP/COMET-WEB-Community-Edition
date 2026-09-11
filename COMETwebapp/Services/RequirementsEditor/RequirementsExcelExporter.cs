@@ -102,7 +102,7 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// <summary>
         /// The ordered columns written for every requirement, resolved once from the configuration.
         /// </summary>
-        private readonly List<Column> columns;
+        private readonly List<RequirementsExportColumn> columns;
 
         /// <summary>
         /// The one-based index of the requirement's identity column, indented to convey group depth and carrying a
@@ -349,9 +349,9 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// <param name="identityColumn">The one-based index of the requirement's identity column</param>
         /// <param name="groupColumn">The one-based index of the group column, or zero when requirements are not grouped</param>
         /// <returns>The ordered columns</returns>
-        private List<Column> BuildColumns(out int identityColumn, out int groupColumn)
+        private List<RequirementsExportColumn> BuildColumns(out int identityColumn, out int groupColumn)
         {
-            var result = new List<Column>();
+            var result = new List<RequirementsExportColumn>();
 
             this.AddSpecificationColumn(result);
             identityColumn = result.Count + 1;
@@ -374,11 +374,11 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// back to its specification.
         /// </summary>
         /// <param name="result">The columns to add to</param>
-        private void AddSpecificationColumn(List<Column> result)
+        private void AddSpecificationColumn(List<RequirementsExportColumn> result)
         {
             if (!this.Configuration.SpecificationPerSheet)
             {
-                result.Add(new Column("Specification", (_, specification) => this.Label(specification), false));
+                result.Add(new RequirementsExportColumn("Specification", (_, specification) => this.Label(specification), false));
             }
         }
 
@@ -387,17 +387,17 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// <see cref="RequirementsExportNamingMode.Both" />, otherwise the single configured one.
         /// </summary>
         /// <param name="result">The columns to add to</param>
-        private void AddIdentityColumns(List<Column> result)
+        private void AddIdentityColumns(List<RequirementsExportColumn> result)
         {
             if (this.Configuration.NamingMode == RequirementsExportNamingMode.Both)
             {
-                result.Add(new Column("Short Name", (requirement, _) => requirement.ShortName, false));
-                result.Add(new Column("Name", (requirement, _) => requirement.Name, false));
+                result.Add(new RequirementsExportColumn("Short Name", (requirement, _) => requirement.ShortName, false));
+                result.Add(new RequirementsExportColumn("Name", (requirement, _) => requirement.Name, false));
                 return;
             }
 
             var byName = this.Configuration.NamingMode == RequirementsExportNamingMode.Name;
-            result.Add(new Column(byName ? "Name" : "Short Name", (requirement, _) => byName ? requirement.Name : requirement.ShortName, false));
+            result.Add(new RequirementsExportColumn(byName ? "Name" : "Short Name", (requirement, _) => byName ? requirement.Name : requirement.ShortName, false));
         }
 
         /// <summary>
@@ -405,11 +405,11 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// definitions are included.
         /// </summary>
         /// <param name="result">The columns to add to</param>
-        private void AddDefinitionColumns(List<Column> result)
+        private void AddDefinitionColumns(List<RequirementsExportColumn> result)
         {
             if (this.Configuration.IncludeDefinitions)
             {
-                result.AddRange(this.definitionLanguages.Select(language => new Column($"Definition ({language})", (requirement, _) => Definition(requirement, language), true)));
+                result.AddRange(this.definitionLanguages.Select(language => new RequirementsExportColumn($"Definition ({language})", (requirement, _) => Definition(requirement, language), true)));
             }
         }
 
@@ -417,11 +417,11 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// Adds the "Owner" column, when configured.
         /// </summary>
         /// <param name="result">The columns to add to</param>
-        private void AddOwnerColumn(List<Column> result)
+        private void AddOwnerColumn(List<RequirementsExportColumn> result)
         {
             if (this.Configuration.IncludeOwner)
             {
-                result.Add(new Column("Owner", (requirement, _) => requirement.Owner == null ? string.Empty : this.Label(requirement.Owner), false));
+                result.Add(new RequirementsExportColumn("Owner", (requirement, _) => requirement.Owner == null ? string.Empty : this.Label(requirement.Owner), false));
             }
         }
 
@@ -429,11 +429,11 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// Adds the "Categories" column, when configured.
         /// </summary>
         /// <param name="result">The columns to add to</param>
-        private void AddCategoriesColumn(List<Column> result)
+        private void AddCategoriesColumn(List<RequirementsExportColumn> result)
         {
             if (this.Configuration.IncludeCategories)
             {
-                result.Add(new Column("Categories", (requirement, _) => string.Join(", ", requirement.Category.Select(this.Label)), false));
+                result.Add(new RequirementsExportColumn("Categories", (requirement, _) => string.Join(", ", requirement.Category.Select(this.Label)), false));
             }
         }
 
@@ -442,14 +442,14 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// </summary>
         /// <param name="result">The columns to add to</param>
         /// <returns>The one-based index of the added column, or zero when requirements are not grouped</returns>
-        private int AddGroupColumn(List<Column> result)
+        private int AddGroupColumn(List<RequirementsExportColumn> result)
         {
             if (!this.Configuration.GroupRequirements)
             {
                 return 0;
             }
 
-            result.Add(new Column("Group", (requirement, _) => requirement.Group == null ? string.Empty : this.Label(requirement.Group), false));
+            result.Add(new RequirementsExportColumn("Group", (requirement, _) => requirement.Group == null ? string.Empty : this.Label(requirement.Group), false));
             return result.Count;
         }
 
@@ -457,11 +457,11 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// Adds the "Deprecated" column, when configured.
         /// </summary>
         /// <param name="result">The columns to add to</param>
-        private void AddDeprecatedColumn(List<Column> result)
+        private void AddDeprecatedColumn(List<RequirementsExportColumn> result)
         {
             if (this.Configuration.IncludeDeprecated)
             {
-                result.Add(new Column("Deprecated", (requirement, _) => requirement.IsDeprecated ? "Yes" : string.Empty, false));
+                result.Add(new RequirementsExportColumn("Deprecated", (requirement, _) => requirement.IsDeprecated ? "Yes" : string.Empty, false));
             }
         }
 
@@ -469,20 +469,20 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// Adds one column per resolved <see cref="valueColumns" /> parameter type.
         /// </summary>
         /// <param name="result">The columns to add to</param>
-        private void AddValueColumns(List<Column> result)
+        private void AddValueColumns(List<RequirementsExportColumn> result)
         {
-            result.AddRange(this.valueColumns.Select(parameterType => new Column(this.Label(parameterType), (requirement, _) => SimpleParameterValue(requirement, parameterType), false)));
+            result.AddRange(this.valueColumns.Select(parameterType => new RequirementsExportColumn(this.Label(parameterType), (requirement, _) => SimpleParameterValue(requirement, parameterType), false)));
         }
 
         /// <summary>
         /// Adds the "Parametric Constraints" column, when configured.
         /// </summary>
         /// <param name="result">The columns to add to</param>
-        private void AddConstraintsColumn(List<Column> result)
+        private void AddConstraintsColumn(List<RequirementsExportColumn> result)
         {
             if (this.Configuration.IncludeParametricConstraints)
             {
-                result.Add(new Column("Parametric Constraints", (requirement, _) => string.Join("\n", requirement.ParametricConstraint.Select(this.payload.GetConstraintText)), true));
+                result.Add(new RequirementsExportColumn("Parametric Constraints", (requirement, _) => string.Join("\n", requirement.ParametricConstraint.Select(this.payload.GetConstraintText)), true));
             }
         }
 
@@ -491,7 +491,7 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// every non-directional rule, and a single generic "Relationships" column when any relationship matches no rule.
         /// </summary>
         /// <returns>The relationship columns</returns>
-        private List<Column> BuildRelationshipColumns()
+        private List<RequirementsExportColumn> BuildRelationshipColumns()
         {
             if (this.Configuration.Relationships == RequirementsExportSelectionMode.None)
             {
@@ -499,7 +499,7 @@ namespace COMETwebapp.Services.RequirementsEditor
             }
 
             var details = this.relationshipDetails.Values.SelectMany(x => x).ToList();
-            var result = new List<Column>();
+            var result = new List<RequirementsExportColumn>();
 
             var rules = details
                 .Where(detail => detail.Rule != null)
@@ -514,18 +514,18 @@ namespace COMETwebapp.Services.RequirementsEditor
 
                 if (rule.IsDirectional)
                 {
-                    result.Add(new Column(rule.ForwardName, (requirement, _) => this.RelationshipCell(requirement, ruleIid, RelationshipDirection.Outgoing), true));
-                    result.Add(new Column(rule.InverseName, (requirement, _) => this.RelationshipCell(requirement, ruleIid, RelationshipDirection.Incoming), true));
+                    result.Add(new RequirementsExportColumn(rule.ForwardName, (requirement, _) => this.RelationshipCell(requirement, ruleIid, RelationshipDirection.Outgoing), true));
+                    result.Add(new RequirementsExportColumn(rule.InverseName, (requirement, _) => this.RelationshipCell(requirement, ruleIid, RelationshipDirection.Incoming), true));
                 }
                 else
                 {
-                    result.Add(new Column(rule.Name, (requirement, _) => this.RelationshipCell(requirement, ruleIid, RelationshipDirection.Bidirectional), true));
+                    result.Add(new RequirementsExportColumn(rule.Name, (requirement, _) => this.RelationshipCell(requirement, ruleIid, RelationshipDirection.Bidirectional), true));
                 }
             }
 
             if (details.Any(detail => detail.Rule == null))
             {
-                result.Add(new Column("Relationships", (requirement, _) => this.RelationshipCell(requirement, null, null), true));
+                result.Add(new RequirementsExportColumn("Relationships", (requirement, _) => this.RelationshipCell(requirement, null, null), true));
             }
 
             return result;
@@ -597,7 +597,6 @@ namespace COMETwebapp.Services.RequirementsEditor
                     return this.allRequirements
                         .SelectMany(requirement => requirement.ParameterValue)
                         .Select(value => value.ParameterType)
-                        .Where(parameterType => parameterType != null)
                         .DistinctBy(parameterType => parameterType.Iid)
                         .OrderBy(parameterType => parameterType.ShortName)
                         .ToList();
@@ -743,7 +742,7 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// duplicates, because an Excel table forbids two columns with the same header.
         /// </summary>
         /// <param name="result">The columns to disambiguate in place</param>
-        private static void EnsureUniqueTitles(List<Column> result)
+        private static void EnsureUniqueTitles(List<RequirementsExportColumn> result)
         {
             var used = new HashSet<string>();
 
@@ -810,41 +809,6 @@ namespace COMETwebapp.Services.RequirementsEditor
             }
 
             return candidate;
-        }
-
-        /// <summary>
-        /// One exported column: its header title, the cell value for a requirement, and whether it is a wide free-text
-        /// column that should wrap.
-        /// </summary>
-        private sealed class Column
-        {
-            /// <summary>
-            /// Creates a new instance of <see cref="Column" />
-            /// </summary>
-            /// <param name="title">The header title</param>
-            /// <param name="value">The cell value for a requirement in its specification</param>
-            /// <param name="wide">Whether the column is a wide, wrapping free-text column</param>
-            public Column(string title, Func<Requirement, RequirementsSpecification, string> value, bool wide)
-            {
-                this.Title = title;
-                this.Value = value;
-                this.Wide = wide;
-            }
-
-            /// <summary>
-            /// Gets or sets the header title; disambiguated after the columns are built.
-            /// </summary>
-            public string Title { get; set; }
-
-            /// <summary>
-            /// Gets the cell value for a requirement in its specification.
-            /// </summary>
-            public Func<Requirement, RequirementsSpecification, string> Value { get; }
-
-            /// <summary>
-            /// Gets a value indicating whether the column is a wide, wrapping free-text column.
-            /// </summary>
-            public bool Wide { get; }
         }
     }
 }

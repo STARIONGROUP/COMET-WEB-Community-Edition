@@ -1222,7 +1222,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 .SelectMany(specification => specification.Requirement)
                 .SelectMany(requirement => requirement.ParameterValue)
                 .Select(value => value.ParameterType)
-                .Where(parameterType => parameterType != null)
                 .DistinctBy(parameterType => parameterType.Iid)
                 .OrderBy(parameterType => parameterType.ShortName)
                 .ToList();

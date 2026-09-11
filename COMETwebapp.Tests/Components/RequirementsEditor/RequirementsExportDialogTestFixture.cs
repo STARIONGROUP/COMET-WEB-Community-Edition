@@ -32,8 +32,6 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMETwebapp.Model.RequirementsEditor.Export;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
-    using DevExpress.Blazor;
-
     using Moq;
 
     using NUnit.Framework;
@@ -50,10 +48,6 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
-            this.context.JSInterop.Mode = JSRuntimeMode.Loose;
-            this.context.JSInterop.SetupVoid("DxBlazor.AdaptiveDropDown.init").SetVoidResult();
-            this.context.JSInterop.SetupVoid("DxBlazor.Input.loadModule").SetVoidResult();
-            this.context.JSInterop.SetupVoid("DxBlazor.UiHandlersBridge.loadModule").SetVoidResult();
 
             var specification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "KUR", Name = "Key-User Requirements" };
             this.configuration = new RequirementsExportConfiguration();
@@ -65,7 +59,6 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.viewModel.Setup(x => x.GetExportableDefinitionLanguages()).Returns([]);
             this.viewModel.Setup(x => x.GetExportableParameterTypes()).Returns([]);
             this.viewModel.Setup(x => x.GetExportableRelationshipCategories()).Returns([]);
-            this.viewModel.Setup(x => x.ExportAsync()).Returns(Task.CompletedTask);
         }
 
         [TearDown]
