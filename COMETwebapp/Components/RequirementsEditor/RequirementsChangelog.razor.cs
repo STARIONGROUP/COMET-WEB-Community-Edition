@@ -22,27 +22,23 @@
 
 namespace COMETwebapp.Components.RequirementsEditor
 {
+    using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.JSInterop;
 
     using ReactiveUI;
 
     /// <summary>
     /// Support class for the <see cref="RequirementsChangelog" /> component: it renders the requirements changelog
     /// between the current iteration and a selected baseline iteration as a grid grouped by specification, with a
-    /// change-kind filter and a specification filter.
+    /// specification filter; the grid's own column filters handle everything else.
     /// </summary>
     public partial class RequirementsChangelog
     {
-        /// <summary>
-        /// The <see cref="RequirementChangeKind" />s currently shown; defaults to every kind present in the last
-        /// comparison.
-        /// </summary>
-        private HashSet<RequirementChangeKind> activeKinds = [];
-
         /// <summary>
         /// The <see cref="RequirementChange.SpecificationLabel" />s currently selected in the specification filter; an
         /// empty selection shows every specification.
@@ -54,6 +50,19 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// </summary>
         [Parameter]
         public IRequirementsChangelogViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the callback invoked when the user asks to navigate to the element of a
+        /// <see cref="RequirementChange" /> in the document.
+        /// </summary>
+        [Parameter]
+        public EventCallback<RequirementChange> OnNavigateToElement { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IDomDataService" /> used to scroll a changelog row into view.
+        /// </summary>
+        [Inject]
+        public IDomDataService DomDataService { get; set; }
 
         /// <summary>
         /// Gets or sets the grid control that is being customized.
@@ -72,10 +81,9 @@ namespace COMETwebapp.Components.RequirementsEditor
 
         /// <summary>
         /// Gets the <see cref="ViewModel" />'s <see cref="IRequirementsChangelogViewModel.Changes" /> that pass the
-        /// <see cref="activeKinds" /> and <see cref="selectedSpecifications" /> filters.
+        /// <see cref="selectedSpecifications" /> filter; the grid's own column filters refine the rest.
         /// </summary>
         private IEnumerable<RequirementChange> FilteredChanges => this.ViewModel.Changes
-            .Where(x => this.activeKinds.Contains(x.Kind))
             .Where(x => this.selectedSpecifications.Count == 0 || this.selectedSpecifications.Contains(x.SpecificationLabel));
 
         /// <summary>
@@ -86,9 +94,8 @@ namespace COMETwebapp.Components.RequirementsEditor
             base.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.Changes)
-                .Subscribe(changes =>
+                .Subscribe(_ =>
                 {
-                    this.activeKinds = changes.Select(x => x.Kind).Distinct().ToHashSet();
                     this.selectedSpecifications = [];
                     this.InvokeAsync(this.StateHasChanged);
                 }));
@@ -96,30 +103,57 @@ namespace COMETwebapp.Components.RequirementsEditor
             this.Disposables.Add(this.WhenAnyValue(
                     x => x.ViewModel.SelectedBaseline,
                     x => x.ViewModel.IsLoading,
-                    x => x.ViewModel.HasCompared)
+                    x => x.ViewModel.HasCompared,
+                    x => x.ViewModel.ScrollToElementId)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
-        /// Gets whether the given <paramref name="kind" /> is currently shown.
+        /// Scrolls the changelog row of <see cref="IRequirementsChangelogViewModel.ScrollToElementId" /> into view once
+        /// it has been requested and rendered, after the user navigates back from the document.
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementChangeKind" /></param>
-        /// <returns>true when rows of this kind are shown</returns>
-        private bool IsKindActive(RequirementChangeKind kind)
+        /// <param name="firstRender">true on the first render of the component</param>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            return this.activeKinds.Contains(kind);
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (this.ViewModel.ScrollToElementId is { } id)
+            {
+                this.ViewModel.ClearScrollTarget();
+
+                try
+                {
+                    await this.DomDataService.ScrollElementIntoView($"changelog-row-{id}");
+                }
+                catch (Exception exception) when (exception is JSException or JSDisconnectedException)
+                {
+                    // The scroll is purely cosmetic; a stale cached DomData.js or a circuit that disconnected
+                    // mid-render must never kill the page.
+                }
+            }
         }
 
         /// <summary>
-        /// Shows or hides the rows of the given <paramref name="kind" />.
+        /// Gets whether the given <paramref name="change" /> can be navigated to in the document: a deleted element is
+        /// no longer part of the current iteration, and a relationship has no document location of its own.
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementChangeKind" /></param>
-        private void ToggleKind(RequirementChangeKind kind)
+        /// <param name="change">The <see cref="RequirementChange" /></param>
+        /// <returns>true when a "go to element" button should be shown for the change</returns>
+        private static bool IsNavigable(RequirementChange change)
         {
-            if (!this.activeKinds.Remove(kind))
-            {
-                this.activeKinds.Add(kind);
-            }
+            return change.Kind != RequirementChangeKind.Deleted
+                   && change.ElementKind is "Requirement" or "Requirements Group" or "Requirements Specification";
+        }
+
+        /// <summary>
+        /// Exports the currently filtered <see cref="FilteredChanges" /> to an Excel workbook and offers it for
+        /// download.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task ExportAsync()
+        {
+            await this.ViewModel.ExportAsync(this.FilteredChanges.ToList());
         }
 
         /// <summary>

@@ -892,6 +892,54 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         }
 
         [Test]
+        public async Task VerifyNavigateToChangelogElement()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.ActiveView = RequirementsEditorView.Changelog;
+            this.viewModel.SelectedSpecification = this.deprecatedSpecification;
+
+            this.viewModel.NavigateToChangelogElement(this.c4iRequirement.Iid, "Requirement");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Document));
+                Assert.That(this.viewModel.CameFromChangelog, Is.True);
+                Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.specification));
+                Assert.That(this.viewModel.ScrollTarget, Is.EqualTo(this.c4iRequirement));
+            });
+
+            this.viewModel.ActiveView = RequirementsEditorView.Changelog;
+            this.viewModel.CameFromChangelog = false;
+
+            this.viewModel.NavigateToChangelogElement(Guid.NewGuid(), "Requirement");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Changelog), "an unresolved element must not switch the view");
+                Assert.That(this.viewModel.CameFromChangelog, Is.False);
+            });
+        }
+
+        [Test]
+        public async Task VerifyReturnToChangelog()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.ActiveView = RequirementsEditorView.Changelog;
+            this.viewModel.NavigateToChangelogElement(this.c4iRequirement.Iid, "Requirement");
+
+            this.viewModel.ReturnToChangelog();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Changelog));
+                Assert.That(this.viewModel.CameFromChangelog, Is.False);
+                Assert.That(this.viewModel.ChangelogViewModel.ScrollToElementId, Is.EqualTo(this.c4iRequirement.Iid));
+            });
+        }
+
+        [Test]
         public async Task VerifyNavigateToDeprecatedRequirementShowsDeprecated()
         {
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);

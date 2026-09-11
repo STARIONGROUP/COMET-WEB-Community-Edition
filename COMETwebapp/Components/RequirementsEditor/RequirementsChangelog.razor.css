@@ -1,4 +1,13 @@
+.req-changelog {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+}
+
 .req-changelog-toolbar {
+    flex: 0 0 auto;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -6,6 +15,10 @@
     padding-bottom: 10px;
     margin-bottom: 8px;
     border-bottom: 1px solid #eaecef;
+}
+
+.req-changelog-toolbar ::deep .dxbl-btn:not(.dxbl-edit-btn-clear):not(.dxbl-tag-btn-close) {
+    height: var(--control-height, 38px);
 }
 
 .req-changelog-toolbar .req-toolbar-label {
@@ -25,6 +38,7 @@
 }
 
 .req-changelog-filters {
+    flex: 0 0 auto;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -32,19 +46,14 @@
     margin-bottom: 12px;
 }
 
-.req-changelog-chip {
-    border: 1px solid #d0d5dd;
-    background: #fff;
-    border-radius: 999px;
-    padding: 2px 10px;
-    font-size: 0.75rem;
-    color: #667085;
-    cursor: pointer;
+.req-changelog-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
 }
 
-.req-changelog-chip-active {
-    background: #eef4ff;
-    border-color: #0d6efd;
-    color: #0d6efd;
-    font-weight: 600;
+.req-changelog-grid ::deep .dxbl-grid-header-row > *:last-child .dxbl-grid-filter-menu-funnel-btn,
+.req-changelog-grid ::deep .dxbl-grid-header-row > *:last-child .dxbl-grid-sort-asc,
+.req-changelog-grid ::deep .dxbl-grid-header-row > *:last-child .dxbl-grid-sort-desc {
+    display: none;
 }

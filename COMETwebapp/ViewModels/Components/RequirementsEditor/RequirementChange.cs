@@ -91,10 +91,10 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         public string NewValue { get; init; } = string.Empty;
 
         /// <summary>
-        /// Gets the name of the <see cref="CDP4Common.SiteDirectoryData.Person" /> that last authored the changed
-        /// element, or an empty string when the data-source did not record it.
+        /// Gets the short name of the owning <see cref="CDP4Common.SiteDirectoryData.DomainOfExpertise" /> of the
+        /// changed element.
         /// </summary>
-        public string Author { get; init; } = string.Empty;
+        public string Owner { get; init; } = string.Empty;
 
         /// <summary>
         /// Gets the display label combining <see cref="ElementKind" /> and <see cref="ElementShortName" />, used as the

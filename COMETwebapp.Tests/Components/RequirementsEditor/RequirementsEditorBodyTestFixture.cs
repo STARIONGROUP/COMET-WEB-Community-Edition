@@ -125,6 +125,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.context.Services.AddSingleton(this.domDataService.Object);
             this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.context.Services.AddSingleton<IRequirementsEditorBodyViewModel>(this.viewModel);
+            this.context.Services.AddSingleton(new Mock<IExportService>().Object);
 
             this.renderedComponent = this.context.Render<RequirementsEditorBody>();
         }
