@@ -36,6 +36,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
+    using COMETwebapp.Services.Export;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
@@ -140,7 +141,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             this.messageBus = new CDPMessageBus();
             this.showHideService = new ShowHideDeprecatedThingsService();
 
-            this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, this.showHideService, new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object)
+            this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, this.showHideService, new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object, new Mock<IExportService>().Object)
             {
                 CurrentThing = this.iteration
             };
@@ -826,6 +827,70 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             {
                 Assert.That(this.viewModel.ScrollTargetGroup, Is.EqualTo(this.c4iGroup), "the clicked group is flagged as the scroll target");
                 Assert.That(this.viewModel.IsDocumentGroupCollapsed(this.operateGroup.Iid), Is.False, "the target's ancestor groups are expanded so it renders");
+            });
+        }
+
+        [Test]
+        public async Task VerifyChangelogWiring()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ChangelogViewModel, Is.Not.Null);
+                Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Document));
+                Assert.That(this.viewModel.ChangelogViewModel.CurrentIteration, Is.EqualTo(this.iteration));
+            });
+
+            this.viewModel.ActiveView = RequirementsEditorView.Changelog;
+            Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Changelog));
+        }
+
+        [Test]
+        public async Task VerifyNavigateToChangelogElement()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.ActiveView = RequirementsEditorView.Changelog;
+            this.viewModel.SelectedSpecification = this.deprecatedSpecification;
+
+            this.viewModel.NavigateToChangelogElement(this.c4iRequirement.Iid, "Requirement");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Document));
+                Assert.That(this.viewModel.CameFromChangelog, Is.True);
+                Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.specification));
+                Assert.That(this.viewModel.ScrollTarget, Is.EqualTo(this.c4iRequirement));
+            });
+
+            this.viewModel.ActiveView = RequirementsEditorView.Changelog;
+            this.viewModel.CameFromChangelog = false;
+
+            this.viewModel.NavigateToChangelogElement(Guid.NewGuid(), "Requirement");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Changelog), "an unresolved element must not switch the view");
+                Assert.That(this.viewModel.CameFromChangelog, Is.False);
+            });
+        }
+
+        [Test]
+        public async Task VerifyReturnToChangelog()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.ActiveView = RequirementsEditorView.Changelog;
+            this.viewModel.NavigateToChangelogElement(this.c4iRequirement.Iid, "Requirement");
+
+            this.viewModel.ReturnToChangelog();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Changelog));
+                Assert.That(this.viewModel.CameFromChangelog, Is.False);
+                Assert.That(this.viewModel.ChangelogViewModel.ScrollToElementId, Is.EqualTo(this.c4iRequirement.Iid));
             });
         }
 

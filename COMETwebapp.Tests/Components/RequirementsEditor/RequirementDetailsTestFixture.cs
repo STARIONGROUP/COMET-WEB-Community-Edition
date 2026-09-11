@@ -36,6 +36,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
+    using COMETwebapp.Services.Export;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
@@ -118,7 +119,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             session.Setup(x => x.OpenReferenceDataLibraries).Returns([]);
             sessionService.Setup(x => x.Session).Returns(session.Object);
 
-            this.viewModel = new RequirementsEditorBodyViewModel(sessionService.Object, this.messageBus, new ShowHideDeprecatedThingsService(), new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object)
+            this.viewModel = new RequirementsEditorBodyViewModel(sessionService.Object, this.messageBus, new ShowHideDeprecatedThingsService(), new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object, new Mock<IExportService>().Object)
             {
                 CurrentThing = iteration,
                 ShowParametricConstraints = true,

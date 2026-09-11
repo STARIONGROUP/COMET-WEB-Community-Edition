@@ -5,6 +5,22 @@
     min-height: 0;
 }
 
+.req-view-switch {
+    flex: 0 0 auto;
+    margin-bottom: 8px;
+}
+
+.req-view-pane {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.req-view-hidden {
+    display: none;
+}
+
 .req-toolbar {
     flex: 0 0 auto;
     display: flex;
@@ -66,7 +82,7 @@
 }
 
 .req-toc {
-    flex: 0 1 300px;
+    flex: 0 0 300px;
     min-width: 0;
     min-height: 0;
     overflow: auto;
@@ -75,12 +91,29 @@
     transition: flex-basis 0.2s ease;
 }
 
+.req-toc-resizer {
+    flex: 0 0 6px;
+    align-self: stretch;
+    cursor: col-resize;
+    background: #e2e8f0;
+    border-radius: var(--radius-sm);
+}
+
+.req-toc-resizer:hover {
+    background: #94a3b8;
+}
+
 .req-editor-layout.toc-collapsed .req-toc {
-    flex-basis: 0;
-    width: 0;
+    flex: 0 0 0 !important;
+    width: 0 !important;
+    max-width: 0 !important;
     padding: 0;
     overflow: hidden;
     border: none;
+}
+
+.req-editor-layout.toc-collapsed .req-toc-resizer {
+    display: none;
 }
 
 .req-document {
@@ -164,9 +197,7 @@
 }
 
 .req-toc ::deep .req-tree-group {
-    flex: 0 1 auto;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    flex: 0 0 auto;
 }
 
 .req-toc ::deep .req-tree-group-row {
@@ -235,9 +266,9 @@
     text-decoration: underline;
 }
 
-.req-toc ::deep .req-tree-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
+.req-toc ::deep ul.req-tree {
+    width: max-content;
+    min-width: 100%;
 }
 
 /* --- document (rendered by RequirementsDocument) --- */
@@ -401,7 +432,7 @@
     white-space: normal;
 }
 
-/* shared pill layout used by RequirementPills (tree + document) and RequirementRowActions — kept once here,
+/* shared pill layout used by RequirementPills (tree + document) and RequirementRowActions: kept once here,
    in both the tree and document scopes, rather than duplicated in each component's scoped stylesheet */
 .req-toc ::deep .req-pills,
 .req-document ::deep .req-pills,

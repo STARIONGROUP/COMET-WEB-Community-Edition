@@ -38,6 +38,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
+    using COMETwebapp.Services.Export;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
     using COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstraints;
@@ -134,7 +135,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             openIterations.Add(this.iteration);
             this.sessionService.Setup(x => x.OpenIterations).Returns(openIterations);
 
-            this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, new ShowHideDeprecatedThingsService(), new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object)
+            this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, new ShowHideDeprecatedThingsService(), new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object, new Mock<IExportService>().Object)
             {
                 CurrentThing = this.iteration
             };
