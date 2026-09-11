@@ -97,12 +97,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         public string Owner { get; init; } = string.Empty;
 
         /// <summary>
-        /// Gets the display label combining <see cref="ElementKind" /> and <see cref="ElementShortName" />, used as the
-        /// grid's element column.
-        /// </summary>
-        public string ElementLabel => $"{this.ElementKind}: {this.ElementShortName}";
-
-        /// <summary>
         /// Gets the display label combining <see cref="SpecificationShortName" /> and <see cref="SpecificationName" />,
         /// or a placeholder when the change has no owning specification, used to group the grid by specification.
         /// </summary>

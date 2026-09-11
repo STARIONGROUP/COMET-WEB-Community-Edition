@@ -177,5 +177,241 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 Assert.That(nameChange?.SpecificationId, Is.Not.EqualTo(Guid.Empty), "A requirement change row must carry its owning specification's id.");
             });
         }
+
+        [Test]
+        public void VerifySpecificationChanges()
+        {
+            var unchangedSpecificationIid = Guid.NewGuid();
+            var deprecatedSpecificationIid = Guid.NewGuid();
+
+            var baseIteration = new Iteration { Iid = Guid.NewGuid() };
+            baseIteration.RequirementsSpecification.AddRange(
+            [
+                new RequirementsSpecification { Iid = unchangedSpecificationIid, ShortName = "KUR", Name = "Old name", Owner = this.thermalDomain },
+                new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "OLD", Name = "Retired specification", Owner = this.systemDomain },
+                new RequirementsSpecification { Iid = deprecatedSpecificationIid, ShortName = "DEP", Name = "About to be deprecated", Owner = this.systemDomain, IsDeprecated = false }
+            ]);
+
+            var currentIteration = new Iteration { Iid = Guid.NewGuid() };
+            currentIteration.RequirementsSpecification.AddRange(
+            [
+                new RequirementsSpecification { Iid = unchangedSpecificationIid, ShortName = "KUR2", Name = "New name", Owner = this.systemDomain },
+                new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "NEW", Name = "Newly added specification", Owner = this.systemDomain, Category = { this.keyUserCategory } },
+                new RequirementsSpecification { Iid = deprecatedSpecificationIid, ShortName = "DEP", Name = "About to be deprecated", Owner = this.systemDomain, IsDeprecated = true }
+            ]);
+
+            var changes = RequirementsChangelogCalculator.Compare(baseIteration, currentIteration);
+
+            var createdChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Created && c.ElementShortName == "NEW");
+            var deletedChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Deleted && c.ElementShortName == "OLD");
+            var deprecatedChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Deprecated && c.ElementShortName == "DEP");
+            var shortNameChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Modified && c.Field == "Short name" && c.ElementId == unchangedSpecificationIid);
+            var ownerChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Modified && c.Field == "Owner" && c.ElementId == unchangedSpecificationIid);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(createdChange, Is.Not.Null, "A specification only present in the current iteration must be reported as Created.");
+                Assert.That(createdChange?.ElementKind, Is.EqualTo("Requirements Specification"));
+                Assert.That(createdChange?.NewValue, Does.Contain("Name:"), "The created row's snapshot must describe the specification.");
+
+                Assert.That(deletedChange, Is.Not.Null, "A specification only present in the base iteration must be reported as Deleted.");
+                Assert.That(deletedChange?.ElementKind, Is.EqualTo("Requirements Specification"));
+
+                Assert.That(deprecatedChange, Is.Not.Null, "A specification whose IsDeprecated flipped false to true must be reported as Deprecated.");
+
+                Assert.That(shortNameChange, Is.Not.Null, "A changed ShortName must produce one Modified row with Field 'Short name'.");
+                Assert.That(ownerChange, Is.Not.Null, "A changed Owner must produce one Modified row with Field 'Owner'.");
+            });
+        }
+
+        [Test]
+        public void VerifyGroupChanges()
+        {
+            var specificationIid = Guid.NewGuid();
+            var unchangedGroupIid = Guid.NewGuid();
+
+            var baseSpecification = new RequirementsSpecification { Iid = specificationIid, ShortName = "KUR", Name = "Key-User Requirements", Owner = this.systemDomain };
+            baseSpecification.Group.AddRange(
+            [
+                new RequirementsGroup { Iid = unchangedGroupIid, ShortName = "OPERATE", Name = "Operate", Owner = this.thermalDomain },
+                new RequirementsGroup { Iid = Guid.NewGuid(), ShortName = "OLD", Name = "Retired group", Owner = this.systemDomain }
+            ]);
+            var baseIteration = new Iteration { Iid = Guid.NewGuid() };
+            baseIteration.RequirementsSpecification.Add(baseSpecification);
+
+            var currentSpecification = new RequirementsSpecification { Iid = specificationIid, ShortName = "KUR", Name = "Key-User Requirements", Owner = this.systemDomain };
+            currentSpecification.Group.AddRange(
+            [
+                new RequirementsGroup { Iid = unchangedGroupIid, ShortName = "OPERATE2", Name = "Operate", Owner = this.systemDomain },
+                new RequirementsGroup { Iid = Guid.NewGuid(), ShortName = "NEW", Name = "Newly added group", Owner = this.systemDomain }
+            ]);
+            var currentIteration = new Iteration { Iid = Guid.NewGuid() };
+            currentIteration.RequirementsSpecification.Add(currentSpecification);
+
+            var changes = RequirementsChangelogCalculator.Compare(baseIteration, currentIteration);
+
+            var createdChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Created && c.ElementShortName == "NEW");
+            var deletedChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Deleted && c.ElementShortName == "OLD");
+            var shortNameChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Modified && c.Field == "Short name" && c.ElementId == unchangedGroupIid);
+            var ownerChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Modified && c.Field == "Owner" && c.ElementId == unchangedGroupIid);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(createdChange, Is.Not.Null, "A group only present in the current iteration must be reported as Created.");
+                Assert.That(createdChange?.ElementKind, Is.EqualTo("Requirements Group"));
+
+                Assert.That(deletedChange, Is.Not.Null, "A group only present in the base iteration must be reported as Deleted.");
+                Assert.That(deletedChange?.ElementKind, Is.EqualTo("Requirements Group"));
+
+                Assert.That(shortNameChange, Is.Not.Null, "A changed ShortName must produce one Modified row with Field 'Short name'.");
+                Assert.That(ownerChange, Is.Not.Null, "A changed Owner must produce one Modified row with Field 'Owner'.");
+            });
+        }
+
+        [Test]
+        public void VerifyDeprecationRestored()
+        {
+            var requirementIid = Guid.NewGuid();
+            var specificationIid = Guid.NewGuid();
+
+            var baseSpecification = new RequirementsSpecification { Iid = specificationIid, ShortName = "KUR", Name = "Key-User Requirements", Owner = this.systemDomain };
+            baseSpecification.Requirement.Add(new Requirement { Iid = requirementIid, ShortName = "R01", Name = "Requirement", Owner = this.systemDomain, IsDeprecated = true });
+            var baseIteration = new Iteration { Iid = Guid.NewGuid() };
+            baseIteration.RequirementsSpecification.Add(baseSpecification);
+
+            var currentSpecification = new RequirementsSpecification { Iid = specificationIid, ShortName = "KUR", Name = "Key-User Requirements", Owner = this.systemDomain };
+            currentSpecification.Requirement.Add(new Requirement { Iid = requirementIid, ShortName = "R01", Name = "Requirement", Owner = this.systemDomain, IsDeprecated = false });
+            var currentIteration = new Iteration { Iid = Guid.NewGuid() };
+            currentIteration.RequirementsSpecification.Add(currentSpecification);
+
+            var changes = RequirementsChangelogCalculator.Compare(baseIteration, currentIteration);
+
+            var restoredChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Restored && c.ElementShortName == "R01");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(restoredChange, Is.Not.Null, "A requirement whose IsDeprecated flipped true to false must be reported as Restored.");
+                Assert.That(restoredChange?.ElementKind, Is.EqualTo("Requirement"));
+            });
+        }
+
+        [Test]
+        public void VerifyValueDeletionAndModification()
+        {
+            var requirementIid = Guid.NewGuid();
+            var specificationIid = Guid.NewGuid();
+            var lengthParameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "l", Name = "length" };
+
+            var baseSpecification = new RequirementsSpecification { Iid = specificationIid, ShortName = "KUR", Name = "Key-User Requirements", Owner = this.systemDomain };
+
+            var baseRequirement = new Requirement { Iid = requirementIid, ShortName = "R01", Name = "Requirement", Owner = this.systemDomain };
+            baseRequirement.ParameterValue.AddRange(
+            [
+                new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = this.massParameterType, Value = new ValueArray<string>(["5"]) },
+                new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = lengthParameterType, Value = new ValueArray<string>(["1"]) }
+            ]);
+            baseSpecification.Requirement.Add(baseRequirement);
+            var baseIteration = new Iteration { Iid = Guid.NewGuid() };
+            baseIteration.RequirementsSpecification.Add(baseSpecification);
+
+            var currentSpecification = new RequirementsSpecification { Iid = specificationIid, ShortName = "KUR", Name = "Key-User Requirements", Owner = this.systemDomain };
+            var currentRequirement = new Requirement { Iid = requirementIid, ShortName = "R01", Name = "Requirement", Owner = this.systemDomain };
+            currentRequirement.ParameterValue.Add(new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = this.massParameterType, Value = new ValueArray<string>(["9"]) });
+            currentSpecification.Requirement.Add(currentRequirement);
+            var currentIteration = new Iteration { Iid = Guid.NewGuid() };
+            currentIteration.RequirementsSpecification.Add(currentSpecification);
+
+            var changes = RequirementsChangelogCalculator.Compare(baseIteration, currentIteration);
+
+            var deletedValueChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Deleted && c.Field == $"Value: {lengthParameterType.ShortName}");
+            var modifiedValueChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Modified && c.Field == $"Value: {this.massParameterType.ShortName}");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(deletedValueChange, Is.Not.Null, "A value removed from the current iteration must be reported as Deleted.");
+                Assert.That(deletedValueChange?.OldValue, Is.EqualTo("1"));
+
+                Assert.That(modifiedValueChange, Is.Not.Null, "A value present in both iterations with a different Value must be reported as Modified.");
+                Assert.That(modifiedValueChange?.OldValue, Is.EqualTo("5"));
+                Assert.That(modifiedValueChange?.NewValue, Is.EqualTo("9"));
+            });
+        }
+
+        [Test]
+        public void VerifyConstraintModifiedAndDeleted()
+        {
+            var requirementIid = Guid.NewGuid();
+            var specificationIid = Guid.NewGuid();
+            var unchangedConstraintIid = Guid.NewGuid();
+
+            var baseRequirement = new Requirement { Iid = requirementIid, ShortName = "R01", Name = "Requirement", Owner = this.systemDomain };
+
+            var baseUnchangedExpression = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = this.massParameterType, RelationalOperator = RelationalOperatorKind.LE, Value = new ValueArray<string>(["100"]) };
+            baseRequirement.ParametricConstraint.Add(new ParametricConstraint { Iid = unchangedConstraintIid, Expression = { baseUnchangedExpression }, TopExpression = baseUnchangedExpression });
+
+            var deletedExpression = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = this.massParameterType, RelationalOperator = RelationalOperatorKind.GT, Value = new ValueArray<string>(["10"]) };
+            baseRequirement.ParametricConstraint.Add(new ParametricConstraint { Iid = Guid.NewGuid(), Expression = { deletedExpression }, TopExpression = deletedExpression });
+
+            var baseSpecification = new RequirementsSpecification { Iid = specificationIid, ShortName = "KUR", Name = "Key-User Requirements", Owner = this.systemDomain };
+            baseSpecification.Requirement.Add(baseRequirement);
+            var baseIteration = new Iteration { Iid = Guid.NewGuid() };
+            baseIteration.RequirementsSpecification.Add(baseSpecification);
+
+            var currentRequirement = new Requirement { Iid = requirementIid, ShortName = "R01", Name = "Requirement", Owner = this.systemDomain };
+            var currentModifiedExpression = new RelationalExpression { Iid = Guid.NewGuid(), ParameterType = this.massParameterType, RelationalOperator = RelationalOperatorKind.LE, Value = new ValueArray<string>(["250"]) };
+            currentRequirement.ParametricConstraint.Add(new ParametricConstraint { Iid = unchangedConstraintIid, Expression = { currentModifiedExpression }, TopExpression = currentModifiedExpression });
+
+            var currentSpecification = new RequirementsSpecification { Iid = specificationIid, ShortName = "KUR", Name = "Key-User Requirements", Owner = this.systemDomain };
+            currentSpecification.Requirement.Add(currentRequirement);
+            var currentIteration = new Iteration { Iid = Guid.NewGuid() };
+            currentIteration.RequirementsSpecification.Add(currentSpecification);
+
+            var changes = RequirementsChangelogCalculator.Compare(baseIteration, currentIteration);
+
+            var modifiedChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Modified && c.Field == "Constraint");
+            var deletedChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Deleted && c.Field == "Constraint");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(modifiedChange, Is.Not.Null, "A constraint present in both iterations with a changed expression summary must be reported as Modified.");
+                Assert.That(modifiedChange?.OldValue, Does.Contain("100"));
+                Assert.That(modifiedChange?.NewValue, Does.Contain("250"));
+
+                Assert.That(deletedChange, Is.Not.Null, "A constraint removed from the current iteration must be reported as Deleted.");
+                Assert.That(deletedChange?.OldValue, Does.Contain("10"));
+            });
+        }
+
+        [Test]
+        public void VerifyTraceabilityDeleted()
+        {
+            var requirementIid = Guid.NewGuid();
+            var specificationIid = Guid.NewGuid();
+
+            var baseSpecification = new RequirementsSpecification { Iid = specificationIid, ShortName = "KUR", Name = "Key-User Requirements", Owner = this.systemDomain };
+            var baseRequirement = new Requirement { Iid = requirementIid, ShortName = "R01", Name = "Requirement", Owner = this.systemDomain };
+            baseSpecification.Requirement.Add(baseRequirement);
+            var baseIteration = new Iteration { Iid = Guid.NewGuid() };
+            baseIteration.RequirementsSpecification.Add(baseSpecification);
+
+            var relatedElement = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT", Name = "Satellite" };
+            baseIteration.Relationship.Add(new BinaryRelationship { Iid = Guid.NewGuid(), Source = baseRequirement, Target = relatedElement, Owner = this.thermalDomain });
+
+            var currentSpecification = new RequirementsSpecification { Iid = specificationIid, ShortName = "KUR", Name = "Key-User Requirements", Owner = this.systemDomain };
+            var currentRequirement = new Requirement { Iid = requirementIid, ShortName = "R01", Name = "Requirement", Owner = this.systemDomain };
+            currentSpecification.Requirement.Add(currentRequirement);
+            var currentIteration = new Iteration { Iid = Guid.NewGuid() };
+            currentIteration.RequirementsSpecification.Add(currentSpecification);
+
+            var changes = RequirementsChangelogCalculator.Compare(baseIteration, currentIteration);
+
+            var deletedRelationshipChange = changes.SingleOrDefault(c => c.Kind == RequirementChangeKind.Deleted && c.ElementKind == "Binary Relationship");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(deletedRelationshipChange, Is.Not.Null, "A requirement-related BinaryRelationship removed from the current iteration must be reported as a Deleted Binary Relationship row.");
+                Assert.That(deletedRelationshipChange?.Owner, Is.EqualTo(this.thermalDomain.ShortName));
+            });
+        }
     }
 }

@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 {
+    using System.Text.RegularExpressions;
+
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.Extensions;
@@ -31,8 +33,27 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     /// Computes the list of <see cref="RequirementChange" />s between two <see cref="Iteration" />s by matching the
     /// requirement-related elements of each iteration by their <see cref="CDP4Common.CommonData.Thing.Iid" />.
     /// </summary>
-    public static class RequirementsChangelogCalculator
+    public static partial class RequirementsChangelogCalculator
     {
+        /// <summary>
+        /// Matches the boundary between a lower-case and an upper-case letter, used to space out a
+        /// <see cref="ClassKind" /> name into readable words.
+        /// </summary>
+        /// <returns>The compiled, source-generated <see cref="Regex" /></returns>
+        [GeneratedRegex("([a-z])([A-Z])")]
+        private static partial Regex ClassKindWordBoundary();
+
+        /// <summary>
+        /// Turns the <see cref="ClassKind" /> of the changed element into the human-readable kind reported on its row,
+        /// spacing out the enum name (for example "RequirementsSpecification" becomes "Requirements Specification").
+        /// </summary>
+        /// <param name="classKind">The <see cref="ClassKind" /> of the changed element</param>
+        /// <returns>The spaced, human-readable kind</returns>
+        private static string HumanReadableKind(ClassKind classKind)
+        {
+            return ClassKindWordBoundary().Replace(classKind.ToString(), "$1 $2");
+        }
+
         /// <summary>
         /// Compares the requirement-related content of two <see cref="Iteration" />s and returns the changes that turn
         /// <paramref name="baseIteration" /> into <paramref name="currentIteration" />.
@@ -44,8 +65,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         {
             var changes = new List<RequirementChange>();
 
-            changes.AddRange(CompareContainers(baseIteration.RequirementsSpecification, currentIteration.RequirementsSpecification, "Requirements Specification", x => x.IsDeprecated));
-            changes.AddRange(CompareContainers(AllGroups(baseIteration), AllGroups(currentIteration), "Requirements Group", null));
+            changes.AddRange(CompareContainers(baseIteration.RequirementsSpecification, currentIteration.RequirementsSpecification, x => x.IsDeprecated));
+            changes.AddRange(CompareContainers(AllGroups(baseIteration), AllGroups(currentIteration), null));
             changes.AddRange(CompareRequirements(AllRequirements(baseIteration), AllRequirements(currentIteration)));
             changes.AddRange(CompareTraceability(baseIteration, currentIteration));
 
@@ -118,34 +139,40 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         }
 
         /// <summary>
+        /// The changed element's identifying fields, reported on every <see cref="RequirementChange" /> row built from
+        /// it.
+        /// </summary>
+        /// <param name="Kind">The human-readable kind of the changed element</param>
+        /// <param name="Id">The <see cref="Thing.Iid" /> of the changed element</param>
+        /// <param name="Name">The name of the changed element</param>
+        /// <param name="ShortName">The short name of the changed element</param>
+        /// <param name="Owner">The short name of the element's owning <see cref="DomainOfExpertise" /></param>
+        private readonly record struct ChangedElement(string Kind, Guid Id, string Name, string ShortName, string Owner);
+
+        /// <summary>
         /// Builds a <see cref="RequirementChange" /> row, filling in the owning <paramref name="specification" />'s
         /// fields, or leaving them empty when it is null.
         /// </summary>
         /// <param name="kind">The <see cref="RequirementChangeKind" /></param>
-        /// <param name="elementKind">The human-readable kind of the changed element</param>
-        /// <param name="elementId">The <see cref="Thing.Iid" /> of the changed element</param>
-        /// <param name="elementName">The name of the changed element</param>
-        /// <param name="elementShortName">The short name of the changed element</param>
-        /// <param name="owner">The short name of the element's owning <see cref="DomainOfExpertise" /></param>
+        /// <param name="element">The changed element's identifying fields</param>
         /// <param name="specification">The owning <see cref="RequirementsSpecification" />, or null when there is none</param>
         /// <param name="field">The name of the changed field, empty when the whole element changed</param>
         /// <param name="oldValue">The value in the baseline iteration, empty when there is none</param>
         /// <param name="newValue">The value in the newer iteration, empty when there is none</param>
         /// <returns>The built <see cref="RequirementChange" /></returns>
-        private static RequirementChange NewChange(RequirementChangeKind kind, string elementKind, Guid elementId, string elementName, string elementShortName, string owner,
-            RequirementsSpecification specification, string field = "", string oldValue = "", string newValue = "")
+        private static RequirementChange NewChange(RequirementChangeKind kind, ChangedElement element, RequirementsSpecification specification, string field = "", string oldValue = "", string newValue = "")
         {
             return new RequirementChange
             {
                 Kind = kind,
-                ElementKind = elementKind,
-                ElementId = elementId,
-                ElementName = elementName,
-                ElementShortName = elementShortName,
+                ElementKind = element.Kind,
+                ElementId = element.Id,
+                ElementName = element.Name,
+                ElementShortName = element.ShortName,
                 Field = field,
                 OldValue = oldValue,
                 NewValue = newValue,
-                Owner = owner,
+                Owner = element.Owner,
                 SpecificationId = specification?.Iid ?? Guid.Empty,
                 SpecificationName = specification?.Name ?? string.Empty,
                 SpecificationShortName = specification?.ShortName ?? string.Empty
@@ -160,31 +187,30 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <typeparam name="T">Either <see cref="RequirementsSpecification" /> or <see cref="RequirementsGroup" /></typeparam>
         /// <param name="baseItems">The items of the baseline iteration</param>
         /// <param name="currentItems">The items of the newer iteration</param>
-        /// <param name="elementKind">The human-readable kind ("Requirements Specification" or "Requirements Group") used on every reported row</param>
         /// <param name="isDeprecated">
         /// An accessor for the deprecation flag, or null when <typeparamref name="T" /> cannot be deprecated (as is the
         /// case for <see cref="RequirementsGroup" />)
         /// </param>
         /// <returns>The changes detected between the two sets</returns>
-        private static IEnumerable<RequirementChange> CompareContainers<T>(IEnumerable<T> baseItems, IEnumerable<T> currentItems, string elementKind, Func<T, bool> isDeprecated) where T : RequirementsContainer
+        private static List<RequirementChange> CompareContainers<T>(IEnumerable<T> baseItems, IEnumerable<T> currentItems, Func<T, bool> isDeprecated) where T : RequirementsContainer
         {
             var changes = new List<RequirementChange>();
             var (created, deleted, matched) = Diff(baseItems, currentItems);
 
-            changes.AddRange(created.Select(x => NewChange(RequirementChangeKind.Created, elementKind, x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty, GetOwningSpecification(x), newValue: DescribeContainer(x))));
-            changes.AddRange(deleted.Select(x => NewChange(RequirementChangeKind.Deleted, elementKind, x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty, GetOwningSpecification(x), oldValue: DescribeContainer(x))));
+            changes.AddRange(created.Select(x => NewChange(RequirementChangeKind.Created, new ChangedElement(HumanReadableKind(x.ClassKind), x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty), GetOwningSpecification(x), newValue: DescribeContainer(x))));
+            changes.AddRange(deleted.Select(x => NewChange(RequirementChangeKind.Deleted, new ChangedElement(HumanReadableKind(x.ClassKind), x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty), GetOwningSpecification(x), oldValue: DescribeContainer(x))));
 
             foreach (var (baseItem, currentItem) in matched)
             {
                 var specification = GetOwningSpecification(currentItem);
 
-                if (isDeprecated != null && TryCompareDeprecation(baseItem, currentItem, elementKind, isDeprecated, specification, out var deprecationChange))
+                if (isDeprecated != null && TryCompareDeprecation(baseItem, currentItem, isDeprecated, specification, out var deprecationChange))
                 {
                     changes.Add(deprecationChange);
                     continue;
                 }
 
-                changes.AddRange(CompareNameShortNameOwner(baseItem, currentItem, elementKind, specification));
+                changes.AddRange(CompareNameShortNameOwner(baseItem, currentItem, specification));
             }
 
             return changes;
@@ -196,26 +222,25 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <param name="baseRequirements">The requirements of the baseline iteration</param>
         /// <param name="currentRequirements">The requirements of the newer iteration</param>
         /// <returns>The changes detected between the two sets</returns>
-        private static IEnumerable<RequirementChange> CompareRequirements(IEnumerable<Requirement> baseRequirements, IEnumerable<Requirement> currentRequirements)
+        private static List<RequirementChange> CompareRequirements(IEnumerable<Requirement> baseRequirements, IEnumerable<Requirement> currentRequirements)
         {
-            const string elementKind = "Requirement";
             var changes = new List<RequirementChange>();
             var (created, deleted, matched) = Diff(baseRequirements, currentRequirements);
 
-            changes.AddRange(created.Select(x => NewChange(RequirementChangeKind.Created, elementKind, x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty, GetOwningSpecification(x), newValue: DescribeRequirement(x))));
-            changes.AddRange(deleted.Select(x => NewChange(RequirementChangeKind.Deleted, elementKind, x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty, GetOwningSpecification(x), oldValue: DescribeRequirement(x))));
+            changes.AddRange(created.Select(x => NewChange(RequirementChangeKind.Created, new ChangedElement(HumanReadableKind(x.ClassKind), x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty), GetOwningSpecification(x), newValue: DescribeRequirement(x))));
+            changes.AddRange(deleted.Select(x => NewChange(RequirementChangeKind.Deleted, new ChangedElement(HumanReadableKind(x.ClassKind), x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty), GetOwningSpecification(x), oldValue: DescribeRequirement(x))));
 
             foreach (var (baseRequirement, currentRequirement) in matched)
             {
                 var specification = GetOwningSpecification(currentRequirement);
 
-                if (TryCompareDeprecation(baseRequirement, currentRequirement, elementKind, x => x.IsDeprecated, specification, out var deprecationChange))
+                if (TryCompareDeprecation(baseRequirement, currentRequirement, x => x.IsDeprecated, specification, out var deprecationChange))
                 {
                     changes.Add(deprecationChange);
                     continue;
                 }
 
-                changes.AddRange(CompareNameShortNameOwner(baseRequirement, currentRequirement, elementKind, specification));
+                changes.AddRange(CompareNameShortNameOwner(baseRequirement, currentRequirement, specification));
                 changes.AddRange(CompareRequirementFields(baseRequirement, currentRequirement, specification));
             }
 
@@ -230,12 +255,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <typeparam name="T">The <see cref="Thing" /> subtype being compared</typeparam>
         /// <param name="baseItem">The element as it was in the baseline iteration</param>
         /// <param name="currentItem">The element as it is in the newer iteration</param>
-        /// <param name="elementKind">The human-readable kind used on the reported row</param>
         /// <param name="isDeprecated">An accessor for the deprecation flag</param>
         /// <param name="specification">The element's owning <see cref="RequirementsSpecification" />, or null</param>
         /// <param name="change">The resulting <see cref="RequirementChange" /> when the state flipped</param>
         /// <returns>true when the deprecation state flipped and <paramref name="change" /> was produced</returns>
-        private static bool TryCompareDeprecation<T>(T baseItem, T currentItem, string elementKind, Func<T, bool> isDeprecated, RequirementsSpecification specification, out RequirementChange change) where T : Thing, INamedThing, IShortNamedThing, IOwnedThing
+        private static bool TryCompareDeprecation<T>(T baseItem, T currentItem, Func<T, bool> isDeprecated, RequirementsSpecification specification, out RequirementChange change) where T : Thing, INamedThing, IShortNamedThing, IOwnedThing
         {
             var wasDeprecated = isDeprecated(baseItem);
             var isNowDeprecated = isDeprecated(currentItem);
@@ -246,8 +270,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 return false;
             }
 
-            change = NewChange(isNowDeprecated ? RequirementChangeKind.Deprecated : RequirementChangeKind.Restored, elementKind, currentItem.Iid, currentItem.Name, currentItem.ShortName,
-                currentItem.Owner?.ShortName ?? string.Empty, specification);
+            change = NewChange(isNowDeprecated ? RequirementChangeKind.Deprecated : RequirementChangeKind.Restored,
+                new ChangedElement(HumanReadableKind(currentItem.ClassKind), currentItem.Iid, currentItem.Name, currentItem.ShortName, currentItem.Owner?.ShortName ?? string.Empty), specification);
 
             return true;
         }
@@ -259,29 +283,26 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <typeparam name="T">The <see cref="Thing" /> subtype being compared</typeparam>
         /// <param name="baseItem">The element as it was in the baseline iteration</param>
         /// <param name="currentItem">The element as it is in the newer iteration</param>
-        /// <param name="elementKind">The human-readable kind used on every reported row</param>
         /// <param name="specification">The element's owning <see cref="RequirementsSpecification" />, or null</param>
         /// <returns>The changes detected on the shared fields</returns>
-        private static IEnumerable<RequirementChange> CompareNameShortNameOwner<T>(T baseItem, T currentItem, string elementKind, RequirementsSpecification specification) where T : Thing, INamedThing, IShortNamedThing, IOwnedThing
+        private static List<RequirementChange> CompareNameShortNameOwner<T>(T baseItem, T currentItem, RequirementsSpecification specification) where T : Thing, INamedThing, IShortNamedThing, IOwnedThing
         {
             var changes = new List<RequirementChange>();
-            var owner = currentItem.Owner?.ShortName ?? string.Empty;
-            var name = currentItem.Name;
-            var shortName = currentItem.ShortName;
+            var element = new ChangedElement(HumanReadableKind(currentItem.ClassKind), currentItem.Iid, currentItem.Name, currentItem.ShortName, currentItem.Owner?.ShortName ?? string.Empty);
 
             if (baseItem.Name != currentItem.Name)
             {
-                changes.Add(NewChange(RequirementChangeKind.Modified, elementKind, currentItem.Iid, name, shortName, owner, specification, field: "Name", oldValue: baseItem.Name, newValue: currentItem.Name));
+                changes.Add(NewChange(RequirementChangeKind.Modified, element, specification, field: "Name", oldValue: baseItem.Name, newValue: currentItem.Name));
             }
 
             if (baseItem.ShortName != currentItem.ShortName)
             {
-                changes.Add(NewChange(RequirementChangeKind.Modified, elementKind, currentItem.Iid, name, shortName, owner, specification, field: "Short name", oldValue: baseItem.ShortName, newValue: currentItem.ShortName));
+                changes.Add(NewChange(RequirementChangeKind.Modified, element, specification, field: "Short name", oldValue: baseItem.ShortName, newValue: currentItem.ShortName));
             }
 
             if (baseItem.Owner?.Iid != currentItem.Owner?.Iid)
             {
-                changes.Add(NewChange(RequirementChangeKind.Modified, elementKind, currentItem.Iid, name, shortName, owner, specification,
+                changes.Add(NewChange(RequirementChangeKind.Modified, element, specification,
                     field: "Owner", oldValue: baseItem.Owner?.ShortName ?? string.Empty, newValue: currentItem.Owner?.ShortName ?? string.Empty));
             }
 
@@ -296,21 +317,20 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <param name="currentRequirement">The requirement as it is in the newer iteration</param>
         /// <param name="specification">The requirement's owning <see cref="RequirementsSpecification" />, or null</param>
         /// <returns>The changes detected on the requirement-specific fields</returns>
-        private static IEnumerable<RequirementChange> CompareRequirementFields(Requirement baseRequirement, Requirement currentRequirement, RequirementsSpecification specification)
+        private static List<RequirementChange> CompareRequirementFields(Requirement baseRequirement, Requirement currentRequirement, RequirementsSpecification specification)
         {
-            const string elementKind = "Requirement";
             var changes = new List<RequirementChange>();
             var owner = currentRequirement.Owner?.ShortName ?? string.Empty;
             var name = currentRequirement.Name;
             var shortName = currentRequirement.ShortName;
-            var elementId = currentRequirement.Iid;
+            var element = new ChangedElement(HumanReadableKind(currentRequirement.ClassKind), currentRequirement.Iid, name, shortName, owner);
 
             var baseDefinition = DefinitionText(baseRequirement);
             var currentDefinition = DefinitionText(currentRequirement);
 
             if (baseDefinition != currentDefinition)
             {
-                changes.Add(NewChange(RequirementChangeKind.Modified, elementKind, elementId, name, shortName, owner, specification, field: "Definition", oldValue: baseDefinition, newValue: currentDefinition));
+                changes.Add(NewChange(RequirementChangeKind.Modified, element, specification, field: "Definition", oldValue: baseDefinition, newValue: currentDefinition));
             }
 
             var baseCategories = CategoryText(baseRequirement);
@@ -318,17 +338,17 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
             if (baseCategories != currentCategories)
             {
-                changes.Add(NewChange(RequirementChangeKind.Modified, elementKind, elementId, name, shortName, owner, specification, field: "Category", oldValue: baseCategories, newValue: currentCategories));
+                changes.Add(NewChange(RequirementChangeKind.Modified, element, specification, field: "Category", oldValue: baseCategories, newValue: currentCategories));
             }
 
             if (baseRequirement.Group?.Iid != currentRequirement.Group?.Iid)
             {
-                changes.Add(NewChange(RequirementChangeKind.Modified, elementKind, elementId, name, shortName, owner, specification,
+                changes.Add(NewChange(RequirementChangeKind.Modified, element, specification,
                     field: "Group", oldValue: baseRequirement.Group?.ShortName ?? string.Empty, newValue: currentRequirement.Group?.ShortName ?? string.Empty));
             }
 
-            changes.AddRange(CompareSimpleParameterValues(baseRequirement, currentRequirement, name, shortName, owner, specification));
-            changes.AddRange(CompareParametricConstraints(baseRequirement, currentRequirement, name, shortName, owner, specification));
+            changes.AddRange(CompareSimpleParameterValues(baseRequirement, currentRequirement, element, specification));
+            changes.AddRange(CompareParametricConstraints(baseRequirement, currentRequirement, element, specification));
 
             return changes;
         }
@@ -456,39 +476,71 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="baseRequirement">The requirement as it was in the baseline iteration</param>
         /// <param name="currentRequirement">The requirement as it is in the newer iteration</param>
-        /// <param name="name">The requirement's current name, used on every reported row</param>
-        /// <param name="shortName">The requirement's current short name, used on every reported row</param>
-        /// <param name="owner">The requirement's current owner short name, used on every reported row</param>
+        /// <param name="element">The requirement's current identifying fields, used on every reported row</param>
         /// <param name="specification">The requirement's owning <see cref="RequirementsSpecification" />, or null</param>
         /// <returns>The changes detected on the requirement's simple parameter values</returns>
-        private static IEnumerable<RequirementChange> CompareSimpleParameterValues(Requirement baseRequirement, Requirement currentRequirement, string name, string shortName, string owner, RequirementsSpecification specification)
+        private static List<RequirementChange> CompareSimpleParameterValues(Requirement baseRequirement, Requirement currentRequirement, ChangedElement element, RequirementsSpecification specification)
         {
             var baseValues = baseRequirement.ParameterValue.Where(x => x.ParameterType != null).ToDictionary(x => x.ParameterType.Iid);
             var currentValues = currentRequirement.ParameterValue.Where(x => x.ParameterType != null).ToDictionary(x => x.ParameterType.Iid);
-            var changes = new List<RequirementChange>();
 
-            foreach (var parameterTypeIid in baseValues.Keys.Union(currentValues.Keys))
+            return baseValues.Keys.Union(currentValues.Keys)
+                .Select(parameterTypeIid => BuildSimpleParameterValueChange(baseValues, currentValues, parameterTypeIid, element, specification))
+                .Where(change => change != null)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Builds the <see cref="RequirementChange" /> row for a single <see cref="ParameterType" />'s value, or null
+        /// when the value is unchanged between the baseline and current iteration.
+        /// </summary>
+        /// <param name="baseValues">The baseline requirement's values, by <see cref="ParameterType" /> <see cref="Thing.Iid" /></param>
+        /// <param name="currentValues">The current requirement's values, by <see cref="ParameterType" /> <see cref="Thing.Iid" /></param>
+        /// <param name="parameterTypeIid">The <see cref="Thing.Iid" /> of the <see cref="ParameterType" /> being compared</param>
+        /// <param name="element">The requirement's current identifying fields, used on the reported row</param>
+        /// <param name="specification">The requirement's owning <see cref="RequirementsSpecification" />, or null</param>
+        /// <returns>The built <see cref="RequirementChange" />, or null when the value is unchanged</returns>
+        private static RequirementChange BuildSimpleParameterValueChange(Dictionary<Guid, SimpleParameterValue> baseValues, Dictionary<Guid, SimpleParameterValue> currentValues,
+            Guid parameterTypeIid, ChangedElement element, RequirementsSpecification specification)
+        {
+            var hasBase = baseValues.TryGetValue(parameterTypeIid, out var baseValue);
+            var hasCurrent = currentValues.TryGetValue(parameterTypeIid, out var currentValue);
+            var oldText = hasBase ? JoinValues(baseValue.Value) : string.Empty;
+            var newText = hasCurrent ? JoinValues(currentValue.Value) : string.Empty;
+
+            if (oldText == newText)
             {
-                var hasBase = baseValues.TryGetValue(parameterTypeIid, out var baseValue);
-                var hasCurrent = currentValues.TryGetValue(parameterTypeIid, out var currentValue);
-                var oldText = hasBase ? JoinValues(baseValue.Value) : string.Empty;
-                var newText = hasCurrent ? JoinValues(currentValue.Value) : string.Empty;
-
-                if (oldText == newText)
-                {
-                    continue;
-                }
-
-                var parameterType = hasCurrent ? currentValue.ParameterType : baseValue.ParameterType;
-                var kind = !hasBase ? RequirementChangeKind.Created : !hasCurrent ? RequirementChangeKind.Deleted : RequirementChangeKind.Modified;
-
-                changes.Add(NewChange(kind, "Requirement", currentRequirement.Iid, name, shortName, owner, specification,
-                    field: $"Value: {parameterType.ShortName}",
-                    oldValue: kind == RequirementChangeKind.Created ? string.Empty : oldText,
-                    newValue: kind == RequirementChangeKind.Deleted ? string.Empty : newText));
+                return null;
             }
 
-            return changes;
+            var parameterType = hasCurrent ? currentValue.ParameterType : baseValue.ParameterType;
+            var kind = ResolveValueKind(hasBase, hasCurrent);
+
+            return NewChange(kind, element, specification,
+                field: $"Value: {parameterType.ShortName}",
+                oldValue: kind == RequirementChangeKind.Created ? string.Empty : oldText,
+                newValue: kind == RequirementChangeKind.Deleted ? string.Empty : newText);
+        }
+
+        /// <summary>
+        /// Resolves the <see cref="RequirementChangeKind" /> of a compared value from whether it was present in the
+        /// baseline and current iteration.
+        /// </summary>
+        /// <param name="hasBase">Whether the value was present in the baseline iteration</param>
+        /// <param name="hasCurrent">Whether the value is present in the current iteration</param>
+        /// <returns>
+        /// <see cref="RequirementChangeKind.Created" /> when the value only exists in the current iteration,
+        /// <see cref="RequirementChangeKind.Deleted" /> when it only existed in the baseline iteration, otherwise
+        /// <see cref="RequirementChangeKind.Modified" />
+        /// </returns>
+        private static RequirementChangeKind ResolveValueKind(bool hasBase, bool hasCurrent)
+        {
+            if (!hasBase)
+            {
+                return RequirementChangeKind.Created;
+            }
+
+            return !hasCurrent ? RequirementChangeKind.Deleted : RequirementChangeKind.Modified;
         }
 
         /// <summary>
@@ -499,24 +551,21 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="baseRequirement">The requirement as it was in the baseline iteration</param>
         /// <param name="currentRequirement">The requirement as it is in the newer iteration</param>
-        /// <param name="name">The requirement's current name, used on every reported row</param>
-        /// <param name="shortName">The requirement's current short name, used on every reported row</param>
-        /// <param name="owner">The requirement's current owner short name, used on every reported row</param>
+        /// <param name="element">The requirement's current identifying fields, used on every reported row</param>
         /// <param name="specification">The requirement's owning <see cref="RequirementsSpecification" />, or null</param>
         /// <returns>The changes detected on the requirement's parametric constraints</returns>
-        private static IEnumerable<RequirementChange> CompareParametricConstraints(Requirement baseRequirement, Requirement currentRequirement, string name, string shortName, string owner, RequirementsSpecification specification)
+        private static List<RequirementChange> CompareParametricConstraints(Requirement baseRequirement, Requirement currentRequirement, ChangedElement element, RequirementsSpecification specification)
         {
-            const string elementKind = "Requirement";
             const string field = "Constraint";
             var changes = new List<RequirementChange>();
             var (created, deleted, matched) = Diff(baseRequirement.ParametricConstraint, currentRequirement.ParametricConstraint);
 
-            changes.AddRange(created.Select(x => NewChange(RequirementChangeKind.Created, elementKind, currentRequirement.Iid, name, shortName, owner, specification, field: field, newValue: SummariseConstraint(x))));
-            changes.AddRange(deleted.Select(x => NewChange(RequirementChangeKind.Deleted, elementKind, currentRequirement.Iid, name, shortName, owner, specification, field: field, oldValue: SummariseConstraint(x))));
+            changes.AddRange(created.Select(x => NewChange(RequirementChangeKind.Created, element, specification, field: field, newValue: SummariseConstraint(x))));
+            changes.AddRange(deleted.Select(x => NewChange(RequirementChangeKind.Deleted, element, specification, field: field, oldValue: SummariseConstraint(x))));
 
             changes.AddRange(matched
                 .Where(x => SummariseConstraint(x.Base) != SummariseConstraint(x.Current))
-                .Select(x => NewChange(RequirementChangeKind.Modified, elementKind, currentRequirement.Iid, name, shortName, owner, specification,
+                .Select(x => NewChange(RequirementChangeKind.Modified, element, specification,
                     field: field, oldValue: SummariseConstraint(x.Base), newValue: SummariseConstraint(x.Current))));
 
             return changes;
@@ -569,7 +618,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="expression">The <see cref="BooleanExpression" /></param>
         /// <returns>The child expressions</returns>
-        private static IReadOnlyList<BooleanExpression> GetTerms(BooleanExpression expression)
+        private static List<BooleanExpression> GetTerms(BooleanExpression expression)
         {
             return expression switch
             {
@@ -589,7 +638,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <param name="baseIteration">The baseline <see cref="Iteration" /></param>
         /// <param name="currentIteration">The newer <see cref="Iteration" /></param>
         /// <returns>The created and deleted traceability rows</returns>
-        private static IEnumerable<RequirementChange> CompareTraceability(Iteration baseIteration, Iteration currentIteration)
+        private static List<RequirementChange> CompareTraceability(Iteration baseIteration, Iteration currentIteration)
         {
             var (created, deleted, _) = Diff(RequirementRelatedRelationships(baseIteration), RequirementRelatedRelationships(currentIteration));
             var changes = new List<RequirementChange>();
@@ -636,8 +685,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var label = $"{DescribeEndpoint(relationship.Source)} to {DescribeEndpoint(relationship.Target)}";
             var categories = string.Join(", ", relationship.Category.Select(x => x.ShortName));
             var specification = GetOwningSpecification(relationship.Source) ?? GetOwningSpecification(relationship.Target);
+            var element = new ChangedElement(HumanReadableKind(relationship.ClassKind), relationship.Iid, label, label, relationship.Owner?.ShortName ?? string.Empty);
 
-            return NewChange(kind, "Binary Relationship", relationship.Iid, label, label, relationship.Owner?.ShortName ?? string.Empty, specification,
+            return NewChange(kind, element, specification,
                 field: "Relationship",
                 oldValue: kind == RequirementChangeKind.Deleted ? categories : string.Empty,
                 newValue: kind == RequirementChangeKind.Created ? categories : string.Empty);

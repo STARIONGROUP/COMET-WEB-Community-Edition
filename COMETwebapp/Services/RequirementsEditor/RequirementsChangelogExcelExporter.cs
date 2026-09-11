@@ -104,7 +104,7 @@ namespace COMETwebapp.Services.RequirementsEditor
             foreach (var group in this.changes.GroupBy(x => x.SpecificationId))
             {
                 var worksheet = workbook.Worksheets.Add(this.SafeSheetName(ResolveSheetName(group)));
-                this.WriteHeaderRow(worksheet);
+                WriteHeaderRow(worksheet);
                 var row = 2;
 
                 foreach (var change in group)
@@ -113,14 +113,14 @@ namespace COMETwebapp.Services.RequirementsEditor
                     row++;
                 }
 
-                this.FinalizeWorksheet(worksheet, row - 1);
+                FinalizeWorksheet(worksheet, row - 1);
             }
 
             if (workbook.Worksheets.Count == 0)
             {
                 var worksheet = workbook.Worksheets.Add("Changelog");
-                this.WriteHeaderRow(worksheet);
-                this.FinalizeWorksheet(worksheet, 1);
+                WriteHeaderRow(worksheet);
+                FinalizeWorksheet(worksheet, 1);
             }
 
             var stream = new MemoryStream();
@@ -144,7 +144,7 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// Writes the header row, one cell per column.
         /// </summary>
         /// <param name="worksheet">The <see cref="IXLWorksheet" /> to write to</param>
-        private void WriteHeaderRow(IXLWorksheet worksheet)
+        private static void WriteHeaderRow(IXLWorksheet worksheet)
         {
             worksheet.Cell(1, 1).Value = "ClassKind";
             worksheet.Cell(1, 2).Value = "ShortName";
@@ -178,7 +178,7 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// </summary>
         /// <param name="worksheet">The <see cref="IXLWorksheet" /> to finalize</param>
         /// <param name="lastRow">The one-based number of the last written row</param>
-        private void FinalizeWorksheet(IXLWorksheet worksheet, int lastRow)
+        private static void FinalizeWorksheet(IXLWorksheet worksheet, int lastRow)
         {
             if (lastRow >= 2)
             {
