@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.Components.Viewer.PropertiesPanel
 {
+    using CDP4Common.EngineeringModelData;
+
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
 
@@ -53,6 +55,88 @@ namespace COMETwebapp.Components.Viewer.PropertiesPanel
         /// Gets the properties component title
         /// </summary>
         private string Title => this.ViewModel.SelectionMediator.SelectedSceneObject is not null ? this.ViewModel.SelectionMediator.SelectedSceneObject.ElementBase.Name + " - Properties:" : "Properties";
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the submit confirmation dialog is visible
+        /// </summary>
+        private bool ShowSubmitDialog { get; set; }
+        
+        /// <summary>
+        /// Builds the CSS class for a parameter label, marking it as selected and/or changed.
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterBase" /> the label represents</param>
+        /// <returns>The space-separated CSS class list</returns>
+        private string GetParameterItemCssClass(ParameterBase parameter)
+        {
+            var classNames = "parameter-item";
+
+            if (parameter == this.ViewModel.SelectedParameter)
+            {
+                classNames += " parameter-item-selected";
+            }
+
+            if (this.ViewModel.HasChanges(parameter))
+            {
+                classNames += " parameter-item-changed";
+            }
+
+            return classNames;
+        }
+
+        /// <summary>
+        /// Opens the submit confirmation dialog so the user can review and adjust the pending changes before persisting them
+        /// </summary>
+        private void OpenSubmitDialog()
+        {
+            this.ViewModel.OnSubmitDialogOpened();
+            this.ShowSubmitDialog = true;
+        }
+
+        /// <summary>
+        /// Confirms the pending changes by submitting them through the view model, closing the dialog only when the write
+        /// succeeds so a failed submit can be retried.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task ConfirmSubmit()
+        {
+            var result = await this.ViewModel.OnSubmit();
+
+            if (result.IsSuccess)
+            {
+                this.ShowSubmitDialog = false;
+            }
+        }
+
+        /// <summary>
+        /// Handles the closing of the submit confirmation dialog, keeping the view model editor caches in sync
+        /// </summary>
+        private void OnSubmitDialogClosed()
+        {
+            this.ViewModel.OnSubmitDialogClosed();
+        }
+
+        /// <summary>
+        /// Reverts an unsubmitted change on the given parameter from the properties panel
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterBase" /> whose change should be discarded</param>
+        private void RevertChange(ParameterBase parameter)
+        {
+            this.ViewModel.RevertChange(parameter);
+        }
+
+        /// <summary>
+        /// Reverts an unsubmitted change on the given parameter from the dialog, closing the dialog when nothing remains
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterBase" /> whose change should be discarded</param>
+        private void RevertChangeInDialog(ParameterBase parameter)
+        {
+            this.ViewModel.RevertChange(parameter);
+
+            if (this.ViewModel.GetChangedParameters().Count == 0)
+            {
+                this.ShowSubmitDialog = false;
+            }
+        }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its

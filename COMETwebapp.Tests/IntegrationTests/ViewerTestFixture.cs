@@ -62,6 +62,34 @@ namespace COMETwebapp.Tests.IntegrationTests
         protected override ViewerPageModel CreatePageModel(IPage page) => new(page);
 
         /// <summary>
+        /// Verifies GH937: editing a parameter value in the properties panel then clicking its revert affordance restores
+        /// the original value in the editor and clears the changed state.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyParameterRevertRestoresOriginalValue()
+        {
+            await this.ExpandProductTreeAsync();
+
+            var input = await this.SelectFirstElementWithQuantityEditorAsync();
+            Assume.That(input, Is.Not.Null, "no element in the opened model exposes a numeric parameter editor");
+
+            var originalValue = await input.InputValueAsync();
+
+            await input.FillAsync("7");
+            await input.DispatchEventAsync("input");
+
+            await Expect(this.Page.Locator(".parameter-item-changed")).ToBeVisibleAsync();
+            await Expect(this.Page.Locator("input.quantity-kind-parameter").First).ToHaveValueAsync("7");
+
+            await this.Page.Locator(".parameter-item-revert").First.ClickAsync();
+
+            await Expect(this.Page.Locator("input.quantity-kind-parameter").First).ToHaveValueAsync(originalValue);
+            await Expect(this.Page.Locator(".parameter-item-changed")).ToBeHiddenAsync();
+            await Expect(this.Tabs.BlazorError).ToBeHiddenAsync();
+        }
+
+        /// <summary>
         /// Verifies that the 3D Viewer product tree exposes the same controls as the System Representation tree
         /// the shared search bar and the "View" display-options cog.
         /// </summary>
@@ -151,6 +179,59 @@ namespace COMETwebapp.Tests.IntegrationTests
             await this.Page.Mouse.DownAsync();
             await this.Page.Mouse.MoveAsync(centerX + horizontalOffset, centerY);
             await this.Page.Mouse.UpAsync();
+        }
+
+        /// <summary>
+        /// Expands every collapsed node of the product tree so the leaf elements render.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        private async Task ExpandProductTreeAsync()
+        {
+            for (var pass = 0; pass < 6; pass++)
+            {
+                var expandIcons = this.Page.Locator(".expandIcon");
+                var iconCount = await expandIcons.CountAsync();
+                var expandedAny = false;
+
+                for (var i = 0; i < iconCount; i++)
+                {
+                    var icon = expandIcons.Nth(i);
+
+                    if (await icon.GetAttributeAsync("src") is { } src && src.Contains("Collapsed"))
+                    {
+                        await icon.ClickAsync();
+                        await this.Page.WaitForTimeoutAsync(300);
+                        expandedAny = true;
+                    }
+                }
+
+                if (!expandedAny)
+                {
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Clicks each tree node in turn until one selects an element whose properties panel exposes a quantity editor.
+        /// </summary>
+        /// <returns>The quantity editor input, or null when no element exposes one.</returns>
+        private async Task<ILocator> SelectFirstElementWithQuantityEditorAsync()
+        {
+            var nodeCount = await this.Page.Locator(".treeNode").CountAsync();
+
+            for (var i = 0; i < nodeCount; i++)
+            {
+                await this.Page.Locator(".treeNode").Nth(i).ClickAsync();
+                await this.Page.WaitForTimeoutAsync(400);
+
+                if (await this.Page.Locator("input.quantity-kind-parameter").CountAsync() > 0)
+                {
+                    return this.Page.Locator("input.quantity-kind-parameter").First;
+                }
+            }
+
+            return null;
         }
     }
 }

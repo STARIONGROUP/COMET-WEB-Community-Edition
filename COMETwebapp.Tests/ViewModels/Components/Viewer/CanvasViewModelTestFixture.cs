@@ -349,5 +349,21 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
                 this.selectionMediator.Verify(x => x.RaiseOnModelSelectionChanged(sceneObject), Times.Once);
             }
         }
+
+        /// <summary>
+        /// Releasing the mouse over empty space (no primitive under the cursor) keeps the current
+        /// selection instead of deselecting it.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        [Test]
+        public async Task VerifyHandleMouseUpKeepsSelectionWhenClickingEmptySpace()
+        {
+            this.babylonInterop.Setup(x => x.GetPrimitiveIdUnderMouseAsync()).ReturnsAsync(Guid.NewGuid());
+            this.selectionMediator.SetupGet(x => x.SceneObjectHasChanges).Returns(false);
+
+            await this.viewModel.HandleMouseUp();
+
+            this.selectionMediator.Verify(x => x.RaiseOnModelSelectionChanged(It.IsAny<SceneObject>()), Times.Never);
+        }
     }
 }

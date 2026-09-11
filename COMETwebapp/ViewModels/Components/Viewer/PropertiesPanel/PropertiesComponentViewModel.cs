@@ -32,6 +32,7 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
 
@@ -41,6 +42,8 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.Viewer;
+
+    using FluentResults;
 
     using Microsoft.AspNetCore.Components;
 
@@ -82,6 +85,40 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         private readonly ICDPMessageBus messageBus;
 
         /// <summary>
+        /// Cache of the parameter editors shown in the properties panel, keyed by <see cref="ParameterBase" />, so the
+        /// editor is not rebuilt on every render (which would drop keyboard focus while the user types)
+        /// </summary>
+        private readonly Dictionary<ParameterBase, IDetailsComponentViewModel> panelEditorCache = new();
+
+        /// <summary>
+        /// Cache of the parameter editors shown in the submit confirmation dialog, keyed by <see cref="ParameterBase" />,
+        /// so each editor keeps its state while the dialog is open
+        /// </summary>
+        private readonly Dictionary<ParameterBase, IDetailsComponentViewModel> dialogEditorCache = new();
+
+        /// <summary>
+        /// Memoized editor returned by <see cref="GetOrCreateEditor" /> when nothing is selected, so it does not force a
+        /// remount of <see cref="DetailsComponent" /> on every render while the properties panel is idle
+        /// </summary>
+        private IDetailsComponentViewModel emptyDetailsEditor;
+
+        /// <summary>
+        /// An unsubmitted change on a single <see cref="ParameterBase" />: the pristine <see cref="IValueSet" /> it had
+        /// before editing (used to restore it on revert and to display the dialog's "old value" column) alongside the
+        /// currently staged <see cref="IValueSet" /> (used to build the submit write and the dialog's "new value" editor).
+        /// </summary>
+        /// <param name="Original">The value set before the first edit, or null when it was not known (defensive edge case)</param>
+        /// <param name="Current">The currently staged value set</param>
+        private sealed record PendingParameterChange(IValueSet Original, IValueSet Current);
+
+        /// <summary>
+        /// Every unsubmitted change, keyed by <see cref="ParameterBase" />. Kept as a single dictionary (rather than one
+        /// dictionary for the original value and another for the current one) so a mutation path can never update one
+        /// half and forget the other.
+        /// </summary>
+        private readonly Dictionary<ParameterBase, PendingParameterChange> pendingChanges = new();
+
+        /// <summary>
         /// Creates a new instance of type <see cref="PropertiesComponentViewModel" />
         /// </summary>
         /// <param name="babylonInterop">the <see cref="IBabylonInterop" /></param>
@@ -116,11 +153,6 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
 
             base.Dispose(disposing);
         }
-
-        /// <summary>
-        /// Gets or sets the <see cref="IValueSet" /> asociated to a <see cref="ParameterBase" /> that have changed;
-        /// </summary>
-        public Dictionary<ParameterBase, IValueSet> ChangedParameterValueSetRelations { get; set; } = new();
 
         /// <summary>
         /// Injected property to get access to <see cref="ISessionService" />
@@ -184,28 +216,209 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         public EventCallback<(IValueSet,int)> OnParameterValueSetChanged { get; set; }
 
         /// <summary>
-        /// When the button for submit changes is clicked
+        /// When the button for submit changes is clicked. Persists every changed <see cref="IValueSet" /> in a single
+        /// write and surfaces the outcome as a toast notification; on success the tracked changes are cleared so the
+        /// changed-parameter highlighting resets.
         /// </summary>
-        public void OnSubmit()
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the write</returns>
+        public async Task<Result> OnSubmit()
         {
-            this.SelectionMediator.SceneObjectHasChanges = false;
-            this.ParameterHaveChanges = false;
+            List<Thing> clones = [];
+            Iteration iterationClone = null;
 
-            foreach (var valueSet in this.ChangedParameterValueSetRelations.Select(keyValue => keyValue.Value))
+            foreach (var pending in this.pendingChanges.Values)
             {
-                if (valueSet is not ParameterValueSetBase parameterValueSetBase)
+                if (pending.Current is not ParameterValueSetBase parameterValueSetBase)
                 {
                     continue;
                 }
 
                 var clonedParameterValueSet = parameterValueSetBase.Clone(false);
-                var valueSetNewValue = valueSet.ActualValue;
-                clonedParameterValueSet.Manual = valueSetNewValue;
-                this.SessionService.CreateOrUpdateThings(parameterValueSetBase.GetContainerOfType<Iteration>().Clone(false), new List<Thing> { clonedParameterValueSet });
+                clonedParameterValueSet.Manual = parameterValueSetBase.ActualValue;
+                clones.Add(clonedParameterValueSet);
+                iterationClone ??= parameterValueSetBase.GetContainerOfType<Iteration>().Clone(false);
             }
 
+            if (clones.Count > 0)
+            {
+                var result = await this.SessionService.CreateOrUpdateThingsWithNotification(iterationClone, clones,
+                    new NotificationDescription
+                    {
+                        OnSuccess = "Parameter values updated successfully",
+                        OnError = "Failed to update the parameter values"
+                    });
+
+                if (!result.IsSuccess)
+                {
+                    return result;
+                }
+
+                this.ClearPendingChanges();
+            }
+
+            this.SelectionMediator.SceneObjectHasChanges = false;
             this.ParameterHaveChanges = false;
             this.SelectionMediator.RaiseOnParameterSubmitted();
+            return Result.Ok();
+        }
+
+        /// <summary>
+        /// Reverts an unsubmitted change on the given <see cref="ParameterBase" />, restoring its original value in the
+        /// tracked relations, the editors and the scene preview.
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterBase" /> whose change should be discarded</param>
+        public void RevertChange(ParameterBase parameter)
+        {
+            if (!this.pendingChanges.Remove(parameter, out var pending))
+            {
+                return;
+            }
+
+            if (pending.Original is not null)
+            {
+                this.ParameterValueSetRelations[parameter] = pending.Original;
+                var selectedClone = this.SelectionMediator.SelectedSceneObjectClone;
+                selectedClone?.UpdateParameter(parameter, pending.Original);
+
+                if (parameter.ParameterType.ShortName == SceneSettings.ShapeKindShortName)
+                {
+                    this.ReapplyAssociatedParameters(selectedClone);
+                }
+            }
+
+            this.panelEditorCache.Remove(parameter);
+            this.dialogEditorCache.Remove(parameter);
+
+            this.ParameterHaveChanges = this.pendingChanges.Count > 0;
+            this.SelectionMediator.SceneObjectHasChanges = this.ParameterHaveChanges;
+            this.SelectionMediator.RaiseOnParameterChanged();
+        }
+
+        /// <summary>
+        /// Clears every unsubmitted change and both editor caches in one place, so the mutation paths that discard
+        /// pending state (a successful submit, a selection change) cannot drift out of sync with one another.
+        /// </summary>
+        private void ClearPendingChanges()
+        {
+            this.pendingChanges.Clear();
+            this.panelEditorCache.Clear();
+            this.dialogEditorCache.Clear();
+        }
+
+        /// <summary>
+        /// Re-applies every associated parameter other than the shape kind onto the given scene object clone's
+        /// <see cref="SceneObject.Primitive" />. Needed after a shape-kind change (or a revert of one), since
+        /// <see cref="SceneObject.UpdateParameter" /> replaces the primitive with a fresh default-geometry instance that
+        /// has lost every other parameter's value (position, size, orientation).
+        /// </summary>
+        /// <param name="sceneObjectClone">The scene object clone whose primitive needs to be kept in sync</param>
+        private void ReapplyAssociatedParameters(SceneObject sceneObjectClone)
+        {
+            if (sceneObjectClone?.Primitive is not null)
+            {
+                sceneObjectClone.Primitive.HasHalo = true;
+            }
+
+            var parameters = this.ParameterValueSetRelations.Keys.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
+
+            foreach (var otherParameter in parameters)
+            {
+                sceneObjectClone?.UpdateParameter(otherParameter, this.ParameterValueSetRelations[otherParameter]);
+            }
+        }
+
+        /// <summary>
+        /// Clears the dialog editor cache so the submit confirmation dialog rebuilds its editors from the current values
+        /// when it is opened.
+        /// </summary>
+        public void OnSubmitDialogOpened()
+        {
+            this.dialogEditorCache.Clear();
+        }
+
+        /// <summary>
+        /// Clears the editor caches when the submit confirmation dialog closes so the properties panel reflects any edits
+        /// or reverts made inside the dialog.
+        /// </summary>
+        public void OnSubmitDialogClosed()
+        {
+            this.dialogEditorCache.Clear();
+            this.panelEditorCache.Clear();
+        }
+
+        /// <summary>
+        /// Gets the <see cref="ParameterBase" />s that have an unsubmitted change, in tracking order.
+        /// </summary>
+        /// <returns>The changed parameters</returns>
+        public IReadOnlyList<ParameterBase> GetChangedParameters()
+        {
+            return this.pendingChanges.Keys.ToList();
+        }
+
+        /// <summary>
+        /// Gets the display name of the given <see cref="ParameterBase" />, including its scale short name when present.
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterBase" /></param>
+        /// <returns>The formatted name, e.g. "Length [m]"</returns>
+        public string GetParameterDisplayName(ParameterBase parameter)
+        {
+            return FormatParameterName(parameter);
+        }
+
+        /// <summary>
+        /// Gets the original (pre-edit) value of the given <see cref="ParameterBase" /> for display in the dialog.
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterBase" /></param>
+        /// <returns>The formatted original value, or an empty string when it was not captured</returns>
+        public string GetOriginalValue(ParameterBase parameter)
+        {
+            return this.pendingChanges.TryGetValue(parameter, out var pending) && pending.Original is not null
+                ? FormatValue(pending.Original.ActualValue)
+                : string.Empty;
+        }
+
+        /// <summary>
+        /// Gets a memoized editor for the given <see cref="ParameterBase" /> to be shown inside the submit confirmation
+        /// dialog, so the user can adjust the value before submitting.
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterBase" /> to edit</param>
+        /// <returns>The <see cref="IDetailsComponentViewModel" /> for the parameter</returns>
+        public IDetailsComponentViewModel GetDialogEditor(ParameterBase parameter)
+        {
+            var editor = this.GetOrCreateEditor(parameter, this.dialogEditorCache);
+            editor.IsVisible = true;
+            return editor;
+        }
+
+        /// <summary>
+        /// Asserts whether the given <see cref="ParameterBase" /> has an unsubmitted change, used to highlight its label.
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterBase" /> to check</param>
+        /// <returns>True when the parameter has a pending change</returns>
+        public bool HasChanges(ParameterBase parameter)
+        {
+            return this.pendingChanges.ContainsKey(parameter);
+        }
+
+        /// <summary>
+        /// Formats the display name of a <see cref="ParameterBase" />, appending its scale short name when present.
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterBase" /></param>
+        /// <returns>The formatted name, e.g. "Length [m]"</returns>
+        private static string FormatParameterName(ParameterBase parameter)
+        {
+            var scale = parameter.Scale?.ShortName;
+            return string.IsNullOrEmpty(scale) ? parameter.ParameterType?.Name : $"{parameter.ParameterType?.Name} [{scale}]";
+        }
+
+        /// <summary>
+        /// Formats a <see cref="ValueArray{T}" /> for display, joining its components with a comma.
+        /// </summary>
+        /// <param name="value">The values to format</param>
+        /// <returns>The joined value string</returns>
+        private static string FormatValue(IEnumerable<string> value)
+        {
+            return string.Join(", ", value);
         }
 
         /// <summary>
@@ -223,90 +436,134 @@ namespace COMETwebapp.ViewModels.Components.Viewer.PropertiesPanel
         }
 
         /// <summary>
-        /// Creates a new <see cref="IDetailsComponentViewModel" />
+        /// Creates (or returns the memoized) <see cref="IDetailsComponentViewModel" /> for the currently selected
+        /// parameter shown in the properties panel.
         /// </summary>
         /// <returns>
         /// a <see cref="IDetailsComponentViewModel" /> based on this <see cref="IPropertiesComponentViewModel" />
         /// </returns>
         public IDetailsComponentViewModel CreateDetailsComponentViewModel()
         {
-            return new DetailsComponentViewModel(this.IsVisible, this.SelectedParameter?.ParameterType, this.GetUsedValueSet(), this.OnParameterValueSetChanged, this.messageBus);
+            return this.GetOrCreateEditor(this.SelectedParameter, this.panelEditorCache);
         }
 
         /// <summary>
-        /// Event for when a <see cref="IValueSet" /> asociated to a <see cref="ParameterBase" /> has changed.
+        /// Gets an editor for the given <paramref name="parameter" /> from the given <paramref name="cache" />, creating
+        /// and memoizing it on first use so it is not rebuilt on every render (which drops keyboard focus mid-edit).
         /// </summary>
-        /// <param name="valueTuple">The updated <see cref="IValueSet"/> with the index</param>
-        public Task ParameterValueSetChanged((IValueSet valueSet,int _) valueTuple)
+        /// <param name="parameter">The <see cref="ParameterBase" /> to edit, or null when nothing is selected</param>
+        /// <param name="cache">The cache the editor is stored in</param>
+        /// <returns>The <see cref="IDetailsComponentViewModel" /></returns>
+        private IDetailsComponentViewModel GetOrCreateEditor(ParameterBase parameter, Dictionary<ParameterBase, IDetailsComponentViewModel> cache)
         {
-            if (valueTuple.valueSet is ParameterValueSetBase parameterValueSetBase)
+            if (parameter is null)
             {
-                var validationMessageBuilder = new StringBuilder();
-                var newValueArray = new ValueArray<string>(parameterValueSetBase.ActualValue);
-
-                if(this.SelectedParameter.ParameterType is CompoundParameterType compoundParameterType)
-                {
-                    var components = compoundParameterType.Component.ToList();
-                    
-                    for(var componentIndex = 0; componentIndex < components.Count; componentIndex++)
-                    {
-                        var value = parameterValueSetBase.ActualValue[componentIndex];
-                        validationMessageBuilder .Append(ParameterValueValidator.Validate(value, components[componentIndex].ParameterType, components[componentIndex]?.Scale));
-                    }
-                }
-                else
-                {
-                    validationMessageBuilder.Append(ParameterValueValidator.Validate(parameterValueSetBase.ActualValue.First(), this.SelectedParameter.ParameterType, this.SelectedParameter?.Scale));
-                }
-
-                var validationMessage = validationMessageBuilder.ToString();
-
-                if (!string.IsNullOrEmpty(validationMessage))
-                {
-                    this.ParameterHaveChanges = false;
-                }
-                else
-                {
-                    this.SelectionMediator.SceneObjectHasChanges = true;
-                    this.ParameterHaveChanges = true;
-
-                    var clonedValueSetBase = parameterValueSetBase.Clone(false);
-                    
-                    clonedValueSetBase.Manual = newValueArray;
-                    this.ParameterValueSetRelations[this.SelectedParameter] = clonedValueSetBase;
-                    this.ChangedParameterValueSetRelations[this.SelectedParameter] = clonedValueSetBase;
-
-                    this.SelectionMediator.SelectedSceneObjectClone.UpdateParameter(this.SelectedParameter, clonedValueSetBase);
-
-                    if (this.SelectedParameter.ParameterType.ShortName == SceneSettings.ShapeKindShortName)
-                    {
-                        if (this.SelectionMediator.SelectedSceneObjectClone.Primitive is not null)
-                        {
-                            this.SelectionMediator.SelectedSceneObjectClone.Primitive.HasHalo = true;
-                        }
-
-                        var parameters = this.ParameterValueSetRelations.Keys.Where(x => x.ParameterType.ShortName != SceneSettings.ShapeKindShortName);
-
-                        foreach (var parameter in parameters)
-                        {
-                            this.SelectionMediator.SelectedSceneObjectClone?.UpdateParameter(parameter, this.ParameterValueSetRelations[parameter]);
-                        }
-                    }
-
-                    this.SelectionMediator.RaiseOnParameterChanged();
-                }
+                this.emptyDetailsEditor ??= new DetailsComponentViewModel(false, null, null, this.OnParameterValueSetChanged, this.messageBus);
+                this.emptyDetailsEditor.IsVisible = this.IsVisible;
+                return this.emptyDetailsEditor;
             }
 
+            if (cache.TryGetValue(parameter, out var cachedEditor))
+            {
+                cachedEditor.IsVisible = this.IsVisible;
+                return cachedEditor;
+            }
+            
+            var valueSet = this.ParameterValueSetRelations.TryGetValue(parameter, out var relatedValueSet) ? relatedValueSet : null;
+            var callback = new EventCallbackFactory().Create(this, async ((IValueSet, int) value) => { await this.ApplyParameterChange(parameter, value.Item1); });
+            var editor = new DetailsComponentViewModel(this.IsVisible, parameter.ParameterType, valueSet, callback, this.messageBus);
+            cache[parameter] = editor;
+            return editor;
+        }
+
+        /// <summary>
+        /// Event for when a <see cref="IValueSet" /> asociated to the currently selected <see cref="ParameterBase" /> has
+        /// changed. Routes to <see cref="ApplyParameterChange" /> for the selected parameter.
+        /// </summary>
+        /// <param name="valueTuple">The updated <see cref="IValueSet"/> with the index</param>
+        /// <returns>A <see cref="Task" /></returns>
+        public Task ParameterValueSetChanged((IValueSet valueSet,int _) valueTuple)
+        {
+            return this.ApplyParameterChange(this.SelectedParameter, valueTuple.valueSet);
+        }
+
+        /// <summary>
+        /// Applies a value change to the given <paramref name="parameter" />: validates it, tracks it as a pending change
+        /// (capturing the original value on first edit) and updates the scene preview.
+        /// </summary>
+        /// <param name="parameter">The <see cref="ParameterBase" /> being edited</param>
+        /// <param name="valueSet">The updated <see cref="IValueSet" /></param>
+        /// <returns>A <see cref="Task" /></returns>
+        public Task ApplyParameterChange(ParameterBase parameter, IValueSet valueSet)
+        {
+            if (parameter is null || valueSet is not ParameterValueSetBase parameterValueSetBase)
+            {
+                return Task.CompletedTask;
+            }
+
+            var validationMessageBuilder = new StringBuilder();
+            var newValueArray = new ValueArray<string>(parameterValueSetBase.ActualValue);
+
+            if (parameter.ParameterType is CompoundParameterType compoundParameterType)
+            {
+                var components = compoundParameterType.Component.ToList();
+
+                for (var componentIndex = 0; componentIndex < components.Count; componentIndex++)
+                {
+                    var value = parameterValueSetBase.ActualValue[componentIndex];
+                    validationMessageBuilder.Append(ParameterValueValidator.Validate(value, components[componentIndex].ParameterType, components[componentIndex]?.Scale));
+                }
+            }
+            else
+            {
+                validationMessageBuilder.Append(ParameterValueValidator.Validate(parameterValueSetBase.ActualValue.First(), parameter.ParameterType, parameter.Scale));
+            }
+
+            if (!string.IsNullOrEmpty(validationMessageBuilder.ToString()))
+            {
+                // Do not stage an invalid value; keep the button enabled only while other valid changes are pending.
+                this.ParameterHaveChanges = this.pendingChanges.Count > 0;
+                return Task.CompletedTask;
+            }
+
+            this.SelectionMediator.SceneObjectHasChanges = true;
+            this.ParameterHaveChanges = true;
+
+            var clonedValueSetBase = parameterValueSetBase.Clone(false);
+            clonedValueSetBase.Manual = newValueArray;
+
+            var original = this.pendingChanges.TryGetValue(parameter, out var existingPending)
+                ? existingPending.Original
+                : this.ParameterValueSetRelations.GetValueOrDefault(parameter);
+
+            this.ParameterValueSetRelations[parameter] = clonedValueSetBase;
+            this.pendingChanges[parameter] = new PendingParameterChange(original, clonedValueSetBase);
+
+            var selectedClone = this.SelectionMediator.SelectedSceneObjectClone;
+            selectedClone?.UpdateParameter(parameter, clonedValueSetBase);
+
+            if (parameter.ParameterType.ShortName == SceneSettings.ShapeKindShortName)
+            {
+                this.ReapplyAssociatedParameters(selectedClone);
+            }
+
+            this.SelectionMediator.RaiseOnParameterChanged();
             return Task.CompletedTask;
         }
 
         /// <summary>
-        /// Called when the selection of a <see cref="SceneObject" /> has changed
+        /// Called when the selection of a <see cref="SceneObject" /> has changed. Any unsubmitted change is discarded:
+        /// pending edits are tracked against the previously selected object's clone, and the mediator has already reset
+        /// that clone's live geometry back to the persisted values (<see cref="ISelectionMediator.SceneObjectHasChanges" />
+        /// gates a call to <c>SceneObject.ParseAllParameters</c>), so keeping them staged would let a revert or a
+        /// dialog edit mutate the wrong scene object once a different one is selected.
         /// </summary>
         /// <param name="sceneObject">the changed object</param>
         private void OnSelectionChanged(SceneObject sceneObject)
         {
             this.IsVisible = sceneObject is not null;
+            this.ClearPendingChanges();
+            this.ParameterHaveChanges = false;
 
             if (this.SelectionMediator.SelectedSceneObjectClone?.ParametersAsociated is null)
             {
