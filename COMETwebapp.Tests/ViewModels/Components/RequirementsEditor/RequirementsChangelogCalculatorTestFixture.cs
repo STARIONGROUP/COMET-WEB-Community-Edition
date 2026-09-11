@@ -148,7 +148,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 Assert.That(nameChange, Is.Not.Null, "A changed Name must produce one Modified row with Field 'Name'.");
                 Assert.That(nameChange?.OldValue, Is.EqualTo("Old name"));
                 Assert.That(nameChange?.NewValue, Is.EqualTo("New name"));
-                Assert.That(nameChange?.Author, Is.EqualTo(this.author.Name), "Author must be the changed requirement's Actor name.");
+                Assert.That(nameChange?.Owner, Is.EqualTo(this.systemDomain.ShortName), "Owner must be the changed requirement's owning DomainOfExpertise short name.");
 
                 Assert.That(ownerChange, Is.Not.Null, "A changed Owner must produce one Modified row with Field 'Owner'.");
                 Assert.That(ownerChange?.OldValue, Is.EqualTo(this.thermalDomain.ShortName));

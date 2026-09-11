@@ -27,11 +27,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
     using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.Services.Export;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using DynamicData;
 
     using FluentResults;
+
+    using Microsoft.Extensions.Logging;
 
     using Moq;
 
@@ -42,6 +45,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     {
         private RequirementsChangelogViewModel viewModel;
         private Mock<ISessionService> sessionService;
+        private Mock<IExportService> exportService;
         private SourceList<Iteration> openIterations;
         private DomainOfExpertise domain;
         private EngineeringModelSetup modelSetup;
@@ -78,7 +82,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             this.sessionService = new Mock<ISessionService>();
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
 
-            this.viewModel = new RequirementsChangelogViewModel(this.sessionService.Object);
+            this.exportService = new Mock<IExportService>();
+            this.exportService.Setup(x => x.ExportAndDownloadAsync(It.IsAny<IExporter>())).Returns(Task.CompletedTask);
+            this.viewModel = new RequirementsChangelogViewModel(this.sessionService.Object, this.exportService.Object, new Mock<ILogger>().Object);
         }
 
         [TearDown]
@@ -172,6 +178,51 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             await this.viewModel.CompareAsync();
 
             this.sessionService.Verify(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>()), Times.Never);
+        }
+
+        [Test]
+        public async Task VerifyExportAsync()
+        {
+            await this.viewModel.ExportAsync(null);
+            await this.viewModel.ExportAsync([]);
+
+            this.exportService.Verify(x => x.ExportAndDownloadAsync(It.IsAny<IExporter>()), Times.Never);
+
+            RequirementChange[] changes = [new RequirementChange { Kind = RequirementChangeKind.Created, ElementKind = "Requirement", ElementShortName = "R01", SpecificationId = Guid.NewGuid() }];
+
+            await this.viewModel.ExportAsync(changes);
+
+            this.exportService.Verify(x => x.ExportAndDownloadAsync(It.IsAny<IExporter>()), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyExportAsyncSetsMessageOnFailure()
+        {
+            this.exportService.Setup(x => x.ExportAndDownloadAsync(It.IsAny<IExporter>())).ThrowsAsync(new InvalidOperationException("boom"));
+
+            RequirementChange[] changes = [new RequirementChange { Kind = RequirementChangeKind.Created, ElementKind = "Requirement", ElementShortName = "R01", SpecificationId = Guid.NewGuid() }];
+
+            await this.viewModel.ExportAsync(changes);
+
+            Assert.That(this.viewModel.Message, Is.Not.Empty, "a failed export must surface a message to the user.");
+        }
+
+        [Test]
+        public void VerifyRequestScrollTo()
+        {
+            var elementId = Guid.NewGuid();
+
+            this.viewModel.RequestScrollTo(elementId);
+            var scrollToElementIdAfterRequest = this.viewModel.ScrollToElementId;
+
+            this.viewModel.ClearScrollTarget();
+            var scrollToElementIdAfterClear = this.viewModel.ScrollToElementId;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(scrollToElementIdAfterRequest, Is.EqualTo(elementId));
+                Assert.That(scrollToElementIdAfterClear, Is.Null);
+            });
         }
     }
 }

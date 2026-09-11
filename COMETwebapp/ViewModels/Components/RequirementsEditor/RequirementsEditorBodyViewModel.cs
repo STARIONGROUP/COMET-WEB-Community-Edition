@@ -35,6 +35,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.Services.Export;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Utilities;
 
@@ -179,13 +180,25 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private RequirementsEditorView activeView;
 
         /// <summary>
+        /// Backing field for <see cref="CameFromChangelog" />
+        /// </summary>
+        private bool cameFromChangelog;
+
+        /// <summary>
+        /// The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the element last navigated to from the changelog,
+        /// used by <see cref="ReturnToChangelog" /> to scroll back to the row the user came from.
+        /// </summary>
+        private Guid? lastChangelogElementId;
+
+        /// <summary>
         /// Creates a new instance of <see cref="RequirementsEditorBodyViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /></param>
         /// <param name="showHideDeprecatedThingsService">The <see cref="IShowHideDeprecatedThingsService" /></param>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
-        public RequirementsEditorBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ILogger<RequirementsEditorBodyViewModel> logger) : base(sessionService, messageBus)
+        /// <param name="exportService">The <see cref="IExportService" /></param>
+        public RequirementsEditorBodyViewModel(ISessionService sessionService, ICDPMessageBus messageBus, IShowHideDeprecatedThingsService showHideDeprecatedThingsService, ILogger<RequirementsEditorBodyViewModel> logger, IExportService exportService) : base(sessionService, messageBus)
         {
             this.ShowHideDeprecatedThingsService = showHideDeprecatedThingsService;
             this.logger = logger;
@@ -195,7 +208,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 OnCancel = new EventCallbackFactory().Create(this, () => this.ConfirmCancelPopupViewModel.IsVisible = false)
             };
 
-            var changelogViewModel = new RequirementsChangelogViewModel(sessionService);
+            var changelogViewModel = new RequirementsChangelogViewModel(sessionService, exportService, logger);
             this.Disposables.Add(changelogViewModel);
             this.ChangelogViewModel = changelogViewModel;
         }
@@ -217,6 +230,16 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         {
             get => this.activeView;
             set => this.RaiseAndSetIfChanged(ref this.activeView, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the document is currently shown because of a navigation from the
+        /// changelog, in which case the document view offers a "back to changes" affordance.
+        /// </summary>
+        public bool CameFromChangelog
+        {
+            get => this.cameFromChangelog;
+            set => this.RaiseAndSetIfChanged(ref this.cameFromChangelog, value);
         }
 
         /// <summary>
@@ -1158,6 +1181,93 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             }
 
             this.ScrollTargetGroup = group;
+        }
+
+        /// <summary>
+        /// Navigates the document to the element identified by the given <paramref name="elementId" /> and
+        /// <paramref name="elementKind" />, as clicked from a changelog row: it resolves the element (a requirement, a
+        /// group, or a specification) in the current iteration and switches the <see cref="ActiveView" /> to
+        /// <see cref="RequirementsEditorView.Document" />. Does nothing when the element cannot be resolved (e.g. it was
+        /// deleted and is no longer part of the current iteration), so the changelog stays on screen.
+        /// </summary>
+        /// <param name="elementId">The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the changed element</param>
+        /// <param name="elementKind">The <see cref="RequirementChange.ElementKind" /> of the changed element</param>
+        public void NavigateToChangelogElement(Guid elementId, string elementKind)
+        {
+            if (this.CurrentThing == null)
+            {
+                return;
+            }
+
+            switch (elementKind)
+            {
+                case "Requirement":
+                    var requirement = this.CurrentThing.RequirementsSpecification.SelectMany(x => x.Requirement).FirstOrDefault(x => x.Iid == elementId);
+
+                    if (requirement == null)
+                    {
+                        return;
+                    }
+
+                    this.NavigateToRequirement(requirement);
+                    break;
+
+                case "Requirements Group":
+                    var group = this.CurrentThing.RequirementsSpecification.SelectMany(x => FlattenGroups(x.Group)).FirstOrDefault(x => x.Iid == elementId);
+
+                    if (group == null)
+                    {
+                        return;
+                    }
+
+                    this.SelectedSpecification = group.GetContainerOfType<RequirementsSpecification>();
+                    this.NavigateToGroup(group);
+                    break;
+
+                case "Requirements Specification":
+                    var specification = this.CurrentThing.RequirementsSpecification.FirstOrDefault(x => x.Iid == elementId);
+
+                    if (specification == null)
+                    {
+                        return;
+                    }
+
+                    this.SelectedSpecification = specification;
+                    break;
+
+                default:
+                    return;
+            }
+
+            this.ActiveView = RequirementsEditorView.Document;
+            this.CameFromChangelog = true;
+            this.lastChangelogElementId = elementId;
+        }
+
+        /// <summary>
+        /// Switches the <see cref="ActiveView" /> back to <see cref="RequirementsEditorView.Changelog" />, invoked from
+        /// the "Back" affordance shown on the document after a changelog navigation. Requests a scroll to the changelog
+        /// row of the element last navigated from, so the user lands back where they were.
+        /// </summary>
+        public void ReturnToChangelog()
+        {
+            this.ActiveView = RequirementsEditorView.Changelog;
+            this.CameFromChangelog = false;
+
+            if (this.lastChangelogElementId.HasValue)
+            {
+                this.ChangelogViewModel.RequestScrollTo(this.lastChangelogElementId.Value);
+            }
+        }
+
+        /// <summary>
+        /// Recursively flattens the given <paramref name="groups" /> and their descendants into a single sequence.
+        /// </summary>
+        /// <param name="groups">The top-level <see cref="RequirementsGroup" />s to flatten</param>
+        /// <returns>The groups and all of their descendants</returns>
+        private static IEnumerable<RequirementsGroup> FlattenGroups(IEnumerable<RequirementsGroup> groups)
+        {
+            return groups.SelectMany(group => new[] { group }.Concat(FlattenGroups(group.Group)));
         }
 
         /// <summary>

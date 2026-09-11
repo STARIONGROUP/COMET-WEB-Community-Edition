@@ -23,89 +23,127 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
 @inherits DisposableComponent
 
-<div class="req-changelog-toolbar">
-    <span class="req-toolbar-label">Compare the open iteration with baseline:</span>
+<div class="req-changelog">
+    <div class="req-changelog-toolbar">
+        <span class="req-toolbar-label">Compare the open iteration with baseline:</span>
 
-    <DxComboBox Data="@this.ViewModel.AvailableBaselines"
-                @bind-Value="@this.ViewModel.SelectedBaseline"
-                TextFieldName="@nameof(IterationSetup.IterationNumber)"
-                NullText="Select a baseline iteration...">
-        <ItemTemplate Context="setup">
-            Iteration @setup.IterationNumber@(setup.FrozenOn == null ? string.Empty : $" (frozen {setup.FrozenOn:yyyy-MM-dd})")
-        </ItemTemplate>
-    </DxComboBox>
+        <DxComboBox Data="@this.ViewModel.AvailableBaselines"
+                    @bind-Value="@this.ViewModel.SelectedBaseline"
+                    TextFieldName="@nameof(IterationSetup.IterationNumber)"
+                    NullText="Select a baseline iteration...">
+            <ItemTemplate Context="setup">
+                Iteration @setup.IterationNumber@(setup.FrozenOn == null ? string.Empty : $" (frozen {setup.FrozenOn:yyyy-MM-dd})")
+            </ItemTemplate>
+        </DxComboBox>
 
-    <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
-              Text="Compare"
-              Click="@this.ViewModel.CompareAsync" />
-</div>
+        <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                  Text="Compare"
+                  Click="@this.ViewModel.CompareAsync" />
 
-@if (this.ViewModel.AvailableBaselines.Count == 0)
-{
-    <div class="req-changelog-empty">This model has no earlier (frozen) iterations to compare against.</div>
-}
-else
-{
-    <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
-        @if (!string.IsNullOrEmpty(this.ViewModel.Message))
-        {
-            <div class="req-changelog-error">@this.ViewModel.Message</div>
-        }
-        else if (this.ViewModel.HasCompared && this.ViewModel.Changes.Count == 0)
-        {
-            <div class="req-changelog-empty">No requirement changes between the selected iterations.</div>
-        }
-        else if (this.ViewModel.HasCompared)
-        {
-            <div class="req-changelog-filters">
-                <div class="filter-bar-item">
-                    <FilterTagBox TItem="string"
-                                  Data="@this.AvailableSpecifications"
-                                  Values="@this.selectedSpecifications"
-                                  ValuesChanged="@((IEnumerable<string> values) => this.selectedSpecifications = values.ToList())"
-                                  NullText="Filter by specification..." />
+        <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                  Text="Export to Excel"
+                  IconCssClass="@IconName.Download.GetCssClass()"
+                  Enabled="@(this.ViewModel.HasCompared && this.ViewModel.Changes.Count > 0)"
+                  Click="@this.ExportAsync" />
+    </div>
+
+    @if (this.ViewModel.AvailableBaselines.Count == 0)
+    {
+        <div class="req-changelog-empty">This model has no earlier (frozen) iterations to compare against.</div>
+    }
+    else
+    {
+        <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
+            @if (!string.IsNullOrEmpty(this.ViewModel.Message))
+            {
+                <div class="req-changelog-error">@this.ViewModel.Message</div>
+            }
+            else if (this.ViewModel.HasCompared && this.ViewModel.Changes.Count == 0)
+            {
+                <div class="req-changelog-empty">No requirement changes between the selected iterations.</div>
+            }
+            else if (this.ViewModel.HasCompared)
+            {
+                <div class="req-changelog-filters">
+                    <div class="filter-bar-item">
+                        <FilterTagBox TItem="string"
+                                      Data="@this.AvailableSpecifications"
+                                      Values="@this.selectedSpecifications"
+                                      ValuesChanged="@((IEnumerable<string> values) => this.selectedSpecifications = values.ToList())"
+                                      NullText="Filter by specification..." />
+                    </div>
                 </div>
 
-                @foreach (var kindGroup in this.ViewModel.Changes.GroupBy(x => x.Kind).OrderBy(x => x.Key))
-                {
-                    <button type="button"
-                            class="@("req-changelog-chip" + (this.IsKindActive(kindGroup.Key) ? " req-changelog-chip-active" : string.Empty))"
-                            @onclick="@(() => this.ToggleKind(kindGroup.Key))">
-                        @kindGroup.Key (@kindGroup.Count())
-                    </button>
-                }
-            </div>
+                <div class="req-changelog-grid">
+                    <DxGrid @ref="this.Grid"
+                            CssClass="default-grid"
+                            ShowAllRows="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            ShowSearchBox="true"
+                            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                            Data="@(this.FilteredChanges)"
+                            CustomizeElement="this.OnCustomizeElement">
+                        <Columns>
+                            <DxGridDataColumn FieldName="@nameof(RequirementChange.SpecificationLabel)"
+                                              GroupIndex="0"
+                                              Caption="@("Specification")" />
 
-            <DxGrid @ref="this.Grid"
-                    CssClass="default-grid"
-                    ShowAllRows="true"
-                    Data="@(this.FilteredChanges)"
-                    ShowFilterRow="true"
-                    CustomizeElement="this.OnCustomizeElement">
-                <Columns>
-                    <DxGridDataColumn FieldName="@nameof(RequirementChange.SpecificationLabel)"
-                                      GroupIndex="0"
-                                      Caption="@("Specification")" />
+                            <DxGridDataColumn FieldName="@nameof(RequirementChange.ElementKind)"
+                                              Caption="@("ClassKind")"
+                                              MinWidth="120" />
 
-                    <DxGridDataColumn FieldName="@nameof(RequirementChange.ElementLabel)"
-                                      Caption="@("Element")" />
+                            <DxGridDataColumn FieldName="@nameof(RequirementChange.ElementShortName)"
+                                              Caption="@("ShortName")"
+                                              MinWidth="120" />
 
-                    <DxGridDataColumn FieldName="@nameof(RequirementChange.Kind)"
-                                      Caption="@("Change")" />
+                            <DxGridDataColumn FieldName="@nameof(RequirementChange.Kind)"
+                                              Caption="@("Change")"
+                                              MinWidth="90" />
 
-                    <DxGridDataColumn FieldName="@nameof(RequirementChange.Field)"
-                                      Caption="@("Field")" />
+                            <DxGridDataColumn FieldName="@nameof(RequirementChange.Field)"
+                                              Caption="@("Field")"
+                                              MinWidth="90" />
 
-                    <DxGridDataColumn FieldName="@nameof(RequirementChange.OldValue)"
-                                      Caption="@("Old value")" />
+                            <DxGridDataColumn FieldName="@nameof(RequirementChange.OldValue)"
+                                              Caption="@("Old value")">
+                                <CellDisplayTemplate>
+                                    <div style="white-space: pre-line">@((string)context.Value)</div>
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
 
-                    <DxGridDataColumn FieldName="@nameof(RequirementChange.NewValue)"
-                                      Caption="@("New value")" />
+                            <DxGridDataColumn FieldName="@nameof(RequirementChange.NewValue)"
+                                              Caption="@("New value")">
+                                <CellDisplayTemplate>
+                                    <div style="white-space: pre-line">@((string)context.Value)</div>
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
 
-                    <DxGridDataColumn FieldName="@nameof(RequirementChange.Author)"
-                                      Caption="@("Changed by")" />
-                </Columns>
-            </DxGrid>
-        }
-    </LoadingComponent>
-}
+                            <DxGridDataColumn FieldName="@nameof(RequirementChange.Owner)"
+                                              Caption="@("Owner")" />
+
+                            <DxGridDataColumn FieldName="@nameof(RequirementChange.ElementId)"
+                                              Caption="Move to"
+                                              Width="90px"
+                                              AllowSort="false">
+                                <HeaderCaptionTemplate>Move to</HeaderCaptionTemplate>
+                                <CellDisplayTemplate>
+                                    @{
+                                        var change = (RequirementChange)context.DataItem;
+                                    }
+                                    <span id="@($"changelog-row-{change.ElementId}")" style="scroll-margin-top: 56px"></span>
+                                    @if (IsNavigable(change))
+                                    {
+                                        <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                                                  IconCssClass="@IconName.ArrowRight.GetCssClass()"
+                                                  title="Go to element in the document"
+                                                  Click="@(() => this.OnNavigateToElement.InvokeAsync(change))" />
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+                        </Columns>
+                    </DxGrid>
+                </div>
+            }
+        </LoadingComponent>
+    }
+</div>

@@ -73,6 +73,13 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         string Message { get; }
 
         /// <summary>
+        /// Gets the <see cref="CDP4Common.CommonData.Thing.Iid" /> of the changelog row to scroll into view, set by
+        /// <see cref="RequestScrollTo" /> and cleared once the scroll has been performed, or null when no scroll is
+        /// pending.
+        /// </summary>
+        Guid? ScrollToElementId { get; }
+
+        /// <summary>
         /// Sets the current <see cref="Iteration" /> and <see cref="DomainOfExpertise" />, recomputing the available
         /// baselines and resetting any previous comparison.
         /// </summary>
@@ -86,5 +93,24 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <returns>A <see cref="Task" /></returns>
         Task CompareAsync();
+
+        /// <summary>
+        /// Exports the given <paramref name="changes" /> to an Excel workbook and offers it for download.
+        /// </summary>
+        /// <param name="changes">The <see cref="RequirementChange" />s to export</param>
+        /// <returns>A <see cref="Task" /></returns>
+        Task ExportAsync(IReadOnlyList<RequirementChange> changes);
+
+        /// <summary>
+        /// Requests that the changelog row of the given <paramref name="elementId" /> is scrolled into view, setting
+        /// <see cref="ScrollToElementId" />.
+        /// </summary>
+        /// <param name="elementId">The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the changelog row to scroll to</param>
+        void RequestScrollTo(Guid elementId);
+
+        /// <summary>
+        /// Clears <see cref="ScrollToElementId" /> once the pending scroll has been performed.
+        /// </summary>
+        void ClearScrollTarget();
     }
 }

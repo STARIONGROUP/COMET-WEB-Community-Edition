@@ -49,6 +49,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         RequirementsEditorView ActiveView { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the document is currently shown because of a navigation from the
+        /// changelog, in which case the document view offers a "back to changes" affordance.
+        /// </summary>
+        bool CameFromChangelog { get; set; }
+
+        /// <summary>
         /// Gets the non-deprecated <see cref="RequirementsSpecification" />s of the current iteration.
         /// </summary>
         IEnumerable<RequirementsSpecification> AvailableSpecifications { get; }
@@ -344,6 +350,24 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="group">The <see cref="RequirementsGroup" /> to navigate to</param>
         void NavigateToGroup(RequirementsGroup group);
+
+        /// <summary>
+        /// Navigates the document to the element identified by the given <paramref name="elementId" /> and
+        /// <paramref name="elementKind" />, as clicked from a changelog row: it resolves the element (a requirement, a
+        /// group, or a specification) in the current iteration and switches the <see cref="ActiveView" /> to
+        /// <see cref="RequirementsEditorView.Document" />. Does nothing when the element cannot be resolved (e.g. it was
+        /// deleted and is no longer part of the current iteration).
+        /// </summary>
+        /// <param name="elementId">The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the changed element</param>
+        /// <param name="elementKind">The <see cref="RequirementChange.ElementKind" /> of the changed element</param>
+        void NavigateToChangelogElement(Guid elementId, string elementKind);
+
+        /// <summary>
+        /// Switches the <see cref="ActiveView" /> back to <see cref="RequirementsEditorView.Changelog" />, invoked from
+        /// the "Back" affordance shown on the document after a changelog navigation. Requests a scroll to the changelog
+        /// row of the element last navigated from, so the user lands back where they were.
+        /// </summary>
+        void ReturnToChangelog();
 
         /// <summary>
         /// Gets or sets the <see cref="RequirementsGroup" /> currently being dragged in the table of contents to change

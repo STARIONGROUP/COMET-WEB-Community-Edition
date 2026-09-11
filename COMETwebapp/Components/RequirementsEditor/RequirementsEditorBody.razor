@@ -27,15 +27,25 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
 <LoadingComponent IsVisible="@this.ViewModel.IsLoading">
     <div id="@WebAppConstantValues.RequirementManagementPage.QueryPageBodyName()" class="req-editor">
-        <div class="btn-group req-view-switch" role="group" aria-label="Requirements view">
-            <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
-                      CssClass="@(this.ViewModel.ActiveView == RequirementsEditorView.Document ? "req-view-toggle-on" : string.Empty)"
-                      Text="Document"
-                      Click="@(() => this.ViewModel.ActiveView = RequirementsEditorView.Document)" />
-            <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
-                      CssClass="@(this.ViewModel.ActiveView == RequirementsEditorView.Changelog ? "req-view-toggle-on" : string.Empty)"
-                      Text="Changes"
-                      Click="@(() => this.ViewModel.ActiveView = RequirementsEditorView.Changelog)" />
+        <div class="req-view-switch">
+            <DxToolbar CssClass="section-tabs" ItemRenderStyleMode="ToolbarRenderStyleMode.Plain" ItemClick="@this.OnViewTabClick">
+                <Items>
+                    <DxToolbarItem Name="Document"
+                                   Text="Document"
+                                   RenderStyle="@(this.ViewModel.ActiveView == RequirementsEditorView.Document ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
+                    <DxToolbarItem Name="Changes"
+                                   Text="Changes"
+                                   RenderStyle="@(this.ViewModel.ActiveView == RequirementsEditorView.Changelog ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
+                    @if (this.ViewModel.CameFromChangelog && this.ViewModel.ActiveView == RequirementsEditorView.Document)
+                    {
+                        <DxToolbarItem Name="Back"
+                                       Text="Back"
+                                       IconCssClass="@IconName.ArrowLeft.GetCssClass()"
+                                       Tooltip="Back to the changes you came from"
+                                       RenderStyle="ButtonRenderStyle.Secondary" />
+                    }
+                </Items>
+            </DxToolbar>
         </div>
 
         <DxPopup CloseOnOutsideClick="false" HeaderText="@this.ViewModel.EditPopupHeader" @bind-Visible="@this.ViewModel.IsOnEditMode" Width="min(700px, 90vw)">
@@ -46,8 +56,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
         <ConfirmCancelPopup ViewModel="@this.ViewModel.ConfirmCancelPopupViewModel" />
 
-        @if (this.ViewModel.ActiveView == RequirementsEditorView.Document)
-        {
+        <div class="req-view-pane @(this.ViewModel.ActiveView == RequirementsEditorView.Document ? string.Empty : "req-view-hidden")">
             <div class="req-toolbar">
                 <DxButton Id="requirement-toc-toggle"
                           RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
@@ -132,17 +141,18 @@ Copyright (c) 2023-2026 Starion Group S.A.
             </div>
 
             <div class="req-editor-layout @(this.ViewModel.IsTocCollapsed ? "toc-collapsed" : string.Empty)">
-                <div class="req-toc">
+                <div id="req-toc" class="req-toc">
                     <RequirementsTree ViewModel="@this.ViewModel" />
                 </div>
+                <div id="req-toc-resizer" class="req-toc-resizer" title="Drag to resize"></div>
                 <div class="req-document @(this.ViewModel.IndentGroups ? string.Empty : "no-indent")">
                     <RequirementsDocument ViewModel="@this.ViewModel" />
                 </div>
             </div>
-        }
-        else
-        {
-            <RequirementsChangelog ViewModel="@this.ViewModel.ChangelogViewModel" />
-        }
+        </div>
+
+        <div class="req-view-pane @(this.ViewModel.ActiveView == RequirementsEditorView.Changelog ? string.Empty : "req-view-hidden")">
+            <RequirementsChangelog ViewModel="@this.ViewModel.ChangelogViewModel" OnNavigateToElement="@this.NavigateToChangelogElement" />
+        </div>
     </div>
 </LoadingComponent>

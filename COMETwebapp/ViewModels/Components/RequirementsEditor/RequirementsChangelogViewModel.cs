@@ -29,6 +29,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Utilities.DisposableObject;
 
+    using COMETwebapp.Services.Export;
+    using COMETwebapp.Services.RequirementsEditor;
+
+    using Microsoft.Extensions.Logging;
+
     using ReactiveUI;
 
     /// <summary>
@@ -41,6 +46,16 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// The <see cref="ISessionService" /> used to load the baseline iteration.
         /// </summary>
         private readonly ISessionService sessionService;
+
+        /// <summary>
+        /// The <see cref="IExportService" /> used to export the changelog to a downloadable file.
+        /// </summary>
+        private readonly IExportService exportService;
+
+        /// <summary>
+        /// The <see cref="ILogger" /> used to record an export failure.
+        /// </summary>
+        private readonly ILogger logger;
 
         /// <summary>
         /// Backing field for <see cref="SelectedBaseline" />
@@ -68,12 +83,21 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private string message = string.Empty;
 
         /// <summary>
+        /// Backing field for <see cref="ScrollToElementId" />
+        /// </summary>
+        private Guid? scrollToElementId;
+
+        /// <summary>
         /// Creates a new instance of <see cref="RequirementsChangelogViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
-        public RequirementsChangelogViewModel(ISessionService sessionService)
+        /// <param name="exportService">The <see cref="IExportService" /></param>
+        /// <param name="logger">The <see cref="ILogger" /> used to record an export failure</param>
+        public RequirementsChangelogViewModel(ISessionService sessionService, IExportService exportService, ILogger logger)
         {
             this.sessionService = sessionService;
+            this.exportService = exportService;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -135,6 +159,17 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         {
             get => this.message;
             private set => this.RaiseAndSetIfChanged(ref this.message, value);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="CDP4Common.CommonData.Thing.Iid" /> of the changelog row to scroll into view, set by
+        /// <see cref="RequestScrollTo" /> and cleared once the scroll has been performed, or null when no scroll is
+        /// pending.
+        /// </summary>
+        public Guid? ScrollToElementId
+        {
+            get => this.scrollToElementId;
+            private set => this.RaiseAndSetIfChanged(ref this.scrollToElementId, value);
         }
 
         /// <summary>
@@ -221,6 +256,49 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 this.IsLoading = false;
             }
+        }
+
+        /// <summary>
+        /// Exports the given <paramref name="changes" /> to an Excel workbook and offers it for download. Does nothing
+        /// when there are no changes to export.
+        /// </summary>
+        /// <param name="changes">The <see cref="RequirementChange" />s to export</param>
+        /// <returns>A <see cref="Task" /></returns>
+        public async Task ExportAsync(IReadOnlyList<RequirementChange> changes)
+        {
+            if (changes == null || changes.Count == 0)
+            {
+                return;
+            }
+
+            try
+            {
+                var exporter = new RequirementsChangelogExcelExporter(changes, this.CurrentIteration?.IterationSetup?.IterationNumber, this.SelectedBaseline?.IterationNumber);
+                await this.exportService.ExportAndDownloadAsync(exporter);
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "An error occurred while exporting the requirements changelog");
+                this.Message = "The changelog could not be exported.";
+            }
+        }
+
+        /// <summary>
+        /// Requests that the changelog row of the given <paramref name="elementId" /> is scrolled into view, setting
+        /// <see cref="ScrollToElementId" />.
+        /// </summary>
+        /// <param name="elementId">The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the changelog row to scroll to</param>
+        public void RequestScrollTo(Guid elementId)
+        {
+            this.ScrollToElementId = elementId;
+        }
+
+        /// <summary>
+        /// Clears <see cref="ScrollToElementId" /> once the pending scroll has been performed.
+        /// </summary>
+        public void ClearScrollTarget()
+        {
+            this.ScrollToElementId = null;
         }
     }
 }

@@ -25,6 +25,8 @@ namespace COMETwebapp.Components.RequirementsEditor
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
+    using DevExpress.Blazor;
+
     using Microsoft.AspNetCore.Components;
     using Microsoft.JSInterop;
 
@@ -50,6 +52,12 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// </summary>
         [Inject]
         public IDomDataService DomDataService { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IJSRuntime" /> used to initialise the table-of-contents drag-to-resize handle.
+        /// </summary>
+        [Inject]
+        public IJSRuntime JsRuntime { get; set; }
 
         /// <summary>
         /// Handles the post-assignment flow of the <see cref="COMET.Web.Common.Components.Applications.ApplicationBase{TViewModel}.ViewModel" /> property.
@@ -82,7 +90,7 @@ namespace COMETwebapp.Components.RequirementsEditor
                     x => x.ViewModel.ConfirmCancelPopupViewModel.IsVisible)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ActiveView)
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ActiveView, x => x.ViewModel.CameFromChangelog)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
@@ -108,6 +116,26 @@ namespace COMETwebapp.Components.RequirementsEditor
             {
                 this.ViewModel.ScrollTargetGroup = null;
                 await this.ScrollElementIntoView(RequirementsDocument.GroupAnchorId(groupTarget));
+            }
+
+            await this.InitialiseTocResizerAsync();
+        }
+
+        /// <summary>
+        /// Initialises the drag-to-resize handle that sits between the table of contents and the document, tolerating the
+        /// JS interop being unavailable. The underlying script guards against double initialisation, so calling this on
+        /// every render is safe.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task InitialiseTocResizerAsync()
+        {
+            try
+            {
+                await this.JsRuntime.InvokeVoidAsync("cometResizer.init", "req-toc-resizer", "req-toc", 150);
+            }
+            catch (Exception)
+            {
+                // JS interop failures during pre-render or tests are non-fatal.
             }
         }
 
@@ -137,6 +165,41 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// <param name="parameters">A <see cref="Dictionary{TKey,TValue}" /> for parameters</param>
         protected override void InitializeValues(Dictionary<string, string> parameters)
         {
+        }
+
+        /// <summary>
+        /// Switches between the document and changelog view, or returns to the changelog, based on the clicked item of
+        /// the <c>Document</c> / <c>Changes</c> section-tabs toolbar.
+        /// </summary>
+        /// <param name="e">The <see cref="ToolbarItemClickEventArgs" /> carrying the clicked item's name</param>
+        private void OnViewTabClick(ToolbarItemClickEventArgs e)
+        {
+            switch (e.ItemName)
+            {
+                case "Document":
+                    this.ViewModel.ActiveView = RequirementsEditorView.Document;
+                    this.ViewModel.CameFromChangelog = false;
+                    break;
+                case "Changes":
+                    this.ViewModel.ActiveView = RequirementsEditorView.Changelog;
+                    this.ViewModel.CameFromChangelog = false;
+                    break;
+                case "Back":
+                    this.ViewModel.ReturnToChangelog();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Navigates the document to the element of the given changelog <paramref name="change" />, invoked when the
+        /// "go to element" button of a changelog row is clicked.
+        /// </summary>
+        /// <param name="change">The <see cref="RequirementChange" /> whose element to navigate to</param>
+        /// <returns>A completed <see cref="Task" /></returns>
+        private Task NavigateToChangelogElement(RequirementChange change)
+        {
+            this.ViewModel.NavigateToChangelogElement(change.ElementId, change.ElementKind);
+            return Task.CompletedTask;
         }
 
         /// <summary>
