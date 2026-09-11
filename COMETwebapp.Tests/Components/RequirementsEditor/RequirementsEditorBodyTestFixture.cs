@@ -40,6 +40,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
+    using COMETwebapp.Services.Export;
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
@@ -113,7 +114,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
 
-            this.viewModel = new RequirementsEditorBodyViewModel(sessionService.Object, this.messageBus, new ShowHideDeprecatedThingsService(), new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object)
+            this.viewModel = new RequirementsEditorBodyViewModel(sessionService.Object, this.messageBus, new ShowHideDeprecatedThingsService(), new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object, new Mock<IExportService>().Object)
             {
                 CurrentThing = iteration
             };
@@ -214,6 +215,16 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.renderedComponent.Find(".req-def-editor").KeyDown(new KeyboardEventArgs { Key = "Escape" });
 
             Assert.That(this.renderedComponent.Markup, Does.Not.Contain("req-def-editor"), "Escape closes the inline editor without saving.");
+        }
+
+        [Test]
+        public void VerifyExportButtonOpensDialog()
+        {
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
+
+            this.renderedComponent.Find("#requirement-export").Click();
+
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsExportDialogVisible, Is.True));
         }
 
         [Test]

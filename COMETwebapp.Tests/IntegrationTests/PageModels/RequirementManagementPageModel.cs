@@ -77,6 +77,21 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator TableOfContentsRows => this.Page.Locator(".req-tree-row");
 
         /// <summary>
+        /// Gets the toolbar button that opens the export configuration dialog.
+        /// </summary>
+        public ILocator ExportButton => this.Page.Locator("#requirement-export");
+
+        /// <summary>
+        /// Gets the confirm button of the export configuration dialog.
+        /// </summary>
+        public ILocator ExportConfirmButton => this.Page.Locator("#requirement-export-confirm");
+
+        /// <summary>
+        /// Gets the specification selector of the export configuration dialog.
+        /// </summary>
+        public ILocator ExportSpecificationSelector => this.Page.Locator("#requirement-export-specifications");
+
+        /// <summary>
         /// Gets the requirements document viewer.
         /// </summary>
         public ILocator Document => this.Page.Locator(".req-document");
@@ -102,6 +117,15 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public Task OpenFirstSpecificationAsync()
         {
             return this.TableOfContentsRows.First.ClickAsync();
+        }
+
+        /// <summary>
+        /// Opens the export configuration dialog from the toolbar.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        public Task OpenExportDialogAsync()
+        {
+            return this.ExportButton.ClickAsync();
         }
 
         /// <summary>

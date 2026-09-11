@@ -1,0 +1,53 @@
+.req-export-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.req-export-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.req-export-section h6 {
+    margin: 0 0 0.2rem 0;
+    font-weight: 600;
+}
+
+.req-export-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.req-export-row label {
+    width: 90px;
+    flex: 0 0 90px;
+    margin: 0;
+}
+
+.req-export-row > .dxbl-combobox {
+    flex: 1 1 auto;
+}
+
+.req-export-hint {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.req-export-suffix {
+    flex: 0 0 auto;
+    color: #6c757d;
+}
+
+.req-export-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--dxbl-border-color, #e0e0e0);
+}

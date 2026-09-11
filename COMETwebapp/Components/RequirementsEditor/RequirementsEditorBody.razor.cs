@@ -79,7 +79,8 @@ namespace COMETwebapp.Components.RequirementsEditor
                     x => x.ViewModel.IsOnEditMode,
                     x => x.ViewModel.IsLoading,
                     x => x.ViewModel.ScrollTargetGroup,
-                    x => x.ViewModel.ConfirmCancelPopupViewModel.IsVisible)
+                    x => x.ViewModel.ConfirmCancelPopupViewModel.IsVisible,
+                    x => x.ViewModel.IsExportDialogVisible)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
