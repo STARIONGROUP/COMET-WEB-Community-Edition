@@ -145,12 +145,6 @@
     color: #667085;
 }
 
-.req-toc ::deep ul.req-tree {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
 .req-toc ::deep ul.req-tree-branch {
     list-style: none;
     margin: 0 0 0 9px;
@@ -267,6 +261,9 @@
 }
 
 .req-toc ::deep ul.req-tree {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     width: max-content;
     min-width: 100%;
 }

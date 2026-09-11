@@ -895,6 +895,60 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         }
 
         [Test]
+        public async Task VerifyReturnToChangelogWithoutPriorNavigationDoesNotRequestScroll()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.ReturnToChangelog();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Changelog));
+                Assert.That(this.viewModel.CameFromChangelog, Is.False);
+                Assert.That(this.viewModel.ChangelogViewModel.ScrollToElementId, Is.Null, "no prior changelog navigation means no scroll request");
+            });
+        }
+
+        [Test]
+        public async Task VerifyNavigateToChangelogElementForGroup()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.ActiveView = RequirementsEditorView.Changelog;
+            this.viewModel.SelectedSpecification = this.deprecatedSpecification;
+            this.viewModel.ToggleDocumentGroup(this.operateGroup.Iid);
+
+            this.viewModel.NavigateToChangelogElement(this.c4iGroup.Iid, "Requirements Group");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Document));
+                Assert.That(this.viewModel.CameFromChangelog, Is.True);
+                Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.specification));
+                Assert.That(this.viewModel.ScrollTargetGroup, Is.EqualTo(this.c4iGroup));
+                Assert.That(this.viewModel.IsDocumentGroupCollapsed(this.operateGroup.Iid), Is.False, "navigating to the group expands its ancestor groups so it renders");
+            });
+        }
+
+        [Test]
+        public async Task VerifyNavigateToChangelogElementForSpecification()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            this.viewModel.ActiveView = RequirementsEditorView.Changelog;
+            this.viewModel.SelectedSpecification = this.deprecatedSpecification;
+
+            this.viewModel.NavigateToChangelogElement(this.specification.Iid, "Requirements Specification");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.Document));
+                Assert.That(this.viewModel.CameFromChangelog, Is.True);
+                Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.specification));
+            });
+        }
+
+        [Test]
         public async Task VerifyNavigateToDeprecatedRequirementShowsDeprecated()
         {
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);

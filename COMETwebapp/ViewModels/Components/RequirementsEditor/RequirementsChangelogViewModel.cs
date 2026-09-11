@@ -203,7 +203,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                     .OrderByDescending(x => x.IterationNumber)
                     .ToList();
 
-            this.SelectedBaseline = this.AvailableBaselines.FirstOrDefault();
+            this.SelectedBaseline = this.AvailableBaselines.Count > 0 ? this.AvailableBaselines[0] : null;
         }
 
         /// <summary>
