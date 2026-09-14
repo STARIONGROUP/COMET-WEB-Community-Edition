@@ -24,7 +24,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 @using COMETwebapp.Model.RequirementsEditor.Export
 @inherits COMET.Web.Common.Components.DisposableComponent
 
-<DxPopup @bind-Visible="@this.ViewModel.IsExportDialogVisible"
+<DxPopup @bind-Visible="@this.ViewModel.IsVisible"
          HeaderText="Export requirements to Excel"
          CloseOnOutsideClick="false"
          ShowCloseButton="true"
@@ -124,7 +124,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <div class="req-export-actions">
             <DxButton Text="Cancel"
                       RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
-                      Click="@(() => this.ViewModel.IsExportDialogVisible = false)" />
+                      Click="@(() => this.ViewModel.IsVisible = false)" />
             <DxButton Id="requirement-export-confirm"
                       Text="Export"
                       IconCssClass="@IconName.Download.GetCssClass()"

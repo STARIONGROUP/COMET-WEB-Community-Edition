@@ -29,7 +29,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
-    using COMETwebapp.Model.RequirementsEditor.Export;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
 
     using FluentResults;
@@ -39,6 +38,27 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     /// </summary>
     public interface IRequirementsEditorBodyViewModel : ISingleIterationApplicationBaseViewModel
     {
+        /// <summary>
+        /// Gets the view model driving the requirements changelog view.
+        /// </summary>
+        IRequirementsChangelogViewModel ChangelogViewModel { get; }
+
+        /// <summary>
+        /// Gets the view model driving the requirements export dialog.
+        /// </summary>
+        IRequirementsExportViewModel ExportViewModel { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="RequirementsEditorView" /> currently shown.
+        /// </summary>
+        RequirementsEditorView ActiveView { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the document is currently shown because of a navigation from the
+        /// changelog, in which case the document view offers a "back to changes" affordance.
+        /// </summary>
+        bool CameFromChangelog { get; set; }
+
         /// <summary>
         /// Gets the non-deprecated <see cref="RequirementsSpecification" />s of the current iteration.
         /// </summary>
@@ -323,52 +343,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         IReadOnlyList<RequirementRelationshipRow> GetTraceability(Requirement requirement);
 
         /// <summary>
-        /// Gets the mutable configuration bound to the export dialog and read by <see cref="ExportAsync" />.
-        /// </summary>
-        RequirementsExportConfiguration ExportConfiguration { get; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the export configuration dialog is open.
-        /// </summary>
-        bool IsExportDialogVisible { get; set; }
-
-        /// <summary>
-        /// Exports the requirements of the iteration to an Excel workbook, driven by <see cref="ExportConfiguration" />,
-        /// and offers it for download.
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        Task ExportAsync();
-
-        /// <summary>
-        /// Gets the distinct <see cref="ParameterType" />s used by the simple parameter values of every specification's
-        /// requirements, offered as export column choices.
-        /// </summary>
-        /// <returns>The exportable parameter types</returns>
-        IReadOnlyList<ParameterType> GetExportableParameterTypes();
-
-        /// <summary>
-        /// Gets the distinct definition language codes used across every specification's requirements, offered as export
-        /// language choices.
-        /// </summary>
-        /// <returns>The exportable definition language codes</returns>
-        IReadOnlyList<string> GetExportableDefinitionLanguages();
-
-        /// <summary>
-        /// Gets the distinct <see cref="Category" />s carried by the iteration's relationships, offered as export
-        /// relationship-filter choices.
-        /// </summary>
-        /// <returns>The exportable relationship categories</returns>
-        IReadOnlyList<Category> GetExportableRelationshipCategories();
-
-        /// <summary>
-        /// Gets a relationship detail for every relationship of the iteration the given <paramref name="requirement" />
-        /// participates in, resolved to its matched rules so an export can lay out a column per rule and direction.
-        /// </summary>
-        /// <param name="requirement">The <see cref="Requirement" /></param>
-        /// <returns>The relationship details</returns>
-        IReadOnlyList<RequirementRelationshipDetail> GetRelationshipDetails(Requirement requirement);
-
-        /// <summary>
         /// Navigates the document to the given <paramref name="requirement" />: selects its specification, expands
         /// its ancestor groups and flags it as the <see cref="ScrollTarget" />.
         /// </summary>
@@ -381,6 +355,24 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="group">The <see cref="RequirementsGroup" /> to navigate to</param>
         void NavigateToGroup(RequirementsGroup group);
+
+        /// <summary>
+        /// Navigates the document to the element identified by the given <paramref name="elementId" /> and
+        /// <paramref name="elementKind" />, as clicked from a changelog row: it resolves the element (a requirement, a
+        /// group, or a specification) in the current iteration and switches the <see cref="ActiveView" /> to
+        /// <see cref="RequirementsEditorView.Document" />. Does nothing when the element cannot be resolved (e.g. it was
+        /// deleted and is no longer part of the current iteration).
+        /// </summary>
+        /// <param name="elementId">The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the changed element</param>
+        /// <param name="elementKind">The <see cref="RequirementChange.ElementClassKind" /> of the changed element</param>
+        void NavigateToChangelogElement(Guid elementId, ClassKind elementKind);
+
+        /// <summary>
+        /// Switches the <see cref="ActiveView" /> back to <see cref="RequirementsEditorView.Changelog" />, invoked from
+        /// the "Back" affordance shown on the document after a changelog navigation. Requests a scroll to the changelog
+        /// row of the element last navigated from, so the user lands back where they were.
+        /// </summary>
+        void ReturnToChangelog();
 
         /// <summary>
         /// Gets or sets the <see cref="RequirementsGroup" /> currently being dragged in the table of contents to change

@@ -35,7 +35,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
-    using COMETwebapp.Model.RequirementsEditor.Export;
     using COMETwebapp.Services.Export;
     using COMETwebapp.Services.RequirementsEditor;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
@@ -141,11 +140,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private readonly IExportService exportService;
 
         /// <summary>
-        /// Backing field for <see cref="IsExportDialogVisible" />
-        /// </summary>
-        private bool isExportDialogVisible;
-
-        /// <summary>
         /// True when the create/edit form holds a fresh instance to add, false when it holds a clone to update.
         /// </summary>
         private bool isCreating;
@@ -187,6 +181,22 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private (RequirementsSpecification Specification, bool ShowDeprecated, IReadOnlyList<ParameterType> ParameterTypes) parameterTypesCache;
 
         /// <summary>
+        /// Backing field for <see cref="ActiveView" />
+        /// </summary>
+        private RequirementsEditorView activeView;
+
+        /// <summary>
+        /// Backing field for <see cref="CameFromChangelog" />
+        /// </summary>
+        private bool cameFromChangelog;
+
+        /// <summary>
+        /// The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the element last navigated to from the changelog,
+        /// used by <see cref="ReturnToChangelog" /> to scroll back to the row the user came from.
+        /// </summary>
+        private Guid? lastChangelogElementId;
+
+        /// <summary>
         /// Creates a new instance of <see cref="RequirementsEditorBodyViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
@@ -204,6 +214,14 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 OnCancel = new EventCallbackFactory().Create(this, () => this.ConfirmCancelPopupViewModel.IsVisible = false)
             };
+
+            var changelogViewModel = new RequirementsChangelogViewModel(sessionService, exportService, logger);
+            this.Disposables.Add(changelogViewModel);
+            this.ChangelogViewModel = changelogViewModel;
+
+            var exportViewModel = new RequirementsExportViewModel(sessionService, exportService, showHideDeprecatedThingsService, logger);
+            this.Disposables.Add(exportViewModel);
+            this.ExportViewModel = exportViewModel;
         }
 
         /// <summary>
@@ -212,17 +230,32 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         public IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; }
 
         /// <summary>
-        /// Gets the mutable configuration bound to the export dialog and read by <see cref="ExportAsync" />.
+        /// Gets the view model driving the requirements changelog view.
         /// </summary>
-        public RequirementsExportConfiguration ExportConfiguration { get; } = new();
+        public IRequirementsChangelogViewModel ChangelogViewModel { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the export configuration dialog is open.
+        /// Gets the view model driving the requirements export dialog.
         /// </summary>
-        public bool IsExportDialogVisible
+        public IRequirementsExportViewModel ExportViewModel { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="RequirementsEditorView" /> currently shown.
+        /// </summary>
+        public RequirementsEditorView ActiveView
         {
-            get => this.isExportDialogVisible;
-            set => this.RaiseAndSetIfChanged(ref this.isExportDialogVisible, value);
+            get => this.activeView;
+            set => this.RaiseAndSetIfChanged(ref this.activeView, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the document is currently shown because of a navigation from the
+        /// changelog, in which case the document view offers a "back to changes" affordance.
+        /// </summary>
+        public bool CameFromChangelog
+        {
+            get => this.cameFromChangelog;
+            set => this.RaiseAndSetIfChanged(ref this.cameFromChangelog, value);
         }
 
         /// <summary>
@@ -626,8 +659,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 var thingsToWrite = new List<Thing> { specificationClone, clone };
                 thingsToWrite.AddRange(clone.Definition);
 
-                // both the reload AND the loading indicator are owned by OnThingChanged (driven by the EndUpdate session
-                // event the write raises); doing them here as well is what made the document load twice on every save (GH897)
                 await this.SessionService.CreateOrUpdateThingsWithNotification(specificationClone, thingsToWrite, BuildNotification(requirement, "updated", "update"));
             }
             catch (Exception exception)
@@ -715,15 +746,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 return Result.Fail("The group cannot be moved to that location.");
             }
 
-            // mirrors the desktop IME (RequirementsSpecificationRowViewModel.MoveGroup): only the NEW container is
-            // updated, with the moved group added to its Group list — the server re-parents it and removes it from
-            // its old container. Sending the old container or the group as separate updates trips the server's
-            // acyclic check (NullReferenceException in RequirementsGroupSideEffect) because it sees inconsistent state.
             var newContainerClone = (RequirementsContainer)target.Clone(false);
             newContainerClone.Group.Add(group.Clone(false));
 
-            // the body re-renders with the new nesting through OnThingChanged (driven by the EndUpdate session event the
-            // write raises), which also owns the loading indicator — the VM no longer toggles IsLoading itself (GH897)
             return await this.SessionService.CreateOrUpdateThingsWithNotification(newContainerClone, [newContainerClone],
                 BuildNotification(group, "moved", "move"));
         }
@@ -856,32 +881,14 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="constraint">The <see cref="ParametricConstraint" /></param>
         /// <returns>The root expressions to render the constraint tree from</returns>
-        public IEnumerable<BooleanExpression> GetTopExpressions(ParametricConstraint constraint)
-        {
-            if (constraint.TopExpression != null)
-            {
-                return [constraint.TopExpression];
-            }
-
-            return constraint.Expression.GetTopLevelExpressions();
-        }
+        public IEnumerable<BooleanExpression> GetTopExpressions(ParametricConstraint constraint) => BooleanExpressionHelper.GetTopExpressions(constraint);
 
         /// <summary>
         /// Gets the child terms of the given <paramref name="expression" />; relational expressions are leaves.
         /// </summary>
         /// <param name="expression">The <see cref="BooleanExpression" /></param>
         /// <returns>The child expressions</returns>
-        public IReadOnlyList<BooleanExpression> GetTerms(BooleanExpression expression)
-        {
-            return expression switch
-            {
-                AndExpression andExpression => andExpression.Term,
-                OrExpression orExpression => orExpression.Term,
-                ExclusiveOrExpression exclusiveOrExpression => exclusiveOrExpression.Term,
-                NotExpression { Term: not null } notExpression => [notExpression.Term],
-                _ => []
-            };
-        }
+        public IReadOnlyList<BooleanExpression> GetTerms(BooleanExpression expression) => BooleanExpressionHelper.GetTerms(expression);
 
         /// <summary>
         /// Gets every <see cref="ParameterOrOverrideBase" /> bound to the given <paramref name="expression" /> through a
@@ -969,9 +976,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var definitionParameters = this.CurrentThing.Element.SelectMany(x => x.Parameter);
             var usageOverrides = this.CurrentThing.Element.SelectMany(x => x.ContainedElement).SelectMany(x => x.ParameterOverride);
 
-            // same gate as the desktop IME (ThingCreator.IsCreateBinaryRelationshipForRequirementVerificationAllowed):
-            // same parameter type, and for a quantity kind also the same scale
-            return definitionParameters.Concat<ParameterOrOverrideBase>(usageOverrides)
+           return definitionParameters.Concat<ParameterOrOverrideBase>(usageOverrides)
                 .Where(x => x.ParameterType == expression.ParameterType && (expression.ParameterType is not QuantityKind || x.Scale == expression.Scale))
                 .OrderBy(x => x.ModelCode())
                 .ToList();
@@ -1010,8 +1015,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
             foreach (var parameter in toAdd)
             {
-                // direction matches the desktop IME (ThingCreator.CreateBinaryRelationshipForRequirementVerification):
-                // Source is the parameter, Target is the relational expression — the IME only recognises links written this way
                 var relationship = new BinaryRelationship { Iid = Guid.NewGuid(), Source = parameter, Target = expression, Owner = this.CurrentDomain };
                 iterationClone.Relationship.Add(relationship);
                 created.Add(relationship);
@@ -1029,29 +1032,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="expression">The <see cref="BooleanExpression" /></param>
         /// <returns>The summary string</returns>
-        public string GetExpressionSummary(BooleanExpression expression)
-        {
-            switch (expression)
-            {
-                case RelationalExpression relational:
-                    var scale = relational.Scale == null ? string.Empty : $" {relational.Scale.ShortName}";
-                    return $"{relational.ParameterType?.ShortName} {relational.RelationalOperator.ToScientificNotationString()} {string.Join(", ", relational.Value)}{scale}";
-
-                case NotExpression { Term: not null } not:
-                    return $"NOT ({this.GetExpressionSummary(not.Term)})";
-
-                default:
-                    var separator = expression switch
-                    {
-                        AndExpression => " AND ",
-                        OrExpression => " OR ",
-                        ExclusiveOrExpression => " XOR ",
-                        _ => " "
-                    };
-
-                    return string.Join(separator, this.GetTerms(expression).Select(x => $"({this.GetExpressionSummary(x)})"));
-            }
-        }
+        public string GetExpressionSummary(BooleanExpression expression) => BooleanExpressionHelper.GetExpressionSummary(expression);
 
         /// <summary>
         /// Gets whether the expression tree node with the given <paramref name="iid" /> is collapsed.
@@ -1083,211 +1064,17 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <returns>The traceability rows</returns>
         public IReadOnlyList<RequirementRelationshipRow> GetTraceability(Requirement requirement)
         {
-            if (this.CurrentThing == null)
-            {
-                return [];
-            }
-
-            var rows = new List<RequirementRelationshipRow>();
-
-            // ponytail: linear scan of the iteration's relationships; if this shows up in a profile on large models,
-            // requirement.QueryRelationships is the SDK's indexed reverse-lookup.
-            foreach (var relationship in this.CurrentThing.Relationship)
-            {
-                switch (relationship)
-                {
-                    case BinaryRelationship binary when binary.Source == requirement || binary.Target == requirement:
-                        rows.Add(new RequirementRelationshipRow
-                        {
-                            Relationship = binary,
-                            Direction = binary.Source == requirement ? RelationshipDirection.Outgoing : RelationshipDirection.Incoming,
-                            RelatedThings = [binary.Source == requirement ? binary.Target : binary.Source],
-                            RuleNames = this.GetMatchingRuleNames(binary)
-                        });
-
-                        break;
-
-                    case MultiRelationship multi when multi.RelatedThing.Contains(requirement):
-                        rows.Add(new RequirementRelationshipRow
-                        {
-                            Relationship = multi,
-                            Direction = RelationshipDirection.Bidirectional,
-                            RelatedThings = multi.RelatedThing.Where(x => x != requirement).ToList(),
-                            RuleNames = this.GetMatchingRuleNames(multi)
-                        });
-
-                        break;
-                }
-            }
-
-            return rows;
+            return this.CurrentThing == null ? [] : RequirementsTraceabilityHelper.GetTraceability(requirement, this.CurrentThing, this.GetOpenReferenceDataLibraryRules());
         }
 
         /// <summary>
-        /// Gets a relationship detail for every <see cref="BinaryRelationship" /> and <see cref="MultiRelationship" /> of
-        /// the iteration the given <paramref name="requirement" /> participates in, resolved to its matched rules so an
-        /// export can lay out a column per rule and direction. A relationship that matches several rules yields one
-        /// detail per matched rule; one that matches no rule yields a single detail with a null rule.
+        /// Gets the <see cref="Rule" />s declared by the open reference data libraries, used to resolve the rules a
+        /// relationship matches.
         /// </summary>
-        /// <param name="requirement">The <see cref="Requirement" /></param>
-        /// <returns>The relationship details</returns>
-        public IReadOnlyList<RequirementRelationshipDetail> GetRelationshipDetails(Requirement requirement)
+        /// <returns>The open reference data libraries' rules</returns>
+        private IReadOnlyCollection<Rule> GetOpenReferenceDataLibraryRules()
         {
-            if (this.CurrentThing == null)
-            {
-                return [];
-            }
-
-            var details = new List<RequirementRelationshipDetail>();
-
-            foreach (var relationship in this.CurrentThing.Relationship)
-            {
-                IReadOnlyList<Thing> relatedThings;
-                RelationshipDirection direction;
-
-                switch (relationship)
-                {
-                    case BinaryRelationship binary when binary.Source == requirement || binary.Target == requirement:
-                        direction = binary.Source == requirement ? RelationshipDirection.Outgoing : RelationshipDirection.Incoming;
-                        relatedThings = [binary.Source == requirement ? binary.Target : binary.Source];
-                        break;
-
-                    case MultiRelationship multi when multi.RelatedThing.Contains(requirement):
-                        direction = RelationshipDirection.Bidirectional;
-                        relatedThings = multi.RelatedThing.Where(x => x != requirement).ToList();
-                        break;
-
-                    default:
-                        continue;
-                }
-
-                var categories = relationship.Category.ToList();
-                var references = this.GetMatchingRules(relationship).Select(ToRuleReference).ToList();
-
-                if (references.Count == 0)
-                {
-                    details.Add(new RequirementRelationshipDetail { RelatedThings = relatedThings, Direction = direction, Rule = null, Categories = categories });
-                    continue;
-                }
-
-                details.AddRange(references.Select(reference => new RequirementRelationshipDetail { RelatedThings = relatedThings, Direction = direction, Rule = reference, Categories = categories }));
-            }
-
-            return details;
-        }
-
-        /// <summary>
-        /// Exports the requirements of the iteration to an Excel workbook, driven by <see cref="ExportConfiguration" />,
-        /// and offers it for download. Closes the export dialog on success.
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task ExportAsync()
-        {
-            if (this.CurrentThing == null)
-            {
-                return;
-            }
-
-            try
-            {
-                var configuration = this.ExportConfiguration;
-
-                var specifications = configuration.SelectedSpecifications.Count == 0
-                    ? this.AvailableSpecifications.ToList()
-                    : configuration.SelectedSpecifications.ToList();
-
-                var payload = new RequirementsExportPayload(
-                    specifications,
-                    configuration,
-                    this.GetRelationshipDetails,
-                    constraint => this.GetConstraintExportText(constraint, configuration.IncludeConstraintLinkedElementAndValue));
-
-                await this.exportService.ExportAndDownloadAsync(new RequirementsExcelExporter(payload));
-                this.IsExportDialogVisible = false;
-            }
-            catch (Exception exception)
-            {
-                this.logger.LogError(exception, "An error occurred while exporting the requirements");
-            }
-        }
-
-        /// <summary>
-        /// Gets the distinct <see cref="ParameterType" />s used by the simple parameter values of every specification's
-        /// requirements, offered as export column choices; ordered by short name.
-        /// </summary>
-        /// <returns>The exportable parameter types</returns>
-        public IReadOnlyList<ParameterType> GetExportableParameterTypes()
-        {
-            return this.AvailableSpecifications
-                .SelectMany(specification => specification.Requirement)
-                .SelectMany(requirement => requirement.ParameterValue)
-                .Select(value => value.ParameterType)
-                .DistinctBy(parameterType => parameterType.Iid)
-                .OrderBy(parameterType => parameterType.ShortName)
-                .ToList();
-        }
-
-        /// <summary>
-        /// Gets the distinct definition language codes used across every specification's requirements, offered as export
-        /// language choices; ordered alphabetically.
-        /// </summary>
-        /// <returns>The exportable definition language codes</returns>
-        public IReadOnlyList<string> GetExportableDefinitionLanguages()
-        {
-            return this.AvailableSpecifications
-                .SelectMany(specification => specification.Requirement)
-                .SelectMany(requirement => requirement.Definition)
-                .Select(definition => definition.LanguageCode)
-                .Where(languageCode => !string.IsNullOrWhiteSpace(languageCode))
-                .Distinct()
-                .OrderBy(languageCode => languageCode)
-                .ToList();
-        }
-
-        /// <summary>
-        /// Gets the distinct <see cref="Category" />s carried by the iteration's relationships, offered as export
-        /// relationship-filter choices; ordered by name.
-        /// </summary>
-        /// <returns>The exportable relationship categories</returns>
-        public IReadOnlyList<Category> GetExportableRelationshipCategories()
-        {
-            if (this.CurrentThing == null)
-            {
-                return [];
-            }
-
-            return this.CurrentThing.Relationship
-                .SelectMany(relationship => relationship.Category)
-                .DistinctBy(category => category.Iid)
-                .OrderBy(category => category.Name)
-                .ToList();
-        }
-
-        /// <summary>
-        /// Renders the given <paramref name="constraint" /> as a one-line export string: its top-level expressions,
-        /// optionally followed by the model code and published value of every parameter linked to its relational
-        /// expressions.
-        /// </summary>
-        /// <param name="constraint">The <see cref="ParametricConstraint" /></param>
-        /// <param name="includeLinkedElementAndValue">Whether to append the linked element and value</param>
-        /// <returns>The export string</returns>
-        private string GetConstraintExportText(ParametricConstraint constraint, bool includeLinkedElementAndValue)
-        {
-            var text = string.Join("; ", this.GetTopExpressions(constraint).Select(this.GetExpressionSummary));
-
-            if (!includeLinkedElementAndValue)
-            {
-                return text;
-            }
-
-            var links = constraint.Expression
-                .OfType<RelationalExpression>()
-                .Select(expression => (Code: this.GetBoundParameterModelCode(expression), Value: this.GetBoundParameterPublishedValue(expression)))
-                .Where(link => link.Code != null)
-                .Select(link => $"{link.Code} = {link.Value}")
-                .ToList();
-
-            return links.Count == 0 ? text : $"{text} (linked: {string.Join(", ", links)})";
+            return this.SessionService.Session.OpenReferenceDataLibraries.SelectMany(x => x.Rule).ToList();
         }
 
         /// <summary>
@@ -1331,6 +1118,93 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             }
 
             this.ScrollTargetGroup = group;
+        }
+
+        /// <summary>
+        /// Navigates the document to the element identified by the given <paramref name="elementId" /> and
+        /// <paramref name="elementKind" />, as clicked from a changelog row: it resolves the element (a requirement, a
+        /// group, or a specification) in the current iteration and switches the <see cref="ActiveView" /> to
+        /// <see cref="RequirementsEditorView.Document" />. Does nothing when the element cannot be resolved (e.g. it was
+        /// deleted and is no longer part of the current iteration), so the changelog stays on screen.
+        /// </summary>
+        /// <param name="elementId">The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the changed element</param>
+        /// <param name="elementKind">The <see cref="RequirementChange.ElementClassKind" /> of the changed element</param>
+        public void NavigateToChangelogElement(Guid elementId, ClassKind elementKind)
+        {
+            if (this.CurrentThing == null)
+            {
+                return;
+            }
+
+            switch (elementKind)
+            {
+                case ClassKind.Requirement:
+                    var requirement = this.CurrentThing.RequirementsSpecification.SelectMany(x => x.Requirement).FirstOrDefault(x => x.Iid == elementId);
+
+                    if (requirement == null)
+                    {
+                        return;
+                    }
+
+                    this.NavigateToRequirement(requirement);
+                    break;
+
+                case ClassKind.RequirementsGroup:
+                    var group = this.CurrentThing.RequirementsSpecification.SelectMany(x => FlattenGroups(x.Group)).FirstOrDefault(x => x.Iid == elementId);
+
+                    if (group == null)
+                    {
+                        return;
+                    }
+
+                    this.SelectedSpecification = group.GetContainerOfType<RequirementsSpecification>();
+                    this.NavigateToGroup(group);
+                    break;
+
+                case ClassKind.RequirementsSpecification:
+                    var specification = this.CurrentThing.RequirementsSpecification.FirstOrDefault(x => x.Iid == elementId);
+
+                    if (specification == null)
+                    {
+                        return;
+                    }
+
+                    this.SelectedSpecification = specification;
+                    break;
+
+                default:
+                    return;
+            }
+
+            this.ActiveView = RequirementsEditorView.Document;
+            this.CameFromChangelog = true;
+            this.lastChangelogElementId = elementId;
+        }
+
+        /// <summary>
+        /// Switches the <see cref="ActiveView" /> back to <see cref="RequirementsEditorView.Changelog" />, invoked from
+        /// the "Back" affordance shown on the document after a changelog navigation. Requests a scroll to the changelog
+        /// row of the element last navigated from, so the user lands back where they were.
+        /// </summary>
+        public void ReturnToChangelog()
+        {
+            this.ActiveView = RequirementsEditorView.Changelog;
+            this.CameFromChangelog = false;
+
+            if (this.lastChangelogElementId.HasValue)
+            {
+                this.ChangelogViewModel.RequestScrollTo(this.lastChangelogElementId.Value);
+            }
+        }
+
+        /// <summary>
+        /// Recursively flattens the given <paramref name="groups" /> and their descendants into a single sequence.
+        /// </summary>
+        /// <param name="groups">The top-level <see cref="RequirementsGroup" />s to flatten</param>
+        /// <returns>The groups and all of their descendants</returns>
+        private static IEnumerable<RequirementsGroup> FlattenGroups(IEnumerable<RequirementsGroup> groups)
+        {
+            return groups.SelectMany(group => new[] { group }.Concat(FlattenGroups(group.Group)));
         }
 
         /// <summary>
@@ -1423,7 +1297,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             try
             {
                 var thingsToWrite = new List<Thing> { thing };
-                var topContainer = this.PrepareTopContainer(thing, thingsToWrite);
+                var topContainer = RequirementsWriteBuilder.PrepareTopContainer(thing, thingsToWrite, this.CurrentThing, this.isCreating, this.creationParent);
 
                 if (topContainer == null)
                 {
@@ -1431,7 +1305,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 }
 
                 thingsToWrite.AddRange(((DefinedThing)thing).Definition);
-                var expressionsToDelete = CollectRequirementThings(thing, thingsToWrite);
+                var expressionsToDelete = RequirementsWriteBuilder.CollectRequirementThings(thing, thingsToWrite);
 
                 var result = await this.SessionService.CreateUpdateAndDeleteThingsWithNotification(topContainer, thingsToWrite, expressionsToDelete, BuildNotification(thing, this.isCreating ? "created" : "updated", this.isCreating ? "create" : "update"));
 
@@ -1446,125 +1320,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 this.logger.LogError(exception, "An error occurred while saving the {ClassKind} with iid {Iid}", thing.ClassKind, thing.Iid);
             }
-        }
-
-        /// <summary>
-        /// Clones the container the given <paramref name="thing" /> is written into, appending the clones to
-        /// <paramref name="thingsToWrite" />.
-        /// </summary>
-        /// <param name="thing">The <see cref="Thing" /> being created or updated.</param>
-        /// <param name="thingsToWrite">The things to create or update, extended with the container clone.</param>
-        /// <returns>The top container of the write, or null when the <paramref name="thing" /> is not supported.</returns>
-        private Thing PrepareTopContainer(Thing thing, List<Thing> thingsToWrite)
-        {
-            return thing switch
-            {
-                RequirementsSpecification specification => this.PrepareSpecificationWrite(specification, thingsToWrite),
-                RequirementsGroup group => this.PrepareGroupWrite(group, thingsToWrite),
-                Requirement requirement => this.PrepareRequirementWrite(requirement, thingsToWrite),
-                _ => null
-            };
-        }
-
-        /// <summary>
-        /// Clones the <see cref="Iteration" /> a <see cref="RequirementsSpecification" /> is written into, adding the
-        /// specification to it when it is being created.
-        /// </summary>
-        /// <param name="specification">The <see cref="RequirementsSpecification" /> being created or updated.</param>
-        /// <param name="thingsToWrite">The things to create or update, extended with the iteration clone.</param>
-        /// <returns>The iteration clone.</returns>
-        private Thing PrepareSpecificationWrite(RequirementsSpecification specification, List<Thing> thingsToWrite)
-        {
-            var iterationClone = this.CurrentThing.Clone(false);
-
-            if (this.isCreating)
-            {
-                specification.Container = this.CurrentThing;
-                iterationClone.RequirementsSpecification.Add(specification);
-            }
-
-            thingsToWrite.Add(iterationClone);
-            return iterationClone;
-        }
-
-        /// <summary>
-        /// Clones the <see cref="RequirementsContainer" /> a <see cref="RequirementsGroup" /> is written into, adding the
-        /// group to it when it is being created.
-        /// </summary>
-        /// <param name="group">The <see cref="RequirementsGroup" /> being created or updated.</param>
-        /// <param name="thingsToWrite">The things to create or update, extended with the container clone.</param>
-        /// <returns>The container clone.</returns>
-        private Thing PrepareGroupWrite(RequirementsGroup group, List<Thing> thingsToWrite)
-        {
-            Thing containerClone;
-
-            if (this.isCreating)
-            {
-                var parentClone = this.creationParent.Clone(false);
-                group.Container = this.creationParent;
-                parentClone.Group.Add(group);
-                containerClone = parentClone;
-            }
-            else
-            {
-                containerClone = group.Container.Clone(false);
-            }
-
-            thingsToWrite.Add(containerClone);
-            return containerClone;
-        }
-
-        /// <summary>
-        /// Clones the <see cref="RequirementsSpecification" /> a <see cref="Requirement" /> is written into, adding the
-        /// requirement to it when it is being created.
-        /// </summary>
-        /// <param name="requirement">The <see cref="Requirement" /> being created or updated.</param>
-        /// <param name="thingsToWrite">The things to create or update, extended with the specification clone.</param>
-        /// <returns>The specification clone.</returns>
-        private Thing PrepareRequirementWrite(Requirement requirement, List<Thing> thingsToWrite)
-        {
-            var specification = this.isCreating
-                ? this.creationParent as RequirementsSpecification ?? this.creationParent.GetContainerOfType<RequirementsSpecification>()
-                : requirement.GetContainerOfType<RequirementsSpecification>();
-
-            var specificationClone = specification.Clone(false);
-
-            if (this.isCreating)
-            {
-                requirement.Container = specification;
-                specificationClone.Requirement.Add(requirement);
-            }
-
-            thingsToWrite.Add(specificationClone);
-            return specificationClone;
-        }
-
-        /// <summary>
-        /// Adds the simple parameter values, parametric constraints and their expressions of a <see cref="Requirement" />
-        /// to <paramref name="thingsToWrite" />, and collects the expressions the rebuilt constraints no longer reference.
-        /// </summary>
-        /// <param name="thing">The <see cref="Thing" /> being created or updated.</param>
-        /// <param name="thingsToWrite">The things to create or update, extended with the requirement's contained things.</param>
-        /// <returns>The expressions to delete; empty when the <paramref name="thing" /> is not a <see cref="Requirement" />.</returns>
-        private static List<Thing> CollectRequirementThings(Thing thing, List<Thing> thingsToWrite)
-        {
-            var expressionsToDelete = new List<Thing>();
-
-            if (thing is not Requirement requirement)
-            {
-                return expressionsToDelete;
-            }
-
-            thingsToWrite.AddRange(requirement.ParameterValue);
-
-            foreach (ParametricConstraint constraint in requirement.ParametricConstraint)
-            {
-                thingsToWrite.AddRange(constraint.Expression);
-                thingsToWrite.Add(constraint);
-                expressionsToDelete.AddRange(GetDiscardedExpressions(constraint));
-            }
-
-            return expressionsToDelete;
         }
 
         /// <summary>
@@ -1583,8 +1338,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 ((IDeprecatableThing)clone).IsDeprecated = deprecate;
                 var containerClone = thing.Container.Clone(false);
 
-                // both the reload AND the loading indicator are owned by OnThingChanged (driven by the EndUpdate session
-                // event the write raises); doing them here as well is what made the document load twice on every save (GH897)
                 await this.SessionService.CreateOrUpdateThingsWithNotification(containerClone, [containerClone, clone], BuildNotification(thing, deprecate ? "deprecated" : "restored", deprecate ? "deprecate" : "restore"));
             }
             catch (Exception exception)
@@ -1607,10 +1360,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 var containerClone = thing.Container.Clone(false);
                 var clone = thing.Clone(false);
 
-                // both the reload AND the loading indicator are owned by OnThingChanged (driven by the EndUpdate session
-                // event the write raises) — see GH897. When the deleted thing was the selected specification,
-                // ReloadPreservingSelection cannot restore it (it is gone from AvailableSpecifications) so OnThingChanged
-                // falls back to the first remaining specification.
                 await this.SessionService.DeleteThingsWithNotification(containerClone, [clone], BuildNotification(thing, "deleted", "delete"));
             }
             catch (Exception exception)
@@ -1632,31 +1381,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 this.SelectedSpecification = previouslySelected;
             }
-        }
-
-        /// <summary>
-        /// Gets the clones of the <see cref="BooleanExpression" />s the given <paramref name="constraint" /> held before it was
-        /// edited and that its rebuilt expression tree no longer contains, so that they are deleted rather than left orphaned
-        /// inside the constraint. An expression is discarded either because the user removed it, or because it had to be
-        /// re-created under a new identity to keep the write acceptable to the server.
-        /// </summary>
-        /// <param name="constraint">The edited <see cref="ParametricConstraint" /> clone.</param>
-        /// <returns>The <see cref="BooleanExpression" /> clones to delete.</returns>
-        private static IEnumerable<Thing> GetDiscardedExpressions(ParametricConstraint constraint)
-        {
-            if (constraint.Original is not ParametricConstraint original)
-            {
-                return [];
-            }
-
-            return original.Expression
-                .Where(expression => constraint.Expression.All(x => x.Iid != expression.Iid))
-                .Select(expression =>
-                {
-                    var clone = expression.Clone(false);
-                    clone.Container = constraint;
-                    return (Thing)clone;
-                });
         }
 
         /// <summary>
@@ -1717,6 +1441,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         {
             await base.OnThingChanged();
 
+            this.ChangelogViewModel.SetIteration(this.CurrentThing, this.CurrentDomain);
+            this.ExportViewModel.SetIteration(this.CurrentThing);
+
             this.IsLoading = true;
             this.parameterTypesCache = default;
 
@@ -1772,57 +1499,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             }
 
             return !this.SelectedCategories.Any() || requirement.Category.Intersect(this.SelectedCategories).Any();
-        }
-
-        /// <summary>
-        /// Gets the names of the <see cref="BinaryRelationshipRule" />s or <see cref="MultiRelationshipRule" />s of the
-        /// open reference data libraries whose relationship category is carried by the given <paramref name="relationship" />.
-        /// </summary>
-        /// <param name="relationship">The <see cref="Relationship" /></param>
-        /// <returns>The matching rule names</returns>
-        private List<string> GetMatchingRuleNames(Relationship relationship)
-        {
-            return this.GetMatchingRules(relationship).Select(rule => rule.Name).ToList();
-        }
-
-        /// <summary>
-        /// Gets the <see cref="BinaryRelationshipRule" />s or <see cref="MultiRelationshipRule" />s of the open reference
-        /// data libraries whose relationship category is carried by the given <paramref name="relationship" />.
-        /// </summary>
-        /// <param name="relationship">The <see cref="Relationship" /></param>
-        /// <returns>The matching rules</returns>
-        private List<Rule> GetMatchingRules(Relationship relationship)
-        {
-            var rules = this.SessionService.Session.OpenReferenceDataLibraries.SelectMany(x => x.Rule);
-
-            return relationship is BinaryRelationship
-                ? rules.OfType<BinaryRelationshipRule>().Where(x => RelationshipCarriesCategory(relationship, x.RelationshipCategory)).Cast<Rule>().ToList()
-                : rules.OfType<MultiRelationshipRule>().Where(x => RelationshipCarriesCategory(relationship, x.RelationshipCategory)).Cast<Rule>().ToList();
-        }
-
-        /// <summary>
-        /// Builds a <see cref="RelationshipRuleReference" /> from the given <paramref name="rule" />: a binary rule keeps
-        /// its forward and inverse names (it is directional), a multi rule keeps only its name.
-        /// </summary>
-        /// <param name="rule">The <see cref="Rule" /></param>
-        /// <returns>The reference</returns>
-        private static RelationshipRuleReference ToRuleReference(Rule rule)
-        {
-            return rule is BinaryRelationshipRule binaryRule
-                ? new RelationshipRuleReference { Iid = rule.Iid, Name = rule.Name, ForwardName = binaryRule.ForwardRelationshipName, InverseName = binaryRule.InverseRelationshipName }
-                : new RelationshipRuleReference { Iid = rule.Iid, Name = rule.Name };
-        }
-
-        /// <summary>
-        /// Determines whether the given <paramref name="relationship" /> carries the given <paramref name="ruleCategory" />
-        /// directly or through a sub-category, the way a relationship satisfies a rule under ECSS-E-TM-10-25.
-        /// </summary>
-        /// <param name="relationship">The <see cref="Relationship" /></param>
-        /// <param name="ruleCategory">The rule's <see cref="Category" /></param>
-        /// <returns>true if the relationship is categorised with the rule's category or a sub-category of it</returns>
-        private static bool RelationshipCarriesCategory(Relationship relationship, Category ruleCategory)
-        {
-            return relationship.Category.Any(x => x == ruleCategory || x.AllSuperCategories().Contains(ruleCategory));
         }
     }
 }

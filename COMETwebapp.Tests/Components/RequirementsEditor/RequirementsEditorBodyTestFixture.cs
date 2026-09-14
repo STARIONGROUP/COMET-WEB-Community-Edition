@@ -45,6 +45,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
+    using DevExpress.Blazor;
+
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -125,6 +127,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.context.Services.AddSingleton(this.domDataService.Object);
             this.context.Services.AddSingleton<ICDPMessageBus>(this.messageBus);
             this.context.Services.AddSingleton<IRequirementsEditorBodyViewModel>(this.viewModel);
+            this.context.Services.AddSingleton(new Mock<IExportService>().Object);
 
             this.renderedComponent = this.context.Render<RequirementsEditorBody>();
         }
@@ -224,7 +227,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             this.renderedComponent.Find("#requirement-export").Click();
 
-            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsExportDialogVisible, Is.True));
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.ExportViewModel.IsVisible, Is.True));
         }
 
         [Test]
@@ -253,6 +256,48 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 Assert.That(document.Markup, Does.Contain("Traceability"));
                 Assert.That(document.Markup, Does.Contain("Satellite"), "the related element definition must be listed");
             });
+        }
+
+        [Test]
+        public void VerifyActiveViewTogglesPanes()
+        {
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
+
+            var panes = this.renderedComponent.FindAll("div.req-view-pane");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(panes[0].ClassList, Does.Not.Contain("req-view-hidden"), "the document pane is visible while Document is active");
+                Assert.That(panes[1].ClassList, Does.Contain("req-view-hidden"), "the changelog pane starts hidden");
+            });
+
+            this.renderedComponent.InvokeAsync(() => this.viewModel.ActiveView = RequirementsEditorView.Changelog);
+
+            this.renderedComponent.WaitForAssertion(() =>
+            {
+                var panesAfterSwitch = this.renderedComponent.FindAll("div.req-view-pane");
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(panesAfterSwitch[0].ClassList, Does.Contain("req-view-hidden"), "the document pane is hidden once Changelog is active");
+                    Assert.That(panesAfterSwitch[1].ClassList, Does.Not.Contain("req-view-hidden"), "the changelog pane becomes visible");
+                });
+            });
+        }
+
+        [Test]
+        public void VerifyBackButtonShownWhenCameFromChangelog()
+        {
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
+
+            Assert.That(this.renderedComponent.FindComponents<DxToolbarItem>().Any(x => x.Instance.Name == "Back"), Is.False,
+                "no Back item is offered before the document was reached from the changelog");
+
+            this.renderedComponent.InvokeAsync(() => this.viewModel.CameFromChangelog = true);
+
+            this.renderedComponent.WaitForAssertion(() =>
+                Assert.That(this.renderedComponent.FindComponents<DxToolbarItem>().Any(x => x.Instance.Name == "Back"), Is.True,
+                    "a Back item is offered once the document was reached from the changelog"));
         }
     }
 }
