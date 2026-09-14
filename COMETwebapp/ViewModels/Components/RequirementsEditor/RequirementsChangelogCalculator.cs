@@ -591,43 +591,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <returns>The summary string</returns>
         private static string SummariseExpression(BooleanExpression expression)
         {
-            switch (expression)
-            {
-                case RelationalExpression relational:
-                    var scale = relational.Scale == null ? string.Empty : $" {relational.Scale.ShortName}";
-                    return $"{relational.ParameterType?.ShortName} {relational.RelationalOperator.ToScientificNotationString()} {string.Join(", ", relational.Value)}{scale}";
-
-                case NotExpression { Term: not null } not:
-                    return $"NOT ({SummariseExpression(not.Term)})";
-
-                default:
-                    var separator = expression switch
-                    {
-                        AndExpression => " AND ",
-                        OrExpression => " OR ",
-                        ExclusiveOrExpression => " XOR ",
-                        _ => " "
-                    };
-
-                    return string.Join(separator, GetTerms(expression).Select(x => $"({SummariseExpression(x)})"));
-            }
-        }
-
-        /// <summary>
-        /// Gets the child terms of the given <paramref name="expression" />; relational expressions are leaves.
-        /// </summary>
-        /// <param name="expression">The <see cref="BooleanExpression" /></param>
-        /// <returns>The child expressions</returns>
-        private static List<BooleanExpression> GetTerms(BooleanExpression expression)
-        {
-            return expression switch
-            {
-                AndExpression andExpression => andExpression.Term,
-                OrExpression orExpression => orExpression.Term,
-                ExclusiveOrExpression exclusiveOrExpression => exclusiveOrExpression.Term,
-                NotExpression { Term: not null } notExpression => [notExpression.Term],
-                _ => []
-            };
+            return BooleanExpressionHelper.GetExpressionSummary(expression);
         }
 
         /// <summary>

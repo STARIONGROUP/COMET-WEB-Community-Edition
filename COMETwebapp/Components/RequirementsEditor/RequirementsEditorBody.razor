@@ -147,14 +147,6 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 </div>
             </div>
 
-            <DxPopup CloseOnOutsideClick="false" HeaderText="@this.ViewModel.EditPopupHeader" @bind-Visible="@this.ViewModel.IsOnEditMode" Width="min(700px, 90vw)">
-                <BodyContentTemplate>
-                    <EditRequirementThing ViewModel="@this.ViewModel.EditViewModel" />
-                </BodyContentTemplate>
-            </DxPopup>
-
-            <ConfirmCancelPopup ViewModel="@this.ViewModel.ConfirmCancelPopupViewModel" />
-
             <RequirementsExportDialog ViewModel="@this.ViewModel" />
 
             <div class="req-editor-layout @(this.ViewModel.IsTocCollapsed ? "toc-collapsed" : string.Empty)">
@@ -164,6 +156,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <div id="req-toc-resizer" class="req-toc-resizer" title="Drag to resize"></div>
                 <div class="req-document @(this.ViewModel.IndentGroups ? string.Empty : "no-indent")">
                     <RequirementsDocument ViewModel="@this.ViewModel" />
+                </div>
             </div>
         </div>
 
