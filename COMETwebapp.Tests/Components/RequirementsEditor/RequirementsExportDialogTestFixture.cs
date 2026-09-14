@@ -40,7 +40,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     public class RequirementsExportDialogTestFixture
     {
         private BunitContext context;
-        private Mock<IRequirementsEditorBodyViewModel> viewModel;
+        private Mock<IRequirementsExportViewModel> viewModel;
         private RequirementsExportConfiguration configuration;
 
         [SetUp]
@@ -52,8 +52,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             var specification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "KUR", Name = "Key-User Requirements" };
             this.configuration = new RequirementsExportConfiguration();
 
-            this.viewModel = new Mock<IRequirementsEditorBodyViewModel>();
-            this.viewModel.SetupProperty(x => x.IsExportDialogVisible, true);
+            this.viewModel = new Mock<IRequirementsExportViewModel>();
+            this.viewModel.SetupProperty(x => x.IsVisible, true);
             this.viewModel.Setup(x => x.ExportConfiguration).Returns(this.configuration);
             this.viewModel.Setup(x => x.AvailableSpecifications).Returns([specification]);
             this.viewModel.Setup(x => x.GetExportableDefinitionLanguages()).Returns([]);
@@ -108,7 +108,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             Assert.Multiple(() =>
             {
-                Assert.That(this.viewModel.Object.IsExportDialogVisible, Is.False);
+                Assert.That(this.viewModel.Object.IsVisible, Is.False);
                 this.viewModel.Verify(x => x.ExportAsync(), Times.Never);
             });
         }

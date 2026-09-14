@@ -29,8 +29,8 @@ namespace COMETwebapp.Components.RequirementsEditor
 
     /// <summary>
     /// Dialog that lets the user configure and trigger an Excel export of the requirements. It edits the
-    /// <see cref="IRequirementsEditorBodyViewModel.ExportConfiguration" /> in place and calls
-    /// <see cref="IRequirementsEditorBodyViewModel.ExportAsync" /> on confirmation.
+    /// <see cref="IRequirementsExportViewModel.ExportConfiguration" /> in place and calls
+    /// <see cref="IRequirementsExportViewModel.ExportAsync" /> on confirmation.
     /// </summary>
     public partial class RequirementsExportDialog
     {
@@ -55,10 +55,10 @@ namespace COMETwebapp.Components.RequirementsEditor
         ];
 
         /// <summary>
-        /// Gets or sets the <see cref="IRequirementsEditorBodyViewModel" /> whose export configuration is edited.
+        /// Gets or sets the <see cref="IRequirementsExportViewModel" /> whose export configuration is edited.
         /// </summary>
         [Parameter]
-        public IRequirementsEditorBodyViewModel ViewModel { get; set; }
+        public IRequirementsExportViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Gets the export configuration edited by the dialog.

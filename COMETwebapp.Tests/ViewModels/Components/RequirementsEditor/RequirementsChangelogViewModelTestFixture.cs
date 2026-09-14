@@ -121,8 +121,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         }
 
         [Test]
-        public async Task VerifyCompareAsyncOpensAndClosesBaseline()
+        public async Task VerifyCompareAsync()
         {
+            // Without a selected baseline: does nothing.
+            await this.viewModel.CompareAsync();
+
+            this.sessionService.Verify(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>()), Times.Never);
+
+            // Baseline not already open: opens it, compares, and closes it again.
             this.sessionService.Setup(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>())).Returns(Task.FromResult(Result.Ok(this.baselineIteration)));
             this.sessionService.Setup(x => x.CloseIteration(It.IsAny<Iteration>())).Returns(Task.CompletedTask);
 
@@ -138,11 +144,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
             this.sessionService.Verify(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>()), Times.Once);
             this.sessionService.Verify(x => x.CloseIteration(this.baselineIteration), Times.Once);
-        }
 
-        [Test]
-        public async Task VerifyCompareAsyncReusesOpenBaseline()
-        {
+            // Baseline already open: reuses it, without reading or closing it.
+            this.sessionService.Invocations.Clear();
             this.openIterations.Add(this.baselineIteration);
 
             this.viewModel.SetIteration(this.currentIteration, this.domain);
@@ -152,11 +156,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
             this.sessionService.Verify(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>()), Times.Never);
             this.sessionService.Verify(x => x.CloseIteration(It.IsAny<Iteration>()), Times.Never);
-        }
 
-        [Test]
-        public async Task VerifyCompareAsyncHandlesReadFailure()
-        {
+            // A read failure: surfaces a message and leaves the changes empty, without closing anything.
+            this.openIterations.Remove(this.baselineIteration);
+            this.sessionService.Invocations.Clear();
             this.sessionService.Setup(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>())).Returns(Task.FromResult(Result.Fail<Iteration>("boom")));
 
             this.viewModel.SetIteration(this.currentIteration, this.domain);
@@ -170,14 +173,6 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             });
 
             this.sessionService.Verify(x => x.CloseIteration(It.IsAny<Iteration>()), Times.Never);
-        }
-
-        [Test]
-        public async Task VerifyCompareAsyncWithoutSelectionDoesNothing()
-        {
-            await this.viewModel.CompareAsync();
-
-            this.sessionService.Verify(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>()), Times.Never);
         }
 
         [Test]

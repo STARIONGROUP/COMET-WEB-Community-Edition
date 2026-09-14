@@ -30,15 +30,15 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <div class="req-view-switch">
             <DxToolbar CssClass="section-tabs" ItemRenderStyleMode="ToolbarRenderStyleMode.Plain" ItemClick="@this.OnViewTabClick">
                 <Items>
-                    <DxToolbarItem Name="Document"
+                    <DxToolbarItem Name="@DocumentTab"
                                    Text="Document"
                                    RenderStyle="@(this.ViewModel.ActiveView == RequirementsEditorView.Document ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
-                    <DxToolbarItem Name="Changes"
+                    <DxToolbarItem Name="@ChangesTab"
                                    Text="Changes"
                                    RenderStyle="@(this.ViewModel.ActiveView == RequirementsEditorView.Changelog ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
                     @if (this.ViewModel.CameFromChangelog && this.ViewModel.ActiveView == RequirementsEditorView.Document)
                     {
-                        <DxToolbarItem Name="Back"
+                        <DxToolbarItem Name="@BackTab"
                                        Text="Back"
                                        IconCssClass="@IconName.ArrowLeft.GetCssClass()"
                                        Tooltip="Back to the changes you came from"
@@ -107,7 +107,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                               IconCssClass="@IconName.Download.GetCssClass()"
                               Text="Export"
                               title="Export the requirements to Excel"
-                              Click="@(() => this.ViewModel.IsExportDialogVisible = true)" />
+                              Click="@(() => this.ViewModel.ExportViewModel.IsVisible = true)" />
 
                     <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                               IconCssClass="@IconName.Add.GetCssClass()"
@@ -147,7 +147,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 </div>
             </div>
 
-            <RequirementsExportDialog ViewModel="@this.ViewModel" />
+            <RequirementsExportDialog ViewModel="@this.ViewModel.ExportViewModel" />
 
             <div class="req-editor-layout @(this.ViewModel.IsTocCollapsed ? "toc-collapsed" : string.Empty)">
                 <div id="req-toc" class="req-toc">

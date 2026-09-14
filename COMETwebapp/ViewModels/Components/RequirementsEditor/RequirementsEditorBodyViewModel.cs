@@ -35,7 +35,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
-    using COMETwebapp.Model.RequirementsEditor.Export;
     using COMETwebapp.Services.Export;
     using COMETwebapp.Services.RequirementsEditor;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
@@ -141,11 +140,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private readonly IExportService exportService;
 
         /// <summary>
-        /// Backing field for <see cref="IsExportDialogVisible" />
-        /// </summary>
-        private bool isExportDialogVisible;
-
-        /// <summary>
         /// True when the create/edit form holds a fresh instance to add, false when it holds a clone to update.
         /// </summary>
         private bool isCreating;
@@ -224,6 +218,10 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var changelogViewModel = new RequirementsChangelogViewModel(sessionService, exportService, logger);
             this.Disposables.Add(changelogViewModel);
             this.ChangelogViewModel = changelogViewModel;
+
+            var exportViewModel = new RequirementsExportViewModel(sessionService, exportService, showHideDeprecatedThingsService, logger);
+            this.Disposables.Add(exportViewModel);
+            this.ExportViewModel = exportViewModel;
         }
 
         /// <summary>
@@ -232,23 +230,14 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         public IConfirmCancelPopupViewModel ConfirmCancelPopupViewModel { get; }
 
         /// <summary>
-        /// Gets the mutable configuration bound to the export dialog and read by <see cref="ExportAsync" />.
-        /// </summary>
-        public RequirementsExportConfiguration ExportConfiguration { get; } = new();
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the export configuration dialog is open.
-        /// </summary>
-        public bool IsExportDialogVisible
-        {
-            get => this.isExportDialogVisible;
-            set => this.RaiseAndSetIfChanged(ref this.isExportDialogVisible, value);
-        }
-
-        /// <summary>
         /// Gets the view model driving the requirements changelog view.
         /// </summary>
         public IRequirementsChangelogViewModel ChangelogViewModel { get; }
+
+        /// <summary>
+        /// Gets the view model driving the requirements export dialog.
+        /// </summary>
+        public IRequirementsExportViewModel ExportViewModel { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="RequirementsEditorView" /> currently shown.
@@ -670,8 +659,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 var thingsToWrite = new List<Thing> { specificationClone, clone };
                 thingsToWrite.AddRange(clone.Definition);
 
-                // both the reload AND the loading indicator are owned by OnThingChanged (driven by the EndUpdate session
-                // event the write raises); doing them here as well is what made the document load twice on every save (GH897)
                 await this.SessionService.CreateOrUpdateThingsWithNotification(specificationClone, thingsToWrite, BuildNotification(requirement, "updated", "update"));
             }
             catch (Exception exception)
@@ -759,15 +746,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 return Result.Fail("The group cannot be moved to that location.");
             }
 
-            // mirrors the desktop IME (RequirementsSpecificationRowViewModel.MoveGroup): only the NEW container is
-            // updated, with the moved group added to its Group list — the server re-parents it and removes it from
-            // its old container. Sending the old container or the group as separate updates trips the server's
-            // acyclic check (NullReferenceException in RequirementsGroupSideEffect) because it sees inconsistent state.
             var newContainerClone = (RequirementsContainer)target.Clone(false);
             newContainerClone.Group.Add(group.Clone(false));
 
-            // the body re-renders with the new nesting through OnThingChanged (driven by the EndUpdate session event the
-            // write raises), which also owns the loading indicator — the VM no longer toggles IsLoading itself (GH897)
             return await this.SessionService.CreateOrUpdateThingsWithNotification(newContainerClone, [newContainerClone],
                 BuildNotification(group, "moved", "move"));
         }
@@ -995,9 +976,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var definitionParameters = this.CurrentThing.Element.SelectMany(x => x.Parameter);
             var usageOverrides = this.CurrentThing.Element.SelectMany(x => x.ContainedElement).SelectMany(x => x.ParameterOverride);
 
-            // same gate as the desktop IME (ThingCreator.IsCreateBinaryRelationshipForRequirementVerificationAllowed):
-            // same parameter type, and for a quantity kind also the same scale
-            return definitionParameters.Concat<ParameterOrOverrideBase>(usageOverrides)
+           return definitionParameters.Concat<ParameterOrOverrideBase>(usageOverrides)
                 .Where(x => x.ParameterType == expression.ParameterType && (expression.ParameterType is not QuantityKind || x.Scale == expression.Scale))
                 .OrderBy(x => x.ModelCode())
                 .ToList();
@@ -1036,8 +1015,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
             foreach (var parameter in toAdd)
             {
-                // direction matches the desktop IME (ThingCreator.CreateBinaryRelationshipForRequirementVerification):
-                // Source is the parameter, Target is the relational expression — the IME only recognises links written this way
                 var relationship = new BinaryRelationship { Iid = Guid.NewGuid(), Source = parameter, Target = expression, Owner = this.CurrentDomain };
                 iterationClone.Relationship.Add(relationship);
                 created.Add(relationship);
@@ -1091,19 +1068,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         }
 
         /// <summary>
-        /// Gets a relationship detail for every <see cref="BinaryRelationship" /> and <see cref="MultiRelationship" /> of
-        /// the iteration the given <paramref name="requirement" /> participates in, resolved to its matched rules so an
-        /// export can lay out a column per rule and direction. A relationship that matches several rules yields one
-        /// detail per matched rule; one that matches no rule yields a single detail with a null rule.
-        /// </summary>
-        /// <param name="requirement">The <see cref="Requirement" /></param>
-        /// <returns>The relationship details</returns>
-        public IReadOnlyList<RequirementRelationshipDetail> GetRelationshipDetails(Requirement requirement)
-        {
-            return this.CurrentThing == null ? [] : RequirementsTraceabilityHelper.GetRelationshipDetails(requirement, this.CurrentThing, this.GetOpenReferenceDataLibraryRules());
-        }
-
-        /// <summary>
         /// Gets the <see cref="Rule" />s declared by the open reference data libraries, used to resolve the rules a
         /// relationship matches.
         /// </summary>
@@ -1111,120 +1075,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private IReadOnlyCollection<Rule> GetOpenReferenceDataLibraryRules()
         {
             return this.SessionService.Session.OpenReferenceDataLibraries.SelectMany(x => x.Rule).ToList();
-        }
-
-        /// <summary>
-        /// Exports the requirements of the iteration to an Excel workbook, driven by <see cref="ExportConfiguration" />,
-        /// and offers it for download. Closes the export dialog on success.
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task ExportAsync()
-        {
-            if (this.CurrentThing == null)
-            {
-                return;
-            }
-
-            try
-            {
-                var configuration = this.ExportConfiguration;
-
-                var specifications = configuration.SelectedSpecifications.Count == 0
-                    ? this.AvailableSpecifications.ToList()
-                    : configuration.SelectedSpecifications.ToList();
-
-                var payload = new RequirementsExportPayload(
-                    specifications,
-                    configuration,
-                    this.GetRelationshipDetails,
-                    constraint => this.GetConstraintExportText(constraint, configuration.IncludeConstraintLinkedElementAndValue));
-
-                await this.exportService.ExportAndDownloadAsync(new RequirementsExcelExporter(payload));
-                this.IsExportDialogVisible = false;
-            }
-            catch (Exception exception)
-            {
-                this.logger.LogError(exception, "An error occurred while exporting the requirements");
-            }
-        }
-
-        /// <summary>
-        /// Gets the distinct <see cref="ParameterType" />s used by the simple parameter values of every specification's
-        /// requirements, offered as export column choices; ordered by short name.
-        /// </summary>
-        /// <returns>The exportable parameter types</returns>
-        public IReadOnlyList<ParameterType> GetExportableParameterTypes()
-        {
-            return this.AvailableSpecifications
-                .SelectMany(specification => specification.Requirement)
-                .SelectMany(requirement => requirement.ParameterValue)
-                .Select(value => value.ParameterType)
-                .DistinctBy(parameterType => parameterType.Iid)
-                .OrderBy(parameterType => parameterType.ShortName)
-                .ToList();
-        }
-
-        /// <summary>
-        /// Gets the distinct definition language codes used across every specification's requirements, offered as export
-        /// language choices; ordered alphabetically.
-        /// </summary>
-        /// <returns>The exportable definition language codes</returns>
-        public IReadOnlyList<string> GetExportableDefinitionLanguages()
-        {
-            return this.AvailableSpecifications
-                .SelectMany(specification => specification.Requirement)
-                .SelectMany(requirement => requirement.Definition)
-                .Select(definition => definition.LanguageCode)
-                .Where(languageCode => !string.IsNullOrWhiteSpace(languageCode))
-                .Distinct()
-                .OrderBy(languageCode => languageCode)
-                .ToList();
-        }
-
-        /// <summary>
-        /// Gets the distinct <see cref="Category" />s carried by the iteration's relationships, offered as export
-        /// relationship-filter choices; ordered by name.
-        /// </summary>
-        /// <returns>The exportable relationship categories</returns>
-        public IReadOnlyList<Category> GetExportableRelationshipCategories()
-        {
-            if (this.CurrentThing == null)
-            {
-                return [];
-            }
-
-            return this.CurrentThing.Relationship
-                .SelectMany(relationship => relationship.Category)
-                .DistinctBy(category => category.Iid)
-                .OrderBy(category => category.Name)
-                .ToList();
-        }
-
-        /// <summary>
-        /// Renders the given <paramref name="constraint" /> as a one-line export string: its top-level expressions,
-        /// optionally followed by the model code and published value of every parameter linked to its relational
-        /// expressions.
-        /// </summary>
-        /// <param name="constraint">The <see cref="ParametricConstraint" /></param>
-        /// <param name="includeLinkedElementAndValue">Whether to append the linked element and value</param>
-        /// <returns>The export string</returns>
-        private string GetConstraintExportText(ParametricConstraint constraint, bool includeLinkedElementAndValue)
-        {
-            var text = string.Join("; ", this.GetTopExpressions(constraint).Select(this.GetExpressionSummary));
-
-            if (!includeLinkedElementAndValue)
-            {
-                return text;
-            }
-
-            var links = constraint.Expression
-                .OfType<RelationalExpression>()
-                .Select(expression => (Code: this.GetBoundParameterModelCode(expression), Value: this.GetBoundParameterPublishedValue(expression)))
-                .Where(link => link.Code != null)
-                .Select(link => $"{link.Code} = {link.Value}")
-                .ToList();
-
-            return links.Count == 0 ? text : $"{text} (linked: {string.Join(", ", links)})";
         }
 
         /// <summary>
@@ -1278,8 +1128,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// deleted and is no longer part of the current iteration), so the changelog stays on screen.
         /// </summary>
         /// <param name="elementId">The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the changed element</param>
-        /// <param name="elementKind">The <see cref="RequirementChange.ElementKind" /> of the changed element</param>
-        public void NavigateToChangelogElement(Guid elementId, string elementKind)
+        /// <param name="elementKind">The <see cref="RequirementChange.ElementClassKind" /> of the changed element</param>
+        public void NavigateToChangelogElement(Guid elementId, ClassKind elementKind)
         {
             if (this.CurrentThing == null)
             {
@@ -1288,7 +1138,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
             switch (elementKind)
             {
-                case "Requirement":
+                case ClassKind.Requirement:
                     var requirement = this.CurrentThing.RequirementsSpecification.SelectMany(x => x.Requirement).FirstOrDefault(x => x.Iid == elementId);
 
                     if (requirement == null)
@@ -1299,7 +1149,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                     this.NavigateToRequirement(requirement);
                     break;
 
-                case "Requirements Group":
+                case ClassKind.RequirementsGroup:
                     var group = this.CurrentThing.RequirementsSpecification.SelectMany(x => FlattenGroups(x.Group)).FirstOrDefault(x => x.Iid == elementId);
 
                     if (group == null)
@@ -1311,7 +1161,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                     this.NavigateToGroup(group);
                     break;
 
-                case "Requirements Specification":
+                case ClassKind.RequirementsSpecification:
                     var specification = this.CurrentThing.RequirementsSpecification.FirstOrDefault(x => x.Iid == elementId);
 
                     if (specification == null)
@@ -1488,8 +1338,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 ((IDeprecatableThing)clone).IsDeprecated = deprecate;
                 var containerClone = thing.Container.Clone(false);
 
-                // both the reload AND the loading indicator are owned by OnThingChanged (driven by the EndUpdate session
-                // event the write raises); doing them here as well is what made the document load twice on every save (GH897)
                 await this.SessionService.CreateOrUpdateThingsWithNotification(containerClone, [containerClone, clone], BuildNotification(thing, deprecate ? "deprecated" : "restored", deprecate ? "deprecate" : "restore"));
             }
             catch (Exception exception)
@@ -1512,10 +1360,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 var containerClone = thing.Container.Clone(false);
                 var clone = thing.Clone(false);
 
-                // both the reload AND the loading indicator are owned by OnThingChanged (driven by the EndUpdate session
-                // event the write raises) — see GH897. When the deleted thing was the selected specification,
-                // ReloadPreservingSelection cannot restore it (it is gone from AvailableSpecifications) so OnThingChanged
-                // falls back to the first remaining specification.
                 await this.SessionService.DeleteThingsWithNotification(containerClone, [clone], BuildNotification(thing, "deleted", "delete"));
             }
             catch (Exception exception)
@@ -1598,6 +1442,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             await base.OnThingChanged();
 
             this.ChangelogViewModel.SetIteration(this.CurrentThing, this.CurrentDomain);
+            this.ExportViewModel.SetIteration(this.CurrentThing);
 
             this.IsLoading = true;
             this.parameterTypesCache = default;

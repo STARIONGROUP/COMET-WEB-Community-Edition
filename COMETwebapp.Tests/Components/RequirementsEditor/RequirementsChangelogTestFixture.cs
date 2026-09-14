@@ -122,33 +122,21 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         }
 
         [Test]
-        public void VerifyEmptyBaselinesMessage()
+        public void VerifyMessages()
         {
             this.viewModel.SetupGet(x => x.AvailableBaselines).Returns((IReadOnlyList<IterationSetup>)[]);
+            var emptyBaselinesComponent = this.Render();
+            Assert.That(emptyBaselinesComponent.Markup, Does.Contain("no earlier (frozen) iterations"));
 
-            var renderedComponent = this.Render();
-
-            Assert.That(renderedComponent.Markup, Does.Contain("no earlier (frozen) iterations"));
-        }
-
-        [Test]
-        public void VerifyNoChangesMessage()
-        {
+            this.viewModel.SetupGet(x => x.AvailableBaselines).Returns(this.availableBaselines);
             this.viewModel.SetupGet(x => x.Changes).Returns((IReadOnlyList<RequirementChange>)[]);
+            var noChangesComponent = this.Render();
+            Assert.That(noChangesComponent.Markup, Does.Contain("No requirement changes"));
 
-            var renderedComponent = this.Render();
-
-            Assert.That(renderedComponent.Markup, Does.Contain("No requirement changes"));
-        }
-
-        [Test]
-        public void VerifyErrorMessage()
-        {
+            this.viewModel.SetupGet(x => x.Changes).Returns(this.changes);
             this.viewModel.SetupGet(x => x.Message).Returns("boom");
-
-            var renderedComponent = this.Render();
-
-            Assert.That(renderedComponent.Markup, Does.Contain("boom"));
+            var errorComponent = this.Render();
+            Assert.That(errorComponent.Markup, Does.Contain("boom"));
         }
 
         [Test]

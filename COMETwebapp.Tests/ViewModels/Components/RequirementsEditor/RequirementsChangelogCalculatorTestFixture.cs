@@ -146,35 +146,35 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                     "A requirement whose IsDeprecated flipped false to true must be reported as Deprecated.");
 
                 Assert.That(nameChange, Is.Not.Null, "A changed Name must produce one Modified row with Field 'Name'.");
-                Assert.That(nameChange?.OldValue, Is.EqualTo("Old name"));
-                Assert.That(nameChange?.NewValue, Is.EqualTo("New name"));
-                Assert.That(nameChange?.Owner, Is.EqualTo(this.systemDomain.ShortName), "Owner must be the changed requirement's owning DomainOfExpertise short name.");
+                Assert.That(nameChange.OldValue, Is.EqualTo("Old name"));
+                Assert.That(nameChange.NewValue, Is.EqualTo("New name"));
+                Assert.That(nameChange.Owner, Is.EqualTo(this.systemDomain.ShortName), "Owner must be the changed requirement's owning DomainOfExpertise short name.");
 
                 Assert.That(ownerChange, Is.Not.Null, "A changed Owner must produce one Modified row with Field 'Owner'.");
-                Assert.That(ownerChange?.OldValue, Is.EqualTo(this.thermalDomain.ShortName));
-                Assert.That(ownerChange?.NewValue, Is.EqualTo(this.systemDomain.ShortName));
+                Assert.That(ownerChange.OldValue, Is.EqualTo(this.thermalDomain.ShortName));
+                Assert.That(ownerChange.NewValue, Is.EqualTo(this.systemDomain.ShortName));
 
                 Assert.That(definitionChange, Is.Not.Null, "A changed Definition content must produce one Modified row with Field 'Definition'.");
-                Assert.That(definitionChange?.OldValue, Is.EqualTo("Old definition."));
-                Assert.That(definitionChange?.NewValue, Is.EqualTo("New definition."));
+                Assert.That(definitionChange.OldValue, Is.EqualTo("Old definition."));
+                Assert.That(definitionChange.NewValue, Is.EqualTo("New definition."));
 
                 Assert.That(categoryChange, Is.Not.Null, "A changed Category set must produce one Modified row with Field 'Category'.");
-                Assert.That(categoryChange?.NewValue, Is.EqualTo(this.keyUserCategory.ShortName));
+                Assert.That(categoryChange.NewValue, Is.EqualTo(this.keyUserCategory.ShortName));
 
                 Assert.That(groupChange, Is.Not.Null, "A changed parent Group must produce one Modified row with Field 'Group'.");
-                Assert.That(groupChange?.OldValue, Is.EqualTo(this.baseGroup.ShortName));
-                Assert.That(groupChange?.NewValue, Is.EqualTo(this.currentGroup.ShortName));
+                Assert.That(groupChange.OldValue, Is.EqualTo(this.baseGroup.ShortName));
+                Assert.That(groupChange.NewValue, Is.EqualTo(this.currentGroup.ShortName));
 
                 Assert.That(valueChange, Is.Not.Null, "A newly-added SimpleParameterValue must produce a Created row named after its parameter type.");
-                Assert.That(valueChange?.NewValue, Is.EqualTo("5"));
+                Assert.That(valueChange.NewValue, Is.EqualTo("5"));
 
                 Assert.That(constraintChange, Is.Not.Null, "A newly-added ParametricConstraint must produce one Created row with Field 'Constraint'.");
 
                 Assert.That(changes.Any(c => c.ElementKind == "Binary Relationship" && c.Kind == RequirementChangeKind.Created), Is.True,
                     "A BinaryRelationship added between two current iterations that involves a requirement must be reported as a Created Binary Relationship row.");
 
-                Assert.That(nameChange?.SpecificationShortName, Is.EqualTo("KUR"), "A requirement change row must carry its owning specification's short name.");
-                Assert.That(nameChange?.SpecificationId, Is.Not.EqualTo(Guid.Empty), "A requirement change row must carry its owning specification's id.");
+                Assert.That(nameChange.SpecificationShortName, Is.EqualTo("KUR"), "A requirement change row must carry its owning specification's short name.");
+                Assert.That(nameChange.SpecificationId, Is.Not.EqualTo(Guid.Empty), "A requirement change row must carry its owning specification's id.");
             });
         }
 

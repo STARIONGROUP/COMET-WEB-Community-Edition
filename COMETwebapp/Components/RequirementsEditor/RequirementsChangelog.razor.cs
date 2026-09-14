@@ -22,12 +22,17 @@
 
 namespace COMETwebapp.Components.RequirementsEditor
 {
+    using CDP4Common.CommonData;
+
+    using COMET.Web.Common.Extensions;
+
     using COMETwebapp.Services.Interoperability;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Logging;
     using Microsoft.JSInterop;
 
     using ReactiveUI;
@@ -65,6 +70,12 @@ namespace COMETwebapp.Components.RequirementsEditor
         public IDomDataService DomDataService { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="ILogger{TCategoryName}" /> used to record a swallowed scroll interop failure.
+        /// </summary>
+        [Inject]
+        public ILogger<RequirementsChangelog> Logger { get; set; }
+
+        /// <summary>
         /// Gets or sets the grid control that is being customized.
         /// </summary>
         private IGrid Grid { get; set; }
@@ -94,10 +105,10 @@ namespace COMETwebapp.Components.RequirementsEditor
             base.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.Changes)
-                .Subscribe(_ =>
+                .SubscribeAsync(async _ =>
                 {
                     this.selectedSpecifications = [];
-                    this.InvokeAsync(this.StateHasChanged);
+                    await this.InvokeAsync(this.StateHasChanged);
                 }));
 
             this.Disposables.Add(this.WhenAnyValue(
@@ -105,7 +116,7 @@ namespace COMETwebapp.Components.RequirementsEditor
                     x => x.ViewModel.IsLoading,
                     x => x.ViewModel.HasCompared,
                     x => x.ViewModel.ScrollToElementId)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+                .SubscribeAsync(async _ => await this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
@@ -130,6 +141,7 @@ namespace COMETwebapp.Components.RequirementsEditor
                 {
                     // The scroll is purely cosmetic; a stale cached DomData.js or a circuit that disconnected
                     // mid-render must never kill the page.
+                    this.Logger.LogDebug(exception, "Scrolling the changelog row into view failed; this is non-fatal.");
                 }
             }
         }
@@ -143,7 +155,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         private static bool IsNavigable(RequirementChange change)
         {
             return change.Kind != RequirementChangeKind.Deleted
-                   && change.ElementKind is "Requirement" or "Requirements Group" or "Requirements Specification";
+                   && change.ElementClassKind is ClassKind.Requirement or ClassKind.RequirementsGroup or ClassKind.RequirementsSpecification;
         }
 
         /// <summary>

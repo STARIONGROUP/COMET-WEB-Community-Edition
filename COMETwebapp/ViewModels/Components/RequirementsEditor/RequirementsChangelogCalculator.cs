@@ -143,11 +143,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// it.
         /// </summary>
         /// <param name="Kind">The human-readable kind of the changed element</param>
+        /// <param name="ClassKind">The <see cref="CDP4Common.CommonData.ClassKind" /> of the changed element</param>
         /// <param name="Id">The <see cref="Thing.Iid" /> of the changed element</param>
         /// <param name="Name">The name of the changed element</param>
         /// <param name="ShortName">The short name of the changed element</param>
         /// <param name="Owner">The short name of the element's owning <see cref="DomainOfExpertise" /></param>
-        private readonly record struct ChangedElement(string Kind, Guid Id, string Name, string ShortName, string Owner);
+        private readonly record struct ChangedElement(string Kind, ClassKind ClassKind, Guid Id, string Name, string ShortName, string Owner);
 
         /// <summary>
         /// Builds a <see cref="RequirementChange" /> row, filling in the owning <paramref name="specification" />'s
@@ -166,6 +167,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 Kind = kind,
                 ElementKind = element.Kind,
+                ElementClassKind = element.ClassKind,
                 ElementId = element.Id,
                 ElementName = element.Name,
                 ElementShortName = element.ShortName,
@@ -197,8 +199,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var changes = new List<RequirementChange>();
             var (created, deleted, matched) = Diff(baseItems, currentItems);
 
-            changes.AddRange(created.Select(x => NewChange(RequirementChangeKind.Created, new ChangedElement(HumanReadableKind(x.ClassKind), x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty), GetOwningSpecification(x), newValue: DescribeContainer(x))));
-            changes.AddRange(deleted.Select(x => NewChange(RequirementChangeKind.Deleted, new ChangedElement(HumanReadableKind(x.ClassKind), x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty), GetOwningSpecification(x), oldValue: DescribeContainer(x))));
+            changes.AddRange(created.Select(x => NewChange(RequirementChangeKind.Created, new ChangedElement(HumanReadableKind(x.ClassKind), x.ClassKind, x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty), GetOwningSpecification(x), newValue: DescribeContainer(x))));
+            changes.AddRange(deleted.Select(x => NewChange(RequirementChangeKind.Deleted, new ChangedElement(HumanReadableKind(x.ClassKind), x.ClassKind, x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty), GetOwningSpecification(x), oldValue: DescribeContainer(x))));
 
             foreach (var (baseItem, currentItem) in matched)
             {
@@ -227,8 +229,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var changes = new List<RequirementChange>();
             var (created, deleted, matched) = Diff(baseRequirements, currentRequirements);
 
-            changes.AddRange(created.Select(x => NewChange(RequirementChangeKind.Created, new ChangedElement(HumanReadableKind(x.ClassKind), x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty), GetOwningSpecification(x), newValue: DescribeRequirement(x))));
-            changes.AddRange(deleted.Select(x => NewChange(RequirementChangeKind.Deleted, new ChangedElement(HumanReadableKind(x.ClassKind), x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty), GetOwningSpecification(x), oldValue: DescribeRequirement(x))));
+            changes.AddRange(created.Select(x => NewChange(RequirementChangeKind.Created, new ChangedElement(HumanReadableKind(x.ClassKind), x.ClassKind, x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty), GetOwningSpecification(x), newValue: DescribeRequirement(x))));
+            changes.AddRange(deleted.Select(x => NewChange(RequirementChangeKind.Deleted, new ChangedElement(HumanReadableKind(x.ClassKind), x.ClassKind, x.Iid, x.Name, x.ShortName, x.Owner?.ShortName ?? string.Empty), GetOwningSpecification(x), oldValue: DescribeRequirement(x))));
 
             foreach (var (baseRequirement, currentRequirement) in matched)
             {
@@ -271,7 +273,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             }
 
             change = NewChange(isNowDeprecated ? RequirementChangeKind.Deprecated : RequirementChangeKind.Restored,
-                new ChangedElement(HumanReadableKind(currentItem.ClassKind), currentItem.Iid, currentItem.Name, currentItem.ShortName, currentItem.Owner?.ShortName ?? string.Empty), specification);
+                new ChangedElement(HumanReadableKind(currentItem.ClassKind), currentItem.ClassKind, currentItem.Iid, currentItem.Name, currentItem.ShortName, currentItem.Owner?.ShortName ?? string.Empty), specification);
 
             return true;
         }
@@ -288,7 +290,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private static List<RequirementChange> CompareNameShortNameOwner<T>(T baseItem, T currentItem, RequirementsSpecification specification) where T : Thing, INamedThing, IShortNamedThing, IOwnedThing
         {
             var changes = new List<RequirementChange>();
-            var element = new ChangedElement(HumanReadableKind(currentItem.ClassKind), currentItem.Iid, currentItem.Name, currentItem.ShortName, currentItem.Owner?.ShortName ?? string.Empty);
+            var element = new ChangedElement(HumanReadableKind(currentItem.ClassKind), currentItem.ClassKind, currentItem.Iid, currentItem.Name, currentItem.ShortName, currentItem.Owner?.ShortName ?? string.Empty);
 
             if (baseItem.Name != currentItem.Name)
             {
@@ -323,7 +325,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var owner = currentRequirement.Owner?.ShortName ?? string.Empty;
             var name = currentRequirement.Name;
             var shortName = currentRequirement.ShortName;
-            var element = new ChangedElement(HumanReadableKind(currentRequirement.ClassKind), currentRequirement.Iid, name, shortName, owner);
+            var element = new ChangedElement(HumanReadableKind(currentRequirement.ClassKind), currentRequirement.ClassKind, currentRequirement.Iid, name, shortName, owner);
 
             var baseDefinition = DefinitionText(baseRequirement);
             var currentDefinition = DefinitionText(currentRequirement);
@@ -649,7 +651,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var label = $"{DescribeEndpoint(relationship.Source)} to {DescribeEndpoint(relationship.Target)}";
             var categories = string.Join(", ", relationship.Category.Select(x => x.ShortName));
             var specification = GetOwningSpecification(relationship.Source) ?? GetOwningSpecification(relationship.Target);
-            var element = new ChangedElement(HumanReadableKind(relationship.ClassKind), relationship.Iid, label, label, relationship.Owner?.ShortName ?? string.Empty);
+            var element = new ChangedElement(HumanReadableKind(relationship.ClassKind), relationship.ClassKind, relationship.Iid, label, label, relationship.Owner?.ShortName ?? string.Empty);
 
             return NewChange(kind, element, specification,
                 field: "Relationship",

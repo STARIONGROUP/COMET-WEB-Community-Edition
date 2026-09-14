@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 {
+    using CDP4Common.CommonData;
+
     /// <summary>
     /// Represents a single change to a requirement-related element (a specification, group, requirement,
     /// one of its values, or a traceability link) between a baseline iteration and a newer iteration,
@@ -39,6 +41,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// "Requirements Specification", "Requirements Group" or "Binary Relationship").
         /// </summary>
         public string ElementKind { get; init; }
+
+        /// <summary>
+        /// Gets the <see cref="ClassKind" /> of the changed element, the single source of truth used to resolve the
+        /// element in the current iteration (for example when navigating to it).
+        /// </summary>
+        public ClassKind ElementClassKind { get; init; }
 
         /// <summary>
         /// Gets the <see cref="CDP4Common.CommonData.Thing.Iid" /> of the changed element, used to group its rows.

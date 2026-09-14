@@ -227,7 +227,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             this.renderedComponent.Find("#requirement-export").Click();
 
-            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsExportDialogVisible, Is.True));
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.ExportViewModel.IsVisible, Is.True));
         }
 
         [Test]

@@ -56,6 +56,11 @@ namespace COMETwebapp.Services.RequirementsEditor
         private const double WideColumnWidth = 45;
 
         /// <summary>
+        /// The maximum length Excel allows for a worksheet name.
+        /// </summary>
+        private const int MaxSheetNameLength = 31;
+
+        /// <summary>
         /// The changes to export, one worksheet per specification, one row per change.
         /// </summary>
         private readonly IReadOnlyList<RequirementChange> changes;
@@ -215,9 +220,9 @@ namespace COMETwebapp.Services.RequirementsEditor
                 sanitized = "Specification";
             }
 
-            if (sanitized.Length > 31)
+            if (sanitized.Length > MaxSheetNameLength)
             {
-                sanitized = sanitized[..31];
+                sanitized = sanitized[..MaxSheetNameLength];
             }
 
             var candidate = sanitized;
@@ -226,7 +231,7 @@ namespace COMETwebapp.Services.RequirementsEditor
             while (!this.usedSheetNames.Add(candidate))
             {
                 var tag = $" ({suffix++})";
-                candidate = sanitized.Length + tag.Length > 31 ? sanitized[..(31 - tag.Length)] + tag : sanitized + tag;
+                candidate = sanitized.Length + tag.Length > MaxSheetNameLength ? sanitized[..(MaxSheetNameLength - tag.Length)] + tag : sanitized + tag;
             }
 
             return candidate;
