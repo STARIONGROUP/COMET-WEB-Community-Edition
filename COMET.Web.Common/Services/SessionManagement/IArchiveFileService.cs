@@ -32,7 +32,7 @@ namespace COMET.Web.Common.Services.SessionManagement
     /// Annex C3 archive. An implementation is registered as a scoped service so that the stored archive is removed when
     /// the user's circuit ends, whether the model was closed explicitly or the browser was closed
     /// </summary>
-    public interface IArchiveFileService : IAsyncDisposable
+    public interface IArchiveFileService : IDisposable
     {
         /// <summary>
         /// Gets the full path of the currently stored archive, or null when no archive is stored

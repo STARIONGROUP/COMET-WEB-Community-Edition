@@ -26,21 +26,11 @@
     <DxFormLayout CaptionPosition="CaptionPosition.Vertical">
         <DxFormLayoutItem Caption="Archive:" ColSpanLg="12">
             <Template>
-                @* An <input type="file"> natively accepts a dropped file, so laying it transparently over the zone
-                   gives drag-and-drop and click-to-browse without any JavaScript interop. *@
-                <div id="archive-drop-zone" class="archive-drop-zone">
-                    <InputFile id="archive-file" class="archive-drop-zone-input" accept=".zip" OnChange="this.OnArchiveSelected"/>
-                    <div class="archive-drop-zone-text">
-                        @if (this.ViewModel.SelectedFile == null)
-                        {
-                            <span>Drop an Annex C3 archive here, or click to browse</span>
-                        }
-                        else
-                        {
-                            <span id="archive-selected-file" class="font-weight-bold">@(this.ViewModel.SelectedFile.Name)</span>
-                        }
-                    </div>
-                </div>
+                <FileDropZone Id="archive-drop-zone"
+                              Accept=".zip"
+                              Placeholder="Drop an Annex C3 archive here, or click to browse"
+                              SelectedFile="@(this.ViewModel.SelectedFile)"
+                              SelectedFileChanged="@(file => this.ViewModel.SelectedFile = file)"/>
             </Template>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Username:" BeginRow="true" ColSpanLg="12">
@@ -68,14 +58,12 @@
 
     @if (this.ViewModel.AuthenticationResult is { IsFailed: true })
     {
-        <div id="archive-login-errors" class="form-group row m-top-10px text-danger">
-            <ul>
-                @foreach (var error in this.ViewModel.AuthenticationResult.Errors)
-                {
-                    <li>@error.Message</li>
-                }
-            </ul>
-        </div>
+        <ul id="archive-login-errors" class="validation-errors">
+            @foreach (var error in this.ViewModel.AuthenticationResult.Errors)
+            {
+                <li class="validation-message">@error.Message</li>
+            }
+        </ul>
     }
 
     <div class="modal-footer">

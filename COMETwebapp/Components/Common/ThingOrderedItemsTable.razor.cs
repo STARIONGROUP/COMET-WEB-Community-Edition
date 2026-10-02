@@ -28,6 +28,7 @@ namespace COMETwebapp.Components.Common
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.Services.RowViewModelFactoryService;
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
@@ -190,13 +191,7 @@ namespace COMETwebapp.Components.Common
                 .OrderBy(x => x?.Name, StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
 
-            if (rows != null)
-            {
-                foreach (var row in rows)
-                {
-                    row.IsAllowedToWrite = this.SessionService.Session.PermissionService.CanWrite(row.Thing);
-                }
-            }
+            this.SessionService.RefreshWritePermissions(rows);
 
             return rows;
         }

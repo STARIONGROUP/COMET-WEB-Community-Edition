@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IndependentParameterTypeTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -29,6 +29,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using Microsoft.AspNetCore.Components;
@@ -220,14 +221,11 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
             foreach (var independentParameterType in this.Thing.IndependentParameterType.ToList())
             {
                 var degreeOfInterpolation = degreesOfInterpolation.ElementAtOrDefault(i) ?? string.Empty;
-                var row = new IndependentParameterTypeRowViewModel(independentParameterType, degreeOfInterpolation)
-                {
-                    IsAllowedToWrite = this.SessionService.Session.PermissionService.CanWrite(independentParameterType)
-                };
-
-                rows.Add(row);
+                rows.Add(new IndependentParameterTypeRowViewModel(independentParameterType, degreeOfInterpolation));
                 i++;
             }
+
+            this.SessionService.RefreshWritePermissions(rows);
 
             return [.. rows.OrderBy(x => x.Name)];
         }

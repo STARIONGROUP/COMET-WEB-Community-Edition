@@ -114,8 +114,9 @@ namespace COMETwebapp
                 logger.LogInformation("################################################################");
 
                 logger.LogInformation("Starting CDP4-COMET WEB v{Version}", resourceLoader.QueryVersion());
-
-                ArchiveFileService.RemoveOrphanedArchives(TimeSpan.FromDays(1), logger);
+                
+                var maximumArchiveAge = app.Configuration.GetValue("ArchiveStorage:MaximumAge", TimeSpan.FromDays(1));
+                ArchiveFileService.RemoveOrphanedArchives(maximumArchiveAge, logger);
 
                 app.UseStaticFiles();
                 app.UseRouting();

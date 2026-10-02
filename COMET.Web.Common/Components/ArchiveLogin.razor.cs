@@ -23,10 +23,10 @@
 
 namespace COMET.Web.Common.Components
 {
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.ViewModels.Components;
 
     using Microsoft.AspNetCore.Components;
-    using Microsoft.AspNetCore.Components.Forms;
 
     using ReactiveUI;
 
@@ -76,16 +76,7 @@ namespace COMET.Web.Common.Components
                 x => x.ViewModel.AuthenticationResult,
                 x => x.ViewModel.IsLoading,
                 x => x.ViewModel.SelectedFile
-            ).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
-        }
-
-        /// <summary>
-        /// Handles the selection of an archive by the user
-        /// </summary>
-        /// <param name="args">The <see cref="InputFileChangeEventArgs" /></param>
-        private void OnArchiveSelected(InputFileChangeEventArgs args)
-        {
-            this.ViewModel.SelectedFile = args.File;
+            ).SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>

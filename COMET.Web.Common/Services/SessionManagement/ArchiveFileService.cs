@@ -131,17 +131,15 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// Disposes this service, removing the stored archive. This runs when the user's circuit ends, which covers the
         /// case where the browser is closed before the model is closed
         /// </summary>
-        /// <returns>A <see cref="ValueTask" /></returns>
-        public ValueTask DisposeAsync()
+        public void Dispose()
         {
             this.Remove();
             GC.SuppressFinalize(this);
-            return ValueTask.CompletedTask;
         }
 
         /// <summary>
         /// Removes archives that are older than the provided age. Circuits are normally cleaned up by
-        /// <see cref="DisposeAsync" />, this sweep exists to reclaim archives left behind by an abrupt shutdown of the
+        /// <see cref="Dispose" />, this sweep exists to reclaim archives left behind by an abrupt shutdown of the
         /// server and is meant to be called once at startup
         /// </summary>
         /// <param name="maximumAge">The age beyond which a stored archive is considered orphaned</param>

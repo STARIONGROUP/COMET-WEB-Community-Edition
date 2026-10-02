@@ -28,6 +28,7 @@ namespace COMET.Web.Common.Components
     using Blazored.SessionStorage;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
 
@@ -59,29 +60,10 @@ namespace COMET.Web.Common.Components
         private string requestedServer;
 
         /// <summary>
-        /// The value identifying the Annex C3 archive option of the connection-kind selector
+        /// Gets or sets the connection kind that the user has selected on the landing page, which decides whether the
+        /// server login or the Annex C3 archive login is presented. Connecting to a server is the default
         /// </summary>
-        private const string ArchiveConnectionKind = "archive";
-
-        /// <summary>
-        /// The value identifying the default option of the connection-kind selector, connecting to a COMET server
-        /// </summary>
-        private const string ServerConnectionKind = "server";
-
-        /// <summary>
-        /// The connection kind that the user has selected on the landing page, which decides whether the server login or
-        /// the Annex C3 archive login is presented. Connecting to a server is the default
-        /// </summary>
-        private string selectedConnectionKind = ServerConnectionKind;
-
-        /// <summary>
-        /// Gets the ways a user can connect, in the order they are offered
-        /// </summary>
-        private static IReadOnlyList<ConnectionKind> AvailableConnectionKinds { get; } =
-        [
-            new ConnectionKind(ServerConnectionKind, "Connect to a server"),
-            new ConnectionKind(ArchiveConnectionKind, "Open a model archive (read-only)")
-        ];
+        private ConnectionKind SelectedConnectionKind { get; set; } = ConnectionKind.Server;
 
         /// <summary>
         /// The key under which the last selected connection kind is kept in the browser session storage
@@ -99,12 +81,16 @@ namespace COMET.Web.Common.Components
         /// Handles the selection of a connection kind by the user, remembering it so a page reload comes back to the
         /// same form
         /// </summary>
-        /// <param name="eventArgs">The <see cref="ChangeEventArgs" /> carrying the selected value</param>
+        /// <param name="connectionKind">The selected <see cref="ConnectionKind" /></param>
         /// <returns>A <see cref="Task" /></returns>
-        private async Task OnConnectionKindChanged(ChangeEventArgs eventArgs)
+        /// <remarks>
+        /// Public so it can be driven from a component test: DevExpress does not echo <c>ValueChanged</c> back onto its
+        /// own <c>DxComboBox</c> instance under bunit, so the selection cannot be raised through the combo box
+        /// </remarks>
+        public async Task OnConnectionKindChanged(ConnectionKind connectionKind)
         {
-            this.selectedConnectionKind = eventArgs.Value?.ToString() ?? ServerConnectionKind;
-            await this.SessionStorageService.SetItemAsync(ConnectionKindKey, this.selectedConnectionKind);
+            this.SelectedConnectionKind = connectionKind ?? ConnectionKind.Server;
+            await this.SessionStorageService.SetItemAsync(ConnectionKindKey, this.SelectedConnectionKind.Value);
         }
 
         /// <summary>
@@ -128,20 +114,14 @@ namespace COMET.Web.Common.Components
             }
 
             var lastConnectionKind = await this.SessionStorageService.GetItemAsync<string>(ConnectionKindKey);
+            var restored = ConnectionKind.All.FirstOrDefault(x => x.Value == lastConnectionKind);
 
-            if (!string.IsNullOrEmpty(lastConnectionKind) && lastConnectionKind != this.selectedConnectionKind)
+            if (restored != null && restored != this.SelectedConnectionKind)
             {
-                this.selectedConnectionKind = lastConnectionKind;
+                this.SelectedConnectionKind = restored;
                 await this.InvokeAsync(this.StateHasChanged);
             }
         }
-
-        /// <summary>
-        /// Represents a way of connecting offered on the landing page
-        /// </summary>
-        /// <param name="Value">The value that identifies the option</param>
-        /// <param name="Name">The text presented to the user</param>
-        private sealed record ConnectionKind(string Value, string Name);
 
         /// <summary>
         /// The <see cref="IIndexViewModel" />

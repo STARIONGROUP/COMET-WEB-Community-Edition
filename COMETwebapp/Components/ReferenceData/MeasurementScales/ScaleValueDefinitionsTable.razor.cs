@@ -29,6 +29,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using Microsoft.AspNetCore.Components;
@@ -149,13 +150,7 @@ namespace COMETwebapp.Components.ReferenceData.MeasurementScales
         {
             var rows = this.MeasurementScale.ValueDefinition?.Select(x => new ScaleValueDefinitionRowViewModel(x)).ToList();
 
-            if (rows != null)
-            {
-                foreach (var row in rows)
-                {
-                    row.IsAllowedToWrite = this.SessionService.Session.PermissionService.CanWrite(row.Thing);
-                }
-            }
+            this.SessionService.RefreshWritePermissions(rows);
 
             return rows;
         }

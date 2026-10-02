@@ -122,14 +122,14 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
-        public async Task VerifyDisposeAsync()
+        public async Task VerifyDispose()
         {
             var content = "content"u8.ToArray();
             var file = CreateMockedFile(content.Length, content);
             var result = await this.archiveFileService.PersistAsync(file.Object);
             var archivePath = result.Value;
 
-            await this.archiveFileService.DisposeAsync();
+            this.archiveFileService.Dispose();
 
             Assert.That(File.Exists(archivePath), Is.False);
         }

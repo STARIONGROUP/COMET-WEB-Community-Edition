@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="DefinitionsTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -28,6 +28,7 @@ namespace COMETwebapp.Components.Common
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.Services.RowViewModelFactoryService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
@@ -167,13 +168,7 @@ namespace COMETwebapp.Components.Common
                 .OrderBy(x => x.LanguageCode, StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
 
-            if (rows != null)
-            {
-                foreach (var row in rows)
-                {
-                    row.IsAllowedToWrite = this.SessionService.Session.PermissionService.CanWrite(row.Thing);
-                }
-            }
+            this.SessionService.RefreshWritePermissions(rows);
 
             return rows;
         }

@@ -34,6 +34,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components.Applications;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.Services.RowViewModelFactoryService;
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
@@ -234,13 +235,7 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         /// </summary>
         protected virtual void RefreshAccessRight()
         {
-            foreach (var row in this.Rows.Items)
-            {
-                // CanWrite(Thing) rather than CanWrite(ClassKind, container): the latter is the *creation* overload and
-                // answers true for MODIFY_IF_OWNER regardless of ownership, because a thing being created has no owner
-                // yet. For a row that already exists the ownership has to be honoured, which only this overload does.
-                row.IsAllowedToWrite = this.PermissionService.CanWrite(row.Thing);
-            }
+            this.SessionService.RefreshWritePermissions(this.Rows.Items);
 
             this.IsAllowedToCreate = this.QueryIsAllowedToCreate();
         }

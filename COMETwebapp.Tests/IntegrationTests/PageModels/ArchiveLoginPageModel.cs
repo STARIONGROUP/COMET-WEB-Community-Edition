@@ -36,6 +36,11 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
     public class ArchiveLoginPageModel
     {
         /// <summary>
+        /// The text of the archive option in the connection-kind combo box, as the user reads it.
+        /// </summary>
+        private const string ArchiveConnectionKindName = "Open a model archive (read-only)";
+
+        /// <summary>
         /// The <see cref="IPage" /> this page object drives.
         /// </summary>
         private readonly IPage page;
@@ -67,7 +72,7 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// <summary>
         /// Gets the file input that the archive is uploaded through.
         /// </summary>
-        public ILocator FileInput => this.page.Locator("#archive-file");
+        public ILocator FileInput => this.page.Locator("#archive-drop-zone-input");
 
         /// <summary>
         /// Gets the submit button that opens the uploaded archive.
@@ -102,7 +107,13 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
             await Expect(this.page.Locator("#login-form[data-app-ready]"))
                 .ToBeAttachedAsync(new LocatorAssertionsToBeAttachedOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
 
-            await this.ConnectionKindSelector.SelectOptionAsync("archive");
+            // The DevExpress combo box renders its drop-down list into a portal outside the selector, so the item is
+            // matched on the text the user reads rather than on a DevExpress class, which also survives a DevExpress
+            // markup change.
+            await this.ConnectionKindSelector.ClickAsync();
+
+            await this.page.GetByText(ArchiveConnectionKindName, new PageGetByTextOptions { Exact = true })
+                .ClickAsync(new LocatorClickOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
 
             await Expect(this.Form).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
         }

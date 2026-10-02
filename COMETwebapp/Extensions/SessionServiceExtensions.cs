@@ -22,17 +22,46 @@
 
 namespace COMETwebapp.Extensions
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Common.Rows;
 
     /// <summary>
     /// Static class containing extension methods for <see cref="ISessionService" />.
     /// </summary>
     public static class SessionServiceExtensions
     {
+        /// <summary>
+        /// Sets <see cref="BaseDataItemRowViewModel{T}.IsAllowedToWrite" /> on each of the provided rows from the active
+        /// user's permission on the <see cref="Thing" /> it represents.
+        /// </summary>
+        /// <param name="sessionService">The <see cref="ISessionService" />.</param>
+        /// <param name="rows">The rows to refresh, which may be null.</param>
+        /// <typeparam name="T">The type of <see cref="Thing" /> the rows represent.</typeparam>
+        /// <remarks>
+        /// Uses the per-thing <c>CanWrite</c> overload rather than the <c>(ClassKind, container)</c> one, because the
+        /// latter is the <i>creation</i> overload and answers true under MODIFY_IF_OWNER regardless of ownership. For a
+        /// row that already exists the ownership has to be honoured, which only the per-thing overload does.
+        /// </remarks>
+        public static void RefreshWritePermissions<T>(this ISessionService sessionService, IEnumerable<BaseDataItemRowViewModel<T>> rows) where T : Thing
+        {
+            if (rows == null)
+            {
+                return;
+            }
+
+            var permissionService = sessionService.Session.PermissionService;
+
+            foreach (var row in rows)
+            {
+                row.IsAllowedToWrite = permissionService.CanWrite(row.Thing);
+            }
+        }
+
         /// <summary>
         /// Gets the available <see cref="NaturalLanguage" />s offered for a definition: the default IME language set
         /// (<see cref="DefaultNaturalLanguages.All" />) merged with any languages defined on the model's

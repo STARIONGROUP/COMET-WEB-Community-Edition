@@ -123,24 +123,27 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         /// <remarks>
         /// Answers true while creating, because the create permission was already asserted by the host table's add
-        /// button, and true when the permission cannot be determined, so a form is never blocked by an unexpected null
-        /// <c>ISessionService.Session</c> or a non-<see cref="Thing" /> model
+        /// button, and true when the permission cannot be determined, so a form is never blocked by a non-
+        /// <see cref="Thing" /> model
         /// </remarks>
-        protected bool IsAllowedToWriteCurrentThing
+        protected bool IsAllowedToWriteCurrentThing => this.ComputeIsAllowedToWriteCurrentThing();
+
+        /// <summary>
+        /// Computes whether the active user may write <see cref="ThingUnderEdit" />
+        /// </summary>
+        /// <returns>A value indicating whether the active user may write <see cref="ThingUnderEdit" /></returns>
+        private bool ComputeIsAllowedToWriteCurrentThing()
         {
-            get
+            var thing = this.ThingUnderEdit;
+
+            // A thing being created is not in its container yet, and asking CanWrite about a container-less thing
+            // would recurse into a null container for the SAME_AS_CONTAINER access right.
+            if (this.ShouldCreate || thing?.Container == null)
             {
-                var thing = this.ThingUnderEdit;
-
-                // A thing being created is not in its container yet, and asking CanWrite about a container-less thing
-                // would recurse into a null container for the SAME_AS_CONTAINER access right.
-                if (this.ShouldCreate || thing?.Container == null)
-                {
-                    return true;
-                }
-
-                return this.SessionService?.Session?.PermissionService?.CanWrite(thing) ?? true;
+                return true;
             }
+
+            return this.SessionService.Session.PermissionService.CanWrite(thing);
         }
 
         /// <summary>

@@ -505,12 +505,6 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// If the CDP4-COMET-SDK no longer exposes a settable <c>Session</c> property, which means this workaround has to
         /// be revisited against the new SDK version
         /// </exception>
-        /// <remarks>
-        /// ponytail: the CDP4-COMET-SDK exposes <c>SessionService.Session</c> with an <c>internal</c> setter and its
-        /// <c>OpenSession</c> hard-wires <c>CdpServicesDal</c>, so there is no supported way to open a session against a
-        /// <see cref="JsonFileDal" />. Replace this with the supported call once the SDK offers an
-        /// <c>OpenSession(IDal, Credentials)</c> overload
-        /// </remarks>
         private static void AssignSession(SessionService sessionService, ISession session)
         {
             var property = typeof(CDP4Web.Services.SessionService.SessionService)

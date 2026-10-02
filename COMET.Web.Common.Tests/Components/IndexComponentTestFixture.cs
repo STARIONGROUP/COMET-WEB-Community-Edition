@@ -48,6 +48,8 @@ namespace COMET.Web.Common.Tests.Components
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
 
+    using DevExpress.Blazor;
+
     using DynamicData;
 
     using Microsoft.AspNetCore.WebUtilities;
@@ -198,7 +200,15 @@ namespace COMET.Web.Common.Tests.Components
             var renderer = this.context.Render<IndexComponent>();
             Assert.That(() => renderer.FindComponent<Login>(), Throws.Nothing);
 
-            await renderer.InvokeAsync(() => renderer.Find("#connection-kind").Change("archive"));
+            // The selector is asserted by presence and then driven through the handler: DevExpress echoes neither Data
+            // nor ValueChanged back onto its own DxComboBox instance under bunit.
+            Assert.That(renderer.FindComponent<DxComboBox<ConnectionKind, ConnectionKind>>(), Is.Not.Null);
+
+            await renderer.InvokeAsync(() => renderer.Instance.OnConnectionKindChanged(ConnectionKind.Archive));
+
+            // Calling the handler directly does not raise an event callback, so the re-render it would otherwise trigger
+            // has to be asked for here.
+            renderer.Render();
 
             Assert.Multiple(() =>
             {

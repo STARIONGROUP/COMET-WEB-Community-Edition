@@ -45,6 +45,12 @@ namespace COMETwebapp.Shared
         public IJSRuntime JsRuntime { get; set; }
 
         /// <summary>
+        /// The <see cref="ILogger{TCategoryName}" /> used to report a keyboard helper that could not be invoked
+        /// </summary>
+        [Inject]
+        public ILogger<SidebarLayout> Logger { get; set; }
+
+        /// <summary>
         /// Wires up the global keyboard-navigation helpers (landmark hotkeys and side bar arrow navigation) once the
         /// layout has first rendered. The helper attaches a single document-level listener and is a no-op on later calls.
         /// </summary>
@@ -85,14 +91,14 @@ namespace COMETwebapp.Shared
             {
                 await this.JsRuntime.InvokeVoidAsync(functionName);
             }
-            catch (JSException)
+            catch (JSException exception)
             {
-                // The cometKeyboard script is not loaded yet (typically a hard reload); keyboard navigation is a
-                // progressive enhancement, so this is safe to ignore.
+                this.Logger.LogWarning(exception, "The keyboard navigation helper {FunctionName} could not be invoked, so keyboard shortcuts are unavailable", functionName);
             }
-            catch (JSDisconnectedException)
+            catch (JSDisconnectedException exception)
             {
                 // The circuit is disconnecting, so no interop can run; nothing to do.
+                this.Logger.LogDebug(exception, "The keyboard navigation helper {FunctionName} was not invoked because the circuit is disconnecting", functionName);
             }
         }
     }

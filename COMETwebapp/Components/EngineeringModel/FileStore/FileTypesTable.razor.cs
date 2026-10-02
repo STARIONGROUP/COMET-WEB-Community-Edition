@@ -28,6 +28,7 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
 
     using Microsoft.AspNetCore.Components;
@@ -153,10 +154,7 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         {
             var rows = this.SelectedFileTypes.Select(x => new FileTypeRowViewModel(x)).ToList();
 
-            foreach (var row in rows)
-            {
-                row.IsAllowedToWrite = this.SessionService.Session.PermissionService.CanWrite(row.Thing);
-            }
+            this.SessionService.RefreshWritePermissions(rows);
 
             return rows;
         }

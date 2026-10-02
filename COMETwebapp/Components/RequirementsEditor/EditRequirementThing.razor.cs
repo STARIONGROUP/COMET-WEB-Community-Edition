@@ -54,24 +54,24 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// delete controls to this rather than evaluating a permission per row
         /// </summary>
         /// <remarks>
-        /// Answers true when creating, and when the permission cannot be determined, so the form is never blocked by an
-        /// unexpected null <c>ISessionService.Session</c> or thing
+        /// Answers true when creating, so the form is never blocked while the thing has no container yet
         /// </remarks>
-        private bool IsAllowedToWriteCurrentThing
+        private bool IsAllowedToWriteCurrentThing => this.ComputeIsAllowedToWriteCurrentThing();
+
+        /// <summary>
+        /// Computes whether the active user may write the requirement thing currently being edited.
+        /// </summary>
+        /// <returns>A value indicating whether the active user may write the requirement thing being edited.</returns>
+        private bool ComputeIsAllowedToWriteCurrentThing()
         {
-            get
+            var requirement = this.ViewModel.RequirementThing;
+
+            if (requirement?.Container == null)
             {
-                var requirement = this.ViewModel?.RequirementThing;
-
-                // A requirement being created is not in its container yet. Its create permission was already asserted by
-                // the add button, and asking CanWrite about a container-less thing would recurse into a null container.
-                if (requirement?.Container == null)
-                {
-                    return true;
-                }
-
-                return this.SessionService?.Session?.PermissionService?.CanWrite(requirement) ?? true;
+                return true;
             }
+
+            return this.SessionService.Session.PermissionService.CanWrite(requirement);
         }
 
         /// <summary>

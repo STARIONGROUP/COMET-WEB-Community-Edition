@@ -52,6 +52,7 @@ namespace COMETwebapp.Tests.Components.Common
         private IRenderedComponent<DefinitionForm> renderer;
         private Definition definition;
         private Mock<ISessionService> sessionService;
+        private Mock<IPermissionService> permissionService;
         private bool isSaved;
         private bool isCanceled;
 
@@ -62,6 +63,14 @@ namespace COMETwebapp.Tests.Components.Common
             this.context.ConfigureDevExpressBlazor();
             this.sessionService = new Mock<ISessionService>();
             this.context.Services.AddSingleton(this.sessionService.Object);
+
+            // The form asks the open session whether the active user may write the thing being edited, so a session with
+            // a permission service always has to be there; individual tests set what it answers.
+            this.permissionService = new Mock<IPermissionService>();
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
+            var session = new Mock<ISession>();
+            session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
 
             // The container matters: a Definition without one is a Definition being created, which the form deliberately
             // lets through without a permission check. An existing Definition always has its container set.
@@ -124,18 +133,14 @@ namespace COMETwebapp.Tests.Components.Common
         [Test]
         public void VerifyIsSaveButtonEnabledHonoursWritePermission()
         {
-            var permissionService = new Mock<IPermissionService>();
-            permissionService.Setup(x => x.CanWrite(this.definition)).Returns(false);
-            var session = new Mock<ISession>();
-            session.Setup(x => x.PermissionService).Returns(permissionService.Object);
-            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+            this.permissionService.Setup(x => x.CanWrite(this.definition)).Returns(false);
 
             this.renderer.Render();
 
             Assert.That(this.renderer.FindComponent<FormButtons>().Instance.SaveButtonEnabled, Is.False,
                 "editing a Definition the active user is not allowed to write must disable the Save button");
 
-            permissionService.Setup(x => x.CanWrite(this.definition)).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(this.definition)).Returns(true);
             this.renderer.Render();
 
             Assert.That(this.renderer.FindComponent<FormButtons>().Instance.SaveButtonEnabled, Is.True,
