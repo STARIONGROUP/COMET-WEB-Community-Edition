@@ -155,9 +155,9 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
 
         /// <summary>
         /// Types a value into an archive login text box deterministically. It first waits for the form's
-        /// application-owned <c>data-app-ready</c> marker, because on a cold Blazor circuit the field re-renders as it
-        /// wires up and wipes anything typed too early. It then types at a cadence the binding can keep up with and
-        /// confirms the field holds the full value.
+        /// application-owned <c>data-app-ready</c> marker, then hands over to
+        /// <see cref="E2ETestBase.TypeIntoEditorAsync" />, which tolerates a DevExpress editor that attaches late and
+        /// wipes what was typed.
         /// </summary>
         /// <param name="id">The text box component id.</param>
         /// <param name="value">The value to type.</param>
@@ -167,16 +167,8 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
             await Expect(this.page.Locator("#archive-login-form[data-app-ready]"))
                 .ToBeAttachedAsync(new LocatorAssertionsToBeAttachedOptions { Timeout = E2ETestBase.ServerRoundTripTimeoutMilliseconds });
 
-            var input = this.TextInput(id);
-            await input.PressSequentiallyAsync(value, TypingCadence);
-            await Expect(input).ToHaveValueAsync(value);
+            await E2ETestBase.TypeIntoEditorAsync(this.TextInput(id), value);
         }
-
-        /// <summary>
-        /// The per-keystroke typing cadence used for the DevExpress archive login fields, so each keystroke's binding
-        /// commits through the Blazor circuit in order.
-        /// </summary>
-        private static LocatorPressSequentiallyOptions TypingCadence => new() { Delay = 30 };
 
         /// <summary>
         /// Gets the native input element rendered inside the DevExpress text box with the provided component id.

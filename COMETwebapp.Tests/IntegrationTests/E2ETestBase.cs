@@ -54,6 +54,66 @@ namespace COMETwebapp.Tests.IntegrationTests
         internal const int ServerRoundTripTimeoutMilliseconds = 30_000;
 
         /// <summary>
+        /// The number of times <see cref="TypeIntoEditorAsync" /> will type a value before letting the assertion fail.
+        /// </summary>
+        private const int TypingAttempts = 3;
+
+        /// <summary>
+        /// The per-keystroke typing cadence for the DevExpress login editors, slow enough that each keystroke's
+        /// on-input binding commits through the Blazor circuit in order.
+        /// </summary>
+        private static LocatorPressSequentiallyOptions TypingCadence => new() { Delay = 30 };
+
+        /// <summary>
+        /// Types a value into a DevExpress text editor and confirms the editor holds it, retyping if the editor swallowed
+        /// the leading keystrokes.
+        /// </summary>
+        /// <param name="input">The native <c>input</c> inside the DevExpress editor.</param>
+        /// <param name="value">The value to type.</param>
+        /// <returns>A <see cref="Task" />.</returns>
+        /// <remarks>
+        /// A form's own <c>data-app-ready</c> marker proves the Blazor render sequence settled, but not that every
+        /// DevExpress editor on the page has finished loading its client-side script. An editor that attaches *after*
+        /// typing started re-syncs the DOM input from the still-empty server-side value and swallows what was typed so
+        /// far, which is how "admin" arrives as "in". The window widens with every extra DevExpress component on the
+        /// page and only on the very first, coldest circuit, so this retypes instead of failing on the first wipe. The
+        /// last attempt asserts without catching, so a genuinely broken editor still fails with Playwright's own diff.
+        /// </remarks>
+        internal static async Task TypeIntoEditorAsync(ILocator input, string value)
+        {
+            for (var attempt = 1; attempt < TypingAttempts; attempt++)
+            {
+                await ClearAsync(input);
+                await input.PressSequentiallyAsync(value, TypingCadence);
+
+                try
+                {
+                    await Assertions.Expect(input).ToHaveValueAsync(value, new LocatorAssertionsToHaveValueOptions { Timeout = 5_000 });
+                    return;
+                }
+                catch (PlaywrightException)
+                {
+                    TestContext.Out.WriteLine($"the editor swallowed the typed value on attempt {attempt}, retyping");
+                }
+            }
+
+            await ClearAsync(input);
+            await input.PressSequentiallyAsync(value, TypingCadence);
+            await Assertions.Expect(input).ToHaveValueAsync(value);
+        }
+
+        /// <summary>
+        /// Clears a text editor the way a user would, so the on-input binding sees the change.
+        /// </summary>
+        /// <param name="input">The native <c>input</c> inside the DevExpress editor.</param>
+        /// <returns>A <see cref="Task" />.</returns>
+        private static async Task ClearAsync(ILocator input)
+        {
+            await input.PressAsync("Control+a");
+            await input.PressAsync("Delete");
+        }
+
+        /// <summary>
         /// Gets the URL of the COMET WEB application under test (env <c>COMETWEBAPP_URL</c>, default the local Kestrel port).
         /// </summary>
         protected static string AppUrl => Environment.GetEnvironmentVariable("COMETWEBAPP_URL") ?? "http://localhost:8080";
