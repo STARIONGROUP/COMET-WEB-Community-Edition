@@ -87,13 +87,20 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         }
 
         /// <summary>
-        /// Moves a folder to a target folder
+        /// Moves a folder to a target folder. Silently refuses the move when the current user lacks write
+        /// permission on the target folder (which is also the case for a session opened from an
+        /// ECSS-E-TM-10-25 Annex C3 archive, where the DAL is read-only).
         /// </summary>
         /// <param name="folder">The folder to be moved</param>
         /// <param name="targetFolder">the target folders</param>
         /// <returns>A <see cref="Task" /></returns>
         public async Task MoveFolder(Folder folder, Folder targetFolder)
         {
+            if (!this.SessionService.Session.PermissionService.CanWrite(ClassKind.Folder, targetFolder))
+            {
+                return;
+            }
+
             this.IsLoading = true;
 
             var folderClone = folder.Clone(true);

@@ -104,7 +104,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 
             this.session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
 
-            this.context.Services.AddSingleton(this.sessionService);
+            this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.ConfigureDevExpressBlazor();
 
             this.assembler = new Assembler(this.uri, this.messageBus);

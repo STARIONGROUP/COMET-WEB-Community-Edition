@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
 
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.EngineeringModel;
@@ -37,6 +38,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
     using DynamicData;
 
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -49,6 +51,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         private BunitContext context;
         private IRenderedComponent<OptionsTable> renderer;
         private Mock<IOptionsTableViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
         private Option option;
 
         [SetUp]
@@ -56,6 +59,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         {
             this.context = new BunitContext();
             this.viewModel = new Mock<IOptionsTableViewModel>();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.option = new Option
             {

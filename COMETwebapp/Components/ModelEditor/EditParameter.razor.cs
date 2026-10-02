@@ -23,6 +23,7 @@
 namespace COMETwebapp.Components.ModelEditor
 {
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel;
 
@@ -38,6 +39,19 @@ namespace COMETwebapp.Components.ModelEditor
     /// </summary>
     public partial class EditParameter
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. The dialog still opens so the parameter can be inspected,
+        /// but the OK button that would commit the edit is withdrawn
+        /// </summary>
+        private bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// Callback closing the component-value edit popup (the sampled-function / compound table editor).
         /// </summary>

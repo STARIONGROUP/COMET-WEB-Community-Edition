@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
@@ -34,6 +35,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using FluentResults;
 
     using Microsoft.AspNetCore.Components.Web;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -44,6 +46,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     {
         private BunitContext context;
         private Mock<IRequirementsEditorBodyViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
         private RequirementsSpecification specification;
         private RequirementsGroup groupA;
         private RequirementsGroup groupB;
@@ -53,6 +56,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.specification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "SPEC", Name = "Specification" };
             this.groupA = new RequirementsGroup { Iid = Guid.NewGuid(), ShortName = "GA", Name = "Group A" };

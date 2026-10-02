@@ -18,6 +18,7 @@
 //   limitations under the License.
 ------------------------------------------------------------------------------->
 @namespace COMET.Web.Common.Components
+@using COMET.Web.Common.Model
 @using COMET.Web.Common.Utilities
 @inherits DisposableComponent
 
@@ -67,7 +68,24 @@
                     <div id="unauthorized-notice" class="text-align-center font-weight-bold">Connect and Open a Model.</div>
                     <div class="m-top-10px color-title">
                         <h5 class="color-title font-weight-bold">Connect</h5>
-                        <Login RequestedServer="@(this.requestedServer)"/>
+                        <div class="connection-kind-selector">
+                            <label class="connection-kind-label" for="connection-kind">How do you want to connect?</label>
+                            <DxComboBox Id="connection-kind"
+                                        Data="@(ConnectionKind.All)"
+                                        Value="@(this.SelectedConnectionKind)"
+                                        ValueChanged="@((ConnectionKind connectionKind) => this.OnConnectionKindChanged(connectionKind))"
+                                        TextFieldName="@(nameof(ConnectionKind.Name))"
+                                        AllowUserInput="false"
+                                        NullText="How do you want to connect?"/>
+                        </div>
+                        @if (this.SelectedConnectionKind == ConnectionKind.Archive)
+                        {
+                            <ArchiveLogin/>
+                        }
+                        else
+                        {
+                            <Login RequestedServer="@(this.requestedServer)"/>
+                        }
                     </div>
                 </div>
             </div>

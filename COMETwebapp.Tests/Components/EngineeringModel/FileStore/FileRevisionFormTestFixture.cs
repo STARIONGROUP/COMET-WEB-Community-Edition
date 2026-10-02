@@ -24,9 +24,14 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 {
     using Bunit;
 
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+    using CDP4Dal.Permission;
+
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Common;
@@ -34,6 +39,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
 
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -45,6 +51,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         private BunitContext context;
         private IRenderedComponent<FileRevisionForm> renderer;
         private Mock<IFileRevisionHandlerViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
         private FileRevision fileRevision;
         private bool isSaved;
         private bool isCanceled;
@@ -54,6 +61,16 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
+
+            // The form asks the open session whether the active user may write the thing being edited, so a session with
+            // a permission service always has to be there.
+            var permissionService = new Mock<IPermissionService>();
+            permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
+            var session = new Mock<ISession>();
+            session.Setup(x => x.PermissionService).Returns(permissionService.Object);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
 
             this.fileRevision = new FileRevision
             {

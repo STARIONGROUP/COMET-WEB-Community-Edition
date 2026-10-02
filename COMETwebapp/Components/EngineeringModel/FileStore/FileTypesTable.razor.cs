@@ -26,7 +26,9 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
     using CDP4Common.Types;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
 
     using Microsoft.AspNetCore.Components;
@@ -36,6 +38,19 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
     /// </summary>
     public partial class FileTypesTable : DisposableComponent
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. Create and delete controls bind their enabled state to
+        /// the inverse of this, so the data can still be inspected but never modified
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// A collection of file types to display for selection
         /// </summary>
@@ -137,7 +152,11 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
         /// <returns>A collection of <see cref="FileTypeRowViewModel" />s to display</returns>
         private List<FileTypeRowViewModel> GetRows()
         {
-            return this.SelectedFileTypes.Select(x => new FileTypeRowViewModel(x)).ToList();
+            var rows = this.SelectedFileTypes.Select(x => new FileTypeRowViewModel(x)).ToList();
+
+            this.SessionService.RefreshWritePermissions(rows);
+
+            return rows;
         }
     }
 }

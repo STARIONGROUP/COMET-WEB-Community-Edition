@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
     using CDP4Dal;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
@@ -46,6 +47,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     {
         private BunitContext context;
         private Mock<IRequirementsEditorBodyViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
         private Requirement requirement;
         private SimpleQuantityKind parameterType;
 
@@ -55,6 +57,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddSingleton<ICDPMessageBus>(new CDPMessageBus());
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             var domain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "SYS", Name = "System" };
             this.parameterType = new SimpleQuantityKind { Iid = Guid.NewGuid(), ShortName = "m", Name = "mass" };

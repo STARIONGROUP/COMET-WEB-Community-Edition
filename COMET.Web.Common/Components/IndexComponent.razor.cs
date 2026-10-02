@@ -25,7 +25,10 @@ namespace COMET.Web.Common.Components
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using Blazored.SessionStorage;
+
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Model;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components;
 
@@ -55,6 +58,70 @@ namespace COMET.Web.Common.Components
         /// The value that has been requested
         /// </summary>
         private string requestedServer;
+
+        /// <summary>
+        /// Gets or sets the connection kind that the user has selected on the landing page, which decides whether the
+        /// server login or the Annex C3 archive login is presented. Connecting to a server is the default
+        /// </summary>
+        private ConnectionKind SelectedConnectionKind { get; set; } = ConnectionKind.Server;
+
+        /// <summary>
+        /// The key under which the last selected connection kind is kept in the browser session storage
+        /// </summary>
+        private const string ConnectionKindKey = "cdp4-comet-connection-kind";
+
+        /// <summary>
+        /// The injected <see cref="ISessionStorageService" />, used to remember the selected connection kind across a
+        /// page reload
+        /// </summary>
+        [Inject]
+        public ISessionStorageService SessionStorageService { get; set; }
+
+        /// <summary>
+        /// Handles the selection of a connection kind by the user, remembering it so a page reload comes back to the
+        /// same form
+        /// </summary>
+        /// <param name="connectionKind">The selected <see cref="ConnectionKind" /></param>
+        /// <returns>A <see cref="Task" /></returns>
+        /// <remarks>
+        /// Public so it can be driven from a component test: DevExpress does not echo <c>ValueChanged</c> back onto its
+        /// own <c>DxComboBox</c> instance under bunit, so the selection cannot be raised through the combo box
+        /// </remarks>
+        public async Task OnConnectionKindChanged(ConnectionKind connectionKind)
+        {
+            this.SelectedConnectionKind = connectionKind ?? ConnectionKind.Server;
+            await this.SessionStorageService.SetItemAsync(ConnectionKindKey, this.SelectedConnectionKind.Value);
+        }
+
+        /// <summary>
+        /// Method invoked after each time the component has been rendered. Restores the connection kind that the user
+        /// last selected, because a reload starts a new circuit with a fresh component
+        /// </summary>
+        /// <param name="firstRender">A value indicating whether this is the first render of the component</param>
+        /// <returns>A <see cref="Task" /></returns>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (!firstRender)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(this.requestedServer))
+            {
+                return;
+            }
+
+            var lastConnectionKind = await this.SessionStorageService.GetItemAsync<string>(ConnectionKindKey);
+            var restored = ConnectionKind.All.FirstOrDefault(x => x.Value == lastConnectionKind);
+
+            if (restored != null && restored != this.SelectedConnectionKind)
+            {
+                this.SelectedConnectionKind = restored;
+                await this.InvokeAsync(this.StateHasChanged);
+            }
+        }
 
         /// <summary>
         /// The <see cref="IIndexViewModel" />

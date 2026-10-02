@@ -27,6 +27,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.ReferenceData.ParameterTypes;
@@ -51,12 +52,15 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
     {
         private BunitContext context;
         private Mock<IParameterTypeTableViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
         private ParameterType parameterType;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new BunitContext();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.ConfigureDevExpressBlazor();
 
             this.parameterType = new BooleanParameterType

@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.Components.RequirementsEditor
 {
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using Microsoft.AspNetCore.Components;
@@ -33,6 +35,45 @@ namespace COMETwebapp.Components.RequirementsEditor
     /// </summary>
     public partial class EditRequirementThing
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a
+        /// session opened from an ECSS-E-TM-10-25 Annex C3 archive. The form still renders so its data can be
+        /// inspected, but the Save button is withdrawn
+        /// </summary>
+        private bool IsReadOnly => this.SessionService.IsReadOnly;
+
+        /// <summary>
+        /// Gets a value indicating whether the active user may write the thing this form edits. The nested simple
+        /// parameter values are parts of that one thing and are saved atomically with it, so they bind their create and
+        /// delete controls to this rather than evaluating a permission per row
+        /// </summary>
+        /// <remarks>
+        /// Answers true when creating, so the form is never blocked while the thing has no container yet
+        /// </remarks>
+        private bool IsAllowedToWriteCurrentThing => this.ComputeIsAllowedToWriteCurrentThing();
+
+        /// <summary>
+        /// Computes whether the active user may write the requirement thing currently being edited.
+        /// </summary>
+        /// <returns>A value indicating whether the active user may write the requirement thing being edited.</returns>
+        private bool ComputeIsAllowedToWriteCurrentThing()
+        {
+            var requirement = this.ViewModel.RequirementThing;
+
+            if (requirement?.Container == null)
+            {
+                return true;
+            }
+
+            return this.SessionService.Session.PermissionService.CanWrite(requirement);
+        }
+
         /// <summary>
         /// Gets or sets the <see cref="IEditRequirementThingViewModel" /> driving the form.
         /// </summary>

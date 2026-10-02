@@ -101,6 +101,11 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         private Mock<IElementDefinitionTreeViewModel> elementDefinitionTreeViewModel;
 
         /// <summary>
+        /// The mocked <see cref="ISessionService" /> resolved from DI by the <see cref="ModelEditorComponent" />.
+        /// </summary>
+        private Mock<ISessionService> sessionService;
+
+        /// <summary>
         /// The <see cref="Iteration" /> exposed as <see cref="IModelEditorViewModel.CurrentThing" />.
         /// </summary>
         private Iteration iteration;
@@ -118,6 +123,9 @@ namespace COMETwebapp.Tests.Components.ModelEditor
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(configuration.Object);
+
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.elementDefinitionTreeViewModel = new Mock<IElementDefinitionTreeViewModel>();
             this.elementDefinitionTreeViewModel.Setup(x => x.Rows).Returns([]);

@@ -29,12 +29,17 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
     using COMETwebapp.ViewModels.Components.RequirementsEditor.ParametricConstraints;
 
     using DevExpress.Blazor;
+
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -45,6 +50,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         private IRenderedComponent<ParametricConstraintsTable> renderer;
         private Requirement requirement;
         private TextParameterType parameterType;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void SetUp()
@@ -52,6 +58,9 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
+
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.parameterType = new TextParameterType { Iid = Guid.NewGuid(), ShortName = "a", Name = "Acceleration" };
 
@@ -160,6 +169,36 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             {
                 Assert.That(this.renderer.Instance.IsEditorOpen, Is.False);
                 Assert.That(this.requirement.ParametricConstraint, Has.Count.EqualTo(1), "A cancelled add is not appended to the requirement.");
+            });
+        }
+
+        [Test]
+        public void VerifyControlsFollowTheParentWritePermission()
+        {
+            // These rows are parts of the Requirement and are saved atomically by the hosting form, so the permission is
+            // decided once by that form and passed down. Without this a user could stage edits into a dialog whose Save
+            // is withdrawn, and only discover it at the end.
+            var addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addParametricConstraintButton");
+            var removeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeParametricConstraintButton");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(addButton.Instance.Enabled, Is.True, "the default keeps a host that does not set the flag unchanged");
+                Assert.That(removeButton.Instance.Enabled, Is.True);
+            });
+
+            this.renderer.Render(parameters => parameters
+                .Add(p => p.Requirement, this.requirement)
+                .Add(p => p.AvailableParameterTypes, new[] { (ParameterType)this.parameterType })
+                .Add(p => p.IsAllowedToWrite, false));
+
+            addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addParametricConstraintButton");
+            removeButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "removeParametricConstraintButton");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(addButton.Instance.Enabled, Is.False, "the user may not add constraints to a thing they cannot write");
+                Assert.That(removeButton.Instance.Enabled, Is.False, "the user may not remove constraints from a thing they cannot write");
             });
         }
 

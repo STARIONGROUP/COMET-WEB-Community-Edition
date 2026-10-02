@@ -77,7 +77,10 @@ namespace COMETwebapp.Tests.Components.Viewer.PropertiesPanel
             selectionMediator.Setup(x => x.SelectedSceneObjectClone).Returns(new SceneObject(It.IsAny<Primitive>()));
 
             this.sessionService = new Mock<ISessionService>();
-            this.context.Services.AddSingleton(this.sessionService);
+
+            // Register the mocked instance, not the Mock<T> wrapper: PropertiesComponent injects ISessionService for its
+            // read-only check, so registering the wrapper leaves the service unresolvable at render time.
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.sessionService
                 .Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))

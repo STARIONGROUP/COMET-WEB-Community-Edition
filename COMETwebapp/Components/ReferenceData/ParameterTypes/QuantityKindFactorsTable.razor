@@ -1,4 +1,4 @@
-<!------------------------------------------------------------------------------
+﻿<!------------------------------------------------------------------------------
 Copyright (c) 2023-2026 Starion Group S.A.
 
     This file is part of COMET WEB Community Edition
@@ -25,7 +25,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <DxGridDataColumn FieldName="@nameof(QuantityKindFactorRowViewModel.QuantityKind)"/>
         <DxGridCommandColumn Width="100px">
             <HeaderTemplate>
-                <DxButton Id="addQuantityKindFactorButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"/>
+                <DxButton Id="addQuantityKindFactorButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate" Enabled="@(!this.IsReadOnly && this.IsAllowedToCreate)" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
                 @{
@@ -39,6 +39,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     <DxButton Id="removeQuantityKindFactorButton"
                               IconCssClass="@IconName.Delete.GetCssClass()"
                               Click="@(() => this.RemoveItem(row))"
+                              Enabled="@(!this.IsReadOnly && row.IsAllowedToWrite)"
                               RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"/>
                 }
             </CellDisplayTemplate>
@@ -54,13 +55,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     <DxButton Id="moveUpButton"
                               IconCssClass="@IconName.ArrowUp.GetCssClass()"
                               Click="() => this.MoveUp(row)"
-                              Enabled="@(this.Thing.QuantityKindFactor.IndexOf(row.Thing) > 0)"
+                              Enabled="@(this.Thing.QuantityKindFactor.IndexOf(row.Thing) > 0 && !this.IsReadOnly)"
                               RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"/>
 
                     <DxButton Id="moveDownButton"
                               IconCssClass="@IconName.ArrowDown.GetCssClass()"
                               Click="() => this.MoveDown(row)"
-                              Enabled="@(this.Thing.QuantityKindFactor.LastOrDefault() != row.Thing)"
+                              Enabled="@(this.Thing.QuantityKindFactor.LastOrDefault() != row.Thing && !this.IsReadOnly)"
                               RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"/>
                 }
             </CellDisplayTemplate>

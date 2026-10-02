@@ -98,6 +98,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
             var configuration = new Mock<IConfigurationService>();
             configuration.Setup(x => x.ServerConfiguration).Returns(new ServerConfiguration());
             this.context.Services.AddSingleton(configuration.Object);
+            this.context.Services.AddSingleton(sessionService.Object);
             this.context.Services.AddSingleton(parameterEditorViewModel.Object);
 
             var parameterTableViewModelMock = new Mock<IParameterTableViewModel>();

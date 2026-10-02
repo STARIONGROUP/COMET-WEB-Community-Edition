@@ -95,6 +95,7 @@ namespace COMET.Web.Common.Extensions
             serviceProvider.AddScoped<ICacheService, CacheService>();
             serviceProvider.AddScoped<IProvideExternalAuthenticationService, OpenIdConnectService>();
             serviceProvider.AddScoped<IAuthenticationRefreshService, AuthenticationTokenRefreshService>();
+            serviceProvider.AddScoped<IArchiveFileService, ArchiveFileService>();
             serviceProvider.AddAuthorizationCore();
             serviceProvider.AddDevExpressBlazor(configure => configure.SizeMode = SizeMode.Medium);
             serviceProvider.RegisterCommonViewModels();
@@ -108,6 +109,7 @@ namespace COMET.Web.Common.Extensions
         private static void RegisterCommonViewModels(this IServiceCollection serviceProvider)
         {
             serviceProvider.AddTransient<ILoginViewModel, LoginViewModel>();
+            serviceProvider.AddTransient<IArchiveLoginViewModel, ArchiveLoginViewModel>();
             serviceProvider.AddTransient<IOpenModelViewModel, OpenModelViewModel>();
             serviceProvider.AddTransient<IIndexViewModel, IndexViewModel>();
             serviceProvider.AddScoped<IAuthorizedMenuEntryViewModel, AuthorizedMenuEntryViewModel>();

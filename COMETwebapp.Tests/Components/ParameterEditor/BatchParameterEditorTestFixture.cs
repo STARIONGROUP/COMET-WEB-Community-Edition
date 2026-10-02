@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Components.Selectors;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
@@ -41,6 +42,8 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
     using DevExpress.Blazor;
 
     using DynamicData;
+
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -59,6 +62,9 @@ namespace COMETwebapp.Tests.Components.ParameterEditor
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+
+            var sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(sessionService.Object);
 
             var parameterTypeSelectorViewModel = new Mock<IParameterTypeSelectorViewModel>();
             var parameterTypeEditorSelectorViewModel = new Mock<IParameterTypeEditorSelectorViewModel>();

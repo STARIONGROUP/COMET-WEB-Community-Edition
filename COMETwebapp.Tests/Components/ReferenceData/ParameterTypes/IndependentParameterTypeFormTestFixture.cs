@@ -26,10 +26,15 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.ReferenceData.ParameterTypes;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
+
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -39,12 +44,15 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
         private BunitContext context;
         private IRenderedComponent<IndependentParameterTypeForm> renderer;
         private IndependentParameterTypeRowViewModel item;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             var assignment = new IndependentParameterTypeAssignment
             {

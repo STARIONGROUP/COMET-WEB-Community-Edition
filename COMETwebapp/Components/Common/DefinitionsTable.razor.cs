@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="DefinitionsTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 // 
@@ -26,7 +26,9 @@ namespace COMETwebapp.Components.Common
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.Services.RowViewModelFactoryService;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
@@ -39,6 +41,19 @@ namespace COMETwebapp.Components.Common
     /// </summary>
     public partial class DefinitionsTable : DisposableComponent
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. Create and delete controls bind their enabled state to
+        /// the inverse of this, so the data can still be inspected but never modified
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// The parent <see cref="DefinedThing" /> whose <see cref="DefinedThing.Definition" /> collection is being edited.
         /// </summary>
@@ -148,10 +163,14 @@ namespace COMETwebapp.Components.Common
         /// <returns>Rows for the grid, ordered by language code.</returns>
         protected List<DefinitionRowViewModel> GetRows()
         {
-            return this.Thing?.Definition
+            var rows = this.Thing?.Definition
                 .Select(x => (DefinitionRowViewModel)RowViewModelFactory.CreateRow(x))
                 .OrderBy(x => x.LanguageCode, StringComparer.InvariantCultureIgnoreCase)
                 .ToList();
+
+            this.SessionService.RefreshWritePermissions(rows);
+
+            return rows;
         }
 
         /// <summary>

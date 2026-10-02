@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="IndependentParameterTypeTable.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
@@ -22,11 +22,14 @@
 
 namespace COMETwebapp.Components.ReferenceData.ParameterTypes
 {
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.SessionManagement;
 
+    using COMETwebapp.Extensions;
     using COMETwebapp.ViewModels.Components.ReferenceData.Rows;
 
     using Microsoft.AspNetCore.Components;
@@ -36,6 +39,26 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
     /// </summary>
     public partial class IndependentParameterTypeTable : DisposableComponent
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive
+        /// </summary>
+        private bool IsReadOnly => this.SessionService.IsReadOnly;
+
+        /// <summary>
+        /// Gets a value indicating whether the active user may add a new <see cref="IndependentParameterTypeAssignment" />
+        /// to <see cref="Thing" />. Unlike a row's write permission, which reflects whether an existing row may be
+        /// edited or deleted, this reflects the create permission on the parent <see cref="Thing" />, which under
+        /// MODIFY_IF_OWNER can differ from the edit permission on any one row
+        /// </summary>
+        private bool IsAllowedToCreate => this.SessionService.Session.PermissionService.CanWrite(ClassKind.IndependentParameterTypeAssignment, this.Thing);
+
         /// <summary>
         /// The compound parameter type
         /// </summary>
@@ -201,6 +224,8 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
                 rows.Add(new IndependentParameterTypeRowViewModel(independentParameterType, degreeOfInterpolation));
                 i++;
             }
+
+            this.SessionService.RefreshWritePermissions(rows);
 
             return [.. rows.OrderBy(x => x.Name)];
         }

@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
 
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
     using COMET.Web.Common.ViewModels.Components.Selectors;
 
@@ -37,6 +38,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components.Web;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -51,6 +53,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         private Mock<IFolderFileStructureViewModel> viewModel;
         private Mock<IFileHandlerViewModel> fileHandlerViewModel;
         private Mock<IFolderHandlerViewModel> folderHandlerViewModel;
+        private Mock<ISessionService> sessionService;
         private List<FileFolderNodeViewModel> structure;
 
         [SetUp]
@@ -58,6 +61,8 @@ namespace COMETwebapp.Tests.Components.EngineeringModel.FileStore
         {
             this.context = new BunitContext();
             this.viewModel = new Mock<IFolderFileStructureViewModel>();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             var domainSelectorViewModel = new Mock<IDomainOfExpertiseSelectorViewModel>();
 
