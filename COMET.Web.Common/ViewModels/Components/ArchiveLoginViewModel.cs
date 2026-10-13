@@ -25,6 +25,7 @@ namespace COMET.Web.Common.ViewModels.Components
 {
     using COMET.Web.Common.Model.DTO;
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Utilities.DisposableObject;
 
     using FluentResults;
 
@@ -35,7 +36,7 @@ namespace COMET.Web.Common.ViewModels.Components
     /// <summary>
     /// View Model that enables the user to open a read-only session against an uploaded ECSS-E-TM-10-25 Annex C3 archive
     /// </summary>
-    public class ArchiveLoginViewModel : ReactiveObject, IArchiveLoginViewModel
+    public class ArchiveLoginViewModel : DisposableObject, IArchiveLoginViewModel
     {
         /// <summary>
         /// The <see cref="IAuthenticationService" />
@@ -146,10 +147,10 @@ namespace COMET.Web.Common.ViewModels.Components
                     this.ResetAuthenticationDto();
                     this.SelectedFile = null;
                 }
-                else
-                {
-                    this.archiveFileService.Remove();
-                }
+
+                // A failed login deliberately keeps the stored archive: the usual failure is a wrong password or user
+                // name, and deleting it would make every retry re-upload the whole file over SignalR. It is replaced by
+                // the next upload, and removed on logout and when the circuit ends.
             }
             finally
             {
@@ -164,7 +165,11 @@ namespace COMET.Web.Common.ViewModels.Components
         {
             this.AuthenticationDto = new AuthenticationDto
             {
-                ShouldValidateCredentials = true
+                ShouldValidateCredentials = true,
+
+                // The password only decrypts the archive, so it is not mandatory: an Annex C3 archive exported without
+                // encryption has none, and requiring one would make such an archive impossible to open.
+                ShouldValidatePassword = false
             };
         }
     }

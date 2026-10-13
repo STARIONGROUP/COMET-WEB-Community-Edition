@@ -51,7 +51,7 @@ namespace COMET.Web.Common.Validators
 
             this.RuleFor(x => x.Password).NotEmpty()
                 .WithMessage("The Password is required.")
-                .When(x => x.ShouldValidateCredentials);
+                .When(x => x.ShouldValidateCredentials && x.ShouldValidatePassword);
         }
 
         /// <summary>

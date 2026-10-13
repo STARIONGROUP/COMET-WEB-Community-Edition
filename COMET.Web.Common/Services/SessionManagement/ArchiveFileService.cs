@@ -40,6 +40,13 @@ namespace COMET.Web.Common.Services.SessionManagement
         public const long MaximumArchiveSize = 512L * 1024 * 1024;
 
         /// <summary>
+        /// The total size, in bytes, that all stored archives together may occupy. Uploads are accepted before the user
+        /// is authenticated, so without a ceiling an anonymous client could open circuits until the server's temporary
+        /// directory is full. A refused upload is reported to the user rather than deleting someone else's archive
+        /// </summary>
+        public const long MaximumTotalArchiveSize = 8L * 1024 * 1024 * 1024;
+
+        /// <summary>
         /// The name of the directory, inside the system temporary directory, that uploaded archives are stored in
         /// </summary>
         private const string ArchiveDirectoryName = "comet-web-archives";
@@ -86,24 +93,30 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             this.Remove();
 
-            var directory = Directory.CreateDirectory(GetArchiveDirectory());
-            var path = Path.Combine(directory.FullName, $"{Guid.NewGuid()}.zip");
+            string path = null;
 
             try
             {
-                await using (var target = File.Create(path))
+                var directory = Directory.CreateDirectory(GetArchiveDirectory());
+
+                if (QueryStoredSize(directory) + file.Size > MaximumTotalArchiveSize)
                 {
-                    await file.OpenReadStream(file.Size).CopyToAsync(target);
+                    this.logger.LogWarning("Refused an archive upload because the archive store is full");
+                    return Result.Fail<string>("The server is temporarily out of space for archive uploads. Try again later");
+                }
+
+                path = Path.Combine(directory.FullName, $"{Guid.NewGuid()}.zip");
+
+                await using (var source = file.OpenReadStream(file.Size))
+                {
+                    await using (var target = File.Create(path))
+                    {
+                        await source.CopyToAsync(target);
+                    }
                 }
 
                 this.ArchivePath = path;
                 return Result.Ok(path);
-            }
-            catch (IOException exception)
-            { 
-                TryDelete(path, this.logger);
-                this.logger.LogError(exception, "The uploaded archive could not be stored");
-                return Result.Fail<string>("The uploaded archive could not be stored on the server");
             }
             catch (OperationCanceledException exception)
             {
@@ -111,6 +124,26 @@ namespace COMET.Web.Common.Services.SessionManagement
                 this.logger.LogWarning(exception, "The archive upload was cancelled");
                 return Result.Fail<string>("The archive upload was cancelled");
             }
+            catch (Exception exception)
+            {
+                // Deliberately broad: this runs from a Blazor event handler, and anything escaping it kills the circuit
+                // rather than showing the user an error. Besides IOException, the browser stream can fail with
+                // JSDisconnectedException or InvalidOperationException when the tab goes away mid-upload, and an
+                // unwritable temporary directory surfaces as UnauthorizedAccessException.
+                TryDelete(path, this.logger);
+                this.logger.LogError(exception, "The uploaded archive could not be stored");
+                return Result.Fail<string>("The uploaded archive could not be stored on the server");
+            }
+        }
+
+        /// <summary>
+        /// Queries the total size, in bytes, of the archives currently stored
+        /// </summary>
+        /// <param name="directory">The <see cref="DirectoryInfo" /> that uploaded archives are stored in</param>
+        /// <returns>The total size in bytes</returns>
+        private static long QueryStoredSize(DirectoryInfo directory)
+        {
+            return directory.EnumerateFiles("*.zip").Sum(x => x.Length);
         }
 
         /// <summary>
@@ -173,10 +206,18 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <summary>
         /// Deletes the file at the provided path, logging rather than throwing when the deletion fails
         /// </summary>
-        /// <param name="path">The full path of the file to delete</param>
+        /// <param name="path">The full path of the file to delete, which may be null when none was created yet</param>
         /// <param name="logger">The <see cref="ILogger" /> to report a failure on</param>
         private static void TryDelete(string path, ILogger logger)
         {
+            // A null path means the upload failed before a file was created, for instance because the temporary
+            // directory could not be created. File.Delete would raise an ArgumentNullException that this method does not
+            // catch, which would escape PersistAsync and kill the circuit.
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
             try
             {
                 File.Delete(path);

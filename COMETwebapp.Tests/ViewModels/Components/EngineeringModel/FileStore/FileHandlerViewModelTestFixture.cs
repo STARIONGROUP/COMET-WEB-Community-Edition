@@ -201,5 +201,29 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             await this.viewModel.DeleteFile();
             this.sessionService.Verify(x => x.DeleteThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
+
+        /// <summary>
+        /// Verifies that dropping a file on the file store root (a <c>null</c> <c>targetFolder</c>, which
+        /// <c>FolderFileStructure.OnDropNode</c> explicitly allows) asks the write permission about the
+        /// <see cref="CommonFileStore" /> itself rather than about the null target, so the move is no longer silently
+        /// refused when the user may write to the file store.
+        /// </summary>
+        [Test]
+        public async Task VerifyMoveFileToFileStoreRoot()
+        {
+            this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
+            this.viewModel.CurrentThing = this.commonFileStore.File[0];
+
+            this.sessionService.Setup(x => x.Session.PermissionService.CanWrite(ClassKind.File, this.commonFileStore)).Returns(false);
+            this.sessionService.Setup(x => x.Session.PermissionService.CanWrite(It.IsAny<ClassKind>(), null)).Returns(false);
+
+            await this.viewModel.MoveFile(this.commonFileStore.File[0], null);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
+
+            this.sessionService.Setup(x => x.Session.PermissionService.CanWrite(ClassKind.File, this.commonFileStore)).Returns(true);
+
+            await this.viewModel.MoveFile(this.commonFileStore.File[0], null);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+        }
     }
 }

@@ -59,7 +59,7 @@ namespace COMETwebapp.Components.Common
         /// MODIFY_IF_OWNER can differ from the edit permission on any one row
         /// </summary>
         protected bool IsAllowedToCreate => Enum.TryParse<ClassKind>(typeof(TItem).Name, out var classKind)
-                                             && this.SessionService.Session.PermissionService.CanWrite(classKind, this.Thing);
+                                            && this.SessionService.IsAllowedToCreateIn(classKind, this.Thing);
 
         /// <summary>
         /// Gets or sets the parameter type

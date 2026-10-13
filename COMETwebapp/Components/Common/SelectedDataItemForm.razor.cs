@@ -134,6 +134,14 @@ namespace COMETwebapp.Components.Common
         /// <returns>A value indicating whether the active user may write <see cref="ThingUnderEdit" /></returns>
         private bool ComputeIsAllowedToWriteCurrentThing()
         {
+            // Checked ahead of the create short-circuit below, which would otherwise answer true while creating and let
+            // a form opened from an archive session save. This is the single read-only gate for every control bound to
+            // this property, so those controls need no IsReadOnly check of their own.
+            if (this.SessionService.IsReadOnly)
+            {
+                return false;
+            }
+
             var thing = this.ThingUnderEdit;
 
             // A thing being created is not in its container yet, and asking CanWrite about a container-less thing

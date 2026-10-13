@@ -57,7 +57,7 @@ namespace COMETwebapp.Components.ReferenceData.ParameterTypes
         /// edited or deleted, this reflects the create permission on the parent <see cref="Thing" />, which under
         /// MODIFY_IF_OWNER can differ from the edit permission on any one row
         /// </summary>
-        private bool IsAllowedToCreate => this.SessionService.Session.PermissionService.CanWrite(ClassKind.IndependentParameterTypeAssignment, this.Thing);
+        private bool IsAllowedToCreate => this.SessionService.IsAllowedToCreateIn(ClassKind.IndependentParameterTypeAssignment, this.Thing);
 
         /// <summary>
         /// The compound parameter type

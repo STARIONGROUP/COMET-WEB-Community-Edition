@@ -249,9 +249,21 @@ namespace COMETwebapp.ViewModels.Components.Common.BaseDataItemTable
         {
             var container = this.CreationContainer;
 
-            return container != null
-                   && Enum.TryParse<ClassKind>(typeof(T).Name, out var classKind)
-                   && this.PermissionService.CanWrite(classKind, container);
+            if (this.SessionService.IsReadOnly || container == null)
+            {
+                return false;
+            }
+
+            // Annex A permissions are defined per concrete class kind, so an abstract T (ParameterType,
+            // MeasurementUnit, MeasurementScale) has no permission entry of its own and the create overload would
+            // answer false for every user. Which concrete type gets created is only known once the user picks it in the
+            // form, so what is asked here is whether the container may be modified at all.
+            if (typeof(T).IsAbstract || !Enum.TryParse<ClassKind>(typeof(T).Name, out var classKind))
+            {
+                return this.PermissionService.CanWrite(container);
+            }
+
+            return this.PermissionService.CanWrite(classKind, container);
         }
 
         /// <summary>

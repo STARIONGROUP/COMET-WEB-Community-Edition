@@ -69,6 +69,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.Categories
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="Thing" /> that a new <see cref="Category" /> would be contained by. The selected
+        /// <see cref="ReferenceDataLibrary" /> rather than the base default, which infers the container from the first
+        /// existing row and falls back to the <see cref="SiteDirectory" /> when the table is empty - that fallback is
+        /// not a valid container for a <see cref="Category" />, so the first one could never be created in an empty
+        /// library
+        /// </summary>
+        protected override Thing CreationContainer => this.SelectedReferenceDataLibrary ?? base.CreationContainer;
+
+        /// <summary>
         /// Method invoked when the component is ready to start, having received its
         /// initial parameters from its parent in the render tree.
         /// Override this method if you will perform an asynchronous operation and

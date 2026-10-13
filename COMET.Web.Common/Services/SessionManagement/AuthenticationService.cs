@@ -399,7 +399,15 @@ namespace COMET.Web.Common.Services.SessionManagement
             try
             {
                 var authenticationTokens = await this.openIdConnectService.RequestAuthenticationToken(code, authenticationSchemeResponse, redirectUrl, clientSecret);
-                await this.LoginAsync(AuthenticationSchemeKind.ExternalJwtBearer, new AuthenticationInformation(authenticationTokens));
+                var loginResult = await this.LoginAsync(AuthenticationSchemeKind.ExternalJwtBearer, new AuthenticationInformation(authenticationTokens));
+
+                // The result has to be inspected, not just the absence of an exception: LoginAsync reports a failure to
+                // open the session as a failed Result rather than by throwing. Without this, a token exchange that
+                // succeeded but could not open the session would skip the cleanup below and leave stale tokens behind.
+                if (loginResult.IsFailed)
+                {
+                    await this.CleanupStorageAsync();
+                }
             }
             catch
             {

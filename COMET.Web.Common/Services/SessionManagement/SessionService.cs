@@ -139,19 +139,19 @@ namespace COMET.Web.Common.Services.SessionManagement
             catch (UnauthorizedAccessException exception)
             {
                 this.logger.LogError(exception, "The archive does not contain the requested person");
-                AssignSession(this, null);
+                await this.AbandonArchiveSession();
                 return Result.Fail(new Error($"The archive does not contain a person with short name '{userName}'").AddReasonIdentifier(HttpStatusCode.Unauthorized));
             }
             catch (FileLoadException exception)
             {
                 this.logger.LogError(exception, "The archive could not be read");
-                AssignSession(this, null);
+                await this.AbandonArchiveSession();
                 return Result.Fail(new Error("The file could not be read as an Annex C3 archive. Verify that the file is a valid archive and that the password is correct").AddReasonIdentifier(HttpStatusCode.BadRequest));
             }
             catch (Exception exception)
             {
                 this.logger.LogError(exception, "Failed to open the Annex C3 archive");
-                AssignSession(this, null);
+                await this.AbandonArchiveSession();
                 return Result.Fail(new Error("The file could not be opened as an Annex C3 archive").AddReasonIdentifier(HttpStatusCode.BadRequest));
             }
             finally
@@ -494,6 +494,36 @@ namespace COMET.Web.Common.Services.SessionManagement
         {
             this.logger.LogWarning("Trying to write against a read-only data source");
             return Result.Fail(new Error("This model was opened from an archive and cannot be modified").AddReasonIdentifier(HttpStatusCode.Forbidden));
+        }
+
+        /// <summary>
+        /// Abandons a session that failed to open, closing it before clearing it so the partially opened
+        /// <see cref="JsonFileDal" /> and whatever its assembler already loaded are released rather than leaked
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task AbandonArchiveSession()
+        {
+            var session = this.Session;
+
+            if (session == null)
+            {
+                return;
+            }
+
+            try
+            {
+                await session.Close();
+            }
+            catch (Exception exception)
+            {
+                // Closing a session that never finished opening is best-effort: the DAL may have no connection to tear
+                // down, and failing here would mask the original failure the caller is about to report.
+                this.logger.LogDebug(exception, "Closing the abandoned Annex C3 session failed");
+            }
+            finally
+            {
+                AssignSession(this, null);
+            }
         }
 
         /// <summary>

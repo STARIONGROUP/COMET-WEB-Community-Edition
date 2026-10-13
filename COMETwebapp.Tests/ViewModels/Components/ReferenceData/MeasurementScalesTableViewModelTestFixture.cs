@@ -273,6 +273,29 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             });
         }
 
+        /// <summary>
+        /// Verifies that <see cref="MeasurementScalesTableViewModel.IsAllowedToCreate" /> is driven by
+        /// <see cref="IPermissionService.CanWrite(CDP4Common.CommonData.Thing)" /> against the selected
+        /// <see cref="ReferenceDataLibrary" />, because <see cref="MeasurementScale" /> is abstract and has no Annex A
+        /// permission entry of its own. Before the fix this was always false, refusing creation to every user.
+        /// </summary>
+        [Test]
+        public void VerifyIsAllowedToCreateForAbstractMeasurementScale()
+        {
+            this.viewModel.InitializeViewModel();
+            var rdl = this.viewModel.SelectedReferenceDataLibrary;
+
+            this.permissionService.Setup(x => x.CanWrite(rdl)).Returns(true);
+            this.viewModel.InitializeViewModel();
+
+            Assert.That(this.viewModel.IsAllowedToCreate, Is.True);
+
+            this.permissionService.Setup(x => x.CanWrite(rdl)).Returns(false);
+            this.viewModel.InitializeViewModel();
+
+            Assert.That(this.viewModel.IsAllowedToCreate, Is.False);
+        }
+
         [Test]
         public void VerifySessionRefresh()
         {

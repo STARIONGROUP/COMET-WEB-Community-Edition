@@ -25,6 +25,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -165,6 +166,32 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             });
         }
 
+        /// <summary>
+        /// Verifies that <see cref="ArchiveFileService.PersistAsync" /> fails with a <see cref="FluentResults.Result" />
+        /// instead of letting the exception escape and kill the circuit when the browser stream fails with something
+        /// other than an <see cref="IOException" /> (e.g. the tab going away mid-upload raises
+        /// <see cref="InvalidOperationException" />), and that the partially written archive is not left behind.
+        /// </summary>
+        [Test]
+        public async Task VerifyPersistAsyncFailsWithoutThrowingOnANonIoException()
+        {
+            var archiveDirectory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "comet-web-archives"));
+            var zipCountBefore = archiveDirectory.Exists ? archiveDirectory.EnumerateFiles("*.zip").Count() : 0;
+
+            var file = new Mock<IBrowserFile>();
+            file.Setup(x => x.Size).Returns(1);
+            file.Setup(x => x.OpenReadStream(It.IsAny<long>(), It.IsAny<CancellationToken>())).Returns(new NonIoThrowingStream());
+
+            var result = await this.archiveFileService.PersistAsync(file.Object);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsFailed, Is.True);
+                Assert.That(this.archiveFileService.ArchivePath, Is.Null);
+                Assert.That(archiveDirectory.EnumerateFiles("*.zip").Count(), Is.EqualTo(zipCountBefore));
+            });
+        }
+
         [Test]
         public void VerifyRemoveOrphanedArchives()
         {
@@ -245,6 +272,57 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
             {
                 throw new IOException("The archive stream could not be read");
+            }
+
+            public override void Flush()
+            {
+            }
+
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void SetLength(long value)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        /// <summary>
+        /// A readable <see cref="Stream" /> that always fails with an <see cref="InvalidOperationException" />, used to
+        /// exercise <see cref="ArchiveFileService.PersistAsync" />'s broad catch for a non-<see cref="IOException" />
+        /// failure of the browser stream
+        /// </summary>
+        private sealed class NonIoThrowingStream : Stream
+        {
+            public override bool CanRead => true;
+
+            public override bool CanSeek => false;
+
+            public override bool CanWrite => false;
+
+            public override long Length => throw new NotSupportedException();
+
+            public override long Position
+            {
+                get => throw new NotSupportedException();
+                set => throw new NotSupportedException();
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                throw new InvalidOperationException("The archive stream could not be read");
+            }
+
+            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                throw new InvalidOperationException("The archive stream could not be read");
             }
 
             public override void Flush()

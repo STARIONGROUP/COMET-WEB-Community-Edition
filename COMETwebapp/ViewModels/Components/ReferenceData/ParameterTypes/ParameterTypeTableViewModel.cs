@@ -118,6 +118,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.ParameterTypes
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="Thing" /> that a new <see cref="ParameterType" /> would be contained by. The selected
+        /// <see cref="ReferenceDataLibrary" /> rather than the base default, which infers the container from the first
+        /// existing row and falls back to the <see cref="SiteDirectory" /> when the table is empty - that fallback is
+        /// not a valid container for a <see cref="ParameterType" />, so the first one could never be created in an empty
+        /// library
+        /// </summary>
+        protected override Thing CreationContainer => this.SelectedReferenceDataLibrary ?? base.CreationContainer;
+
+        /// <summary>
         /// Gets or sets the selected parameter type
         /// </summary>
         public ClassKindWrapper SelectedParameterType

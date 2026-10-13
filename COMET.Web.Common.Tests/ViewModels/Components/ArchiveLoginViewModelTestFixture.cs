@@ -101,7 +101,9 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             {
                 Assert.That(this.viewModel.AuthenticationResult.IsFailed, Is.True);
 
-               this.archiveFileService.Verify(x => x.Remove(), Times.Once);
+                // The stored archive is deliberately kept after a failed login, which is usually just a wrong password,
+                // so that a retry does not have to re-upload the whole file over SignalR.
+                this.archiveFileService.Verify(x => x.Remove(), Times.Never);
             });
         }
     }

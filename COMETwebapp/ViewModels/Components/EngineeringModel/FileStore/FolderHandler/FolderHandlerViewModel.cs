@@ -92,11 +92,16 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FolderHan
         /// ECSS-E-TM-10-25 Annex C3 archive, where the DAL is read-only).
         /// </summary>
         /// <param name="folder">The folder to be moved</param>
-        /// <param name="targetFolder">the target folders</param>
+        /// <param name="targetFolder">
+        /// The target folder, or null to move the folder to the root of the <see cref="CurrentFileStore" />
+        /// </param>
         /// <returns>A <see cref="Task" /></returns>
         public async Task MoveFolder(Folder folder, Folder targetFolder)
         {
-            if (!this.SessionService.Session.PermissionService.CanWrite(ClassKind.Folder, targetFolder))
+            // A null target folder is a drop on the file store root, which is a valid destination. The permission has to
+            // be asked about the file store itself then, because the create overload would otherwise resolve
+            // SAME_AS_CONTAINER against a null container and refuse a move that used to work.
+            if (!this.SessionService.Session.PermissionService.CanWrite(ClassKind.Folder, (Thing)targetFolder ?? this.CurrentFileStore))
             {
                 return;
             }

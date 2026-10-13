@@ -22,28 +22,18 @@
 
 namespace COMETwebapp.Components.Common
 {
-    using COMET.Web.Common.Services.SessionManagement;
-
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// The <see cref="DataItemDetailsComponent" /> is used to display the details of a selected data item
     /// </summary>
+    /// <remarks>
+    /// This component deliberately has no read-only check of its own. <see cref="IsAllowedToCreate" /> is supplied by
+    /// the hosting table from its view model, where the create permission is already refused for a read-only session,
+    /// so a separate <c>IsReadOnly</c> conjunct here would only duplicate that gate
+    /// </remarks>
     public partial class DataItemDetailsComponent
     {
-        /// <summary>
-        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
-        /// </summary>
-        [Inject]
-        public ISessionService SessionService { get; set; }
-
-        /// <summary>
-        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
-        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. The add button binds its enabled state to the inverse of
-        /// this, so the details of an archived item can still be inspected but nothing new can be created
-        /// </summary>
-        private bool IsReadOnly => this.SessionService.IsReadOnly;
-
         /// <summary>
         /// Value asserting that the <see cref="DataItemDetailsComponent" /> is selected or not
         /// </summary>

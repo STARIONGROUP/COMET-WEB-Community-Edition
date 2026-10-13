@@ -118,6 +118,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementScales
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="Thing" /> that a new <see cref="MeasurementScale" /> would be contained by. The selected
+        /// <see cref="ReferenceDataLibrary" /> rather than the base default, which infers the container from the first
+        /// existing row and falls back to the <see cref="SiteDirectory" /> when the table is empty - that fallback is
+        /// not a valid container for a <see cref="MeasurementScale" />, so the first one could never be created in an empty
+        /// library
+        /// </summary>
+        protected override Thing CreationContainer => this.SelectedReferenceDataLibrary ?? base.CreationContainer;
+
+        /// <summary>
         /// Gets or sets the selected reference quantity value
         /// </summary>
         public ScaleReferenceQuantityValue SelectedReferenceQuantityValue { get; set; }

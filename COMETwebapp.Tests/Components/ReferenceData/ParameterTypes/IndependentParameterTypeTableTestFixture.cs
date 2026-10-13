@@ -205,6 +205,10 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             session.Setup(x => x.PermissionService).Returns(permissionService.Object);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
 
+            // The permission is only asked about a parent that already exists, so it needs a container here. A parent
+            // without one is a parent still being created, which is asserted separately at the end.
+            this.parameterType.Container = new SiteReferenceDataLibrary { Iid = Guid.NewGuid() };
+
             this.renderer.Render();
             var addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addIndependentParameterTypeButton");
             Assert.That(addButton.Instance.Enabled, Is.False, "the user may not add an independent parameter type without the create permission on the parent thing");
@@ -213,6 +217,15 @@ namespace COMETwebapp.Tests.Components.ReferenceData.ParameterTypes
             this.renderer.Render();
             addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addIndependentParameterTypeButton");
             Assert.That(addButton.Instance.Enabled, Is.True, "the add button is enabled once the create permission is granted");
+
+            // A parent that is itself being created has no container yet. Asking the create permission about it would
+            // resolve SAME_AS_CONTAINER against a null container, so the add button stays usable and the create
+            // permission for the whole aggregate is the one the parent table's add button already asserted.
+            permissionService.Setup(x => x.CanWrite(ClassKind.IndependentParameterTypeAssignment, It.IsAny<Thing>())).Returns(false);
+            this.parameterType.Container = null;
+            this.renderer.Render();
+            addButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "addIndependentParameterTypeButton");
+            Assert.That(addButton.Instance.Enabled, Is.True, "a parent that is still being created must allow its parts to be added");
         }
     }
 }

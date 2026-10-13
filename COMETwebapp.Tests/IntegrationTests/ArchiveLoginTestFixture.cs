@@ -113,7 +113,11 @@ namespace COMETwebapp.Tests.IntegrationTests
             await this.Archive.OpenArchiveButton.ClickAsync();
 
             await Expect(this.Archive.ValidationErrors).ToContainTextAsync("The Username is required.");
-            await Expect(this.Archive.ValidationErrors).ToContainTextAsync("The Password is required.");
+
+            // The password is deliberately NOT required: it only decrypts the archive, and an Annex C3 archive exported
+            // without encryption has none, so demanding one would make such an archive impossible to open.
+            await Expect(this.Archive.ValidationErrors).Not.ToContainTextAsync("The Password is required.");
+
             await Expect(this.Login.UnauthorizedNotice).ToBeVisibleAsync();
         }
 

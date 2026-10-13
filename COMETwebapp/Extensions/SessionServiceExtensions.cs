@@ -63,6 +63,30 @@ namespace COMETwebapp.Extensions
         }
 
         /// <summary>
+        /// Asserts whether the active user may add a new <paramref name="classKind" /> to <paramref name="container" />.
+        /// </summary>
+        /// <param name="sessionService">The <see cref="ISessionService" />.</param>
+        /// <param name="classKind">The <see cref="ClassKind" /> that would be created.</param>
+        /// <param name="container">The <see cref="Thing" /> that would contain it, which may be null.</param>
+        /// <returns>True if a new <paramref name="classKind" /> may be created inside <paramref name="container" />.</returns>
+        /// <remarks>
+        /// Centralises the two guards that every create gate needs. A read-only session refuses outright, so a control
+        /// bound to this needs no separate <c>IsReadOnly</c> check. A container that is itself still being created has no
+        /// <see cref="Thing.Container" /> of its own yet; asking <c>CanWrite</c> about it would resolve
+        /// SAME_AS_CONTAINER against a null container, so it is allowed here - the create permission for the aggregate
+        /// was already asserted by the table whose add button opened the form.
+        /// </remarks>
+        public static bool IsAllowedToCreateIn(this ISessionService sessionService, ClassKind classKind, Thing container)
+        {
+            if (sessionService.IsReadOnly || container == null)
+            {
+                return false;
+            }
+
+            return container.Container == null || sessionService.Session.PermissionService.CanWrite(classKind, container);
+        }
+
+        /// <summary>
         /// Gets the available <see cref="NaturalLanguage" />s offered for a definition: the default IME language set
         /// (<see cref="DefaultNaturalLanguages.All" />) merged with any languages defined on the model's
         /// <see cref="SiteDirectory" />,
