@@ -338,5 +338,37 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
                 this.permissionService.Verify(x => x.CanWrite(It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
             });
         }
+
+        /// <summary>
+        /// Verifies that the create permission of an empty table is evaluated against the
+        /// <see cref="ReferenceDataLibrary" /> that a new MeasurementScale would be created in, not against the
+        /// <see cref="SiteDirectory" />. The permission used to be computed before the library was selected, so the
+        /// fallback to the <see cref="SiteDirectory" /> refused creation to users who may write the library.
+        /// </summary>
+        [Test]
+        public void VerifyIsAllowedToCreateInAnEmptyTableUsesTheReferenceDataLibrary()
+        {
+            var siteDirectory = this.sessionService.Object.GetSiteDirectory();
+            var rdl = siteDirectory.SiteReferenceDataLibrary.First();
+            rdl.Scale.Clear();
+
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(false);
+            this.permissionService.Setup(x => x.CanWrite(rdl)).Returns(true);
+
+            this.viewModel.InitializeViewModel();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(0));
+                Assert.That(this.viewModel.IsAllowedToCreate, Is.True);
+            });
+
+            this.permissionService.Setup(x => x.CanWrite(rdl)).Returns(false);
+            this.permissionService.Setup(x => x.CanWrite(siteDirectory)).Returns(true);
+
+            this.viewModel.InitializeViewModel();
+
+            Assert.That(this.viewModel.IsAllowedToCreate, Is.False, "the SiteDirectory permission must not grant creation in the library");
+        }
     }
 }

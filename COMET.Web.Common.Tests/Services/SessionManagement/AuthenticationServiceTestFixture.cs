@@ -333,13 +333,53 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
                 .ReturnsAsync(Result.Ok())
                 .Callback(()=> this.credentials.ProvideUserToken(openIdDto, AuthenticationSchemeKind.ExternalJwtBearer));
             
-            await this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect);
+            var successResult = await this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect);
             this.sessionService.Verify(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.ExternalJwtBearer, It.IsAny<AuthenticationInformation>()), Times.Once);
-            
+            Assert.That(successResult.IsSuccess, Is.True);
+
             this.openIdConnectService.Setup(x => x.RequestAuthenticationToken(code, authenticationSchemeResponse, redirect, null)).ThrowsAsync(new InvalidOperationException());
-            await this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect);
+            var thrownResult = await this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect);
+
+            // The failure is reported rather than swallowed, so the callback page can tell the user why.
+            Assert.Multiple(() =>
+            {
+                Assert.That(thrownResult.IsFailed, Is.True);
+                Assert.That(thrownResult.Errors[0].Message, Does.Contain("Failed to complete the external login"));
+            });
 
             this.sessionStorageService.Verify(x => x.SetItemAsync(It.IsAny<string>(), string.Empty, CancellationToken.None), Times.Exactly(3));
+        }
+
+        /// <summary>
+        /// Verifies that a code exchange which succeeds but cannot open the session reports the failure instead of
+        /// returning as if the login had worked, and still cleans up the stored tokens.
+        /// </summary>
+        [Test]
+        public async Task VerifyExchangeOpenIdConnectCodeAsyncReportsAFailedSession()
+        {
+            const string code = "aRandomCode";
+            const string redirect = "http://localhost/callback";
+
+            var authenticationSchemeResponse = new AuthenticationSchemeResponse
+            {
+                Schemes = [AuthenticationSchemeKind.ExternalJwtBearer]
+            };
+
+            var openIdDto = new AuthenticationToken("access", "refresh");
+
+            this.openIdConnectService.Setup(x => x.RequestAuthenticationToken(code, authenticationSchemeResponse, redirect, null)).ReturnsAsync(openIdDto);
+
+            this.sessionService.Setup(x => x.AuthenticateAndOpenSession(AuthenticationSchemeKind.ExternalJwtBearer, It.IsAny<AuthenticationInformation>()))
+                .ReturnsAsync(Result.Fail("the server is down"));
+
+            var result = await this.authenticationService.ExchangeOpenIdConnectCodeAsync(code, authenticationSchemeResponse, redirect);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsFailed, Is.True);
+                Assert.That(result.Errors[0].Message, Does.Contain("the server is down"));
+                this.sessionStorageService.Verify(x => x.SetItemAsync(It.IsAny<string>(), string.Empty, CancellationToken.None), Times.AtLeastOnce);
+            });
         }
 
         [Test]

@@ -384,8 +384,8 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="authenticationSchemeResponse">The <see cref="AuthenticationSchemeResponse" /> retrieved from the CDP4-COMET server</param>
         /// <param name="redirectUrl">The redirect url</param>
         /// <param name="clientSecret">An optional client secret</param>
-        /// <returns>An awaitable <see cref="Task" /></returns>
-        public async Task ExchangeOpenIdConnectCodeAsync(string code, AuthenticationSchemeResponse authenticationSchemeResponse, string redirectUrl, string clientSecret = null)
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the login</returns>
+        public async Task<Result> ExchangeOpenIdConnectCodeAsync(string code, AuthenticationSchemeResponse authenticationSchemeResponse, string redirectUrl, string clientSecret = null)
         {
             Guard.ThrowIfNull(authenticationSchemeResponse, nameof(authenticationSchemeResponse));
             Guard.ThrowIfNullOrEmpty(redirectUrl, nameof(redirectUrl));
@@ -408,10 +408,15 @@ namespace COMET.Web.Common.Services.SessionManagement
                 {
                     await this.CleanupStorageAsync();
                 }
+
+                // Returned rather than swallowed so the callback page can tell the user why the login failed, instead
+                // of sending them back to a login page with no explanation.
+                return loginResult;
             }
-            catch
+            catch (Exception exception)
             {
                 await this.CleanupStorageAsync();
+                return Result.Fail(new Error($"Failed to complete the external login: {exception.Message}").AddReasonIdentifier(HttpStatusCode.Unauthorized));
             }
         }
 

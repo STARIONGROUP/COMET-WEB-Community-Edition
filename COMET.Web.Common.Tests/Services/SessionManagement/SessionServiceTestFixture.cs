@@ -24,6 +24,7 @@
 namespace COMET.Web.Common.Tests.Services.SessionManagement
 {
     using System;
+    using System.IO.Compression;
 
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
@@ -226,6 +227,46 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
                 Assert.That(result.IsFailed, Is.True);
                 Assert.That(this.sessionService.IsSessionOpen, Is.False);
             });
+        }
+
+        /// <summary>
+        /// Verifies that <see cref="SessionService.OpenArchiveSession" /> accepts a null or empty password, which is what
+        /// an unencrypted Annex C3 archive is opened with. CDP4Dal's <c>Credentials</c> throws
+        /// <see cref="ArgumentNullException" /> for such a password, which used to surface as the generic "could not be
+        /// opened" failure before the archive was even read. The archive here is a zip without any Annex C3 content, so
+        /// opening it still fails, but it must fail while reading the archive and not while building the credentials.
+        /// </summary>
+        [Test]
+        public async Task VerifyOpenArchiveSessionAcceptsAnEmptyPassword()
+        {
+            var archive = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.zip");
+
+            try
+            {
+                using (var zip = ZipFile.Open(archive, ZipArchiveMode.Create))
+                {
+                    zip.CreateEntry("readme.txt");
+                }
+
+                var nullPasswordResult = await this.sessionService.OpenArchiveSession(archive, "user", null);
+                var emptyPasswordResult = await this.sessionService.OpenArchiveSession(archive, "user", string.Empty);
+                var passwordResult = await this.sessionService.OpenArchiveSession(archive, "user", "pass");
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(nullPasswordResult.IsFailed, Is.True);
+                    Assert.That(emptyPasswordResult.IsFailed, Is.True);
+                    Assert.That(nullPasswordResult.Errors[0].Message, Is.Not.EqualTo("The file could not be opened as an Annex C3 archive"));
+                    Assert.That(emptyPasswordResult.Errors[0].Message, Is.Not.EqualTo("The file could not be opened as an Annex C3 archive"));
+                    Assert.That(nullPasswordResult.Errors[0].Message, Is.EqualTo(passwordResult.Errors[0].Message));
+                    Assert.That(emptyPasswordResult.Errors[0].Message, Is.EqualTo(passwordResult.Errors[0].Message));
+                    Assert.That(this.sessionService.IsSessionOpen, Is.False);
+                });
+            }
+            finally
+            {
+                System.IO.File.Delete(archive);
+            }
         }
 
         [Test]

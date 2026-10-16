@@ -57,6 +57,12 @@ namespace COMET.Web.Common.Services.SessionManagement
     public sealed class SessionService : CDP4Web.Services.SessionService.SessionService, ISessionService
     {
         /// <summary>
+        /// Stands in for an absent archive password. The SDK refuses a null or empty one, and an unencrypted archive
+        /// opens with any non-empty value because the zip reader ignores the password for unencrypted entries
+        /// </summary>
+        private const string AbsentArchivePassword = " ";
+
+        /// <summary>
         /// The <see cref="ILogger{T}" />
         /// </summary>
         private readonly ILogger<SessionService> logger;
@@ -127,7 +133,7 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             try
             {
-                var credentials = new Credentials(userName, password, new Uri(archivePath));
+                var credentials = new Credentials(userName, SubstituteArchivePassword(password), new Uri(archivePath));
                 var session = new Session(new JsonFileDal(), credentials, this.messageBus);
                 AssignSession(this, session);
                 await session.Open();
@@ -494,6 +500,24 @@ namespace COMET.Web.Common.Services.SessionManagement
         {
             this.logger.LogWarning("Trying to write against a read-only data source");
             return Result.Fail(new Error("This model was opened from an archive and cannot be modified").AddReasonIdentifier(HttpStatusCode.Forbidden));
+        }
+
+        /// <summary>
+        /// Substitutes a placeholder for an absent archive password, because an Annex C3 archive exported without
+        /// encryption has none
+        /// </summary>
+        /// <param name="password">The password the user supplied, which may be null or empty</param>
+        /// <returns>The password to build the <see cref="Credentials" /> with</returns>
+        /// <remarks>
+        /// Measured against CDP4Dal 30.1.3: <c>Credentials.ProvideUserCredentials</c> throws
+        /// <see cref="ArgumentNullException" /> ("The password may not be empty or null") for a null or empty password,
+        /// but accepts whitespace. An unencrypted archive then opens with any non-empty password, because the zip reader
+        /// ignores the password for entries that are not encrypted. Verified by opening a re-packed, unencrypted copy of
+        /// a real export with three different passwords
+        /// </remarks>
+        private static string SubstituteArchivePassword(string password)
+        {
+            return string.IsNullOrEmpty(password) ? AbsentArchivePassword : password;
         }
 
         /// <summary>

@@ -153,8 +153,8 @@ namespace COMET.Web.Common.Tests.Pages
             authenticationResponse.Authority = queryParameters["iss"];
             authenticationResponse.ClientId = "auth";
 
-            this.authenticationService.Setup(x => x.ExchangeOpenIdConnectCodeAsync(cometUrl, It.IsAny<AuthenticationSchemeResponse>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
+            this.authenticationService.Setup(x => x.ExchangeOpenIdConnectCodeAsync(It.IsAny<string>(), It.IsAny<AuthenticationSchemeResponse>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(Result.Ok());
             
             navigation.NavigateTo(uri);
 
@@ -180,6 +180,53 @@ namespace COMET.Web.Common.Tests.Pages
                 this.authenticationService.Verify(x => x.RequestAvailableAuthenticationSchemeAsync(cometUrl, false), Times.Exactly(4));
                 this.authenticationService.Verify(x => x.ExchangeOpenIdConnectCodeAsync(queryParameters["code"], authenticationResponse, It.IsAny<string>(), null), Times.Exactly(2));
                 Assert.That(navigation.Uri, Is.EqualTo("http://localhost/"));
+            });
+        }
+
+        /// <summary>
+        /// Verifies that a failed exchange of the OpenID Connect code is shown to the user instead of silently sending
+        /// them back to the login page, which gave no indication that anything went wrong.
+        /// </summary>
+        [Test]
+        public void VerifyCallbackShowsTheLoginFailure()
+        {
+            const string cometUrl = "http://localhost:5000";
+
+            var authenticationResponse = new AuthenticationSchemeResponse
+            {
+                Schemes = [AuthenticationSchemeKind.ExternalJwtBearer],
+                Authority = "http://localhost:8080/realms/ARealm",
+                ClientId = "auth"
+            };
+
+            this.authenticationService.Setup(x => x.RetrieveLastUsedServerUrlAsync()).ReturnsAsync(cometUrl);
+
+            this.authenticationService.Setup(x => x.RequestAvailableAuthenticationSchemeAsync(cometUrl, false))
+                .ReturnsAsync(Result.Ok(authenticationResponse));
+
+            // The code of an OpenID Connect flow is single use, so a failed exchange must be attempted exactly once. Any
+            // further attempt hangs here instead of failing again, so a page that retries (and re-renders itself into an
+            // endless loop) is reported by the call count rather than by overflowing the stack of the test host.
+            var exchangeCount = 0;
+
+            this.authenticationService.Setup(x => x.ExchangeOpenIdConnectCodeAsync(It.IsAny<string>(), It.IsAny<AuthenticationSchemeResponse>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(() => ++exchangeCount == 1 ? Task.FromResult(Result.Fail("boom")) : new TaskCompletionSource<Result>().Task);
+
+            var navigation = this.context.Services.GetService<NavigationManager>();
+            navigation.NavigateTo("/callback?code=abc&session_state=state&iss=http://localhost:8080/realms/ARealm");
+
+            var callback = this.context.Render<Callback>();
+
+            callback.WaitForAssertion(() => Assert.That(callback.Instance.LoginFailure, Is.Not.Null));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(exchangeCount, Is.EqualTo(1), "a failed login must not be retried by re-rendering the page");
+                this.authenticationService.Verify(x => x.ExchangeOpenIdConnectCodeAsync("abc", authenticationResponse, It.IsAny<string>(), null), Times.AtLeastOnce);
+                Assert.That(callback.Instance.LoginFailure.IsFailed, Is.True);
+                Assert.That(navigation.Uri, Does.Contain("/callback"));
+                Assert.That(callback.FindAll("#callback-login-failure"), Has.Count.EqualTo(1));
+                Assert.That(callback.Find("#callback-login-errors").TextContent, Does.Contain("boom"));
             });
         }
     }

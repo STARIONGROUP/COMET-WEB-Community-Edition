@@ -40,6 +40,16 @@ namespace COMET.Web.Common.Services.SessionManagement
         string ArchivePath { get; }
 
         /// <summary>
+        /// Gets the largest archive, in bytes, that may be uploaded
+        /// </summary>
+        long MaximumArchiveSize { get; }
+
+        /// <summary>
+        /// Gets the total size, in bytes, that all stored archives together may occupy
+        /// </summary>
+        long MaximumTotalArchiveSize { get; }
+
+        /// <summary>
         /// Stores the content of the provided <see cref="IBrowserFile" /> in a temporary location on the server,
         /// discarding any previously stored archive
         /// </summary>

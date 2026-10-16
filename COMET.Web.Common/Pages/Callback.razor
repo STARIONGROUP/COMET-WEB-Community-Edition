@@ -19,4 +19,28 @@
 ------------------------------------------------------------------------------->
 @page "/callback"
 
-<DxLoadingPanel Visible="true" Text="Authentication in progress..."/>
+@if (this.LoginFailure == null)
+{
+    <DxLoadingPanel Visible="true" Text="Authentication in progress..."/>
+}
+else
+{
+    <div id="callback-login-failure" class="container height-90">
+        <div class="row justify-content-center m-top-20px">
+            <div class="card width-70">
+                <div class="card-body">
+                    <h5 class="color-title font-weight-bold">Sign-in failed</h5>
+
+                    <ul id="callback-login-errors" class="validation-errors">
+                        @foreach (var error in this.LoginFailure.Errors)
+                        {
+                            <li class="validation-message">@error.Message</li>
+                        }
+                    </ul>
+
+                    <a id="callback-back-to-login" href="/">Back to the login page</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

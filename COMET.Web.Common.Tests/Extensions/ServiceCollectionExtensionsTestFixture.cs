@@ -45,8 +45,7 @@ namespace COMET.Web.Common.Tests.Extensions
         public void VerifyServerRegistration()
         {
             var serviceCollection = new ServiceCollection();
-            var configuration = new Mock<IConfiguration>();
-            serviceCollection.AddSingleton(configuration.Object);
+            serviceCollection.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
             serviceCollection.AddScoped(_ => new HttpClient());
             serviceCollection.AddLogging();
             serviceCollection.RegisterCdp4CometCommonServices(globalOptions: _ => { });
@@ -64,6 +63,7 @@ namespace COMET.Web.Common.Tests.Extensions
         public void VerifyWebAssemblyRegistration()
         {
             var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
             serviceCollection.AddScoped(_ => new HttpClient());
             serviceCollection.AddLogging();
             serviceCollection.RegisterCdp4CometCommonServices(false,globalOptions: _ => { });

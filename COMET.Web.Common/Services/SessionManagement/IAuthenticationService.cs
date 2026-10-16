@@ -102,8 +102,8 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="authenticationSchemeResponse">The <see cref="AuthenticationSchemeResponse"/> retrieved from the CDP4-COMET server</param>
         /// <param name="redirectUrl">The redirect url</param>
         /// <param name="clientSecret">An optional client secret</param>
-        /// <returns>An awaitable <see cref="Task"/></returns>
-        Task ExchangeOpenIdConnectCodeAsync(string code, AuthenticationSchemeResponse authenticationSchemeResponse, string redirectUrl, string clientSecret = null);
+        /// <returns>A <see cref="Task{T}"/> with the <see cref="Result"/> of the login</returns>
+        Task<Result> ExchangeOpenIdConnectCodeAsync(string code, AuthenticationSchemeResponse authenticationSchemeResponse, string redirectUrl, string clientSecret = null);
 
         /// <summary>
         /// Tries to restore the last authenticated session, if applicable

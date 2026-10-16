@@ -32,6 +32,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
     using COMET.Web.Common.Services.SessionManagement;
 
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
 
     using Moq;
@@ -40,7 +41,12 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
 
     [TestFixture]
     public class ArchiveFileServiceTestFixture
-    {
+    {        /// <summary>
+        /// The number of bytes in a megabyte, the unit the archive store limits are configured in
+        /// </summary>
+        private const int OneMegabyte = 1024 * 1024;
+
+
         private ArchiveFileService archiveFileService;
         private Mock<ILogger<ArchiveFileService>> logger;
 
@@ -48,7 +54,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         public void Setup()
         {
             this.logger = new Mock<ILogger<ArchiveFileService>>();
-            this.archiveFileService = new ArchiveFileService(this.logger.Object);
+            this.archiveFileService = new ArchiveFileService(this.logger.Object, new ConfigurationBuilder().Build());
         }
 
         [TearDown]
@@ -68,7 +74,7 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
                 Assert.That(this.archiveFileService.ArchivePath, Is.Null);
             });
 
-            var oversizedFile = CreateMockedFile(ArchiveFileService.MaximumArchiveSize + 1, []);
+            var oversizedFile = CreateMockedFile(this.archiveFileService.MaximumArchiveSize + 1, []);
             var oversizedResult = await this.archiveFileService.PersistAsync(oversizedFile.Object);
 
             Assert.Multiple(() =>
@@ -192,6 +198,77 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             });
         }
 
+        /// <summary>
+        /// Verifies that an upload refused because the archive store is full leaves the previously stored archive
+        /// untouched. The stored archive used to be removed before the quota was checked, so a refused upload also cost
+        /// the user the archive they already had.
+        /// </summary>
+        [Test]
+        public async Task VerifyPersistAsyncKeepsTheStoredArchiveWhenTheQuotaIsExceeded()
+        {
+            var service = this.CreateServiceWithRoomForOneMegabyte();
+
+            try
+            {
+                var storedContent = new byte[OneMegabyte];
+                var storedResult = await service.PersistAsync(CreateMockedFile(storedContent.Length, storedContent).Object);
+                var storedPath = service.ArchivePath;
+                var zipCountBefore = CountStoredArchives();
+
+                var refusedContent = new byte[2 * OneMegabyte];
+                var refusedResult = await service.PersistAsync(CreateMockedFile(refusedContent.Length, refusedContent).Object);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(storedResult.IsSuccess, Is.True);
+                    Assert.That(refusedResult.IsFailed, Is.True);
+                    Assert.That(service.ArchivePath, Is.EqualTo(storedPath));
+                    Assert.That(File.Exists(storedPath), Is.True);
+                    Assert.That(File.ReadAllBytes(storedPath), Is.EqualTo(storedContent));
+                    Assert.That(CountStoredArchives(), Is.EqualTo(zipCountBefore));
+                });
+            }
+            finally
+            {
+                service.Remove();
+            }
+        }
+
+        /// <summary>
+        /// Verifies that replacing the stored archive succeeds even when the archive being replaced alone would fill the
+        /// quota, because the replaced archive is deleted as soon as the new one is written and so must not count
+        /// against it.
+        /// </summary>
+        [Test]
+        public async Task VerifyPersistAsyncDoesNotCountTheReplacedArchiveAgainstTheQuota()
+        {
+            var service = this.CreateServiceWithRoomForOneMegabyte();
+
+            try
+            {
+                var firstContent = new byte[OneMegabyte];
+                var firstResult = await service.PersistAsync(CreateMockedFile(firstContent.Length, firstContent).Object);
+                var firstPath = service.ArchivePath;
+
+                var secondContent = new byte[OneMegabyte];
+                secondContent[0] = 1;
+                var secondResult = await service.PersistAsync(CreateMockedFile(secondContent.Length, secondContent).Object);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(firstResult.IsSuccess, Is.True);
+                    Assert.That(secondResult.IsSuccess, Is.True);
+                    Assert.That(service.ArchivePath, Is.EqualTo(secondResult.Value));
+                    Assert.That(File.Exists(firstPath), Is.False);
+                    Assert.That(File.ReadAllBytes(secondResult.Value), Is.EqualTo(secondContent));
+                });
+            }
+            finally
+            {
+                service.Remove();
+            }
+        }
+
         [Test]
         public void VerifyRemoveOrphanedArchives()
         {
@@ -228,6 +305,36 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
                     File.Delete(freshArchive);
                 }
             }
+        }
+
+        /// <summary>
+        /// Counts the archives currently in the shared archive store, which also holds archives of other circuits
+        /// </summary>
+        /// <returns>The number of stored archives</returns>
+        private static int CountStoredArchives()
+        {
+            var directory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "comet-web-archives"));
+            return directory.Exists ? directory.EnumerateFiles("*.zip").Count() : 0;
+        }
+
+        /// <summary>
+        /// Creates an <see cref="ArchiveFileService" /> whose total quota leaves room for one more megabyte on top of
+        /// whatever the shared archive store already holds, but not for two. The store is shared with other circuits and
+        /// can only be limited in whole megabytes, so the limit is derived from its current size to keep the quota
+        /// reachable regardless of what else is stored
+        /// </summary>
+        /// <returns>The configured <see cref="ArchiveFileService" /></returns>
+        private ArchiveFileService CreateServiceWithRoomForOneMegabyte()
+        {
+            var directory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "comet-web-archives"));
+            var storedSize = directory.Exists ? directory.EnumerateFiles("*.zip").Sum(x => x.Length) : 0;
+            var limitInMb = (storedSize + OneMegabyte + OneMegabyte - 1) / OneMegabyte;
+
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string> { ["ArchiveStorage:MaximumTotalSizeInMb"] = limitInMb.ToString() })
+                .Build();
+
+            return new ArchiveFileService(this.logger.Object, configuration);
         }
 
         /// <summary>

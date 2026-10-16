@@ -26,6 +26,7 @@ namespace COMET.Web.Common.Services.SessionManagement
     using FluentResults;
 
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
 
     /// <summary>
@@ -35,16 +36,14 @@ namespace COMET.Web.Common.Services.SessionManagement
     public class ArchiveFileService : IArchiveFileService
     {
         /// <summary>
-        /// The largest archive, in bytes, that may be uploaded
+        /// The default for <see cref="MaximumArchiveSize" />, in megabytes, used when no configuration is supplied
         /// </summary>
-        public const long MaximumArchiveSize = 512L * 1024 * 1024;
+        public const long DefaultMaximumArchiveSizeInMb = 512;
 
         /// <summary>
-        /// The total size, in bytes, that all stored archives together may occupy. Uploads are accepted before the user
-        /// is authenticated, so without a ceiling an anonymous client could open circuits until the server's temporary
-        /// directory is full. A refused upload is reported to the user rather than deleting someone else's archive
+        /// The default for <see cref="MaximumTotalArchiveSize" />, in megabytes, used when no configuration is supplied
         /// </summary>
-        public const long MaximumTotalArchiveSize = 8L * 1024 * 1024 * 1024;
+        public const long DefaultMaximumTotalArchiveSizeInMb = 8 * 1024;
 
         /// <summary>
         /// The name of the directory, inside the system temporary directory, that uploaded archives are stored in
@@ -60,10 +59,46 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// Initializes a new instance of the <see cref="ArchiveFileService" /> class
         /// </summary>
         /// <param name="logger">The <see cref="ILogger{TCategoryName}" /></param>
-        public ArchiveFileService(ILogger<ArchiveFileService> logger)
+        /// <param name="configuration">
+        /// The <see cref="IConfiguration" /> the size limits are read from, under the <c>ArchiveStorage</c> section
+        /// </param>
+        public ArchiveFileService(ILogger<ArchiveFileService> logger, IConfiguration configuration)
         {
             this.logger = logger;
+            this.MaximumArchiveSize = ReadSizeInMb(configuration, "ArchiveStorage:MaximumArchiveSizeInMb", DefaultMaximumArchiveSizeInMb);
+            this.MaximumTotalArchiveSize = ReadSizeInMb(configuration, "ArchiveStorage:MaximumTotalSizeInMb", DefaultMaximumTotalArchiveSizeInMb);
         }
+
+        /// <summary>
+        /// Reads a size in megabytes from configuration and returns it in bytes, falling back to the default when the
+        /// configured value is absent or not a usable size
+        /// </summary>
+        /// <param name="configuration">The <see cref="IConfiguration" /> to read from</param>
+        /// <param name="key">The configuration key</param>
+        /// <param name="defaultInMb">The default size in megabytes</param>
+        /// <returns>The size in bytes</returns>
+        /// <remarks>
+        /// Configuration is a trust boundary: a zero or negative value would otherwise refuse every upload with a
+        /// message saying the maximum allowed size is 0 MB
+        /// </remarks>
+        private static long ReadSizeInMb(IConfiguration configuration, string key, long defaultInMb)
+        {
+            var configured = configuration.GetValue(key, defaultInMb);
+
+            return (configured > 0 ? configured : defaultInMb) * 1024 * 1024;
+        }
+
+        /// <summary>
+        /// Gets the largest archive, in bytes, that may be uploaded
+        /// </summary>
+        public long MaximumArchiveSize { get; }
+
+        /// <summary>
+        /// Gets the total size, in bytes, that all stored archives together may occupy. Uploads are accepted before the
+        /// user is authenticated, so without a ceiling an anonymous client could open circuits until the server's
+        /// temporary directory is full. A refused upload is reported to the user and leaves the stored archive alone
+        /// </summary>
+        public long MaximumTotalArchiveSize { get; }
 
         /// <summary>
         /// Gets the full path of the currently stored archive, or null when no archive is stored
@@ -86,12 +121,10 @@ namespace COMET.Web.Common.Services.SessionManagement
                 return Result.Fail<string>("No file was provided");
             }
 
-            if (file.Size > MaximumArchiveSize)
+            if (file.Size > this.MaximumArchiveSize)
             {
-                return Result.Fail<string>($"The archive exceeds the maximum allowed size of {MaximumArchiveSize / (1024 * 1024)} MB");
+                return Result.Fail<string>($"The archive exceeds the maximum allowed size of {this.MaximumArchiveSize / (1024 * 1024)} MB");
             }
-
-            this.Remove();
 
             string path = null;
 
@@ -99,7 +132,10 @@ namespace COMET.Web.Common.Services.SessionManagement
             {
                 var directory = Directory.CreateDirectory(GetArchiveDirectory());
 
-                if (QueryStoredSize(directory) + file.Size > MaximumTotalArchiveSize)
+                // The quota is checked BEFORE the previously stored archive is touched, so a refused upload leaves the
+                // user with the archive they already had. The archive this upload replaces does not count against the
+                // quota, because it is deleted as soon as the new one is written.
+                if (QueryStoredSize(directory) - this.QueryOwnStoredSize() + file.Size > this.MaximumTotalArchiveSize)
                 {
                     this.logger.LogWarning("Refused an archive upload because the archive store is full");
                     return Result.Fail<string>("The server is temporarily out of space for archive uploads. Try again later");
@@ -115,7 +151,14 @@ namespace COMET.Web.Common.Services.SessionManagement
                     }
                 }
 
+                var replaced = this.ArchivePath;
                 this.ArchivePath = path;
+
+                if (replaced != null)
+                {
+                    TryDelete(replaced, this.logger);
+                }
+
                 return Result.Ok(path);
             }
             catch (OperationCanceledException exception)
@@ -144,6 +187,21 @@ namespace COMET.Web.Common.Services.SessionManagement
         private static long QueryStoredSize(DirectoryInfo directory)
         {
             return directory.EnumerateFiles("*.zip").Sum(x => x.Length);
+        }
+
+        /// <summary>
+        /// Queries the size, in bytes, of the archive this service currently holds, which an upload replacing it frees
+        /// again and which therefore must not count against the quota
+        /// </summary>
+        /// <returns>The size in bytes, or zero when no archive is stored</returns>
+        private long QueryOwnStoredSize()
+        {
+            if (this.ArchivePath == null || !File.Exists(this.ArchivePath))
+            {
+                return 0;
+            }
+
+            return new FileInfo(this.ArchivePath).Length;
         }
 
         /// <summary>

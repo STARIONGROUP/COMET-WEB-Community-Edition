@@ -59,6 +59,12 @@ namespace COMET.Web.Common.ViewModels.Components
         private IBrowserFile selectedFile;
 
         /// <summary>
+        /// The <see cref="IBrowserFile" /> that has already been uploaded to the server, so a retry after a failed login
+        /// does not send it again
+        /// </summary>
+        private IBrowserFile uploadedFile;
+
+        /// <summary>
         /// Backing field for <see cref="AuthenticationResult" />
         /// </summary>
         private Result authenticationResult = new();
@@ -132,30 +138,57 @@ namespace COMET.Web.Common.ViewModels.Components
                     return;
                 }
 
-                var persistResult = await this.archiveFileService.PersistAsync(this.SelectedFile);
+                var archivePath = await this.ResolveArchivePath();
 
-                if (persistResult.IsFailed)
+                if (archivePath.IsFailed)
                 {
-                    this.AuthenticationResult = persistResult.ToResult();
+                    this.AuthenticationResult = archivePath.ToResult();
                     return;
                 }
 
-                this.AuthenticationResult = await this.authenticationService.LoginFromArchive(persistResult.Value, this.AuthenticationDto.UserName, this.AuthenticationDto.Password);
+                this.AuthenticationResult = await this.authenticationService.LoginFromArchive(archivePath.Value, this.AuthenticationDto.UserName, this.AuthenticationDto.Password);
 
                 if (this.AuthenticationResult.IsSuccess)
                 {
                     this.ResetAuthenticationDto();
                     this.SelectedFile = null;
+                    this.uploadedFile = null;
                 }
-
-                // A failed login deliberately keeps the stored archive: the usual failure is a wrong password or user
-                // name, and deleting it would make every retry re-upload the whole file over SignalR. It is replaced by
-                // the next upload, and removed on logout and when the circuit ends.
             }
             finally
             {
                 this.IsLoading = false;
             }
+        }
+
+        /// <summary>
+        /// Gets the path of the archive to open, uploading <see cref="SelectedFile" /> only when it is not the file that
+        /// is already stored on the server
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task{T}" /> with the <see cref="Result{TValue}" /> holding the full path of the stored archive
+        /// </returns>
+        /// <remarks>
+        /// The usual archive login failure is a wrong password or user name, and the whole point of retrying is not to
+        /// send the file again: a 400 MB archive would cross SignalR once per typo. Reference equality is the right test
+        /// because <see cref="SelectedFile" /> only changes when the user picks a file again, which is exactly when a
+        /// fresh upload is needed
+        /// </remarks>
+        private async Task<Result<string>> ResolveArchivePath()
+        {
+            if (ReferenceEquals(this.SelectedFile, this.uploadedFile) && this.archiveFileService.ArchivePath != null)
+            {
+                return Result.Ok(this.archiveFileService.ArchivePath);
+            }
+
+            var persistResult = await this.archiveFileService.PersistAsync(this.SelectedFile);
+
+            if (persistResult.IsSuccess)
+            {
+                this.uploadedFile = this.SelectedFile;
+            }
+
+            return persistResult;
         }
 
         /// <summary>

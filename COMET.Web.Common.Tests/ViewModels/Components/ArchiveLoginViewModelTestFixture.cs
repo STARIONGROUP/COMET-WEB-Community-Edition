@@ -106,5 +106,67 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
                 this.archiveFileService.Verify(x => x.Remove(), Times.Never);
             });
         }
+
+        /// <summary>
+        /// Verifies that retrying a failed login reuses the archive that is already on the server, and that picking a
+        /// different file uploads again.
+        /// </summary>
+        [Test]
+        public async Task VerifyExecuteLoginReusesTheStoredArchiveOnRetry()
+        {
+            const string archivePath = "C:\\temp\\stored.zip";
+            var selectedFile = new Mock<IBrowserFile>();
+
+            this.viewModel.SelectedFile = selectedFile.Object;
+            this.viewModel.AuthenticationDto.UserName = "user";
+            this.viewModel.AuthenticationDto.Password = "wrong";
+            this.archiveFileService.Setup(x => x.PersistAsync(selectedFile.Object)).ReturnsAsync(Result.Ok(archivePath));
+            this.archiveFileService.Setup(x => x.ArchivePath).Returns(archivePath);
+            this.authenticationService.Setup(x => x.LoginFromArchive(archivePath, "user", It.IsAny<string>())).ReturnsAsync(Result.Fail("invalid credentials"));
+
+            await this.viewModel.ExecuteLogin();
+            await this.viewModel.ExecuteLogin();
+            await this.viewModel.ExecuteLogin();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.AuthenticationResult.IsFailed, Is.True);
+
+                // The whole point: three attempts with the same file send it over SignalR exactly once.
+                this.archiveFileService.Verify(x => x.PersistAsync(selectedFile.Object), Times.Once);
+                this.authenticationService.Verify(x => x.LoginFromArchive(archivePath, "user", It.IsAny<string>()), Times.Exactly(3));
+            });
+
+            // Picking a different file has to upload, because the stored archive is no longer the selected one.
+            var otherFile = new Mock<IBrowserFile>();
+            this.viewModel.SelectedFile = otherFile.Object;
+            this.archiveFileService.Setup(x => x.PersistAsync(otherFile.Object)).ReturnsAsync(Result.Ok(archivePath));
+
+            await this.viewModel.ExecuteLogin();
+
+            this.archiveFileService.Verify(x => x.PersistAsync(otherFile.Object), Times.Once);
+        }
+
+        /// <summary>
+        /// Verifies that a stored archive which has gone from disk is uploaded again rather than opened by path.
+        /// </summary>
+        [Test]
+        public async Task VerifyExecuteLoginUploadsAgainWhenNothingIsStored()
+        {
+            const string archivePath = "C:\\temp\\stored.zip";
+            var selectedFile = new Mock<IBrowserFile>();
+
+            this.viewModel.SelectedFile = selectedFile.Object;
+            this.viewModel.AuthenticationDto.UserName = "user";
+            this.viewModel.AuthenticationDto.Password = "wrong";
+            this.archiveFileService.Setup(x => x.PersistAsync(selectedFile.Object)).ReturnsAsync(Result.Ok(archivePath));
+            this.archiveFileService.Setup(x => x.ArchivePath).Returns((string)null);
+            this.authenticationService.Setup(x => x.LoginFromArchive(archivePath, "user", It.IsAny<string>())).ReturnsAsync(Result.Fail("invalid credentials"));
+
+            await this.viewModel.ExecuteLogin();
+            await this.viewModel.ExecuteLogin();
+
+            this.archiveFileService.Verify(x => x.PersistAsync(selectedFile.Object), Times.Exactly(2));
+        }
     }
 }
