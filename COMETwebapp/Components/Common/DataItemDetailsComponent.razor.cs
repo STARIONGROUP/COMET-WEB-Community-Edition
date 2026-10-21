@@ -27,6 +27,11 @@ namespace COMETwebapp.Components.Common
     /// <summary>
     /// The <see cref="DataItemDetailsComponent" /> is used to display the details of a selected data item
     /// </summary>
+    /// <remarks>
+    /// This component deliberately has no read-only check of its own. <see cref="IsAllowedToCreate" /> is supplied by
+    /// the hosting table from its view model, where the create permission is already refused for a read-only session,
+    /// so a separate <c>IsReadOnly</c> conjunct here would only duplicate that gate
+    /// </remarks>
     public partial class DataItemDetailsComponent
     {
         /// <summary>
@@ -70,5 +75,14 @@ namespace COMETwebapp.Components.Common
         /// </summary>
         [Parameter]
         public string CssClass { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the active user is allowed to create a new item in the hosted
+        /// table. Defaults to false (fail-closed): every host that renders an Add button binds this from its
+        /// ViewModel's own permission check, and a host that forgets to bind it should get a disabled button rather
+        /// than one that silently ignores the user's actual write permission
+        /// </summary>
+        [Parameter]
+        public bool IsAllowedToCreate { get; set; }
     }
 }

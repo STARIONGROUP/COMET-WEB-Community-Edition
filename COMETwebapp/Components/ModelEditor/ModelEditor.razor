@@ -68,8 +68,8 @@
                         }
                         this.OnElementSelected(model);
                     }"
-                    AllowDrag="true"
-                    AllowDrop="true"
+                    AllowDrag="@(!this.IsReadOnly)"
+                    AllowDrop="@(!this.IsReadOnly)"
                     OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowedAsync(x))"
                     OnDragEnter="@(async x => await this.OnDragEnterAsync(x))"
                     OnDragLeave="@(async x => await this.OnDragLeaveAsync())"
@@ -112,8 +112,8 @@
                         }
                         this.OnElementSelected(model);
                     }"
-                    AllowDrag="true"
-                    AllowDrop="true"
+                    AllowDrag="@(!this.IsReadOnly)"
+                    AllowDrop="@(!this.IsReadOnly)"
                     OnCalculateDropIsAllowed="@(async x => await this.SetDropIsAllowedAsync(x))"
                     OnDragEnter="@(async x => await this.OnDragEnterAsync(x))"
                     OnDragLeave="@(async x => await this.OnDragLeaveAsync())"

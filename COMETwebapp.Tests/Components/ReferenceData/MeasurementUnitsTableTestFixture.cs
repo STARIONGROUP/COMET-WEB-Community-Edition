@@ -27,6 +27,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.ReferenceData.MeasurementUnits;
@@ -53,6 +54,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         private BunitContext context;
         private Mock<IMeasurementUnitsTableViewModel> viewModel;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
+        private Mock<ISessionService> sessionService;
         private MeasurementUnit measurementUnit1;
         private MeasurementUnit measurementUnit2;
 
@@ -60,6 +62,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         public void SetUp()
         {
             this.context = new BunitContext();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.viewModel = new Mock<IMeasurementUnitsTableViewModel>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();

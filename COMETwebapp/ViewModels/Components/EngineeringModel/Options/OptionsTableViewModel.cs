@@ -67,6 +67,14 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.Options
         private Iteration CurrentIteration { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="Iteration" /> that a newly created <see cref="Option" /> would be contained by. The base
+        /// default falls back to the <see cref="SiteDirectory" /> when there are no existing rows to infer the
+        /// container from, which is wrong here: an <see cref="Option" /> is always contained by <see cref="CurrentIteration" />,
+        /// including on a brand-new model with zero options
+        /// </summary>
+        protected override Thing CreationContainer => this.CurrentIteration ?? base.CreationContainer;
+
+        /// <summary>
         /// Gets or sets the value to check if the option to create is the default option for the <see cref="CurrentIteration" />
         /// </summary>
         public bool SelectedIsDefaultValue { get; set; }

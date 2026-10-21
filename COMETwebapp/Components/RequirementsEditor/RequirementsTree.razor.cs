@@ -24,6 +24,8 @@ namespace COMETwebapp.Components.RequirementsEditor
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using Microsoft.AspNetCore.Components;
@@ -34,6 +36,20 @@ namespace COMETwebapp.Components.RequirementsEditor
     /// </summary>
     public partial class RequirementsTree
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a
+        /// session opened from an ECSS-E-TM-10-25 Annex C3 archive. A group is not draggable and drops onto a
+        /// container are ignored when this is <see langword="true" />, so the tree can still be inspected but
+        /// never modified.
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// Gets or sets the <see cref="IRequirementsEditorBodyViewModel" />.
         /// </summary>
@@ -53,6 +69,11 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// <param name="group">The dragged <see cref="RequirementsGroup" />.</param>
         private void OnGroupDragStart(RequirementsGroup group)
         {
+            if (this.IsReadOnly)
+            {
+                return;
+            }
+
             this.ViewModel.DraggedGroup = group;
         }
 
@@ -87,7 +108,7 @@ namespace COMETwebapp.Components.RequirementsEditor
             this.ViewModel.DraggedGroup = null;
             this.ViewModel.DragOverContainer = null;
 
-            if (dragged != null && this.ViewModel.CanMoveGroup(dragged, target))
+            if (!this.IsReadOnly && dragged != null && this.ViewModel.CanMoveGroup(dragged, target))
             {
                 await this.ViewModel.MoveGroupAsync(dragged, target);
             }

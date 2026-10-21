@@ -93,7 +93,7 @@ namespace COMETwebapp.Tests.Components.SystemRepresentation
             this.sessionService.Setup(x => x.OpenIterations).Returns(this.openIterations);
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
 
-            this.context.Services.AddSingleton(this.sessionService);
+            this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.ConfigureDevExpressBlazor();
             this.context.Services.AddAntDesign();
             this.context.Services.AddSingleton<ISelectionMediator, SelectionMediator>();

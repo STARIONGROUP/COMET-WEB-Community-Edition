@@ -38,6 +38,7 @@
     <PackageReference Include="BlazorBlueprint.Icons.Feather"/>
     <PackageReference Include="Blazored.FluentValidation" />
     <PackageReference Include="Blazored.SessionStorage" />
+    <PackageReference Include="CDP4JsonFileDal-CE" />
     <PackageReference Include="CDP4ServicesDal-CE" />
     <PackageReference Include="CDP4Web-CE" />
     <PackageReference Include="DevExpress.Blazor" />

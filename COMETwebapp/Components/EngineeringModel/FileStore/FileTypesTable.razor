@@ -26,7 +26,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                           Text="Add File Type"
                           IconCssClass="@IconName.Add.GetCssClass()"
                           Click="this.StartCreate"
-                          Enabled="@(this.SelectedFileTypes.Count != this.FileTypes.Count())"
+                          Enabled="@(!this.IsReadOnly && this.SelectedFileTypes.Count != this.FileTypes.Count())"
                           RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"/>
             </HeaderTemplate>
             <CellDisplayTemplate>
@@ -36,16 +36,17 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     <DxButton Id="moveUpButton"
                               IconCssClass="@IconName.ArrowUp.GetCssClass()"
                               Click="() => this.MoveUp(row)"
-                              Enabled="@(this.SelectedFileTypes.IndexOf(row.Thing) > 0)"
+                              Enabled="@(this.SelectedFileTypes.IndexOf(row.Thing) > 0 && !this.IsReadOnly)"
                               RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"/>
                     <DxButton Id="moveDownButton"
                               IconCssClass="@IconName.ArrowDown.GetCssClass()"
                               Click="() => this.MoveDown(row)"
-                              Enabled="@(this.SelectedFileTypes.LastOrDefault() != row.Thing)"
+                              Enabled="@(this.SelectedFileTypes.LastOrDefault() != row.Thing && !this.IsReadOnly)"
                               RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" />
                     <DxButton Id="removeFileTypeButton"
                               IconCssClass="@IconName.Delete.GetCssClass()"
                               Click="() => this.RemoveFileType(row)"
+                              Enabled="@(!this.IsReadOnly && row.IsAllowedToWrite)"
                               RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())" />
                 }
             </CellDisplayTemplate>

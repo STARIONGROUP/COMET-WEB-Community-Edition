@@ -30,6 +30,7 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
 
     using COMET.Web.Common.Model.Configuration;
     using COMET.Web.Common.Services.ConfigurationService;
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.EngineeringModel;
@@ -55,12 +56,15 @@ namespace COMETwebapp.Tests.Components.EngineeringModel
         private IRenderedComponent<EngineeringModelBody> renderer;
         private Mock<IEngineeringModelBodyViewModel> viewModel;
         private Mock<IOptionsTableViewModel> optionsTableViewModel;
+        private Mock<ISessionService> sessionService;
         private Iteration iteration;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new BunitContext();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.viewModel = new Mock<IEngineeringModelBodyViewModel>();
             this.iteration = new Iteration();

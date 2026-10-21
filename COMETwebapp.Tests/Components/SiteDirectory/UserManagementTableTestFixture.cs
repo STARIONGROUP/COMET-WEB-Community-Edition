@@ -251,7 +251,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory
             this.viewModel = new UserManagementTableViewModel(this.sessionService.Object, this.showHideDeprecatedThingsService.Object, this.messageBus, this.logger.Object);
 
             this.context.Services.AddSingleton<IUserManagementTableViewModel>(this.viewModel);
-            this.context.Services.AddSingleton(this.sessionService);
+            this.context.Services.AddSingleton(this.sessionService.Object);
             this.context.Services.AddSingleton(configuration.Object);
             this.context.ConfigureDevExpressBlazor();
         }

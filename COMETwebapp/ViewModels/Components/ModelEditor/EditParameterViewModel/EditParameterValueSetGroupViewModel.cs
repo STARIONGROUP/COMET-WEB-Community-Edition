@@ -64,9 +64,14 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel
         /// <param name="parameterType">The <see cref="ParameterType" /> of the edited parameter.</param>
         /// <param name="valueSet">The original <see cref="ParameterValueSetBase" /> this group edits.</param>
         /// <param name="messageBus">The <see cref="ICDPMessageBus" /> passed to the value editors.</param>
-        public EditParameterValueSetGroupViewModel(ParameterType parameterType, ParameterValueSetBase valueSet, ICDPMessageBus messageBus)
+        /// <param name="isReadOnly">
+        /// A value indicating whether the value editors are locked, which is the case when the session was opened from
+        /// an ECSS-E-TM-10-25 Annex C3 archive.
+        /// </param>
+        public EditParameterValueSetGroupViewModel(ParameterType parameterType, ParameterValueSetBase valueSet, ICDPMessageBus messageBus, bool isReadOnly = false)
         {
             this.OriginalValueSet = valueSet;
+            this.IsReadOnly = isReadOnly;
 
             // An orientation parameter (issue #811) is a CompoundParameterType, but it must not be flattened into a
             // scalar row per matrix/euler component: it has its own dedicated OrientationComponent editor that owns
@@ -75,7 +80,7 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel
                                  && string.Equals(shortName, ConstantValues.OrientationShortName, StringComparison.InvariantCultureIgnoreCase);
 
             this.isCompound = parameterType is CompoundParameterType && !isOrientation;
-            this.ParameterSwitchKindSelectorViewModel = new ParameterSwitchKindSelectorViewModel(valueSet.ValueSwitch, false);
+            this.ParameterSwitchKindSelectorViewModel = new ParameterSwitchKindSelectorViewModel(valueSet.ValueSwitch, isReadOnly);
 
             var rows = new List<EditParameterValueSetRowViewModel>();
 
@@ -109,6 +114,12 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel
         /// Gets the original, unmodified <see cref="ParameterValueSetBase" /> this group edits.
         /// </summary>
         public ParameterValueSetBase OriginalValueSet { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the value editors of this group are locked, so the values can be read but
+        /// not changed.
+        /// </summary>
+        public bool IsReadOnly { get; }
 
         /// <summary>
         /// Gets the switch selector shared by every row of this value set.

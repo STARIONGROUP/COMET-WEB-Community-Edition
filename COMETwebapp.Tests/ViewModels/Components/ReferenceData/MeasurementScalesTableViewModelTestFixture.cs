@@ -101,6 +101,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
 
             this.siteDirectory.SiteReferenceDataLibrary.Add(siteReferenceDataLibrary);
             this.permissionService.Setup(x => x.CanWrite(this.measurementScale.ClassKind, this.measurementScale.Container)).Returns(true);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
             var session = new Mock<ISession>();
             session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(this.siteDirectory);
@@ -272,6 +273,29 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             });
         }
 
+        /// <summary>
+        /// Verifies that <see cref="MeasurementScalesTableViewModel.IsAllowedToCreate" /> is driven by
+        /// <see cref="IPermissionService.CanWrite(CDP4Common.CommonData.Thing)" /> against the selected
+        /// <see cref="ReferenceDataLibrary" />, because <see cref="MeasurementScale" /> is abstract and has no Annex A
+        /// permission entry of its own. Before the fix this was always false, refusing creation to every user.
+        /// </summary>
+        [Test]
+        public void VerifyIsAllowedToCreateForAbstractMeasurementScale()
+        {
+            this.viewModel.InitializeViewModel();
+            var rdl = this.viewModel.SelectedReferenceDataLibrary;
+
+            this.permissionService.Setup(x => x.CanWrite(rdl)).Returns(true);
+            this.viewModel.InitializeViewModel();
+
+            Assert.That(this.viewModel.IsAllowedToCreate, Is.True);
+
+            this.permissionService.Setup(x => x.CanWrite(rdl)).Returns(false);
+            this.viewModel.InitializeViewModel();
+
+            Assert.That(this.viewModel.IsAllowedToCreate, Is.False);
+        }
+
         [Test]
         public void VerifySessionRefresh()
         {
@@ -311,8 +335,40 @@ namespace COMETwebapp.Tests.ViewModels.Components.ReferenceData
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.Rows.Items.First().ContainerName, Is.EqualTo(siteReferenceDataLibrary.ShortName));
-                this.permissionService.Verify(x => x.CanWrite(scaleTest.ClassKind, It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
+                this.permissionService.Verify(x => x.CanWrite(It.IsAny<Thing>()), Times.AtLeast(this.viewModel.Rows.Count));
             });
+        }
+
+        /// <summary>
+        /// Verifies that the create permission of an empty table is evaluated against the
+        /// <see cref="ReferenceDataLibrary" /> that a new MeasurementScale would be created in, not against the
+        /// <see cref="SiteDirectory" />. The permission used to be computed before the library was selected, so the
+        /// fallback to the <see cref="SiteDirectory" /> refused creation to users who may write the library.
+        /// </summary>
+        [Test]
+        public void VerifyIsAllowedToCreateInAnEmptyTableUsesTheReferenceDataLibrary()
+        {
+            var siteDirectory = this.sessionService.Object.GetSiteDirectory();
+            var rdl = siteDirectory.SiteReferenceDataLibrary.First();
+            rdl.Scale.Clear();
+
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(false);
+            this.permissionService.Setup(x => x.CanWrite(rdl)).Returns(true);
+
+            this.viewModel.InitializeViewModel();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.Rows.Count, Is.EqualTo(0));
+                Assert.That(this.viewModel.IsAllowedToCreate, Is.True);
+            });
+
+            this.permissionService.Setup(x => x.CanWrite(rdl)).Returns(false);
+            this.permissionService.Setup(x => x.CanWrite(siteDirectory)).Returns(true);
+
+            this.viewModel.InitializeViewModel();
+
+            Assert.That(this.viewModel.IsAllowedToCreate, Is.False, "the SiteDirectory permission must not grant creation in the library");
         }
     }
 }

@@ -1,20 +1,20 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 //  <copyright file="MeasurementUnitsTableViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
-// 
+//
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-// 
+//
 //     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
-// 
+//
 //     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-// 
+//
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
@@ -92,6 +92,15 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
         public ReferenceDataLibrary SelectedReferenceDataLibrary { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="Thing" /> that a new <see cref="MeasurementUnit" /> would be contained by. The selected
+        /// <see cref="ReferenceDataLibrary" /> rather than the base default, which infers the container from the first
+        /// existing row and falls back to the <see cref="SiteDirectory" /> when the table is empty - that fallback is
+        /// not a valid container for a <see cref="MeasurementUnit" />, so the first one could never be created in an empty
+        /// library
+        /// </summary>
+        protected override Thing CreationContainer => this.SelectedReferenceDataLibrary ?? this.ReferenceDataLibraries.FirstOrDefault() ?? base.CreationContainer;
+
+        /// <summary>
         /// Gets or sets the selected measurement unit type
         /// </summary>
         public ClassKindWrapper SelectedMeasurementUnitType
@@ -116,6 +125,7 @@ namespace COMETwebapp.ViewModels.Components.ReferenceData.MeasurementUnits
             this.ReferenceDataLibraries = this.SessionService.Session.RetrieveSiteDirectory().AvailableReferenceDataLibraries();
             this.SelectedReferenceDataLibrary = this.ReferenceDataLibraries.FirstOrDefault();
             this.SelectedMeasurementUnitType = this.MeasurementUnitTypes.First();
+            this.RefreshAccessRight();
 
             this.IsLoading = false;
         }

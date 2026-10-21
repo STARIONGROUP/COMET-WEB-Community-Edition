@@ -53,6 +53,26 @@ namespace COMET.Web.Common.Services.SessionManagement
         IReadOnlyCollection<EngineeringModel> OpenEngineeringModels { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the current <see cref="ISession" /> is backed by a read-only data source,
+        /// which is the case for a session opened from an ECSS-E-TM-10-25 Annex C3 archive. No <see cref="Thing" /> may
+        /// be created, updated or deleted on such a session
+        /// </summary>
+        bool IsReadOnly { get; }
+
+        /// <summary>
+        /// Opens an <see cref="ISession" /> against an ECSS-E-TM-10-25 Annex C3 archive. The resulting session is
+        /// read-only, see <see cref="IsReadOnly" />
+        /// </summary>
+        /// <param name="archivePath">The full path of the Annex C3 archive to open</param>
+        /// <param name="userName">
+        /// The short name of the <see cref="Person" /> contained by the archive that the session should be opened as
+        /// </param>
+        /// <param name="password">The password that the archive is encrypted with</param>
+        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the operation</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="archivePath" /> or <paramref name="userName" /> is null or empty</exception>
+        Task<Result> OpenArchiveSession(string archivePath, string userName, string password);
+
+        /// <summary>
         /// Open the iteration with the selected <see cref="EngineeringModelSetup" /> and <see cref="IterationSetup" />
         /// </summary>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup" /></param>

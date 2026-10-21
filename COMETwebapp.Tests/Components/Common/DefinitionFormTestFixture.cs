@@ -27,11 +27,18 @@ namespace COMETwebapp.Tests.Components.Common
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+    using CDP4Dal.Permission;
+
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Common;
 
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -44,6 +51,8 @@ namespace COMETwebapp.Tests.Components.Common
         private BunitContext context;
         private IRenderedComponent<DefinitionForm> renderer;
         private Definition definition;
+        private Mock<ISessionService> sessionService;
+        private Mock<IPermissionService> permissionService;
         private bool isSaved;
         private bool isCanceled;
 
@@ -52,12 +61,25 @@ namespace COMETwebapp.Tests.Components.Common
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
+            // The form asks the open session whether the active user may write the thing being edited, so a session with
+            // a permission service always has to be there; individual tests set what it answers.
+            this.permissionService = new Mock<IPermissionService>();
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
+            var session = new Mock<ISession>();
+            session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
+
+            // The container matters: a Definition without one is a Definition being created, which the form deliberately
+            // lets through without a permission check. An existing Definition always has its container set.
             this.definition = new Definition
             {
                 Iid = Guid.NewGuid(),
                 Content = "Sample content",
-                LanguageCode = "en-GB"
+                LanguageCode = "en-GB",
+                Container = new Category { Iid = Guid.NewGuid() }
             };
 
             this.isSaved = false;
@@ -106,6 +128,23 @@ namespace COMETwebapp.Tests.Components.Common
             await this.renderer.InvokeAsync(formButtons.Instance.OnCancel.InvokeAsync);
 
             Assert.That(this.isCanceled, Is.True);
+        }
+
+        [Test]
+        public void VerifyIsSaveButtonEnabledHonoursWritePermission()
+        {
+            this.permissionService.Setup(x => x.CanWrite(this.definition)).Returns(false);
+
+            this.renderer.Render();
+
+            Assert.That(this.renderer.FindComponent<FormButtons>().Instance.SaveButtonEnabled, Is.False,
+                "editing a Definition the active user is not allowed to write must disable the Save button");
+
+            this.permissionService.Setup(x => x.CanWrite(this.definition)).Returns(true);
+            this.renderer.Render();
+
+            Assert.That(this.renderer.FindComponent<FormButtons>().Instance.SaveButtonEnabled, Is.True,
+                "editing a Definition the active user is allowed to write must enable the Save button");
         }
     }
 }

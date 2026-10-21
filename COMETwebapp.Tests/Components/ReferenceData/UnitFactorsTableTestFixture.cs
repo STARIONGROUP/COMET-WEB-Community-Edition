@@ -24,8 +24,13 @@ namespace COMETwebapp.Tests.Components.ReferenceData
 {
     using Bunit;
 
+    using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
+    using CDP4Dal;
+    using CDP4Dal.Permission;
+
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.ReferenceData.MeasurementUnits;
@@ -33,6 +38,9 @@ namespace COMETwebapp.Tests.Components.ReferenceData
     using DevExpress.Blazor;
 
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -42,12 +50,21 @@ namespace COMETwebapp.Tests.Components.ReferenceData
         private BunitContext context;
         private IRenderedComponent<UnitFactorsTable> renderer;
         private DerivedUnit derivedUnit;
+        private Mock<ISessionService> sessionService;
 
         [SetUp]
         public void SetUp()
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
+
+            var permissionService = new Mock<IPermissionService>();
+            permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
+            var session = new Mock<ISession>();
+            session.Setup(x => x.PermissionService).Returns(permissionService.Object);
+            this.sessionService.Setup(x => x.Session).Returns(session.Object);
 
             this.derivedUnit = new DerivedUnit
             {

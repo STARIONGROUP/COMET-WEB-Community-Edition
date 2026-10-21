@@ -83,14 +83,14 @@ namespace COMETwebapp.ViewModels.Components.ModelEditor.EditParameterViewModel
 
             var callbackFactory = new EventCallbackFactory();
 
-            this.ManualEditorViewModel = new ParameterTypeEditorSelectorViewModel(componentType, group.OriginalValueSet, false, messageBus, componentIndex)
+            this.ManualEditorViewModel = new ParameterTypeEditorSelectorViewModel(componentType, group.OriginalValueSet, group.IsReadOnly, messageBus, componentIndex)
             {
                 ParameterValueChanged = callbackFactory.Create<(IValueSet, int)>(this, this.OnManualChanged)
             };
 
             this.ManualEditorViewModel.UpdateSwitchKind(ParameterSwitchKind.MANUAL);
 
-            this.ReferenceEditorViewModel = new ParameterTypeEditorSelectorViewModel(componentType, group.OriginalValueSet, false, messageBus, componentIndex)
+            this.ReferenceEditorViewModel = new ParameterTypeEditorSelectorViewModel(componentType, group.OriginalValueSet, group.IsReadOnly, messageBus, componentIndex)
             {
                 ParameterValueChanged = callbackFactory.Create<(IValueSet, int)>(this, this.OnReferenceChanged)
             };

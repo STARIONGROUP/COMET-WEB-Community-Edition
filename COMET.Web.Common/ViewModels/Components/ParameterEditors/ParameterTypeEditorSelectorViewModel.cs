@@ -112,6 +112,13 @@ namespace COMET.Web.Common.ViewModels.Components.ParameterEditors
         public MeasurementScale Scale { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="ParameterSwitchKind" /> whose values the editors are currently showing, or null when no
+        /// kind has been applied yet. This follows the user's selection even on a read-only row, because choosing a kind
+        /// only decides which of the Manual, Computed or Reference values is displayed
+        /// </summary>
+        public ParameterSwitchKind? CurrentParameterSwitchKind => this.preSetSwitchKind;
+
+        /// <summary>
         /// Creates a view model for the corresponding editor
         /// </summary>
         /// <typeparam name="T">the parameter type</typeparam>

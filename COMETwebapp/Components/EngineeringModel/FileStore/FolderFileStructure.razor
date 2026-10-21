@@ -18,12 +18,14 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
 <DxButton Id="createFolderButton"
           Click="@(() => this.OnEditFolderClick())"
+          Enabled="@(!this.IsReadOnly)"
           RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())">
     Create Folder
 </DxButton>
 
 <DxButton Id="createFileButton"
           Click="@(() => this.OnEditFileClick())"
+          Enabled="@(!this.IsReadOnly)"
           RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())">
     Create File
 </DxButton>
@@ -41,7 +43,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
     <NodeTextTemplate Context="nodeContext">
         @{
             var row = (FileFolderNodeViewModel)nodeContext.DataItem;
-        <div draggable="true"
+        <div draggable="@(this.IsReadOnly ? "false" : "true")"
              dropzone="move"
              ondragover="event.preventDefault();"
              @ondragstart="@(() => this.OnDragNode(row))"

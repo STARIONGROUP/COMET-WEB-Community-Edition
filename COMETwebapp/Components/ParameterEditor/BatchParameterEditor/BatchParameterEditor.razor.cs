@@ -23,6 +23,7 @@
 namespace COMETwebapp.Components.ParameterEditor.BatchParameterEditor
 {
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.ModelDashboard.ParameterValues;
     using COMETwebapp.ViewModels.Components.ParameterEditor.BatchParameterEditor;
@@ -38,6 +39,19 @@ namespace COMETwebapp.Components.ParameterEditor.BatchParameterEditor
     /// </summary>
     public partial class BatchParameterEditor
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. A batch update only writes, so there is nothing to inspect
+        /// and the button that opens it is disabled outright
+        /// </summary>
+        private bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// Gets or sets the <see cref="IBatchParameterEditorViewModel" />
         /// </summary>

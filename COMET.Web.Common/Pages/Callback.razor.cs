@@ -27,6 +27,8 @@ namespace COMET.Web.Common.Pages
     using COMET.Web.Common.Services.ConfigurationService;
     using COMET.Web.Common.Services.SessionManagement;
 
+    using FluentResults;
+
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
@@ -34,6 +36,12 @@ namespace COMET.Web.Common.Pages
     /// </summary>
     public partial class Callback
     {
+        /// <summary>
+        /// Gets the failed <see cref="Result" /> of the external login, or null while the login is still in progress or
+        /// when it succeeded. The page renders the reason instead of redirecting when this is set
+        /// </summary>
+        public Result LoginFailure { get; private set; }
+
         /// <summary>
         /// Gets or sets the injected <see cref="IAuthenticationService" />
         /// </summary>
@@ -93,7 +101,15 @@ namespace COMET.Web.Common.Pages
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
-            
+
+            // Rendering the failure calls StateHasChanged, which runs this method again. Without this guard the
+            // single-use authorization code would be exchanged in a loop. A firstRender guard cannot be used instead,
+            // because the page is expected to re-run the exchange on each navigation to /callback.
+            if (this.LoginFailure != null)
+            {
+                return;
+            }
+
             if (string.IsNullOrEmpty(this.Code))
             {
                 this.NavigationManager.NavigateTo("/");
@@ -121,8 +137,17 @@ namespace COMET.Web.Common.Pages
                 return;
             }
             
-            await this.AuthenticationService.ExchangeOpenIdConnectCodeAsync(this.Code, possibleSchemes.Value, $"{this.NavigationManager.BaseUri.TrimEnd('/')}/callback",
+            var loginResult = await this.AuthenticationService.ExchangeOpenIdConnectCodeAsync(this.Code, possibleSchemes.Value, $"{this.NavigationManager.BaseUri.TrimEnd('/')}/callback",
                 this.ConfigurationService.ServerConfiguration.ExternalAuthorizationClientSecret);
+
+            // Navigating away on failure would drop the user back on the login page with no indication that anything
+            // went wrong, so the reason is shown here instead.
+            if (loginResult.IsFailed)
+            {
+                this.LoginFailure = loginResult;
+                await this.InvokeAsync(this.StateHasChanged);
+                return;
+            }
 
             this.NavigationManager.NavigateTo("/");
         }

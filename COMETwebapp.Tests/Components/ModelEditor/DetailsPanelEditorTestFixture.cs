@@ -28,6 +28,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.ModelEditor;
@@ -35,6 +36,7 @@ namespace COMETwebapp.Tests.Components.ModelEditor
     using COMETwebapp.ViewModels.Components.SystemRepresentation.Rows;
 
     using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
 
@@ -54,6 +56,13 @@ namespace COMETwebapp.Tests.Components.ModelEditor
         private Mock<IElementDefinitionDetailsViewModel> viewModel;
 
         /// <summary>
+        /// The mocked <see cref="ISessionService" /> registered in the DI container, used by the nested
+        /// <see cref="COMETwebapp.Components.Common.ParameterCard" /> and
+        /// <see cref="COMETwebapp.Components.Common.ParameterGroupSection" /> components.
+        /// </summary>
+        private Mock<ISessionService> sessionService;
+
+        /// <summary>
         /// Initializes the bunit context and a mock view model with empty <see cref="IElementDefinitionDetailsViewModel.Rows" />.
         /// </summary>
         [SetUp]
@@ -65,6 +74,9 @@ namespace COMETwebapp.Tests.Components.ModelEditor
 
             this.viewModel = new Mock<IElementDefinitionDetailsViewModel>();
             this.viewModel.Setup(x => x.Rows).Returns(new List<ElementDefinitionDetailsRowViewModel>());
+
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
         }
 
         /// <summary>

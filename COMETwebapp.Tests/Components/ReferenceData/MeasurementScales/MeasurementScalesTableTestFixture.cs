@@ -27,6 +27,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
     using CDP4Common.CommonData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.ReferenceData.MeasurementScales;
@@ -53,6 +54,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         private BunitContext context;
         private Mock<IMeasurementScalesTableViewModel> viewModel;
         private Mock<IShowHideDeprecatedThingsService> showHideService;
+        private Mock<ISessionService> sessionService;
         private MeasurementScale measurementScale1;
         private MeasurementScale measurementScale2;
 
@@ -60,6 +62,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         public void SetUp()
         {
             this.context = new BunitContext();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.viewModel = new Mock<IMeasurementScalesTableViewModel>();
             this.showHideService = new Mock<IShowHideDeprecatedThingsService>();

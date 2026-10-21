@@ -127,13 +127,25 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileHandl
         }
 
         /// <summary>
-        /// Moves a file to a target folder
+        /// Moves a file to a target folder. Silently refuses the move when the current user lacks write
+        /// permission on the target folder (which is also the case for a session opened from an
+        /// ECSS-E-TM-10-25 Annex C3 archive, where the DAL is read-only).
         /// </summary>
         /// <param name="file">The file to be moved</param>
-        /// <param name="targetFolder">The target folder</param>
+        /// <param name="targetFolder">
+        /// The target folder, or null to move the file to the root of the <see cref="CurrentFileStore" />
+        /// </param>
         /// <returns>A <see cref="Task" /></returns>
         public async Task MoveFile(File file, Folder targetFolder)
         {
+            // A null target folder is a drop on the file store root, which is a valid destination. The permission has to
+            // be asked about the file store itself then, because the create overload would otherwise resolve
+            // SAME_AS_CONTAINER against a null container and refuse a move that used to work.
+            if (!this.SessionService.Session.PermissionService.CanWrite(ClassKind.File, (Thing)targetFolder ?? this.CurrentFileStore))
+            {
+                return;
+            }
+
             this.IsLoading = true;
 
             var fileClone = file.Clone(true);

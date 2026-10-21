@@ -24,6 +24,8 @@ namespace COMETwebapp.Components.RequirementsEditor
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using Microsoft.AspNetCore.Components;
@@ -34,6 +36,20 @@ namespace COMETwebapp.Components.RequirementsEditor
     /// </summary>
     public partial class RequirementsDocument
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a
+        /// session opened from an ECSS-E-TM-10-25 Annex C3 archive. The add requirement, add group and delete
+        /// group controls are disabled when this is <see langword="true" />, so the document can still be
+        /// inspected but never modified.
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// The number of simple-parameter-value columns that still fit inline beside the definition and pills; above
         /// this the value grid drops to its own full-width line below the row. A count heuristic — it does not measure

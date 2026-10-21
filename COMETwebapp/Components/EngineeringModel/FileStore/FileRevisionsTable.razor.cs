@@ -25,6 +25,7 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
     using CDP4Common.EngineeringModelData;
 
     using COMET.Web.Common.Components;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevisionHandler;
     using COMETwebapp.ViewModels.Components.EngineeringModel.Rows;
@@ -36,6 +37,28 @@ namespace COMETwebapp.Components.EngineeringModel.FileStore
     /// </summary>
     public partial class FileRevisionsTable : DisposableComponent
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the active user may write the parent thing this table edits part of.
+        /// The rows here are parts of one aggregate saved atomically by the hosting form, so the permission is decided
+        /// once by that form and passed down rather than evaluated per row. Defaults to true so a host that does not
+        /// set it keeps its previous behaviour
+        /// </summary>
+        [Parameter]
+        public bool IsAllowedToWrite { get; set; } = true;
+
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. Create and delete controls bind their enabled state to
+        /// the inverse of this, so the data can still be inspected but never modified
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// Gets or sets the <see cref="IFileRevisionHandlerViewModel" />
         /// </summary>

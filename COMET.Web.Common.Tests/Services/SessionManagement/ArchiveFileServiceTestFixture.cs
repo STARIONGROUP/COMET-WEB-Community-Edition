@@ -1,0 +1,455 @@
+// --------------------------------------------------------------------------------------------------------------------
+//  <copyright file="ArchiveFileServiceTestFixture.cs" company="Starion Group S.A.">
+//    Copyright (c) 2023-2026 Starion Group S.A.
+//
+//    This file is part of CDP4-COMET WEB Community Edition
+//    The CDP4-COMET WEB Community Edition is the Starion Web Application implementation of ECSS-E-TM-10-25
+//    Annex A and Annex C.
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+//
+//  </copyright>
+//  --------------------------------------------------------------------------------------------------------------------
+
+namespace COMET.Web.Common.Tests.Services.SessionManagement
+{
+    using System;
+    using System.IO;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    using COMET.Web.Common.Services.SessionManagement;
+
+    using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
+
+    using Moq;
+
+    using NUnit.Framework;
+
+    [TestFixture]
+    public class ArchiveFileServiceTestFixture
+    {        /// <summary>
+        /// The number of bytes in a megabyte, the unit the archive store limits are configured in
+        /// </summary>
+        private const int OneMegabyte = 1024 * 1024;
+
+
+        private ArchiveFileService archiveFileService;
+        private Mock<ILogger<ArchiveFileService>> logger;
+
+        [SetUp]
+        public void Setup()
+        {
+            this.logger = new Mock<ILogger<ArchiveFileService>>();
+            this.archiveFileService = new ArchiveFileService(this.logger.Object, new ConfigurationBuilder().Build());
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            this.archiveFileService.Remove();
+        }
+
+        [Test]
+        public async Task VerifyPersistAsync()
+        {
+            var nullFileResult = await this.archiveFileService.PersistAsync(null);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(nullFileResult.IsFailed, Is.True);
+                Assert.That(this.archiveFileService.ArchivePath, Is.Null);
+            });
+
+            var oversizedFile = CreateMockedFile(this.archiveFileService.MaximumArchiveSize + 1, []);
+            var oversizedResult = await this.archiveFileService.PersistAsync(oversizedFile.Object);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(oversizedResult.IsFailed, Is.True);
+                Assert.That(this.archiveFileService.ArchivePath, Is.Null);
+            });
+
+            var content = "content"u8.ToArray();
+            var file = CreateMockedFile(content.Length, content);
+            var result = await this.archiveFileService.PersistAsync(file.Object);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsSuccess, Is.True);
+                Assert.That(this.archiveFileService.ArchivePath, Is.EqualTo(result.Value));
+                Assert.That(File.Exists(result.Value), Is.True);
+                Assert.That(File.ReadAllBytes(result.Value), Is.EqualTo(content));
+            });
+
+            var firstArchivePath = result.Value;
+            var secondContent = "other"u8.ToArray();
+            var secondFile = CreateMockedFile(secondContent.Length, secondContent);
+            var secondResult = await this.archiveFileService.PersistAsync(secondFile.Object);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(secondResult.IsSuccess, Is.True);
+                Assert.That(File.Exists(firstArchivePath), Is.False);
+                Assert.That(File.Exists(secondResult.Value), Is.True);
+                Assert.That(File.ReadAllBytes(secondResult.Value), Is.EqualTo(secondContent));
+            });
+        }
+
+        [Test]
+        public async Task VerifyRemove()
+        {
+            var content = "content"u8.ToArray();
+            var file = CreateMockedFile(content.Length, content);
+            var result = await this.archiveFileService.PersistAsync(file.Object);
+            var archivePath = result.Value;
+
+            this.archiveFileService.Remove();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.archiveFileService.ArchivePath, Is.Null);
+                Assert.That(File.Exists(archivePath), Is.False);
+            });
+
+            Assert.That(() => this.archiveFileService.Remove(), Throws.Nothing);
+        }
+
+        [Test]
+        public async Task VerifyDispose()
+        {
+            var content = "content"u8.ToArray();
+            var file = CreateMockedFile(content.Length, content);
+            var result = await this.archiveFileService.PersistAsync(file.Object);
+            var archivePath = result.Value;
+
+            this.archiveFileService.Dispose();
+
+            Assert.That(File.Exists(archivePath), Is.False);
+        }
+
+        [Test]
+        public void VerifyRemoveOrphanedArchivesReturnsWhenDirectoryDoesNotExist()
+        {
+            var archiveDirectory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "comet-web-archives"));
+
+            if (archiveDirectory.Exists)
+            {
+                archiveDirectory.Delete(true);
+            }
+
+            var removalLogger = new Mock<ILogger>();
+
+            Assert.That(() => ArchiveFileService.RemoveOrphanedArchives(TimeSpan.FromHours(1), removalLogger.Object), Throws.Nothing);
+        }
+
+        [Test]
+        public async Task VerifyPersistAsyncFailsWhenTheArchiveCannotBeRead()
+        {
+            var file = new Mock<IBrowserFile>();
+            file.Setup(x => x.Size).Returns(1);
+            file.Setup(x => x.OpenReadStream(It.IsAny<long>(), It.IsAny<CancellationToken>())).Returns(new ThrowingStream());
+
+            var result = await this.archiveFileService.PersistAsync(file.Object);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsFailed, Is.True);
+                Assert.That(this.archiveFileService.ArchivePath, Is.Null);
+            });
+        }
+
+        /// <summary>
+        /// Verifies that <see cref="ArchiveFileService.PersistAsync" /> fails with a <see cref="FluentResults.Result" />
+        /// instead of letting the exception escape and kill the circuit when the browser stream fails with something
+        /// other than an <see cref="IOException" /> (e.g. the tab going away mid-upload raises
+        /// <see cref="InvalidOperationException" />), and that the partially written archive is not left behind.
+        /// </summary>
+        [Test]
+        public async Task VerifyPersistAsyncFailsWithoutThrowingOnANonIoException()
+        {
+            var archiveDirectory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "comet-web-archives"));
+            var zipCountBefore = archiveDirectory.Exists ? archiveDirectory.EnumerateFiles("*.zip").Count() : 0;
+
+            var file = new Mock<IBrowserFile>();
+            file.Setup(x => x.Size).Returns(1);
+            file.Setup(x => x.OpenReadStream(It.IsAny<long>(), It.IsAny<CancellationToken>())).Returns(new NonIoThrowingStream());
+
+            var result = await this.archiveFileService.PersistAsync(file.Object);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsFailed, Is.True);
+                Assert.That(this.archiveFileService.ArchivePath, Is.Null);
+                Assert.That(archiveDirectory.EnumerateFiles("*.zip").Count(), Is.EqualTo(zipCountBefore));
+            });
+        }
+
+        /// <summary>
+        /// Verifies that an upload refused because the archive store is full leaves the previously stored archive
+        /// untouched. The stored archive used to be removed before the quota was checked, so a refused upload also cost
+        /// the user the archive they already had.
+        /// </summary>
+        [Test]
+        public async Task VerifyPersistAsyncKeepsTheStoredArchiveWhenTheQuotaIsExceeded()
+        {
+            var service = this.CreateServiceWithRoomForOneMegabyte();
+
+            try
+            {
+                var storedContent = new byte[OneMegabyte];
+                var storedResult = await service.PersistAsync(CreateMockedFile(storedContent.Length, storedContent).Object);
+                var storedPath = service.ArchivePath;
+                var zipCountBefore = CountStoredArchives();
+
+                var refusedContent = new byte[2 * OneMegabyte];
+                var refusedResult = await service.PersistAsync(CreateMockedFile(refusedContent.Length, refusedContent).Object);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(storedResult.IsSuccess, Is.True);
+                    Assert.That(refusedResult.IsFailed, Is.True);
+                    Assert.That(service.ArchivePath, Is.EqualTo(storedPath));
+                    Assert.That(File.Exists(storedPath), Is.True);
+                    Assert.That(File.ReadAllBytes(storedPath), Is.EqualTo(storedContent));
+                    Assert.That(CountStoredArchives(), Is.EqualTo(zipCountBefore));
+                });
+            }
+            finally
+            {
+                service.Remove();
+            }
+        }
+
+        /// <summary>
+        /// Verifies that replacing the stored archive succeeds even when the archive being replaced alone would fill the
+        /// quota, because the replaced archive is deleted as soon as the new one is written and so must not count
+        /// against it.
+        /// </summary>
+        [Test]
+        public async Task VerifyPersistAsyncDoesNotCountTheReplacedArchiveAgainstTheQuota()
+        {
+            var service = this.CreateServiceWithRoomForOneMegabyte();
+
+            try
+            {
+                var firstContent = new byte[OneMegabyte];
+                var firstResult = await service.PersistAsync(CreateMockedFile(firstContent.Length, firstContent).Object);
+                var firstPath = service.ArchivePath;
+
+                var secondContent = new byte[OneMegabyte];
+                secondContent[0] = 1;
+                var secondResult = await service.PersistAsync(CreateMockedFile(secondContent.Length, secondContent).Object);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(firstResult.IsSuccess, Is.True);
+                    Assert.That(secondResult.IsSuccess, Is.True);
+                    Assert.That(service.ArchivePath, Is.EqualTo(secondResult.Value));
+                    Assert.That(File.Exists(firstPath), Is.False);
+                    Assert.That(File.ReadAllBytes(secondResult.Value), Is.EqualTo(secondContent));
+                });
+            }
+            finally
+            {
+                service.Remove();
+            }
+        }
+
+        [Test]
+        public void VerifyRemoveOrphanedArchives()
+        {
+            var archiveDirectory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "comet-web-archives"));
+            var orphanedArchive = Path.Combine(archiveDirectory.FullName, $"{Guid.NewGuid()}.zip");
+            var freshArchive = Path.Combine(archiveDirectory.FullName, $"{Guid.NewGuid()}.zip");
+
+            try
+            {
+                File.WriteAllText(orphanedArchive, "orphaned");
+                File.SetLastWriteTimeUtc(orphanedArchive, DateTime.UtcNow - TimeSpan.FromDays(1));
+
+                File.WriteAllText(freshArchive, "fresh");
+                File.SetLastWriteTimeUtc(freshArchive, DateTime.UtcNow);
+
+                var removalLogger = new Mock<ILogger>();
+                ArchiveFileService.RemoveOrphanedArchives(TimeSpan.FromHours(1), removalLogger.Object);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(File.Exists(orphanedArchive), Is.False);
+                    Assert.That(File.Exists(freshArchive), Is.True);
+                });
+            }
+            finally
+            {
+                if (File.Exists(orphanedArchive))
+                {
+                    File.Delete(orphanedArchive);
+                }
+
+                if (File.Exists(freshArchive))
+                {
+                    File.Delete(freshArchive);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Counts the archives currently in the shared archive store, which also holds archives of other circuits
+        /// </summary>
+        /// <returns>The number of stored archives</returns>
+        private static int CountStoredArchives()
+        {
+            var directory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "comet-web-archives"));
+            return directory.Exists ? directory.EnumerateFiles("*.zip").Count() : 0;
+        }
+
+        /// <summary>
+        /// Creates an <see cref="ArchiveFileService" /> whose total quota leaves room for one more megabyte on top of
+        /// whatever the shared archive store already holds, but not for two. The store is shared with other circuits and
+        /// can only be limited in whole megabytes, so the limit is derived from its current size to keep the quota
+        /// reachable regardless of what else is stored
+        /// </summary>
+        /// <returns>The configured <see cref="ArchiveFileService" /></returns>
+        private ArchiveFileService CreateServiceWithRoomForOneMegabyte()
+        {
+            var directory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "comet-web-archives"));
+            var storedSize = directory.Exists ? directory.EnumerateFiles("*.zip").Sum(x => x.Length) : 0;
+            var limitInMb = (storedSize + OneMegabyte + OneMegabyte - 1) / OneMegabyte;
+
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string> { ["ArchiveStorage:MaximumTotalSizeInMb"] = limitInMb.ToString() })
+                .Build();
+
+            return new ArchiveFileService(this.logger.Object, configuration);
+        }
+
+        /// <summary>
+        /// Creates a mocked <see cref="IBrowserFile" /> with the provided size and content
+        /// </summary>
+        /// <param name="size">The reported size, in bytes, of the file</param>
+        /// <param name="content">The bytes returned by <see cref="IBrowserFile.OpenReadStream" /></param>
+        /// <returns>The configured <see cref="Mock{T}" /></returns>
+        private static Mock<IBrowserFile> CreateMockedFile(long size, byte[] content)
+        {
+            var file = new Mock<IBrowserFile>();
+            file.Setup(x => x.Size).Returns(size);
+            file.Setup(x => x.OpenReadStream(It.IsAny<long>(), It.IsAny<CancellationToken>())).Returns(new MemoryStream(content));
+            return file;
+        }
+
+        /// <summary>
+        /// A readable <see cref="Stream" /> that always fails with an <see cref="IOException" />, used to exercise
+        /// <see cref="ArchiveFileService.PersistAsync" />'s failure path when the uploaded archive cannot be read
+        /// </summary>
+        private sealed class ThrowingStream : Stream
+        {
+            public override bool CanRead => true;
+
+            public override bool CanSeek => false;
+
+            public override bool CanWrite => false;
+
+            public override long Length => throw new NotSupportedException();
+
+            public override long Position
+            {
+                get => throw new NotSupportedException();
+                set => throw new NotSupportedException();
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                throw new IOException("The archive stream could not be read");
+            }
+
+            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                throw new IOException("The archive stream could not be read");
+            }
+
+            public override void Flush()
+            {
+            }
+
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void SetLength(long value)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        /// <summary>
+        /// A readable <see cref="Stream" /> that always fails with an <see cref="InvalidOperationException" />, used to
+        /// exercise <see cref="ArchiveFileService.PersistAsync" />'s broad catch for a non-<see cref="IOException" />
+        /// failure of the browser stream
+        /// </summary>
+        private sealed class NonIoThrowingStream : Stream
+        {
+            public override bool CanRead => true;
+
+            public override bool CanSeek => false;
+
+            public override bool CanWrite => false;
+
+            public override long Length => throw new NotSupportedException();
+
+            public override long Position
+            {
+                get => throw new NotSupportedException();
+                set => throw new NotSupportedException();
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                throw new InvalidOperationException("The archive stream could not be read");
+            }
+
+            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            {
+                throw new InvalidOperationException("The archive stream could not be read");
+            }
+
+            public override void Flush()
+            {
+            }
+
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void SetLength(long value)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                throw new NotSupportedException();
+            }
+        }
+    }
+}

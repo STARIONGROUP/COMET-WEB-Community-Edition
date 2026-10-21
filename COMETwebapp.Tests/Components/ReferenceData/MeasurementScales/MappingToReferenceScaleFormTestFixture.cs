@@ -26,12 +26,16 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Common;
     using COMETwebapp.Components.ReferenceData.MeasurementScales;
 
     using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Moq;
 
     using NUnit.Framework;
 
@@ -44,6 +48,7 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         private BunitContext context;
         private IRenderedComponent<MappingToReferenceScaleForm> renderer;
         private MappingToReferenceScale mapping;
+        private Mock<ISessionService> sessionService;
         private bool isSaved;
         private bool isCanceled;
 
@@ -52,6 +57,8 @@ namespace COMETwebapp.Tests.Components.ReferenceData.MeasurementScales
         {
             this.context = new BunitContext();
             this.context.ConfigureDevExpressBlazor();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.mapping = new MappingToReferenceScale
             {

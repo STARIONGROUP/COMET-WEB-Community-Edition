@@ -29,6 +29,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.Common;
@@ -54,6 +55,7 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         private BunitContext context;
         private IRenderedComponent<IterationsTable> renderer;
         private Mock<IIterationsTableViewModel> viewModel;
+        private Mock<ISessionService> sessionService;
         private IterationSetup iteration1;
         private IterationSetup iteration2;
 
@@ -62,6 +64,8 @@ namespace COMETwebapp.Tests.Components.SiteDirectory.EngineeringModels
         {
             this.context = new BunitContext();
             this.viewModel = new Mock<IIterationsTableViewModel>();
+            this.sessionService = new Mock<ISessionService>();
+            this.context.Services.AddSingleton(this.sessionService.Object);
 
             this.iteration1 = new IterationSetup
             {

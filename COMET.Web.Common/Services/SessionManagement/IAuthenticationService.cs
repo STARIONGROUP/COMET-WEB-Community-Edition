@@ -56,7 +56,16 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="authenticationInformation">The <see cref="AuthenticationInformation"/> that contains required information that should be used for authentication</param>
         /// <returns>An awaitable <see cref="Task"/> that contains the <see cref="Result"/> of the operation</returns>
         Task<Result> LoginAsync(AuthenticationSchemeKind authenticationSchemeKind, AuthenticationInformation authenticationInformation);
-        
+
+        /// <summary>
+        /// Opens a read-only session against an uploaded ECSS-E-TM-10-25 Annex C3 archive
+        /// </summary>
+        /// <param name="archivePath">The full path of the archive on the server</param>
+        /// <param name="userName">The short name of the person, contained by the archive, to open the session as</param>
+        /// <param name="password">The password that the archive is encrypted with</param>
+        /// <returns>An awaitable <see cref="Task"/> that contains the <see cref="Result"/> of the operation</returns>
+        Task<Result> LoginFromArchive(string archivePath, string userName, string password);
+
         /// <summary>
         /// Logout from the data source
         /// </summary>
@@ -93,8 +102,8 @@ namespace COMET.Web.Common.Services.SessionManagement
         /// <param name="authenticationSchemeResponse">The <see cref="AuthenticationSchemeResponse"/> retrieved from the CDP4-COMET server</param>
         /// <param name="redirectUrl">The redirect url</param>
         /// <param name="clientSecret">An optional client secret</param>
-        /// <returns>An awaitable <see cref="Task"/></returns>
-        Task ExchangeOpenIdConnectCodeAsync(string code, AuthenticationSchemeResponse authenticationSchemeResponse, string redirectUrl, string clientSecret = null);
+        /// <returns>A <see cref="Task{T}"/> with the <see cref="Result"/> of the login</returns>
+        Task<Result> ExchangeOpenIdConnectCodeAsync(string code, AuthenticationSchemeResponse authenticationSchemeResponse, string redirectUrl, string clientSecret = null);
 
         /// <summary>
         /// Tries to restore the last authenticated session, if applicable

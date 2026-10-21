@@ -250,6 +250,27 @@ namespace COMETwebapp.Tests.ViewModels.Components.ParameterEditor
         }
 
         [Test]
+        public void VerifyReadOnlyRowStillFollowsTheSwitchKind()
+        {
+            // CanWrite is false by default in this fixture, so every row starts read-only. Choosing a switch kind only
+            // decides which of the Manual, Computed or Reference values is shown, so it must still be applied: a user
+            // who may not edit has to be able to read every value.
+            this.viewModel.InitializeViewModel(this.iteration, this.domain, [this.option]);
+            var parameterRow = this.viewModel.Rows.Items[0];
+
+            Assert.That(parameterRow.IsReadOnly, Is.True, "the row should be read-only when the user cannot write");
+
+            Assert.Multiple(() =>
+            {
+                parameterRow.ParameterSwitchKindSelectorViewModel.SwitchValue = ParameterSwitchKind.COMPUTED;
+                Assert.That(parameterRow.ParameterTypeEditorSelectorViewModel.CurrentParameterSwitchKind, Is.EqualTo(ParameterSwitchKind.COMPUTED));
+
+                parameterRow.ParameterSwitchKindSelectorViewModel.SwitchValue = ParameterSwitchKind.REFERENCE;
+                Assert.That(parameterRow.ParameterTypeEditorSelectorViewModel.CurrentParameterSwitchKind, Is.EqualTo(ParameterSwitchKind.REFERENCE));
+            });
+        }
+
+        [Test]
         public async Task VerifyParameterRowBehavior()
         {
             this.viewModel.InitializeViewModel(this.iteration, this.domain, [this.option]);

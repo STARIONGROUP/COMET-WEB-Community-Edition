@@ -58,5 +58,11 @@ namespace COMET.Web.Common.Model.DTO
         /// address input is presented to the user, i.e. when no server address is preconfigured
         /// </summary>
         public bool ShouldValidateSourceAddress { get; set; }
+
+        /// <summary>
+        /// Asserts that the password should be validated as a required field. Cleared by the Annex C3 archive login,
+        /// where the password only decrypts the archive and an archive exported without encryption has none
+        /// </summary>
+        public bool ShouldValidatePassword { get; set; } = true;
     }
 }

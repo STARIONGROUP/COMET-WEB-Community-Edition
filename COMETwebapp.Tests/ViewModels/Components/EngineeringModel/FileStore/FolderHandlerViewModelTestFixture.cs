@@ -102,6 +102,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
 
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
             this.sessionService.Setup(x => x.Session.ActivePerson).Returns(person);
+            this.sessionService.Setup(x => x.Session.PermissionService.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
             this.viewModel = new FolderHandlerViewModel(this.sessionService.Object, this.messageBus);
         }
 
@@ -129,6 +130,30 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
 
             await this.viewModel.DeleteFolder();
             this.sessionService.Verify(x => x.DeleteThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
+        }
+
+        /// <summary>
+        /// Verifies that dropping a folder on the file store root (a <c>null</c> <c>targetFolder</c>, which
+        /// <c>FolderFileStructure.OnDropNode</c> explicitly allows) asks the write permission about the
+        /// <see cref="CommonFileStore" /> itself rather than about the null target, so the move is no longer silently
+        /// refused when the user may write to the file store.
+        /// </summary>
+        [Test]
+        public async Task VerifyMoveFolderToFileStoreRoot()
+        {
+            this.viewModel.InitializeViewModel(this.commonFileStore, this.iteration);
+            this.viewModel.CurrentThing = this.commonFileStore.Folder[0];
+
+            this.sessionService.Setup(x => x.Session.PermissionService.CanWrite(ClassKind.Folder, this.commonFileStore)).Returns(false);
+            this.sessionService.Setup(x => x.Session.PermissionService.CanWrite(It.IsAny<ClassKind>(), null)).Returns(false);
+
+            await this.viewModel.MoveFolder(this.commonFileStore.Folder[0], null);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Never);
+
+            this.sessionService.Setup(x => x.Session.PermissionService.CanWrite(ClassKind.Folder, this.commonFileStore)).Returns(true);
+
+            await this.viewModel.MoveFolder(this.commonFileStore.Folder[0], null);
+            this.sessionService.Verify(x => x.CreateOrUpdateThings(It.IsAny<FileStore>(), It.IsAny<IReadOnlyCollection<Thing>>()), Times.Once);
         }
 
         [Test]

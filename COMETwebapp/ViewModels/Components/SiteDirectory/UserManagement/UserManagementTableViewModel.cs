@@ -263,9 +263,12 @@ namespace COMETwebapp.ViewModels.Components.SiteDirectory.UserManagement
 
             foreach (var row in this.Rows.Items)
             {
+                // A person may never deactivate themselves, on top of the ordinary write permission.
                 row.IsAllowedToWrite = row.Thing.Iid != this.SessionService.Session.ActivePerson.Iid
-                                       && this.PermissionService.CanWrite(ClassKind.Person, this.SessionService.GetSiteDirectory());
+                                       && this.PermissionService.CanWrite(row.Thing);
             }
+
+            this.IsAllowedToCreate = this.PermissionService.CanWrite(ClassKind.Person, this.SessionService.GetSiteDirectory());
 
             this.IsLoading = false;
         }

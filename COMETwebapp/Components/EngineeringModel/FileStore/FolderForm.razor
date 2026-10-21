@@ -49,11 +49,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
     <div class="dxbl-grid-edit-form-buttons">
         <DxButton Id="deleteFolderButton"
                   Click="@(() => this.IsDeletePopupVisible = true)"
+                  Enabled="@(!this.IsReadOnly)"
                   RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())">
             Delete
         </DxButton>
 
         <DxButton SubmitFormOnClick="true"
+                  Enabled="@(!this.IsReadOnly)"
                   RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())">
             Save
         </DxButton>
@@ -70,6 +72,6 @@ Copyright (c) 2023-2026 Starion Group S.A.
     You are about to delete the Folder: @(this.ViewModel.CurrentThing.Name)
     <div class="dxbl-grid-confirm-dialog-buttons">
         <DxButton Text="Cancel " RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Click="@(() => this.IsDeletePopupVisible = false)" />
-        <DxButton Text="Confirm" RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())" Click="@(() => this.OnDelete())" Id="deleteFolderPopupButton" />
+        <DxButton Text="Confirm" RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())" Click="@(() => this.OnDelete())" Id="deleteFolderPopupButton" Enabled="@(!this.IsReadOnly)" />
     </div>
 </DxPopup>

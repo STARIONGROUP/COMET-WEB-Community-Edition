@@ -113,5 +113,37 @@ namespace COMET.Web.Common.Tests.Validators
 
             Assert.That(this.validator.Validate(dto).Errors, Is.Empty);
         }
+
+        /// <summary>
+        /// Verifies that <see cref="AuthenticationDto.ShouldValidatePassword" /> lets the Annex C3 archive login opt the
+        /// Password out of validation while the Username stays required, and that the default (<c>true</c>) still
+        /// requires a Password.
+        /// </summary>
+        [Test]
+        public void VerifyPasswordValidationCanBeOptedOut()
+        {
+            var dto = new AuthenticationDto
+            {
+                ShouldValidateCredentials = true,
+                ShouldValidateSourceAddress = false,
+                ShouldValidatePassword = false
+            };
+
+            var errorsWithoutUserName = this.validator.Validate(dto).Errors.Select(x => x.ErrorMessage).ToList();
+
+            dto.UserName = "user";
+            var errorsWithUserName = this.validator.Validate(dto).Errors;
+
+            dto.ShouldValidatePassword = true;
+            var errorsWithPasswordRequired = this.validator.Validate(dto).Errors.Select(x => x.ErrorMessage).ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(errorsWithoutUserName, Does.Contain("The Username is required."));
+                Assert.That(errorsWithoutUserName, Does.Not.Contain("The Password is required."));
+                Assert.That(errorsWithUserName, Is.Empty);
+                Assert.That(errorsWithPasswordRequired, Does.Contain("The Password is required."));
+            });
+        }
     }
 }

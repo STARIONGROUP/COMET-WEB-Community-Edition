@@ -41,6 +41,10 @@
             <DxGridLayoutItem Column="1" CssClass="page-layout-item-content">
                 <Template>
                     <main id="main-content" tabindex="-1" aria-keyshortcuts="Alt+Shift+3">
+                        @if (this.ViewModel.SessionService.IsReadOnly)
+                        {
+                            <div id="read-only-banner" class="read-only-banner">This model was opened from an archive and is read-only. No changes can be saved.</div>
+                        }
                         @(this.Body)
                     </main>
                 </Template>

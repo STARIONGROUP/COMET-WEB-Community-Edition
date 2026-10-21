@@ -38,7 +38,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <DxGridDataColumn FieldName="@nameof(IterationSetupRowViewModel.Number)" MinWidth="80" SearchEnabled="false"/>
             <DxGridCommandColumn Width="100px" EditButtonVisible="false">
                 <HeaderTemplate>
-                    @if (this.ViewModel.CanCreateIteration)
+                    @if (this.ViewModel.CanCreateIteration && !this.IsReadOnly)
                     {
                         <DxButton Id="addIterationButton" Text="Add" IconCssClass="@IconName.Add.GetCssClass()" Click="this.StartCreate" RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"/>
                     }

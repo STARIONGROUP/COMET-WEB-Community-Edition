@@ -58,7 +58,7 @@ else
 
             <li class="req-tree-item">
                 <div class="req-tree-row req-tree-group-row @(isDropTarget ? "req-tree-droptarget" : string.Empty)"
-                     draggable="true"
+                     draggable="@(this.IsReadOnly ? "false" : "true")"
                      title="Drag onto a group to nest it, or onto the specification to make it top-level"
                      @ondragstart="@(() => this.OnGroupDragStart(group))"
                      @ondragend="@this.OnGroupDragEnd"

@@ -16,7 +16,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 @inherits DisposableComponent
 
 <div class="dxbl-grid-edit-form-buttons">
-    @if (this.DeleteButtonVisible)
+    @if (this.DeleteButtonVisible && !this.IsReadOnly)
     {
         <DxButton Id="deleteItemButton"
                   Click="@(() => this.OnDelete.InvokeAsync())"
@@ -25,19 +25,27 @@ Copyright (c) 2023-2026 Starion Group S.A.
         </DxButton>
     }
 
-    <DxButton Id="saveItemButton"
-              SubmitFormOnClick="true"
-              RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
-              Enabled="@(this.SaveButtonEnabled && !this.IsLoading)">
-        @(this.IsLoading ? "Loading" : "Save")
-    </DxButton>
+    @if (!this.IsReadOnly)
+    {
+        <DxButton Id="saveItemButton"
+                  SubmitFormOnClick="true"
+                  RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                  Enabled="@(this.SaveButtonEnabled && !this.IsLoading)">
+            @(this.IsLoading ? "Loading" : "Save")
+        </DxButton>
+    }
 
     <DxButton Id="cancelItemButton"
               Click="@(() => this.OnCancel.InvokeAsync())"
               RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())">
-        Cancel
+        @(this.IsReadOnly ? "Close" : "Cancel")
     </DxButton>
 </div>
+
+@if (this.IsReadOnly)
+{
+    <div id="form-read-only-notice" class="form-read-only-notice">This model was opened from an archive, so it can be inspected but not changed.</div>
+}
 
 <div class="validation-container mt-3">
     @if (this.ValidationMessages is null)

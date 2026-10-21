@@ -22,6 +22,8 @@
 
 namespace COMETwebapp.Components.ModelEditor
 {
+    using COMET.Web.Common.Services.SessionManagement;
+
     using COMETwebapp.ViewModels.Components.ModelEditor.EditParameterSubscriptionViewModel;
 
     using Microsoft.AspNetCore.Components;
@@ -34,6 +36,19 @@ namespace COMETwebapp.Components.ModelEditor
     /// </summary>
     public partial class EditParameterSubscription
     {
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. The dialog still opens so the subscription can be inspected,
+        /// but the OK button that would commit the edit is withdrawn
+        /// </summary>
+        private bool IsReadOnly => this.SessionService.IsReadOnly;
+
         /// <summary>
         /// Gets or sets the <see cref="IEditParameterSubscriptionViewModel" /> that drives this dialog.
         /// </summary>

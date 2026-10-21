@@ -26,11 +26,14 @@ namespace COMETwebapp.Components.Common
 
     using COMET.Web.Common.Components;
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.ViewModels.Components.Common.BaseDataItemTable;
     using COMETwebapp.ViewModels.Components.Common.Rows;
 
     using DynamicData;
+
+    using Microsoft.AspNetCore.Components;
 
     using ReactiveUI;
 
@@ -43,6 +46,19 @@ namespace COMETwebapp.Components.Common
         /// The <see cref="IBaseDataItemTableViewModel{T,TRow}" /> for this component
         /// </summary>
         private IBaseDataItemTableViewModel<T, TRow> ViewModel { get; set; }
+
+        /// <summary>
+        /// The injected <see cref="ISessionService" />, used to assert whether the open session allows writing
+        /// </summary>
+        [Inject]
+        public ISessionService SessionService { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the open session forbids any modification, which is the case for a session
+        /// opened from an ECSS-E-TM-10-25 Annex C3 archive. Create, edit and delete controls bind their enabled state to
+        /// the inverse of this, so the data can still be inspected but never modified
+        /// </summary>
+        public bool IsReadOnly => this.SessionService.IsReadOnly;
 
         /// <summary>
         /// Gets or sets the condition to check if a thing should be created

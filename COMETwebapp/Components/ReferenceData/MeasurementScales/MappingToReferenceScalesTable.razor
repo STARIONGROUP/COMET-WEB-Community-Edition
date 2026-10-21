@@ -31,6 +31,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                           Text="Add"
                           IconCssClass="@IconName.Add.GetCssClass()"
                           Click="this.StartCreate"
+                          Enabled="@(!this.IsReadOnly && this.IsAllowedToWrite)"
                           RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" />
             </HeaderTemplate>
             <CellDisplayTemplate>
@@ -45,6 +46,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     <DxButton Id="removeMappingToReferenceScaleButton"
                               IconCssClass="@IconName.Delete.GetCssClass()"
                               Click="() => this.RemoveMappingToReferenceScale(row)"
+                              Enabled="@(!this.IsReadOnly && this.IsAllowedToWrite)"
                               RenderStyle="@(CometButtonStyle.Danger.ToButtonRenderStyle())"/>
                 }
             </CellDisplayTemplate>
