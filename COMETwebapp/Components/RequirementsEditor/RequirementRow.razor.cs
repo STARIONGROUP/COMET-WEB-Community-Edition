@@ -26,6 +26,7 @@ namespace COMETwebapp.Components.RequirementsEditor
     using CDP4Common.SiteDirectoryData;
 
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
+    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
 
     using Microsoft.AspNetCore.Components;
 
@@ -59,5 +60,31 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// </summary>
         [Parameter]
         public bool ValuesBelow { get; set; }
+
+        /// <summary>
+        /// Gets the CSS classes flagging the row's annotation state: a marker when it carries open annotations (while
+        /// annotations are shown), and a highlight when its annotations are shown in the side panel.
+        /// </summary>
+        /// <returns>The space-separated CSS classes, possibly empty</returns>
+        private string GetAnnotationCssClass()
+        {
+            var annotations = this.ViewModel.AnnotationsViewModel;
+            var open = this.ViewModel.ShowAnnotations && annotations.HasOpenAnnotations(this.Requirement) ? "req-row-annotated" : string.Empty;
+            var active = ReferenceEquals(annotations.ActiveRequirement, this.Requirement) ? "req-row-annotation-active" : string.Empty;
+
+            return $"{open} {active}".Trim();
+        }
+
+        /// <summary>
+        /// Gets the annotation kinds of the requirement that still have open annotations, which colour the bar in front of
+        /// the row, or none while annotations are hidden.
+        /// </summary>
+        /// <returns>The <see cref="AnnotationKindSummary" />s with at least one open annotation</returns>
+        private IReadOnlyList<AnnotationKindSummary> GetOpenAnnotationKinds()
+        {
+            return this.ViewModel.ShowAnnotations
+                ? [..this.ViewModel.AnnotationsViewModel.GetSummary(this.Requirement).Where(x => x.OpenCount > 0)]
+                : [];
+        }
     }
 }

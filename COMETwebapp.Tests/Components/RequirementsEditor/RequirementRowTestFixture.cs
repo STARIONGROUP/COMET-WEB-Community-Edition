@@ -35,6 +35,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
     using COMETwebapp.Components.RequirementsEditor;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
+    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
 
     using Microsoft.Extensions.DependencyInjection;
 
@@ -47,6 +48,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     {
         private BunitContext context;
         private Mock<IRequirementsEditorBodyViewModel> viewModel;
+        private Mock<IRequirementAnnotationsViewModel> annotationsViewModel;
         private Mock<ISessionService> sessionService;
         private Requirement requirement;
         private SimpleQuantityKind parameterType;
@@ -66,8 +68,13 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.requirement.Definition.Add(new Definition { Iid = Guid.NewGuid(), LanguageCode = "en", Content = "The system shall do it." });
 
             this.viewModel = new Mock<IRequirementsEditorBodyViewModel>();
+            this.annotationsViewModel = new Mock<IRequirementAnnotationsViewModel>();
+            this.annotationsViewModel.Setup(x => x.GetSummary(It.IsAny<Thing>())).Returns([]);
+            this.annotationsViewModel.Setup(x => x.CreatableKinds).Returns([]);
+            this.viewModel.Setup(x => x.AnnotationsViewModel).Returns(this.annotationsViewModel.Object);
             this.viewModel.Setup(x => x.DisplayMode).Returns(RequirementRowDisplayMode.ShortNameNameAndDefinition);
             this.viewModel.Setup(x => x.ShowOwner).Returns(true);
+            this.viewModel.Setup(x => x.ShowAnnotations).Returns(true);
         }
 
         [TearDown]
@@ -137,6 +144,87 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.viewModel.Setup(x => x.GetTraceability(this.requirement)).Returns([]);
 
             Assert.That(this.Render().FindComponents<RequirementDetails>(), Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void VerifyAnnotationStateIsFlaggedOnTheRow()
+        {
+            var plain = this.Render().Find(".req-row");
+
+            this.annotationsViewModel.Setup(x => x.HasOpenAnnotations(this.requirement)).Returns(true);
+            var annotated = this.Render().Find(".req-row");
+
+            this.annotationsViewModel.Setup(x => x.HasOpenAnnotations(this.requirement)).Returns(false);
+            this.annotationsViewModel.Setup(x => x.ActiveRequirement).Returns(this.requirement);
+            var active = this.Render().Find(".req-row");
+
+            this.annotationsViewModel.Setup(x => x.ActiveRequirement).Returns(new Requirement { Iid = Guid.NewGuid(), ShortName = "R2" });
+            var otherActive = this.Render().Find(".req-row");
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(plain.ClassList, Does.Not.Contain("req-row-annotated").And.Not.Contain("req-row-annotation-active"));
+                Assert.That(annotated.ClassList, Does.Contain("req-row-annotated"));
+                Assert.That(annotated.ClassList, Does.Not.Contain("req-row-annotation-active"));
+                Assert.That(active.ClassList, Does.Contain("req-row-annotation-active"));
+                Assert.That(active.ClassList, Does.Not.Contain("req-row-annotated"));
+                Assert.That(otherActive.ClassList, Does.Not.Contain("req-row-annotated").And.Not.Contain("req-row-annotation-active"));
+            }
+        }
+
+        [Test]
+        public void VerifyAnnotationBarHasOneSegmentPerOpenKind()
+        {
+            this.annotationsViewModel.Setup(x => x.HasOpenAnnotations(this.requirement)).Returns(true);
+            this.annotationsViewModel.Setup(x => x.GetSummary(this.requirement)).Returns(
+            [
+                new AnnotationKindSummary(RequirementAnnotationKind.Note, 2, 0),
+                new AnnotationKindSummary(RequirementAnnotationKind.ReviewItemDiscrepancy, 1, 1),
+                new AnnotationKindSummary(RequirementAnnotationKind.ChangeRequest, 3, 2)
+            ]);
+
+            var component = this.Render();
+            var segments = component.FindAll(".req-annotation-bar > span");
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(component.FindAll(".req-annotation-bar"), Has.Count.EqualTo(1));
+                Assert.That(segments.Select(x => x.ClassList.Single(c => c.StartsWith("ann-kind-"))), Is.EqualTo(["ann-kind-rid", "ann-kind-cr"]), "one segment per kind with open annotations, in summary order");
+                Assert.That(component.Find(".req-annotation-bar").GetAttribute("title"), Is.EqualTo("1 of 1 Review Item Discrepancy open, 2 of 3 Change Requests open"));
+            }
+        }
+
+        [Test]
+        public void VerifyAnnotationBarIsAbsentWithoutOpenAnnotations()
+        {
+            this.annotationsViewModel.Setup(x => x.GetSummary(this.requirement)).Returns(
+            [
+                new AnnotationKindSummary(RequirementAnnotationKind.Note, 2, 0),
+                new AnnotationKindSummary(RequirementAnnotationKind.ChangeRequest, 1, 0)
+            ]);
+
+            var component = this.Render();
+
+            Assert.That(component.FindAll(".req-annotation-bar"), Is.Empty, "annotations that are all resolved do not colour the row");
+        }
+
+        [Test]
+        public void VerifyAnnotationsAreHiddenWhenShowAnnotationsIsFalse()
+        {
+            this.viewModel.Setup(x => x.ShowAnnotations).Returns(false);
+            this.annotationsViewModel.Setup(x => x.HasOpenAnnotations(this.requirement)).Returns(true);
+            this.annotationsViewModel.Setup(x => x.GetSummary(this.requirement)).Returns([new AnnotationKindSummary(RequirementAnnotationKind.ChangeRequest, 3, 2)]);
+            this.annotationsViewModel.Setup(x => x.ActiveRequirement).Returns(this.requirement);
+
+            var component = this.Render();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(component.FindAll(".req-annotation-bar"), Is.Empty);
+                Assert.That(component.FindAll(".req-annotation-badges"), Is.Empty);
+                Assert.That(component.Find(".req-row").ClassList, Does.Not.Contain("req-row-annotated"));
+                Assert.That(component.Find(".req-row").ClassList, Does.Contain("req-row-annotation-active"), "the side panel highlight does not depend on the annotation toggle");
+            }
         }
     }
 }

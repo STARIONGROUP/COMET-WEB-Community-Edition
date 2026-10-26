@@ -302,5 +302,58 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 Assert.That(this.renderedComponent.FindComponents<DxToolbarItem>().Any(x => x.Instance.Name == "Back"), Is.True,
                     "a Back item is offered once the document was reached from the changelog"));
         }
+
+        [Test]
+        public void VerifyShowAnnotationsTogglesTheAnnotationBadges()
+        {
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
+
+            Assert.That(this.renderedComponent.FindAll(".req-annotation-badges"), Has.Count.EqualTo(1), "the annotation badges are shown on the requirement by default");
+
+            this.viewModel.ShowAnnotations = false;
+            this.renderedComponent.Render();
+
+            Assert.That(this.renderedComponent.FindAll(".req-annotation-badges"), Is.Empty, "hiding the annotations removes the badges from the requirement");
+
+            this.viewModel.ShowAnnotations = true;
+            this.renderedComponent.Render();
+
+            Assert.That(this.renderedComponent.FindAll(".req-annotation-badges"), Has.Count.EqualTo(1), "showing them again restores the badges");
+        }
+
+        [Test]
+        public void VerifyAnnotationFilterAndPanelRender()
+        {
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.renderedComponent.FindAll("#requirement-annotation-filter"), Has.Count.EqualTo(1), "the toolbar offers the annotation filter");
+                Assert.That(this.renderedComponent.Find(".req-editor-layout").ClassList, Does.Not.Contain("annotations-open"));
+                Assert.That(this.renderedComponent.FindAll("#requirement-annotations-panel"), Is.Empty);
+            }
+
+            this.renderedComponent.InvokeAsync(() => this.viewModel.AnnotationsViewModel.OpenPanel(this.requirement));
+
+            this.renderedComponent.WaitForAssertion(() =>
+            {
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(this.renderedComponent.Find(".req-editor-layout").ClassList, Does.Contain("annotations-open"));
+                    Assert.That(this.renderedComponent.FindAll("#requirement-annotations-panel"), Has.Count.EqualTo(1));
+                }
+            });
+
+            this.renderedComponent.InvokeAsync(() => this.viewModel.AnnotationsViewModel.ClosePanel());
+
+            this.renderedComponent.WaitForAssertion(() =>
+            {
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(this.renderedComponent.Find(".req-editor-layout").ClassList, Does.Not.Contain("annotations-open"));
+                    Assert.That(this.renderedComponent.FindAll("#requirement-annotations-panel"), Is.Empty);
+                }
+            });
+        }
     }
 }

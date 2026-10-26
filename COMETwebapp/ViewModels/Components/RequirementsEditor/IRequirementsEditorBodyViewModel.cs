@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
+    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
 
     using FluentResults;
 
@@ -47,6 +48,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// Gets the view model driving the requirements export dialog.
         /// </summary>
         IRequirementsExportViewModel ExportViewModel { get; }
+
+        /// <summary>
+        /// Gets the view model indexing the annotations of the requirements and driving the annotations side panel.
+        /// </summary>
+        IRequirementAnnotationsViewModel AnnotationsViewModel { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="RequirementsEditorView" /> currently shown.
@@ -90,6 +96,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         bool ShowCategory { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the annotation pills and the coloured annotation bar are shown on the
+        /// requirements.
+        /// </summary>
+        bool ShowAnnotations { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether groups are indented in the document.
         /// </summary>
         bool IndentGroups { get; set; }
@@ -129,6 +141,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// Gets or sets the selected <see cref="Category" /> values; an empty selection means no category filtering.
         /// </summary>
         IEnumerable<Category> SelectedCategories { get; set; }
+
+        /// <summary>
+        /// Gets or sets the selected <see cref="AnnotationFilterOption" />s; an empty selection means no annotation filtering.
+        /// </summary>
+        IEnumerable<AnnotationFilterOption> SelectedAnnotationFilters { get; set; }
 
         /// <summary>
         /// Gets the visible, non-deprecated requirements located directly under the given <paramref name="container" />

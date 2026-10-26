@@ -77,6 +77,9 @@ namespace COMETwebapp.Tests.IntegrationTests
 
             await Expect(this.PageModel.ExportConfirmButton).ToBeVisibleAsync();
             await Expect(this.PageModel.ExportSpecificationSelector).ToBeVisibleAsync();
+
+            await this.PageModel.ExportCancelButton.ClickAsync();
+            await Expect(this.PageModel.ExportConfirmButton).Not.ToBeVisibleAsync();
         }
 
         [Test]
@@ -88,6 +91,30 @@ namespace COMETwebapp.Tests.IntegrationTests
             await this.PageModel.OpenFirstSpecificationAsync();
 
             await Expect(this.PageModel.DocumentSpecificationTitle).ToBeVisibleAsync();
+        }
+
+        /// <summary>
+        /// Verifies that a requirement's annotation badge (or annotate button) opens the annotations side panel next to
+        /// the document and that the panel closes again. Read-only: it opens and closes the panel without writing.
+        /// </summary>
+        /// <returns>A <see cref="Task" />.</returns>
+        [Test]
+        public async Task VerifyTheAnnotationsPanelOpensAndCloses()
+        {
+            await Expect(this.PageModel.AnnotationFilter).ToBeVisibleAsync();
+
+            Assume.That(await this.PageModel.HasSpecificationsAsync(), Is.True, "the open model has no requirement specifications to open");
+
+            await this.PageModel.OpenFirstSpecificationAsync();
+            await Expect(this.PageModel.DocumentSpecificationTitle).ToBeVisibleAsync();
+
+            Assume.That(await this.PageModel.AnnotationTriggers.CountAsync(), Is.GreaterThan(0), "no requirement shows annotations, and the user may not annotate");
+
+            await this.PageModel.AnnotationTriggers.First.ClickAsync();
+            await Expect(this.PageModel.AnnotationPanel).ToBeVisibleAsync();
+
+            await this.PageModel.AnnotationPanelCloseButton.ClickAsync();
+            await Expect(this.PageModel.AnnotationPanel).ToHaveCountAsync(0);
         }
 
         /// <summary>

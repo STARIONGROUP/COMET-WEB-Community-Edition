@@ -285,5 +285,10 @@ namespace COMET.Web.Common.Enumerations
         /// List glyph, used for the tabs overview application.
         /// </summary>
         List,
+
+        /// <summary>
+        /// Speech-bubble glyph, used for comments and annotations.
+        /// </summary>
+        MessageSquare,
     }
 }

@@ -22,6 +22,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 @using COMETwebapp.Extensions
 @using COMETwebapp.Utilities
 @using COMETwebapp.ViewModels.Components.RequirementsEditor
+@using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
 
 @inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.RequirementsEditor.IRequirementsEditorBodyViewModel>
 
@@ -96,6 +97,16 @@ Copyright (c) 2023-2026 Starion Group S.A.
                                   NullText="Filter by category..." />
                 </div>
 
+                <div class="filter-bar-item" title="Show only the requirements carrying open annotations or annotations of a given kind">
+                    <FilterTagBox TItem="AnnotationFilterOption"
+                                  Id="requirement-annotation-filter"
+                                  Data="@this.ViewModel.AnnotationsViewModel.FilterOptions"
+                                  Values="@this.ViewModel.SelectedAnnotationFilters"
+                                  ValuesChanged="@((IEnumerable<AnnotationFilterOption> values) => this.ViewModel.SelectedAnnotationFilters = values.ToList())"
+                                  TextFieldName="@nameof(AnnotationFilterOption.Label)"
+                                  NullText="Filter by annotation..." />
+                </div>
+
                 @if (this.ViewModel.ShowSimpleParameterValues && this.ViewModel.GetSpecificationParameterTypes().Count > 0)
                 {
                     <div class="filter-bar-item" title="Choose which simple parameter value columns to show">
@@ -147,6 +158,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                             <DxCheckBox @bind-Checked="@this.ViewModel.IndentGroups" CheckType="CheckType.Switch">Indent groups</DxCheckBox>
                             <DxCheckBox @bind-Checked="@this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
                             <DxCheckBox @bind-Checked="@this.ViewModel.ShowCategory" CheckType="CheckType.Switch">Category</DxCheckBox>
+                            <DxCheckBox @bind-Checked="@this.ViewModel.ShowAnnotations" CheckType="CheckType.Switch" title="Show the annotation pills and the coloured bar of annotated requirements">Annotations</DxCheckBox>
                             <DxCheckBox @bind-Checked="@this.ViewModel.ShowSimpleParameterValues" CheckType="CheckType.Switch" title="Show the simple parameter values of each requirement as editable columns">Values</DxCheckBox>
                             <DxCheckBox @bind-Checked="@this.ViewModel.ShowParametricConstraints" CheckType="CheckType.Switch" title="Show the parametric constraints of each requirement">Constraints</DxCheckBox>
                             <DxCheckBox @bind-Checked="@this.ViewModel.ShowTraceability" CheckType="CheckType.Switch" title="Show the relationships to and from each requirement">Traceability</DxCheckBox>
@@ -157,13 +169,16 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
             <RequirementsExportDialog ViewModel="@this.ViewModel.ExportViewModel" />
 
-            <div class="req-editor-layout @(this.ViewModel.IsTocCollapsed ? "toc-collapsed" : string.Empty)">
+            <div class="req-editor-layout @(this.ViewModel.IsTocCollapsed ? "toc-collapsed" : string.Empty) @(this.ViewModel.AnnotationsViewModel.IsPanelOpen ? "annotations-open" : string.Empty)">
                 <div id="req-toc" class="req-toc">
                     <RequirementsTree ViewModel="@this.ViewModel" />
                 </div>
                 <div id="req-toc-resizer" class="req-toc-resizer" title="Drag to resize"></div>
                 <div class="req-document @(this.ViewModel.IndentGroups ? string.Empty : "no-indent")">
                     <RequirementsDocument ViewModel="@this.ViewModel" />
+                </div>
+                <div class="req-annotations">
+                    <RequirementAnnotationsPanel ViewModel="@this.ViewModel" />
                 </div>
             </div>
         </div>

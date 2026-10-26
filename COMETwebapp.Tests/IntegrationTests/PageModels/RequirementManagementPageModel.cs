@@ -87,6 +87,11 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         public ILocator ExportConfirmButton => this.Page.Locator("#requirement-export-confirm");
 
         /// <summary>
+        /// Gets the cancel button of the export configuration dialog.
+        /// </summary>
+        public ILocator ExportCancelButton => this.Page.Locator("#requirement-export-cancel");
+
+        /// <summary>
         /// Gets the specification selector of the export configuration dialog.
         /// </summary>
         public ILocator ExportSpecificationSelector => this.Page.Locator("#requirement-export-specifications");
@@ -100,6 +105,27 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// Gets the specification title shown at the top of the document viewer once a specification is opened.
         /// </summary>
         public ILocator DocumentSpecificationTitle => this.Document.Locator(".req-spec-title");
+
+        /// <summary>
+        /// Gets the toolbar filter narrowing the document to requirements carrying (open) annotations.
+        /// </summary>
+        public ILocator AnnotationFilter => this.Page.Locator("#requirement-annotation-filter");
+
+        /// <summary>
+        /// Gets the per-requirement annotation controls of the document: the kind badges of an annotated requirement,
+        /// and the "annotate" button of one without annotations (only rendered when the user may annotate).
+        /// </summary>
+        public ILocator AnnotationTriggers => this.Document.Locator(".req-annotation-badge, .req-annotation-add");
+
+        /// <summary>
+        /// Gets the annotations side panel, rendered only while it is open.
+        /// </summary>
+        public ILocator AnnotationPanel => this.Page.Locator("#requirement-annotations-panel");
+
+        /// <summary>
+        /// Gets the close button of the annotations side panel.
+        /// </summary>
+        public ILocator AnnotationPanelCloseButton => this.Page.Locator("#requirement-annotations-close");
 
         /// <summary>
         /// Gets a value indicating whether the table of contents contains at least one specification.

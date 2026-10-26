@@ -1,0 +1,212 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.ReportingData
+@using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
+
+@{
+    var annotations = this.ViewModel.AnnotationsViewModel;
+    var kind = RequirementAnnotationHelper.GetKind(this.Annotation) ?? RequirementAnnotationKind.Note;
+    var suffix = RequirementAnnotationHelper.GetCssSuffix(kind);
+    var item = this.Annotation as ModellingAnnotationItem;
+    var canEdit = annotations.CanEdit(this.Annotation);
+}
+
+<article id="@($"annotation-{this.Annotation.Iid}")"
+         class="ann-card ann-kind-@suffix @(item == null || RequirementAnnotationHelper.IsOpen(item) ? "is-open" : "is-resolved") @(this.IsNested ? "is-nested" : string.Empty)">
+    <header class="ann-card-header">
+        <span class="ann-kind-pill ann-kind-@suffix" title="@RequirementAnnotationHelper.GetLabel(kind)">@RequirementAnnotationHelper.GetAcronym(kind)</span>
+        @if (item != null)
+        {
+            <span class="ann-card-id">@item.ShortName</span>
+            <span class="ann-classification ann-classification-@item.Classification.ToString().ToLowerInvariant()">@RequirementAnnotationHelper.GetClassificationLabel(item.Classification)</span>
+            <span class="ann-card-spacer"></span>
+            @if (canEdit)
+            {
+                <DxComboBox TData="StatusOption"
+                            TValue="AnnotationStatusKind"
+                            Data="@StatusOptions"
+                            Value="@item.Status"
+                            ValueChanged="@((AnnotationStatusKind status) => annotations.SetStatusAsync(item, status))"
+                            ValueFieldName="@nameof(StatusOption.Status)"
+                            TextFieldName="@nameof(StatusOption.Label)"
+                            SizeMode="SizeMode.Small"
+                            CssClass="@($"ann-status-select ann-status-{item.Status.ToString().ToLowerInvariant()}")"
+                            title="Change the status" />
+            }
+            else
+            {
+                <span class="ann-status ann-status-@item.Status.ToString().ToLowerInvariant()">@RequirementAnnotationHelper.GetStatusLabel(item.Status)</span>
+            }
+        }
+        else
+        {
+            <span class="ann-card-spacer"></span>
+        }
+    </header>
+
+    @if (item != null)
+    {
+        <div class="ann-card-title">@item.Title</div>
+
+        @if (item.Category.Count > 0)
+        {
+            <div class="ann-card-pills">
+                @foreach (var category in item.Category)
+                {
+                    <StarionPill ColorSeed="@($"category:{category.ShortName}")" Title="@($"Category: {category.Name}")">@category.ShortName</StarionPill>
+                }
+            </div>
+        }
+    }
+
+    <div class="ann-card-meta">@GetAuthorName(this.Annotation.Author) · @FormatDate(this.Annotation.CreatedOn)</div>
+    <div class="ann-card-content">@this.Annotation.Content</div>
+
+    @if (item?.ApprovedBy.Count > 0)
+    {
+        <ul class="ann-approvals" aria-label="Decisions">
+            @foreach (var approval in item.ApprovedBy.OrderBy(x => x.CreatedOn))
+            {
+                <li class="ann-approval ann-approval-@approval.Classification.ToString().ToLowerInvariant()">
+                    <CometIcon Icon="@GetApprovalIcon(approval.Classification)" />
+                    <span><strong>@RequirementAnnotationHelper.GetApprovalLabel(approval.Classification)</strong> by @GetAuthorName(approval.Author)@(approval.Owner != null ? $" ({approval.Owner.ShortName})" : string.Empty) · @FormatDate(approval.CreatedOn)</span>
+                    @if (approval.Content != RequirementAnnotationHelper.GetApprovalLabel(approval.Classification))
+                    {
+                        <span class="ann-approval-comment">@approval.Content</span>
+                    }
+                </li>
+            }
+        </ul>
+    }
+
+    @if (this.Annotation is ReviewItemDiscrepancy { Solution.Count: > 0 } discrepancy)
+    {
+        <section class="ann-section" aria-label="Proposed solutions">
+            <div class="ann-section-title">Proposed solutions</div>
+            @foreach (var solution in discrepancy.Solution.OrderBy(x => x.CreatedOn))
+            {
+                <div class="ann-solution">
+                    <div class="ann-card-meta">@GetAuthorName(solution.Author)@(solution.Owner != null ? $" ({solution.Owner.ShortName})" : string.Empty) · @FormatDate(solution.CreatedOn)</div>
+                    <div class="ann-card-content">@solution.Content</div>
+                </div>
+            }
+        </section>
+    }
+
+    @if (this.Annotation is ChangeRequest changeRequest)
+    {
+        var proposals = annotations.GetChangeProposals(changeRequest);
+
+        @if (proposals.Count > 0)
+        {
+            <section class="ann-section" aria-label="Change proposals">
+                <div class="ann-section-title">Change proposals</div>
+                @foreach (var proposal in proposals)
+                {
+                    <AnnotationCard @key="proposal.Iid" ViewModel="@this.ViewModel" Annotation="@proposal" IsNested="true" />
+                }
+            </section>
+        }
+    }
+
+    @if (this.Annotation.Discussion.Count > 0)
+    {
+        <section class="ann-thread" aria-label="Replies">
+            @foreach (var reply in this.Annotation.Discussion.OrderBy(x => x.CreatedOn))
+            {
+                <div class="ann-reply">
+                    <div class="ann-card-meta"><strong>@GetAuthorName(reply.Author)</strong> · @FormatDate(reply.CreatedOn)</div>
+                    <div class="ann-card-content">@reply.Content</div>
+                </div>
+            }
+        </section>
+    }
+
+    @switch (this.openForm)
+    {
+        case AnnotationCardForm.Reply:
+            <div class="ann-inline-form">
+                <DxMemo @bind-Text="@this.formText" BindValueMode="BindValueMode.OnInput" Rows="2" NullText="Write a reply..." CssClass="ann-reply-input" />
+                <div class="ann-inline-actions">
+                    <DxButton RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Cancel" Click="@this.CloseForm" />
+                    <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Reply" CssClass="ann-reply-send" Enabled="@(!string.IsNullOrWhiteSpace(this.formText) && !annotations.IsBusy)" Click="@this.SendReplyAsync" />
+                </div>
+            </div>
+            break;
+
+        case AnnotationCardForm.Solution:
+            <div class="ann-inline-form">
+                <DxMemo @bind-Text="@this.formText" BindValueMode="BindValueMode.OnInput" Rows="3" NullText="Describe the proposed solution..." />
+                <div class="ann-inline-actions">
+                    <DxButton RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Cancel" Click="@this.CloseForm" />
+                    <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())" Text="Propose solution" Enabled="@(!string.IsNullOrWhiteSpace(this.formText) && !annotations.IsBusy)" Click="@this.SendSolutionAsync" />
+                </div>
+            </div>
+            break;
+
+        case AnnotationCardForm.Decision:
+            <div class="ann-inline-form">
+                <div class="ann-inline-title">@RequirementAnnotationHelper.GetApprovalLabel(this.pendingDecision) @(item?.ShortName)</div>
+                <DxMemo @bind-Text="@this.formText" BindValueMode="BindValueMode.OnInput" Rows="2" NullText="Add a comment (optional)..." />
+                <div class="ann-inline-actions">
+                    <DxButton RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Cancel" Click="@this.CloseForm" />
+                    <DxButton RenderStyle="@(this.pendingDecision == AnnotationApprovalKind.REJECTED ? CometButtonStyle.Danger.ToButtonRenderStyle() : CometButtonStyle.Primary.ToButtonRenderStyle())"
+                              Text="@($"Confirm {RequirementAnnotationHelper.GetApprovalLabel(this.pendingDecision).ToLowerInvariant()}")"
+                              Enabled="@(!annotations.IsBusy)"
+                              Click="@this.SendDecisionAsync" />
+                </div>
+            </div>
+            break;
+
+        default:
+            <div class="ann-card-actions">
+                @if (annotations.CanReply(this.Annotation))
+                {
+                    <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.MessageSquare.GetCssClass()" Text="Reply" CssClass="ann-action ann-action-reply" Click="@(() => this.OpenForm(AnnotationCardForm.Reply))" />
+                }
+                @if (annotations.CanApprove(this.Annotation))
+                {
+                    <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Check.GetCssClass()" Text="Accept" CssClass="ann-action ann-action-accept" Click="@(() => this.OpenDecision(AnnotationApprovalKind.ACCEPTED))" />
+                    <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Close.GetCssClass()" Text="Reject" CssClass="ann-action ann-action-reject" Click="@(() => this.OpenDecision(AnnotationApprovalKind.REJECTED))" />
+                    <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Undo.GetCssClass()" title="Withdraw" CssClass="ann-action ann-action-withdraw" Click="@(() => this.OpenDecision(AnnotationApprovalKind.WITHDRAWN))" />
+                }
+                @if (annotations.CanAddSolution(this.Annotation))
+                {
+                    <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Add.GetCssClass()" Text="Solution" title="Propose a solution" CssClass="ann-action ann-action-solution" Click="@(() => this.OpenForm(AnnotationCardForm.Solution))" />
+                }
+                @if (this.Annotation is ChangeRequest request && annotations.CanProposeChange(request))
+                {
+                    <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Add.GetCssClass()" Text="Change proposal" title="Answer with a concrete change proposal" CssClass="ann-action ann-action-proposal" Click="@(() => annotations.StartChangeProposal(request))" />
+                }
+                @if (this.CanEditRequirement(kind))
+                {
+                    <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Edit.GetCssClass()" Text="Edit requirement" title="Open the requirement to apply the change" CssClass="ann-action ann-action-edit-requirement" Click="@(() => this.ViewModel.OpenEdit(annotations.ActiveRequirement))" />
+                }
+                <span class="ann-card-spacer"></span>
+                @if (canEdit)
+                {
+                    <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Edit.GetCssClass()" title="Edit this annotation" CssClass="ann-action ann-action-edit" Click="@(() => annotations.StartEdit(this.Annotation))" />
+                    <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Delete.GetCssClass()" title="Delete this annotation" CssClass="ann-action ann-action-delete" Click="@(() => annotations.RequestDelete(this.Annotation))" />
+                }
+            </div>
+            break;
+    }
+</article>
