@@ -39,6 +39,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMETwebapp.Services.RequirementsEditor;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Utilities;
+    using COMETwebapp.ViewModels.Components.Annotations;
 
     using FluentResults;
 
@@ -78,6 +79,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// Backing field for <see cref="ShowCategory" />
         /// </summary>
         private bool showCategory = true;
+
+        /// <summary>
+        /// Backing field for <see cref="ShowAnnotations" />
+        /// </summary>
+        private bool showAnnotations = true;
 
         /// <summary>
         /// Backing field for <see cref="IndentGroups" />
@@ -123,6 +129,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// Backing field for <see cref="SelectedCategories" />
         /// </summary>
         private IEnumerable<Category> selectedCategories = [];
+
+        /// <summary>
+        /// Backing field for <see cref="SelectedAnnotationFilters" />
+        /// </summary>
+        private IEnumerable<AnnotationFilterOption> selectedAnnotationFilters = [];
 
         /// <summary>
         /// Backing field for <see cref="IsOnEditMode" />
@@ -222,6 +233,10 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var exportViewModel = new RequirementsExportViewModel(sessionService, exportService, showHideDeprecatedThingsService, logger);
             this.Disposables.Add(exportViewModel);
             this.ExportViewModel = exportViewModel;
+
+            var annotationsViewModel = new AnnotationsViewModel(sessionService, this.ConfirmCancelPopupViewModel, logger);
+            this.Disposables.Add(annotationsViewModel);
+            this.AnnotationsViewModel = annotationsViewModel;
         }
 
         /// <summary>
@@ -238,6 +253,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// Gets the view model driving the requirements export dialog.
         /// </summary>
         public IRequirementsExportViewModel ExportViewModel { get; }
+
+        /// <summary>
+        /// Gets the view model indexing the annotations of the requirements and driving the annotations side panel.
+        /// </summary>
+        public IAnnotationsViewModel AnnotationsViewModel { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="RequirementsEditorView" /> currently shown.
@@ -339,6 +359,16 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the annotation pills and the coloured annotation bar are shown on the
+        /// requirements.
+        /// </summary>
+        public bool ShowAnnotations
+        {
+            get => this.showAnnotations;
+            set => this.RaiseAndSetIfChanged(ref this.showAnnotations, value);
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether groups are indented in the document. When off, groups and
         /// requirements are rendered flush-left regardless of nesting depth.
         /// </summary>
@@ -383,6 +413,15 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         {
             get => this.selectedCategories;
             set => this.RaiseAndSetIfChanged(ref this.selectedCategories, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the selected <see cref="AnnotationFilterOption" />s; an empty selection means no annotation filtering.
+        /// </summary>
+        public IEnumerable<AnnotationFilterOption> SelectedAnnotationFilters
+        {
+            get => this.selectedAnnotationFilters;
+            set => this.RaiseAndSetIfChanged(ref this.selectedAnnotationFilters, value);
         }
 
         /// <summary>
@@ -457,7 +496,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <summary>
         /// Gets a value indicating whether any search or filter is currently narrowing the document.
         /// </summary>
-        private bool IsFilterActive => !string.IsNullOrWhiteSpace(this.SearchText) || this.SelectedOwners.Any() || this.SelectedCategories.Any();
+        private bool IsFilterActive => !string.IsNullOrWhiteSpace(this.SearchText) || this.SelectedOwners.Any() || this.SelectedCategories.Any() || this.SelectedAnnotationFilters.Any();
 
         /// <summary>
         /// Gets the visible, non-deprecated requirements located directly under the given <paramref name="container" />.
@@ -1089,6 +1128,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             this.SearchText = null;
             this.SelectedOwners = [];
             this.SelectedCategories = [];
+            this.SelectedAnnotationFilters = [];
 
             // a link can point at a deprecated requirement; surface deprecated things so the target actually renders
             if (requirement.IsDeprecated)
@@ -1393,14 +1433,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <returns>The <see cref="NotificationDescription" />.</returns>
         private static NotificationDescription BuildNotification(Thing thing, string pastVerb, string actionVerb)
         {
-            var kind = GetKindLabel(thing);
-            var label = GetLabel(thing);
-
-            return new NotificationDescription
-            {
-                OnSuccess = $"{kind} '{label}' {pastVerb}",
-                OnError = $"Could not {actionVerb} the {kind} '{label}'"
-            };
+            return NotificationDescriptionBuilder.Build(GetKindLabel(thing), GetLabel(thing), pastVerb, actionVerb);
         }
 
         /// <summary>
@@ -1444,6 +1477,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
             this.ChangelogViewModel.SetIteration(this.CurrentThing, this.CurrentDomain);
             this.ExportViewModel.SetIteration(this.CurrentThing);
+            this.AnnotationsViewModel.SetIteration(this.CurrentThing, this.CurrentDomain);
 
             this.IsLoading = true;
             this.parameterTypesCache = default;
@@ -1499,7 +1533,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 return false;
             }
 
-            return !this.SelectedCategories.Any() || requirement.Category.Intersect(this.SelectedCategories).Any();
+            if (this.SelectedCategories.Any() && !requirement.Category.Intersect(this.SelectedCategories).Any())
+            {
+                return false;
+            }
+
+            return this.AnnotationsViewModel.MatchesFilter(requirement, this.SelectedAnnotationFilters);
         }
     }
 }

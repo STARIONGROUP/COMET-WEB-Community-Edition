@@ -24,6 +24,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 {
     using Bunit;
 
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -33,6 +34,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
+    using COMETwebapp.ViewModels.Components.Annotations;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using DevExpress.Blazor;
@@ -48,6 +50,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     {
         private BunitContext context;
         private Mock<IRequirementsEditorBodyViewModel> viewModel;
+        private Mock<IAnnotationsViewModel> annotationsViewModel;
         private Mock<ISessionService> sessionService;
         private Requirement requirement;
         private DomainOfExpertise owner;
@@ -68,8 +71,13 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.requirement.Category.Add(this.category);
 
             this.viewModel = new Mock<IRequirementsEditorBodyViewModel>();
+            this.annotationsViewModel = new Mock<IAnnotationsViewModel>();
+            this.annotationsViewModel.Setup(x => x.GetSummary(It.IsAny<Thing>())).Returns([]);
+            this.annotationsViewModel.Setup(x => x.GetCreatableKinds(It.IsAny<Thing>())).Returns([]);
+            this.viewModel.Setup(x => x.AnnotationsViewModel).Returns(this.annotationsViewModel.Object);
             this.viewModel.Setup(x => x.ShowOwner).Returns(true);
             this.viewModel.Setup(x => x.ShowCategory).Returns(true);
+            this.viewModel.Setup(x => x.ShowAnnotations).Returns(true);
         }
 
         [TearDown]
@@ -93,6 +101,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             Assert.Multiple(() =>
             {
                 Assert.That(component.FindAll(".req-pill-action-row"), Has.Count.EqualTo(2));
+                Assert.That(component.FindAll(".ann-badges"), Has.Count.EqualTo(1), "the stacked layout renders the annotation badges once");
                 Assert.That(component.Markup, Does.Contain("SYS"), "the owner pill is shown");
                 Assert.That(component.Markup, Does.Contain("KUR"), "the category pill is shown");
                 Assert.That(component.Markup, Does.Not.Contain("req-deprecated-badge"), "a non-deprecated requirement has no badge");
@@ -111,9 +120,53 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             {
                 Assert.That(component.FindAll(".req-pill-action-row"), Is.Empty, "the inline layout does not use the stacked pill-action rows");
                 Assert.That(component.FindAll(".req-pills"), Has.Count.EqualTo(1), "the inline layout uses a single RequirementPills block");
+                Assert.That(component.FindAll(".ann-badges"), Has.Count.EqualTo(1), "the inline layout renders the annotation badges once");
                 Assert.That(component.Markup, Does.Contain("SYS").And.Contain("KUR"));
                 Assert.That(component.FindComponents<DxButton>().Select(x => x.Instance.IconCssClass), Does.Contain(IconName.Edit.GetCssClass()).And.Contain(IconName.Ban.GetCssClass()));
             });
+        }
+
+        [Test]
+        public void VerifyAnnotationBadgesAreRenderedForTheRequirement()
+        {
+            this.annotationsViewModel.Setup(x => x.GetSummary(this.requirement)).Returns([new AnnotationKindSummary(AnnotationKind.ReviewItemDiscrepancy, 2, 1)]);
+
+            var component = this.Render();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(component.FindAll(".ann-badge"), Has.Count.EqualTo(1));
+                Assert.That(component.Find(".ann-badge").ClassList, Does.Contain("ann-kind-rid"));
+            }
+
+            component.Find(".ann-badge").Click();
+
+            this.annotationsViewModel.Verify(x => x.OpenPanel(this.requirement, AnnotationKind.ReviewItemDiscrepancy), Times.Once);
+
+            this.annotationsViewModel.Setup(x => x.GetSummary(this.requirement)).Returns([]);
+            this.annotationsViewModel.Setup(x => x.GetCreatableKinds(this.requirement)).Returns([AnnotationKind.Note]);
+
+            Assert.That(this.Render().Find(".ann-badge-add").GetAttribute("aria-label"), Is.EqualTo("Annotate R1"));
+        }
+
+        [Test]
+        public void VerifyAnnotationBadgesAreHiddenWhenShowAnnotationsIsFalse()
+        {
+            this.viewModel.Setup(x => x.ShowAnnotations).Returns(false);
+
+            var stacked = this.Render();
+            var inline = this.context.Render<RequirementRowActions>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.Requirement, this.requirement)
+                .Add(p => p.Inline, true));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(stacked.FindAll(".ann-badges"), Is.Empty, "the stacked layout hides the annotation badges");
+                Assert.That(inline.FindAll(".ann-badges"), Is.Empty, "the inline layout hides the annotation badges");
+                Assert.That(stacked.FindAll(".req-pill-action-row"), Has.Count.EqualTo(2), "the rest of the stacked layout is unaffected");
+                Assert.That(inline.FindAll(".req-actions"), Has.Count.EqualTo(1), "the edit and deprecate actions stay in the inline layout");
+            }
         }
 
         [Test]

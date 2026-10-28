@@ -435,8 +435,12 @@ sub {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 18px;
-    padding: 1px 8px;
+    box-sizing: border-box;
+    height: var(--pill-height);
+    line-height: calc(var(--pill-height) - 2px);
+    font-size: var(--pill-font-size);
+    padding: 0 8px;
+    white-space: nowrap;
 }
 
 .search-mark {
@@ -461,4 +465,518 @@ sub {
     border-left: 3px solid var(--colors-amber-700);
     border-radius: var(--radius-sm);
     margin-bottom: var(--spacing-3);
+}
+
+.ann-kind-note { --ann-fg: #475569; --ann-bg: #f1f5f9; }
+.ann-kind-cr { --ann-fg: #1d4ed8; --ann-bg: #dbeafe; }
+.ann-kind-rid { --ann-fg: #b45309; --ann-bg: #fef3c7; }
+.ann-kind-rfd { --ann-fg: #7e22ce; --ann-bg: #f3e8ff; }
+.ann-kind-rfw { --ann-fg: #0f766e; --ann-bg: #ccfbf1; }
+.ann-kind-cp { --ann-fg: #4338ca; --ann-bg: #e0e7ff; }
+
+.ann-badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+:root {
+    --pill-height: 18px;
+    --pill-font-size: 0.72rem;
+}
+
+.ann-badge,
+.ann-badge-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-sizing: border-box;
+    height: var(--pill-height);
+    margin: 1px 0 1px 2px;
+    padding: 0 8px;
+    border-radius: 30px;
+    font-size: var(--pill-font-size);
+    font-weight: 600;
+    line-height: calc(var(--pill-height) - 2px);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.ann-badge {
+    color: var(--ann-fg);
+    background: var(--ann-bg);
+    border: 1px solid var(--ann-fg);
+}
+
+.ann-badge.is-resolved {
+    color: #64748b;
+    background: transparent;
+    border-color: #cbd5e1;
+}
+
+.ann-badge:hover,
+.ann-badge:focus-visible {
+    filter: brightness(0.95);
+    box-shadow: 0 0 0 2px var(--ann-bg);
+}
+
+.ann-badge-count {
+    font-variant-numeric: tabular-nums;
+}
+
+.ann-badge-add {
+    color: #64748b;
+    background: transparent;
+    border: 1px dashed transparent;
+    opacity: 0.45;
+    transition: opacity 0.15s ease;
+}
+
+/* a host reveals the discreet add button on hover of its row: the Requirements Editor rows, or any element marked
+   with the generic ann-host class */
+.req-row:hover .ann-badge-add,
+.ann-host:hover .ann-badge-add,
+.ann-badge-add:focus-visible {
+    opacity: 1;
+    border-color: #cbd5e1;
+}
+
+.req-document .req-row {
+    position: relative;
+}
+
+.req-annotation-bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.req-annotation-bar > span {
+    flex: 1 1 0;
+    background: var(--ann-fg);
+}
+
+.req-document .req-row.req-row-annotation-active {
+    background: #eff6ff;
+}
+
+.ann-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0 4px 12px 0;
+}
+
+.ann-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #fff;
+    padding: 4px 0 6px;
+    border-bottom: 1px solid #eaecef;
+}
+
+.ann-panel-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ann-panel-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.ann-panel-subject {
+    color: #475569;
+    font-size: 0.85rem;
+    overflow-wrap: anywhere;
+}
+
+.ann-panel-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ann-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    box-sizing: border-box;
+    height: 24px;
+    line-height: 22px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: var(--ann-fg, #334155);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ann-chip.is-selected {
+    background: var(--ann-bg, #e2e8f0);
+    border-color: var(--ann-fg, #334155);
+}
+
+.ann-chip-count {
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+}
+
+.ann-show-resolved {
+    margin-left: auto;
+    font-size: 0.8rem;
+}
+
+.ann-field-label,
+.ann-section-title {
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.ann-composer,
+.ann-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid var(--ann-fg);
+    border-radius: var(--radius-md, 6px);
+    background: #fff;
+}
+
+.ann-composer {
+    background: #f8fafc;
+}
+
+.ann-composer-header,
+.ann-card-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ann-composer-hint {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.ann-composer-shortname,
+.ann-card-id {
+    color: #475569;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.ann-card-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.ann-field-error {
+    color: #b91c1c;
+    font-size: 0.75rem;
+}
+
+.ann-composer-actions,
+.ann-inline-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.ann-segmented {
+    display: inline-flex;
+    align-self: flex-start;
+}
+
+.ann-segmented button {
+    padding: 3px 12px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.ann-segmented button + button {
+    margin-left: -1px;
+}
+
+.ann-segmented button:first-child {
+    border-radius: var(--radius-sm, 4px) 0 0 var(--radius-sm, 4px);
+}
+
+.ann-segmented button:last-child {
+    border-radius: 0 var(--radius-sm, 4px) var(--radius-sm, 4px) 0;
+}
+
+.ann-segmented button.is-selected {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: #fff;
+}
+
+.ann-kind-pill {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: var(--pill-height);
+    line-height: var(--pill-height);
+    padding: 0 7px;
+    border-radius: 999px;
+    background: var(--ann-bg);
+    color: var(--ann-fg);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.ann-card-spacer {
+    flex: 1 1 auto;
+}
+
+.ann-card.is-resolved {
+    background: #fafafa;
+}
+
+.ann-card.is-resolved .ann-card-title,
+.ann-card.is-resolved > .ann-card-content {
+    color: #64748b;
+}
+
+.ann-card.is-nested {
+    border-left-width: 3px;
+    margin-top: 4px;
+}
+
+.ann-card-title {
+    font-weight: 600;
+}
+
+.ann-card-meta {
+    color: #64748b;
+    font-size: 0.75rem;
+}
+
+.ann-card-content {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.ann-classification {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: var(--pill-height);
+    line-height: calc(var(--pill-height) - 2px);
+    padding: 0 6px;
+    border-radius: var(--radius-sm, 4px);
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.ann-classification-major {
+    border-color: #dc2626;
+    color: #b91c1c;
+}
+
+.ann-status {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: var(--pill-height);
+    line-height: var(--pill-height);
+    padding: 0 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.ann-status-open {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.ann-status-done {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.ann-status-select {
+    width: 140px;
+}
+
+.ann-approvals {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.8rem;
+}
+
+.ann-approval {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm, 4px);
+    background: #f1f5f9;
+}
+
+.ann-approval-accepted {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.ann-approval-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.ann-approval-comment {
+    flex-basis: 100%;
+    white-space: pre-line;
+}
+
+.ann-section,
+.ann-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.ann-reply,
+.ann-solution {
+    padding-left: 10px;
+    border-left: 2px solid #e2e8f0;
+}
+
+.ann-inline-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ann-inline-title {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.ann-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+}
+
+.ann-card-actions .ann-action {
+    padding: 2px 6px;
+    font-size: 0.8rem;
+}
+
+.ann-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 24px 12px;
+    color: #64748b;
+    text-align: center;
+}
+
+.ann-empty p {
+    margin: 0;
+}
+
+.ann-add-menu {
+    position: relative;
+    align-self: flex-start;
+}
+
+.ann-add-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+}
+
+.ann-add-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 21;
+    display: flex;
+    flex-direction: column;
+    min-width: 220px;
+    padding: 4px;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md, 6px);
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+}
+
+.ann-add-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: var(--radius-sm, 4px);
+    background: transparent;
+    color: #1e293b;
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.ann-add-item:hover,
+.ann-add-item:focus-visible {
+    background: var(--ann-bg);
+}
+
+.ann-add-swatch {
+    flex: 0 0 auto;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ann-fg);
 }

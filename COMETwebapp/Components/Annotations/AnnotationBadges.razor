@@ -1,0 +1,62 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using COMETwebapp.ViewModels.Components.Annotations
+
+@{
+    var summary = this.ViewModel.GetSummary(this.Thing);
+}
+
+<span class="ann-badges">
+    @if (summary.Count == 0)
+    {
+        @if (this.ViewModel.GetCreatableKinds(this.Thing).Count > 0)
+        {
+            <button type="button"
+                    class="ann-badge-add"
+                    title="Add an annotation"
+                    aria-label="@($"Annotate {AnnotationHelper.GetThingShortName(this.Thing)}")"
+                    @onclick="@(() => this.Open(null))">
+                <CometIcon Icon="IconName.MessageSquare" />
+            </button>
+        }
+    }
+    else
+    {
+        @foreach (var entry in summary)
+        {
+            <button type="button"
+                    class="ann-badge ann-kind-@AnnotationHelper.GetCssSuffix(entry.Kind) @(entry.AttentionCount > 0 ? "has-open" : "is-resolved")"
+                    title="@AnnotationHelper.GetSummaryTooltip(entry)"
+                    aria-label="@AnnotationHelper.GetSummaryTooltip(entry)"
+                    @onclick="@(() => this.Open(entry.Kind))">
+                @if (entry.Kind == AnnotationKind.Note)
+                {
+                    <CometIcon Icon="IconName.MessageSquare" />
+                }
+                else
+                {
+                    <span class="ann-badge-label">@AnnotationHelper.GetAcronym(entry.Kind)</span>
+                }
+                <span class="ann-badge-count">@entry.Count</span>
+            </button>
+        }
+    }
+</span>

@@ -457,12 +457,13 @@
 .req-document ::deep .starion-pill {
     display: inline-flex;
     align-items: center;
-    height: auto;
-    min-height: 18px;
-    padding: 1px 8px;
+    box-sizing: border-box;
+    /* same box as the annotation badges (app.css): the line box fills the inside so the text is centred */
+    height: var(--pill-height);
+    padding: 0 8px;
     margin: 1px 0 1px 2px;
-    line-height: 1.2;
-    font-size: 0.72rem;
+    line-height: calc(var(--pill-height) - 2px);
+    font-size: var(--pill-font-size);
     white-space: nowrap;
     border-color: rgba(0, 0, 0, 0.15);
     color: #1f2937;
@@ -859,4 +860,18 @@
 .req-document ::deep .req-spec-title:hover .req-actions .dxbl-btn,
 .req-document ::deep .req-group-header:hover .req-actions .dxbl-btn {
     opacity: 1;
+}
+
+.req-annotations {
+    display: none;
+}
+
+.req-editor-layout.annotations-open .req-annotations {
+    display: flex;
+    flex: 0 1 420px;
+    min-width: 300px;
+    max-width: 45%;
+    min-height: 0;
+    border-left: 1px solid #eaecef;
+    padding-left: 12px;
 }
