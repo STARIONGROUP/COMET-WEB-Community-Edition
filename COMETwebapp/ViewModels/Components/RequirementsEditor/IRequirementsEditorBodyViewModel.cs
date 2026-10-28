@@ -30,7 +30,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
-    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
+    using COMETwebapp.ViewModels.Components.Annotations;
 
     using FluentResults;
 
@@ -52,7 +52,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <summary>
         /// Gets the view model indexing the annotations of the requirements and driving the annotations side panel.
         /// </summary>
-        IRequirementAnnotationsViewModel AnnotationsViewModel { get; }
+        IAnnotationsViewModel AnnotationsViewModel { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="RequirementsEditorView" /> currently shown.

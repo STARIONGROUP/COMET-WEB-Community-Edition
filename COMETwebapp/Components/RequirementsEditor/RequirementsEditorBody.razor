@@ -22,7 +22,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 @using COMETwebapp.Extensions
 @using COMETwebapp.Utilities
 @using COMETwebapp.ViewModels.Components.RequirementsEditor
-@using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
+@using COMETwebapp.ViewModels.Components.Annotations
 
 @inherits COMET.Web.Common.Components.Applications.SingleIterationApplicationBase<COMETwebapp.ViewModels.Components.RequirementsEditor.IRequirementsEditorBodyViewModel>
 
@@ -178,7 +178,9 @@ Copyright (c) 2023-2026 Starion Group S.A.
                     <RequirementsDocument ViewModel="@this.ViewModel" />
                 </div>
                 <div class="req-annotations">
-                    <RequirementAnnotationsPanel ViewModel="@this.ViewModel" />
+                    <AnnotationsPanel ViewModel="@this.ViewModel.AnnotationsViewModel"
+                                      OnEditAnnotatedThing="@this.ViewModel.OpenEdit"
+                                      EditAnnotatedThingText="Edit requirement" />
                 </div>
             </div>
         </div>

@@ -18,21 +18,21 @@ Copyright (c) 2023-2026 Starion Group S.A.
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------->
 
-@using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
+@using COMETwebapp.ViewModels.Components.Annotations
 
 @{
-    var summary = this.ViewModel.AnnotationsViewModel.GetSummary(this.Requirement);
+    var summary = this.ViewModel.GetSummary(this.Thing);
 }
 
-<span class="req-annotation-badges">
+<span class="ann-badges">
     @if (summary.Count == 0)
     {
-        @if (this.ViewModel.AnnotationsViewModel.CreatableKinds.Count > 0)
+        @if (this.ViewModel.GetCreatableKinds(this.Thing).Count > 0)
         {
             <button type="button"
-                    class="req-annotation-add"
-                    title="Add a note, change request, review item or request for deviation / waiver"
-                    aria-label="@($"Annotate {this.Requirement.ShortName}")"
+                    class="ann-badge-add"
+                    title="Add an annotation"
+                    aria-label="@($"Annotate {AnnotationHelper.GetThingShortName(this.Thing)}")"
                     @onclick="@(() => this.Open(null))">
                 <CometIcon Icon="IconName.MessageSquare" />
             </button>
@@ -43,19 +43,19 @@ Copyright (c) 2023-2026 Starion Group S.A.
         @foreach (var entry in summary)
         {
             <button type="button"
-                    class="req-annotation-badge ann-kind-@RequirementAnnotationHelper.GetCssSuffix(entry.Kind) @(entry.OpenCount > 0 ? "has-open" : "is-resolved")"
-                    title="@RequirementAnnotationHelper.GetSummaryTooltip(entry)"
-                    aria-label="@RequirementAnnotationHelper.GetSummaryTooltip(entry)"
+                    class="ann-badge ann-kind-@AnnotationHelper.GetCssSuffix(entry.Kind) @(entry.AttentionCount > 0 ? "has-open" : "is-resolved")"
+                    title="@AnnotationHelper.GetSummaryTooltip(entry)"
+                    aria-label="@AnnotationHelper.GetSummaryTooltip(entry)"
                     @onclick="@(() => this.Open(entry.Kind))">
-                @if (entry.Kind == RequirementAnnotationKind.Note)
+                @if (entry.Kind == AnnotationKind.Note)
                 {
                     <CometIcon Icon="IconName.MessageSquare" />
                 }
                 else
                 {
-                    <span class="req-annotation-badge-label">@RequirementAnnotationHelper.GetAcronym(entry.Kind)</span>
+                    <span class="ann-badge-label">@AnnotationHelper.GetAcronym(entry.Kind)</span>
                 }
-                <span class="req-annotation-badge-count">@entry.Count</span>
+                <span class="ann-badge-count">@entry.Count</span>
             </button>
         }
     }

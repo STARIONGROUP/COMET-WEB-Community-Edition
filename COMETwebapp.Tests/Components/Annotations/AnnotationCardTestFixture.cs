@@ -20,7 +20,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Components.RequirementsEditor
+namespace COMETwebapp.Tests.Components.Annotations
 {
     using Bunit;
 
@@ -35,9 +35,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.Components.RequirementsEditor;
-    using COMETwebapp.ViewModels.Components.RequirementsEditor;
-    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
+    using COMETwebapp.Components.Annotations;
+    using COMETwebapp.ViewModels.Components.Annotations;
 
     using DevExpress.Blazor;
 
@@ -63,7 +62,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             ".ann-action-reject",
             ".ann-action-withdraw",
             ".ann-action-proposal",
-            ".ann-action-edit-requirement",
+            ".ann-action-edit-thing",
             ".ann-action-edit",
             ".ann-action-delete"
         ];
@@ -74,14 +73,14 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         private BunitContext context;
 
         /// <summary>
-        /// The mocked <see cref="IRequirementsEditorBodyViewModel" /> handed to the component.
+        /// The things the host was called back with when the edit action of the card was clicked.
         /// </summary>
-        private Mock<IRequirementsEditorBodyViewModel> viewModel;
+        private List<Thing> editedThings;
 
         /// <summary>
-        /// The mocked <see cref="IRequirementAnnotationsViewModel" /> the card asks for permissions and writes through.
+        /// The mocked <see cref="IAnnotationsViewModel" /> the card asks for permissions and writes through.
         /// </summary>
-        private Mock<IRequirementAnnotationsViewModel> annotationsViewModel;
+        private Mock<IAnnotationsViewModel> annotationsViewModel;
 
         /// <summary>
         /// The mocked <see cref="ISessionService" /> registered for the component.
@@ -131,15 +130,14 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.author = new Participant { Iid = Guid.NewGuid(), Person = new Person { Iid = Guid.NewGuid(), GivenName = "Author", Surname = "One" } };
             this.requirement = new Requirement { Iid = Guid.NewGuid(), ShortName = "R1", Name = "First requirement" };
 
-            this.annotationsViewModel = new Mock<IRequirementAnnotationsViewModel>();
-            this.annotationsViewModel.Setup(x => x.ActiveRequirement).Returns(this.requirement);
+            this.annotationsViewModel = new Mock<IAnnotationsViewModel>();
+            this.annotationsViewModel.Setup(x => x.ActiveThing).Returns(this.requirement);
             this.annotationsViewModel.Setup(x => x.GetChangeProposals(It.IsAny<ChangeRequest>())).Returns([]);
             this.annotationsViewModel.Setup(x => x.ReplyAsync(It.IsAny<EngineeringModelDataAnnotation>(), It.IsAny<string>())).ReturnsAsync(true);
             this.annotationsViewModel.Setup(x => x.ApproveAsync(It.IsAny<ModellingAnnotationItem>(), It.IsAny<AnnotationApprovalKind>(), It.IsAny<string>())).ReturnsAsync(true);
             this.SetPermissions(true);
 
-            this.viewModel = new Mock<IRequirementsEditorBodyViewModel>();
-            this.viewModel.Setup(x => x.AnnotationsViewModel).Returns(this.annotationsViewModel.Object);
+            this.editedThings = [];
         }
 
         /// <summary>
@@ -168,11 +166,11 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         /// <summary>
         /// Creates a real annotation of the given kind about the <see cref="requirement" />.
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementAnnotationKind" /></param>
+        /// <param name="kind">The <see cref="AnnotationKind" /></param>
         /// <returns>The new <see cref="EngineeringModelDataAnnotation" /></returns>
-        private EngineeringModelDataAnnotation CreateAnnotation(RequirementAnnotationKind kind)
+        private EngineeringModelDataAnnotation CreateAnnotation(AnnotationKind kind)
         {
-            var annotation = RequirementAnnotationHelper.CreateAnnotation(kind, this.requirement, this.author, this.owner, "en", $"{RequirementAnnotationHelper.GetAcronym(kind)}-001", "A title", "Some content", AnnotationClassificationKind.MAJOR).Annotation;
+            var annotation = AnnotationHelper.CreateAnnotation(kind, this.requirement, this.author, this.owner, "en", $"{AnnotationHelper.GetAcronym(kind)}-001", "A title", "Some content", AnnotationClassificationKind.MAJOR).Annotation;
             annotation.CreatedOn = new DateTime(2026, 3, 4, 14, 5, 59, DateTimeKind.Utc);
 
             return annotation;
@@ -183,13 +181,22 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         /// </summary>
         /// <param name="annotation">The <see cref="EngineeringModelDataAnnotation" /> to render</param>
         /// <param name="isNested">A value indicating whether the card is nested in another one</param>
+        /// <param name="hasHostCallback">A value indicating whether the host supplies the callback opening the annotated thing for editing</param>
         /// <returns>The <see cref="IRenderedComponent{TComponent}" /></returns>
-        private IRenderedComponent<AnnotationCard> Render(EngineeringModelDataAnnotation annotation, bool isNested = false)
+        private IRenderedComponent<AnnotationCard> Render(EngineeringModelDataAnnotation annotation, bool isNested = false, bool hasHostCallback = true)
         {
-            return this.context.Render<AnnotationCard>(parameters => parameters
-                .Add(p => p.ViewModel, this.viewModel.Object)
-                .Add(p => p.Annotation, annotation)
-                .Add(p => p.IsNested, isNested));
+            return this.context.Render<AnnotationCard>(parameters =>
+            {
+                parameters
+                    .Add(p => p.ViewModel, this.annotationsViewModel.Object)
+                    .Add(p => p.Annotation, annotation)
+                    .Add(p => p.IsNested, isNested);
+
+                if (hasHostCallback)
+                {
+                    parameters.Add(p => p.OnEditAnnotatedThing, (Thing thing) => this.editedThings.Add(thing));
+                }
+            });
         }
 
         /// <summary>
@@ -198,7 +205,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyChangeRequestRendersItsDetails()
         {
-            var annotation = this.CreateAnnotation(RequirementAnnotationKind.ChangeRequest);
+            var annotation = this.CreateAnnotation(AnnotationKind.ChangeRequest);
 
             var component = this.Render(annotation);
 
@@ -221,7 +228,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyCategoryPillsRender()
         {
-            var annotation = (ModellingAnnotationItem)this.CreateAnnotation(RequirementAnnotationKind.ChangeRequest);
+            var annotation = (ModellingAnnotationItem)this.CreateAnnotation(AnnotationKind.ChangeRequest);
             annotation.Category.AddRange(
             [
                 new Category { Iid = Guid.NewGuid(), ShortName = "ALPHA", Name = "Alpha" },
@@ -245,21 +252,21 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyPillsOnlyRenderWhenThereIsACategory()
         {
-            var withoutCategory = this.Render(this.CreateAnnotation(RequirementAnnotationKind.ChangeRequest));
+            var withoutCategory = this.Render(this.CreateAnnotation(AnnotationKind.ChangeRequest));
 
             Assert.That(withoutCategory.FindAll(".ann-card-pills"), Is.Empty, "an owner alone gives no pill");
 
-            var categoryOnly = (ModellingAnnotationItem)this.CreateAnnotation(RequirementAnnotationKind.ReviewItemDiscrepancy);
+            var categoryOnly = (ModellingAnnotationItem)this.CreateAnnotation(AnnotationKind.ReviewItemDiscrepancy);
             categoryOnly.Owner = null;
             categoryOnly.Category.Add(new Category { Iid = Guid.NewGuid(), ShortName = "ALPHA", Name = "Alpha" });
 
             var withCategoryOnly = this.Render(categoryOnly);
 
-            var bare = (ModellingAnnotationItem)this.CreateAnnotation(RequirementAnnotationKind.RequestForWaiver);
+            var bare = (ModellingAnnotationItem)this.CreateAnnotation(AnnotationKind.RequestForWaiver);
             bare.Owner = null;
 
             var withoutPills = this.Render(bare);
-            var note = this.Render(this.CreateAnnotation(RequirementAnnotationKind.Note));
+            var note = this.Render(this.CreateAnnotation(AnnotationKind.Note));
 
             using (Assert.EnterMultipleScope())
             {
@@ -275,7 +282,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyResolvedAndNestedStyling()
         {
-            var annotation = this.CreateAnnotation(RequirementAnnotationKind.ChangeRequest);
+            var annotation = this.CreateAnnotation(AnnotationKind.ChangeRequest);
             ((ModellingAnnotationItem)annotation).Status = AnnotationStatusKind.CLOSED;
             this.SetPermissions(false);
 
@@ -295,7 +302,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyAllActionsRenderWhenPermissionsGranted()
         {
-            var component = this.Render(this.CreateAnnotation(RequirementAnnotationKind.ChangeRequest));
+            var component = this.Render(this.CreateAnnotation(AnnotationKind.ChangeRequest));
 
             using (Assert.EnterMultipleScope())
             {
@@ -318,7 +325,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         {
             this.SetPermissions(false);
 
-            var component = this.Render(this.CreateAnnotation(RequirementAnnotationKind.ChangeRequest));
+            var component = this.Render(this.CreateAnnotation(AnnotationKind.ChangeRequest));
 
             using (Assert.EnterMultipleScope())
             {
@@ -340,11 +347,11 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         {
             this.sessionService.Setup(x => x.IsReadOnly).Returns(true);
 
-            var component = this.Render(this.CreateAnnotation(RequirementAnnotationKind.ChangeRequest));
+            var component = this.Render(this.CreateAnnotation(AnnotationKind.ChangeRequest));
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(component.FindAll(".ann-action-edit-requirement"), Is.Empty);
+                Assert.That(component.FindAll(".ann-action-edit-thing"), Is.Empty);
                 Assert.That(component.FindAll(".ann-action-reply"), Has.Count.EqualTo(1), "the view model permissions still apply");
             }
         }
@@ -359,7 +366,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.annotationsViewModel.Setup(x => x.CanProposeChange(It.IsAny<EngineeringModelDataAnnotation>())).Returns(false);
             this.annotationsViewModel.Setup(x => x.CanAddSolution(It.IsAny<EngineeringModelDataAnnotation>())).Returns(false);
 
-            var component = this.Render(this.CreateAnnotation(RequirementAnnotationKind.Note));
+            var component = this.Render(this.CreateAnnotation(AnnotationKind.Note));
 
             using (Assert.EnterMultipleScope())
             {
@@ -372,7 +379,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 Assert.That(component.FindAll(".ann-action-accept"), Is.Empty);
                 Assert.That(component.FindAll(".ann-action-reject"), Is.Empty);
                 Assert.That(component.FindAll(".ann-action-proposal"), Is.Empty);
-                Assert.That(component.FindAll(".ann-action-edit-requirement"), Is.Empty, "a note does not ask for the requirement to change");
+                Assert.That(component.FindAll(".ann-action-edit-thing"), Is.Empty, "a note does not ask for the requirement to change");
                 Assert.That(component.FindAll(".ann-action-reply"), Has.Count.EqualTo(1));
                 Assert.That(component.FindAll(".ann-action-edit"), Has.Count.EqualTo(1));
                 Assert.That(component.FindAll(".ann-action-delete"), Has.Count.EqualTo(1));
@@ -385,12 +392,12 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyDiscussionRepliesRender()
         {
-            var annotation = this.CreateAnnotation(RequirementAnnotationKind.Note);
+            var annotation = this.CreateAnnotation(AnnotationKind.Note);
             var replier = new Participant { Iid = Guid.NewGuid(), Person = new Person { Iid = Guid.NewGuid(), GivenName = "Replier", Surname = "Two" } };
 
-            var later = RequirementAnnotationHelper.CreateDiscussionItem(replier, "en", "Second reply");
+            var later = AnnotationHelper.CreateDiscussionItem(replier, "en", "Second reply");
             later.CreatedOn = new DateTime(2026, 3, 6, 9, 0, 0, DateTimeKind.Utc);
-            var earlier = RequirementAnnotationHelper.CreateDiscussionItem(this.author, "en", "First reply");
+            var earlier = AnnotationHelper.CreateDiscussionItem(this.author, "en", "First reply");
             earlier.CreatedOn = new DateTime(2026, 3, 5, 8, 30, 0, DateTimeKind.Utc);
             annotation.Discussion.AddRange([later, earlier]);
 
@@ -411,7 +418,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyNoThreadRendersWithoutDiscussion()
         {
-            var component = this.Render(this.CreateAnnotation(RequirementAnnotationKind.Note));
+            var component = this.Render(this.CreateAnnotation(AnnotationKind.Note));
 
             Assert.That(component.FindAll(".ann-thread"), Is.Empty);
         }
@@ -422,10 +429,10 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyApprovalsAndSolutionsRender()
         {
-            var annotation = (ReviewItemDiscrepancy)this.CreateAnnotation(RequirementAnnotationKind.ReviewItemDiscrepancy);
-            annotation.ApprovedBy.Add(RequirementAnnotationHelper.CreateApproval(this.author, this.owner, "en", AnnotationApprovalKind.ACCEPTED, string.Empty));
-            annotation.ApprovedBy.Add(RequirementAnnotationHelper.CreateApproval(this.author, this.owner, "en", AnnotationApprovalKind.REJECTED, "Not convincing"));
-            annotation.Solution.Add(RequirementAnnotationHelper.CreateSolution(this.author, this.owner, "en", "Reword it"));
+            var annotation = (ReviewItemDiscrepancy)this.CreateAnnotation(AnnotationKind.ReviewItemDiscrepancy);
+            annotation.ApprovedBy.Add(AnnotationHelper.CreateApproval(this.author, this.owner, "en", AnnotationApprovalKind.ACCEPTED, string.Empty));
+            annotation.ApprovedBy.Add(AnnotationHelper.CreateApproval(this.author, this.owner, "en", AnnotationApprovalKind.REJECTED, "Not convincing"));
+            annotation.Solution.Add(AnnotationHelper.CreateSolution(this.author, this.owner, "en", "Reword it"));
 
             var component = this.Render(annotation);
             var approvals = component.FindAll(".ann-approval");
@@ -446,8 +453,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyChangeProposalsRenderAsNestedCards()
         {
-            var changeRequest = (ChangeRequest)this.CreateAnnotation(RequirementAnnotationKind.ChangeRequest);
-            var proposal = (ChangeProposal)this.CreateAnnotation(RequirementAnnotationKind.ChangeProposal);
+            var changeRequest = (ChangeRequest)this.CreateAnnotation(AnnotationKind.ChangeRequest);
+            var proposal = (ChangeProposal)this.CreateAnnotation(AnnotationKind.ChangeProposal);
             proposal.ChangeRequest = changeRequest;
             this.annotationsViewModel.Setup(x => x.GetChangeProposals(changeRequest)).Returns([proposal]);
 
@@ -459,6 +466,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 Assert.That(component.FindAll(".ann-card.is-nested"), Has.Count.EqualTo(1));
                 Assert.That(component.Find(".ann-card.is-nested").ClassList, Does.Contain("ann-kind-cp"));
                 Assert.That(component.Find("section[aria-label='Change proposals'] .ann-card.is-nested").Id, Is.EqualTo($"annotation-{proposal.Iid}"));
+                Assert.That(component.FindAll(".ann-card.is-nested .ann-action-edit-thing"), Has.Count.EqualTo(1), "the nested proposal card is handed the host's edit action too");
             }
         }
 
@@ -468,7 +476,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyNoProposalsSectionWithoutChangeProposals()
         {
-            var component = this.Render(this.CreateAnnotation(RequirementAnnotationKind.ChangeRequest));
+            var component = this.Render(this.CreateAnnotation(AnnotationKind.ChangeRequest));
 
             Assert.That(component.FindAll("section[aria-label='Change proposals']"), Is.Empty);
         }
@@ -480,7 +488,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public async Task VerifyReplyFormSendsReply()
         {
-            var annotation = this.CreateAnnotation(RequirementAnnotationKind.Note);
+            var annotation = this.CreateAnnotation(AnnotationKind.Note);
             var component = this.Render(annotation);
 
             Assert.That(component.FindComponents<DxMemo>(), Is.Empty, "no form is open yet");
@@ -517,7 +525,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public async Task VerifyReplyFormStaysOpenWhenReplyFails()
         {
-            var annotation = this.CreateAnnotation(RequirementAnnotationKind.Note);
+            var annotation = this.CreateAnnotation(AnnotationKind.Note);
             this.annotationsViewModel.Setup(x => x.ReplyAsync(annotation, It.IsAny<string>())).ReturnsAsync(false);
 
             var component = this.Render(annotation);
@@ -540,7 +548,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public async Task VerifyCancelClosesReplyForm()
         {
-            var component = this.Render(this.CreateAnnotation(RequirementAnnotationKind.Note));
+            var component = this.Render(this.CreateAnnotation(AnnotationKind.Note));
             component.Find(".ann-action-reply").Click();
 
             var cancelButton = component.FindComponents<DxButton>().First(x => x.Instance.Text == "Cancel");
@@ -561,7 +569,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public async Task VerifyAcceptFormRecordsDecision()
         {
-            var annotation = (ModellingAnnotationItem)this.CreateAnnotation(RequirementAnnotationKind.ChangeRequest);
+            var annotation = (ModellingAnnotationItem)this.CreateAnnotation(AnnotationKind.ChangeRequest);
             var component = this.Render(annotation);
 
             component.Find(".ann-action-accept").Click();
@@ -582,18 +590,90 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public async Task VerifyActionButtonsCallViewModel()
         {
-            var annotation = this.CreateAnnotation(RequirementAnnotationKind.ChangeRequest);
+            var annotation = this.CreateAnnotation(AnnotationKind.ChangeRequest);
             var component = this.Render(annotation);
 
             await component.InvokeAsync(this.FindActionButton(component, "ann-action-delete").Instance.Click.InvokeAsync);
             await component.InvokeAsync(this.FindActionButton(component, "ann-action-edit").Instance.Click.InvokeAsync);
             await component.InvokeAsync(this.FindActionButton(component, "ann-action-proposal").Instance.Click.InvokeAsync);
-            await component.InvokeAsync(this.FindActionButton(component, "ann-action-edit-requirement").Instance.Click.InvokeAsync);
+            await component.InvokeAsync(this.FindActionButton(component, "ann-action-edit-thing").Instance.Click.InvokeAsync);
 
             this.annotationsViewModel.Verify(x => x.RequestDelete(annotation), Times.Once);
             this.annotationsViewModel.Verify(x => x.StartEdit(annotation), Times.Once);
             this.annotationsViewModel.Verify(x => x.StartChangeProposal((ChangeRequest)annotation), Times.Once);
-            this.viewModel.Verify(x => x.OpenEdit(this.requirement), Times.Once);
+            Assert.That(this.editedThings, Is.EqualTo([this.requirement]), "the host is called back with the active thing");
+        }
+
+        /// <summary>
+        /// Verifies that the action opening the annotated thing for editing needs a callback from the host, an active thing
+        /// and the permission to edit it.
+        /// </summary>
+        [Test]
+        public void VerifyEditAnnotatedThingActionNeedsAHostCallbackAnAnnotatedThingAndPermission()
+        {
+            var changeRequest = this.CreateAnnotation(AnnotationKind.ChangeRequest);
+
+            var withoutCallback = this.Render(changeRequest, hasHostCallback: false);
+
+            this.annotationsViewModel.Setup(x => x.ActiveThing).Returns((Thing)null);
+            var withoutThing = this.Render(changeRequest);
+
+            this.annotationsViewModel.Setup(x => x.ActiveThing).Returns(this.requirement);
+            this.permissionService.Setup(x => x.CanWrite(this.requirement)).Returns(false);
+            var withoutPermission = this.Render(changeRequest);
+
+            this.permissionService.Setup(x => x.CanWrite(this.requirement)).Returns(true);
+            var allowed = this.Render(changeRequest);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(withoutCallback.FindAll(".ann-action-edit-thing"), Is.Empty);
+                Assert.That(withoutCallback.FindAll(".ann-action-edit"), Has.Count.EqualTo(1), "editing the annotation itself does not depend on the host");
+                Assert.That(withoutThing.FindAll(".ann-action-edit-thing"), Is.Empty);
+                Assert.That(withoutPermission.FindAll(".ann-action-edit-thing"), Is.Empty);
+                Assert.That(allowed.FindAll(".ann-action-edit-thing"), Has.Count.EqualTo(1));
+            }
+        }
+
+        /// <summary>
+        /// Verifies that the action opening the annotated thing for editing is offered for a change request, a review item
+        /// discrepancy and a change proposal only, with the text supplied by the host, and calls the host back with the
+        /// active thing whatever its class.
+        /// </summary>
+        [Test]
+        public async Task VerifyEditAnnotatedThingActionCallsTheHostBackWithTheActiveThing()
+        {
+            var element = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT", Name = "Satellite" };
+            this.annotationsViewModel.Setup(x => x.ActiveThing).Returns(element);
+
+            using (Assert.EnterMultipleScope())
+            {
+                foreach (var kind in (AnnotationKind[])[AnnotationKind.ChangeRequest, AnnotationKind.ReviewItemDiscrepancy, AnnotationKind.ChangeProposal])
+                {
+                    Assert.That(this.Render(this.CreateAnnotation(kind)).FindAll(".ann-action-edit-thing"), Has.Count.EqualTo(1), $"offered for {kind}");
+                }
+
+                foreach (var kind in (AnnotationKind[])[AnnotationKind.Note, AnnotationKind.RequestForDeviation, AnnotationKind.RequestForWaiver])
+                {
+                    Assert.That(this.Render(this.CreateAnnotation(kind)).FindAll(".ann-action-edit-thing"), Is.Empty, $"not offered for {kind}");
+                }
+            }
+
+            var component = this.context.Render<AnnotationCard>(parameters => parameters
+                .Add(p => p.ViewModel, this.annotationsViewModel.Object)
+                .Add(p => p.Annotation, this.CreateAnnotation(AnnotationKind.ChangeRequest))
+                .Add(p => p.EditAnnotatedThingText, "Edit element")
+                .Add(p => p.OnEditAnnotatedThing, (Thing thing) => this.editedThings.Add(thing)));
+
+            var action = this.FindActionButton(component, "ann-action-edit-thing");
+
+            await component.InvokeAsync(action.Instance.Click.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(action.Instance.Text, Is.EqualTo("Edit element"));
+                Assert.That(this.editedThings, Is.EqualTo([element]));
+            }
         }
 
         /// <summary>
@@ -602,7 +682,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifySolutionButtonOpensSolutionForm()
         {
-            var component = this.Render(this.CreateAnnotation(RequirementAnnotationKind.ReviewItemDiscrepancy));
+            var component = this.Render(this.CreateAnnotation(AnnotationKind.ReviewItemDiscrepancy));
 
             component.Find(".ann-action-solution").Click();
 

@@ -39,7 +39,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMETwebapp.Services.RequirementsEditor;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Utilities;
-    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
+    using COMETwebapp.ViewModels.Components.Annotations;
 
     using FluentResults;
 
@@ -234,7 +234,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             this.Disposables.Add(exportViewModel);
             this.ExportViewModel = exportViewModel;
 
-            var annotationsViewModel = new RequirementAnnotationsViewModel(sessionService, this.ConfirmCancelPopupViewModel, logger);
+            var annotationsViewModel = new AnnotationsViewModel(sessionService, this.ConfirmCancelPopupViewModel, logger);
             this.Disposables.Add(annotationsViewModel);
             this.AnnotationsViewModel = annotationsViewModel;
         }
@@ -257,7 +257,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <summary>
         /// Gets the view model indexing the annotations of the requirements and driving the annotations side panel.
         /// </summary>
-        public IRequirementAnnotationsViewModel AnnotationsViewModel { get; }
+        public IAnnotationsViewModel AnnotationsViewModel { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="RequirementsEditorView" /> currently shown.
@@ -1433,14 +1433,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <returns>The <see cref="NotificationDescription" />.</returns>
         private static NotificationDescription BuildNotification(Thing thing, string pastVerb, string actionVerb)
         {
-            var kind = GetKindLabel(thing);
-            var label = GetLabel(thing);
-
-            return new NotificationDescription
-            {
-                OnSuccess = $"{kind} '{label}' {pastVerb}",
-                OnError = $"Could not {actionVerb} the {kind} '{label}'"
-            };
+            return NotificationDescriptionBuilder.Build(GetKindLabel(thing), GetLabel(thing), pastVerb, actionVerb);
         }
 
         /// <summary>

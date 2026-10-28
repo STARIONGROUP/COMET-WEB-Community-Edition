@@ -19,24 +19,24 @@ Copyright (c) 2023-2026 Starion Group S.A.
 ------------------------------------------------------------------------------->
 
 @using CDP4Common.ReportingData
-@using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
+@using COMETwebapp.ViewModels.Components.Annotations
 
 @{
-    var annotations = this.ViewModel.AnnotationsViewModel;
-    var kind = RequirementAnnotationHelper.GetKind(this.Annotation) ?? RequirementAnnotationKind.Note;
-    var suffix = RequirementAnnotationHelper.GetCssSuffix(kind);
+    var annotations = this.ViewModel;
+    var kind = AnnotationHelper.GetKind(this.Annotation) ?? AnnotationKind.Note;
+    var suffix = AnnotationHelper.GetCssSuffix(kind);
     var item = this.Annotation as ModellingAnnotationItem;
     var canEdit = annotations.CanEdit(this.Annotation);
 }
 
 <article id="@($"annotation-{this.Annotation.Iid}")"
-         class="ann-card ann-kind-@suffix @(item == null || RequirementAnnotationHelper.IsOpen(item) ? "is-open" : "is-resolved") @(this.IsNested ? "is-nested" : string.Empty)">
+         class="ann-card ann-kind-@suffix @(item == null || AnnotationHelper.IsOpen(item) ? "is-open" : "is-resolved") @(this.IsNested ? "is-nested" : string.Empty)">
     <header class="ann-card-header">
-        <span class="ann-kind-pill ann-kind-@suffix" title="@RequirementAnnotationHelper.GetLabel(kind)">@RequirementAnnotationHelper.GetAcronym(kind)</span>
+        <span class="ann-kind-pill ann-kind-@suffix" title="@AnnotationHelper.GetLabel(kind)">@AnnotationHelper.GetAcronym(kind)</span>
         @if (item != null)
         {
             <span class="ann-card-id">@item.ShortName</span>
-            <span class="ann-classification ann-classification-@item.Classification.ToString().ToLowerInvariant()">@RequirementAnnotationHelper.GetClassificationLabel(item.Classification)</span>
+            <span class="ann-classification ann-classification-@item.Classification.ToString().ToLowerInvariant()">@AnnotationHelper.GetClassificationLabel(item.Classification)</span>
             <span class="ann-card-spacer"></span>
             @if (canEdit)
             {
@@ -53,7 +53,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             }
             else
             {
-                <span class="ann-status ann-status-@item.Status.ToString().ToLowerInvariant()">@RequirementAnnotationHelper.GetStatusLabel(item.Status)</span>
+                <span class="ann-status ann-status-@item.Status.ToString().ToLowerInvariant()">@AnnotationHelper.GetStatusLabel(item.Status)</span>
             }
         }
         else
@@ -87,8 +87,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
             {
                 <li class="ann-approval ann-approval-@approval.Classification.ToString().ToLowerInvariant()">
                     <CometIcon Icon="@GetApprovalIcon(approval.Classification)" />
-                    <span><strong>@RequirementAnnotationHelper.GetApprovalLabel(approval.Classification)</strong> by @GetAuthorName(approval.Author)@(approval.Owner != null ? $" ({approval.Owner.ShortName})" : string.Empty) · @FormatDate(approval.CreatedOn)</span>
-                    @if (approval.Content != RequirementAnnotationHelper.GetApprovalLabel(approval.Classification))
+                    <span><strong>@AnnotationHelper.GetApprovalLabel(approval.Classification)</strong> by @GetAuthorName(approval.Author)@(approval.Owner != null ? $" ({approval.Owner.ShortName})" : string.Empty) · @FormatDate(approval.CreatedOn)</span>
+                    @if (approval.Content != AnnotationHelper.GetApprovalLabel(approval.Classification))
                     {
                         <span class="ann-approval-comment">@approval.Content</span>
                     }
@@ -121,7 +121,12 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <div class="ann-section-title">Change proposals</div>
                 @foreach (var proposal in proposals)
                 {
-                    <AnnotationCard @key="proposal.Iid" ViewModel="@this.ViewModel" Annotation="@proposal" IsNested="true" />
+                    <AnnotationCard @key="proposal.Iid"
+                                    ViewModel="@this.ViewModel"
+                                    Annotation="@proposal"
+                                    IsNested="true"
+                                    OnEditAnnotatedThing="@this.OnEditAnnotatedThing"
+                                    EditAnnotatedThingText="@this.EditAnnotatedThingText" />
                 }
             </section>
         }
@@ -164,12 +169,12 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
         case AnnotationCardForm.Decision:
             <div class="ann-inline-form">
-                <div class="ann-inline-title">@RequirementAnnotationHelper.GetApprovalLabel(this.pendingDecision) @(item?.ShortName)</div>
+                <div class="ann-inline-title">@AnnotationHelper.GetApprovalLabel(this.pendingDecision) @(item?.ShortName)</div>
                 <DxMemo @bind-Text="@this.formText" BindValueMode="BindValueMode.OnInput" Rows="2" NullText="Add a comment (optional)..." />
                 <div class="ann-inline-actions">
                     <DxButton RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Cancel" Click="@this.CloseForm" />
                     <DxButton RenderStyle="@(this.pendingDecision == AnnotationApprovalKind.REJECTED ? CometButtonStyle.Danger.ToButtonRenderStyle() : CometButtonStyle.Primary.ToButtonRenderStyle())"
-                              Text="@($"Confirm {RequirementAnnotationHelper.GetApprovalLabel(this.pendingDecision).ToLowerInvariant()}")"
+                              Text="@($"Confirm {AnnotationHelper.GetApprovalLabel(this.pendingDecision).ToLowerInvariant()}")"
                               Enabled="@(!annotations.IsBusy)"
                               Click="@this.SendDecisionAsync" />
                 </div>
@@ -196,9 +201,9 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 {
                     <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Add.GetCssClass()" Text="Change proposal" title="Answer with a concrete change proposal" CssClass="ann-action ann-action-proposal" Click="@(() => annotations.StartChangeProposal(request))" />
                 }
-                @if (this.CanEditRequirement(kind))
+                @if (this.CanEditAnnotatedThing(kind))
                 {
-                    <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Edit.GetCssClass()" Text="Edit requirement" title="Open the requirement to apply the change" CssClass="ann-action ann-action-edit-requirement" Click="@(() => this.ViewModel.OpenEdit(annotations.ActiveRequirement))" />
+                    <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())" IconCssClass="@IconName.Edit.GetCssClass()" Text="@this.EditAnnotatedThingText" title="Open the annotated item to apply the change" CssClass="ann-action ann-action-edit-thing" Click="@(() => this.OnEditAnnotatedThing.InvokeAsync(annotations.ActiveThing))" />
                 }
                 <span class="ann-card-spacer"></span>
                 @if (canEdit)

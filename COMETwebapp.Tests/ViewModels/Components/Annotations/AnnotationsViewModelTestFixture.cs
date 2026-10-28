@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="RequirementAnnotationsViewModelTestFixture.cs" company="Starion Group S.A.">
+//  <copyright file="AnnotationsViewModelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of COMET WEB Community Edition
@@ -20,7 +20,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
+namespace COMETwebapp.Tests.ViewModels.Components.Annotations
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -34,7 +34,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.ViewModels.Components;
 
-    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
+    using COMETwebapp.ViewModels.Components.Annotations;
 
     using FluentResults;
 
@@ -45,10 +45,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
     using NUnit.Framework;
 
     /// <summary>
-    /// Suite of tests for the <see cref="RequirementAnnotationsViewModel" />
+    /// Suite of tests for the <see cref="AnnotationsViewModel" />
     /// </summary>
     [TestFixture]
-    public class RequirementAnnotationsViewModelTestFixture
+    public class AnnotationsViewModelTestFixture
     {
         /// <summary>
         /// The reference date the <see cref="EngineeringModelDataAnnotation.CreatedOn" /> of the annotations is computed from
@@ -56,9 +56,9 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         private static readonly DateTime BaseDate = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
-        /// The <see cref="RequirementAnnotationsViewModel" /> under test
+        /// The <see cref="AnnotationsViewModel" /> under test
         /// </summary>
-        private RequirementAnnotationsViewModel viewModel;
+        private AnnotationsViewModel viewModel;
 
         /// <summary>
         /// The mocked <see cref="ISessionService" />
@@ -94,6 +94,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         /// The things passed to <see cref="ISessionService.DeleteThingsWithNotification" />
         /// </summary>
         private List<(Thing TopContainer, List<Thing> Things)> deletes;
+
+        /// <summary>
+        /// The <see cref="NotificationDescription" />s passed along the writes and the deletes, in call order
+        /// </summary>
+        private List<NotificationDescription> notifications;
 
         /// <summary>
         /// The active <see cref="Person" />
@@ -171,6 +176,16 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         private Requirement bareRequirement;
 
         /// <summary>
+        /// An <see cref="ElementDefinition" /> of the iteration, which is no requirement and carries no annotation
+        /// </summary>
+        private ElementDefinition element;
+
+        /// <summary>
+        /// The <see cref="RequirementsSpecification" /> containing the requirements
+        /// </summary>
+        private RequirementsSpecification specification;
+
+        /// <summary>
         /// An open <see cref="ChangeRequest" /> about <see cref="requirement" />
         /// </summary>
         private ChangeRequest changeRequest;
@@ -236,16 +251,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
             this.otherRequirement = new Requirement { Iid = Guid.NewGuid(), ShortName = "REQ-2" };
             this.bareRequirement = new Requirement { Iid = Guid.NewGuid(), ShortName = "REQ-3" };
 
-            var specification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "SPEC" };
-            specification.Requirement.AddRange([this.requirement, this.otherRequirement, this.bareRequirement]);
-            this.iteration.RequirementsSpecification.Add(specification);
+            this.specification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "SPEC" };
+            this.specification.Requirement.AddRange([this.requirement, this.otherRequirement, this.bareRequirement]);
+            this.iteration.RequirementsSpecification.Add(this.specification);
 
-            this.changeRequest = (ChangeRequest)this.AddAnnotation(RequirementAnnotationKind.ChangeRequest, this.requirement, "CR_001", AnnotationStatusKind.OPEN, 1);
-            this.changeProposal = (ChangeProposal)this.AddAnnotation(RequirementAnnotationKind.ChangeProposal, this.requirement, "CP_001", AnnotationStatusKind.OPEN, 2);
+            this.element = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT", Name = "Satellite" };
+            this.iteration.Element.Add(this.element);
+
+            this.changeRequest = (ChangeRequest)this.AddAnnotation(AnnotationKind.ChangeRequest, this.requirement, "CR_001", AnnotationStatusKind.OPEN, 1);
+            this.changeProposal = (ChangeProposal)this.AddAnnotation(AnnotationKind.ChangeProposal, this.requirement, "CP_001", AnnotationStatusKind.OPEN, 2);
             this.changeProposal.ChangeRequest = this.changeRequest;
-            this.discrepancy = (ReviewItemDiscrepancy)this.AddAnnotation(RequirementAnnotationKind.ReviewItemDiscrepancy, this.requirement, "RID_001", AnnotationStatusKind.DONE, 3);
-            this.note = (EngineeringModelDataNote)this.AddAnnotation(RequirementAnnotationKind.Note, this.requirement, null, AnnotationStatusKind.OPEN, 4);
-            this.waiver = (RequestForWaiver)this.AddAnnotation(RequirementAnnotationKind.RequestForWaiver, this.otherRequirement, "RFW_001", AnnotationStatusKind.CLOSED, 5);
+            this.discrepancy = (ReviewItemDiscrepancy)this.AddAnnotation(AnnotationKind.ReviewItemDiscrepancy, this.requirement, "RID_001", AnnotationStatusKind.DONE, 3);
+            this.note = (EngineeringModelDataNote)this.AddAnnotation(AnnotationKind.Note, this.requirement, null, AnnotationStatusKind.OPEN, 4);
+            this.waiver = (RequestForWaiver)this.AddAnnotation(AnnotationKind.RequestForWaiver, this.otherRequirement, "RFW_001", AnnotationStatusKind.CLOSED, 5);
 
             this.actionItem = new ActionItem
             {
@@ -267,23 +285,32 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
 
             this.writes = [];
             this.deletes = [];
+            this.notifications = [];
 
             this.sessionService = new Mock<ISessionService>();
             this.sessionService.Setup(x => x.Session).Returns(this.session.Object);
             this.sessionService.Setup(x => x.IsReadOnly).Returns(false);
 
             this.sessionService.Setup(x => x.CreateOrUpdateThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
-                .Callback<Thing, IReadOnlyCollection<Thing>, NotificationDescription>((top, things, _) => this.writes.Add((top, things.ToList())))
+                .Callback<Thing, IReadOnlyCollection<Thing>, NotificationDescription>((top, things, notification) =>
+                {
+                    this.writes.Add((top, things.ToList()));
+                    this.notifications.Add(notification);
+                })
                 .ReturnsAsync(Result.Ok());
 
             this.sessionService.Setup(x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
-                .Callback<Thing, IReadOnlyCollection<Thing>, NotificationDescription>((top, things, _) => this.deletes.Add((top, things.ToList())))
+                .Callback<Thing, IReadOnlyCollection<Thing>, NotificationDescription>((top, things, notification) =>
+                {
+                    this.deletes.Add((top, things.ToList()));
+                    this.notifications.Add(notification);
+                })
                 .ReturnsAsync(Result.Ok());
 
             this.logger = new Mock<ILogger>();
             this.confirmCancelPopup = new ConfirmCancelPopupViewModel();
 
-            this.viewModel = new RequirementAnnotationsViewModel(this.sessionService.Object, this.confirmCancelPopup, this.logger.Object);
+            this.viewModel = new AnnotationsViewModel(this.sessionService.Object, this.confirmCancelPopup, this.logger.Object);
             this.viewModel.SetIteration(this.iteration, this.domain);
         }
 
@@ -295,7 +322,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
 
             Assert.That(this.viewModel.IsPanelOpen, Is.True, "the active requirement is still part of the iteration");
 
-            this.viewModel.StartNew(RequirementAnnotationKind.Note);
+            this.viewModel.StartNew(AnnotationKind.Note);
             Assert.That(this.viewModel.Draft, Is.Not.Null);
 
             this.viewModel.SetIteration(null, this.domain);
@@ -303,24 +330,139 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.viewModel.IsPanelOpen, Is.False);
-                Assert.That(this.viewModel.ActiveRequirement, Is.Null);
+                Assert.That(this.viewModel.ActiveThing, Is.Null);
                 Assert.That(this.viewModel.Draft, Is.Null);
                 Assert.That(this.viewModel.GetAnnotations(this.requirement), Is.Empty);
             }
 
-            var otherIteration = new Iteration { Iid = Guid.NewGuid() };
-            this.model.Iteration.Add(otherIteration);
+            // an iteration without a model holds no annotation, so a thing of the former one is gone
+            var orphanIteration = new Iteration { Iid = Guid.NewGuid() };
 
             this.viewModel.SetIteration(this.iteration, this.domain);
             this.viewModel.OpenPanel(this.requirement);
-            this.viewModel.StartNew(RequirementAnnotationKind.Note);
-            this.viewModel.SetIteration(otherIteration, this.domain);
+            this.viewModel.StartNew(AnnotationKind.Note);
+            this.viewModel.SetIteration(orphanIteration, this.domain);
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(this.viewModel.IsPanelOpen, Is.False, "the other iteration does not contain the active requirement");
+                Assert.That(this.viewModel.IsPanelOpen, Is.False, "the other iteration has no model and does not contain the active requirement");
+                Assert.That(this.viewModel.Draft, Is.Null);
+                Assert.That(this.viewModel.GetAnnotations(this.requirement), Is.Empty);
+            }
+
+            // another iteration of the same model: the requirement is still in the model, but not in the open iteration
+            var siblingIteration = new Iteration { Iid = Guid.NewGuid() };
+            this.model.Iteration.Add(siblingIteration);
+
+            this.viewModel.SetIteration(this.iteration, this.domain);
+            this.viewModel.OpenPanel(this.requirement);
+            this.viewModel.SetIteration(siblingIteration, this.domain);
+
+            Assert.That(this.viewModel.IsPanelOpen, Is.False, "switching to another iteration of the model closes the panel on a thing of the former one");
+        }
+
+        [Test]
+        public void VerifySetIterationClosesThePanelOfAThingRemovedFromItsContainer()
+        {
+            this.viewModel.OpenPanel(this.requirement);
+            this.viewModel.StartNew(AnnotationKind.Note);
+
+            // the requirement was deleted on the server: it is dropped from its specification but keeps its container
+            this.specification.Requirement.Remove(this.requirement);
+            Assert.That(this.requirement.Container, Is.SameAs(this.specification));
+
+            this.viewModel.SetIteration(this.iteration, this.domain);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.IsPanelOpen, Is.False);
+                Assert.That(this.viewModel.ActiveThing, Is.Null);
                 Assert.That(this.viewModel.Draft, Is.Null);
             }
+
+            this.viewModel.OpenPanel(this.otherRequirement);
+            this.viewModel.SetIteration(this.iteration, this.domain);
+
+            Assert.That(this.viewModel.IsPanelOpen, Is.True, "a requirement still in its specification keeps the panel open");
+        }
+
+        [Test]
+        public void VerifySetIterationKeepsThePanelOfAnElementDefinition()
+        {
+            this.viewModel.OpenPanel(this.element, AnnotationKind.Note);
+            this.viewModel.StartNew(AnnotationKind.Note);
+            this.viewModel.SetIteration(this.iteration, this.domain);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.IsPanelOpen, Is.True);
+                Assert.That(this.viewModel.ActiveThing, Is.SameAs(this.element));
+                Assert.That(this.viewModel.KindFilter, Is.EqualTo(AnnotationKind.Note));
+                Assert.That(this.viewModel.Draft, Is.Not.Null, "the composer survives a reload that keeps its thing");
+            }
+
+            this.iteration.Element.Remove(this.element);
+            this.viewModel.SetIteration(this.iteration, this.domain);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.IsPanelOpen, Is.False, "the element was removed from the iteration");
+                Assert.That(this.viewModel.Draft, Is.Null);
+            }
+
+            // a thing of the engineering model itself, outside the iteration, is still part of the model
+            var book = new Book { Iid = Guid.NewGuid(), ShortName = "BOOK" };
+            this.model.Book.Add(book);
+            this.viewModel.OpenPanel(book);
+            this.viewModel.SetIteration(this.iteration, this.domain);
+
+            Assert.That(this.viewModel.IsPanelOpen, Is.True, "a book is contained by the model");
+        }
+
+        [Test]
+        public void VerifySetIterationClearsADraftWhoseSubjectIsGone()
+        {
+            this.viewModel.OpenPanel(this.requirement);
+
+            // the annotation being edited is deleted by another user
+            this.viewModel.StartEdit(this.changeRequest);
+            this.model.ModellingAnnotation.Remove(this.changeRequest);
+            this.viewModel.SetIteration(this.iteration, this.domain);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.Draft, Is.Null, "the edited annotation is no longer in the model");
+                Assert.That(this.viewModel.IsPanelOpen, Is.True, "the requirement itself is still there");
+            }
+
+            // the same goes for a note
+            this.viewModel.StartEdit(this.note);
+            this.model.GenericNote.Remove(this.note);
+            this.viewModel.SetIteration(this.iteration, this.domain);
+
+            Assert.That(this.viewModel.Draft, Is.Null, "the edited note is no longer in the model");
+
+            // a new change proposal whose change request is deleted by another user
+            this.model.ModellingAnnotation.Add(this.changeRequest);
+            this.viewModel.SetIteration(this.iteration, this.domain);
+            this.viewModel.StartChangeProposal(this.changeRequest);
+            this.model.ModellingAnnotation.Remove(this.changeRequest);
+            this.viewModel.SetIteration(this.iteration, this.domain);
+
+            Assert.That(this.viewModel.Draft, Is.Null, "the change request the proposal answers is no longer in the model");
+
+            // a draft whose subject is still there is kept
+            this.viewModel.StartEdit(this.discrepancy);
+            var kept = this.viewModel.Draft;
+            this.viewModel.SetIteration(this.iteration, this.domain);
+
+            Assert.That(this.viewModel.Draft, Is.SameAs(kept));
+
+            this.viewModel.StartNew(AnnotationKind.Note);
+            var newDraft = this.viewModel.Draft;
+            this.viewModel.SetIteration(this.iteration, this.domain);
+
+            Assert.That(this.viewModel.Draft, Is.SameAs(newDraft), "a new annotation has no subject to lose");
         }
 
         [Test]
@@ -336,7 +478,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
                 Assert.That(this.viewModel.GetAnnotations(null), Is.Empty);
             }
 
-            var otherProposal = (ChangeProposal)this.AddAnnotation(RequirementAnnotationKind.ChangeProposal, this.otherRequirement, "CP_002", AnnotationStatusKind.OPEN, 6);
+            var otherProposal = (ChangeProposal)this.AddAnnotation(AnnotationKind.ChangeProposal, this.otherRequirement, "CP_002", AnnotationStatusKind.OPEN, 6);
             otherProposal.ChangeRequest = this.changeRequest;
 
             this.viewModel.SetIteration(this.iteration, this.domain);
@@ -351,8 +493,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         [Test]
         public void VerifyGetChangeProposals()
         {
-            var secondProposal = (ChangeProposal)this.AddAnnotation(RequirementAnnotationKind.ChangeProposal, this.requirement, "CP_002", AnnotationStatusKind.OPEN, 7);
+            var secondProposal = (ChangeProposal)this.AddAnnotation(AnnotationKind.ChangeProposal, this.requirement, "CP_002", AnnotationStatusKind.OPEN, 7);
             secondProposal.ChangeRequest = this.changeRequest;
+
+            // the proposals are indexed once per SetIteration: a proposal added to the model since is not known yet
+            Assert.That(this.viewModel.GetChangeProposals(this.changeRequest), Is.EqualTo((ChangeProposal[])[this.changeProposal]));
 
             this.viewModel.SetIteration(this.iteration, this.domain);
 
@@ -360,7 +505,22 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
             {
                 Assert.That(this.viewModel.GetChangeProposals(this.changeRequest), Is.EqualTo((ChangeProposal[])[secondProposal, this.changeProposal]));
                 Assert.That(this.viewModel.GetChangeProposals(new ChangeRequest { Iid = Guid.NewGuid() }), Is.Empty);
+                Assert.That(this.viewModel.GetChangeProposals(null), Is.Empty);
             }
+
+            this.viewModel.SetIteration(null, this.domain);
+
+            Assert.That(this.viewModel.GetChangeProposals(this.changeRequest), Is.Empty, "without an iteration nothing is indexed");
+        }
+
+        [Test]
+        public void VerifyGetChangeProposalsIgnoresAProposalWithoutChangeRequest()
+        {
+            var orphan = (ChangeProposal)this.AddAnnotation(AnnotationKind.ChangeProposal, this.requirement, "CP_003", AnnotationStatusKind.OPEN, 8);
+            orphan.ChangeRequest = null;
+
+            Assert.DoesNotThrow(() => this.viewModel.SetIteration(this.iteration, this.domain));
+            Assert.That(this.viewModel.GetChangeProposals(this.changeRequest), Is.EqualTo((ChangeProposal[])[this.changeProposal]));
         }
 
         [Test]
@@ -373,23 +533,29 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
             {
                 Assert.That(summary, Is.EqualTo((AnnotationKindSummary[])
                 [
-                    new AnnotationKindSummary(RequirementAnnotationKind.Note, 1, 0),
-                    new AnnotationKindSummary(RequirementAnnotationKind.ChangeRequest, 1, 1),
-                    new AnnotationKindSummary(RequirementAnnotationKind.ReviewItemDiscrepancy, 1, 0)
+                    new AnnotationKindSummary(AnnotationKind.Note, 1, 0),
+                    new AnnotationKindSummary(AnnotationKind.ChangeRequest, 1, 1),
+                    new AnnotationKindSummary(AnnotationKind.ReviewItemDiscrepancy, 1, 0)
                 ]));
 
-                Assert.That(this.viewModel.GetSummary(this.otherRequirement), Is.EqualTo((AnnotationKindSummary[])[new AnnotationKindSummary(RequirementAnnotationKind.RequestForWaiver, 1, 0)]));
+                Assert.That(this.viewModel.GetSummary(this.otherRequirement), Is.EqualTo((AnnotationKindSummary[])[new AnnotationKindSummary(AnnotationKind.RequestForWaiver, 1, 0)]));
                 Assert.That(this.viewModel.GetSummary(this.bareRequirement), Is.Empty);
             }
 
             // a closed change request still counts as open while its change proposal is
             this.changeRequest.Status = AnnotationStatusKind.CLOSED;
 
-            Assert.That(this.viewModel.GetSummary(this.requirement).Single(x => x.Kind == RequirementAnnotationKind.ChangeRequest), Is.EqualTo(new AnnotationKindSummary(RequirementAnnotationKind.ChangeRequest, 1, 1)));
+            var closedRequest = this.viewModel.GetSummary(this.requirement).Single(x => x.Kind == AnnotationKind.ChangeRequest);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(closedRequest, Is.EqualTo(new AnnotationKindSummary(AnnotationKind.ChangeRequest, 1, 1)));
+                Assert.That(AnnotationHelper.GetSummaryTooltip(closedRequest), Is.EqualTo("1 Change Request, 1 needing attention"));
+            }
 
             this.changeProposal.Status = AnnotationStatusKind.CLOSED;
 
-            Assert.That(this.viewModel.GetSummary(this.requirement).Single(x => x.Kind == RequirementAnnotationKind.ChangeRequest), Is.EqualTo(new AnnotationKindSummary(RequirementAnnotationKind.ChangeRequest, 1, 0)));
+            Assert.That(this.viewModel.GetSummary(this.requirement).Single(x => x.Kind == AnnotationKind.ChangeRequest), Is.EqualTo(new AnnotationKindSummary(AnnotationKind.ChangeRequest, 1, 0)));
         }
 
         [Test]
@@ -418,13 +584,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         public void VerifyMatchesFilter()
         {
             var openOption = this.viewModel.FilterOptions.Single(x => x.Kind == null);
-            var waiverOption = this.viewModel.FilterOptions.Single(x => x.Kind == RequirementAnnotationKind.RequestForWaiver);
-            var discrepancyOption = this.viewModel.FilterOptions.Single(x => x.Kind == RequirementAnnotationKind.ReviewItemDiscrepancy);
+            var waiverOption = this.viewModel.FilterOptions.Single(x => x.Kind == AnnotationKind.RequestForWaiver);
+            var discrepancyOption = this.viewModel.FilterOptions.Single(x => x.Kind == AnnotationKind.ReviewItemDiscrepancy);
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.viewModel.FilterOptions, Has.Count.EqualTo(6));
-                Assert.That(this.viewModel.FilterOptions.Where(x => x.Kind != null).Select(x => x.Kind), Is.EqualTo(RequirementAnnotationHelper.RequirementKinds.Cast<RequirementAnnotationKind?>().ToArray()));
+                Assert.That(this.viewModel.FilterOptions.Where(x => x.Kind != null).Select(x => x.Kind), Is.EqualTo(AnnotationHelper.AttachableKinds.Cast<AnnotationKind?>().ToArray()));
 
                 Assert.That(this.viewModel.MatchesFilter(this.bareRequirement, []), Is.True);
                 Assert.That(this.viewModel.MatchesFilter(this.requirement, [openOption]), Is.True);
@@ -452,13 +618,13 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
             Assert.That(this.viewModel.VisibleAnnotations, Is.Empty);
 
             this.viewModel.ShowResolved = false;
-            this.viewModel.OpenPanel(this.requirement, RequirementAnnotationKind.ReviewItemDiscrepancy);
+            this.viewModel.OpenPanel(this.requirement, AnnotationKind.ReviewItemDiscrepancy);
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.viewModel.IsPanelOpen, Is.True);
-                Assert.That(this.viewModel.ActiveRequirement, Is.SameAs(this.requirement));
-                Assert.That(this.viewModel.KindFilter, Is.EqualTo(RequirementAnnotationKind.ReviewItemDiscrepancy));
+                Assert.That(this.viewModel.ActiveThing, Is.SameAs(this.requirement));
+                Assert.That(this.viewModel.KindFilter, Is.EqualTo(AnnotationKind.ReviewItemDiscrepancy));
                 Assert.That(this.viewModel.VisibleAnnotations, Is.Empty, "the only discrepancy is done");
             }
 
@@ -478,10 +644,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
             this.changeRequest.Status = AnnotationStatusKind.OPEN;
             this.changeProposal.Status = AnnotationStatusKind.OPEN;
 
-            this.viewModel.KindFilter = RequirementAnnotationKind.Note;
+            this.viewModel.KindFilter = AnnotationKind.Note;
             Assert.That(this.viewModel.VisibleAnnotations, Is.EqualTo((EngineeringModelDataAnnotation[])[this.note]));
 
-            this.viewModel.StartNew(RequirementAnnotationKind.Note);
+            this.viewModel.StartNew(AnnotationKind.Note);
             Assert.That(this.viewModel.Draft, Is.Not.Null);
 
             this.viewModel.ClosePanel();
@@ -489,7 +655,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.viewModel.IsPanelOpen, Is.False);
-                Assert.That(this.viewModel.ActiveRequirement, Is.Null);
+                Assert.That(this.viewModel.ActiveThing, Is.Null);
                 Assert.That(this.viewModel.Draft, Is.Null);
             }
         }
@@ -499,18 +665,26 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         {
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(RequirementAnnotationHelper.RequirementKinds.Select(this.viewModel.CanCreate), Is.All.True);
-                Assert.That(this.viewModel.CreatableKinds, Is.EqualTo(RequirementAnnotationHelper.RequirementKinds));
+                Assert.That(AnnotationHelper.AttachableKinds.Select(this.viewModel.CanCreate), Is.All.True);
+                Assert.That(this.viewModel.CreatableKinds, Is.Empty, "no panel is open, so there is no thing to annotate");
+            }
+
+            this.viewModel.OpenPanel(this.requirement);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.CreatableKinds, Is.EqualTo(AnnotationHelper.AttachableKinds));
+                Assert.That(this.viewModel.GetCreatableKinds(this.requirement), Is.EqualTo(AnnotationHelper.AttachableKinds));
             }
 
             this.permissionService.Setup(x => x.CanWrite(ClassKind.ChangeRequest, It.IsAny<Thing>())).Returns(false);
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(this.viewModel.CanCreate(RequirementAnnotationKind.ChangeRequest), Is.False);
-                Assert.That(this.viewModel.CanCreate(RequirementAnnotationKind.Note), Is.True);
-                Assert.That(this.viewModel.CreatableKinds, Does.Not.Contain(RequirementAnnotationKind.ChangeRequest));
-                Assert.That(this.viewModel.CreatableKinds, Does.Contain(RequirementAnnotationKind.Note));
+                Assert.That(this.viewModel.CanCreate(AnnotationKind.ChangeRequest), Is.False);
+                Assert.That(this.viewModel.CanCreate(AnnotationKind.Note), Is.True);
+                Assert.That(this.viewModel.CreatableKinds, Does.Not.Contain(AnnotationKind.ChangeRequest));
+                Assert.That(this.viewModel.CreatableKinds, Does.Contain(AnnotationKind.Note));
             }
 
             this.permissionService.Setup(x => x.CanWrite(ClassKind.ChangeRequest, It.IsAny<Thing>())).Returns(true);
@@ -519,7 +693,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(this.viewModel.CanCreate(RequirementAnnotationKind.Note), Is.False, "the active person is not a participant of the model");
+                Assert.That(this.viewModel.CanCreate(AnnotationKind.Note), Is.False, "the active person is not a participant of the model");
                 Assert.That(this.viewModel.CreatableKinds, Is.Empty);
             }
 
@@ -529,9 +703,47 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(this.viewModel.CanCreate(RequirementAnnotationKind.Note), Is.False);
+                Assert.That(this.viewModel.CanCreate(AnnotationKind.Note), Is.False);
                 Assert.That(this.viewModel.CreatableKinds, Is.Empty);
             }
+        }
+
+        [Test]
+        public void VerifyGetCreatableKinds()
+        {
+            var book = new Book { Iid = Guid.NewGuid(), ShortName = "BOOK" };
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.GetCreatableKinds(this.requirement), Is.EqualTo(AnnotationHelper.AttachableKinds));
+                Assert.That(this.viewModel.GetCreatableKinds(this.element), Is.EqualTo(AnnotationHelper.AttachableKinds));
+                Assert.That(this.viewModel.GetCreatableKinds(this.iteration), Is.EqualTo((AnnotationKind[])[AnnotationKind.Note]), "only a note applies to an iteration");
+                Assert.That(this.viewModel.GetCreatableKinds(book), Is.EqualTo((AnnotationKind[])[AnnotationKind.Note]), "only a note applies to a book");
+                Assert.That(this.viewModel.GetCreatableKinds(null), Is.Empty);
+            }
+
+            this.viewModel.OpenPanel(this.iteration);
+
+            Assert.That(this.viewModel.CreatableKinds, Is.EqualTo((AnnotationKind[])[AnnotationKind.Note]), "the creatable kinds follow the active thing");
+
+            this.viewModel.OpenPanel(this.element);
+
+            Assert.That(this.viewModel.CreatableKinds, Is.EqualTo(AnnotationHelper.AttachableKinds));
+
+            this.permissionService.Setup(x => x.CanWrite(ClassKind.EngineeringModelDataNote, It.IsAny<Thing>())).Returns(false);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.GetCreatableKinds(this.iteration), Is.Empty, "the note is the only applicable kind and it is not permitted");
+                Assert.That(this.viewModel.GetCreatableKinds(this.element), Is.EqualTo((AnnotationKind[])
+                [
+                    AnnotationKind.ChangeRequest, AnnotationKind.ReviewItemDiscrepancy, AnnotationKind.RequestForDeviation, AnnotationKind.RequestForWaiver
+                ]));
+            }
+
+            this.viewModel.ClosePanel();
+
+            Assert.That(this.viewModel.CreatableKinds, Is.Empty);
         }
 
         [Test]
@@ -591,12 +803,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         {
             // a new annotation
             this.viewModel.OpenPanel(this.requirement);
-            this.viewModel.StartNew(RequirementAnnotationKind.RequestForDeviation);
+            this.viewModel.StartNew(AnnotationKind.RequestForDeviation);
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.viewModel.Draft, Is.Not.Null);
-                Assert.That(this.viewModel.Draft.Kind, Is.EqualTo(RequirementAnnotationKind.RequestForDeviation));
+                Assert.That(this.viewModel.Draft.Kind, Is.EqualTo(AnnotationKind.RequestForDeviation));
                 Assert.That(this.viewModel.Draft.ShortName, Is.EqualTo("REQ-1-RFD-001"));
                 Assert.That(this.viewModel.Draft.Owner, Is.SameAs(this.domain));
                 Assert.That(this.viewModel.Draft.ShowsDetails, Is.False, "a new annotation does not offer its details");
@@ -639,7 +851,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
             // the next short name follows the stored annotations
             this.model.ModellingAnnotation.Add(created);
             this.viewModel.SetIteration(this.iteration, this.domain);
-            this.viewModel.StartNew(RequirementAnnotationKind.RequestForDeviation);
+            this.viewModel.StartNew(AnnotationKind.RequestForDeviation);
             this.viewModel.Draft.Title = "another title";
             this.viewModel.Draft.Content = "another content";
 
@@ -649,7 +861,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
 
             // a new note
             this.writes.Clear();
-            this.viewModel.StartNew(RequirementAnnotationKind.Note);
+            this.viewModel.StartNew(AnnotationKind.Note);
             this.viewModel.Draft.Content = "a comment";
 
             await this.viewModel.SaveDraftAsync();
@@ -676,7 +888,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
             {
                 Assert.That(this.viewModel.Draft, Is.Not.Null);
                 Assert.That(this.viewModel.Draft.EditedAnnotation, Is.SameAs(this.changeRequest));
-                Assert.That(this.viewModel.Draft.Kind, Is.EqualTo(RequirementAnnotationKind.ChangeRequest));
+                Assert.That(this.viewModel.Draft.Kind, Is.EqualTo(AnnotationKind.ChangeRequest));
                 Assert.That(this.viewModel.Draft.Content, Is.EqualTo(this.changeRequest.Content));
                 Assert.That(this.viewModel.Draft.Title, Is.EqualTo(this.changeRequest.Title));
             }
@@ -775,7 +987,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(this.viewModel.Draft.Kind, Is.EqualTo(RequirementAnnotationKind.ChangeProposal));
+                Assert.That(this.viewModel.Draft.Kind, Is.EqualTo(AnnotationKind.ChangeProposal));
                 Assert.That(this.viewModel.Draft.ChangeRequest, Is.SameAs(this.changeRequest));
                 Assert.That(this.viewModel.Draft.ShortName, Is.EqualTo("REQ-1-CP-001"));
                 Assert.That(this.viewModel.Draft.Owner, Is.SameAs(this.domain));
@@ -802,13 +1014,220 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         }
 
         [Test]
+        public async Task VerifySaveDraftAsyncWritesTheShortNameAndOwnerOfTheDraft()
+        {
+            this.viewModel.OpenPanel(this.requirement);
+            this.viewModel.StartNew(AnnotationKind.RequestForDeviation);
+            this.viewModel.Draft.Title = "a title";
+            this.viewModel.Draft.Content = "a content";
+            this.viewModel.Draft.ShortName = "  CUSTOM-1  ";
+            this.viewModel.Draft.Owner = this.engineeringDomain;
+
+            await this.viewModel.SaveDraftAsync();
+
+            var typed = this.writes.Single().Things.OfType<RequestForDeviation>().Single();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(typed.ShortName, Is.EqualTo("CUSTOM-1"), "the short name of the draft is written, trimmed");
+                Assert.That(typed.Owner, Is.SameAs(this.engineeringDomain), "the owner of the draft is written");
+                Assert.That(this.viewModel.Draft, Is.Null);
+            }
+
+            // an empty short name and no owner fall back to the generated name and the current domain
+            this.writes.Clear();
+            this.viewModel.StartNew(AnnotationKind.RequestForDeviation);
+            this.viewModel.Draft.Title = "another title";
+            this.viewModel.Draft.Content = "another content";
+            this.viewModel.Draft.ShortName = "   ";
+            this.viewModel.Draft.Owner = null;
+
+            await this.viewModel.SaveDraftAsync();
+
+            var fallback = this.writes.Single().Things.OfType<RequestForDeviation>().Single();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(fallback.ShortName, Is.EqualTo("REQ-1-RFD-001"));
+                Assert.That(fallback.Owner, Is.SameAs(this.domain));
+            }
+
+            // the previewed short name is what is written when it is left alone
+            this.writes.Clear();
+            this.viewModel.StartNew(AnnotationKind.ReviewItemDiscrepancy);
+            var preview = this.viewModel.Draft.ShortName;
+            this.viewModel.Draft.Title = "a third title";
+            this.viewModel.Draft.Content = "a third content";
+
+            await this.viewModel.SaveDraftAsync();
+
+            Assert.That(this.writes.Single().Things.OfType<ReviewItemDiscrepancy>().Single().ShortName, Is.EqualTo(preview));
+        }
+
+        [Test]
+        public async Task VerifySaveDraftAsyncOnAnElementDefinition()
+        {
+            this.viewModel.OpenPanel(this.element);
+            this.viewModel.StartNew(AnnotationKind.ChangeRequest);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.viewModel.Draft.ShortName, Is.EqualTo("SAT-CR-001"), "the short name is built from the annotated thing");
+                Assert.That(this.viewModel.Draft.Owner, Is.SameAs(this.domain));
+            }
+
+            this.viewModel.Draft.Title = "a title";
+            this.viewModel.Draft.Content = "a content";
+
+            await this.viewModel.SaveDraftAsync();
+
+            var (top, things) = this.writes.Single();
+            var created = things.OfType<ChangeRequest>().Single();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(top.Iid, Is.EqualTo(this.model.Iid));
+                Assert.That(created.ShortName, Is.EqualTo("SAT-CR-001"));
+                Assert.That(created.PrimaryAnnotatedThing.ReferencedThing, Is.SameAs(this.element));
+                Assert.That(created.LanguageCode, Is.EqualTo("en"), "an element without definition has no language to borrow");
+                Assert.That(this.notifications.Single().OnSuccess, Is.EqualTo("Element Definition 'SAT' annotated with a Change Request"));
+                Assert.That(this.notifications.Single().OnError, Is.EqualTo("Could not add the Change Request to the Element Definition 'SAT'"));
+            }
+
+            // a new annotation is written in the language of the definition of the thing
+            this.element.Definition.Add(new Definition { Iid = Guid.NewGuid(), LanguageCode = "fr", Content = "un satellite" });
+            this.writes.Clear();
+            this.viewModel.StartNew(AnnotationKind.Note);
+            this.viewModel.Draft.Content = "a comment";
+
+            await this.viewModel.SaveDraftAsync();
+
+            Assert.That(this.writes.Single().Things.OfType<EngineeringModelDataNote>().Single().LanguageCode, Is.EqualTo("fr"));
+        }
+
+        [Test]
+        public async Task VerifyNotificationsNameTheAnnotationAndTheAction()
+        {
+            await this.viewModel.ReplyAsync(this.changeRequest, "a reply");
+            await this.viewModel.SetStatusAsync(this.changeRequest, AnnotationStatusKind.DONE);
+            await this.viewModel.ApproveAsync(this.changeRequest, AnnotationApprovalKind.ACCEPTED, null);
+            await this.viewModel.ApproveAsync(this.changeRequest, AnnotationApprovalKind.REJECTED, null);
+            await this.viewModel.ApproveAsync(this.changeRequest, AnnotationApprovalKind.WITHDRAWN, null);
+            await this.viewModel.AddSolutionAsync(this.discrepancy, "a solution");
+            await this.viewModel.DeleteAsync(this.changeRequest);
+
+            this.viewModel.StartEdit(this.changeRequest);
+            this.viewModel.Draft.Content = "an updated content";
+            await this.viewModel.SaveDraftAsync();
+
+            this.viewModel.OpenPanel(this.requirement);
+            this.viewModel.StartNew(AnnotationKind.ChangeRequest);
+            this.viewModel.Draft.Title = "a title";
+            this.viewModel.Draft.Content = "a content";
+            await this.viewModel.SaveDraftAsync();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.notifications.Select(x => x.OnSuccess), Is.EqualTo(
+                [
+                    "Change Request 'CR_001' received a reply",
+                    "Change Request 'CR_001' set to Done",
+                    "Change Request 'CR_001' accepted",
+                    "Change Request 'CR_001' rejected",
+                    "Change Request 'CR_001' withdrawn",
+                    "Review Item Discrepancy 'RID_001' received a proposed solution",
+                    "Change Request 'CR_001' deleted",
+                    "Change Request 'CR_001' updated",
+                    "Requirement 'REQ-1' annotated with a Change Request"
+                ]));
+
+                Assert.That(this.notifications.Select(x => x.OnError), Is.EqualTo(
+                [
+                    "Could not reply to the Change Request 'CR_001'",
+                    "Could not change the status of the Change Request 'CR_001'",
+                    "Could not record a decision on the Change Request 'CR_001'",
+                    "Could not record a decision on the Change Request 'CR_001'",
+                    "Could not record a decision on the Change Request 'CR_001'",
+                    "Could not propose a solution for the Review Item Discrepancy 'RID_001'",
+                    "Could not delete the Change Request 'CR_001'",
+                    "Could not update the Change Request 'CR_001'",
+                    "Could not add the Change Request to the Requirement 'REQ-1'"
+                ]));
+            }
+
+            // a note is referred to by the start of its text
+            this.notifications.Clear();
+            this.note.Content = "  a short remark  ";
+            await this.viewModel.DeleteAsync(this.note);
+
+            this.note.Content = "This remark is much longer than thirty characters";
+            await this.viewModel.DeleteAsync(this.note);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(this.notifications[0].OnSuccess, Is.EqualTo("Note 'a short remark' deleted"));
+                Assert.That(this.notifications[0].OnError, Is.EqualTo("Could not delete the Note 'a short remark'"));
+                Assert.That(this.notifications[1].OnSuccess, Is.EqualTo("Note 'This remark is much longer tha...' deleted"));
+                Assert.That(this.notifications[1].OnError, Is.EqualTo("Could not delete the Note 'This remark is much longer tha...'"));
+            }
+        }
+
+        [Test]
+        public async Task VerifyDeleteAsyncDropsTheDraftOfTheDeletedAnnotation()
+        {
+            this.viewModel.OpenPanel(this.requirement);
+
+            this.viewModel.StartEdit(this.changeRequest);
+            await this.viewModel.DeleteAsync(this.changeRequest);
+
+            Assert.That(this.viewModel.Draft, Is.Null, "the draft edits the deleted annotation");
+
+            this.viewModel.StartEdit(this.changeProposal);
+            await this.viewModel.DeleteAsync(this.changeRequest);
+
+            Assert.That(this.viewModel.Draft, Is.Null, "the draft edits a change proposal deleted with its change request");
+
+            this.viewModel.StartChangeProposal(this.changeRequest);
+            await this.viewModel.DeleteAsync(this.changeRequest);
+
+            Assert.That(this.viewModel.Draft, Is.Null, "the draft answers the deleted change request");
+
+            this.viewModel.StartEdit(this.note);
+            await this.viewModel.DeleteAsync(this.note);
+
+            Assert.That(this.viewModel.Draft, Is.Null, "the draft edits the deleted note");
+
+            this.viewModel.StartEdit(this.discrepancy);
+            var unrelated = this.viewModel.Draft;
+            await this.viewModel.DeleteAsync(this.changeRequest);
+
+            Assert.That(this.viewModel.Draft, Is.SameAs(unrelated), "the draft edits another annotation");
+
+            this.viewModel.StartNew(AnnotationKind.Note);
+            var composing = this.viewModel.Draft;
+            await this.viewModel.DeleteAsync(this.note);
+
+            Assert.That(this.viewModel.Draft, Is.SameAs(composing), "a new annotation is not about the deleted one");
+
+            // a deletion that failed leaves the annotation, so its draft stays
+            this.sessionService.Setup(x => x.DeleteThingsWithNotification(It.IsAny<Thing>(), It.IsAny<IReadOnlyCollection<Thing>>(), It.IsAny<NotificationDescription>()))
+                .ReturnsAsync(Result.Fail("a failure"));
+
+            this.viewModel.StartEdit(this.discrepancy);
+            var failed = this.viewModel.Draft;
+            await this.viewModel.DeleteAsync(this.discrepancy);
+
+            Assert.That(this.viewModel.Draft, Is.SameAs(failed));
+        }
+
+        [Test]
         public void VerifyGetShortNameError()
         {
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(this.viewModel.GetShortNameError(null), Is.Null);
-                Assert.That(this.viewModel.GetShortNameError(new AnnotationDraft { Kind = RequirementAnnotationKind.ChangeRequest, ShortName = "CR-002" }), Is.Null, "a new annotation's short name is generated when written");
-                Assert.That(this.viewModel.GetShortNameError(new AnnotationDraft { Kind = RequirementAnnotationKind.Note, EditedAnnotation = this.note }), Is.Null, "a note has no short name");
+                Assert.That(this.viewModel.GetShortNameError(new AnnotationDraft { Kind = AnnotationKind.ChangeRequest, ShortName = "CR-002" }), Is.Null, "a new annotation's short name is generated when written");
+                Assert.That(this.viewModel.GetShortNameError(new AnnotationDraft { Kind = AnnotationKind.Note, EditedAnnotation = this.note }), Is.Null, "a note has no short name");
 
                 Assert.That(this.viewModel.GetShortNameError(this.EditDraft(this.changeRequest, "CR_001")), Is.Null, "the edited annotation does not conflict with itself");
                 Assert.That(this.viewModel.GetShortNameError(this.EditDraft(this.changeRequest, "  CR_002  ")), Is.Null, "the short name is trimmed");
@@ -839,11 +1258,11 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         public void VerifySetIterationRefreshesTheShortNamePreview()
         {
             this.viewModel.OpenPanel(this.requirement);
-            this.viewModel.StartNew(RequirementAnnotationKind.RequestForDeviation);
+            this.viewModel.StartNew(AnnotationKind.RequestForDeviation);
             var preview = this.viewModel.Draft.ShortName;
 
             // another user writes an annotation with that very short name while the composer is open
-            this.AddAnnotation(RequirementAnnotationKind.RequestForDeviation, this.requirement, preview, AnnotationStatusKind.OPEN, 9);
+            this.AddAnnotation(AnnotationKind.RequestForDeviation, this.requirement, preview, AnnotationStatusKind.OPEN, 9);
             this.viewModel.SetIteration(this.iteration, this.domain);
 
             using (Assert.EnterMultipleScope())
@@ -861,7 +1280,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         /// <returns>The <see cref="AnnotationDraft" /></returns>
         private AnnotationDraft EditDraft(ModellingAnnotationItem annotation, string shortName)
         {
-            return new AnnotationDraft { Kind = RequirementAnnotationHelper.GetKind(annotation).Value, ShortName = shortName, EditedAnnotation = annotation };
+            return new AnnotationDraft { Kind = AnnotationHelper.GetKind(annotation).Value, ShortName = shortName, EditedAnnotation = annotation };
         }
 
         [Test]
@@ -876,7 +1295,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(changeRequestDraft.ShowsDetails, Is.True);
-                Assert.That(changeRequestDraft.Kind, Is.EqualTo(RequirementAnnotationKind.ChangeRequest));
+                Assert.That(changeRequestDraft.Kind, Is.EqualTo(AnnotationKind.ChangeRequest));
                 Assert.That(changeRequestDraft.EditedAnnotation, Is.SameAs(this.changeRequest));
                 Assert.That(changeRequestDraft.ShortName, Is.EqualTo("CR_001"));
                 Assert.That(changeRequestDraft.Owner, Is.SameAs(this.domain));
@@ -903,7 +1322,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(noteDraft.ShowsDetails, Is.False, "a note has no details");
-                Assert.That(noteDraft.Kind, Is.EqualTo(RequirementAnnotationKind.Note));
+                Assert.That(noteDraft.Kind, Is.EqualTo(AnnotationKind.Note));
                 Assert.That(noteDraft.Content, Is.EqualTo(this.note.Content));
                 Assert.That(noteDraft.ShortName, Is.Empty);
                 Assert.That(noteDraft.Owner, Is.Null);
@@ -921,7 +1340,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         public void VerifyCancelDraft()
         {
             this.viewModel.OpenPanel(this.requirement);
-            this.viewModel.StartNew(RequirementAnnotationKind.Note);
+            this.viewModel.StartNew(AnnotationKind.Note);
             this.viewModel.CancelDraft();
 
             using (Assert.EnterMultipleScope())
@@ -935,12 +1354,12 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         [Test]
         public void VerifyStartNewClearsAConflictingKindFilter()
         {
-            this.viewModel.OpenPanel(this.requirement, RequirementAnnotationKind.Note);
-            this.viewModel.StartNew(RequirementAnnotationKind.Note);
+            this.viewModel.OpenPanel(this.requirement, AnnotationKind.Note);
+            this.viewModel.StartNew(AnnotationKind.Note);
 
-            Assert.That(this.viewModel.KindFilter, Is.EqualTo(RequirementAnnotationKind.Note));
+            Assert.That(this.viewModel.KindFilter, Is.EqualTo(AnnotationKind.Note));
 
-            this.viewModel.StartNew(RequirementAnnotationKind.ReviewItemDiscrepancy);
+            this.viewModel.StartNew(AnnotationKind.ReviewItemDiscrepancy);
 
             Assert.That(this.viewModel.KindFilter, Is.Null);
         }
@@ -1126,7 +1545,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
             Assert.DoesNotThrowAsync(() => this.viewModel.SetStatusAsync(this.changeRequest, AnnotationStatusKind.DONE));
 
             this.viewModel.OpenPanel(this.requirement);
-            this.viewModel.StartNew(RequirementAnnotationKind.Note);
+            this.viewModel.StartNew(AnnotationKind.Note);
             this.viewModel.Draft.Content = "a comment";
 
             Assert.DoesNotThrowAsync(() => this.viewModel.SaveDraftAsync());
@@ -1148,15 +1567,15 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor.Annotations
         /// <summary>
         /// Builds an annotation about <paramref name="target" /> and adds it to the model, like the server would store it
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementAnnotationKind" /></param>
+        /// <param name="kind">The <see cref="AnnotationKind" /></param>
         /// <param name="target">The annotated <see cref="Thing" /></param>
         /// <param name="shortName">The short name, ignored for a note</param>
         /// <param name="status">The <see cref="AnnotationStatusKind" />, ignored for a note</param>
         /// <param name="hours">The number of hours after <see cref="BaseDate" /> the annotation was created</param>
         /// <returns>The <see cref="EngineeringModelDataAnnotation" /></returns>
-        private EngineeringModelDataAnnotation AddAnnotation(RequirementAnnotationKind kind, Thing target, string shortName, AnnotationStatusKind status, int hours)
+        private EngineeringModelDataAnnotation AddAnnotation(AnnotationKind kind, Thing target, string shortName, AnnotationStatusKind status, int hours)
         {
-            var (annotation, _) = RequirementAnnotationHelper.CreateAnnotation(kind, target, this.participant, this.domain, "en", shortName, $"title {hours}", $"content {hours}", AnnotationClassificationKind.MINOR);
+            var (annotation, _) = AnnotationHelper.CreateAnnotation(kind, target, this.participant, this.domain, "en", shortName, $"title {hours}", $"content {hours}", AnnotationClassificationKind.MINOR);
             annotation.CreatedOn = BaseDate.AddHours(hours);
 
             if (annotation is ModellingAnnotationItem item)

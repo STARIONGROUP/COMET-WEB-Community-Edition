@@ -20,25 +20,25 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.RequirementsEditor
+namespace COMETwebapp.Components.Annotations
 {
     using System.Globalization;
 
+    using CDP4Common.CommonData;
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Enumerations;
     using COMET.Web.Common.Services.SessionManagement;
 
-    using COMETwebapp.ViewModels.Components.RequirementsEditor;
-    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
+    using COMETwebapp.ViewModels.Components.Annotations;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
     /// Renders one annotation of the annotations side panel: its kind, short name, classification, status, content,
     /// decisions, proposed solutions or change proposals, its discussion, and the actions its kind allows (reply,
-    /// accept / reject / withdraw, propose a solution or a change, edit the requirement, edit or delete the annotation).
+    /// accept / reject / withdraw, propose a solution or a change, open the annotated thing, edit or delete the annotation).
     /// </summary>
     public partial class AnnotationCard
     {
@@ -46,7 +46,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// The status values offered by the status selector, as a stable list so the combo box keeps its selection.
         /// </summary>
         private static readonly IReadOnlyList<StatusOption> StatusOptions =
-            [..RequirementAnnotationHelper.Statuses.Select(x => new StatusOption(x, RequirementAnnotationHelper.GetStatusLabel(x)))];
+            [..AnnotationHelper.Statuses.Select(x => new StatusOption(x, AnnotationHelper.GetStatusLabel(x)))];
 
         /// <summary>
         /// The inline form currently open on the card.
@@ -64,10 +64,23 @@ namespace COMETwebapp.Components.RequirementsEditor
         private AnnotationApprovalKind pendingDecision;
 
         /// <summary>
-        /// Gets or sets the <see cref="IRequirementsEditorBodyViewModel" />.
+        /// Gets or sets the <see cref="IAnnotationsViewModel" /> of the host page.
         /// </summary>
         [Parameter]
-        public IRequirementsEditorBodyViewModel ViewModel { get; set; }
+        public IAnnotationsViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the callback opening the host's own edit form on the annotated thing. Without one, the action is not
+        /// shown.
+        /// </summary>
+        [Parameter]
+        public EventCallback<Thing> OnEditAnnotatedThing { get; set; }
+
+        /// <summary>
+        /// Gets or sets the text of the action opening the annotated thing for editing, e.g. "Edit requirement".
+        /// </summary>
+        [Parameter]
+        public string EditAnnotatedThingText { get; set; } = "Edit";
 
         /// <summary>
         /// Gets or sets the <see cref="EngineeringModelDataAnnotation" /> to render.
@@ -83,7 +96,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         public bool IsNested { get; set; }
 
         /// <summary>
-        /// Gets or sets the injected <see cref="ISessionService" />, used to check whether the requirement may be edited.
+        /// Gets or sets the injected <see cref="ISessionService" />, used to check whether the annotated thing may be edited.
         /// </summary>
         [Inject]
         public ISessionService SessionService { get; set; }
@@ -124,19 +137,20 @@ namespace COMETwebapp.Components.RequirementsEditor
         }
 
         /// <summary>
-        /// Gets a value indicating whether the card offers to open the annotated requirement for editing: the kinds that
-        /// ask for the requirement itself to change, when the user may edit it.
+        /// Gets a value indicating whether the card offers to open the annotated thing for editing: the kinds that ask for
+        /// the thing itself to change, when the host supplied an edit action and the user may edit the thing.
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementAnnotationKind" /> of the annotation</param>
-        /// <returns>True if the "Edit requirement" action is shown</returns>
-        private bool CanEditRequirement(RequirementAnnotationKind kind)
+        /// <param name="kind">The <see cref="AnnotationKind" /> of the annotation</param>
+        /// <returns>True if the edit action is shown</returns>
+        private bool CanEditAnnotatedThing(AnnotationKind kind)
         {
-            var requirement = this.ViewModel.AnnotationsViewModel.ActiveRequirement;
+            var thing = this.ViewModel.ActiveThing;
 
-            return kind is RequirementAnnotationKind.ChangeRequest or RequirementAnnotationKind.ReviewItemDiscrepancy or RequirementAnnotationKind.ChangeProposal
-                   && requirement != null
+            return kind is AnnotationKind.ChangeRequest or AnnotationKind.ReviewItemDiscrepancy or AnnotationKind.ChangeProposal
+                   && this.OnEditAnnotatedThing.HasDelegate
+                   && thing != null
                    && !this.SessionService.IsReadOnly
-                   && this.SessionService.Session.PermissionService.CanWrite(requirement);
+                   && this.SessionService.Session.PermissionService.CanWrite(thing);
         }
 
         /// <summary>
@@ -174,7 +188,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// <returns>A <see cref="Task" /></returns>
         private async Task SendReplyAsync()
         {
-            if (await this.ViewModel.AnnotationsViewModel.ReplyAsync(this.Annotation, this.formText))
+            if (await this.ViewModel.ReplyAsync(this.Annotation, this.formText))
             {
                 this.CloseForm();
             }
@@ -186,7 +200,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// <returns>A <see cref="Task" /></returns>
         private async Task SendSolutionAsync()
         {
-            if (this.Annotation is ReviewItemDiscrepancy discrepancy && await this.ViewModel.AnnotationsViewModel.AddSolutionAsync(discrepancy, this.formText))
+            if (this.Annotation is ReviewItemDiscrepancy discrepancy && await this.ViewModel.AddSolutionAsync(discrepancy, this.formText))
             {
                 this.CloseForm();
             }
@@ -198,7 +212,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// <returns>A <see cref="Task" /></returns>
         private async Task SendDecisionAsync()
         {
-            if (this.Annotation is ModellingAnnotationItem item && await this.ViewModel.AnnotationsViewModel.ApproveAsync(item, this.pendingDecision, this.formText))
+            if (this.Annotation is ModellingAnnotationItem item && await this.ViewModel.ApproveAsync(item, this.pendingDecision, this.formText))
             {
                 this.CloseForm();
             }

@@ -42,8 +42,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using COMETwebapp.Services.Export;
     using COMETwebapp.Services.RequirementsEditor;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
+    using COMETwebapp.ViewModels.Components.Annotations;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
-    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
 
     using DynamicData;
 
@@ -815,7 +815,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(
                 It.IsAny<Thing>(),
                 It.Is<IReadOnlyCollection<Thing>>(things => things.OfType<Definition>().Any(d => d.LanguageCode == "fr" && d.Content == "Some new definition text.")),
-                It.IsAny<NotificationDescription>()), Times.Once);
+                It.Is<NotificationDescription>(notification => notification.OnSuccess == "Requirement 'No definition yet' updated"
+                                                               && notification.OnError == "Could not update the Requirement 'No definition yet'")), Times.Once);
         }
 
         [Test]
@@ -999,7 +1000,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         {
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
-            var (changeRequest, _) = RequirementAnnotationHelper.CreateAnnotation(RequirementAnnotationKind.ChangeRequest, this.topRequirement, new Participant(),
+            var (changeRequest, _) = AnnotationHelper.CreateAnnotation(AnnotationKind.ChangeRequest, this.topRequirement, new Participant(),
                 this.systemDomain, "en", "CR-001", "Change it", "Please change it", AnnotationClassificationKind.MINOR);
 
             var model = new EngineeringModel { Iid = Guid.NewGuid(), EngineeringModelSetup = new EngineeringModelSetup() };
@@ -1007,8 +1008,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             this.iteration.Container = model;
             this.viewModel.AnnotationsViewModel.SetIteration(this.iteration, this.systemDomain);
 
-            var changeRequests = this.viewModel.AnnotationsViewModel.FilterOptions.Single(x => x.Kind == RequirementAnnotationKind.ChangeRequest);
-            var notes = this.viewModel.AnnotationsViewModel.FilterOptions.Single(x => x.Kind == RequirementAnnotationKind.Note);
+            var changeRequests = this.viewModel.AnnotationsViewModel.FilterOptions.Single(x => x.Kind == AnnotationKind.ChangeRequest);
+            var notes = this.viewModel.AnnotationsViewModel.FilterOptions.Single(x => x.Kind == AnnotationKind.Note);
 
             this.viewModel.SelectedAnnotationFilters = [changeRequests];
 

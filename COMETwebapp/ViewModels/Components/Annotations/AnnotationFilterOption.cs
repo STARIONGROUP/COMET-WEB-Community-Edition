@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="AnnotationCardForm.cs" company="Starion Group S.A.">
+//  <copyright file="AnnotationFilterOption.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of COMET WEB Community Edition
@@ -20,31 +20,13 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
+namespace COMETwebapp.ViewModels.Components.Annotations
 {
     /// <summary>
-    /// The inline forms an annotation card can open below its content.
+    /// An entry of an annotation filter: either one <see cref="AnnotationKind" />, or,
+    /// when <see cref="Kind" /> is null, the things that still have an open annotation.
     /// </summary>
-    public enum AnnotationCardForm
-    {
-        /// <summary>
-        /// No form is open; the action buttons are shown.
-        /// </summary>
-        None,
-
-        /// <summary>
-        /// The reply form.
-        /// </summary>
-        Reply,
-
-        /// <summary>
-        /// The proposed solution form of a review item discrepancy.
-        /// </summary>
-        Solution,
-
-        /// <summary>
-        /// The comment form confirming an accept, reject or withdraw decision.
-        /// </summary>
-        Decision
-    }
+    /// <param name="Label">The text shown in the filter</param>
+    /// <param name="Kind">The <see cref="AnnotationKind" /> to match, or null to match open annotations</param>
+    public sealed record AnnotationFilterOption(string Label, AnnotationKind? Kind);
 }

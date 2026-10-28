@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="IRequirementAnnotationsViewModel.cs" company="Starion Group S.A.">
+//  <copyright file="IAnnotationsViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of COMET WEB Community Edition
@@ -20,7 +20,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
+namespace COMETwebapp.ViewModels.Components.Annotations
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -28,20 +28,20 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
     using CDP4Common.SiteDirectoryData;
 
     /// <summary>
-    /// Interface for the <see cref="RequirementAnnotationsViewModel" />, which indexes the annotations attached to the
-    /// requirements of an <see cref="Iteration" /> and drives the annotations side panel of the Requirements Editor.
+    /// Interface for the <see cref="AnnotationsViewModel" />, which indexes the annotations of an engineering model by the
+    /// thing they are about and drives the annotations side panel of the thing a host page opens it on.
     /// </summary>
-    public interface IRequirementAnnotationsViewModel
+    public interface IAnnotationsViewModel
     {
         /// <summary>
-        /// Gets the options offered by the annotation filter of the Requirements Editor toolbar.
+        /// Gets the options offered by an annotation filter: open items, then each kind that can be attached.
         /// </summary>
         IReadOnlyList<AnnotationFilterOption> FilterOptions { get; }
 
         /// <summary>
-        /// Gets the <see cref="Requirement" /> whose annotations are shown in the side panel, or null when it is closed.
+        /// Gets the <see cref="Thing" /> whose annotations are shown in the side panel, or null when it is closed.
         /// </summary>
-        Requirement ActiveRequirement { get; }
+        Thing ActiveThing { get; }
 
         /// <summary>
         /// Gets a value indicating whether the annotations side panel is open.
@@ -49,9 +49,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         bool IsPanelOpen { get; }
 
         /// <summary>
-        /// Gets or sets the <see cref="RequirementAnnotationKind" /> the side panel is narrowed to, or null to show all kinds.
+        /// Gets or sets the <see cref="AnnotationKind" /> the side panel is narrowed to, or null to show all kinds.
         /// </summary>
-        RequirementAnnotationKind? KindFilter { get; set; }
+        AnnotationKind? KindFilter { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the side panel also lists annotations that are no longer open.
@@ -70,22 +70,32 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         bool IsBusy { get; }
 
         /// <summary>
-        /// Gets the annotations of the <see cref="ActiveRequirement" /> that pass <see cref="KindFilter" /> and
+        /// Gets the annotations of the <see cref="ActiveThing" /> that pass <see cref="KindFilter" /> and
         /// <see cref="ShowResolved" />.
         /// </summary>
         IReadOnlyList<EngineeringModelDataAnnotation> VisibleAnnotations { get; }
 
         /// <summary>
-        /// Gets the kinds the active user is allowed to attach to a requirement.
+        /// Gets the kinds the active user is allowed to attach to the <see cref="ActiveThing" />: the kinds ECSS-E-TM-10-25
+        /// permits on its class (<see cref="AnnotationHelper.IsApplicable" />) that the user's role may create.
         /// </summary>
-        IReadOnlyList<RequirementAnnotationKind> CreatableKinds { get; }
+        IReadOnlyList<AnnotationKind> CreatableKinds { get; }
 
         /// <summary>
-        /// Sets the <see cref="Iteration" /> whose requirements are annotated and rebuilds the annotation index.
+        /// Sets the <see cref="Iteration" /> whose things are annotated and rebuilds the annotation indexes. The panel closes
+        /// when its thing is gone, and the composer when the annotation it edits, or the change request it answers, is gone.
         /// </summary>
         /// <param name="iteration">The current <see cref="Iteration" />, or null when none is open</param>
         /// <param name="domain">The <see cref="DomainOfExpertise" /> the active user works for</param>
         void SetIteration(Iteration iteration, DomainOfExpertise domain);
+
+        /// <summary>
+        /// Gets the kinds the active user is allowed to attach to the given <paramref name="thing" />: the kinds
+        /// ECSS-E-TM-10-25 permits on its class (<see cref="AnnotationHelper.IsApplicable" />) that the user's role may create.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> to annotate</param>
+        /// <returns>The creatable <see cref="AnnotationKind" />s, none for a null thing</returns>
+        IReadOnlyList<AnnotationKind> GetCreatableKinds(Thing thing);
 
         /// <summary>
         /// Gets the top-level annotations about the given <paramref name="thing" />, open ones first, newest first. A
@@ -96,10 +106,10 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         IReadOnlyList<EngineeringModelDataAnnotation> GetAnnotations(Thing thing);
 
         /// <summary>
-        /// Gets, per <see cref="RequirementAnnotationKind" />, how many annotations the given <paramref name="thing" /> carries.
+        /// Gets, per <see cref="AnnotationKind" />, how many annotations the given <paramref name="thing" /> carries.
         /// </summary>
         /// <param name="thing">The annotated <see cref="Thing" /></param>
-        /// <returns>One <see cref="AnnotationKindSummary" /> per kind present, in the <see cref="RequirementAnnotationKind" /> order</returns>
+        /// <returns>One <see cref="AnnotationKindSummary" /> per kind present, in the <see cref="AnnotationKind" /> order</returns>
         IReadOnlyList<AnnotationKindSummary> GetSummary(Thing thing);
 
         /// <summary>
@@ -136,9 +146,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         /// <summary>
         /// Gets a value indicating whether the active user may attach a new annotation of the given <paramref name="kind" />.
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementAnnotationKind" /></param>
+        /// <param name="kind">The <see cref="AnnotationKind" /></param>
         /// <returns>True if allowed</returns>
-        bool CanCreate(RequirementAnnotationKind kind);
+        bool CanCreate(AnnotationKind kind);
 
         /// <summary>
         /// Gets a value indicating whether the active user may edit, re-status or delete the given <paramref name="annotation" />.
@@ -177,11 +187,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         bool CanProposeChange(EngineeringModelDataAnnotation annotation);
 
         /// <summary>
-        /// Opens the side panel on the annotations of the given <paramref name="requirement" />.
+        /// Opens the side panel on the annotations of the given <paramref name="thing" />.
         /// </summary>
-        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <param name="thing">The annotated <see cref="Thing" /></param>
         /// <param name="kind">The kind to narrow the panel to, or null to show all kinds</param>
-        void OpenPanel(Requirement requirement, RequirementAnnotationKind? kind = null);
+        void OpenPanel(Thing thing, AnnotationKind? kind = null);
 
         /// <summary>
         /// Closes the side panel and discards any draft.
@@ -189,10 +199,10 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         void ClosePanel();
 
         /// <summary>
-        /// Opens the composer on a new annotation of the given <paramref name="kind" /> about the <see cref="ActiveRequirement" />.
+        /// Opens the composer on a new annotation of the given <paramref name="kind" /> about the <see cref="ActiveThing" />.
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementAnnotationKind" /></param>
-        void StartNew(RequirementAnnotationKind kind);
+        /// <param name="kind">The <see cref="AnnotationKind" /></param>
+        void StartNew(AnnotationKind kind);
 
         /// <summary>
         /// Opens the composer on the values of an existing <paramref name="annotation" />.

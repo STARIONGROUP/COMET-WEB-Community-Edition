@@ -20,7 +20,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
+namespace COMETwebapp.ViewModels.Components.Annotations
 {
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
@@ -32,9 +32,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
     public class AnnotationDraft
     {
         /// <summary>
-        /// Gets or sets the <see cref="RequirementAnnotationKind" /> being written.
+        /// Gets or sets the <see cref="AnnotationKind" /> being written.
         /// </summary>
-        public RequirementAnnotationKind Kind { get; set; }
+        public AnnotationKind Kind { get; set; }
 
         /// <summary>
         /// Gets or sets the title of a <see cref="ModellingAnnotationItem" />.
@@ -91,14 +91,14 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         public EngineeringModelDataAnnotation EditedAnnotation { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ChangeRequest" /> a new <see cref="RequirementAnnotationKind.ChangeProposal" /> answers.
+        /// Gets or sets the <see cref="ChangeRequest" /> a new <see cref="AnnotationKind.ChangeProposal" /> answers.
         /// </summary>
         public ChangeRequest ChangeRequest { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the draft writes a <see cref="ModellingAnnotationItem" />, which needs a title.
         /// </summary>
-        public bool HasTitle => RequirementAnnotationHelper.IsModellingAnnotationItem(this.Kind);
+        public bool HasTitle => AnnotationHelper.IsModellingAnnotationItem(this.Kind);
 
         /// <summary>
         /// Gets a value indicating whether every value the server requires has been filled in.

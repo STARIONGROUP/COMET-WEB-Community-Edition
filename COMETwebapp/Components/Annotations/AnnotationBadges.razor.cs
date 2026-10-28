@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="RequirementAnnotationKind.cs" company="Starion Group S.A.">
+//  <copyright file="AnnotationBadges.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of COMET WEB Community Edition
@@ -20,41 +20,40 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
+namespace COMETwebapp.Components.Annotations
 {
+    using CDP4Common.CommonData;
+
+    using COMETwebapp.ViewModels.Components.Annotations;
+
+    using Microsoft.AspNetCore.Components;
+
     /// <summary>
-    /// The kinds of ECSS-E-TM-10-25 annotation that can be attached to a requirement in the Requirements Editor.
+    /// Renders, next to an annotated <see cref="Thing" />, one badge per annotation kind it carries (solid while an
+    /// annotation of that kind still needs attention), or a discreet "annotate" button when it carries none and the user
+    /// may annotate it. Clicking opens the annotations side panel on the thing.
     /// </summary>
-    public enum RequirementAnnotationKind
+    public partial class AnnotationBadges
     {
         /// <summary>
-        /// A free-form note (<c>EngineeringModelDataNote</c>), for comments and clarification questions.
+        /// Gets or sets the <see cref="IAnnotationsViewModel" /> indexing the annotations of the host page.
         /// </summary>
-        Note,
+        [Parameter]
+        public IAnnotationsViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// A request to change the requirement (<c>ChangeRequest</c>).
+        /// Gets or sets the <see cref="Thing" /> whose annotations are summarised.
         /// </summary>
-        ChangeRequest,
+        [Parameter]
+        public Thing Thing { get; set; }
 
         /// <summary>
-        /// A discrepancy raised during a review (<c>ReviewItemDiscrepancy</c>).
+        /// Opens the annotations side panel on the thing.
         /// </summary>
-        ReviewItemDiscrepancy,
-
-        /// <summary>
-        /// A request to deviate from the requirement before implementation (<c>RequestForDeviation</c>).
-        /// </summary>
-        RequestForDeviation,
-
-        /// <summary>
-        /// A request to accept a non-conformance with the requirement after implementation (<c>RequestForWaiver</c>).
-        /// </summary>
-        RequestForWaiver,
-
-        /// <summary>
-        /// A concrete change proposed in answer to a change request (<c>ChangeProposal</c>).
-        /// </summary>
-        ChangeProposal
+        /// <param name="kind">The kind to narrow the panel to, or null to show all kinds</param>
+        private void Open(AnnotationKind? kind)
+        {
+            this.ViewModel.OpenPanel(this.Thing, kind);
+        }
     }
 }

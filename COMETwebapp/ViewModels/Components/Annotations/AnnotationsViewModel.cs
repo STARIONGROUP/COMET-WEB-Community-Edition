@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="RequirementAnnotationsViewModel.cs" company="Starion Group S.A.">
+//  <copyright file="AnnotationsViewModel.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of COMET WEB Community Edition
@@ -20,7 +20,7 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
+namespace COMETwebapp.ViewModels.Components.Annotations
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
@@ -33,6 +33,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
     using COMET.Web.Common.ViewModels.Components;
 
     using COMETwebapp.Extensions;
+    using COMETwebapp.Utilities;
 
     using FluentResults;
 
@@ -43,23 +44,37 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
 
     /// <summary>
     /// View model indexing the ECSS-E-TM-10-25 annotations (notes, change requests, review item discrepancies, requests
-    /// for deviation and waiver, change proposals) attached to the requirements of an <see cref="Iteration" />, and
-    /// driving the annotations side panel: composing, replying, approving, proposing solutions and changes, re-statusing
-    /// and deleting.
+    /// for deviation and waiver, change proposals) of an engineering model by the thing they are about, and driving the
+    /// annotations side panel of the thing a host page opens it on: composing, replying, approving, proposing solutions
+    /// and changes, re-statusing and deleting.
     /// </summary>
     /// <remarks>
-    /// Annotations are contained by the <see cref="EngineeringModel" />, not by the iteration, and point at a requirement
-    /// through <see cref="EngineeringModelDataAnnotation.PrimaryAnnotatedThing" />.
+    /// Annotations are contained by the <see cref="EngineeringModel" />, not by the iteration, and point at the thing they
+    /// are about through <see cref="EngineeringModelDataAnnotation.PrimaryAnnotatedThing" />. Nothing here is specific to
+    /// a kind of thing: <see cref="AnnotationHelper.IsApplicable" /> tells which kinds a thing may carry. To annotate
+    /// another kind of thing (an element definition, a parameter, an option, ...) a host page only has to
+    /// <list type="number">
+    ///     <item>own one <see cref="AnnotationsViewModel" /> and feed it through <see cref="SetIteration" /> whenever its iteration (re)loads,</item>
+    ///     <item>render <c>AnnotationBadges</c> next to each thing and <c>AnnotationsPanel</c> beside its content,</item>
+    ///     <item>optionally pass <c>OnEditAnnotatedThing</c> to the panel so a change request or review item can open the host's own edit form.</item>
+    /// </list>
+    /// The Requirements Editor (<c>RequirementsEditorBodyViewModel</c>) is the reference host.
     /// </remarks>
-    public class RequirementAnnotationsViewModel : DisposableObject, IRequirementAnnotationsViewModel
+    public class AnnotationsViewModel : DisposableObject, IAnnotationsViewModel
     {
         /// <summary>
-        /// The language used when the annotated requirement has no definition to borrow a language from.
+        /// The language used when the annotated thing has no definition to borrow a language from.
         /// </summary>
         private const string DefaultLanguageCode = "en";
 
         /// <summary>
+        /// The longest excerpt of a note's text used to refer to it in messages.
+        /// </summary>
+        private const int NoteExcerptLength = 30;
+
+        /// <summary>
         /// The <see cref="ISessionService" /> used to check permissions and write.
+        /// </summary>
         private readonly ISessionService sessionService;
 
         /// <summary>
@@ -78,6 +93,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         private Dictionary<Guid, List<EngineeringModelDataAnnotation>> annotationsByThing = [];
 
         /// <summary>
+        /// The change proposals of the model grouped by the iid of the change request they answer, newest first, built once
+        /// per <see cref="SetIteration" /> so badges, cards and prompts do not scan the whole model on every render.
+        /// </summary>
+        private Dictionary<Guid, List<ChangeProposal>> proposalsByChangeRequest = [];
+
+        /// <summary>
         /// The <see cref="EngineeringModel" /> containing the annotations, set by <see cref="SetIteration" />.
         /// </summary>
         private EngineeringModel currentModel;
@@ -93,14 +114,14 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         private Participant currentParticipant;
 
         /// <summary>
-        /// Backing field for <see cref="ActiveRequirement" />
+        /// Backing field for <see cref="ActiveThing" />
         /// </summary>
-        private Requirement activeRequirement;
+        private Thing activeThing;
 
         /// <summary>
         /// Backing field for <see cref="KindFilter" />
         /// </summary>
-        private RequirementAnnotationKind? kindFilter;
+        private AnnotationKind? kindFilter;
 
         /// <summary>
         /// Backing field for <see cref="ShowResolved" />
@@ -118,12 +139,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         private bool isBusy;
 
         /// <summary>
-        /// Creates a new instance of <see cref="RequirementAnnotationsViewModel" />
+        /// Creates a new instance of <see cref="AnnotationsViewModel" />
         /// </summary>
         /// <param name="sessionService">The <see cref="ISessionService" /></param>
         /// <param name="confirmCancelPopupViewModel">The shared <see cref="IConfirmCancelPopupViewModel" /> used to confirm a deletion</param>
         /// <param name="logger">The <see cref="ILogger" /> used to record a write failure</param>
-        public RequirementAnnotationsViewModel(ISessionService sessionService, IConfirmCancelPopupViewModel confirmCancelPopupViewModel, ILogger logger)
+        public AnnotationsViewModel(ISessionService sessionService, IConfirmCancelPopupViewModel confirmCancelPopupViewModel, ILogger logger)
         {
             this.sessionService = sessionService;
             this.confirmCancelPopupViewModel = confirmCancelPopupViewModel;
@@ -131,32 +152,32 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         }
 
         /// <summary>
-        /// Gets the options offered by the annotation filter of the Requirements Editor toolbar.
+        /// Gets the options offered by an annotation filter: open items, then each kind that can be attached.
         /// </summary>
         public IReadOnlyList<AnnotationFilterOption> FilterOptions { get; } =
         [
             new("Open items", null),
-            ..RequirementAnnotationHelper.RequirementKinds.Select(x => new AnnotationFilterOption(RequirementAnnotationHelper.GetLabel(x), x))
+            ..AnnotationHelper.AttachableKinds.Select(x => new AnnotationFilterOption(AnnotationHelper.GetLabel(x), x))
         ];
 
         /// <summary>
-        /// Gets the <see cref="Requirement" /> whose annotations are shown in the side panel, or null when it is closed.
+        /// Gets the <see cref="Thing" /> whose annotations are shown in the side panel, or null when it is closed.
         /// </summary>
-        public Requirement ActiveRequirement
+        public Thing ActiveThing
         {
-            get => this.activeRequirement;
-            private set => this.RaiseAndSetIfChanged(ref this.activeRequirement, value);
+            get => this.activeThing;
+            private set => this.RaiseAndSetIfChanged(ref this.activeThing, value);
         }
 
         /// <summary>
         /// Gets a value indicating whether the annotations side panel is open.
         /// </summary>
-        public bool IsPanelOpen => this.ActiveRequirement != null;
+        public bool IsPanelOpen => this.ActiveThing != null;
 
         /// <summary>
-        /// Gets or sets the <see cref="RequirementAnnotationKind" /> the side panel is narrowed to, or null to show all kinds.
+        /// Gets or sets the <see cref="AnnotationKind" /> the side panel is narrowed to, or null to show all kinds.
         /// </summary>
-        public RequirementAnnotationKind? KindFilter
+        public AnnotationKind? KindFilter
         {
             get => this.kindFilter;
             set => this.RaiseAndSetIfChanged(ref this.kindFilter, value);
@@ -191,24 +212,26 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         }
 
         /// <summary>
-        /// Gets the annotations of the <see cref="ActiveRequirement" /> that pass <see cref="KindFilter" /> and
+        /// Gets the annotations of the <see cref="ActiveThing" /> that pass <see cref="KindFilter" /> and
         /// <see cref="ShowResolved" />.
         /// </summary>
         public IReadOnlyList<EngineeringModelDataAnnotation> VisibleAnnotations =>
-            this.ActiveRequirement == null
+            this.ActiveThing == null
                 ? []
-                : this.GetAnnotations(this.ActiveRequirement)
-                    .Where(x => this.KindFilter == null || RequirementAnnotationHelper.GetKind(x) == this.KindFilter)
+                : this.GetAnnotations(this.ActiveThing)
+                    .Where(x => this.KindFilter == null || AnnotationHelper.GetKind(x) == this.KindFilter)
                     .Where(x => this.ShowResolved || x is not ModellingAnnotationItem || this.NeedsAttention(x))
                     .ToList();
 
         /// <summary>
-        /// Gets the kinds the active user is allowed to attach to a requirement.
+        /// Gets the kinds the active user is allowed to attach to the <see cref="ActiveThing" />: the kinds ECSS-E-TM-10-25
+        /// permits on its class (<see cref="AnnotationHelper.IsApplicable" />) that the user's role may create.
         /// </summary>
-        public IReadOnlyList<RequirementAnnotationKind> CreatableKinds => RequirementAnnotationHelper.RequirementKinds.Where(this.CanCreate).ToList();
+        public IReadOnlyList<AnnotationKind> CreatableKinds => this.GetCreatableKinds(this.ActiveThing);
 
         /// <summary>
-        /// Sets the <see cref="Iteration" /> whose requirements are annotated and rebuilds the annotation index.
+        /// Sets the <see cref="Iteration" /> whose things are annotated and rebuilds the annotation indexes. The panel closes
+        /// when its thing is gone, and the composer when the annotation it edits, or the change request it answers, is gone.
         /// </summary>
         /// <param name="iteration">The current <see cref="Iteration" />, or null when none is open</param>
         /// <param name="domain">The <see cref="DomainOfExpertise" /> the active user works for</param>
@@ -225,21 +248,44 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
                 : this.currentModel.ModellingAnnotation
                     .Cast<EngineeringModelDataAnnotation>()
                     .Concat(this.currentModel.GenericNote)
-                    .Where(x => RequirementAnnotationHelper.GetKind(x) != null)
-                    .Select(x => (Annotation: x, ThingIid: RequirementAnnotationHelper.GetAnnotatedThingIid(x)))
+                    .Where(x => AnnotationHelper.GetKind(x) != null)
+                    .Select(x => (Annotation: x, ThingIid: AnnotationHelper.GetAnnotatedThingIid(x)))
                     .Where(x => x.ThingIid != null)
                     .GroupBy(x => x.ThingIid.Value)
                     .ToDictionary(x => x.Key, x => x.Select(entry => entry.Annotation).ToList());
 
-            if (this.ActiveRequirement != null && iteration?.RequirementsSpecification.SelectMany(x => x.Requirement).Contains(this.ActiveRequirement) != true)
+            this.proposalsByChangeRequest = this.currentModel == null
+                ? []
+                : this.currentModel.ModellingAnnotation
+                    .OfType<ChangeProposal>()
+                    .Where(x => x.ChangeRequest != null)
+                    .GroupBy(x => x.ChangeRequest.Iid)
+                    .ToDictionary(x => x.Key, x => x.OrderByDescending(proposal => proposal.CreatedOn).ToList());
+
+            if (this.ActiveThing != null && !IsStillPresent(this.ActiveThing, iteration, this.currentModel))
             {
                 this.ClosePanel();
+            }
+            else if (this.Draft != null && !this.IsDraftSubjectPresent(this.Draft))
+            {
+                this.Draft = null;
             }
             else if (this.Draft is { EditedAnnotation: null } newDraft)
             {
                 // the model may have changed under an open composer: keep the previewed short name the one that will be written
                 newDraft.ShortName = this.GetNextShortName(newDraft.Kind);
             }
+        }
+
+        /// <summary>
+        /// Gets the kinds the active user is allowed to attach to the given <paramref name="thing" />: the kinds
+        /// ECSS-E-TM-10-25 permits on its class (<see cref="AnnotationHelper.IsApplicable" />) that the user's role may create.
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" /> to annotate</param>
+        /// <returns>The creatable <see cref="AnnotationKind" />s, none for a null thing</returns>
+        public IReadOnlyList<AnnotationKind> GetCreatableKinds(Thing thing)
+        {
+            return [..AnnotationHelper.AttachableKinds.Where(x => AnnotationHelper.IsApplicable(x, thing) && this.CanCreate(x))];
         }
 
         /// <summary>
@@ -263,14 +309,14 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         }
 
         /// <summary>
-        /// Gets, per <see cref="RequirementAnnotationKind" />, how many annotations the given <paramref name="thing" /> carries.
+        /// Gets, per <see cref="AnnotationKind" />, how many annotations the given <paramref name="thing" /> carries.
         /// </summary>
         /// <param name="thing">The annotated <see cref="Thing" /></param>
-        /// <returns>One <see cref="AnnotationKindSummary" /> per kind present, in the <see cref="RequirementAnnotationKind" /> order</returns>
+        /// <returns>One <see cref="AnnotationKindSummary" /> per kind present, in the <see cref="AnnotationKind" /> order</returns>
         public IReadOnlyList<AnnotationKindSummary> GetSummary(Thing thing)
         {
             return this.GetAnnotations(thing)
-                .GroupBy(x => RequirementAnnotationHelper.GetKind(x).Value)
+                .GroupBy(x => AnnotationHelper.GetKind(x).Value)
                 .OrderBy(x => x.Key)
                 .Select(x => new AnnotationKindSummary(x.Key, x.Count(), x.Count(this.NeedsAttention)))
                 .ToList();
@@ -309,7 +355,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
 
             return selected.Exists(filter => filter.Kind == null
                 ? this.HasOpenAnnotations(thing)
-                : annotations.Exists(x => RequirementAnnotationHelper.GetKind(x) == filter.Kind));
+                : annotations.Exists(x => AnnotationHelper.GetKind(x) == filter.Kind));
         }
 
         /// <summary>
@@ -319,16 +365,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         /// <returns>The <see cref="ChangeProposal" />s</returns>
         public IReadOnlyList<ChangeProposal> GetChangeProposals(ChangeRequest changeRequest)
         {
-            if (changeRequest == null || this.currentModel == null)
-            {
-                return [];
-            }
-
-            return this.currentModel.ModellingAnnotation
-                .OfType<ChangeProposal>()
-                .Where(x => x.ChangeRequest?.Iid == changeRequest.Iid)
-                .OrderByDescending(x => x.CreatedOn)
-                .ToList();
+            return changeRequest != null && this.proposalsByChangeRequest.TryGetValue(changeRequest.Iid, out var proposals) ? proposals : [];
         }
 
         /// <summary>
@@ -352,7 +389,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
             }
 
             var isTaken = this.currentModel?.ModellingAnnotation
-                .Any(x => x.Iid != draft.EditedAnnotation?.Iid && string.Equals(x.ShortName, shortName, StringComparison.OrdinalIgnoreCase)) == true;
+                .Any(x => x.Iid != draft.EditedAnnotation.Iid && string.Equals(x.ShortName, shortName, StringComparison.OrdinalIgnoreCase)) == true;
 
             return isTaken ? $"The short name '{shortName}' is already used by another annotation." : null;
         }
@@ -360,18 +397,18 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         /// <summary>
         /// Gets a value indicating whether the active user may attach a new annotation of the given <paramref name="kind" />.
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementAnnotationKind" /></param>
+        /// <param name="kind">The <see cref="AnnotationKind" /></param>
         /// <returns>True if allowed</returns>
         /// <remarks>
         /// <see cref="SessionServiceExtensions.IsAllowedToCreateIn" /> cannot be used for the model itself: an
         /// <see cref="EngineeringModel" /> has no container, which that helper treats as "still being created" and allows.
         /// </remarks>
-        public bool CanCreate(RequirementAnnotationKind kind)
+        public bool CanCreate(AnnotationKind kind)
         {
             return !this.sessionService.IsReadOnly
                    && this.currentModel != null
                    && this.currentParticipant != null
-                   && this.sessionService.Session.PermissionService.CanWrite(RequirementAnnotationHelper.GetClassKind(kind), this.currentModel);
+                   && this.sessionService.Session.PermissionService.CanWrite(AnnotationHelper.GetClassKind(kind), this.currentModel);
         }
 
         /// <summary>
@@ -422,23 +459,23 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         /// <returns>True if it is a <see cref="ChangeRequest" /> and change proposals may be created</returns>
         public bool CanProposeChange(EngineeringModelDataAnnotation annotation)
         {
-            return annotation is ChangeRequest && this.CanCreate(RequirementAnnotationKind.ChangeProposal);
+            return annotation is ChangeRequest && this.CanCreate(AnnotationKind.ChangeProposal);
         }
 
         /// <summary>
-        /// Opens the side panel on the annotations of the given <paramref name="requirement" />.
+        /// Opens the side panel on the annotations of the given <paramref name="thing" />.
         /// </summary>
-        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <param name="thing">The annotated <see cref="Thing" /></param>
         /// <param name="kind">The kind to narrow the panel to, or null to show all kinds</param>
-        public void OpenPanel(Requirement requirement, RequirementAnnotationKind? kind = null)
+        public void OpenPanel(Thing thing, AnnotationKind? kind = null)
         {
-            if (!ReferenceEquals(this.ActiveRequirement, requirement))
+            if (!ReferenceEquals(this.ActiveThing, thing))
             {
                 this.Draft = null;
             }
 
             this.KindFilter = kind;
-            this.ActiveRequirement = requirement;
+            this.ActiveThing = thing;
         }
 
         /// <summary>
@@ -447,15 +484,15 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         public void ClosePanel()
         {
             this.Draft = null;
-            this.ActiveRequirement = null;
+            this.ActiveThing = null;
         }
 
         /// <summary>
-        /// Opens the composer on a new annotation of the given <paramref name="kind" /> about the <see cref="ActiveRequirement" />,
+        /// Opens the composer on a new annotation of the given <paramref name="kind" /> about the <see cref="ActiveThing" />,
         /// clearing a <see cref="KindFilter" /> that would hide it once written.
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementAnnotationKind" /></param>
-        public void StartNew(RequirementAnnotationKind kind)
+        /// <param name="kind">The <see cref="AnnotationKind" /></param>
+        public void StartNew(AnnotationKind kind)
         {
             // a panel narrowed to another kind would hide the annotation once written
             if (this.KindFilter != null && this.KindFilter != kind)
@@ -477,7 +514,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         /// <param name="annotation">The <see cref="EngineeringModelDataAnnotation" /> to edit</param>
         public void StartEdit(EngineeringModelDataAnnotation annotation)
         {
-            var kind = RequirementAnnotationHelper.GetKind(annotation);
+            var kind = AnnotationHelper.GetKind(annotation);
 
             if (kind == null)
             {
@@ -509,10 +546,10 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         {
             this.Draft = new AnnotationDraft
             {
-                Kind = RequirementAnnotationKind.ChangeProposal,
+                Kind = AnnotationKind.ChangeProposal,
                 Title = $"Proposal for {changeRequest.ShortName}",
                 Classification = changeRequest.Classification,
-                ShortName = this.GetNextShortName(RequirementAnnotationKind.ChangeProposal),
+                ShortName = this.GetNextShortName(AnnotationKind.ChangeProposal),
                 Owner = this.currentDomain,
                 ChangeRequest = changeRequest
             };
@@ -534,7 +571,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         {
             var toSave = this.Draft;
 
-            if (toSave?.IsValid != true || this.GetShortNameError(toSave) != null || this.currentModel == null || (toSave.EditedAnnotation == null && this.ActiveRequirement == null))
+            if (toSave?.IsValid != true || this.GetShortNameError(toSave) != null || this.currentModel == null || (toSave.EditedAnnotation == null && this.ActiveThing == null))
             {
                 return;
             }
@@ -565,10 +602,10 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
             return this.WriteAsync(() =>
             {
                 var clone = annotation.Clone(false);
-                var reply = RequirementAnnotationHelper.CreateDiscussionItem(this.currentParticipant, annotation.LanguageCode, content.Trim());
+                var reply = AnnotationHelper.CreateDiscussionItem(this.currentParticipant, annotation.LanguageCode, content.Trim());
                 clone.Discussion.Add(reply);
 
-                return this.sessionService.CreateOrUpdateThingsWithNotification(clone, [reply, clone], BuildNotification(annotation, "Reply added to", "reply to"));
+                return this.sessionService.CreateOrUpdateThingsWithNotification(clone, [reply, clone], BuildNotification(annotation, "received a reply", "reply to"));
             }, "replying to an annotation");
         }
 
@@ -591,7 +628,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
                 clone.Status = status;
 
                 return this.sessionService.CreateOrUpdateThingsWithNotification(this.currentModel.Clone(false), [clone],
-                    BuildNotification(annotation, $"Status set to {RequirementAnnotationHelper.GetStatusLabel(status)} on", "change the status of"));
+                    BuildNotification(annotation, $"set to {AnnotationHelper.GetStatusLabel(status)}", "change the status of"));
             }, "changing the status of an annotation");
         }
 
@@ -612,11 +649,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
             return this.WriteAsync(() =>
             {
                 var clone = annotation.Clone(false);
-                var approval = RequirementAnnotationHelper.CreateApproval(this.currentParticipant, this.currentDomain, annotation.LanguageCode, classification, comment?.Trim());
+                var approval = AnnotationHelper.CreateApproval(this.currentParticipant, this.currentDomain, annotation.LanguageCode, classification, comment?.Trim());
                 clone.ApprovedBy.Add(approval);
 
                 return this.sessionService.CreateOrUpdateThingsWithNotification(clone, [approval, clone],
-                    BuildNotification(annotation, $"{RequirementAnnotationHelper.GetApprovalLabel(classification)}:", "record a decision on"));
+                    BuildNotification(annotation, AnnotationHelper.GetApprovalLabel(classification).ToLowerInvariant(), "record a decision on"));
             }, "recording an approval");
         }
 
@@ -636,10 +673,10 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
             return this.WriteAsync(() =>
             {
                 var clone = reviewItemDiscrepancy.Clone(false);
-                var solution = RequirementAnnotationHelper.CreateSolution(this.currentParticipant, this.currentDomain, reviewItemDiscrepancy.LanguageCode, content.Trim());
+                var solution = AnnotationHelper.CreateSolution(this.currentParticipant, this.currentDomain, reviewItemDiscrepancy.LanguageCode, content.Trim());
                 clone.Solution.Add(solution);
 
-                return this.sessionService.CreateOrUpdateThingsWithNotification(clone, [solution, clone], BuildNotification(reviewItemDiscrepancy, "Solution proposed for", "propose a solution for"));
+                return this.sessionService.CreateOrUpdateThingsWithNotification(clone, [solution, clone], BuildNotification(reviewItemDiscrepancy, "received a proposed solution", "propose a solution for"));
             }, "proposing a solution");
         }
 
@@ -679,53 +716,97 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
                 return;
             }
 
-            await this.WriteAsync(() =>
+            var proposals = annotation is ChangeRequest changeRequest ? this.GetChangeProposals(changeRequest) : [];
+            HashSet<Guid> deleted = [annotation.Iid, ..proposals.Select(x => x.Iid)];
+
+            var written = await this.WriteAsync(() =>
             {
-                var proposals = annotation is ChangeRequest changeRequest ? this.GetChangeProposals(changeRequest) : [];
                 Thing[] toDelete = [annotation.Clone(false), ..proposals.Select(x => x.Clone(false))];
 
-                return this.sessionService.DeleteThingsWithNotification(this.currentModel.Clone(false), toDelete, BuildNotification(annotation, "Deleted", "delete"));
+                return this.sessionService.DeleteThingsWithNotification(this.currentModel.Clone(false), toDelete, BuildNotification(annotation, "deleted", "delete"));
             }, "deleting an annotation");
+
+            // a composer editing a deleted annotation, or answering a deleted change request, can no longer be saved
+            if (written && this.Draft != null && (deleted.Contains(this.Draft.EditedAnnotation?.Iid ?? Guid.Empty) || deleted.Contains(this.Draft.ChangeRequest?.Iid ?? Guid.Empty)))
+            {
+                this.Draft = null;
+            }
         }
 
         /// <summary>
         /// Gets a value indicating whether an annotation still needs attention: it is open itself, or it is a change request
         /// with a change proposal that is still open (the proposal is nested under it, so it carries no badge of its own).
+        /// Uses the proposal lookup built by <see cref="SetIteration" />.
         /// </summary>
         /// <param name="annotation">The <see cref="EngineeringModelDataAnnotation" /></param>
         /// <returns>True if it needs attention</returns>
         private bool NeedsAttention(EngineeringModelDataAnnotation annotation)
         {
-            return RequirementAnnotationHelper.IsOpen(annotation)
-                   || (annotation is ChangeRequest changeRequest && this.GetChangeProposals(changeRequest).Any(RequirementAnnotationHelper.IsOpen));
+            return AnnotationHelper.IsOpen(annotation)
+                   || (annotation is ChangeRequest changeRequest && this.GetChangeProposals(changeRequest).Any(AnnotationHelper.IsOpen));
         }
 
         /// <summary>
-        /// Gets the name an annotation is referred to by in messages: its short name, or the kind for a note.
+        /// Gets the name an annotation is referred to by in messages: its short name, or the start of its text for a note.
         /// </summary>
         /// <param name="annotation">The <see cref="EngineeringModelDataAnnotation" /></param>
         /// <returns>The display name</returns>
         private static string GetDisplayName(EngineeringModelDataAnnotation annotation)
         {
-            return annotation is ModellingAnnotationItem item ? item.ShortName : "the note";
+            if (annotation is ModellingAnnotationItem item)
+            {
+                return item.ShortName;
+            }
+
+            var content = annotation.Content?.Trim() ?? string.Empty;
+            return content.Length <= NoteExcerptLength ? content : $"{content[..NoteExcerptLength]}...";
         }
 
         /// <summary>
-        /// Builds the notification shown after a write about the given <paramref name="annotation" />.
+        /// Builds the notification shown after a write about the given <paramref name="annotation" />, worded like the
+        /// Requirements Editor's (<see cref="NotificationDescriptionBuilder" />).
         /// </summary>
         /// <param name="annotation">The <see cref="EngineeringModelDataAnnotation" /> operated on</param>
-        /// <param name="successPrefix">The text preceding the annotation's name on success (e.g. "Deleted")</param>
+        /// <param name="pastVerb">The past-tense phrase for the success message (e.g. "deleted")</param>
         /// <param name="actionVerb">The infinitive phrase for the failure message (e.g. "delete")</param>
         /// <returns>The <see cref="NotificationDescription" /></returns>
-        private static NotificationDescription BuildNotification(EngineeringModelDataAnnotation annotation, string successPrefix, string actionVerb)
+        private static NotificationDescription BuildNotification(EngineeringModelDataAnnotation annotation, string pastVerb, string actionVerb)
         {
-            var name = GetDisplayName(annotation);
+            var kind = AnnotationHelper.GetKind(annotation);
+            var kindLabel = kind == null ? "Annotation" : AnnotationHelper.GetLabel(kind.Value);
 
-            return new NotificationDescription
-            {
-                OnSuccess = $"{successPrefix} {name}",
-                OnError = $"Could not {actionVerb} {name}"
-            };
+            return NotificationDescriptionBuilder.Build(kindLabel, GetDisplayName(annotation), pastVerb, actionVerb);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether an annotated thing is still part of what is open: a thing inside an iteration (or an
+        /// iteration itself) must belong to the open <paramref name="iteration" />, so switching iterations closes the panel;
+        /// a thing contained by the engineering model itself (a book, a file store) must still be in the
+        /// <paramref name="model" />.
+        /// </summary>
+        /// <param name="thing">The annotated <see cref="Thing" /></param>
+        /// <param name="iteration">The open <see cref="Iteration" />, or null</param>
+        /// <param name="model">The <see cref="EngineeringModel" /> of the open iteration, or null</param>
+        /// <returns>True if the thing is still there</returns>
+        private static bool IsStillPresent(Thing thing, Iteration iteration, EngineeringModel model)
+        {
+            var isIterationData = thing is Iteration || thing.GetContainerOfType<Iteration>() != null;
+
+            return isIterationData ? AnnotationHelper.IsContainedIn(thing, iteration) : AnnotationHelper.IsContainedIn(thing, model);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether what a <paramref name="draft" /> is about still exists: the annotation it edits,
+        /// and the change request a new change proposal answers.
+        /// </summary>
+        /// <param name="draft">The <see cref="AnnotationDraft" /></param>
+        /// <returns>True if the draft can still be saved</returns>
+        private bool IsDraftSubjectPresent(AnnotationDraft draft)
+        {
+            var annotations = this.currentModel?.ModellingAnnotation.Cast<EngineeringModelDataAnnotation>().Concat(this.currentModel.GenericNote).ToList() ?? [];
+
+            return (draft.EditedAnnotation == null || annotations.Exists(x => x.Iid == draft.EditedAnnotation.Iid))
+                   && (draft.ChangeRequest == null || annotations.Exists(x => x.Iid == draft.ChangeRequest.Iid));
         }
 
         /// <summary>
@@ -748,21 +829,26 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
                 item.Category.AddRange(toSave.Categories);
             }
 
-            return this.sessionService.CreateOrUpdateThingsWithNotification(this.currentModel.Clone(false), [clone], BuildNotification(toSave.EditedAnnotation, "Updated", "update"));
+            return this.sessionService.CreateOrUpdateThingsWithNotification(this.currentModel.Clone(false), [clone], BuildNotification(toSave.EditedAnnotation, "updated", "update"));
         }
 
         /// <summary>
-        /// Writes a new annotation about the <see cref="ActiveRequirement" /> from the given <paramref name="toSave" /> draft.
+        /// Writes a new annotation about the <see cref="ActiveThing" /> from the given <paramref name="toSave" /> draft.
         /// </summary>
         /// <param name="toSave">The <see cref="AnnotationDraft" /> describing a new annotation</param>
         /// <returns>The <see cref="Result" /> of the write</returns>
         private Task<Result> CreateAnnotation(AnnotationDraft toSave)
         {
-            var languageCode = this.ActiveRequirement.Definition.FirstOrDefault()?.LanguageCode;
-            var shortName = RequirementAnnotationHelper.IsModellingAnnotationItem(toSave.Kind) ? this.GetNextShortName(toSave.Kind) : null;
+            // the previewed short name is kept current by SetIteration, so what the user saw is what is written
+            string shortName = null;
 
-            var (annotation, reference) = RequirementAnnotationHelper.CreateAnnotation(toSave.Kind, this.ActiveRequirement, this.currentParticipant, this.currentDomain,
-                string.IsNullOrWhiteSpace(languageCode) ? DefaultLanguageCode : languageCode, shortName, toSave.Title.Trim(), toSave.Content.Trim(), toSave.Classification);
+            if (AnnotationHelper.IsModellingAnnotationItem(toSave.Kind))
+            {
+                shortName = string.IsNullOrWhiteSpace(toSave.ShortName) ? this.GetNextShortName(toSave.Kind) : toSave.ShortName.Trim();
+            }
+
+            var (annotation, reference) = AnnotationHelper.CreateAnnotation(toSave.Kind, this.ActiveThing, this.currentParticipant, toSave.Owner ?? this.currentDomain,
+                AnnotationHelper.GetLanguageCode(this.ActiveThing) ?? DefaultLanguageCode, shortName, toSave.Title.Trim(), toSave.Content.Trim(), toSave.Classification);
 
             var modelClone = this.currentModel.Clone(false);
 
@@ -781,11 +867,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
                     break;
             }
 
-            var notification = new NotificationDescription
-            {
-                OnSuccess = $"{RequirementAnnotationHelper.GetLabel(toSave.Kind)} added to '{this.ActiveRequirement.ShortName}'",
-                OnError = $"Could not add the {RequirementAnnotationHelper.GetLabel(toSave.Kind)} to '{this.ActiveRequirement.ShortName}'"
-            };
+            var notification = NotificationDescriptionBuilder.Build(AnnotationHelper.GetThingKindLabel(this.ActiveThing), AnnotationHelper.GetThingShortName(this.ActiveThing),
+                $"annotated with a {AnnotationHelper.GetLabel(toSave.Kind)}", $"add the {AnnotationHelper.GetLabel(toSave.Kind)} to");
 
             return this.sessionService.CreateOrUpdateThingsWithNotification(modelClone, [reference, annotation, modelClone], notification);
         }
@@ -793,12 +876,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
         /// <summary>
         /// Computes the next free short name for a new annotation of the given <paramref name="kind" /> in the current model.
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementAnnotationKind" /></param>
+        /// <param name="kind">The <see cref="AnnotationKind" /></param>
         /// <returns>The short name, or an empty string for a note</returns>
-        private string GetNextShortName(RequirementAnnotationKind kind)
+        private string GetNextShortName(AnnotationKind kind)
         {
-            return RequirementAnnotationHelper.IsModellingAnnotationItem(kind) && this.currentModel != null && this.ActiveRequirement != null
-                ? RequirementAnnotationHelper.GetNextShortName(kind, this.ActiveRequirement.ShortName, this.currentModel.ModellingAnnotation)
+            return AnnotationHelper.IsModellingAnnotationItem(kind) && this.currentModel != null && this.ActiveThing != null
+                ? AnnotationHelper.GetNextShortName(kind, AnnotationHelper.GetThingShortName(this.ActiveThing), this.currentModel.ModellingAnnotation)
                 : string.Empty;
         }
 

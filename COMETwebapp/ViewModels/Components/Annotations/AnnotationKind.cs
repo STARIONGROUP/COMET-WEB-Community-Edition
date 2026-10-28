@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="RequirementAnnotationBadges.razor.cs" company="Starion Group S.A.">
+//  <copyright file="AnnotationKind.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of COMET WEB Community Edition
@@ -20,41 +20,41 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.RequirementsEditor
+namespace COMETwebapp.ViewModels.Components.Annotations
 {
-    using CDP4Common.EngineeringModelData;
-
-    using COMETwebapp.ViewModels.Components.RequirementsEditor;
-    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
-
-    using Microsoft.AspNetCore.Components;
-
     /// <summary>
-    /// Renders, on a <see cref="Requirement" /> row, one badge per annotation kind it carries (solid while an
-    /// annotation of that kind is still open), or a discreet "annotate" button when it carries none. Clicking opens the
-    /// annotations side panel on the requirement.
+    /// The kinds of ECSS-E-TM-10-25 engineering model annotation the application lets users attach to a thing.
     /// </summary>
-    public partial class RequirementAnnotationBadges
+    public enum AnnotationKind
     {
         /// <summary>
-        /// Gets or sets the <see cref="IRequirementsEditorBodyViewModel" />.
+        /// A free-form note (<c>EngineeringModelDataNote</c>), for comments and clarification questions.
         /// </summary>
-        [Parameter]
-        public IRequirementsEditorBodyViewModel ViewModel { get; set; }
+        Note,
 
         /// <summary>
-        /// Gets or sets the <see cref="Requirement" /> whose annotations are summarised.
+        /// A request to change the annotated thing (<c>ChangeRequest</c>).
         /// </summary>
-        [Parameter]
-        public Requirement Requirement { get; set; }
+        ChangeRequest,
 
         /// <summary>
-        /// Opens the annotations side panel on the requirement.
+        /// A discrepancy raised during a review of the annotated thing (<c>ReviewItemDiscrepancy</c>).
         /// </summary>
-        /// <param name="kind">The kind to narrow the panel to, or null to show all kinds</param>
-        private void Open(RequirementAnnotationKind? kind)
-        {
-            this.ViewModel.AnnotationsViewModel.OpenPanel(this.Requirement, kind);
-        }
+        ReviewItemDiscrepancy,
+
+        /// <summary>
+        /// A request to deviate from the annotated thing (typically a requirement) before implementation (<c>RequestForDeviation</c>).
+        /// </summary>
+        RequestForDeviation,
+
+        /// <summary>
+        /// A request to accept a non-conformance with the annotated thing (typically a requirement) after implementation (<c>RequestForWaiver</c>).
+        /// </summary>
+        RequestForWaiver,
+
+        /// <summary>
+        /// A concrete change proposed in answer to a change request (<c>ChangeProposal</c>).
+        /// </summary>
+        ChangeProposal
     }
 }

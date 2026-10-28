@@ -28,7 +28,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
     <RequirementPills ViewModel="@this.ViewModel" Owner="@this.Requirement.Owner" Categories="@this.Requirement.Category" />
     @if (this.ViewModel.ShowAnnotations)
     {
-        <RequirementAnnotationBadges ViewModel="@this.ViewModel" Requirement="@this.Requirement" />
+        <AnnotationBadges ViewModel="@this.ViewModel.AnnotationsViewModel" Thing="@this.Requirement" />
     }
     <span class="req-actions">
         <EditThingButton ViewModel="@this.ViewModel" Thing="@this.Requirement" />
@@ -44,7 +44,7 @@ else
         }
         @if (this.ViewModel.ShowAnnotations)
     {
-        <RequirementAnnotationBadges ViewModel="@this.ViewModel" Requirement="@this.Requirement" />
+        <AnnotationBadges ViewModel="@this.ViewModel.AnnotationsViewModel" Thing="@this.Requirement" />
     }
         <span class="req-actions"><EditThingButton ViewModel="@this.ViewModel" Thing="@this.Requirement" /></span>
     </div>

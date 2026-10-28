@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="RequirementAnnotationsPanelTestFixture.cs" company="Starion Group S.A.">
+//  <copyright file="AnnotationsPanelTestFixture.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of COMET WEB Community Edition
@@ -20,10 +20,11 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Tests.Components.RequirementsEditor
+namespace COMETwebapp.Tests.Components.Annotations
 {
     using Bunit;
 
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
@@ -34,9 +35,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMET.Web.Common.Services.SessionManagement;
     using COMET.Web.Common.Test.Helpers;
 
-    using COMETwebapp.Components.RequirementsEditor;
-    using COMETwebapp.ViewModels.Components.RequirementsEditor;
-    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
+    using COMETwebapp.Components.Annotations;
+    using COMETwebapp.ViewModels.Components.Annotations;
 
     using DevExpress.Blazor;
 
@@ -48,10 +48,10 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using NUnit.Framework;
 
     /// <summary>
-    /// Suite of tests for the <see cref="RequirementAnnotationsPanel" /> component.
+    /// Suite of tests for the <see cref="AnnotationsPanel" /> component.
     /// </summary>
     [TestFixture]
-    public class RequirementAnnotationsPanelTestFixture
+    public class AnnotationsPanelTestFixture
     {
         /// <summary>
         /// The <see cref="BunitContext" /> the component is rendered in.
@@ -59,14 +59,14 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         private BunitContext context;
 
         /// <summary>
-        /// The mocked <see cref="IRequirementsEditorBodyViewModel" /> handed to the component.
+        /// The mocked <see cref="IAnnotationsViewModel" /> driving the panel.
         /// </summary>
-        private Mock<IRequirementsEditorBodyViewModel> viewModel;
+        private Mock<IAnnotationsViewModel> annotationsViewModel;
 
         /// <summary>
-        /// The mocked <see cref="IRequirementAnnotationsViewModel" /> driving the panel.
+        /// The mocked <see cref="IPermissionService" /> deciding whether the annotated thing may be edited.
         /// </summary>
-        private Mock<IRequirementAnnotationsViewModel> annotationsViewModel;
+        private Mock<IPermissionService> permissionService;
 
         /// <summary>
         /// The <see cref="DomainOfExpertise" /> owning the annotations.
@@ -93,9 +93,9 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.context.ConfigureDevExpressBlazor();
             this.context.JSInterop.Mode = JSRuntimeMode.Loose;
 
-            var permissionService = new Mock<IPermissionService>();
+            this.permissionService = new Mock<IPermissionService>();
             var session = new Mock<ISession>();
-            session.Setup(x => x.PermissionService).Returns(permissionService.Object);
+            session.Setup(x => x.PermissionService).Returns(this.permissionService.Object);
             var sessionService = new Mock<ISessionService>();
             sessionService.Setup(x => x.Session).Returns(session.Object);
             this.context.Services.AddSingleton(sessionService.Object);
@@ -105,25 +105,22 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             this.requirement = new Requirement { Iid = Guid.NewGuid(), ShortName = "R1", Name = "First requirement" };
 
-            var changeRequest = RequirementAnnotationHelper.CreateAnnotation(RequirementAnnotationKind.ChangeRequest, this.requirement, author, this.owner, "en", "CR-001", "First change", "Change the wording", AnnotationClassificationKind.MINOR).Annotation;
-            var note = RequirementAnnotationHelper.CreateAnnotation(RequirementAnnotationKind.Note, this.requirement, author, this.owner, "en", string.Empty, string.Empty, "A question", AnnotationClassificationKind.MINOR).Annotation;
+            var changeRequest = AnnotationHelper.CreateAnnotation(AnnotationKind.ChangeRequest, this.requirement, author, this.owner, "en", "CR-001", "First change", "Change the wording", AnnotationClassificationKind.MINOR).Annotation;
+            var note = AnnotationHelper.CreateAnnotation(AnnotationKind.Note, this.requirement, author, this.owner, "en", string.Empty, string.Empty, "A question", AnnotationClassificationKind.MINOR).Annotation;
             this.annotations = [changeRequest, note];
 
-            this.annotationsViewModel = new Mock<IRequirementAnnotationsViewModel>();
-            this.annotationsViewModel.Setup(x => x.ActiveRequirement).Returns(this.requirement);
+            this.annotationsViewModel = new Mock<IAnnotationsViewModel>();
+            this.annotationsViewModel.Setup(x => x.ActiveThing).Returns(this.requirement);
             this.annotationsViewModel.Setup(x => x.GetAnnotations(this.requirement)).Returns(this.annotations);
             this.annotationsViewModel.Setup(x => x.VisibleAnnotations).Returns(this.annotations);
             this.annotationsViewModel.Setup(x => x.GetSummary(this.requirement)).Returns(
             [
-                new AnnotationKindSummary(RequirementAnnotationKind.Note, 1, 0),
-                new AnnotationKindSummary(RequirementAnnotationKind.ChangeRequest, 1, 1)
+                new AnnotationKindSummary(AnnotationKind.Note, 1, 0),
+                new AnnotationKindSummary(AnnotationKind.ChangeRequest, 1, 1)
             ]);
             this.annotationsViewModel.Setup(x => x.GetChangeProposals(It.IsAny<ChangeRequest>())).Returns([]);
-            this.annotationsViewModel.Setup(x => x.CreatableKinds).Returns(RequirementAnnotationHelper.RequirementKinds);
+            this.annotationsViewModel.Setup(x => x.CreatableKinds).Returns(AnnotationHelper.AttachableKinds);
             this.annotationsViewModel.Setup(x => x.Draft).Returns((AnnotationDraft)null);
-
-            this.viewModel = new Mock<IRequirementsEditorBodyViewModel>();
-            this.viewModel.Setup(x => x.AnnotationsViewModel).Returns(this.annotationsViewModel.Object);
         }
 
         /// <summary>
@@ -145,7 +142,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             return new AnnotationDraft
             {
-                Kind = RequirementAnnotationKind.ChangeRequest,
+                Kind = AnnotationKind.ChangeRequest,
                 Title = "First change",
                 Content = "Change the wording",
                 ShortName = "CR_001",
@@ -170,27 +167,91 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         /// Renders the component.
         /// </summary>
         /// <returns>The <see cref="IRenderedComponent{TComponent}" /></returns>
-        private IRenderedComponent<RequirementAnnotationsPanel> Render()
+        private IRenderedComponent<AnnotationsPanel> Render()
         {
-            return this.context.Render<RequirementAnnotationsPanel>(parameters => parameters
-                .Add(p => p.ViewModel, this.viewModel.Object));
+            return this.context.Render<AnnotationsPanel>(parameters => parameters
+                .Add(p => p.ViewModel, this.annotationsViewModel.Object));
         }
 
         /// <summary>
         /// Verifies that nothing is rendered while the panel is closed.
         /// </summary>
         [Test]
-        public void VerifyNothingRendersWithoutActiveRequirement()
+        public void VerifyNothingRendersWithoutActiveThing()
         {
-            this.annotationsViewModel.Setup(x => x.ActiveRequirement).Returns((Requirement)null);
+            this.annotationsViewModel.Setup(x => x.ActiveThing).Returns((Thing)null);
 
             var component = this.Render();
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(component.Markup.Trim(), Is.Empty);
-                Assert.That(component.FindAll("#requirement-annotations-panel"), Is.Empty);
+                Assert.That(component.FindAll("#annotations-panel"), Is.Empty);
             }
+        }
+
+        /// <summary>
+        /// Verifies that the header of a thing without a short name falls back to its name, or to its class, and that the
+        /// name is not repeated when it equals the short name.
+        /// </summary>
+        [Test]
+        public void VerifyHeaderOfAThingWithoutShortName()
+        {
+            var iteration = new Iteration { Iid = Guid.NewGuid() };
+            var noShortName = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = string.Empty, Name = "Directory" };
+            var sameName = new ElementDefinition { Iid = Guid.NewGuid(), ShortName = "SAT", Name = "SAT" };
+
+            this.annotationsViewModel.Setup(x => x.VisibleAnnotations).Returns([]);
+            this.annotationsViewModel.Setup(x => x.GetAnnotations(It.IsAny<Thing>())).Returns([]);
+            this.annotationsViewModel.Setup(x => x.GetSummary(It.IsAny<Thing>())).Returns([]);
+
+            this.annotationsViewModel.Setup(x => x.ActiveThing).Returns(iteration);
+            var iterationPanel = this.Render();
+
+            this.annotationsViewModel.Setup(x => x.ActiveThing).Returns(noShortName);
+            var namedPanel = this.Render();
+
+            this.annotationsViewModel.Setup(x => x.ActiveThing).Returns(sameName);
+            var samePanel = this.Render();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(iterationPanel.Find("#annotations-panel").GetAttribute("aria-label"), Is.EqualTo("Annotations of Iteration"));
+                Assert.That(iterationPanel.Find(".ann-panel-subject").TextContent.Trim(), Is.EqualTo("Iteration"));
+                Assert.That(namedPanel.Find("#annotations-panel").GetAttribute("aria-label"), Is.EqualTo("Annotations of Directory"));
+                Assert.That(namedPanel.Find(".ann-panel-subject").TextContent, Is.EqualTo("Directory"), "the name is the short name, so it is not repeated");
+                Assert.That(samePanel.Find(".ann-panel-subject").TextContent, Is.EqualTo("SAT"), "the name equal to the short name is not repeated");
+            }
+        }
+
+        /// <summary>
+        /// Verifies that the action opening the annotated thing for editing reaches the cards with the text the host
+        /// supplied, and calls the host back with the active thing.
+        /// </summary>
+        [Test]
+        public async Task VerifyEditAnnotatedThingParametersReachTheCards()
+        {
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<Thing>())).Returns(true);
+            Thing edited = null;
+
+            var component = this.context.Render<AnnotationsPanel>(parameters => parameters
+                .Add(p => p.ViewModel, this.annotationsViewModel.Object)
+                .Add(p => p.EditAnnotatedThingText, "Edit requirement")
+                .Add(p => p.OnEditAnnotatedThing, (Thing thing) => edited = thing));
+
+            var action = component.FindComponents<DxButton>().Single(x => x.Instance.CssClass != null && x.Instance.CssClass.Contains("ann-action-edit-thing"));
+
+            await component.InvokeAsync(action.Instance.Click.InvokeAsync);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(action.Instance.Text, Is.EqualTo("Edit requirement"));
+                Assert.That(edited, Is.SameAs(this.requirement));
+            }
+
+            var withoutHost = this.Render();
+
+            Assert.That(withoutHost.FindAll(".ann-action-edit-thing"), Is.Empty, "without a host callback the action is not offered");
         }
 
         /// <summary>
@@ -203,7 +264,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(component.Find("#requirement-annotations-panel").GetAttribute("aria-label"), Is.EqualTo("Annotations of R1"));
+                Assert.That(component.Find("#annotations-panel").GetAttribute("aria-label"), Is.EqualTo("Annotations of R1"));
                 Assert.That(component.Find(".ann-panel-subject").TextContent, Does.Contain("R1").And.Contain("First requirement"));
                 Assert.That(component.FindAll(".ann-card"), Has.Count.EqualTo(2));
                 Assert.That(component.FindAll(".ann-list .ann-empty"), Is.Empty);
@@ -259,27 +320,27 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         public void VerifyAddDropdownRendersWithoutAnnotations()
         {
             this.ClearAnnotations();
-            this.annotationsViewModel.Setup(x => x.CreatableKinds).Returns([RequirementAnnotationKind.Note, RequirementAnnotationKind.ChangeRequest, RequirementAnnotationKind.RequestForWaiver]);
+            this.annotationsViewModel.Setup(x => x.CreatableKinds).Returns([AnnotationKind.Note, AnnotationKind.ChangeRequest, AnnotationKind.RequestForWaiver]);
 
             var component = this.Render();
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(component.FindAll("#requirement-annotation-add"), Has.Count.EqualTo(1), "the dropdown is offered even when there is nothing to read");
-                Assert.That(component.FindAll("button[id^='requirement-annotation-new-']"), Is.Empty, "the kinds stay folded until the dropdown is opened");
+                Assert.That(component.FindAll("#annotation-add"), Has.Count.EqualTo(1), "the dropdown is offered even when there is nothing to read");
+                Assert.That(component.FindAll("button[id^='annotation-new-']"), Is.Empty, "the kinds stay folded until the dropdown is opened");
                 Assert.That(component.Find(".ann-empty").TextContent, Does.Contain("No annotations yet."));
             }
 
-            component.Find("#requirement-annotation-add").Click();
+            component.Find("#annotation-add").Click();
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(component.FindAll(".ann-add-item"), Has.Count.EqualTo(3));
-                Assert.That(component.FindAll("#requirement-annotation-new-note"), Has.Count.EqualTo(1));
-                Assert.That(component.FindAll("#requirement-annotation-new-cr"), Has.Count.EqualTo(1));
-                Assert.That(component.FindAll("#requirement-annotation-new-rfw"), Has.Count.EqualTo(1));
-                Assert.That(component.FindAll("#requirement-annotation-new-rid"), Is.Empty);
-                Assert.That(component.FindAll("#requirement-annotation-new-rfd"), Is.Empty);
+                Assert.That(component.FindAll("#annotation-new-note"), Has.Count.EqualTo(1));
+                Assert.That(component.FindAll("#annotation-new-cr"), Has.Count.EqualTo(1));
+                Assert.That(component.FindAll("#annotation-new-rfw"), Has.Count.EqualTo(1));
+                Assert.That(component.FindAll("#annotation-new-rid"), Is.Empty);
+                Assert.That(component.FindAll("#annotation-new-rfd"), Is.Empty);
             }
         }
 
@@ -294,11 +355,11 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             var component = this.Render();
 
-            component.Find("#requirement-annotation-add").Click();
-            component.Find("#requirement-annotation-new-cr").Click();
+            component.Find("#annotation-add").Click();
+            component.Find("#annotation-new-cr").Click();
 
-            this.annotationsViewModel.Verify(x => x.StartNew(RequirementAnnotationKind.ChangeRequest), Times.Once);
-            this.annotationsViewModel.Verify(x => x.StartNew(RequirementAnnotationKind.Note), Times.Never);
+            this.annotationsViewModel.Verify(x => x.StartNew(AnnotationKind.ChangeRequest), Times.Once);
+            this.annotationsViewModel.Verify(x => x.StartNew(AnnotationKind.Note), Times.Never);
         }
 
         /// <summary>
@@ -311,8 +372,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(component.FindAll("#requirement-annotation-add"), Has.Count.EqualTo(1));
-                Assert.That(component.Find("#requirement-annotation-add").GetAttribute("aria-expanded"), Is.EqualTo("false"));
+                Assert.That(component.FindAll("#annotation-add"), Has.Count.EqualTo(1));
+                Assert.That(component.Find("#annotation-add").GetAttribute("aria-expanded"), Is.EqualTo("false"));
                 Assert.That(component.FindAll(".ann-add-list"), Is.Empty, "the kinds stay folded until the toggle is clicked");
                 Assert.That(component.FindAll(".ann-add-item"), Is.Empty);
                 Assert.That(component.Instance.IsAddMenuOpen, Is.False);
@@ -325,32 +386,32 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyAddToggleOpensAndClosesTheDropdown()
         {
-            this.annotationsViewModel.Setup(x => x.CreatableKinds).Returns([RequirementAnnotationKind.Note, RequirementAnnotationKind.ChangeRequest, RequirementAnnotationKind.RequestForWaiver]);
+            this.annotationsViewModel.Setup(x => x.CreatableKinds).Returns([AnnotationKind.Note, AnnotationKind.ChangeRequest, AnnotationKind.RequestForWaiver]);
 
             var component = this.Render();
 
-            component.Find("#requirement-annotation-add").Click();
+            component.Find("#annotation-add").Click();
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(component.Instance.IsAddMenuOpen, Is.True);
-                Assert.That(component.Find("#requirement-annotation-add").GetAttribute("aria-expanded"), Is.EqualTo("true"));
+                Assert.That(component.Find("#annotation-add").GetAttribute("aria-expanded"), Is.EqualTo("true"));
                 Assert.That(component.FindAll(".ann-add-list .ann-add-item"), Has.Count.EqualTo(3));
-                Assert.That(component.FindAll("#requirement-annotation-new-note"), Has.Count.EqualTo(1));
-                Assert.That(component.FindAll("#requirement-annotation-new-cr"), Has.Count.EqualTo(1));
-                Assert.That(component.FindAll("#requirement-annotation-new-rfw"), Has.Count.EqualTo(1));
-                Assert.That(component.FindAll("#requirement-annotation-new-rid"), Is.Empty);
-                Assert.That(component.FindAll("#requirement-annotation-new-rfd"), Is.Empty);
+                Assert.That(component.FindAll("#annotation-new-note"), Has.Count.EqualTo(1));
+                Assert.That(component.FindAll("#annotation-new-cr"), Has.Count.EqualTo(1));
+                Assert.That(component.FindAll("#annotation-new-rfw"), Has.Count.EqualTo(1));
+                Assert.That(component.FindAll("#annotation-new-rid"), Is.Empty);
+                Assert.That(component.FindAll("#annotation-new-rfd"), Is.Empty);
                 Assert.That(component.FindAll(".ann-add-item.ann-kind-cr"), Has.Count.EqualTo(1));
                 Assert.That(component.FindAll(".ann-add-backdrop"), Has.Count.EqualTo(1));
             }
 
-            component.Find("#requirement-annotation-add").Click();
+            component.Find("#annotation-add").Click();
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(component.Instance.IsAddMenuOpen, Is.False);
-                Assert.That(component.Find("#requirement-annotation-add").GetAttribute("aria-expanded"), Is.EqualTo("false"));
+                Assert.That(component.Find("#annotation-add").GetAttribute("aria-expanded"), Is.EqualTo("false"));
                 Assert.That(component.FindAll(".ann-add-list"), Is.Empty);
             }
         }
@@ -363,17 +424,17 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         {
             var component = this.Render();
 
-            component.Find("#requirement-annotation-add").Click();
-            component.Find("#requirement-annotation-new-rid").Click();
+            component.Find("#annotation-add").Click();
+            component.Find("#annotation-new-rid").Click();
 
-            this.annotationsViewModel.Verify(x => x.StartNew(RequirementAnnotationKind.ReviewItemDiscrepancy), Times.Once);
-            this.annotationsViewModel.Verify(x => x.StartNew(It.Is<RequirementAnnotationKind>(kind => kind != RequirementAnnotationKind.ReviewItemDiscrepancy)), Times.Never);
+            this.annotationsViewModel.Verify(x => x.StartNew(AnnotationKind.ReviewItemDiscrepancy), Times.Once);
+            this.annotationsViewModel.Verify(x => x.StartNew(It.Is<AnnotationKind>(kind => kind != AnnotationKind.ReviewItemDiscrepancy)), Times.Never);
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(component.Instance.IsAddMenuOpen, Is.False);
                 Assert.That(component.FindAll(".ann-add-list"), Is.Empty);
-                Assert.That(component.Find("#requirement-annotation-add").GetAttribute("aria-expanded"), Is.EqualTo("false"));
+                Assert.That(component.Find("#annotation-add").GetAttribute("aria-expanded"), Is.EqualTo("false"));
             }
         }
 
@@ -385,7 +446,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         {
             var component = this.Render();
 
-            component.Find("#requirement-annotation-add").Click();
+            component.Find("#annotation-add").Click();
             Assert.That(component.FindAll(".ann-add-list"), Has.Count.EqualTo(1));
 
             component.Find(".ann-add-backdrop").Click();
@@ -397,7 +458,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 Assert.That(component.FindAll(".ann-add-backdrop"), Is.Empty);
             }
 
-            this.annotationsViewModel.Verify(x => x.StartNew(It.IsAny<RequirementAnnotationKind>()), Times.Never);
+            this.annotationsViewModel.Verify(x => x.StartNew(It.IsAny<AnnotationKind>()), Times.Never);
         }
 
         /// <summary>
@@ -408,7 +469,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         {
             var component = this.Render();
 
-            component.Find("#requirement-annotation-add").Click();
+            component.Find("#annotation-add").Click();
             component.Find(".ann-add-list").KeyDown(new KeyboardEventArgs { Key = "ArrowDown" });
 
             Assert.That(component.FindAll(".ann-add-list"), Has.Count.EqualTo(1), "another key does not close the dropdown");
@@ -435,20 +496,20 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(readOnly.FindAll("#requirement-annotation-add"), Is.Empty, "nothing is creatable");
+                Assert.That(readOnly.FindAll("#annotation-add"), Is.Empty, "nothing is creatable");
                 Assert.That(readOnly.FindAll(".ann-add-menu"), Is.Empty);
             }
 
-            this.annotationsViewModel.Setup(x => x.CreatableKinds).Returns(RequirementAnnotationHelper.RequirementKinds);
-            this.annotationsViewModel.Setup(x => x.Draft).Returns(new AnnotationDraft { Kind = RequirementAnnotationKind.Note });
+            this.annotationsViewModel.Setup(x => x.CreatableKinds).Returns(AnnotationHelper.AttachableKinds);
+            this.annotationsViewModel.Setup(x => x.Draft).Returns(new AnnotationDraft { Kind = AnnotationKind.Note });
 
             var composing = this.Render();
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(composing.FindAll("#requirement-annotation-add"), Is.Empty, "a draft is open");
+                Assert.That(composing.FindAll("#annotation-add"), Is.Empty, "a draft is open");
                 Assert.That(composing.FindAll(".ann-add-menu"), Is.Empty);
-                Assert.That(composing.FindAll("#requirement-annotation-composer"), Has.Count.EqualTo(1));
+                Assert.That(composing.FindAll("#annotation-composer"), Has.Count.EqualTo(1));
             }
         }
 
@@ -476,8 +537,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(readOnlyComponent.Find(".ann-empty").TextContent, Does.Contain("You do not have permission to annotate this requirement."));
-                Assert.That(readOnlyComponent.FindAll("#requirement-annotation-add"), Is.Empty, "no add button without a creatable kind");
+                Assert.That(readOnlyComponent.Find(".ann-empty").TextContent, Does.Contain("You do not have permission to annotate this item."));
+                Assert.That(readOnlyComponent.FindAll("#annotation-add"), Is.Empty, "no add button without a creatable kind");
             }
         }
 
@@ -490,7 +551,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             var component = this.Render();
 
             component.FindAll(".ann-chip")[2].Click();
-            this.annotationsViewModel.VerifySet(x => x.KindFilter = RequirementAnnotationKind.ChangeRequest, Times.Once);
+            this.annotationsViewModel.VerifySet(x => x.KindFilter = AnnotationKind.ChangeRequest, Times.Once);
 
             component.FindAll(".ann-chip")[0].Click();
             this.annotationsViewModel.VerifySet(x => x.KindFilter = null, Times.Once);
@@ -503,7 +564,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         public async Task VerifyCloseButtonClosesPanel()
         {
             var component = this.Render();
-            var closeButton = component.FindComponents<DxButton>().First(x => x.Instance.Id == "requirement-annotations-close");
+            var closeButton = component.FindComponents<DxButton>().First(x => x.Instance.Id == "annotations-close");
 
             await component.InvokeAsync(closeButton.Instance.Click.InvokeAsync);
 
@@ -517,25 +578,25 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyComposerRendersForNewDraft()
         {
-            var draft = new AnnotationDraft { Kind = RequirementAnnotationKind.ChangeRequest, ShortName = "CR-002" };
+            var draft = new AnnotationDraft { Kind = AnnotationKind.ChangeRequest, ShortName = "CR-002" };
             this.annotationsViewModel.Setup(x => x.Draft).Returns(draft);
 
             var component = this.Render();
-            var saveButton = component.FindComponents<DxButton>().First(x => x.Instance.Id == "requirement-annotation-save");
+            var saveButton = component.FindComponents<DxButton>().First(x => x.Instance.Id == "annotation-save");
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(component.FindAll("#requirement-annotation-composer"), Has.Count.EqualTo(1));
+                Assert.That(component.FindAll("#annotation-composer"), Has.Count.EqualTo(1));
                 Assert.That(component.Find(".ann-composer-header strong").TextContent, Is.EqualTo("New Change Request"));
                 Assert.That(component.Find(".ann-composer-shortname").TextContent, Is.EqualTo("CR-002"));
-                Assert.That(component.Find(".ann-composer-hint").TextContent, Is.EqualTo(RequirementAnnotationsPanel.GetKindHint(RequirementAnnotationKind.ChangeRequest)));
-                Assert.That(component.FindComponents<DxTextBox>().Select(x => x.Instance.Id), Does.Contain("requirement-annotation-title"));
-                Assert.That(component.FindComponents<DxMemo>().Select(x => x.Instance.Id), Does.Contain("requirement-annotation-content"));
+                Assert.That(component.Find(".ann-composer-hint").TextContent, Is.EqualTo(AnnotationsPanel.GetKindHint(AnnotationKind.ChangeRequest)));
+                Assert.That(component.FindComponents<DxTextBox>().Select(x => x.Instance.Id), Does.Contain("annotation-title"));
+                Assert.That(component.FindComponents<DxMemo>().Select(x => x.Instance.Id), Does.Contain("annotation-content"));
                 Assert.That(component.FindAll(".ann-segmented button"), Has.Count.EqualTo(2), "the classification offers minor and major");
                 Assert.That(saveButton.Instance.Text, Is.EqualTo("Add"));
                 Assert.That(saveButton.Instance.Enabled, Is.False, "the content and the title are empty");
-                Assert.That(component.FindAll("#requirement-annotation-add"), Is.Empty, "the add button is hidden while composing");
-                Assert.That(component.FindComponents<DxTextBox>().Select(x => x.Instance.Id), Does.Not.Contain("requirement-annotation-shortname"), "a new annotation does not offer its details");
+                Assert.That(component.FindAll("#annotation-add"), Is.Empty, "the add button is hidden while composing");
+                Assert.That(component.FindComponents<DxTextBox>().Select(x => x.Instance.Id), Does.Not.Contain("annotation-shortname"), "a new annotation does not offer its details");
                 Assert.That(component.FindComponents<DxComboBox<DomainOfExpertise, DomainOfExpertise>>(), Is.Empty);
                 Assert.That(component.FindComponents<DxTagBox<Category, Category>>(), Is.Empty);
                 Assert.That(component.FindAll(".ann-field-error"), Is.Empty);
@@ -554,16 +615,16 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.annotationsViewModel.Setup(x => x.GetShortNameError(draft)).Returns((string)null);
 
             var component = this.Render();
-            var saveButton = component.FindComponents<DxButton>().First(x => x.Instance.Id == "requirement-annotation-save");
-            var shortName = component.FindComponents<DxTextBox>().Single(x => x.Instance.Id == "requirement-annotation-shortname");
+            var saveButton = component.FindComponents<DxButton>().First(x => x.Instance.Id == "annotation-save");
+            var shortName = component.FindComponents<DxTextBox>().Single(x => x.Instance.Id == "annotation-shortname");
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(shortName.Instance.Text, Is.EqualTo("CR_001"));
-                Assert.That(component.FindAll("#requirement-annotation-shortname"), Has.Count.EqualTo(1));
-                Assert.That(component.FindAll("label[for='requirement-annotation-shortname']"), Has.Count.EqualTo(1));
-                Assert.That(component.FindComponents<DxComboBox<DomainOfExpertise, DomainOfExpertise>>().Select(x => x.Instance.Id), Is.EqualTo(["requirement-annotation-owner"]));
-                Assert.That(component.FindComponents<DxTagBox<Category, Category>>().Select(x => x.Instance.Id), Is.EqualTo(["requirement-annotation-categories"]));
+                Assert.That(component.FindAll("#annotation-shortname"), Has.Count.EqualTo(1));
+                Assert.That(component.FindAll("label[for='annotation-shortname']"), Has.Count.EqualTo(1));
+                Assert.That(component.FindComponents<DxComboBox<DomainOfExpertise, DomainOfExpertise>>().Select(x => x.Instance.Id), Is.EqualTo(["annotation-owner"]));
+                Assert.That(component.FindComponents<DxTagBox<Category, Category>>().Select(x => x.Instance.Id), Is.EqualTo(["annotation-categories"]));
                 Assert.That(component.FindAll(".ann-field-error"), Is.Empty);
                 Assert.That(saveButton.Instance.Text, Is.EqualTo("Save"));
                 Assert.That(saveButton.Instance.Enabled, Is.True);
@@ -581,7 +642,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.annotationsViewModel.Setup(x => x.GetShortNameError(draft)).Returns("The short name 'CR_001' is already used by another annotation.");
 
             var component = this.Render();
-            var saveButton = component.FindComponents<DxButton>().First(x => x.Instance.Id == "requirement-annotation-save");
+            var saveButton = component.FindComponents<DxButton>().First(x => x.Instance.Id == "annotation-save");
 
             using (Assert.EnterMultipleScope())
             {
@@ -598,23 +659,25 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(fixedComponent.FindAll(".ann-field-error"), Is.Empty);
-                Assert.That(fixedComponent.FindComponents<DxButton>().First(x => x.Instance.Id == "requirement-annotation-save").Instance.Enabled, Is.True);
+                Assert.That(fixedComponent.FindComponents<DxButton>().First(x => x.Instance.Id == "annotation-save").Instance.Enabled, Is.True);
             }
         }
 
         /// <summary>
-        /// Verifies that a pending short name error disables the Save button of a new annotation too.
+        /// Verifies the Save button's binding to <c>GetShortNameError</c> for a new draft too. The real view model never
+        /// reports an error for a new draft (its short name is generated when written); the mock forces one to cover the
+        /// binding.
         /// </summary>
         [Test]
         public void VerifyShortNameErrorDisablesSaveOfNewDraft()
         {
-            var draft = new AnnotationDraft { Kind = RequirementAnnotationKind.ChangeRequest, ShortName = "CR_002", Title = "A title", Content = "Some content" };
+            var draft = new AnnotationDraft { Kind = AnnotationKind.ChangeRequest, ShortName = "CR_002", Title = "A title", Content = "Some content" };
             this.annotationsViewModel.Setup(x => x.Draft).Returns(draft);
             this.annotationsViewModel.Setup(x => x.GetShortNameError(draft)).Returns("A short name is required.");
 
             var component = this.Render();
 
-            Assert.That(component.FindComponents<DxButton>().First(x => x.Instance.Id == "requirement-annotation-save").Instance.Enabled, Is.False);
+            Assert.That(component.FindComponents<DxButton>().First(x => x.Instance.Id == "annotation-save").Instance.Enabled, Is.False);
         }
 
         /// <summary>
@@ -623,13 +686,13 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyComposerOfEditedNoteHasNoDetails()
         {
-            this.annotationsViewModel.Setup(x => x.Draft).Returns(new AnnotationDraft { Kind = RequirementAnnotationKind.Note, Content = "A comment", EditedAnnotation = this.annotations[1] });
+            this.annotationsViewModel.Setup(x => x.Draft).Returns(new AnnotationDraft { Kind = AnnotationKind.Note, Content = "A comment", EditedAnnotation = this.annotations[1] });
 
             var component = this.Render();
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(component.FindAll("#requirement-annotation-composer"), Has.Count.EqualTo(1));
+                Assert.That(component.FindAll("#annotation-composer"), Has.Count.EqualTo(1));
                 Assert.That(component.FindComponents<DxTextBox>(), Is.Empty);
                 Assert.That(component.FindComponents<DxComboBox<DomainOfExpertise, DomainOfExpertise>>(), Is.Empty);
                 Assert.That(component.FindComponents<DxTagBox<Category, Category>>(), Is.Empty);
@@ -643,11 +706,11 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public async Task VerifySaveButtonIsEnabledForValidDraftAndSaves()
         {
-            var draft = new AnnotationDraft { Kind = RequirementAnnotationKind.ChangeRequest, Title = "A title", Content = "Some content" };
+            var draft = new AnnotationDraft { Kind = AnnotationKind.ChangeRequest, Title = "A title", Content = "Some content" };
             this.annotationsViewModel.Setup(x => x.Draft).Returns(draft);
 
             var component = this.Render();
-            var saveButton = component.FindComponents<DxButton>().First(x => x.Instance.Id == "requirement-annotation-save");
+            var saveButton = component.FindComponents<DxButton>().First(x => x.Instance.Id == "annotation-save");
 
             Assert.That(saveButton.Instance.Enabled, Is.True);
 
@@ -662,7 +725,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public async Task VerifyCancelButtonCancelsDraft()
         {
-            this.annotationsViewModel.Setup(x => x.Draft).Returns(new AnnotationDraft { Kind = RequirementAnnotationKind.Note });
+            this.annotationsViewModel.Setup(x => x.Draft).Returns(new AnnotationDraft { Kind = AnnotationKind.Note });
 
             var component = this.Render();
             var cancelButton = component.FindComponents<DxButton>().First(x => x.Instance.Text == "Cancel");
@@ -678,17 +741,17 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         [Test]
         public void VerifyComposerOfNoteHasNoTitle()
         {
-            this.annotationsViewModel.Setup(x => x.Draft).Returns(new AnnotationDraft { Kind = RequirementAnnotationKind.Note, Content = "A comment" });
+            this.annotationsViewModel.Setup(x => x.Draft).Returns(new AnnotationDraft { Kind = AnnotationKind.Note, Content = "A comment" });
 
             var component = this.Render();
-            var saveButton = component.FindComponents<DxButton>().First(x => x.Instance.Id == "requirement-annotation-save");
+            var saveButton = component.FindComponents<DxButton>().First(x => x.Instance.Id == "annotation-save");
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(component.FindAll("#requirement-annotation-composer"), Has.Count.EqualTo(1));
+                Assert.That(component.FindAll("#annotation-composer"), Has.Count.EqualTo(1));
                 Assert.That(component.FindComponents<DxTextBox>(), Is.Empty);
                 Assert.That(component.FindAll(".ann-segmented"), Is.Empty);
-                Assert.That(component.Find("label[for='requirement-annotation-content']").TextContent, Is.EqualTo("Comment"));
+                Assert.That(component.Find("label[for='annotation-content']").TextContent, Is.EqualTo("Comment"));
                 Assert.That(saveButton.Instance.Enabled, Is.True, "a note only needs its content");
             }
         }
@@ -703,9 +766,9 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(RequirementAnnotationsPanel.GetComposerTitle(new AnnotationDraft { Kind = RequirementAnnotationKind.ChangeRequest }), Is.EqualTo("New Change Request"));
-                Assert.That(RequirementAnnotationsPanel.GetComposerTitle(new AnnotationDraft { Kind = RequirementAnnotationKind.Note, EditedAnnotation = this.annotations[1] }), Is.EqualTo("Edit Note"));
-                Assert.That(RequirementAnnotationsPanel.GetComposerTitle(new AnnotationDraft { Kind = RequirementAnnotationKind.ChangeProposal, ChangeRequest = changeRequest }), Is.EqualTo("Change Proposal for CR-001"));
+                Assert.That(AnnotationsPanel.GetComposerTitle(new AnnotationDraft { Kind = AnnotationKind.ChangeRequest }), Is.EqualTo("New Change Request"));
+                Assert.That(AnnotationsPanel.GetComposerTitle(new AnnotationDraft { Kind = AnnotationKind.Note, EditedAnnotation = this.annotations[1] }), Is.EqualTo("Edit Note"));
+                Assert.That(AnnotationsPanel.GetComposerTitle(new AnnotationDraft { Kind = AnnotationKind.ChangeProposal, ChangeRequest = changeRequest }), Is.EqualTo("Change Proposal for CR-001"));
             }
         }
 
@@ -717,10 +780,10 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         {
             using (Assert.EnterMultipleScope())
             {
-                foreach (var kind in Enum.GetValues<RequirementAnnotationKind>())
+                foreach (var kind in Enum.GetValues<AnnotationKind>())
                 {
-                    Assert.That(RequirementAnnotationsPanel.GetKindHint(kind), Is.Not.Empty, $"hint of {kind}");
-                    Assert.That(RequirementAnnotationsPanel.GetContentPlaceholder(kind), Is.Not.Empty, $"placeholder of {kind}");
+                    Assert.That(AnnotationsPanel.GetKindHint(kind), Is.Not.Empty, $"hint of {kind}");
+                    Assert.That(AnnotationsPanel.GetContentPlaceholder(kind), Is.Not.Empty, $"placeholder of {kind}");
                 }
             }
         }

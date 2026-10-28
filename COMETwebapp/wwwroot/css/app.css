@@ -474,7 +474,7 @@ sub {
 .ann-kind-rfw { --ann-fg: #0f766e; --ann-bg: #ccfbf1; }
 .ann-kind-cp { --ann-fg: #4338ca; --ann-bg: #e0e7ff; }
 
-.req-annotation-badges {
+.ann-badges {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -486,8 +486,8 @@ sub {
     --pill-font-size: 0.72rem;
 }
 
-.req-annotation-badge,
-.req-annotation-add {
+.ann-badge,
+.ann-badge-add {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -503,29 +503,29 @@ sub {
     cursor: pointer;
 }
 
-.req-annotation-badge {
+.ann-badge {
     color: var(--ann-fg);
     background: var(--ann-bg);
     border: 1px solid var(--ann-fg);
 }
 
-.req-annotation-badge.is-resolved {
+.ann-badge.is-resolved {
     color: #64748b;
     background: transparent;
     border-color: #cbd5e1;
 }
 
-.req-annotation-badge:hover,
-.req-annotation-badge:focus-visible {
+.ann-badge:hover,
+.ann-badge:focus-visible {
     filter: brightness(0.95);
     box-shadow: 0 0 0 2px var(--ann-bg);
 }
 
-.req-annotation-badge-count {
+.ann-badge-count {
     font-variant-numeric: tabular-nums;
 }
 
-.req-annotation-add {
+.ann-badge-add {
     color: #64748b;
     background: transparent;
     border: 1px dashed transparent;
@@ -533,8 +533,11 @@ sub {
     transition: opacity 0.15s ease;
 }
 
-.req-row:hover .req-annotation-add,
-.req-annotation-add:focus-visible {
+/* a host reveals the discreet add button on hover of its row: the Requirements Editor rows, or any element marked
+   with the generic ann-host class */
+.req-row:hover .ann-badge-add,
+.ann-host:hover .ann-badge-add,
+.ann-badge-add:focus-visible {
     opacity: 1;
     border-color: #cbd5e1;
 }

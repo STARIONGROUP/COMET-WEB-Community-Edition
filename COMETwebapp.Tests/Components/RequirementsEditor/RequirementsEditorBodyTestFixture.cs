@@ -308,17 +308,17 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
         {
             this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
 
-            Assert.That(this.renderedComponent.FindAll(".req-annotation-badges"), Has.Count.EqualTo(1), "the annotation badges are shown on the requirement by default");
+            Assert.That(this.renderedComponent.FindAll(".ann-badges"), Has.Count.EqualTo(1), "the annotation badges are shown on the requirement by default");
 
             this.viewModel.ShowAnnotations = false;
             this.renderedComponent.Render();
 
-            Assert.That(this.renderedComponent.FindAll(".req-annotation-badges"), Is.Empty, "hiding the annotations removes the badges from the requirement");
+            Assert.That(this.renderedComponent.FindAll(".ann-badges"), Is.Empty, "hiding the annotations removes the badges from the requirement");
 
             this.viewModel.ShowAnnotations = true;
             this.renderedComponent.Render();
 
-            Assert.That(this.renderedComponent.FindAll(".req-annotation-badges"), Has.Count.EqualTo(1), "showing them again restores the badges");
+            Assert.That(this.renderedComponent.FindAll(".ann-badges"), Has.Count.EqualTo(1), "showing them again restores the badges");
         }
 
         [Test]
@@ -330,7 +330,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             {
                 Assert.That(this.renderedComponent.FindAll("#requirement-annotation-filter"), Has.Count.EqualTo(1), "the toolbar offers the annotation filter");
                 Assert.That(this.renderedComponent.Find(".req-editor-layout").ClassList, Does.Not.Contain("annotations-open"));
-                Assert.That(this.renderedComponent.FindAll("#requirement-annotations-panel"), Is.Empty);
+                Assert.That(this.renderedComponent.FindAll("#annotations-panel"), Is.Empty);
             }
 
             this.renderedComponent.InvokeAsync(() => this.viewModel.AnnotationsViewModel.OpenPanel(this.requirement));
@@ -340,7 +340,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(this.renderedComponent.Find(".req-editor-layout").ClassList, Does.Contain("annotations-open"));
-                    Assert.That(this.renderedComponent.FindAll("#requirement-annotations-panel"), Has.Count.EqualTo(1));
+                    Assert.That(this.renderedComponent.FindAll("#annotations-panel"), Has.Count.EqualTo(1));
                 }
             });
 
@@ -351,7 +351,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(this.renderedComponent.Find(".req-editor-layout").ClassList, Does.Not.Contain("annotations-open"));
-                    Assert.That(this.renderedComponent.FindAll("#requirement-annotations-panel"), Is.Empty);
+                    Assert.That(this.renderedComponent.FindAll("#annotations-panel"), Is.Empty);
                 }
             });
         }

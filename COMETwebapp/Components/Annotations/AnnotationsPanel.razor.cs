@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
-//  <copyright file="RequirementAnnotationsPanel.razor.cs" company="Starion Group S.A.">
+//  <copyright file="AnnotationsPanel.razor.cs" company="Starion Group S.A.">
 //     Copyright (c) 2023-2026 Starion Group S.A.
 //
 //     This file is part of COMET WEB Community Edition
@@ -20,12 +20,12 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.Components.RequirementsEditor
+namespace COMETwebapp.Components.Annotations
 {
+    using CDP4Common.CommonData;
     using CDP4Common.ReportingData;
 
-    using COMETwebapp.ViewModels.Components.RequirementsEditor;
-    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
+    using COMETwebapp.ViewModels.Components.Annotations;
 
     using Microsoft.AspNetCore.Components;
     using Microsoft.AspNetCore.Components.Web;
@@ -33,10 +33,10 @@ namespace COMETwebapp.Components.RequirementsEditor
     using ReactiveUI;
 
     /// <summary>
-    /// The side panel listing the annotations of the active requirement of the Requirements Editor, with kind filter
+    /// The side panel listing the annotations of the thing a host page opened it on, with kind filter
     /// chips, an inline composer for a new or edited annotation, and one <see cref="AnnotationCard" /> per annotation.
     /// </summary>
-    public partial class RequirementAnnotationsPanel
+    public partial class AnnotationsPanel
     {
         /// <summary>
         /// The classifications offered for a modelling annotation item, in display order.
@@ -44,32 +44,44 @@ namespace COMETwebapp.Components.RequirementsEditor
         private static readonly AnnotationClassificationKind[] Classifications = [AnnotationClassificationKind.MINOR, AnnotationClassificationKind.MAJOR];
 
         /// <summary>
-        /// Gets or sets the <see cref="IRequirementsEditorBodyViewModel" />.
+        /// Gets or sets the <see cref="IAnnotationsViewModel" /> of the host page.
         /// </summary>
         [Parameter]
-        public IRequirementsEditorBodyViewModel ViewModel { get; set; }
+        public IAnnotationsViewModel ViewModel { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the "Add annotation" dropdown, offered once the requirement already has
-        /// annotations, is open.
+        /// Gets or sets the callback opening the host's own edit form on the annotated thing, offered on change requests,
+        /// review item discrepancies and change proposals. Without one, that action is not shown.
+        /// </summary>
+        [Parameter]
+        public EventCallback<Thing> OnEditAnnotatedThing { get; set; }
+
+        /// <summary>
+        /// Gets or sets the text of the action opening the annotated thing for editing, e.g. "Edit requirement".
+        /// </summary>
+        [Parameter]
+        public string EditAnnotatedThingText { get; set; } = "Edit";
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the "+ Annotation" dropdown listing the kinds that can be added is open.
         /// </summary>
         public bool IsAddMenuOpen { get; set; }
 
         /// <summary>
-        /// Gets the one-line explanation of what a <see cref="RequirementAnnotationKind" /> is for, shown in the composer and
+        /// Gets the one-line explanation of what a <see cref="AnnotationKind" /> is for, shown in the composer and
         /// as the tooltip of its add button.
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementAnnotationKind" /></param>
+        /// <param name="kind">The <see cref="AnnotationKind" /></param>
         /// <returns>The explanation</returns>
-        public static string GetKindHint(RequirementAnnotationKind kind)
+        public static string GetKindHint(AnnotationKind kind)
         {
             return kind switch
             {
-                RequirementAnnotationKind.Note => "A comment or a clarification question. Others can reply to it.",
-                RequirementAnnotationKind.ChangeRequest => "Ask for the requirement to be changed. It can be accepted or rejected and answered with a change proposal.",
-                RequirementAnnotationKind.ReviewItemDiscrepancy => "Flag a problem found while reviewing the requirement. Solutions can be proposed and the item accepted or rejected.",
-                RequirementAnnotationKind.RequestForDeviation => "Ask, before implementation, to be allowed to depart from the requirement.",
-                RequirementAnnotationKind.RequestForWaiver => "Ask, after implementation, to accept a product that does not conform to the requirement.",
+                AnnotationKind.Note => "A comment or a clarification question. Others can reply to it.",
+                AnnotationKind.ChangeRequest => "Ask for this item to be changed. It can be accepted or rejected and answered with a change proposal.",
+                AnnotationKind.ReviewItemDiscrepancy => "Flag a problem found while reviewing this item. Solutions can be proposed and the item accepted or rejected.",
+                AnnotationKind.RequestForDeviation => "Ask, before implementation, to be allowed to depart from this item.",
+                AnnotationKind.RequestForWaiver => "Ask, after implementation, to accept a product that does not conform to this item.",
                 _ => "Describe the concrete change that answers the change request."
             };
         }
@@ -77,16 +89,16 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// <summary>
         /// Gets the placeholder of the composer's text area.
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementAnnotationKind" /> being written</param>
+        /// <param name="kind">The <see cref="AnnotationKind" /> being written</param>
         /// <returns>The placeholder</returns>
-        public static string GetContentPlaceholder(RequirementAnnotationKind kind)
+        public static string GetContentPlaceholder(AnnotationKind kind)
         {
             return kind switch
             {
-                RequirementAnnotationKind.Note => "Write a comment or a question...",
-                RequirementAnnotationKind.ChangeRequest => "What should change, and why?",
-                RequirementAnnotationKind.ReviewItemDiscrepancy => "What is wrong with the requirement?",
-                RequirementAnnotationKind.ChangeProposal => "The proposed new wording or change...",
+                AnnotationKind.Note => "Write a comment or a question...",
+                AnnotationKind.ChangeRequest => "What should change, and why?",
+                AnnotationKind.ReviewItemDiscrepancy => "What is wrong with this item?",
+                AnnotationKind.ChangeProposal => "The proposed new wording or change...",
                 _ => "What is requested, and the justification..."
             };
         }
@@ -98,7 +110,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// <returns>The heading, e.g. "New Change Request"</returns>
         public static string GetComposerTitle(AnnotationDraft draft)
         {
-            var label = RequirementAnnotationHelper.GetLabel(draft.Kind);
+            var label = AnnotationHelper.GetLabel(draft.Kind);
 
             if (draft.EditedAnnotation != null)
             {
@@ -111,11 +123,11 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// <summary>
         /// Opens the composer on a new annotation of the given <paramref name="kind" /> and closes the add dropdown.
         /// </summary>
-        /// <param name="kind">The <see cref="RequirementAnnotationKind" /> to add</param>
-        public void StartNew(RequirementAnnotationKind kind)
+        /// <param name="kind">The <see cref="AnnotationKind" /> to add</param>
+        public void StartNew(AnnotationKind kind)
         {
             this.IsAddMenuOpen = false;
-            this.ViewModel.AnnotationsViewModel.StartNew(kind);
+            this.ViewModel.StartNew(kind);
         }
 
         /// <summary>
@@ -138,11 +150,11 @@ namespace COMETwebapp.Components.RequirementsEditor
             base.OnInitialized();
 
             this.Disposables.Add(this.WhenAnyValue(
-                    x => x.ViewModel.AnnotationsViewModel.ActiveRequirement,
-                    x => x.ViewModel.AnnotationsViewModel.KindFilter,
-                    x => x.ViewModel.AnnotationsViewModel.ShowResolved,
-                    x => x.ViewModel.AnnotationsViewModel.Draft,
-                    x => x.ViewModel.AnnotationsViewModel.IsBusy)
+                    x => x.ViewModel.ActiveThing,
+                    x => x.ViewModel.KindFilter,
+                    x => x.ViewModel.ShowResolved,
+                    x => x.ViewModel.Draft,
+                    x => x.ViewModel.IsBusy)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }

@@ -20,14 +20,17 @@
 //  </copyright>
 //  --------------------------------------------------------------------------------------------------------------------
 
-namespace COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
+namespace COMETwebapp.ViewModels.Components.Annotations
 {
     /// <summary>
-    /// How many annotations of one <see cref="RequirementAnnotationKind" /> a requirement carries, and how many of them
-    /// are still open. Drives the per-kind badges shown on a requirement row.
+    /// How many annotations of one <see cref="AnnotationKind" /> a thing carries, and how many of them still need
+    /// attention. Drives the per-kind badges shown next to an annotated thing.
     /// </summary>
-    /// <param name="Kind">The <see cref="RequirementAnnotationKind" /></param>
+    /// <param name="Kind">The <see cref="AnnotationKind" /></param>
     /// <param name="Count">The number of annotations of that kind</param>
-    /// <param name="OpenCount">The number of those annotations whose status is still open</param>
-    public sealed record AnnotationKindSummary(RequirementAnnotationKind Kind, int Count, int OpenCount);
+    /// <param name="AttentionCount">
+    /// The number of those annotations that still need attention: open themselves, or a change request with a change
+    /// proposal that is still open
+    /// </param>
+    public sealed record AnnotationKindSummary(AnnotationKind Kind, int Count, int AttentionCount);
 }

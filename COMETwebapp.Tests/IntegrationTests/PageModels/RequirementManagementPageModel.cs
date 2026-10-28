@@ -115,17 +115,17 @@ namespace COMETwebapp.Tests.IntegrationTests.PageModels
         /// Gets the per-requirement annotation controls of the document: the kind badges of an annotated requirement,
         /// and the "annotate" button of one without annotations (only rendered when the user may annotate).
         /// </summary>
-        public ILocator AnnotationTriggers => this.Document.Locator(".req-annotation-badge, .req-annotation-add");
+        public ILocator AnnotationTriggers => this.Document.Locator(".ann-badge, .ann-badge-add");
 
         /// <summary>
         /// Gets the annotations side panel, rendered only while it is open.
         /// </summary>
-        public ILocator AnnotationPanel => this.Page.Locator("#requirement-annotations-panel");
+        public ILocator AnnotationPanel => this.Page.Locator("#annotations-panel");
 
         /// <summary>
         /// Gets the close button of the annotations side panel.
         /// </summary>
-        public ILocator AnnotationPanelCloseButton => this.Page.Locator("#requirement-annotations-close");
+        public ILocator AnnotationPanelCloseButton => this.Page.Locator("#annotations-close");
 
         /// <summary>
         /// Gets a value indicating whether the table of contents contains at least one specification.

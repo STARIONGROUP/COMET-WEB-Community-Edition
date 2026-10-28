@@ -25,8 +25,8 @@ namespace COMETwebapp.Components.RequirementsEditor
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.ViewModels.Components.Annotations;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
-    using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations;
 
     using Microsoft.AspNetCore.Components;
 
@@ -70,7 +70,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         {
             var annotations = this.ViewModel.AnnotationsViewModel;
             var open = this.ViewModel.ShowAnnotations && annotations.HasOpenAnnotations(this.Requirement) ? "req-row-annotated" : string.Empty;
-            var active = ReferenceEquals(annotations.ActiveRequirement, this.Requirement) ? "req-row-annotation-active" : string.Empty;
+            var active = ReferenceEquals(annotations.ActiveThing, this.Requirement) ? "req-row-annotation-active" : string.Empty;
 
             return $"{open} {active}".Trim();
         }
@@ -83,7 +83,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         private IReadOnlyList<AnnotationKindSummary> GetOpenAnnotationKinds()
         {
             return this.ViewModel.ShowAnnotations
-                ? [..this.ViewModel.AnnotationsViewModel.GetSummary(this.Requirement).Where(x => x.OpenCount > 0)]
+                ? [..this.ViewModel.AnnotationsViewModel.GetSummary(this.Requirement).Where(x => x.AttentionCount > 0)]
                 : [];
         }
     }

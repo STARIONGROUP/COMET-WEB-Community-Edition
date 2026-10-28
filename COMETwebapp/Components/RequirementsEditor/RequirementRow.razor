@@ -19,7 +19,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 ------------------------------------------------------------------------------->
 
 @using COMETwebapp.ViewModels.Components.RequirementsEditor
-@using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
+@using COMETwebapp.ViewModels.Components.Annotations
 
 <div id="@RequirementsDocument.RequirementAnchorId(this.Requirement)" class="req-row @(this.Requirement.IsDeprecated ? "req-row-deprecated" : string.Empty) @this.GetAnnotationCssClass()">
     @{
@@ -28,10 +28,10 @@ Copyright (c) 2023-2026 Starion Group S.A.
     @if (openKinds.Count > 0)
     {
         @* one segment per kind with open annotations, in that kind's colour *@
-        <span class="req-annotation-bar" title="@string.Join(", ", openKinds.Select(RequirementAnnotationHelper.GetSummaryTooltip))">
+        <span class="req-annotation-bar" title="@string.Join(", ", openKinds.Select(AnnotationHelper.GetSummaryTooltip))">
             @foreach (var entry in openKinds)
             {
-                <span class="ann-kind-@RequirementAnnotationHelper.GetCssSuffix(entry.Kind)"></span>
+                <span class="ann-kind-@AnnotationHelper.GetCssSuffix(entry.Kind)"></span>
             }
         </span>
     }

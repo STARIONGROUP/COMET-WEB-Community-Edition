@@ -135,7 +135,7 @@ namespace COMETwebapp.Components.RequirementsEditor
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ActiveView, x => x.ViewModel.CameFromChangelog)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedAnnotationFilters, x => x.ViewModel.AnnotationsViewModel.ActiveRequirement)
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.SelectedAnnotationFilters, x => x.ViewModel.AnnotationsViewModel.ActiveThing)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 

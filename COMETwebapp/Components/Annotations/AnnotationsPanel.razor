@@ -19,28 +19,30 @@ Copyright (c) 2023-2026 Starion Group S.A.
 ------------------------------------------------------------------------------->
 
 @using CDP4Common.ReportingData
-@using COMETwebapp.ViewModels.Components.RequirementsEditor.Annotations
+@using COMETwebapp.ViewModels.Components.Annotations
 @inherits DisposableComponent
 
 @{
-    var annotations = this.ViewModel.AnnotationsViewModel;
-    var requirement = annotations.ActiveRequirement;
+    var annotations = this.ViewModel;
+    var thing = annotations.ActiveThing;
 }
 
-@if (requirement != null)
+@if (thing != null)
 {
-    var all = annotations.GetAnnotations(requirement);
+    var all = annotations.GetAnnotations(thing);
+    var shortName = AnnotationHelper.GetThingShortName(thing);
+    var name = AnnotationHelper.GetThingName(thing);
     var visible = annotations.VisibleAnnotations;
     var draft = annotations.Draft;
     var creatable = annotations.CreatableKinds;
 
-    <aside id="requirement-annotations-panel" class="ann-panel" aria-label="@($"Annotations of {requirement.ShortName}")">
+    <aside id="annotations-panel" class="ann-panel" aria-label="@($"Annotations of {shortName}")">
         <div class="ann-panel-header">
             <div class="ann-panel-heading">
                 <span class="ann-panel-title"><CometIcon Icon="IconName.MessageSquare" /> Annotations</span>
-                <span class="ann-panel-subject" title="@requirement.Name"><strong>@requirement.ShortName</strong> @requirement.Name</span>
+                <span class="ann-panel-subject" title="@name"><strong>@shortName</strong>@(string.IsNullOrEmpty(name) || name == shortName ? string.Empty : $" {name}")</span>
             </div>
-            <DxButton Id="requirement-annotations-close"
+            <DxButton Id="annotations-close"
                       RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
                       IconCssClass="@IconName.Close.GetCssClass()"
                       title="Close the annotations panel"
@@ -51,13 +53,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <button type="button" class="ann-chip @(annotations.KindFilter == null ? "is-selected" : string.Empty)" @onclick="@(() => annotations.KindFilter = null)">
                 All <span class="ann-chip-count">@all.Count</span>
             </button>
-            @foreach (var summary in annotations.GetSummary(requirement))
+            @foreach (var summary in annotations.GetSummary(thing))
             {
                 <button type="button"
-                        class="ann-chip ann-kind-@RequirementAnnotationHelper.GetCssSuffix(summary.Kind) @(annotations.KindFilter == summary.Kind ? "is-selected" : string.Empty)"
-                        title="@RequirementAnnotationHelper.GetSummaryTooltip(summary)"
+                        class="ann-chip ann-kind-@AnnotationHelper.GetCssSuffix(summary.Kind) @(annotations.KindFilter == summary.Kind ? "is-selected" : string.Empty)"
+                        title="@AnnotationHelper.GetSummaryTooltip(summary)"
                         @onclick="@(() => annotations.KindFilter = summary.Kind)">
-                    @RequirementAnnotationHelper.GetAcronym(summary.Kind) <span class="ann-chip-count">@summary.Count</span>
+                    @AnnotationHelper.GetAcronym(summary.Kind) <span class="ann-chip-count">@summary.Count</span>
                 </button>
             }
             <DxCheckBox Checked="@annotations.ShowResolved"
@@ -71,11 +73,11 @@ Copyright (c) 2023-2026 Starion Group S.A.
         {
             @* the application's standard add button (primary, plus icon), opening the list of kinds the user may add *@
             <div class="ann-add-menu">
-                <DxButton Id="requirement-annotation-add"
+                <DxButton Id="annotation-add"
                           RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                           IconCssClass="@IconName.Add.GetCssClass()"
                           Text="Annotation"
-                          title="Add a note, change request, review item or request for deviation / waiver"
+                          title="Add an annotation"
                           aria-haspopup="menu"
                           aria-expanded="@(this.IsAddMenuOpen ? "true" : "false")"
                           Click="@(() => this.IsAddMenuOpen = !this.IsAddMenuOpen)" />
@@ -87,11 +89,11 @@ Copyright (c) 2023-2026 Starion Group S.A.
                         {
                             <button type="button"
                                     role="menuitem"
-                                    id="@($"requirement-annotation-new-{RequirementAnnotationHelper.GetCssSuffix(kind)}")"
-                                    class="ann-add-item ann-kind-@RequirementAnnotationHelper.GetCssSuffix(kind)"
+                                    id="@($"annotation-new-{AnnotationHelper.GetCssSuffix(kind)}")"
+                                    class="ann-add-item ann-kind-@AnnotationHelper.GetCssSuffix(kind)"
                                     title="@GetKindHint(kind)"
                                     @onclick="@(() => this.StartNew(kind))">
-                                <span class="ann-add-swatch"></span>@RequirementAnnotationHelper.GetLabel(kind)
+                                <span class="ann-add-swatch"></span>@AnnotationHelper.GetLabel(kind)
                             </button>
                         }
                     </div>
@@ -103,9 +105,9 @@ Copyright (c) 2023-2026 Starion Group S.A.
         {
             var shortNameError = annotations.GetShortNameError(draft);
 
-            <div id="requirement-annotation-composer" class="ann-composer ann-kind-@RequirementAnnotationHelper.GetCssSuffix(draft.Kind)">
+            <div id="annotation-composer" class="ann-composer ann-kind-@AnnotationHelper.GetCssSuffix(draft.Kind)">
                 <div class="ann-composer-header">
-                    <span class="ann-kind-pill ann-kind-@RequirementAnnotationHelper.GetCssSuffix(draft.Kind)">@RequirementAnnotationHelper.GetAcronym(draft.Kind)</span>
+                    <span class="ann-kind-pill ann-kind-@AnnotationHelper.GetCssSuffix(draft.Kind)">@AnnotationHelper.GetAcronym(draft.Kind)</span>
                     <strong>@GetComposerTitle(draft)</strong>
                     @if (!string.IsNullOrEmpty(draft.ShortName))
                     {
@@ -116,8 +118,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                 @if (draft.HasTitle)
                 {
-                    <label class="ann-field-label" for="requirement-annotation-title">Title</label>
-                    <DxTextBox Id="requirement-annotation-title"
+                    <label class="ann-field-label" for="annotation-title">Title</label>
+                    <DxTextBox Id="annotation-title"
                                @bind-Text="@draft.Title"
                                BindValueMode="BindValueMode.OnInput"
                                NullText="A short summary" />
@@ -129,13 +131,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
                             <button type="button"
                                     class="@(draft.Classification == classification ? "is-selected" : string.Empty)"
                                     aria-pressed="@(draft.Classification == classification)"
-                                    @onclick="@(() => draft.Classification = classification)">@RequirementAnnotationHelper.GetClassificationLabel(classification)</button>
+                                    @onclick="@(() => draft.Classification = classification)">@AnnotationHelper.GetClassificationLabel(classification)</button>
                         }
                     </div>
                 }
 
-                <label class="ann-field-label" for="requirement-annotation-content">@(draft.Kind == RequirementAnnotationKind.Note ? "Comment" : "Description")</label>
-                <DxMemo Id="requirement-annotation-content"
+                <label class="ann-field-label" for="annotation-content">@(draft.Kind == AnnotationKind.Note ? "Comment" : "Description")</label>
+                <DxMemo Id="annotation-content"
                         @bind-Text="@draft.Content"
                         BindValueMode="BindValueMode.OnInput"
                         Rows="4"
@@ -143,8 +145,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                 @if (draft.ShowsDetails)
                 {
-                    <label class="ann-field-label" for="requirement-annotation-shortname">Short name</label>
-                    <DxTextBox Id="requirement-annotation-shortname"
+                    <label class="ann-field-label" for="annotation-shortname">Short name</label>
+                    <DxTextBox Id="annotation-shortname"
                                @bind-Text="@draft.ShortName"
                                BindValueMode="BindValueMode.OnInput" />
                     @if (shortNameError != null)
@@ -152,20 +154,20 @@ Copyright (c) 2023-2026 Starion Group S.A.
                         <span class="ann-field-error" role="alert">@shortNameError</span>
                     }
 
-                    <label class="ann-field-label" for="requirement-annotation-owner">Owner</label>
+                    <label class="ann-field-label" for="annotation-owner">Owner</label>
                     <DxComboBox TData="DomainOfExpertise"
                                 TValue="DomainOfExpertise"
-                                Id="requirement-annotation-owner"
+                                Id="annotation-owner"
                                 Data="@draft.AvailableOwners"
                                 @bind-Value="@draft.Owner"
                                 TextFieldName="@nameof(DomainOfExpertise.Name)"
                                 AllowUserInput="true"
                                 FilteringMode="DataGridFilteringMode.Contains" />
 
-                    <label class="ann-field-label" for="requirement-annotation-categories">Categories</label>
+                    <label class="ann-field-label" for="annotation-categories">Categories</label>
                     <DxTagBox TData="Category"
                               TValue="Category"
-                              Id="requirement-annotation-categories"
+                              Id="annotation-categories"
                               Data="@draft.AvailableCategories"
                               @bind-Values="@draft.Categories"
                               TextFieldName="@nameof(Category.Name)"
@@ -175,7 +177,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
                 <div class="ann-composer-actions">
                     <DxButton RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Cancel" Click="@annotations.CancelDraft" />
-                    <DxButton Id="requirement-annotation-save"
+                    <DxButton Id="annotation-save"
                               RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
                               Text="@(draft.EditedAnnotation == null ? "Add" : "Save")"
                               Enabled="@(draft.IsValid && shortNameError == null && !annotations.IsBusy)"
@@ -190,7 +192,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 <div class="ann-empty">
                     <CometIcon Icon="IconName.MessageSquare" Size="28" />
                     <p><strong>No annotations yet.</strong></p>
-                    <p>@(creatable.Count > 0 ? "Leave a note, ask for a change, or raise a review item, deviation or waiver." : "You do not have permission to annotate this requirement.")</p>
+                    <p>@(creatable.Count > 0 ? "Leave a note, ask for a change, or raise a review item, deviation or waiver." : "You do not have permission to annotate this item.")</p>
                 </div>
             }
             else if (visible.Count == 0)
@@ -200,7 +202,11 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
             @foreach (var annotation in visible)
             {
-                <AnnotationCard @key="annotation.Iid" ViewModel="@this.ViewModel" Annotation="@annotation" />
+                <AnnotationCard @key="annotation.Iid"
+                                ViewModel="@this.ViewModel"
+                                Annotation="@annotation"
+                                OnEditAnnotatedThing="@this.OnEditAnnotatedThing"
+                                EditAnnotatedThingText="@this.EditAnnotatedThingText" />
             }
         </div>
     </aside>
