@@ -128,13 +128,18 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             InjectSession(this.sessionService, writeableSession.Object);
 
             var writeableResult = await this.sessionService.WriteTransaction(new OperationContainer($"/SiteDirectory/{Guid.NewGuid()}"), []);
+            await this.sessionService.WriteTransaction(new OperationContainer($"/SiteDirectory/{Guid.NewGuid()}"), ["drawing.pdf"]);
 
             Assert.Multiple(() =>
             {
                 Assert.That(readOnlyResult.IsFailed, Is.True);
                 readOnlySession.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>()), Times.Never);
                 Assert.That(writeableResult.IsSuccess, Is.True);
-                writeableSession.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>()), Times.Once);
+
+                // the SDK sends a multipart request for any non-null file list, which the server's SiteDirectory route
+                // cannot parse (500), so no files must reach it as null
+                writeableSession.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.Is<IEnumerable<string>>(files => files == null)), Times.Once);
+                writeableSession.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.Is<IEnumerable<string>>(files => files != null && files.Single() == "drawing.pdf")), Times.Once);
             });
         }
 

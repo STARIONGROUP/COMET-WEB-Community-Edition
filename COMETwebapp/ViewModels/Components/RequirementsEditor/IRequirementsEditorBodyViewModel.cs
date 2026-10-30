@@ -31,6 +31,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Utilities.VandV;
+    using COMETwebapp.ViewModels.Components.VandV;
 
     using FluentResults;
 
@@ -186,6 +187,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// their relationships) is shown in the document, its filters, the changelog and exports; hidden by default.
         /// </summary>
         bool ShowVandV { get; set; }
+
+        /// <summary>
+        /// Gets the view model driving the V&amp;V set-up dialog.
+        /// </summary>
+        IVandVSetupViewModel VandVSetupViewModel { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="Requirement" /> the document should scroll to on the next render, set by

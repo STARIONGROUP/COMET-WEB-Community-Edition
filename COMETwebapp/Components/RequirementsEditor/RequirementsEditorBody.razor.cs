@@ -129,7 +129,8 @@ namespace COMETwebapp.Components.RequirementsEditor
                     x => x.ViewModel.IsLoading,
                     x => x.ViewModel.ScrollTargetGroup,
                     x => x.ViewModel.ConfirmCancelPopupViewModel.IsVisible,
-                    x => x.ViewModel.ExportViewModel.IsVisible)
+                    x => x.ViewModel.ExportViewModel.IsVisible,
+                    x => x.ViewModel.VandVSetupViewModel.IsVisible)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
             this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ActiveView, x => x.ViewModel.CameFromChangelog, x => x.ViewModel.ShowVandV)

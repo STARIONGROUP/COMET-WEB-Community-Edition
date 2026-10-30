@@ -988,6 +988,33 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         }
 
         [Test]
+        public async Task VerifyVandVSetupViewModelWiring()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+            var withoutModel = this.viewModel.VandVSetupViewModel.NeedsSetup;
+
+            var modelLibrary = new ModelReferenceDataLibrary { Iid = Guid.NewGuid(), ShortName = "MRDL", Name = "Model library" };
+            var setup = new EngineeringModelSetup { Iid = Guid.NewGuid(), RequiredRdl = { modelLibrary } };
+            new EngineeringModel { Iid = Guid.NewGuid(), EngineeringModelSetup = setup }.Iteration.Add(this.iteration);
+
+            this.viewModel.Dispose();
+
+            this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, this.showHideService, new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object, this.exportService.Object)
+            {
+                CurrentThing = this.iteration
+            };
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(withoutModel, Is.False, "nothing to set up without a model library");
+                Assert.That(this.viewModel.VandVSetupViewModel.TargetLibrary, Is.SameAs(modelLibrary), "the iteration is passed on load");
+                Assert.That(this.viewModel.VandVSetupViewModel.NeedsSetup, Is.True);
+            });
+        }
+
+        [Test]
         public async Task VerifyShowVandV()
         {
             await this.LoadVandVData();

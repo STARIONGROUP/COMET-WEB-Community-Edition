@@ -40,6 +40,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Utilities;
     using COMETwebapp.Utilities.VandV;
+    using COMETwebapp.ViewModels.Components.VandV;
 
     using FluentResults;
 
@@ -233,7 +234,17 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var exportViewModel = new RequirementsExportViewModel(sessionService, exportService, showHideDeprecatedThingsService, logger);
             this.Disposables.Add(exportViewModel);
             this.ExportViewModel = exportViewModel;
+
+            // ponytail: hosted here until the V&V tab (VV-01 Part C) owns it and offers it from its empty state
+            var vandVSetupViewModel = new VandVSetupViewModel(sessionService, logger);
+            this.Disposables.Add(vandVSetupViewModel);
+            this.VandVSetupViewModel = vandVSetupViewModel;
         }
+
+        /// <summary>
+        /// Gets the view model driving the V&amp;V set-up dialog.
+        /// </summary>
+        public IVandVSetupViewModel VandVSetupViewModel { get; }
 
         /// <summary>
         /// Gets the view model driving the confirm dialog used for deprecate, restore and delete actions.
@@ -1507,6 +1518,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
             this.ChangelogViewModel.SetIteration(this.CurrentThing, this.CurrentDomain);
             this.ExportViewModel.SetIteration(this.CurrentThing);
+            this.VandVSetupViewModel.SetIteration(this.CurrentThing);
 
             this.IsLoading = true;
             this.parameterTypesCache = default;

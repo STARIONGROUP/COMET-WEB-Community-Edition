@@ -471,7 +471,9 @@ namespace COMET.Web.Common.Services.SessionManagement
 
             try
             {
-                await this.Session.Write(operationContainer, files);
+                // the SDK sends a multipart request for any non-null file list, even an empty one, and the server's
+                // SiteDirectory route cannot parse multipart (500): every reference data write failed that way
+                await this.Session.Write(operationContainer, files is { Count: > 0 } ? files : null);
                 this.logger.LogInformation("Transaction done in {swElapsedMilliseconds} [ms]", stopWatch.ElapsedMilliseconds);
                 return Result.Ok();
             }
