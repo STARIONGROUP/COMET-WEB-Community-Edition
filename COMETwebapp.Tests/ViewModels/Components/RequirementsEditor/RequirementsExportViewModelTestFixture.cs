@@ -37,6 +37,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 
     using COMETwebapp.Services.Export;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
+    using COMETwebapp.Tests.Utilities.VandV;
+    using COMETwebapp.Utilities.VandV;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using Microsoft.Extensions.Logging;
@@ -222,6 +224,53 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             {
                 Assert.That(categories, Is.EqualTo(expectedCategories), "the distinct categories are returned sorted by name");
                 Assert.That(this.viewModel.GetExportableRelationshipCategories(), Is.Empty, "no open iteration yields no categories");
+            });
+        }
+
+        [Test]
+        public async Task VerifyIncludeVandV()
+        {
+            var vandV = new VandVTestData();
+            var verifies = vandV.Categories[VandVConstants.VerifiesCategory];
+            var plan = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = VandVConstants.VandVSpecificationShortName, Name = VandVConstants.VandVSpecificationName };
+            var item = new Requirement { Iid = Guid.NewGuid(), ShortName = "VNV_R01_1", Category = { vandV.Categories[VandVConstants.VnVItemCategory] } };
+            item.ParameterValue.Add(new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = vandV.ParameterTypes[VandVConstants.Status], Value = new ValueArray<string>(["Passed"]) });
+            this.specification.Requirement.Add(item);
+            this.iteration.RequirementsSpecification.Add(plan);
+            this.iteration.Relationship.Add(new BinaryRelationship { Iid = Guid.NewGuid(), Source = item, Target = this.topRequirement, Category = { verifies } });
+            this.session.Setup(x => x.OpenReferenceDataLibraries).Returns([]);
+
+            var hiddenSpecifications = this.viewModel.AvailableSpecifications.ToList();
+            var hiddenParameterTypes = this.viewModel.GetExportableParameterTypes();
+            var hiddenCategories = this.viewModel.GetExportableRelationshipCategories();
+            var hiddenDetails = this.viewModel.GetRelationshipDetails(this.topRequirement);
+
+            this.viewModel.ExportConfiguration.IncludeVandV = true;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(hiddenSpecifications, Is.EqualTo(new[] { this.specification }));
+                Assert.That(hiddenParameterTypes, Does.Not.Contain(vandV.ParameterTypes[VandVConstants.Status]));
+                Assert.That(hiddenCategories, Is.Empty);
+                Assert.That(hiddenDetails, Is.Empty);
+
+                Assert.That(this.viewModel.AvailableSpecifications, Does.Contain(plan));
+                Assert.That(this.viewModel.GetExportableParameterTypes(), Does.Contain(vandV.ParameterTypes[VandVConstants.Status]));
+                Assert.That(this.viewModel.GetExportableRelationshipCategories(), Is.EqualTo(new[] { verifies }));
+                Assert.That(this.viewModel.GetRelationshipDetails(this.topRequirement), Has.Count.EqualTo(1));
+            });
+
+            this.viewModel.ExportConfiguration.SelectedParameterTypes = [vandV.ParameterTypes[VandVConstants.Status], this.massParameterType];
+            this.viewModel.ExportConfiguration.SelectedRelationshipCategories = [verifies];
+            this.viewModel.ExportConfiguration.IncludeVandV = false;
+            this.exportService.Setup(x => x.ExportAndDownloadAsync(It.IsAny<IExporter>())).Returns(Task.CompletedTask);
+
+            await this.viewModel.ExportAsync();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ExportConfiguration.SelectedParameterTypes, Is.EqualTo(new[] { this.massParameterType }), "a V&V value column picked earlier is dropped");
+                Assert.That(this.viewModel.ExportConfiguration.SelectedRelationshipCategories, Is.Empty);
             });
         }
     }

@@ -119,6 +119,40 @@ namespace COMETwebapp.Utilities.VandV
         }
 
         /// <summary>
+        /// Determines whether the given thing is V&amp;V bookkeeping that the Requirements view hides by default, by short name
+        /// only so it also works on a model whose V&amp;V reference data was seeded by the IME:
+        /// the V&amp;V plan and the reports; items, steps and activities, and any requirement inside a V&amp;V specification;
+        /// a relationship with a V&amp;V-only category or with a V&amp;V thing at either end (an ordinary verifies link between
+        /// two requirements stays visible); and anything contained in one of those (groups, constraints, values).
+        /// </summary>
+        /// <param name="thing">The <see cref="Thing" />.</param>
+        /// <returns>true for V&amp;V bookkeeping.</returns>
+        public static bool IsVandVThing(Thing thing)
+        {
+            return thing switch
+            {
+                null => false,
+                RequirementsSpecification specification => IsVandVSpecification(specification) || IsReport(specification),
+                Requirement requirement => IsItem(requirement) || IsStep(requirement) || IsActivity(requirement) || IsVandVThing(requirement.Container),
+                BinaryRelationship relationship => HasVandVOnlyCategory(relationship) || IsVandVEnd(relationship.Source) || IsVandVEnd(relationship.Target),
+                MultiRelationship relationship => HasVandVOnlyCategory(relationship) || relationship.RelatedThing.Any(IsVandVEnd),
+                _ => IsVandVThing(thing.Container)
+            };
+        }
+
+        /// <summary>
+        /// Gets the V&amp;V coverage of the given requirement.
+        /// </summary>
+        /// <param name="model">The <see cref="VandVModel" />.</param>
+        /// <param name="requirement">The requirement.</param>
+        /// <returns>The roll-up of the items covering it, or null when no item covers it.</returns>
+        public static VandVRollUp? GetCoverage(VandVModel model, Requirement requirement)
+        {
+            var items = model.GetCoveringItems(requirement);
+            return items.Count == 0 ? null : GetRollUp(model, items);
+        }
+
+        /// <summary>
         /// Gets the value of the given requirement whose parameter type carries the given short name.
         /// </summary>
         /// <param name="requirement">The <see cref="Requirement" />.</param>
@@ -409,6 +443,27 @@ namespace COMETwebapp.Utilities.VandV
         public static string SuggestActivityShortName(Iteration iteration)
         {
             return SuggestFreeShortName(iteration, VandVConstants.ActivityShortNamePrefix);
+        }
+
+        /// <summary>
+        /// Determines whether the given relationship carries a category only V&amp;V authors.
+        /// </summary>
+        /// <param name="relationship">The <see cref="Relationship" />.</param>
+        /// <returns>true when it carries a V&amp;V-only category.</returns>
+        private static bool HasVandVOnlyCategory(Relationship relationship)
+        {
+            return VandVConstants.VandVOnlyLinkCategories.Any(x => IsCategorizedAs(relationship, x));
+        }
+
+        /// <summary>
+        /// Determines whether an end of a relationship is V&amp;V bookkeeping. An end that is itself a relationship is not
+        /// followed: two relationships pointing at each other would otherwise recurse until the process dies.
+        /// </summary>
+        /// <param name="end">The related thing.</param>
+        /// <returns>true when the end is V&amp;V bookkeeping.</returns>
+        private static bool IsVandVEnd(Thing end)
+        {
+            return end is not Relationship && IsVandVThing(end);
         }
 
         /// <summary>

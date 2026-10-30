@@ -43,8 +43,14 @@ Copyright (c) 2023-2026 Starion Group S.A.
         <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
                   Text="Export to Excel"
                   IconCssClass="@IconName.Download.GetCssClass()"
-                  Enabled="@(this.ViewModel.HasCompared && this.ViewModel.Changes.Count > 0)"
+                  Enabled="@(this.ViewModel.HasCompared && this.VisibleChanges.Any())"
                   Click="@this.ExportAsync" />
+
+        <DxCheckBox Id="changelog-show-vandv"
+                    Checked="@this.ShowVandV"
+                    CheckedChanged="@this.ShowVandVChanged"
+                    CheckType="CheckType.Switch"
+                    title="Also list the changes to V&amp;V items, activities, steps and reports">Show V&amp;V items</DxCheckBox>
     </div>
 
     @if (this.ViewModel.AvailableBaselines.Count == 0)
@@ -58,7 +64,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             {
                 <div class="req-changelog-error">@this.ViewModel.Message</div>
             }
-            else if (this.ViewModel.HasCompared && this.ViewModel.Changes.Count == 0)
+            else if (this.ViewModel.HasCompared && !this.VisibleChanges.Any())
             {
                 <div class="req-changelog-empty">No requirement changes between the selected iterations.</div>
             }

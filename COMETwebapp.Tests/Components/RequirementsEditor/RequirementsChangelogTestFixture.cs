@@ -26,6 +26,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
 
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Components.Selectors;
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
@@ -159,6 +160,53 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             await renderedComponent.InvokeAsync(exportButton.Instance.Click.InvokeAsync);
 
             this.viewModel.Verify(x => x.ExportAsync(It.IsAny<IReadOnlyList<RequirementChange>>()), Times.Once);
+        }
+
+        [Test]
+        public async Task VerifyShowVandV()
+        {
+            var vandVChange = new RequirementChange
+            {
+                Kind = RequirementChangeKind.Created, ElementKind = "Requirement", ElementId = Guid.NewGuid(), ElementShortName = "VNV_R01_1", IsVandV = true,
+                SpecificationId = Guid.NewGuid(), SpecificationShortName = "VNV", SpecificationName = "V&V Plan"
+            };
+
+            this.viewModel.SetupGet(x => x.Changes).Returns([..this.changes, vandVChange]);
+            var toggled = new List<bool>();
+
+            var hidden = this.context.Render<RequirementsChangelog>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.ShowVandVChanged, (bool value) => toggled.Add(value)));
+
+            var exportButton = hidden.FindComponents<DxButton>().First(x => x.Instance.Text == "Export to Excel");
+            await hidden.InvokeAsync(exportButton.Instance.Click.InvokeAsync);
+            var vandVSwitch = hidden.FindComponents<DxCheckBox<bool>>().Single();
+            await hidden.InvokeAsync(() => vandVSwitch.Instance.CheckedChanged.InvokeAsync(true));
+
+            var shown = this.context.Render<RequirementsChangelog>(parameters => parameters
+                .Add(p => p.ViewModel, this.viewModel.Object)
+                .Add(p => p.ShowVandV, true));
+
+            var shownExportButton = shown.FindComponents<DxButton>().First(x => x.Instance.Text == "Export to Excel");
+            await shown.InvokeAsync(shownExportButton.Instance.Click.InvokeAsync);
+
+            // a specification filter picked while V&V was shown must not survive switching it off
+            var specificationFilter = shown.FindComponent<FilterTagBox<string>>();
+            await shown.InvokeAsync(() => specificationFilter.Instance.ValuesChanged.InvokeAsync([vandVChange.SpecificationLabel]));
+            shown.Render(parameters => parameters.Add(p => p.ShowVandV, false));
+            var staleExportButton = shown.FindComponents<DxButton>().First(x => x.Instance.Text == "Export to Excel");
+            await shown.InvokeAsync(staleExportButton.Instance.Click.InvokeAsync);
+
+            this.viewModel.SetupGet(x => x.Changes).Returns([vandVChange]);
+            var onlyVandV = this.Render();
+
+            Assert.Multiple(() =>
+            {
+                this.viewModel.Verify(x => x.ExportAsync(It.Is<IReadOnlyList<RequirementChange>>(list => list.Count == this.changes.Count && !list.Contains(vandVChange))), Times.Exactly(2));
+                this.viewModel.Verify(x => x.ExportAsync(It.Is<IReadOnlyList<RequirementChange>>(list => list.Contains(vandVChange))), Times.Once);
+                Assert.That(toggled, Is.EqualTo(new[] { true }));
+                Assert.That(onlyVandV.Markup, Does.Contain("No requirement changes"), "only hidden V&V changes reads as no change");
+            });
         }
 
         [Test]

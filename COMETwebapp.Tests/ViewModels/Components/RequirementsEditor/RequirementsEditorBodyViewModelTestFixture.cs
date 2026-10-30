@@ -41,6 +41,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using COMETwebapp.Services.Export;
     using COMETwebapp.Services.RequirementsEditor;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
+    using COMETwebapp.Tests.Utilities.VandV;
+    using COMETwebapp.Utilities.VandV;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using DynamicData;
@@ -77,6 +79,14 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         private SimpleQuantityKind lengthParameterType;
         private SimpleParameterValue massValue;
         private Mock<IExportService> exportService;
+        private VandVTestData vandVTestData;
+        private RequirementsSpecification vandVSpecification;
+        private RequirementsSpecification vandVReport;
+        private Requirement vandVItem;
+        private Requirement strayItem;
+        private BinaryRelationship coverageLink;
+        private BinaryRelationship traceLink;
+        private DomainOfExpertise vandVDomain;
 
         [SetUp]
         public void SetUp()
@@ -176,6 +186,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.specification));
                 Assert.That(this.viewModel.AvailableOwners, Is.EquivalentTo(new[] { this.systemDomain, this.thermalDomain }));
                 Assert.That(this.viewModel.AvailableCategories, Is.EquivalentTo(new[] { this.keyUserCategory }));
+                Assert.That(this.viewModel.AvailableOwners, Does.Not.Contain(this.vandVDomain), "an owner of V&V things only is not offered");
                 Assert.That(this.viewModel.DisplayMode, Is.EqualTo(RequirementRowDisplayMode.ShortNameNameAndDefinition));
                 Assert.That(this.viewModel.IsTocCollapsed, Is.False);
             });
@@ -974,6 +985,138 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 Assert.That(this.viewModel.ExportViewModel, Is.Not.Null);
                 Assert.That(this.viewModel.ExportViewModel.AvailableSpecifications, Does.Contain(this.specification), "the export view model is fed the current iteration");
             });
+        }
+
+        [Test]
+        public async Task VerifyShowVandV()
+        {
+            await this.LoadVandVData();
+            var vandV = this.vandVTestData;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ShowVandV, Is.False);
+                Assert.That(this.viewModel.AvailableSpecifications, Is.EqualTo(new[] { this.specification }), "the V&V plan and the report are hidden");
+                Assert.That(this.viewModel.GetRequirements(this.specification), Is.EqualTo(new[] { this.topRequirement }), "an item filed in a normal specification is hidden too");
+                Assert.That(this.viewModel.AvailableCategories, Is.EquivalentTo(new[] { this.keyUserCategory }));
+                Assert.That(this.viewModel.GetSpecificationParameterTypes(), Is.EqualTo(new[] { this.lengthParameterType, this.massParameterType }), "no vnv_* value column");
+                Assert.That(this.viewModel.GetTraceability(this.topRequirement).Select(x => x.Relationship), Is.EqualTo(new[] { this.traceLink }), "the coverage link is hidden, ordinary traceability stays");
+                Assert.That(this.viewModel.ExportViewModel.ExportConfiguration.IncludeVandV, Is.False);
+                Assert.That(this.viewModel.ExportViewModel.AvailableSpecifications, Is.EqualTo(new[] { this.specification }));
+            });
+
+            this.viewModel.ShowVandV = true;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.AvailableSpecifications, Is.EqualTo(new[] { this.specification, this.vandVReport, this.vandVSpecification }));
+                Assert.That(this.viewModel.GetRequirements(this.specification), Is.EquivalentTo(new[] { this.topRequirement, this.strayItem }));
+                Assert.That(this.viewModel.AvailableCategories, Does.Contain(vandV.Categories[VandVConstants.VnVItemCategory]));
+                Assert.That(this.viewModel.AvailableOwners, Does.Contain(this.vandVDomain));
+                Assert.That(this.viewModel.GetSpecificationParameterTypes(), Does.Contain(vandV.ParameterTypes[VandVConstants.Method]), "the value column cache is reset");
+                Assert.That(this.viewModel.GetTraceability(this.topRequirement).Select(x => x.Relationship), Is.EquivalentTo(new[] { this.traceLink, this.coverageLink }));
+                Assert.That(this.viewModel.ExportViewModel.ExportConfiguration.IncludeVandV, Is.True, "the export follows the document");
+                Assert.That(this.viewModel.ExportViewModel.AvailableSpecifications, Does.Contain(this.vandVSpecification));
+            });
+
+            this.viewModel.SelectedSpecification = this.vandVSpecification;
+            this.viewModel.SelectedCategories = [vandV.Categories[VandVConstants.VnVItemCategory]];
+            this.viewModel.SelectedOwners = [this.vandVDomain];
+            this.viewModel.ShowVandV = false;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.specification), "a hidden selection falls back to the first shown specification");
+                Assert.That(this.viewModel.SelectedCategories, Is.Empty, "a category filter that is no longer offered is dropped");
+                Assert.That(this.viewModel.SelectedOwners, Is.Empty, "an owner filter that is no longer offered is dropped");
+            });
+        }
+
+        [Test]
+        public async Task VerifyGetVandVCoverage()
+        {
+            await this.LoadVandVData();
+            var hidden = this.viewModel.GetVandVCoverage(this.topRequirement);
+
+            this.viewModel.ShowVandV = true;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(hidden, Is.Null, "no badge while V&V is hidden");
+                Assert.That(this.viewModel.GetVandVCoverage(this.topRequirement), Is.EqualTo(new VandVRollUp(1, 0, 0)));
+                Assert.That(this.viewModel.GetVandVCoverage(this.c4iRequirement), Is.Null, "an uncovered requirement has no badge");
+            });
+        }
+
+        [Test]
+        public async Task VerifyNavigateToVandVCoverage()
+        {
+            await this.LoadVandVData();
+
+            this.viewModel.NavigateToVandVCoverage(this.c4iRequirement);
+            var afterUncovered = this.viewModel.ShowVandV;
+
+            this.viewModel.NavigateToVandVCoverage(this.topRequirement);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(afterUncovered, Is.False, "nothing to open for an uncovered requirement");
+                Assert.That(this.viewModel.ShowVandV, Is.True);
+                Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.vandVSpecification));
+                Assert.That(this.viewModel.ScrollTarget, Is.EqualTo(this.vandVItem));
+            });
+        }
+
+        [Test]
+        public async Task VerifyNavigateToChangelogElementRevealsVandV()
+        {
+            await this.LoadVandVData();
+
+            this.viewModel.NavigateToChangelogElement(this.vandVReport.Iid, ClassKind.RequirementsSpecification);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ShowVandV, Is.True);
+                Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.vandVReport));
+            });
+        }
+
+        /// <summary>
+        /// Adds a V&amp;V plan with an item covering the top requirement, a report, an item filed in the normal
+        /// specification and an ordinary trace link to the iteration, then reloads the view model on it.
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        private async Task LoadVandVData()
+        {
+            this.vandVTestData = new VandVTestData();
+            this.vandVDomain = new DomainOfExpertise { Iid = Guid.NewGuid(), ShortName = "VV", Name = "Verification team" };
+            var itemCategory = this.vandVTestData.Categories[VandVConstants.VnVItemCategory];
+
+            this.vandVSpecification = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = VandVConstants.VandVSpecificationShortName, Name = VandVConstants.VandVSpecificationName, Owner = this.systemDomain };
+            this.vandVItem = new Requirement { Iid = Guid.NewGuid(), ShortName = "VNV_R01_1", Name = "Verify R01", Owner = this.systemDomain, Category = { itemCategory } };
+            this.vandVItem.ParameterValue.Add(new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = this.vandVTestData.ParameterTypes[VandVConstants.Status], Value = new ValueArray<string>(["Passed"]) });
+            this.vandVSpecification.Requirement.Add(this.vandVItem);
+
+            this.vandVReport = new RequirementsSpecification { Iid = Guid.NewGuid(), ShortName = "REPORT", Name = "FAT report", Owner = this.systemDomain, Category = { this.vandVTestData.Categories[VandVConstants.VnVReportCategory] } };
+
+            this.strayItem = new Requirement { Iid = Guid.NewGuid(), ShortName = "VNV_STRAY_1", Name = "Stray item", Owner = this.vandVDomain, Category = { itemCategory } };
+            this.strayItem.ParameterValue.Add(new SimpleParameterValue { Iid = Guid.NewGuid(), ParameterType = this.vandVTestData.ParameterTypes[VandVConstants.Method], Value = new ValueArray<string>(["Test"]) });
+            this.specification.Requirement.Add(this.strayItem);
+
+            this.iteration.RequirementsSpecification.AddRange([this.vandVSpecification, this.vandVReport]);
+            this.coverageLink = new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.vandVItem, Target = this.topRequirement, Category = { this.vandVTestData.Categories[VandVConstants.VerifiesCategory] } };
+            this.traceLink = new BinaryRelationship { Iid = Guid.NewGuid(), Source = this.topRequirement, Target = this.c4iRequirement };
+            this.iteration.Relationship.AddRange([this.coverageLink, this.traceLink]);
+            this.session.Setup(x => x.OpenReferenceDataLibraries).Returns([]);
+
+            this.viewModel.Dispose();
+
+            this.viewModel = new RequirementsEditorBodyViewModel(this.sessionService.Object, this.messageBus, this.showHideService, new Mock<ILogger<RequirementsEditorBodyViewModel>>().Object, this.exportService.Object)
+            {
+                CurrentThing = this.iteration
+            };
+
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
         }
     }
 }

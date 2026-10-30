@@ -461,6 +461,12 @@ namespace COMETwebapp.Utilities.VandV
         public static readonly IReadOnlyList<string> MeasurementLinkCategories = [CoversParameterCategory, CoversOptionCategory, CoversStateCategory, VerifiedOnCategory];
 
         /// <summary>
+        /// The relationship categories only V&amp;V authors, so a relationship carrying one is V&amp;V bookkeeping whatever it
+        /// links. Verifies and validates are absent: they are also ordinary requirement traceability.
+        /// </summary>
+        public static readonly IReadOnlyList<string> VandVOnlyLinkCategories = [PerformedByCategory, HasStepCategory, ..MeasurementLinkCategories];
+
+        /// <summary>
         /// The categories that must exist before a V&amp;V item can be written, because one item write may touch all of them.
         /// </summary>
         public static readonly IReadOnlyList<string> RequiredForItemWrite =

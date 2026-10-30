@@ -132,7 +132,7 @@ namespace COMETwebapp.Components.RequirementsEditor
                     x => x.ViewModel.ExportViewModel.IsVisible)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ActiveView, x => x.ViewModel.CameFromChangelog)
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ActiveView, x => x.ViewModel.CameFromChangelog, x => x.ViewModel.ShowVandV)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 

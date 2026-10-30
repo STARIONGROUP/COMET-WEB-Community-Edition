@@ -51,6 +51,11 @@ namespace COMETwebapp.Components.RequirementsEditor
         private List<string> selectedSpecifications = [];
 
         /// <summary>
+        /// The <see cref="ShowVandV" /> value of the last parameter set, to detect a toggle in <see cref="OnParametersSet" />.
+        /// </summary>
+        private bool lastShowVandV;
+
+        /// <summary>
         /// Gets or sets the <see cref="IRequirementsChangelogViewModel" />.
         /// </summary>
         [Parameter]
@@ -62,6 +67,19 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// </summary>
         [Parameter]
         public EventCallback<RequirementChange> OnNavigateToElement { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether changes to V&amp;V bookkeeping are shown; hidden by default like in the
+        /// requirements document.
+        /// </summary>
+        [Parameter]
+        public bool ShowVandV { get; set; }
+
+        /// <summary>
+        /// Gets or sets the callback invoked when the user toggles <see cref="ShowVandV" />.
+        /// </summary>
+        [Parameter]
+        public EventCallback<bool> ShowVandVChanged { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="IDomDataService" /> used to scroll a changelog row into view.
@@ -85,17 +103,42 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// <see cref="ViewModel" />'s <see cref="IRequirementsChangelogViewModel.Changes" />, offered by the
         /// specification filter.
         /// </summary>
-        private IEnumerable<string> AvailableSpecifications => this.ViewModel.Changes
+        private IEnumerable<string> AvailableSpecifications => this.VisibleChanges
             .Select(x => x.SpecificationLabel)
             .Distinct()
             .OrderBy(x => x);
 
         /// <summary>
-        /// Gets the <see cref="ViewModel" />'s <see cref="IRequirementsChangelogViewModel.Changes" /> that pass the
-        /// <see cref="selectedSpecifications" /> filter; the grid's own column filters refine the rest.
+        /// Gets the <see cref="ViewModel" />'s <see cref="IRequirementsChangelogViewModel.Changes" /> without the V&amp;V
+        /// changes unless <see cref="ShowVandV" /> is on.
         /// </summary>
-        private IEnumerable<RequirementChange> FilteredChanges => this.ViewModel.Changes
+        private IEnumerable<RequirementChange> VisibleChanges => this.ViewModel.Changes.Where(x => this.ShowVandV || !x.IsVandV);
+
+        /// <summary>
+        /// Gets the <see cref="VisibleChanges" /> that pass the <see cref="selectedSpecifications" /> filter; the grid's own
+        /// column filters refine the rest.
+        /// </summary>
+        private IEnumerable<RequirementChange> FilteredChanges => this.VisibleChanges
             .Where(x => this.selectedSpecifications.Count == 0 || this.selectedSpecifications.Contains(x.SpecificationLabel));
+
+        /// <summary>
+        /// Method invoked when the component has received its parameters: when <see cref="ShowVandV" /> was toggled, a
+        /// selected specification that is no longer offered is dropped, otherwise it would empty the grid with no way to
+        /// clear it.
+        /// </summary>
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
+
+            if (this.ShowVandV == this.lastShowVandV)
+            {
+                return;
+            }
+
+            this.lastShowVandV = this.ShowVandV;
+            var available = this.AvailableSpecifications.ToHashSet();
+            this.selectedSpecifications = this.selectedSpecifications.Where(available.Contains).ToList();
+        }
 
         /// <summary>
         /// Method invoked when the component is ready to start, having received its initial parameters.

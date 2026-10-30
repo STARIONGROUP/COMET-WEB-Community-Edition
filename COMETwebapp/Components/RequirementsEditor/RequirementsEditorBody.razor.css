@@ -822,6 +822,38 @@
     white-space: nowrap;
 }
 
+.req-document ::deep .req-vandv-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 18px;
+    padding: 1px 8px;
+    margin: 1px 2px;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    border-radius: 30px;
+    cursor: pointer;
+    background: var(--colors-gray-50, #f9fafb);
+    color: var(--colors-gray-700, #374151);
+    border: 1px solid var(--colors-gray-300, #d1d5db);
+}
+
+.req-document ::deep .req-vandv-badge.req-vandv-verified {
+    background: #e7f6ee;
+    color: #146c43;
+    border-color: #a9dcc2;
+}
+
+.req-document ::deep .req-vandv-badge.req-vandv-failed {
+    background: #fde2e1;
+    color: #b42318;
+    border-color: #f5c2c0;
+}
+
+.req-document ::deep .req-vandv-badge:hover {
+    filter: brightness(0.96);
+}
+
 .req-document ::deep .req-deprecated-badge {
     display: inline-flex;
     align-items: center;

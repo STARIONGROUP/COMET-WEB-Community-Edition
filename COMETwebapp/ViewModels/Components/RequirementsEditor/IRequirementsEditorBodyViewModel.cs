@@ -30,6 +30,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMET.Web.Common.ViewModels.Components.Applications;
 
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
+    using COMETwebapp.Utilities.VandV;
 
     using FluentResults;
 
@@ -179,6 +180,12 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// Gets or sets a value indicating whether the relationships to and from each requirement are shown under it.
         /// </summary>
         bool ShowTraceability { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether V&amp;V bookkeeping (the V&amp;V plan, reports, items, steps, activities and
+        /// their relationships) is shown in the document, its filters, the changelog and exports; hidden by default.
+        /// </summary>
+        bool ShowVandV { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="Requirement" /> the document should scroll to on the next render, set by
@@ -341,6 +348,19 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <param name="requirement">The <see cref="Requirement" /></param>
         /// <returns>The traceability rows</returns>
         IReadOnlyList<RequirementRelationshipRow> GetTraceability(Requirement requirement);
+
+        /// <summary>
+        /// Gets the V&amp;V coverage of the given requirement for its row badge, while V&amp;V is shown.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <returns>The roll-up of the items covering it, or null when V&amp;V is hidden or no item covers it</returns>
+        VandVRollUp? GetVandVCoverage(Requirement requirement);
+
+        /// <summary>
+        /// Navigates to the V&amp;V items covering the given requirement, from its coverage badge.
+        /// </summary>
+        /// <param name="requirement">The covered <see cref="Requirement" /></param>
+        void NavigateToVandVCoverage(Requirement requirement);
 
         /// <summary>
         /// Navigates the document to the given <paramref name="requirement" />: selects its specification, expands

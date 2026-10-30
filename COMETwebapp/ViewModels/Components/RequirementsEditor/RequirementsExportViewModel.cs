@@ -22,6 +22,7 @@
 
 namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 {
+    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
@@ -33,6 +34,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMETwebapp.Services.RequirementsEditor;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Utilities;
+    using COMETwebapp.Utilities.VandV;
 
     using Microsoft.Extensions.Logging;
 
@@ -113,6 +115,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 ? []
                 : this.currentIteration.RequirementsSpecification
                     .Where(x => this.showHideDeprecatedThingsService.ShowDeprecatedThings || !x.IsDeprecated)
+                    .Where(this.IsShown)
                     .OrderBy(x => x.ShortName);
 
         /// <summary>
@@ -139,6 +142,10 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             try
             {
                 var configuration = this.ExportConfiguration;
+
+                // a value column or relationship category picked while V&V was included must not survive switching it off
+                configuration.SelectedParameterTypes = configuration.SelectedParameterTypes.Intersect(this.GetExportableParameterTypes()).ToList();
+                configuration.SelectedRelationshipCategories = configuration.SelectedRelationshipCategories.Intersect(this.GetExportableRelationshipCategories()).ToList();
 
                 var specifications = configuration.SelectedSpecifications.Count == 0
                     ? this.AvailableSpecifications.ToList()
@@ -168,6 +175,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         {
             return this.AvailableSpecifications
                 .SelectMany(specification => specification.Requirement)
+                .Where(this.IsShown)
                 .SelectMany(requirement => requirement.ParameterValue)
                 .Select(value => value.ParameterType)
                 .DistinctBy(parameterType => parameterType.Iid)
@@ -184,6 +192,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         {
             return this.AvailableSpecifications
                 .SelectMany(specification => specification.Requirement)
+                .Where(this.IsShown)
                 .SelectMany(requirement => requirement.Definition)
                 .Select(definition => definition.LanguageCode)
                 .Where(languageCode => !string.IsNullOrWhiteSpace(languageCode))
@@ -205,6 +214,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             }
 
             return this.currentIteration.Relationship
+                .Where(this.IsShown)
                 .SelectMany(relationship => relationship.Category)
                 .DistinctBy(category => category.Iid)
                 .OrderBy(category => category.Name)
@@ -222,7 +232,18 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <returns>The relationship details</returns>
         public IReadOnlyList<RequirementRelationshipDetail> GetRelationshipDetails(Requirement requirement)
         {
-            return this.currentIteration == null ? [] : RequirementsTraceabilityHelper.GetRelationshipDetails(requirement, this.currentIteration, this.GetOpenReferenceDataLibraryRules());
+            return this.currentIteration == null ? [] : RequirementsTraceabilityHelper.GetRelationshipDetails(requirement, this.currentIteration, this.GetOpenReferenceDataLibraryRules(), this.IsShown);
+        }
+
+        /// <summary>
+        /// Determines whether the given thing is offered and exported: V&amp;V bookkeeping only when
+        /// <see cref="RequirementsExportConfiguration.IncludeVandV" /> is on.
+        /// </summary>
+        /// <param name="thing">The specification, requirement or relationship.</param>
+        /// <returns>true when the thing is shown.</returns>
+        private bool IsShown(Thing thing)
+        {
+            return this.ExportConfiguration.IncludeVandV || !VandVQueries.IsVandVThing(thing);
         }
 
         /// <summary>

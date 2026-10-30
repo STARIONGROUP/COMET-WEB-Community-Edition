@@ -143,6 +143,58 @@ namespace COMETwebapp.Tests.Utilities.VandV
         }
 
         [Test]
+        public void VerifyIsVandVThing()
+        {
+            var step = this.data.AddRequirement(this.vandVSpecification, "VNV_R1_1_S01", VandVConstants.VnVStepCategory);
+            var plainRequirementInPlan = this.data.AddRequirement(this.vandVSpecification, "NOTE_1");
+            var itemInNormalSpecification = this.data.AddRequirement(this.specification, "VNV_STRAY_1", VandVConstants.VnVItemCategory);
+            var groupInPlan = new RequirementsGroup { Iid = Guid.NewGuid(), ShortName = "CDR" };
+            this.vandVSpecification.Group.Add(groupInPlan);
+            var groupInSpecification = new RequirementsGroup { Iid = Guid.NewGuid(), ShortName = "OPS" };
+            this.specification.Group.Add(groupInSpecification);
+            var constraintOfItem = new ParametricConstraint { Iid = Guid.NewGuid() };
+            this.item.ParametricConstraint.Add(constraintOfItem);
+            var otherRequirement = this.data.AddRequirement(this.specification, "R2", VandVTestData.RequirementCategoryShortName);
+            var ordinaryVerifies = this.data.Link(otherRequirement, this.requirement, VandVConstants.VerifiesCategory);
+            var parameter = new Parameter { Iid = Guid.NewGuid() };
+            var coversParameter = this.data.Link(this.item, parameter, VandVConstants.CoversParameterCategory);
+            var hasStepBetweenRequirements = this.data.Link(this.requirement, otherRequirement, VandVConstants.HasStepCategory);
+            var multiWithItem = new MultiRelationship { Iid = Guid.NewGuid(), RelatedThing = { this.requirement, this.item } };
+            var multiWithoutItem = new MultiRelationship { Iid = Guid.NewGuid(), RelatedThing = { this.requirement, otherRequirement } };
+            var multiWithVandVCategory = new MultiRelationship { Iid = Guid.NewGuid(), RelatedThing = { this.requirement, otherRequirement }, Category = { this.data.Categories[VandVConstants.PerformedByCategory] } };
+            var cycleStart = new BinaryRelationship { Iid = Guid.NewGuid(), Target = this.requirement };
+            var cycleEnd = new BinaryRelationship { Iid = Guid.NewGuid(), Source = cycleStart, Target = cycleStart };
+            cycleStart.Source = cycleEnd;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(VandVQueries.IsVandVThing(null), Is.False);
+                Assert.That(VandVQueries.IsVandVThing(this.vandVSpecification), Is.True);
+                Assert.That(VandVQueries.IsVandVThing(this.report), Is.True);
+                Assert.That(VandVQueries.IsVandVThing(this.specification), Is.False);
+                Assert.That(VandVQueries.IsVandVThing(this.item), Is.True);
+                Assert.That(VandVQueries.IsVandVThing(step), Is.True);
+                Assert.That(VandVQueries.IsVandVThing(this.activity), Is.True);
+                Assert.That(VandVQueries.IsVandVThing(plainRequirementInPlan), Is.True, "anything filed in the V&V plan");
+                Assert.That(VandVQueries.IsVandVThing(itemInNormalSpecification), Is.True, "an item moved into a normal specification");
+                Assert.That(VandVQueries.IsVandVThing(this.requirement), Is.False);
+                Assert.That(VandVQueries.IsVandVThing(groupInPlan), Is.True);
+                Assert.That(VandVQueries.IsVandVThing(groupInSpecification), Is.False);
+                Assert.That(VandVQueries.IsVandVThing(constraintOfItem), Is.True);
+                Assert.That(VandVQueries.IsVandVThing(this.verifiesLink), Is.True, "a coverage link from an item");
+                Assert.That(VandVQueries.IsVandVThing(ordinaryVerifies), Is.False, "verifies between two requirements is traceability");
+                Assert.That(VandVQueries.IsVandVThing(coversParameter), Is.True);
+                Assert.That(VandVQueries.IsVandVThing(hasStepBetweenRequirements), Is.True, "a V&V-only category");
+                Assert.That(VandVQueries.IsVandVThing(multiWithItem), Is.True);
+                Assert.That(VandVQueries.IsVandVThing(multiWithoutItem), Is.False);
+                Assert.That(VandVQueries.IsVandVThing(multiWithVandVCategory), Is.True);
+                Assert.That(VandVQueries.IsVandVThing(cycleStart), Is.False, "relationships pointing at each other do not recurse forever");
+                Assert.That(VandVQueries.IsVandVThing(parameter), Is.False);
+                Assert.That(VandVQueries.IsVandVThing(this.data.Iteration), Is.False);
+            });
+        }
+
+        [Test]
         public void VerifyGetSimpleParameterValue()
         {
             this.data.SetValue(this.item, VandVConstants.Method, "Test");
@@ -427,6 +479,21 @@ namespace COMETwebapp.Tests.Utilities.VandV
                 Assert.That(allPassed.IsVerified, Is.True);
                 Assert.That(none.Total, Is.Zero);
                 Assert.That(none.IsVerified, Is.False, "an uncovered requirement is not verified");
+            });
+        }
+
+        [Test]
+        public void VerifyGetCoverage()
+        {
+            var uncovered = this.data.AddRequirement(this.specification, "R2", VandVTestData.RequirementCategoryShortName);
+            this.data.SetValue(this.activity, VandVConstants.Status, "Passed");
+            var model = this.data.BuildModel();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(VandVQueries.GetCoverage(model, this.requirement), Is.EqualTo(new VandVRollUp(1, 0, 0)));
+                Assert.That(VandVQueries.GetCoverage(model, uncovered), Is.Null);
+                Assert.That(VandVQueries.GetCoverage(model, null), Is.Null);
             });
         }
 

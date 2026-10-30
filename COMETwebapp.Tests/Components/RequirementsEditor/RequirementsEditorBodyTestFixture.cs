@@ -302,5 +302,24 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 Assert.That(this.renderedComponent.FindComponents<DxToolbarItem>().Any(x => x.Instance.Name == "Back"), Is.True,
                     "a Back item is offered once the document was reached from the changelog"));
         }
+
+        [Test]
+        public async Task VerifyChangelogFollowsShowVandV()
+        {
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
+            var changelog = this.renderedComponent.FindComponent<RequirementsChangelog>();
+            var hiddenByDefault = changelog.Instance.ShowVandV;
+
+            await this.renderedComponent.InvokeAsync(() => this.viewModel.ShowVandV = true);
+            this.renderedComponent.WaitForAssertion(() => Assert.That(changelog.Instance.ShowVandV, Is.True, "the changelog follows the document toggle"));
+
+            await this.renderedComponent.InvokeAsync(() => changelog.Instance.ShowVandVChanged.InvokeAsync(false));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(hiddenByDefault, Is.False);
+                Assert.That(this.viewModel.ShowVandV, Is.False, "the changelog switch drives the same toggle");
+            });
+        }
     }
 }

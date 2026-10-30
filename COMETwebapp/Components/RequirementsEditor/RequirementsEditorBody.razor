@@ -150,6 +150,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
                             <DxCheckBox @bind-Checked="@this.ViewModel.ShowSimpleParameterValues" CheckType="CheckType.Switch" title="Show the simple parameter values of each requirement as editable columns">Values</DxCheckBox>
                             <DxCheckBox @bind-Checked="@this.ViewModel.ShowParametricConstraints" CheckType="CheckType.Switch" title="Show the parametric constraints of each requirement">Constraints</DxCheckBox>
                             <DxCheckBox @bind-Checked="@this.ViewModel.ShowTraceability" CheckType="CheckType.Switch" title="Show the relationships to and from each requirement">Traceability</DxCheckBox>
+                            <DxCheckBox Id="requirement-show-vandv" @bind-Checked="@this.ViewModel.ShowVandV" CheckType="CheckType.Switch" title="Also show the V&amp;V plan, reports, items, activities and steps, which are stored as requirements">V&amp;V items</DxCheckBox>
                         </div>
                     </ViewOptionsMenu>
                 </div>
@@ -169,7 +170,9 @@ Copyright (c) 2023-2026 Starion Group S.A.
         </div>
 
         <div class="req-view-pane @(this.ViewModel.ActiveView == RequirementsEditorView.Changelog ? string.Empty : "req-view-hidden")">
-            <RequirementsChangelog ViewModel="@this.ViewModel.ChangelogViewModel" OnNavigateToElement="@this.NavigateToChangelogElement" />
+            <RequirementsChangelog ViewModel="@this.ViewModel.ChangelogViewModel"
+                                   OnNavigateToElement="@this.NavigateToChangelogElement"
+                                   @bind-ShowVandV="@this.ViewModel.ShowVandV" />
         </div>
     </div>
 </LoadingComponent>

@@ -33,6 +33,7 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Components.RequirementsEditor;
+    using COMETwebapp.Utilities.VandV;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using DevExpress.Blazor;
@@ -161,6 +162,34 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             await component.InvokeAsync(deprecateButton.Instance.Click.InvokeAsync);
 
             this.viewModel.Verify(x => x.ConfirmDeprecation(this.requirement), Times.Once);
+        }
+
+        [Test]
+        public void VerifyVandVCoverageBadge()
+        {
+            var withoutCoverage = this.Render();
+
+            this.viewModel.Setup(x => x.GetVandVCoverage(this.requirement)).Returns(new VandVRollUp(1, 1, 0));
+            var failed = this.Render();
+            var failedBadge = failed.Find(".req-vandv-badge");
+            failedBadge.Click();
+
+            this.viewModel.Setup(x => x.GetVandVCoverage(this.requirement)).Returns(new VandVRollUp(2, 0, 0));
+            var verified = this.Render();
+
+            this.viewModel.Setup(x => x.GetVandVCoverage(this.requirement)).Returns(new VandVRollUp(1, 0, 1));
+            var open = this.Render();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(withoutCoverage.FindAll(".req-vandv-badge"), Is.Empty, "no badge without coverage or while V&V is hidden");
+                Assert.That(failedBadge.TextContent, Is.EqualTo("V&V 1/2"));
+                Assert.That(failedBadge.ClassList, Does.Contain("req-vandv-failed"));
+                Assert.That(failedBadge.GetAttribute("title"), Does.Contain("2 item(s): 1 passed, 1 failed"));
+                Assert.That(verified.Find(".req-vandv-badge").ClassList, Does.Contain("req-vandv-verified"));
+                Assert.That(open.Find(".req-vandv-badge").ClassList, Does.Contain("req-vandv-open"));
+                this.viewModel.Verify(x => x.NavigateToVandVCoverage(this.requirement), Times.Once);
+            });
         }
     }
 }

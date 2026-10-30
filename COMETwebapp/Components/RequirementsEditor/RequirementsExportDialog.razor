@@ -63,6 +63,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <DxCheckBox @bind-Checked="@this.Config.IncludeCategories" CheckType="CheckType.Switch">Categories</DxCheckBox>
             <DxCheckBox @bind-Checked="@this.Config.GroupRequirements" CheckType="CheckType.Switch" title="Add a Group column and indent and outline the rows so they collapse and expand by group">Group requirements (collapsible rows)</DxCheckBox>
             <DxCheckBox @bind-Checked="@this.Config.IncludeDeprecated" CheckType="CheckType.Switch">Include deprecated things</DxCheckBox>
+            <DxCheckBox @bind-Checked="@this.Config.IncludeVandV" CheckType="CheckType.Switch" title="Also export the V&amp;V plan, reports, items, activities, steps and their relationships">Include V&amp;V items</DxCheckBox>
         </section>
 
         <section class="req-export-section">

@@ -27,6 +27,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
+    using COMETwebapp.Tests.Utilities.VandV;
+    using COMETwebapp.Utilities.VandV;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using NUnit.Framework;
@@ -412,6 +414,44 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 Assert.That(deletedRelationshipChange, Is.Not.Null, "A requirement-related BinaryRelationship removed from the current iteration must be reported as a Deleted Binary Relationship row.");
                 Assert.That(deletedRelationshipChange?.Owner, Is.EqualTo(this.thermalDomain.ShortName));
             });
+        }
+
+        [Test]
+        public void VerifyCompareMarksVandVChanges()
+        {
+            var vandV = new VandVTestData();
+            var current = vandV.Iteration;
+            var specification = vandV.AddSpecification("SPEC");
+            var requirement = vandV.AddRequirement(specification, "R1", VandVTestData.RequirementCategoryShortName);
+            var plan = vandV.AddSpecification(VandVConstants.VandVSpecificationShortName);
+            var createdItem = vandV.AddRequirement(plan, "VNV_R1_1", VandVConstants.VnVItemCategory);
+            var coverage = vandV.Link(createdItem, requirement, VandVConstants.VerifiesCategory);
+            var reclassified = vandV.AddRequirement(plan, "R2", VandVConstants.VnVItemCategory);
+
+            var baseline = new Iteration { Iid = Guid.NewGuid() };
+            var baseSpecification = new RequirementsSpecification { Iid = specification.Iid, ShortName = "SPEC", Name = "SPEC", Owner = vandV.Owner };
+            baseSpecification.Requirement.Add(new Requirement { Iid = requirement.Iid, ShortName = "R1", Name = "R1 before", Owner = vandV.Owner });
+            baseSpecification.Requirement.Add(new Requirement { Iid = reclassified.Iid, ShortName = "R2", Name = "R2", Owner = vandV.Owner });
+            var basePlan = new RequirementsSpecification { Iid = plan.Iid, ShortName = VandVConstants.VandVSpecificationShortName, Name = plan.Name, Owner = vandV.Owner };
+            var deletedItem = new Requirement { Iid = Guid.NewGuid(), ShortName = "VNV_R1_0", Name = "Removed item", Owner = vandV.Owner, Category = { vandV.Categories[VandVConstants.VnVItemCategory] } };
+            basePlan.Requirement.Add(deletedItem);
+            baseline.RequirementsSpecification.AddRange([baseSpecification, basePlan]);
+
+            var changes = RequirementsChangelogCalculator.Compare(baseline, current);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(FlagsOf(changes, requirement), Is.Not.Empty.And.All.False, "the renamed requirement");
+                Assert.That(FlagsOf(changes, createdItem), Is.Not.Empty.And.All.True);
+                Assert.That(FlagsOf(changes, deletedItem), Is.Not.Empty.And.All.True, "recognised from the baseline side");
+                Assert.That(FlagsOf(changes, coverage), Is.Not.Empty.And.All.True);
+                Assert.That(FlagsOf(changes, reclassified), Is.Not.Empty.And.All.False, "a requirement turned into V&V since the baseline: leaving the document is a change");
+            });
+        }
+
+        private static List<bool> FlagsOf(IEnumerable<RequirementChange> changes, Thing element)
+        {
+            return changes.Where(x => x.ElementId == element.Iid).Select(x => x.IsVandV).ToList();
         }
     }
 }

@@ -24,12 +24,13 @@ namespace COMETwebapp.Components.RequirementsEditor
 {
     using CDP4Common.EngineeringModelData;
 
+    using COMETwebapp.Utilities.VandV;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using Microsoft.AspNetCore.Components;
 
     /// <summary>
-    /// Renders the deprecated badge (when applicable), the owner/category pills and the edit and deprecate/restore
+    /// Renders the deprecated badge (when applicable), the V&amp;V coverage badge (while V&amp;V is shown), the owner/category pills and the edit and deprecate/restore
     /// buttons of a <see cref="Requirement" /> row. When <see cref="Inline" /> is false (the default) it stacks two
     /// rows (owner + edit, then categories + deprecate) for the fixed-width pills column shown beside the value
     /// columns; when true it renders a single inline row (pills then both buttons) for the row with no value columns.
@@ -54,5 +55,21 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// </summary>
         [Parameter]
         public bool Inline { get; set; }
+
+        /// <summary>
+        /// Gets the CSS class colouring the V&amp;V coverage badge: failed when an item failed, verified when every item
+        /// passed, open otherwise.
+        /// </summary>
+        /// <param name="coverage">The <see cref="VandVRollUp" /> of the requirement</param>
+        /// <returns>The CSS class</returns>
+        private static string GetVandVCoverageClass(VandVRollUp coverage)
+        {
+            return coverage switch
+            {
+                { Failed: > 0 } => "req-vandv-failed",
+                { IsVerified: true } => "req-vandv-verified",
+                _ => "req-vandv-open"
+            };
+        }
     }
 }
