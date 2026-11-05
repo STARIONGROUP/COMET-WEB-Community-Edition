@@ -38,7 +38,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     /// <summary>
     /// Interface for the <see cref="RequirementsEditorBodyViewModel" />, driving the Requirements Editor application.
     /// </summary>
-    public interface IRequirementsEditorBodyViewModel : ISingleIterationApplicationBaseViewModel
+    public interface IRequirementsEditorBodyViewModel : ISingleIterationApplicationBaseViewModel, IRequirementsTreeDragViewModel
     {
         /// <summary>
         /// Gets the view model driving the requirements changelog view.
@@ -62,16 +62,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         bool CameFromChangelog { get; set; }
 
         /// <summary>
-        /// Gets the non-deprecated <see cref="RequirementsSpecification" />s of the current iteration.
-        /// </summary>
-        IEnumerable<RequirementsSpecification> AvailableSpecifications { get; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="RequirementsSpecification" /> currently shown as a document.
-        /// </summary>
-        RequirementsSpecification SelectedSpecification { get; set; }
-
-        /// <summary>
         /// Gets or sets the keyword used to filter requirements on their definition text.
         /// </summary>
         string SearchText { get; set; }
@@ -80,16 +70,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// Gets or sets a value indicating whether the left table-of-contents tree is collapsed.
         /// </summary>
         bool IsTocCollapsed { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the owner pill is shown on specifications, groups and requirements.
-        /// </summary>
-        bool ShowOwner { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the category pills are shown on specifications, groups and requirements.
-        /// </summary>
-        bool ShowCategory { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether groups are indented in the document.
@@ -105,12 +85,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// Gets or sets the way each requirement is rendered as a row.
         /// </summary>
         RequirementRowDisplayMode DisplayMode { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the table-of-contents tree labels specifications and groups by their
-        /// short name (true) or their name (false).
-        /// </summary>
-        bool TreeUsesShortName { get; set; }
 
         /// <summary>
         /// Gets the distinct <see cref="DomainOfExpertise" /> owners available to filter on.
@@ -141,31 +115,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         IEnumerable<Requirement> GetRequirements(RequirementsContainer container);
 
         /// <summary>
-        /// Gets the visible child <see cref="RequirementsGroup" />s of the given <paramref name="container" />.
-        /// </summary>
-        /// <param name="container">The <see cref="RequirementsContainer" /> (specification or group)</param>
-        /// <returns>The child groups to render</returns>
-        IEnumerable<RequirementsGroup> GetGroups(RequirementsContainer container);
-
-        /// <summary>
         /// Determines whether the given <paramref name="group" /> should be displayed given the active search and filters.
         /// </summary>
         /// <param name="group">The <see cref="RequirementsGroup" /></param>
         /// <returns>true if the group (or one of its descendants) has visible requirements, or no filter is active</returns>
         bool ShouldDisplayGroup(RequirementsGroup group);
-
-        /// <summary>
-        /// Gets whether the tree node with the given <paramref name="iid" /> is collapsed in the table-of-contents tree.
-        /// </summary>
-        /// <param name="iid">The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the specification or group node</param>
-        /// <returns>true if collapsed</returns>
-        bool IsTreeNodeCollapsed(Guid iid);
-
-        /// <summary>
-        /// Toggles the collapsed state of the table-of-contents tree node with the given <paramref name="iid" />.
-        /// </summary>
-        /// <param name="iid">The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the specification or group node</param>
-        void ToggleTreeNode(Guid iid);
 
         /// <summary>
         /// Gets or sets a value indicating whether the <see cref="SimpleParameterValue" /> columns are shown under each requirement.
@@ -189,9 +143,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         bool ShowVandV { get; set; }
 
         /// <summary>
-        /// Gets the view model driving the V&amp;V set-up dialog.
+        /// Gets the view model driving the V&amp;V tab.
         /// </summary>
-        IVandVSetupViewModel VandVSetupViewModel { get; }
+        IVandVViewModel VandVViewModel { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="Requirement" /> the document should scroll to on the next render, set by
@@ -363,7 +317,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         VandVRollUp? GetVandVCoverage(Requirement requirement);
 
         /// <summary>
-        /// Navigates to the V&amp;V items covering the given requirement, from its coverage badge.
+        /// Opens the V&amp;V tab on the given requirement, from its coverage badge.
         /// </summary>
         /// <param name="requirement">The covered <see cref="Requirement" /></param>
         void NavigateToVandVCoverage(Requirement requirement);
@@ -374,13 +328,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// </summary>
         /// <param name="requirement">The <see cref="Requirement" /> to navigate to</param>
         void NavigateToRequirement(Requirement requirement);
-
-        /// <summary>
-        /// Navigates the document to the given <paramref name="group" /> from a table-of-contents click: it expands the
-        /// group's ancestor document groups and flags it as the <see cref="ScrollTargetGroup" />.
-        /// </summary>
-        /// <param name="group">The <see cref="RequirementsGroup" /> to navigate to</param>
-        void NavigateToGroup(RequirementsGroup group);
 
         /// <summary>
         /// Navigates the document to the element identified by the given <paramref name="elementId" /> and
@@ -399,36 +346,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// row of the element last navigated from, so the user lands back where they were.
         /// </summary>
         void ReturnToChangelog();
-
-        /// <summary>
-        /// Gets or sets the <see cref="RequirementsGroup" /> currently being dragged in the table of contents to change
-        /// its nesting, or null when no drag is in progress.
-        /// </summary>
-        RequirementsGroup DraggedGroup { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="RequirementsContainer" /> the dragged group is currently hovered over, or null;
-        /// used to highlight only the hovered valid drop target.
-        /// </summary>
-        RequirementsContainer DragOverContainer { get; set; }
-
-        /// <summary>
-        /// Determines whether the given <paramref name="group" /> may be dropped onto the given <paramref name="target" />
-        /// container (a different container in the same specification that is not the group itself or a descendant).
-        /// </summary>
-        /// <param name="group">The <see cref="RequirementsGroup" /> being moved.</param>
-        /// <param name="target">The target <see cref="RequirementsContainer" />.</param>
-        /// <returns>true when the move is allowed</returns>
-        bool CanMoveGroup(RequirementsGroup group, RequirementsContainer target);
-
-        /// <summary>
-        /// Re-parents the given <paramref name="group" /> under the given <paramref name="target" /> container and
-        /// persists the move; does nothing when the move is not allowed.
-        /// </summary>
-        /// <param name="group">The <see cref="RequirementsGroup" /> to move.</param>
-        /// <param name="target">The target <see cref="RequirementsContainer" />.</param>
-        /// <returns>A <see cref="Task{T}" /> with the <see cref="Result" /> of the move</returns>
-        Task<Result> MoveGroupAsync(RequirementsGroup group, RequirementsContainer target);
 
         /// <summary>
         /// Gets whether the group with the given <paramref name="iid" /> is collapsed in the document panel.

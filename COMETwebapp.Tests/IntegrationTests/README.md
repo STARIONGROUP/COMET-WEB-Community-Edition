@@ -28,7 +28,7 @@ the unit-test CI filter (`FullyQualifiedName!~IntegrationTests`) excludes them. 
   the document viewer; the toolbar apps (Engineering Model / Reference Data / Server Administration) navigate every
   section; Book Editor opens the add-book dialog; and `LoginTestFixture` covers refresh/logout. Data-dependent tests
   (e.g. opening a specification) use `Assume.That(...)` so they go **inconclusive**, not red, when the seed lacks data.
-- Read-only by default: the suite does not persist changes. The Book Editor "add" test opens the dialog and cancels
+- Read-only by default: the suite does not persist changes, except `VandVTestFixture` (see "Tests that write"). The Book Editor "add" test opens the dialog and cancels
   (no write); add a full create+delete flow only if you want it — it is designed for the ephemeral CI database.
 - Most of a fixture's wall-clock is its one-time login + open (real Blazor Server ↔ COMET server round-trips), which is
   amortised across all of that fixture's tests. Selectors live only in the page objects — a UI change is a one-line fix.
@@ -68,6 +68,17 @@ dotnet test COMETwebapp.Tests/COMETwebapp.Tests.csproj --filter "TestCategory=En
 ```
 
 Set `COMET_E2E_HEADLESS=false` to watch the browser drive the app.
+
+## Tests that write
+
+The rest of the suite only reads, but `VandVTestFixture` writes to the first model. `VerifySetUpOnAFreshModel` sets
+the model up for V&V, which adds reference data that cannot be removed, and is skipped on a model that is set up
+already. The other tests add a specification and V&V items with a unique suffix through the SDK (`VandVEndToEndData`),
+then delete the relationships and deprecate the rest, as the SDK refuses to delete a requirement or specification.
+
+So run the suite against the stack above, not a server holding data you care about. To keep your own server on :5000,
+run a copy of the compose file on other ports and point `COMET_SERVER_URL` and the app
+(`ServerConfiguration__ServerAddress`) at it.
 
 ## Coverage & SonarQube
 

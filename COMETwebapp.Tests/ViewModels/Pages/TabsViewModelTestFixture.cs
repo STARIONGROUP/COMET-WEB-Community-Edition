@@ -41,6 +41,8 @@ namespace COMETwebapp.Tests.ViewModels.Pages
 
     using DynamicData;
 
+    using FluentResults;
+
     using Microsoft.Extensions.Logging;
 
     using Moq;
@@ -289,11 +291,26 @@ namespace COMETwebapp.Tests.ViewModels.Pages
             this.sessionStorageService.Setup(x => x.GetItemAsync<List<SavedTabDto>>(WebAppConstantValues.SavedTabsKey, CancellationToken.None))
                 .ReturnsAsync(fallbackSavedTabs);
 
+            this.sessionService.Setup(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>())).ReturnsAsync(Result.Ok(new Iteration()));
+
             this.CreateViewModel();
             await this.viewModel.CheckAndRestoreSavedTabsAsync();
             await this.viewModel.RestoreTabsPopupViewModel.OnConfirm.InvokeAsync();
 
             this.sessionService.Verify(x => x.ReadIteration(iterationSetup, defaultDomain), Times.Once);
+            var restoredAfterARead = this.viewModel.MainPanel.OpenTabs.Count;
+
+            this.sessionService.Setup(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>())).ReturnsAsync(Result.Fail("The iteration could not be read"));
+            this.CreateViewModel();
+            await this.viewModel.CheckAndRestoreSavedTabsAsync();
+            await this.viewModel.RestoreTabsPopupViewModel.OnConfirm.InvokeAsync();
+            var restoredAfterAFailedRead = this.viewModel.MainPanel.OpenTabs.Count;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(restoredAfterARead, Is.EqualTo(1));
+                Assert.That(restoredAfterAFailedRead, Is.Zero, "a tab for an iteration that could not be read is not restored");
+            });
 
             modelSetup.ActiveDomain.Clear();
             this.sessionService.Setup(x => x.GetAvailableDomains(modelSetup)).Returns([]);

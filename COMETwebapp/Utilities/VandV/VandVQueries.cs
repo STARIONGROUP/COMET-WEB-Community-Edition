@@ -403,13 +403,10 @@ namespace COMETwebapp.Utilities.VandV
         /// summed per requirement as the IME does (an item covering two requirements below counts twice); empty when there
         /// is no requirement below.
         /// </summary>
-        /// <param name="model">The <see cref="VandVModel" />.</param>
-        /// <param name="requirements">The requirements to be covered below the specification or group.</param>
+        /// <param name="rollUps">The roll-ups of the requirements to be covered below the specification or group.</param>
         /// <returns>The coverage text.</returns>
-        public static string FormatContainerCoverage(VandVModel model, IEnumerable<Requirement> requirements)
+        public static string FormatContainerCoverage(IReadOnlyCollection<VandVRollUp> rollUps)
         {
-            var rollUps = requirements.Select(x => GetRollUp(model, model.GetCoveringItems(x))).ToList();
-
             if (rollUps.Count == 0)
             {
                 return string.Empty;

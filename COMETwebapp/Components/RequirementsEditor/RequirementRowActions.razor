@@ -28,7 +28,7 @@ Copyright (c) 2023-2026 Starion Group S.A.
 {
     <button type="button"
             class="req-vandv-badge @GetVandVCoverageClass(coverage)"
-            title="@($"V&V: {VandVQueries.FormatRequirementCoverage(coverage)}. Click to open the first covering V&V item.")"
+            title="@($"V&V: {VandVQueries.FormatRequirementCoverage(coverage)}. Click to open it in the V&V tab.")"
             @onclick="@(() => this.ViewModel.NavigateToVandVCoverage(this.Requirement))">V&amp;V @coverage.Passed/@coverage.Total</button>
 }
 

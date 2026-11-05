@@ -183,10 +183,21 @@ namespace COMETwebapp.ViewModels.Components.VandV
         /// </summary>
         public void Open()
         {
-            this.Refresh();
+            this.LastError = null;
+
+            try
+            {
+                this.Refresh();
+            }
+            catch (Exception exception)
+            {
+                this.logger.LogError(exception, "The V&V reference data could not be checked");
+                this.CanSeed = false;
+                this.LastError = "The V&V reference data could not be checked. See the log for details.";
+            }
+
             this.stageGates.Clear();
             this.stageGates.AddRange(VandVConstants.DefaultStageGates);
-            this.LastError = null;
             this.IsVisible = true;
         }
 

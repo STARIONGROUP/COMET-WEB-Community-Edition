@@ -198,11 +198,6 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private bool showVandV;
 
         /// <summary>
-        /// The V&amp;V snapshot of the current iteration, rebuilt on every iteration (re)load, feeding the coverage badges.
-        /// </summary>
-        private VandVModel vandVModel = VandVModel.Build(null, null);
-
-        /// <summary>
         /// The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the element last navigated to from the changelog,
         /// used by <see cref="ReturnToChangelog" /> to scroll back to the row the user came from.
         /// </summary>
@@ -235,16 +230,15 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             this.Disposables.Add(exportViewModel);
             this.ExportViewModel = exportViewModel;
 
-            // ponytail: hosted here until the V&V tab (VV-01 Part C) owns it and offers it from its empty state
-            var vandVSetupViewModel = new VandVSetupViewModel(sessionService, logger);
-            this.Disposables.Add(vandVSetupViewModel);
-            this.VandVSetupViewModel = vandVSetupViewModel;
+            var vandVViewModel = new VandVViewModel(sessionService, logger);
+            this.Disposables.Add(vandVViewModel);
+            this.VandVViewModel = vandVViewModel;
         }
 
         /// <summary>
-        /// Gets the view model driving the V&amp;V set-up dialog.
+        /// Gets the view model driving the V&amp;V tab.
         /// </summary>
-        public IVandVSetupViewModel VandVSetupViewModel { get; }
+        public IVandVViewModel VandVViewModel { get; }
 
         /// <summary>
         /// Gets the view model driving the confirm dialog used for deprecate, restore and delete actions.
@@ -1120,22 +1114,19 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <returns>The roll-up of the items covering it, or null when V&amp;V is hidden or no item covers it</returns>
         public VandVRollUp? GetVandVCoverage(Requirement requirement)
         {
-            return this.ShowVandV ? VandVQueries.GetCoverage(this.vandVModel, requirement) : null;
+            return this.ShowVandV ? VandVQueries.GetCoverage(this.VandVViewModel.Model, requirement) : null;
         }
 
         /// <summary>
-        /// Navigates to the V&amp;V items covering the given requirement, from its coverage badge: shows V&amp;V and opens
-        /// the first covering item in the document.
+        /// Navigates to the V&amp;V items covering the given requirement, from its coverage badge: opens the V&amp;V tab
+        /// on the requirement with its items expanded.
         /// </summary>
         /// <param name="requirement">The covered <see cref="Requirement" /></param>
         public void NavigateToVandVCoverage(Requirement requirement)
         {
-            var item = this.vandVModel.GetCoveringItems(requirement).FirstOrDefault();
-
-            if (item != null)
-            {
-                this.NavigateToRequirement(item);
-            }
+            this.ActiveView = RequirementsEditorView.VandV;
+            this.CameFromChangelog = false;
+            this.VandVViewModel.RegisterViewModel.Focus(requirement);
         }
 
         /// <summary>
@@ -1518,12 +1509,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
             this.ChangelogViewModel.SetIteration(this.CurrentThing, this.CurrentDomain);
             this.ExportViewModel.SetIteration(this.CurrentThing);
-            this.VandVSetupViewModel.SetIteration(this.CurrentThing);
 
             this.IsLoading = true;
+            this.VandVViewModel.SetIteration(this.CurrentThing);
             this.parameterTypesCache = default;
 
-            this.vandVModel = VandVModel.Build(this.CurrentThing, []);
             this.RefreshFilterOptions();
 
             this.SelectedSpecification = this.AvailableSpecifications.FirstOrDefault();

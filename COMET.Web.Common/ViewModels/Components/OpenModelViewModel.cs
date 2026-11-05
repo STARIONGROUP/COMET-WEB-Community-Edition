@@ -157,7 +157,8 @@ namespace COMET.Web.Common.ViewModels.Components
         protected virtual bool CanSelectAlreadyOpenIteration => false;
 
         /// <summary>
-        /// Initializes this view model properties
+        /// Initializes this view model properties. What was last used is remembered across sessions, as logging out does not clear it, so it
+        /// is only restored by iid from what the current session holds: the objects of a closed session may not exist in this one.
         /// </summary>
         public void InitializesProperties()
         {
@@ -167,8 +168,13 @@ namespace COMET.Web.Common.ViewModels.Components
 
             if (this.cacheService.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedEngineeringModel, out var engineeringModelSetup))
             {
-                this.selectedEngineeringModel = engineeringModelSetup as EngineeringModelSetup;
-                this.SetAvailableDomainOfEpertiseAndIterationSetups();
+                var lastUsedEngineeringModelId = (engineeringModelSetup as EngineeringModelSetup)?.Iid;
+                this.selectedEngineeringModel = this.sessionService.GetParticipantModels().FirstOrDefault(x => x.Iid == lastUsedEngineeringModelId);
+
+                if (this.selectedEngineeringModel != null)
+                {
+                    this.SetAvailableDomainOfEpertiseAndIterationSetups();
+                }
             }
 
             if (this.cacheService.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, out var iterationData))
@@ -184,7 +190,8 @@ namespace COMET.Web.Common.ViewModels.Components
 
             if (this.cacheService.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedDomainOfExpertise, out var domainOfExpertise))
             {
-                this.selectedDomainOfExpertise = domainOfExpertise as DomainOfExpertise;
+                var lastUsedDomainId = (domainOfExpertise as DomainOfExpertise)?.Iid;
+                this.selectedDomainOfExpertise = this.AvailablesDomainOfExpertises?.FirstOrDefault(x => x.Iid == lastUsedDomainId);
             }
 
             this.IsOpeningSession = false;

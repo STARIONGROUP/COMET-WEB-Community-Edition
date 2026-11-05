@@ -114,6 +114,11 @@ namespace COMETwebapp.Utilities.VandV
         public IReadOnlyList<string> StageGates { get; private set; } = [];
 
         /// <summary>
+        /// Gets the rules of the model's reference data libraries, used to name the rule a relationship matches.
+        /// </summary>
+        public IReadOnlyList<Rule> Rules { get; private set; } = [];
+
+        /// <summary>
         /// Gets the engineering model's <see cref="ModellingAnnotationItem" />s, the review requests among them.
         /// </summary>
         public IReadOnlyList<ModellingAnnotationItem> Annotations { get; private set; } = [];
@@ -171,6 +176,7 @@ namespace COMETwebapp.Utilities.VandV
             }
 
             model.StageGates = model.QueryStageGates(referenceDataLibraries);
+            model.Rules = referenceDataLibraries?.SelectMany(x => x.Rule).ToList() ?? [];
             return model;
         }
 

@@ -33,6 +33,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         Document,
 
         /// <summary>
+        /// The verification and validation register of the requirements is shown.
+        /// </summary>
+        VandV,
+
+        /// <summary>
         /// The changelog between the current iteration and a selected baseline iteration is shown.
         /// </summary>
         Changelog

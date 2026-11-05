@@ -988,10 +988,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         }
 
         [Test]
-        public async Task VerifyVandVSetupViewModelWiring()
+        public async Task VerifyVandVViewModelWiring()
         {
             await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
-            var withoutModel = this.viewModel.VandVSetupViewModel.NeedsSetup;
+            var withoutModel = this.viewModel.VandVViewModel.SetupViewModel.NeedsSetup;
 
             var modelLibrary = new ModelReferenceDataLibrary { Iid = Guid.NewGuid(), ShortName = "MRDL", Name = "Model library" };
             var setup = new EngineeringModelSetup { Iid = Guid.NewGuid(), RequiredRdl = { modelLibrary } };
@@ -1009,8 +1009,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             Assert.Multiple(() =>
             {
                 Assert.That(withoutModel, Is.False, "nothing to set up without a model library");
-                Assert.That(this.viewModel.VandVSetupViewModel.TargetLibrary, Is.SameAs(modelLibrary), "the iteration is passed on load");
-                Assert.That(this.viewModel.VandVSetupViewModel.NeedsSetup, Is.True);
+                Assert.That(this.viewModel.VandVViewModel.SetupViewModel.TargetLibrary, Is.SameAs(modelLibrary), "the iteration is passed on load");
+                Assert.That(this.viewModel.VandVViewModel.SetupViewModel.NeedsSetup, Is.True);
             });
         }
 
@@ -1079,18 +1079,19 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
         public async Task VerifyNavigateToVandVCoverage()
         {
             await this.LoadVandVData();
-
-            this.viewModel.NavigateToVandVCoverage(this.c4iRequirement);
-            var afterUncovered = this.viewModel.ShowVandV;
+            this.viewModel.CameFromChangelog = true;
 
             this.viewModel.NavigateToVandVCoverage(this.topRequirement);
+            var register = this.viewModel.VandVViewModel.RegisterViewModel;
 
             Assert.Multiple(() =>
             {
-                Assert.That(afterUncovered, Is.False, "nothing to open for an uncovered requirement");
-                Assert.That(this.viewModel.ShowVandV, Is.True);
-                Assert.That(this.viewModel.SelectedSpecification, Is.EqualTo(this.vandVSpecification));
-                Assert.That(this.viewModel.ScrollTarget, Is.EqualTo(this.vandVItem));
+                Assert.That(this.viewModel.ActiveView, Is.EqualTo(RequirementsEditorView.VandV), "the badge opens the V&V tab");
+                Assert.That(this.viewModel.CameFromChangelog, Is.False);
+                Assert.That(this.viewModel.ShowVandV, Is.False, "the Requirements tab is left as it was");
+                Assert.That(register.ScrollTarget, Is.EqualTo(this.topRequirement.Iid));
+                Assert.That(register.SelectedSpecification, Is.EqualTo(this.specification));
+                Assert.That(register.Rows.Any(x => x.Thing == this.vandVItem), Is.True, "the requirement's items are listed");
             });
         }
 

@@ -519,11 +519,16 @@ namespace COMETwebapp.Tests.Utilities.VandV
             this.data.SetValue(this.activity, VandVConstants.Status, "Passed");
             var model = this.data.BuildModel();
 
+            string Format(params Requirement[] requirements)
+            {
+                return VandVQueries.FormatContainerCoverage(requirements.Select(x => VandVQueries.GetRollUp(model, model.GetCoveringItems(x))).ToList());
+            }
+
             Assert.Multiple(() =>
             {
-                Assert.That(VandVQueries.FormatContainerCoverage(model, []), Is.Empty);
-                Assert.That(VandVQueries.FormatContainerCoverage(model, [this.requirement]), Is.EqualTo("1/1 verified"));
-                Assert.That(VandVQueries.FormatContainerCoverage(model, [this.requirement, secondRequirement, uncovered]), Is.EqualTo("1/3 verified, 1 failed"));
+                Assert.That(Format(), Is.Empty);
+                Assert.That(Format(this.requirement), Is.EqualTo("1/1 verified"));
+                Assert.That(Format(this.requirement, secondRequirement, uncovered), Is.EqualTo("1/3 verified, 1 failed"));
             });
         }
 

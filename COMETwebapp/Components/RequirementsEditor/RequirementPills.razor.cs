@@ -31,15 +31,15 @@ namespace COMETwebapp.Components.RequirementsEditor
     /// <summary>
     /// Renders the owner and category pills of a <see cref="CDP4Common.EngineeringModelData.RequirementsContainer" />
     /// or <see cref="CDP4Common.EngineeringModelData.Requirement" />, gated by
-    /// <see cref="IRequirementsEditorBodyViewModel.ShowOwner" /> and <see cref="IRequirementsEditorBodyViewModel.ShowCategory" />.
+    /// <see cref="IRequirementsTreeViewModel.ShowOwner" /> and <see cref="IRequirementsTreeViewModel.ShowCategory" />.
     /// </summary>
     public partial class RequirementPills
     {
         /// <summary>
-        /// Gets or sets the <see cref="IRequirementsEditorBodyViewModel" />.
+        /// Gets or sets the <see cref="IRequirementsTreeViewModel" />.
         /// </summary>
         [Parameter]
-        public IRequirementsEditorBodyViewModel ViewModel { get; set; }
+        public IRequirementsTreeViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Gets or sets the owner to render as a pill, or <c>null</c> when there is none.

@@ -22,7 +22,6 @@
 
 namespace COMETwebapp.Components.RequirementsEditor
 {
-    using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
 
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
@@ -84,84 +83,6 @@ namespace COMETwebapp.Components.RequirementsEditor
                 ExclusiveOrExpression => "XOR",
                 NotExpression => "NOT",
                 _ => expression.ClassKind.ToString()
-            };
-        }
-
-        /// <summary>
-        /// Gets the arrow symbol for the given <paramref name="direction" />.
-        /// </summary>
-        /// <param name="direction">The <see cref="RelationshipDirection" /></param>
-        /// <returns>The symbol</returns>
-        private static string GetDirectionSymbol(RelationshipDirection direction)
-        {
-            return direction switch
-            {
-                RelationshipDirection.Outgoing => "→",
-                RelationshipDirection.Incoming => "←",
-                _ => "↔"
-            };
-        }
-
-        /// <summary>
-        /// Gets the tooltip for the given <paramref name="direction" />.
-        /// </summary>
-        /// <param name="direction">The <see cref="RelationshipDirection" /></param>
-        /// <returns>The tooltip text</returns>
-        private static string GetDirectionTitle(RelationshipDirection direction)
-        {
-            return direction switch
-            {
-                RelationshipDirection.Outgoing => "Outgoing relationship",
-                RelationshipDirection.Incoming => "Incoming relationship",
-                _ => "Multi relationship"
-            };
-        }
-
-        /// <summary>
-        /// Gets the link label of a related <see cref="Requirement" />: its specification's short name and its own
-        /// short name or name, matching the table-of-contents ID/Name toggle so the two correspond.
-        /// </summary>
-        /// <param name="requirement">The related <see cref="Requirement" /></param>
-        /// <returns>The label</returns>
-        private string GetRequirementLabel(Requirement requirement)
-        {
-            var specification = requirement.GetContainerOfType<RequirementsSpecification>();
-            var requirementLabel = this.ViewModel.TreeUsesShortName ? requirement.ShortName : requirement.Name;
-
-            if (specification == null)
-            {
-                return requirementLabel;
-            }
-
-            var specificationLabel = this.ViewModel.TreeUsesShortName ? specification.ShortName : specification.Name;
-            return $"{specificationLabel} · {requirementLabel}";
-        }
-
-        /// <summary>
-        /// Gets the first definition text of a related <see cref="Requirement" />, shown after its link in the
-        /// remaining space (truncated) so a traceability row hints at what it points to.
-        /// </summary>
-        /// <param name="requirement">The related <see cref="Requirement" /></param>
-        /// <returns>The definition content, or an empty string</returns>
-        private static string GetRequirementDefinitionText(Requirement requirement)
-        {
-            return requirement?.Definition.FirstOrDefault()?.Content ?? string.Empty;
-        }
-
-        /// <summary>
-        /// Gets the display label of a related <see cref="Thing" /> that is not a <see cref="Requirement" />;
-        /// element definitions and usages include their model code.
-        /// </summary>
-        /// <param name="thing">The related <see cref="Thing" /></param>
-        /// <returns>The label</returns>
-        private static string GetThingLabel(Thing thing)
-        {
-            return thing switch
-            {
-                ElementDefinition elementDefinition => $"{elementDefinition.Name} ({elementDefinition.ModelCode()})",
-                ElementUsage elementUsage => $"{elementUsage.Name} ({elementUsage.ModelCode()})",
-                DefinedThing definedThing => $"{definedThing.ShortName} – {definedThing.Name}",
-                _ => thing.UserFriendlyName
             };
         }
 

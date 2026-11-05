@@ -149,6 +149,31 @@ namespace COMETwebapp.Tests.ViewModels.Components.VandV
         }
 
         [Test]
+        public void VerifyOpenWhenTheCheckFails()
+        {
+            this.viewModel.SetIteration(this.iteration);
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Throws(new InvalidOperationException("broken"));
+
+            Assert.That(() => this.viewModel.Open(), Throws.Nothing, "this runs from a button click, where an exception would end the circuit");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.IsVisible, Is.True);
+                Assert.That(this.viewModel.CanSeed, Is.False);
+                Assert.That(this.viewModel.LastError, Does.Contain("could not be checked"));
+            });
+
+            this.permissionService.Setup(x => x.CanWrite(It.IsAny<ClassKind>(), It.IsAny<Thing>())).Returns(true);
+            this.viewModel.Open();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.CanSeed, Is.True);
+                Assert.That(this.viewModel.LastError, Is.Null);
+            });
+        }
+
+        [Test]
         public void VerifyAddStageGate()
         {
             this.viewModel.AddStageGate();

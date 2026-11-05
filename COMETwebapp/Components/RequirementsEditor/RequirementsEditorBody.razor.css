@@ -21,58 +21,7 @@
     display: none;
 }
 
-.req-toolbar {
-    flex: 0 0 auto;
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: 8px;
-    padding-bottom: 10px;
-    margin-bottom: 8px;
-    border-bottom: 1px solid #eaecef;
-    overflow-x: auto;
-}
-
-.req-toolbar-group {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex: 0 0 auto;
-}
-
-.req-toolbar-right {
-    margin-left: auto;
-}
-
-.req-toolbar-label {
-    font-size: 0.8rem;
-    color: #667085;
-}
-
-.req-search {
-    flex: 1 0 220px;
-    min-width: 200px;
-    max-width: 420px;
-}
-
-.req-view-section {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.req-view-section ::deep .req-view-toggle-on {
-    background-color: #e7f1ff !important;
-    border-color: #b9d0f0 !important;
-    color: #3b5b8c !important;
-    font-weight: 600;
-}
-
-.req-toolbar ::deep .dxbl-btn:not(.dxbl-edit-btn-clear):not(.dxbl-tag-btn-close) {
-    height: var(--control-height, 38px);
-}
-
-.req-editor-layout {
+.req-editor ::deep .req-editor-layout {
     display: flex;
     gap: 16px;
     flex: 1 1 auto;
@@ -81,7 +30,7 @@
     overflow-x: auto;
 }
 
-.req-toc {
+.req-editor ::deep .req-toc {
     flex: 0 0 300px;
     min-width: 0;
     min-height: 0;
@@ -91,7 +40,7 @@
     transition: flex-basis 0.2s ease;
 }
 
-.req-toc-resizer {
+.req-editor ::deep .req-toc-resizer {
     flex: 0 0 6px;
     align-self: stretch;
     cursor: col-resize;
@@ -99,11 +48,11 @@
     border-radius: var(--radius-sm);
 }
 
-.req-toc-resizer:hover {
+.req-editor ::deep .req-toc-resizer:hover {
     background: #94a3b8;
 }
 
-.req-editor-layout.toc-collapsed .req-toc {
+.req-editor ::deep .req-editor-layout.toc-collapsed .req-toc {
     flex: 0 0 0 !important;
     width: 0 !important;
     max-width: 0 !important;
@@ -112,7 +61,7 @@
     border: none;
 }
 
-.req-editor-layout.toc-collapsed .req-toc-resizer {
+.req-editor ::deep .req-editor-layout.toc-collapsed .req-toc-resizer {
     display: none;
 }
 
@@ -127,7 +76,7 @@
 
 /* --- table-of-contents tree (rendered by RequirementsTree) --- */
 
-.req-toc ::deep .req-tree-header {
+.req-editor ::deep .req-toc .req-tree-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -137,7 +86,7 @@
     border-bottom: 1px solid #eaecef;
 }
 
-.req-toc ::deep .req-tree-header-title {
+.req-editor ::deep .req-toc .req-tree-header-title {
     font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -145,18 +94,18 @@
     color: #667085;
 }
 
-.req-toc ::deep ul.req-tree-branch {
+.req-editor ::deep .req-toc ul.req-tree-branch {
     list-style: none;
     margin: 0 0 0 9px;
     padding-left: 0;
 }
 
-.req-toc ::deep ul.req-tree-branch > li {
+.req-editor ::deep .req-toc ul.req-tree-branch > li {
     position: relative;
     padding-left: 14px;
 }
 
-.req-toc ::deep ul.req-tree-branch > li::before {
+.req-editor ::deep .req-toc ul.req-tree-branch > li::before {
     content: "";
     position: absolute;
     left: 0;
@@ -166,12 +115,12 @@
     background: #d6dae0;
 }
 
-.req-toc ::deep ul.req-tree-branch > li:last-child::before {
+.req-editor ::deep .req-toc ul.req-tree-branch > li:last-child::before {
     bottom: auto;
     height: 13px;
 }
 
-.req-toc ::deep ul.req-tree-branch > li::after {
+.req-editor ::deep .req-toc ul.req-tree-branch > li::after {
     content: "";
     position: absolute;
     left: 0;
@@ -181,7 +130,7 @@
     background: #d6dae0;
 }
 
-.req-toc ::deep .req-tree-row {
+.req-editor ::deep .req-toc .req-tree-row {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -190,39 +139,39 @@
     white-space: nowrap;
 }
 
-.req-toc ::deep .req-tree-group {
+.req-editor ::deep .req-toc .req-tree-group {
     flex: 0 0 auto;
 }
 
-.req-toc ::deep .req-tree-group-row {
+.req-editor ::deep .req-toc .req-tree-group-row[draggable="true"] {
     cursor: grab;
 }
 
-.req-toc ::deep .req-tree-droptarget {
+.req-editor ::deep .req-toc .req-tree-droptarget {
     outline: 2px dashed #4096ff;
     outline-offset: -2px;
     background: #e6f4ff;
 }
 
-.req-toc ::deep .req-tree-row .req-pills {
+.req-editor ::deep .req-toc .req-tree-row .req-pills {
     margin-left: auto;
     padding-left: 4px;
 }
 
-.req-toc ::deep .req-tree-row:hover {
+.req-editor ::deep .req-toc .req-tree-row:hover {
     background: #f2f5fa;
 }
 
-.req-toc ::deep .req-tree-spec {
+.req-editor ::deep .req-toc .req-tree-spec {
     cursor: pointer;
     font-weight: 600;
 }
 
-.req-toc ::deep .req-tree-spec.selected {
+.req-editor ::deep .req-toc .req-tree-spec.selected {
     background: #e7f1ff;
 }
 
-.req-toc ::deep .req-tree-chevron {
+.req-editor ::deep .req-toc .req-tree-chevron {
     border: none;
     background: none;
     padding: 0;
@@ -235,17 +184,17 @@
     flex-shrink: 0;
 }
 
-.req-toc ::deep .req-tree-chevron img {
+.req-editor ::deep .req-toc .req-tree-chevron img {
     width: 12px;
     height: 12px;
 }
 
-.req-toc ::deep .req-tree-chevron-placeholder {
+.req-editor ::deep .req-toc .req-tree-chevron-placeholder {
     width: 16px;
     flex-shrink: 0;
 }
 
-.req-toc ::deep .req-tree-group {
+.req-editor ::deep .req-toc .req-tree-group {
     color: #344054;
     text-decoration: none;
     cursor: pointer;
@@ -256,11 +205,11 @@
     text-align: left;
 }
 
-.req-toc ::deep .req-tree-group:hover {
+.req-editor ::deep .req-toc .req-tree-group:hover {
     text-decoration: underline;
 }
 
-.req-toc ::deep ul.req-tree {
+.req-editor ::deep .req-toc ul.req-tree {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -412,7 +361,7 @@
     text-align: end;
 }
 
-.req-document ::deep .req-pills-cell {
+.req-editor ::deep .req-document .req-pills-cell {
     flex: 0 0 130px;
     box-sizing: border-box;
     display: flex;
@@ -431,10 +380,10 @@
 
 /* shared pill layout used by RequirementPills (tree + document) and RequirementRowActions: kept once here,
    in both the tree and document scopes, rather than duplicated in each component's scoped stylesheet */
-.req-toc ::deep .req-pills,
-.req-document ::deep .req-pills,
-.req-toc ::deep .req-pill-categories,
-.req-document ::deep .req-pill-categories {
+.req-editor ::deep .req-toc .req-pills,
+.req-editor ::deep .req-document .req-pills,
+.req-editor ::deep .req-toc .req-pill-categories,
+.req-editor ::deep .req-document .req-pill-categories {
     display: inline-flex;
     gap: 3px;
     flex-wrap: wrap;
@@ -453,8 +402,8 @@
     padding: 24px;
 }
 
-.req-toc ::deep .starion-pill,
-.req-document ::deep .starion-pill {
+.req-editor ::deep .req-toc .starion-pill,
+.req-editor ::deep .req-document .starion-pill {
     display: inline-flex;
     align-items: center;
     height: auto;
@@ -476,7 +425,7 @@
 
 /* --- requirement detail sections (rendered by RequirementDetails) --- */
 
-.req-document ::deep .req-details {
+.req-editor ::deep .req-document .req-details {
     margin-top: 6px;
     display: flex;
     flex-direction: row;
@@ -485,7 +434,7 @@
     gap: 8px;
 }
 
-.req-document ::deep .req-details > .req-section {
+.req-editor ::deep .req-document .req-details > .req-section {
     flex: 1 1 260px;
     min-width: 0;
 }
@@ -610,7 +559,7 @@
     color: #b42318;
 }
 
-.req-document ::deep .req-section {
+.req-editor ::deep .req-document .req-section {
     padding: 5px 10px 7px;
     background: #fbfcfe;
     border: 1px solid #eef0f3;
@@ -618,7 +567,7 @@
     border-radius: var(--radius-md);
 }
 
-.req-document ::deep .req-section-title {
+.req-editor ::deep .req-document .req-section-title {
     display: block;
     font-size: 0.68rem;
     font-weight: 600;
@@ -730,7 +679,7 @@
     padding: 0 5px;
 }
 
-.req-document ::deep .req-link-row {
+.req-editor ::deep .req-document .req-link-row {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -739,13 +688,13 @@
     font-size: 0.88rem;
 }
 
-.req-document ::deep .req-link-direction {
+.req-editor ::deep .req-document .req-link-direction {
     flex: 0 0 auto;
     color: #3b5b8c;
     font-weight: 700;
 }
 
-.req-document ::deep .req-link-targets {
+.req-editor ::deep .req-document .req-link-targets {
     display: inline-flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -753,7 +702,7 @@
     min-width: 0;
 }
 
-.req-document ::deep .req-link-req {
+.req-editor ::deep .req-document .req-link-req {
     border: none;
     background: none;
     padding: 0;
@@ -767,16 +716,16 @@
     overflow-wrap: anywhere;
 }
 
-.req-document ::deep .req-link-req:hover {
+.req-editor ::deep .req-document .req-link-req:hover {
     text-decoration: underline;
 }
 
-.req-document ::deep .req-link-thing {
+.req-editor ::deep .req-document .req-link-thing {
     color: #344054;
     overflow-wrap: anywhere;
 }
 
-.req-document ::deep .req-link-def {
+.req-editor ::deep .req-document .req-link-def {
     flex: 1 1 0;
     min-width: 0;
     overflow: hidden;
@@ -786,12 +735,12 @@
     font-size: 0.82rem;
 }
 
-.req-document ::deep .req-link-row .req-pills {
+.req-editor ::deep .req-document .req-link-row .req-pills {
     flex: 0 0 auto;
     padding-left: 6px;
 }
 
-.req-document ::deep .req-link-rule {
+.req-editor ::deep .req-document .req-link-rule {
     display: inline-flex;
     align-items: center;
     min-height: 18px;
@@ -810,6 +759,10 @@
     opacity: 0.6;
 }
 
+.req-editor ::deep .req-document .req-link-req.req-row-deprecated {
+    opacity: 0.6;
+}
+
 .req-document ::deep .req-row-deprecated .req-id,
 .req-document ::deep .req-row-deprecated .req-name,
 .req-document ::deep .req-row-deprecated .req-spec-id,
@@ -818,7 +771,7 @@
 }
 
 .req-document ::deep .req-deprecated-badge,
-.req-toc ::deep .req-tree-deprecated .req-tree-label {
+.req-editor ::deep .req-toc .req-tree-deprecated .req-tree-label {
     white-space: nowrap;
 }
 
@@ -868,7 +821,7 @@
     border: 1px solid #f5c2c0;
 }
 
-.req-toc ::deep .req-tree-deprecated .req-tree-label {
+.req-editor ::deep .req-toc .req-tree-deprecated .req-tree-label {
     text-decoration: line-through;
     color: #98a2b3;
 }

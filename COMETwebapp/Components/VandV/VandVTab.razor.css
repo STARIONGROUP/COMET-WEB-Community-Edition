@@ -1,0 +1,41 @@
+.vandv-tab {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.vandv-empty {
+    max-width: 640px;
+    margin: 48px auto;
+    padding: 24px;
+    border: 1px solid #eaecef;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.vandv-empty h5,
+.vandv-empty p {
+    margin: 0;
+}
+
+.vandv-empty p {
+    color: #475467;
+}
+
+.vandv-banner {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 12px;
+    font-size: var(--text-sm, 0.875rem);
+    color: var(--colors-gray-900, #101828);
+    background-color: var(--colors-amber-100, #fcefcb);
+    border-radius: var(--radius-md);
+}

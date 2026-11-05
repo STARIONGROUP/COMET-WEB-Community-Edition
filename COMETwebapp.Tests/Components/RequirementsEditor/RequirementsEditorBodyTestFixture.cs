@@ -58,6 +58,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     [TestFixture]
     public class RequirementsEditorBodyTestFixture
     {
+        private static readonly string[] SectionTabs = ["Requirements", "V&V", "Changes"];
+
         private BunitContext context;
         private IRenderedComponent<RequirementsEditorBody> renderedComponent;
         private CDPMessageBus messageBus;
@@ -267,11 +269,15 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.renderedComponent.WaitForAssertion(() => Assert.That(this.viewModel.IsLoading, Is.False));
 
             var panes = this.renderedComponent.FindAll("div.req-view-pane");
+            var tabs = this.renderedComponent.FindComponents<DxToolbarItem>().Select(x => x.Instance.Text).ToList();
 
             Assert.Multiple(() =>
             {
+                Assert.That(tabs, Is.EqualTo(SectionTabs), "the section tabs read Requirements, V&V, Changes");
+                Assert.That(panes, Has.Count.EqualTo(2), "the V&V tab is only mounted while active");
                 Assert.That(panes[0].ClassList, Does.Not.Contain("req-view-hidden"), "the document pane is visible while Document is active");
                 Assert.That(panes[1].ClassList, Does.Contain("req-view-hidden"), "the changelog pane starts hidden");
+                Assert.That(this.renderedComponent.FindAll(".vandv-tab"), Is.Empty);
             });
 
             this.renderedComponent.InvokeAsync(() => this.viewModel.ActiveView = RequirementsEditorView.Changelog);
@@ -284,6 +290,22 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 {
                     Assert.That(panesAfterSwitch[0].ClassList, Does.Contain("req-view-hidden"), "the document pane is hidden once Changelog is active");
                     Assert.That(panesAfterSwitch[1].ClassList, Does.Not.Contain("req-view-hidden"), "the changelog pane becomes visible");
+                });
+            });
+
+            this.renderedComponent.InvokeAsync(() => this.viewModel.ActiveView = RequirementsEditorView.VandV);
+
+            this.renderedComponent.WaitForAssertion(() =>
+            {
+                var panesAfterSwitch = this.renderedComponent.FindAll("div.req-view-pane");
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(panesAfterSwitch, Has.Count.EqualTo(3));
+                    Assert.That(panesAfterSwitch[1].ClassList, Does.Not.Contain("req-view-hidden"), "the V&V pane becomes visible");
+                    Assert.That(panesAfterSwitch[1].QuerySelector(".vandv-tab"), Is.Not.Null, "the V&V pane hosts the V&V tab");
+                    Assert.That(panesAfterSwitch[0].ClassList, Does.Contain("req-view-hidden"));
+                    Assert.That(panesAfterSwitch[2].ClassList, Does.Contain("req-view-hidden"));
                 });
             });
         }

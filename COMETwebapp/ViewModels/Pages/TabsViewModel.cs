@@ -518,8 +518,8 @@ namespace COMETwebapp.ViewModels.Pages
                 return false;
             }
 
-            await this.sessionService.ReadIteration(iterationSetup, domainToUse);
-            return true;
+            var result = await this.sessionService.ReadIteration(iterationSetup, domainToUse);
+            return result.IsSuccess;
         }
 
         /// <summary>

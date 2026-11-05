@@ -1,0 +1,57 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.EngineeringModelData
+
+<div class="req-section">
+    <span class="req-section-title">Traceability</span>
+    @foreach (var row in this.Rows)
+    {
+        var linkedDefinition = GetRequirementDefinitionText(row.RelatedThings.OfType<Requirement>().FirstOrDefault());
+
+        <div class="req-link-row">
+            <span class="req-link-direction" title="@GetDirectionTitle(row.Direction)">@GetDirectionSymbol(row.Direction)</span>
+            <span class="req-link-targets">
+                @foreach (var relatedThing in row.RelatedThings)
+                {
+                    @if (relatedThing is Requirement linkedRequirement)
+                    {
+                        <button type="button" class="req-link-req @(linkedRequirement.IsDeprecated ? "req-row-deprecated" : string.Empty)"
+                                title="@linkedRequirement.Name"
+                                @onclick="@(() => this.OnNavigate.InvokeAsync(linkedRequirement))">
+                            @this.GetRequirementLabel(linkedRequirement)
+                        </button>
+                    }
+                    else
+                    {
+                        <span class="req-link-thing">@GetThingLabel(relatedThing)</span>
+                    }
+                }
+            </span>
+            <span class="req-link-def" title="@linkedDefinition">@linkedDefinition</span>
+            <span class="req-pills">
+                @foreach (var ruleName in row.RuleNames)
+                {
+                    <span class="req-link-rule" title="Relationship rule">@ruleName</span>
+                }
+            </span>
+        </div>
+    }
+</div>

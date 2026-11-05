@@ -32,8 +32,11 @@ Copyright (c) 2023-2026 Starion Group S.A.
             <DxToolbar CssClass="section-tabs" ItemRenderStyleMode="ToolbarRenderStyleMode.Plain" ItemClick="@this.OnViewTabClick">
                 <Items>
                     <DxToolbarItem Name="@DocumentTab"
-                                   Text="Document"
+                                   Text="Requirements"
                                    RenderStyle="@(this.ViewModel.ActiveView == RequirementsEditorView.Document ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
+                    <DxToolbarItem Name="@VandVTabName"
+                                   Text="V&amp;V"
+                                   RenderStyle="@(this.ViewModel.ActiveView == RequirementsEditorView.VandV ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
                     <DxToolbarItem Name="@ChangesTab"
                                    Text="Changes"
                                    RenderStyle="@(this.ViewModel.ActiveView == RequirementsEditorView.Changelog ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" />
@@ -152,22 +155,12 @@ Copyright (c) 2023-2026 Starion Group S.A.
                             <DxCheckBox @bind-Checked="@this.ViewModel.ShowParametricConstraints" CheckType="CheckType.Switch" title="Show the parametric constraints of each requirement">Constraints</DxCheckBox>
                             <DxCheckBox @bind-Checked="@this.ViewModel.ShowTraceability" CheckType="CheckType.Switch" title="Show the relationships to and from each requirement">Traceability</DxCheckBox>
                             <DxCheckBox Id="requirement-show-vandv" @bind-Checked="@this.ViewModel.ShowVandV" CheckType="CheckType.Switch" title="Also show the V&amp;V plan, reports, items, activities and steps, which are stored as requirements">V&amp;V items</DxCheckBox>
-                            @if (this.ViewModel.VandVSetupViewModel.NeedsSetup)
-                            {
-                                <DxButton Id="requirement-vandv-setup"
-                                          RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
-                                          IconCssClass="@IconName.Settings.GetCssClass()"
-                                          Text="Set up V&amp;V..."
-                                          title="Create the V&amp;V parameter types, categories and rules this model's library is missing"
-                                          Click="@this.ViewModel.VandVSetupViewModel.Open" />
-                            }
                         </div>
                     </ViewOptionsMenu>
                 </div>
             </div>
 
             <RequirementsExportDialog ViewModel="@this.ViewModel.ExportViewModel" />
-            <VandVSetupDialog ViewModel="@this.ViewModel.VandVSetupViewModel" />
 
             <div class="req-editor-layout @(this.ViewModel.IsTocCollapsed ? "toc-collapsed" : string.Empty)">
                 <div id="req-toc" class="req-toc">
@@ -179,6 +172,13 @@ Copyright (c) 2023-2026 Starion Group S.A.
                 </div>
             </div>
         </div>
+
+        @if (this.ViewModel.ActiveView == RequirementsEditorView.VandV)
+        {
+            <div class="req-view-pane">
+                <VandVTab ViewModel="@this.ViewModel.VandVViewModel" />
+            </div>
+        }
 
         <div class="req-view-pane @(this.ViewModel.ActiveView == RequirementsEditorView.Changelog ? string.Empty : "req-view-hidden")">
             <RequirementsChangelog ViewModel="@this.ViewModel.ChangelogViewModel"

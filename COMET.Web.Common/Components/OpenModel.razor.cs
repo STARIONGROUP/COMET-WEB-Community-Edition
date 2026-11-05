@@ -87,7 +87,7 @@ namespace COMET.Web.Common.Components
         /// <summary>
         /// The message to display when opening the <see cref="Iteration" /> failed
         /// </summary>
-        public string ErrorMessage { get; private set; }
+        public string ErrorMessage { get; protected set; }
 
         /// <summary>
         /// Opens the selected <see cref="Iteration" /> and reports the reason to the user when that fails, instead of
