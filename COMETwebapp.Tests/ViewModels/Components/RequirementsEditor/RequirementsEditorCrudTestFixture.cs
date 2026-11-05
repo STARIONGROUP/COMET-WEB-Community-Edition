@@ -31,6 +31,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using CDP4Common.Types;
 
     using CDP4Dal;
+    using CDP4Dal.Permission;
 
     using DynamicData;
 
@@ -89,6 +90,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             siteDirectory.Model.Add(modelSetup);
 
             session.Setup(x => x.RetrieveSiteDirectory()).Returns(siteDirectory);
+            session.Setup(x => x.PermissionService).Returns(new Mock<IPermissionService>().Object);
             this.sessionService.Setup(x => x.Session).Returns(session.Object);
             this.sessionService.Setup(x => x.GetSiteDirectory()).Returns(siteDirectory);
             this.sessionService.Setup(x => x.GetDomainOfExpertise(It.IsAny<Iteration>())).Returns(this.domain);

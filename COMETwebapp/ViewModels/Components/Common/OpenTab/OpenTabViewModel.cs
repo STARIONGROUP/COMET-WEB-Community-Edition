@@ -4,17 +4,17 @@
 //
 //     This file is part of COMET WEB Community Edition
 //     The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
-// 
+//
 //     The COMET WEB Community Edition is free software; you can redistribute it and/or
 //     modify it under the terms of the GNU Affero General Public
 //     License as published by the Free Software Foundation; either
 //     version 3 of the License, or (at your option) any later version.
-// 
+//
 //     The COMET WEB Community Edition is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //    Affero General Public License for more details.
-// 
+//
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  </copyright>
@@ -119,8 +119,8 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// Opens the <see cref="EngineeringModel" /> based on the selected field
         /// </summary>
         /// <param name="panel">The <see cref="TabPanelInformation" /> for which the new tab will be opened</param>
-        /// <returns>A <see cref="Task" /></returns>
-        public async Task OpenTab(TabPanelInformation panel)
+        /// <returns>A <see cref="Task" /> with the <see cref="Result" /> of opening it</returns>
+        public async Task<Result> OpenTab(TabPanelInformation panel)
         {
             Result<Iteration> result;
             var isIteration = this.SelectedApplication?.ThingTypeOfInterest == typeof(Iteration);
@@ -128,7 +128,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
             if (this.SelectedApplication?.ThingTypeOfInterest is null)
             {
                 this.tabsViewModel.CreateNewTab(this.SelectedApplication, Guid.Empty, panel);
-                return;
+                return Result.Ok();
             }
 
             // When opening a tab for an engineering model, we need to select the active iteration setup if it exists.
@@ -136,7 +136,7 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
             if (!isIteration && this.SelectedEngineeringModel != null)
             {
                 var activeIterationSetup = this.SelectedEngineeringModel.IterationSetup.FirstOrDefault(x => x.FrozenOn == null);
-                
+
                 if (activeIterationSetup != null)
                 {
                     this.SelectedIterationSetup = new IterationData(activeIterationSetup);
@@ -157,16 +157,15 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
                 result = Result.Ok(this.SelectedEngineeringModelIteration);
             }
 
-            this.cacheService.AddOrUpdateBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, this.SelectedIterationSetup);
-            
-            this.cacheService.AddOrUpdateBrowserSessionSetting(BrowserSessionSettingKey.LastUsedDomainOfExpertise, this.SelectedDomainOfExpertise);
-
-            this.cacheService.AddOrUpdateBrowserSessionSetting(BrowserSessionSettingKey.LastUsedEngineeringModel, this.SelectedEngineeringModel);
-
             if (result.IsSuccess)
             {
+                this.cacheService.AddOrUpdateBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, this.SelectedIterationSetup);
+                this.cacheService.AddOrUpdateBrowserSessionSetting(BrowserSessionSettingKey.LastUsedDomainOfExpertise, this.SelectedDomainOfExpertise);
+                this.cacheService.AddOrUpdateBrowserSessionSetting(BrowserSessionSettingKey.LastUsedEngineeringModel, this.SelectedEngineeringModel);
                 this.tabsViewModel.CreateNewTab(this.SelectedApplication, isIteration ? this.SelectedEngineeringModelIteration.Iid : this.SelectedEngineeringModel.EngineeringModelIid, panel);
             }
+
+            return result.ToResult();
         }
 
         /// <summary>
@@ -201,18 +200,18 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
                 return null;
             }
 
-            IEnumerable<TabbedApplicationInformation> allTabs = 
+            IEnumerable<TabbedApplicationInformation> allTabs =
             [
                 .. this.tabsViewModel.MainPanel.OpenTabs.Items,
                 .. this.tabsViewModel.SidePanel.OpenTabs.Items
             ];
 
-            Thing targetObjectOfInterest = this.SelectedApplication.ThingTypeOfInterest == typeof(Iteration) 
+            Thing targetObjectOfInterest = this.SelectedApplication.ThingTypeOfInterest == typeof(Iteration)
                 ? this.SelectedEngineeringModelIteration
                 : this.sessionService.OpenEngineeringModels.FirstOrDefault(x => x.Iid == this.SelectedEngineeringModel?.EngineeringModelIid);
 
-            return allTabs.FirstOrDefault(x => 
-                x.ObjectOfInterest == targetObjectOfInterest && 
+            return allTabs.FirstOrDefault(x =>
+                x.ObjectOfInterest == targetObjectOfInterest &&
                 x.ComponentType == this.SelectedApplication.ComponentType);
         }
     }

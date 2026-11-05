@@ -32,6 +32,8 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
     using COMETwebapp.Model.RequirementsEditor.Export;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
+    using DevExpress.Blazor;
+
     using Moq;
 
     using NUnit.Framework;
@@ -86,6 +88,17 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
                 Assert.That(renderedComponent.Markup, Does.Contain("Relationships"));
                 Assert.That(renderedComponent.Find("#requirement-export-confirm"), Is.Not.Null);
             });
+        }
+
+        [Test]
+        public async Task VerifyIncludeVandVSwitch()
+        {
+            var renderedComponent = this.RenderDialog();
+            var vandVSwitch = renderedComponent.FindComponents<DxCheckBox<bool>>().Single(x => x.Markup.Contains("Include V&amp;V items"));
+
+            await renderedComponent.InvokeAsync(() => vandVSwitch.Instance.CheckedChanged.InvokeAsync(true));
+
+            Assert.That(this.configuration.IncludeVandV, Is.True);
         }
 
         [Test]

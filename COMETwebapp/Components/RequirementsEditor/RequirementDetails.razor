@@ -103,41 +103,9 @@ Copyright (c) 2023-2026 Starion Group S.A.
 
         @if (traceabilityRows.Count > 0)
         {
-            <div class="req-section">
-                <span class="req-section-title">Traceability</span>
-                @foreach (var row in traceabilityRows)
-                {
-                    var linkedDefinition = GetRequirementDefinitionText(row.RelatedThings.OfType<Requirement>().FirstOrDefault());
-
-                    <div class="req-link-row">
-                        <span class="req-link-direction" title="@GetDirectionTitle(row.Direction)">@GetDirectionSymbol(row.Direction)</span>
-                        <span class="req-link-targets">
-                            @foreach (var relatedThing in row.RelatedThings)
-                            {
-                                @if (relatedThing is Requirement linkedRequirement)
-                                {
-                                    <button type="button" class="req-link-req @(linkedRequirement.IsDeprecated ? "req-row-deprecated" : string.Empty)"
-                                            title="@linkedRequirement.Name"
-                                            @onclick="@(() => this.ViewModel.NavigateToRequirement(linkedRequirement))">
-                                        @GetRequirementLabel(linkedRequirement)
-                                    </button>
-                                }
-                                else
-                                {
-                                    <span class="req-link-thing">@GetThingLabel(relatedThing)</span>
-                                }
-                            }
-                        </span>
-                        <span class="req-link-def" title="@linkedDefinition">@linkedDefinition</span>
-                        <span class="req-pills">
-                            @foreach (var ruleName in row.RuleNames)
-                            {
-                                <span class="req-link-rule" title="Relationship rule">@ruleName</span>
-                            }
-                        </span>
-                    </div>
-                }
-            </div>
+            <RequirementTraceability Rows="@traceabilityRows"
+                                     UsesShortName="@this.ViewModel.TreeUsesShortName"
+                                     OnNavigate="@this.ViewModel.NavigateToRequirement" />
         }
     }
 </div>

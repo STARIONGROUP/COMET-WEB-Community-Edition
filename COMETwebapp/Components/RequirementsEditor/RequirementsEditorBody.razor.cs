@@ -25,6 +25,7 @@ namespace COMETwebapp.Components.RequirementsEditor
     using COMET.Web.Common.Services.SessionManagement;
 
     using COMETwebapp.Services.Interoperability;
+    using COMETwebapp.Utilities;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using DevExpress.Blazor;
@@ -56,7 +57,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// <summary>
         /// The available <see cref="RequirementRowDisplayMode" />s offered as a layout toggle.
         /// </summary>
-        private static readonly RequirementRowDisplayMode[] DisplayModes =
+        internal static readonly RequirementRowDisplayMode[] DisplayModes =
         [
             RequirementRowDisplayMode.ShortNameAndDefinition,
             RequirementRowDisplayMode.NameAndDefinition,
@@ -68,6 +69,12 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// markup's <c>DxToolbarItem</c>.
         /// </summary>
         private const string DocumentTab = "Document";
+
+        /// <summary>
+        /// The name of the "V&amp;V" section-tabs toolbar item, shared between <see cref="OnViewTabClick" /> and the
+        /// markup's <c>DxToolbarItem</c>.
+        /// </summary>
+        private const string VandVTabName = "VandV";
 
         /// <summary>
         /// The name of the "Changes" section-tabs toolbar item, shared between <see cref="OnViewTabClick" /> and the
@@ -132,7 +139,7 @@ namespace COMETwebapp.Components.RequirementsEditor
                     x => x.ViewModel.ExportViewModel.IsVisible)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
 
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ActiveView, x => x.ViewModel.CameFromChangelog)
+            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.ActiveView, x => x.ViewModel.CameFromChangelog, x => x.ViewModel.ShowVandV)
                 .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
@@ -152,54 +159,15 @@ namespace COMETwebapp.Components.RequirementsEditor
             if (requirementTarget != null)
             {
                 this.ViewModel.ScrollTarget = null;
-                await this.ScrollElementIntoView(RequirementsDocument.RequirementAnchorId(requirementTarget));
+                await RequirementsEditorInterop.ScrollIntoViewAsync(this.DomDataService, this.Logger, RequirementsDocument.RequirementAnchorId(requirementTarget));
             }
             else if (groupTarget != null)
             {
                 this.ViewModel.ScrollTargetGroup = null;
-                await this.ScrollElementIntoView(RequirementsDocument.GroupAnchorId(groupTarget));
+                await RequirementsEditorInterop.ScrollIntoViewAsync(this.DomDataService, this.Logger, RequirementsDocument.GroupAnchorId(groupTarget));
             }
 
-            await this.InitialiseTocResizerAsync();
-        }
-
-        /// <summary>
-        /// Initialises the drag-to-resize handle that sits between the table of contents and the document, tolerating the
-        /// JS interop being unavailable. The underlying script guards against double initialisation, so calling this on
-        /// every render is safe.
-        /// </summary>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task InitialiseTocResizerAsync()
-        {
-            try
-            {
-                await this.JsRuntime.InvokeVoidAsync("cometResizer.init", "req-toc-resizer", "req-toc", 150);
-            }
-            catch (Exception exception)
-            {
-                // JS interop failures during pre-render or tests are non-fatal.
-                this.Logger.LogDebug(exception, "Initialising the table-of-contents resizer failed; non-fatal.");
-            }
-        }
-
-        /// <summary>
-        /// Scrolls the element with the given <paramref name="anchorId" /> into view, swallowing the interop errors that
-        /// are harmless for a purely cosmetic scroll.
-        /// </summary>
-        /// <param name="anchorId">The HTML id of the element to scroll to</param>
-        /// <returns>A <see cref="Task" /></returns>
-        private async Task ScrollElementIntoView(string anchorId)
-        {
-            try
-            {
-                await this.DomDataService.ScrollElementIntoView(anchorId);
-            }
-            catch (Exception exception) when (exception is JSException or JSDisconnectedException)
-            {
-                // The scroll is purely cosmetic; a stale cached DomData.js (missing ScrollElementIntoView) or a circuit
-                // that disconnected mid-render must never kill the page. Navigation already switched to the target.
-                this.Logger.LogDebug(exception, "Scrolling the requirement into view failed; non-fatal.");
-            }
+            await RequirementsEditorInterop.InitialiseTocResizerAsync(this.JsRuntime, this.Logger, "req-toc-resizer", "req-toc");
         }
 
         /// <summary>
@@ -212,8 +180,8 @@ namespace COMETwebapp.Components.RequirementsEditor
         }
 
         /// <summary>
-        /// Switches between the document and changelog view, or returns to the changelog, based on the clicked item of
-        /// the <c>Document</c> / <c>Changes</c> section-tabs toolbar.
+        /// Switches between the document, V&amp;V and changelog view, or returns to the changelog, based on the clicked item
+        /// of the <c>Requirements</c> / <c>V&amp;V</c> / <c>Changes</c> section-tabs toolbar.
         /// </summary>
         /// <param name="e">The <see cref="ToolbarItemClickEventArgs" /> carrying the clicked item's name</param>
         private void OnViewTabClick(ToolbarItemClickEventArgs e)
@@ -222,6 +190,10 @@ namespace COMETwebapp.Components.RequirementsEditor
             {
                 case DocumentTab:
                     this.ViewModel.ActiveView = RequirementsEditorView.Document;
+                    this.ViewModel.CameFromChangelog = false;
+                    break;
+                case VandVTabName:
+                    this.ViewModel.ActiveView = RequirementsEditorView.VandV;
                     this.ViewModel.CameFromChangelog = false;
                     break;
                 case ChangesTab:
@@ -249,7 +221,7 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// </summary>
         /// <param name="mode">The <see cref="RequirementRowDisplayMode" /></param>
         /// <returns>The label</returns>
-        private static string GetDisplayModeLabel(RequirementRowDisplayMode mode)
+        internal static string GetDisplayModeLabel(RequirementRowDisplayMode mode)
         {
             return mode switch
             {

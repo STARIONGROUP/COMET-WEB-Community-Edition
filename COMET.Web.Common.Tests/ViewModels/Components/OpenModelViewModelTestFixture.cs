@@ -120,7 +120,9 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
 
             var preselectedEngineeringModel = this.viewModel.AvailableEngineeringModelSetups.First();
 
-            object domainOfExpertise = new DomainOfExpertise(Guid.NewGuid(), null, null);
+            var domain = new DomainOfExpertise(Guid.NewGuid(), null, null);
+            this.sessionService.Setup(x => x.GetModelDomains(preselectedEngineeringModel)).Returns([domain]);
+            object domainOfExpertise = domain;
             object engineeringModelSetup = preselectedEngineeringModel;
             object iterationData = new IterationData(preselectedEngineeringModel.IterationSetup.First());
 
@@ -134,6 +136,61 @@ namespace COMET.Web.Common.Tests.ViewModels.Components
             Assert.That(this.viewModel.SelectedEngineeringModel, Is.EqualTo(engineeringModelSetup));
             Assert.That(this.viewModel.SelectedIterationSetup, Is.EqualTo(iterationData));
             Assert.That(this.viewModel.SelectedDomainOfExpertise, Is.EqualTo(domainOfExpertise));
+        }
+
+        /// <summary>
+        /// Verifies that what was last used in a closed session is only restored from what the current session holds. It is
+        /// remembered across a logout, and opening an iteration the current session does not hold ended the circuit.
+        /// </summary>
+        [Test]
+        public void VerifyInitializePropertiesRestoresOnlyFromTheCurrentSession()
+        {
+            var closedSessionModel = new EngineeringModelSetup(this.models.First().Iid, null, null);
+            var closedSessionIteration = new IterationSetup(Guid.NewGuid(), null, null) { IterationIid = Guid.NewGuid() };
+            closedSessionModel.IterationSetup.Add(closedSessionIteration);
+
+            var domainId = Guid.NewGuid();
+            var currentDomain = new DomainOfExpertise(domainId, null, null);
+            this.sessionService.Setup(x => x.GetModelDomains(this.models.First())).Returns([currentDomain]);
+
+            object engineeringModelSetup = closedSessionModel;
+            object iterationData = new IterationData(closedSessionIteration);
+            object domainOfExpertise = new DomainOfExpertise(domainId, null, null);
+
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedEngineeringModel, out engineeringModelSetup)).Returns(true);
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedIterationData, out iterationData)).Returns(true);
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedDomainOfExpertise, out domainOfExpertise)).Returns(true);
+
+            this.viewModel.InitializesProperties();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SelectedEngineeringModel, Is.SameAs(this.models.First()), "the same model, as this session holds it");
+                Assert.That(this.viewModel.AvailableIterationSetups.Any(x => x.IterationSetupId == closedSessionIteration.Iid), Is.False);
+                Assert.That(this.viewModel.SelectedIterationSetup, Is.Null, "this session does not hold that iteration");
+                Assert.That(this.viewModel.SelectedDomainOfExpertise, Is.SameAs(currentDomain));
+            });
+
+            object unknownModel = new EngineeringModelSetup(Guid.NewGuid(), null, null);
+            this.cacheService.Setup(x => x.TryGetBrowserSessionSetting(BrowserSessionSettingKey.LastUsedEngineeringModel, out unknownModel)).Returns(true);
+            this.viewModel.InitializesProperties();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.SelectedEngineeringModel, Is.Null, "this session does not hold that model");
+                Assert.That(this.viewModel.SelectedIterationSetup, Is.Null);
+                Assert.That(this.viewModel.SelectedDomainOfExpertise, Is.Null);
+            });
+
+            using var fresh = new OpenModelViewModel(this.sessionService.Object, this.configurationService.Object, this.cacheService.Object);
+            fresh.InitializesProperties();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(fresh.SelectedEngineeringModel, Is.Null, "the view model is created per form, so this is the first call in production");
+                Assert.That(fresh.SelectedIterationSetup, Is.Null);
+                Assert.That(fresh.SelectedDomainOfExpertise, Is.Null);
+            });
         }
 
         /// <summary>

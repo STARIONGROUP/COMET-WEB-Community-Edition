@@ -29,6 +29,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using CDP4Common.Extensions;
     using CDP4Common.SiteDirectoryData;
 
+    using COMETwebapp.Utilities.VandV;
+
     /// <summary>
     /// Computes the list of <see cref="RequirementChange" />s between two <see cref="Iteration" />s by matching the
     /// requirement-related elements of each iteration by their <see cref="CDP4Common.CommonData.Thing.Iid" />.
@@ -70,7 +72,32 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             changes.AddRange(CompareRequirements(AllRequirements(baseIteration), AllRequirements(currentIteration)));
             changes.AddRange(CompareTraceability(baseIteration, currentIteration));
 
+            // V&V only when it is V&V on every side it exists on: a deleted item is still recognised from the baseline,
+            // while a requirement moved into the V&V plan since the baseline stays visible, as leaving the document is a change
+            var things = ChangelogThings(baseIteration).Concat(ChangelogThings(currentIteration)).ToList();
+            var vandVIids = things.Where(VandVQueries.IsVandVThing).Select(x => x.Iid).ToHashSet();
+            vandVIids.ExceptWith(things.Where(x => !VandVQueries.IsVandVThing(x)).Select(x => x.Iid));
+
+            foreach (var change in changes.Where(x => vandVIids.Contains(x.ElementId)))
+            {
+                change.IsVandV = true;
+            }
+
             return changes;
+        }
+
+        /// <summary>
+        /// Gets every specification, group, requirement and relationship of the given <paramref name="iteration" />, the
+        /// elements a changelog row can be about.
+        /// </summary>
+        /// <param name="iteration">The <see cref="Iteration" /></param>
+        /// <returns>The things</returns>
+        private static IEnumerable<Thing> ChangelogThings(Iteration iteration)
+        {
+            return iteration.RequirementsSpecification.Cast<Thing>()
+                .Concat(AllGroups(iteration))
+                .Concat(AllRequirements(iteration))
+                .Concat(iteration.Relationship);
         }
 
         /// <summary>

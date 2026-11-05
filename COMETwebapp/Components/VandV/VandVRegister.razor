@@ -1,0 +1,227 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.CommonData
+@using COMETwebapp.Components.RequirementsEditor
+@using COMETwebapp.Extensions
+@using COMETwebapp.Utilities.VandV
+@using COMETwebapp.ViewModels.Components.RequirementsEditor
+@using COMETwebapp.ViewModels.Components.VandV
+@inherits COMET.Web.Common.Components.DisposableComponent
+
+<div class="vandv-register">
+    <div class="req-toolbar">
+        <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                  IconCssClass="@((this.ViewModel.IsTocCollapsed ? IconName.ChevronRight : IconName.ChevronLeft).GetCssClass())"
+                  title="Toggle table of contents"
+                  Click="@(() => this.ViewModel.IsTocCollapsed = !this.ViewModel.IsTocCollapsed)"
+                  CssClass="req-collapse-toggle" />
+
+        <div class="req-search">
+            <SearchBar @bind-Text="this.ViewModel.SearchText" Placeholder="Search requirements and V&amp;V items..." />
+        </div>
+
+        <div class="filter-bar-item vandv-filter" title="Filter the V&amp;V items on their stage gate">
+            <FilterTagBox TItem="string"
+                          Data="@this.ViewModel.Model.StageGates"
+                          Values="@this.ViewModel.SelectedStages"
+                          ValuesChanged="@((IEnumerable<string> values) => this.ViewModel.SelectedStages = values.ToList())"
+                          NullText="Filter by stage gate..." />
+        </div>
+
+        <div class="filter-bar-item vandv-filter" title="Choose which parameters to show on the V&amp;V items">
+            <FilterTagBox TItem="string"
+                          Data="@VandVRegisterFields.AllFields"
+                          Values="@this.ViewModel.SelectedFields"
+                          ValuesChanged="@((IEnumerable<string> values) => this.ViewModel.SelectedFields = values.ToList())"
+                          NullText="All parameters..." />
+        </div>
+
+        <div class="req-toolbar-group req-toolbar-right">
+            <ViewOptionsMenu ButtonId="vandvViewMenuButton" ButtonTitle="Layout and display options">
+                <div class="req-view-section">
+                    <span class="req-toolbar-label">Layout</span>
+                    <div class="btn-group" role="group" aria-label="Row layout">
+                        @foreach (var mode in RequirementsEditorBody.DisplayModes)
+                        {
+                            <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                                      CssClass="@(this.ViewModel.DisplayMode == mode ? "req-view-toggle-on" : string.Empty)"
+                                      aria-pressed="@(this.ViewModel.DisplayMode == mode ? "true" : "false")"
+                                      Text="@RequirementsEditorBody.GetDisplayModeLabel(mode)"
+                                      Click="@(() => this.ViewModel.DisplayMode = mode)" />
+                        }
+                    </div>
+                </div>
+
+                <div class="req-view-section">
+                    <span class="req-toolbar-label">View</span>
+                    <div class="btn-group" role="group" aria-label="V&amp;V view">
+                        @foreach (var preset in Presets)
+                        {
+                            <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                                      CssClass="@(this.ViewModel.ActivePreset == preset ? "req-view-toggle-on" : string.Empty)"
+                                      aria-pressed="@(this.ViewModel.ActivePreset == preset ? "true" : "false")"
+                                      Text="@VandVRegisterFields.GetPresetLabel(preset)"
+                                      Click="@(() => this.ViewModel.ApplyPreset(preset))" />
+                        }
+                    </div>
+                </div>
+
+                <div class="req-view-section">
+                    <span class="req-toolbar-label">Show</span>
+                    <DxCheckBox Checked="@(!this.ViewModel.TreeUsesShortName)"
+                                CheckedChanged="@((bool value) => this.ViewModel.TreeUsesShortName = !value)"
+                                CheckType="CheckType.Switch"
+                                title="Label the table of contents and traceability by full name instead of short name">Full names</DxCheckBox>
+                    <DxCheckBox @bind-Checked="this.ViewModel.IndentGroups" CheckType="CheckType.Switch">Indent groups</DxCheckBox>
+                    <DxCheckBox @bind-Checked="this.ViewModel.ShowOwner" CheckType="CheckType.Switch">Owner</DxCheckBox>
+                    <DxCheckBox @bind-Checked="this.ViewModel.ShowCategory" CheckType="CheckType.Switch">Category</DxCheckBox>
+                    <DxCheckBox @bind-Checked="this.ViewModel.ShowTraceability" CheckType="CheckType.Switch" title="Show the relationships to and from each requirement and V&amp;V item">Traceability</DxCheckBox>
+                </div>
+            </ViewOptionsMenu>
+        </div>
+    </div>
+
+    <div class="req-editor-layout @(this.ViewModel.IsTocCollapsed ? "toc-collapsed" : string.Empty)">
+        <div id="@this.TocId" class="req-toc">
+            <RequirementsTree ViewModel="@this.ViewModel" />
+        </div>
+        <div id="@this.TocResizerId" class="req-toc-resizer" title="Drag to resize"></div>
+
+        <div class="vandv-rows req-document">
+            @if (this.ViewModel.Rows.Count == 0)
+            {
+                <div class="vandv-no-rows">@(this.ViewModel.BuildError ?? (this.ViewModel.AvailableSpecifications.Any() ? "No requirements match." : "This model has no requirements to verify."))</div>
+            }
+
+            @foreach (var row in this.ViewModel.Rows)
+            {
+                <div id="@(row.Kind is VandVRegisterRowKind.Requirement or VandVRegisterRowKind.Group ? this.RowId(row.Thing.Iid) : null)" class="vandv-row vandv-row-@row.Kind.ToString().ToLowerInvariant()" style="padding-left: @(this.GetIndent(row) * 18 + 4)px">
+                    <div class="vandv-row-header">
+                        @if (row.HasChildren)
+                        {
+                            <button type="button" class="vandv-chevron" aria-expanded="@(row.IsExpanded ? "true" : "false")"
+                                    title="@(row.IsExpanded ? "Collapse" : "Expand")"
+                                    @onclick="@(() => this.ViewModel.Toggle(row))">
+                                <CometIcon Icon="@(row.IsExpanded ? IconName.ChevronDown : IconName.ChevronRight)" Size="14" />
+                            </button>
+                        }
+                        else
+                        {
+                            <span class="vandv-chevron-placeholder"></span>
+                        }
+
+                        @if (row.Kind == VandVRegisterRowKind.Step)
+                        {
+                            var step = (Requirement)row.Thing;
+
+                            <span class="vandv-step-label">@VandVRegisterFields.GetStepLabel(step)</span>
+                            @if (row.IsInherited)
+                            {
+                                <span class="vandv-inherited-tag" title="This step belongs to the activity performing the item">activity</span>
+                            }
+                            <span class="vandv-row-end">
+                                <span class="vandv-pill @GetStepResultClass(step)">@(VandVQueries.GetDisplayValue(step, VandVConstants.StepResult) ?? VandVConstants.StepNotRun)</span>
+                            </span>
+                        }
+                        else
+                        {
+                            var thing = (DefinedThing)row.Thing;
+
+                            @switch (this.ViewModel.DisplayMode)
+                            {
+                                case RequirementRowDisplayMode.ShortNameAndDefinition:
+                                    <strong class="vandv-id" title="@thing.Name">@thing.ShortName</strong>
+                                    break;
+
+                                case RequirementRowDisplayMode.NameAndDefinition:
+                                    <strong class="vandv-name" title="@thing.ShortName">@thing.Name</strong>
+                                    break;
+
+                                default:
+                                    <strong class="vandv-id">@thing.ShortName</strong>
+                                    <span class="vandv-name">@thing.Name</span>
+                                    break;
+                            }
+
+                            <span class="vandv-row-end">
+                                <RequirementPills ViewModel="@this.ViewModel" Owner="@((row.Thing as IOwnedThing)?.Owner)" Categories="@GetCategories(row)" />
+                                @if (row.Kind is VandVRegisterRowKind.Specification or VandVRegisterRowKind.Group)
+                                {
+                                    <span class="vandv-container-coverage">@row.Coverage</span>
+                                }
+                                else if (row.Kind == VandVRegisterRowKind.Requirement)
+                                {
+                                    <span class="vandv-pill @GetCoverageClass(row.RollUp)">@row.Coverage</span>
+                                }
+                                else
+                                {
+                                    <span class="vandv-pill @GetOutcomeClass(row.Outcome)">@row.Outcome</span>
+                                }
+                            </span>
+                        }
+                    </div>
+
+                    @if (row.Kind == VandVRegisterRowKind.Item)
+                    {
+                        <div class="vandv-fields">
+                            @foreach (var field in row.Fields)
+                            {
+                                <div class="vandv-field">
+                                    <span class="vandv-field-label">@field.Label</span>
+                                    @if (field.Value == null)
+                                    {
+                                        <span class="vandv-field-value vandv-unset">@Unset</span>
+                                    }
+                                    else if (field.InheritedFrom != null)
+                                    {
+                                        <span class="vandv-field-value vandv-inherited" title="@($"Inherited from activity {field.InheritedFrom}")">@field.Value</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="vandv-field-value">@field.Value</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else if (row.Kind == VandVRegisterRowKind.Step)
+                    {
+                        var step = (Requirement)row.Thing;
+
+                        <div class="vandv-step-details">
+                            <span><span class="vandv-field-label">Expected</span> @(VandVQueries.GetValue(step, VandVConstants.StepExpectedResult) ?? Unset)</span>
+                            <span><span class="vandv-field-label">Actual</span> @(VandVQueries.GetValue(step, VandVConstants.StepActualResult) ?? Unset)</span>
+                        </div>
+                    }
+
+                    @if (row.Traceability?.Count > 0)
+                    {
+                        <div class="req-details">
+                            <RequirementTraceability Rows="@row.Traceability"
+                                                     UsesShortName="@this.ViewModel.TreeUsesShortName"
+                                                     OnNavigate="@((Requirement linked) => this.ViewModel.NavigateToRequirement(linked, row.Thing as Requirement))" />
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

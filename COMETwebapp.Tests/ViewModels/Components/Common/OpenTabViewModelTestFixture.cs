@@ -202,6 +202,22 @@ namespace COMETwebapp.Tests.ViewModels.Components.Common
                 this.sessionService.Verify(x => x.ReadIteration(It.IsAny<IterationSetup>(), It.IsAny<DomainOfExpertise>()), Times.Once);
             });
 
+            this.alreadyOpenIterations.Remove(toBeOpenedIteration);
+            this.sessionService.Setup(x => x.ReadIteration(toBeOpenedIterationSetup, It.IsAny<DomainOfExpertise>())).ReturnsAsync(Result.Fail("The iteration could not be read"));
+            this.cacheService.Invocations.Clear();
+
+            var failed = await this.viewModel.OpenTab(panel);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(failed.IsFailed, Is.True, "the form has to be able to say why");
+                Assert.That(failed.Errors[0].Message, Is.EqualTo("The iteration could not be read"));
+                this.cacheService.Verify(x => x.AddOrUpdateBrowserSessionSetting(It.IsAny<BrowserSessionSettingKey>(), It.IsAny<object>()), Times.Never, "what failed is not offered again next time");
+                this.tabsViewModel.Verify(x => x.CreateNewTab(It.IsAny<TabbedApplication>(), It.IsAny<Guid>(), It.IsAny<TabPanelInformation>()), Times.Exactly(2));
+            });
+
+            this.alreadyOpenIterations.Add(toBeOpenedIteration);
+
             var newEngineeringModel = new EngineeringModel { EngineeringModelSetup = this.viewModel.SelectedEngineeringModel };
             this.sessionService.Setup(x => x.OpenEngineeringModels).Returns([newEngineeringModel]);
 

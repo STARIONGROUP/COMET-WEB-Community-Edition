@@ -84,6 +84,34 @@ namespace COMETwebapp.Tests.Components.RequirementsEditor
             this.context.CleanContext();
         }
 
+        [Test]
+        public void VerifyOnlyADragHostOffersDragging()
+        {
+            var movable = this.context.Render<RequirementsTree>(parameters => parameters.Add(p => p.ViewModel, this.viewModel.Object));
+            
+            var readingHost = new Mock<IRequirementsTreeViewModel>();
+            readingHost.Setup(x => x.AvailableSpecifications).Returns([this.specification]);
+            readingHost.Setup(x => x.SelectedSpecification).Returns(this.specification);
+            readingHost.Setup(x => x.GetGroups(this.specification)).Returns([this.groupA]);
+            readingHost.Setup(x => x.GetGroups(this.groupA)).Returns([this.groupB]);
+            readingHost.Setup(x => x.GetGroups(this.groupB)).Returns([]);
+            var readOnly = this.context.Render<RequirementsTree>(parameters => parameters.Add(p => p.ViewModel, readingHost.Object));
+
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(movable.FindAll(".req-tree-group-row").All(x => x.GetAttribute("draggable") == "true"), Is.True);
+                Assert.That(movable.FindAll(".req-tree-group-row")[0].GetAttribute("title"), Does.StartWith("Drag onto"));
+                Assert.That(readOnly.FindAll(".req-tree-group-row"), Has.Count.EqualTo(2), "nested levels too");
+                Assert.That(readOnly.FindAll(".req-tree-group-row").All(x => x.GetAttribute("draggable") == "false"), Is.True);
+                Assert.That(readOnly.FindAll(".req-tree-group-row")[0].HasAttribute("title"), Is.False, "no hint for what cannot be done");
+            });
+
+            readOnly.FindAll(".req-tree-group-row")[0].DragEnter();
+
+            Assert.That(readOnly.FindAll(".req-tree-droptarget"), Is.Empty, "dragging something over a reading host does nothing");
+        }
+
         private IRenderedComponent<RequirementsTree> Render()
         {
             return this.context.Render<RequirementsTree>(parameters => parameters

@@ -1,0 +1,140 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using COMETwebapp.Extensions
+@inherits COMET.Web.Common.Components.DisposableComponent
+
+<DxPopup @bind-Visible="@this.ViewModel.IsVisible"
+         HeaderText="Set up V&amp;V"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="@(!this.ViewModel.IsBusy)"
+         Width="min(680px, 92vw)">
+    <div class="vandv-setup-dialog">
+        @if (this.ViewModel.TargetLibrary == null)
+        {
+            <p class="vandv-setup-message">This model has no model reference data library to set the V&amp;V reference data up in.</p>
+        }
+        else if (this.ViewModel.Check.IsComplete)
+        {
+            <p class="vandv-setup-message">The V&amp;V reference data is complete in '@this.ViewModel.TargetLibrary.Name'.</p>
+        }
+        else
+        {
+            <section class="vandv-setup-section">
+                <h6>@(this.ViewModel.CanSeed ? $"Missing in '{this.ViewModel.TargetLibrary.Name}', will be created" : "Missing V&V reference data")</h6>
+
+                @if (!this.ViewModel.CanSeed)
+                {
+                    <p id="vandv-setup-no-permission" class="vandv-setup-warning">
+                        You are not allowed to create this in the model's library. Ask a model or site administrator to create it, in the model library or in a site library it requires.
+                    </p>
+                }
+
+                <ul id="vandv-setup-missing" class="vandv-setup-missing">
+                    @foreach (var item in this.ViewModel.MissingItems)
+                    {
+                        <li>@item</li>
+                    }
+                </ul>
+
+                @if (this.ViewModel.Check.RequirementCategory == null && this.ViewModel.Check.MissingBinaryRelationshipRules.Count > 0)
+                {
+                    <p class="vandv-setup-hint">
+                        The verifies and validates rules are skipped: no requirement category (short name REQUIREMENT or REQ, or name Requirement) was found.
+                    </p>
+                }
+            </section>
+
+            @if (this.ViewModel.CanSeed && this.ViewModel.NeedsStageGates)
+            {
+                <section class="vandv-setup-section">
+                    <h6>Stage gates</h6>
+                    <p class="vandv-setup-hint">
+                        The review milestones every V&amp;V activity is planned against, in project order. Replace the examples with your project's own; gates can be added later in the reference data.
+                    </p>
+
+                    <div id="vandv-setup-stage-gates" class="vandv-stage-gates">
+                        @for (var index = 0; index < this.ViewModel.StageGates.Count; index++)
+                        {
+                            var position = index;
+
+                            <div class="vandv-stage-gate">
+                                <span class="vandv-stage-gate-number">@(position + 1)</span>
+                                <div class="vandv-stage-gate-name">
+                                    <DxTextBox Text="@this.ViewModel.StageGates[position]"
+                                               TextChanged="@((string value) => this.ViewModel.SetStageGate(position, value))"
+                                               BindValueMode="BindValueMode.OnInput"
+                                               NullText="Stage gate name" />
+                                </div>
+                                <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                                          IconCssClass="@IconName.ArrowUp.GetCssClass()"
+                                          title="Move up"
+                                          Enabled="@(position > 0)"
+                                          Click="@(() => this.ViewModel.MoveStageGate(position, -1))" />
+                                <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                                          IconCssClass="@IconName.ArrowDown.GetCssClass()"
+                                          title="Move down"
+                                          Enabled="@(position < this.ViewModel.StageGates.Count - 1)"
+                                          Click="@(() => this.ViewModel.MoveStageGate(position, 1))" />
+                                <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                                          IconCssClass="@IconName.Delete.GetCssClass()"
+                                          title="Remove"
+                                          Click="@(() => this.ViewModel.RemoveStageGate(position))" />
+                            </div>
+                        }
+                    </div>
+
+                    <div>
+                        <DxButton Id="vandv-setup-add-stage-gate"
+                                  RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                                  IconCssClass="@IconName.Add.GetCssClass()"
+                                  Text="Stage gate"
+                                  Click="@this.ViewModel.AddStageGate" />
+                    </div>
+
+                    @if (this.ViewModel.StageGateError != null)
+                    {
+                        <p id="vandv-setup-stage-gate-error" class="vandv-setup-warning">@this.ViewModel.StageGateError</p>
+                    }
+                </section>
+            }
+        }
+
+        @if (!string.IsNullOrEmpty(this.ViewModel.LastError))
+        {
+            <p id="vandv-setup-error" class="vandv-setup-warning">@this.ViewModel.LastError</p>
+        }
+
+        <div class="vandv-setup-actions">
+            <DxButton Text="@(this.CanConfirm ? "Cancel" : "Close")"
+                      Enabled="@(!this.ViewModel.IsBusy)"
+                      RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                      Click="@(() => this.ViewModel.IsVisible = false)" />
+            @if (this.CanConfirm)
+            {
+                <DxButton Id="vandv-setup-confirm"
+                          Text="Set up"
+                          RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                          Enabled="@(!this.ViewModel.IsBusy && (!this.ViewModel.NeedsStageGates || this.ViewModel.StageGateError == null))"
+                          Click="@this.SeedAsync" />
+            }
+        </div>
+    </div>
+</DxPopup>

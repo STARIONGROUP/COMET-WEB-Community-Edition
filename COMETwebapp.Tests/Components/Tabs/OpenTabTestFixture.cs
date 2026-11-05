@@ -41,6 +41,8 @@ namespace COMETwebapp.Tests.Components.Tabs
 
     using DevExpress.Blazor;
 
+    using FluentResults;
+
     using Microsoft.Extensions.DependencyInjection;
 
     using Moq;
@@ -62,6 +64,7 @@ namespace COMETwebapp.Tests.Components.Tabs
 
             this.viewModel = new Mock<IOpenTabViewModel>();
             this.viewModel.Setup(x => x.IsCurrentIterationOpened).Returns(true);
+            this.viewModel.Setup(x => x.OpenTab(It.IsAny<TabPanelInformation>())).ReturnsAsync(Result.Ok());
 
             this.context.Services.AddSingleton(this.viewModel.Object);
             this.context.Services.AddSingleton(new Mock<IOpenModelViewModel>().Object);
@@ -186,6 +189,56 @@ namespace COMETwebapp.Tests.Components.Tabs
             this.renderer.Render();
             await this.renderer.InvokeAsync(openButton.Instance.Click.InvokeAsync);
             this.viewModel.Verify(x => x.OpenTab(It.IsAny<TabPanelInformation>()), Times.Exactly(3));
+        }
+
+        [Test]
+        public async Task VerifyOpenButtonWhenOpeningFails()
+        {
+            var tabOpened = 0;
+            this.renderer.Render(parameters => { parameters.Add(p => p.OnTabOpened, () => tabOpened++); });
+            var openButton = this.renderer.FindComponents<DxButton>().First(x => x.Instance.Id == "opentab__button");
+
+            await this.renderer.InvokeAsync(openButton.Instance.Click.InvokeAsync);
+            var openedOnSuccess = tabOpened;
+
+            this.viewModel.Setup(x => x.OpenTab(It.IsAny<TabPanelInformation>())).ReturnsAsync(Result.Fail("The iteration could not be read"));
+            await this.renderer.InvokeAsync(openButton.Instance.Click.InvokeAsync);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(openedOnSuccess, Is.EqualTo(1));
+                Assert.That(tabOpened, Is.EqualTo(1), "a failure stays on the form");
+                Assert.That(this.renderer.Markup, Does.Contain("The iteration could not be read"));
+            });
+        }
+
+        [Test]
+        public void VerifyButtonEnabledWithoutAnIteration()
+        {
+            var bookEditor = new TabbedApplication { ComponentType = typeof(BookEditorBody) };
+            bookEditor.ResolveTypesProperties();
+            var modelDashboard = new TabbedApplication { ComponentType = typeof(ModelDashboardBody) };
+            modelDashboard.ResolveTypesProperties();
+
+            this.viewModel.Setup(x => x.SelectedEngineeringModel).Returns(new EngineeringModelSetup());
+            this.viewModel.Setup(x => x.SelectedDomainOfExpertise).Returns(new DomainOfExpertise());
+
+            this.viewModel.Setup(x => x.SelectedApplication).Returns(bookEditor);
+            var modelView = this.renderer.Instance.ButtonEnabled;
+
+            this.viewModel.Setup(x => x.SelectedApplication).Returns(modelDashboard);
+            var iterationView = this.renderer.Instance.ButtonEnabled;
+
+            this.viewModel.Setup(x => x.SelectedApplication).Returns(bookEditor);
+            this.viewModel.Setup(x => x.SelectedDomainOfExpertise).Returns((DomainOfExpertise)null);
+            var modelViewWithoutDomain = this.renderer.Instance.ButtonEnabled;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(modelView, Is.True, "a view on a model offers no iteration to choose, so it cannot wait for one");
+                Assert.That(iterationView, Is.False);
+                Assert.That(modelViewWithoutDomain, Is.False);
+            });
         }
 
         [Test]

@@ -51,10 +51,10 @@ namespace COMETwebapp.Components.RequirementsEditor
         public bool IsReadOnly => this.SessionService.IsReadOnly;
 
         /// <summary>
-        /// Gets or sets the <see cref="IRequirementsEditorBodyViewModel" />.
+        /// Gets or sets the <see cref="IRequirementsTreeViewModel" />.
         /// </summary>
         [Parameter]
-        public IRequirementsEditorBodyViewModel ViewModel { get; set; }
+        public IRequirementsTreeViewModel ViewModel { get; set; }
 
         /// <summary>
         /// Gets or sets the child <see cref="RequirementsGroup" />s to render at this level. When <c>null</c>, this
@@ -64,17 +64,33 @@ namespace COMETwebapp.Components.RequirementsEditor
         public IEnumerable<RequirementsGroup> Groups { get; set; }
 
         /// <summary>
+        /// Gets the host as one whose groups can be dragged, or null when it only reads the structure.
+        /// </summary>
+        private IRequirementsTreeDragViewModel DragViewModel => this.ViewModel as IRequirementsTreeDragViewModel;
+
+        /// <summary>
+        /// Determines whether the given container is highlighted as the target of the running drag.
+        /// </summary>
+        /// <param name="container">The specification or group.</param>
+        /// <returns>true when the drag is over it and may be dropped there.</returns>
+        private bool IsDropTarget(RequirementsContainer container)
+        {
+            var drag = this.DragViewModel;
+            return drag != null && drag.DragOverContainer == container && drag.CanMoveGroup(drag.DraggedGroup, container);
+        }
+
+        /// <summary>
         /// Records the <paramref name="group" /> being dragged so a subsequent drop can re-parent it.
         /// </summary>
         /// <param name="group">The dragged <see cref="RequirementsGroup" />.</param>
         private void OnGroupDragStart(RequirementsGroup group)
         {
-            if (this.IsReadOnly)
+            if (this.IsReadOnly || this.DragViewModel == null)
             {
                 return;
             }
 
-            this.ViewModel.DraggedGroup = group;
+            this.DragViewModel.DraggedGroup = group;
         }
 
         /// <summary>
@@ -84,7 +100,10 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// <param name="target">The <see cref="RequirementsContainer" /> the drag entered.</param>
         private void OnDragEnter(RequirementsContainer target)
         {
-            this.ViewModel.DragOverContainer = target;
+            if (this.DragViewModel != null)
+            {
+                this.DragViewModel.DragOverContainer = target;
+            }
         }
 
         /// <summary>
@@ -92,8 +111,11 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// </summary>
         private void OnGroupDragEnd()
         {
-            this.ViewModel.DraggedGroup = null;
-            this.ViewModel.DragOverContainer = null;
+            if (this.DragViewModel != null)
+            {
+                this.DragViewModel.DraggedGroup = null;
+                this.DragViewModel.DragOverContainer = null;
+            }
         }
 
         /// <summary>
@@ -104,13 +126,20 @@ namespace COMETwebapp.Components.RequirementsEditor
         /// <returns>A <see cref="Task" /></returns>
         private async Task OnDropOnContainer(RequirementsContainer target)
         {
-            var dragged = this.ViewModel.DraggedGroup;
-            this.ViewModel.DraggedGroup = null;
-            this.ViewModel.DragOverContainer = null;
+            var drag = this.DragViewModel;
 
-            if (!this.IsReadOnly && dragged != null && this.ViewModel.CanMoveGroup(dragged, target))
+            if (drag == null)
             {
-                await this.ViewModel.MoveGroupAsync(dragged, target);
+                return;
+            }
+
+            var dragged = drag.DraggedGroup;
+            drag.DraggedGroup = null;
+            drag.DragOverContainer = null;
+
+            if (!this.IsReadOnly && dragged != null && drag.CanMoveGroup(dragged, target))
+            {
+                await drag.MoveGroupAsync(dragged, target);
             }
         }
     }

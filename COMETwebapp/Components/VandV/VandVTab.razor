@@ -1,0 +1,67 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using COMETwebapp.Extensions
+@inherits COMET.Web.Common.Components.DisposableComponent
+
+<div class="vandv-tab">
+    @if (this.ViewModel.LoadError != null)
+    {
+        <div class="vandv-banner vandv-load-error">@this.ViewModel.LoadError</div>
+    }
+
+    @if (this.ViewModel.ShowEmptyState)
+    {
+        <div class="vandv-empty">
+            <h5>V&amp;V is not set up in this model</h5>
+            <p>
+                Verification and validation needs its parameter types, categories, rules and stage gates in the model's
+                reference data. Set up creates what is missing, the same way the COMET IME does, so both read the same V&amp;V data.
+            </p>
+            @if (this.IsReadOnly)
+            {
+                <p class="vandv-read-only">This session is read-only, so V&amp;V cannot be set up here.</p>
+            }
+            <DxButton RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                      IconCssClass="@IconName.Settings.GetCssClass()"
+                      Text="Set up V&amp;V..."
+                      Enabled="@(!this.IsReadOnly)"
+                      Click="@this.ViewModel.SetupViewModel.Open" />
+        </div>
+    }
+    else
+    {
+        @if (this.ViewModel.SetupViewModel.NeedsSetup)
+        {
+            <div class="vandv-banner">
+                <span>Some V&amp;V reference data is missing in this model, for example after an IME upgrade. V&amp;V items cannot be written until it is set up.</span>
+                <DxButton RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                          IconCssClass="@IconName.Settings.GetCssClass()"
+                          Text="Set up V&amp;V..."
+                          Enabled="@(!this.IsReadOnly)"
+                          Click="@this.ViewModel.SetupViewModel.Open" />
+            </div>
+        }
+
+        <VandVRegister ViewModel="@this.ViewModel.RegisterViewModel" />
+    }
+
+    <VandVSetupDialog ViewModel="@this.ViewModel.SetupViewModel" />
+</div>

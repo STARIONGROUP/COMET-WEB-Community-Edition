@@ -1,0 +1,194 @@
+.vandv-register {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.vandv-filter ::deep .dxbl-tag {
+    flex: 0 0 auto;
+}
+
+.vandv-rows {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.vandv-no-rows {
+    padding: 16px 8px;
+    color: #667085;
+}
+
+.vandv-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-right: 8px;
+    border-bottom: 1px solid #f1f3f5;
+    scroll-margin-top: 8px;
+}
+
+.vandv-row:hover {
+    background: #fafbfc;
+}
+
+.vandv-row-specification {
+    background: #f8fafc;
+}
+
+.vandv-row-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.vandv-chevron {
+    border: none;
+    background: none;
+    padding: 0;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.vandv-chevron-placeholder {
+    width: 18px;
+    flex-shrink: 0;
+}
+
+.vandv-id {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #1f2937;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.vandv-name {
+    color: #6b7280;
+    font-weight: 500;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vandv-row-end {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.vandv-container-coverage {
+    font-size: 0.8rem;
+    color: #475467;
+    white-space: nowrap;
+}
+
+.vandv-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 18px;
+    padding: 1px 8px;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    border-radius: 30px;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    color: #374151;
+}
+
+.vandv-pill-passed {
+    background: #e7f6ee;
+    color: #146c43;
+    border-color: #a9dcc2;
+}
+
+.vandv-pill-failed {
+    background: #fde2e1;
+    color: #b42318;
+    border-color: #f5c2c0;
+}
+
+.vandv-pill-open {
+    background: #eef2f6;
+    color: #475467;
+    border-color: #d0d5dd;
+}
+
+.vandv-pill-uncovered {
+    background: #fff8e1;
+    color: #8a5a00;
+    border-color: #f3d48b;
+}
+
+.vandv-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    gap: 4px 12px;
+    padding-left: 26px;
+}
+
+.vandv-field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.vandv-field-label {
+    font-size: 0.7rem;
+    color: #667085;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.vandv-field-value {
+    font-size: 0.85rem;
+    color: #1f2937;
+    overflow-wrap: anywhere;
+}
+
+.vandv-unset {
+    color: #667085;
+}
+
+/* body pins the variable font's slant axis at 0 (overwrite.css), which beats font-style alone */
+.vandv-inherited {
+    font-style: italic;
+    font-variation-settings: "slnt" -10;
+    color: #3b5b8c;
+}
+
+.vandv-step-label {
+    font-size: 0.85rem;
+    color: #1f2937;
+    min-width: 0;
+}
+
+.vandv-inherited-tag {
+    font-size: 0.7rem;
+    color: #3b5b8c;
+    border: 1px dashed #b9d0f0;
+    border-radius: 30px;
+    padding: 0 6px;
+}
+
+.vandv-step-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 24px;
+    padding-left: 26px;
+    font-size: 0.8rem;
+    color: #475467;
+}

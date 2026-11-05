@@ -1,0 +1,78 @@
+.vandv-setup-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.vandv-setup-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.vandv-setup-section h6 {
+    margin: 0 0 0.2rem 0;
+    font-weight: 600;
+}
+
+.vandv-setup-message,
+.vandv-setup-hint,
+.vandv-setup-warning {
+    margin: 0;
+}
+
+.vandv-setup-hint {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.vandv-setup-warning {
+    color: #b42318;
+}
+
+.vandv-setup-missing {
+    margin: 0;
+    padding-left: 1.2rem;
+    max-height: 9rem;
+    overflow-y: auto;
+    font-size: 0.85rem;
+}
+
+.vandv-stage-gates {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    max-height: 16rem;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.vandv-stage-gate {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.vandv-stage-gate-number {
+    flex: 0 0 1.6rem;
+    text-align: right;
+    color: #6c757d;
+}
+
+.vandv-stage-gate-name {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.vandv-stage-gate-name ::deep .dxbl-text-edit {
+    width: 100%;
+}
+
+.vandv-setup-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--dxbl-border-color, #e0e0e0);
+}

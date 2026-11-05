@@ -39,6 +39,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
     using COMETwebapp.Services.RequirementsEditor;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
     using COMETwebapp.Utilities;
+    using COMETwebapp.Utilities.VandV;
+    using COMETwebapp.ViewModels.Components.VandV;
 
     using FluentResults;
 
@@ -191,6 +193,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         private bool cameFromChangelog;
 
         /// <summary>
+        /// Backing field for <see cref="ShowVandV" />
+        /// </summary>
+        private bool showVandV;
+
+        /// <summary>
         /// The <see cref="CDP4Common.CommonData.Thing.Iid" /> of the element last navigated to from the changelog,
         /// used by <see cref="ReturnToChangelog" /> to scroll back to the row the user came from.
         /// </summary>
@@ -222,7 +229,16 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var exportViewModel = new RequirementsExportViewModel(sessionService, exportService, showHideDeprecatedThingsService, logger);
             this.Disposables.Add(exportViewModel);
             this.ExportViewModel = exportViewModel;
+
+            var vandVViewModel = new VandVViewModel(sessionService, logger);
+            this.Disposables.Add(vandVViewModel);
+            this.VandVViewModel = vandVViewModel;
         }
+
+        /// <summary>
+        /// Gets the view model driving the V&amp;V tab.
+        /// </summary>
+        public IVandVViewModel VandVViewModel { get; }
 
         /// <summary>
         /// Gets the view model driving the confirm dialog used for deprecate, restore and delete actions.
@@ -284,14 +300,36 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
         /// <summary>
         /// Gets the <see cref="RequirementsSpecification" />s of the current iteration; deprecated ones are included
-        /// only when the global "Show Deprecated Things" toggle is on.
+        /// only when the global "Show Deprecated Things" toggle is on, the V&amp;V plan and reports only when
+        /// <see cref="ShowVandV" /> is on.
         /// </summary>
         public IEnumerable<RequirementsSpecification> AvailableSpecifications =>
             this.CurrentThing == null
                 ? []
                 : this.CurrentThing.RequirementsSpecification
-                    .Where(x => this.ShowHideDeprecatedThingsService.ShowDeprecatedThings || !x.IsDeprecated)
+                    .Where(x => (this.ShowHideDeprecatedThingsService.ShowDeprecatedThings || !x.IsDeprecated) && this.IsShown(x))
                     .OrderBy(x => x.ShortName);
+
+        /// <summary>
+        /// Gets or sets a value indicating whether V&amp;V bookkeeping (the V&amp;V plan, reports, items, steps, activities and
+        /// their relationships, see <see cref="VandVQueries.IsVandVThing" />) is shown in the document, its filters and
+        /// exports. Hidden by default: those are requirements to the model, not requirements to engineer.
+        /// </summary>
+        public bool ShowVandV
+        {
+            get => this.showVandV;
+            set
+            {
+                if (this.showVandV == value)
+                {
+                    return;
+                }
+
+                this.RaiseAndSetIfChanged(ref this.showVandV, value);
+                this.ApplyVandVVisibility();
+            }
+        }
+
 
         /// <summary>
         /// Gets or sets the <see cref="RequirementsSpecification" /> currently shown as a document.
@@ -474,7 +512,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             var group = container as RequirementsGroup;
 
             return this.SelectedSpecification.Requirement
-                .Where(x => (this.ShowHideDeprecatedThingsService.ShowDeprecatedThings || !x.IsDeprecated) && ReferenceEquals(x.Group, group) && this.PassesFilter(x))
+                .Where(x => (this.ShowHideDeprecatedThingsService.ShowDeprecatedThings || !x.IsDeprecated) && ReferenceEquals(x.Group, group) && this.IsShown(x) && this.PassesFilter(x))
                 .OrderBy(x => x.ShortName);
         }
 
@@ -787,8 +825,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 return this.parameterTypesCache.ParameterTypes;
             }
 
+            // the cache is reset when ShowVandV changes (ApplyVandVVisibility), so it need not be part of the cache key
             var parameterTypes = this.SelectedSpecification.Requirement
-                .Where(x => showDeprecated || !x.IsDeprecated)
+                .Where(x => (showDeprecated || !x.IsDeprecated) && this.IsShown(x))
                 .SelectMany(x => x.ParameterValue)
                 .Select(x => x.ParameterType)
                 .Where(x => x != null)
@@ -1065,7 +1104,29 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <returns>The traceability rows</returns>
         public IReadOnlyList<RequirementRelationshipRow> GetTraceability(Requirement requirement)
         {
-            return this.CurrentThing == null ? [] : RequirementsTraceabilityHelper.GetTraceability(requirement, this.CurrentThing, this.GetOpenReferenceDataLibraryRules());
+            return this.CurrentThing == null ? [] : RequirementsTraceabilityHelper.GetTraceability(requirement, this.CurrentThing, this.GetOpenReferenceDataLibraryRules(), this.IsShown);
+        }
+
+        /// <summary>
+        /// Gets the V&amp;V coverage of the given requirement for its row badge, while V&amp;V is shown.
+        /// </summary>
+        /// <param name="requirement">The <see cref="Requirement" /></param>
+        /// <returns>The roll-up of the items covering it, or null when V&amp;V is hidden or no item covers it</returns>
+        public VandVRollUp? GetVandVCoverage(Requirement requirement)
+        {
+            return this.ShowVandV ? VandVQueries.GetCoverage(this.VandVViewModel.Model, requirement) : null;
+        }
+
+        /// <summary>
+        /// Navigates to the V&amp;V items covering the given requirement, from its coverage badge: opens the V&amp;V tab
+        /// on the requirement with its items expanded.
+        /// </summary>
+        /// <param name="requirement">The covered <see cref="Requirement" /></param>
+        public void NavigateToVandVCoverage(Requirement requirement)
+        {
+            this.ActiveView = RequirementsEditorView.VandV;
+            this.CameFromChangelog = false;
+            this.VandVViewModel.RegisterViewModel.Focus(requirement);
         }
 
         /// <summary>
@@ -1095,6 +1156,8 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 this.ShowHideDeprecatedThingsService.ShowDeprecatedThings = true;
             }
+
+            this.RevealVandV(requirement);
 
             for (var group = requirement.Group; group != null; group = group.Container as RequirementsGroup)
             {
@@ -1158,6 +1221,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                         return;
                     }
 
+                    this.RevealVandV(group);
                     this.SelectedSpecification = group.GetContainerOfType<RequirementsSpecification>();
                     this.NavigateToGroup(group);
                     break;
@@ -1170,6 +1234,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                         return;
                     }
 
+                    this.RevealVandV(specification);
                     this.SelectedSpecification = specification;
                     break;
 
@@ -1446,21 +1511,25 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             this.ExportViewModel.SetIteration(this.CurrentThing);
 
             this.IsLoading = true;
+            this.VandVViewModel.SetIteration(this.CurrentThing);
             this.parameterTypesCache = default;
 
-            if (this.CurrentThing == null)
-            {
-                this.AvailableOwners = [];
-                this.AvailableCategories = [];
-                this.SelectedSpecification = null;
-                this.IsLoading = false;
-                return;
-            }
+            this.RefreshFilterOptions();
 
-            var allRequirements = this.CurrentThing.RequirementsSpecification
+            this.SelectedSpecification = this.AvailableSpecifications.FirstOrDefault();
+            this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Recomputes <see cref="AvailableOwners" /> and <see cref="AvailableCategories" /> from the non-deprecated,
+        /// shown requirements of the current iteration.
+        /// </summary>
+        private void RefreshFilterOptions()
+        {
+            var allRequirements = (this.CurrentThing?.RequirementsSpecification ?? Enumerable.Empty<RequirementsSpecification>())
                 .Where(x => !x.IsDeprecated)
                 .SelectMany(x => x.Requirement)
-                .Where(x => !x.IsDeprecated)
+                .Where(x => !x.IsDeprecated && this.IsShown(x))
                 .ToList();
 
             this.AvailableOwners = allRequirements
@@ -1475,10 +1544,55 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
                 .DistinctBy(x => x.Iid)
                 .OrderBy(x => x.ShortName)
                 .ToList();
+        }
 
-            this.SelectedSpecification = this.AvailableSpecifications.FirstOrDefault();
+        /// <summary>
+        /// Determines whether the given thing is shown: V&amp;V bookkeeping only while <see cref="ShowVandV" /> is on.
+        /// </summary>
+        /// <param name="thing">The specification, requirement or relationship</param>
+        /// <returns>true when the thing is shown</returns>
+        private bool IsShown(Thing thing)
+        {
+            return this.ShowVandV || !VandVQueries.IsVandVThing(thing);
+        }
 
-            this.IsLoading = false;
+        /// <summary>
+        /// Turns <see cref="ShowVandV" /> on when a navigation targets V&amp;V bookkeeping, so the target actually renders.
+        /// </summary>
+        /// <param name="target">The navigation target</param>
+        private void RevealVandV(Thing target)
+        {
+            if (!this.IsShown(target))
+            {
+                this.ShowVandV = true;
+            }
+        }
+
+        /// <summary>
+        /// Applies a change of <see cref="ShowVandV" />: the export follows the document, the value columns and filter
+        /// options are recomputed, a filter value that is no longer offered is dropped, and a selected specification that
+        /// is no longer shown is replaced by the first shown one.
+        /// </summary>
+        private void ApplyVandVVisibility()
+        {
+            this.ExportViewModel.ExportConfiguration.IncludeVandV = this.ShowVandV;
+            this.parameterTypesCache = default;
+            this.RefreshFilterOptions();
+
+            if (this.SelectedCategories.Any(x => !this.AvailableCategories.Contains(x)))
+            {
+                this.SelectedCategories = this.SelectedCategories.Where(this.AvailableCategories.Contains).ToList();
+            }
+
+            if (this.SelectedOwners.Any(x => !this.AvailableOwners.Contains(x)))
+            {
+                this.SelectedOwners = this.SelectedOwners.Where(this.AvailableOwners.Contains).ToList();
+            }
+
+            if (this.SelectedSpecification != null && !this.IsShown(this.SelectedSpecification))
+            {
+                this.SelectedSpecification = this.AvailableSpecifications.FirstOrDefault();
+            }
         }
 
         /// <summary>

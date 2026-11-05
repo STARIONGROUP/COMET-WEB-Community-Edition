@@ -29,6 +29,8 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
 
     using COMETwebapp.Model;
 
+    using FluentResults;
+
     /// <summary>
     /// View Model that enables a user to open an <see cref="EngineeringModel" />
     /// </summary>
@@ -63,8 +65,8 @@ namespace COMETwebapp.ViewModels.Components.Common.OpenTab
         /// Opens the <see cref="EngineeringModel" /> based on the selected field
         /// </summary>
         /// <param name="panel">The <see cref="TabPanelInformation"/> for which the new tab will be opened</param>
-        /// <returns>A <see cref="Task" /></returns>
-        Task OpenTab(TabPanelInformation panel);
+        /// <returns>A <see cref="Task" /> with the <see cref="Result" /> of opening it</returns>
+        Task<Result> OpenTab(TabPanelInformation panel);
 
         /// <summary>
         /// Navigates to an already open tab for the selected engineering model or iteration if it exists

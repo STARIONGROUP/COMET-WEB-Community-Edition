@@ -41,8 +41,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <param name="requirement">The <see cref="Requirement" /></param>
         /// <param name="iteration">The <see cref="Iteration" /> whose relationships are scanned</param>
         /// <param name="rules">The <see cref="Rule" />s of the open reference data libraries</param>
+        /// <param name="include">Filters the relationships, evaluated only on those the requirement participates in</param>
         /// <returns>The traceability rows</returns>
-        public static IReadOnlyList<RequirementRelationshipRow> GetTraceability(Requirement requirement, Iteration iteration, IReadOnlyCollection<Rule> rules)
+        public static IReadOnlyList<RequirementRelationshipRow> GetTraceability(Requirement requirement, Iteration iteration, IReadOnlyCollection<Rule> rules, Func<Relationship, bool> include)
         {
             var rows = new List<RequirementRelationshipRow>();
 
@@ -50,7 +51,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
             {
                 switch (relationship)
                 {
-                    case BinaryRelationship binary when binary.Source == requirement || binary.Target == requirement:
+                    case BinaryRelationship binary when (binary.Source == requirement || binary.Target == requirement) && include(binary):
                         rows.Add(new RequirementRelationshipRow
                         {
                             Relationship = binary,
@@ -61,7 +62,7 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
                         break;
 
-                    case MultiRelationship multi when multi.RelatedThing.Contains(requirement):
+                    case MultiRelationship multi when multi.RelatedThing.Contains(requirement) && include(multi):
                         rows.Add(new RequirementRelationshipRow
                         {
                             Relationship = multi,
@@ -87,8 +88,9 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         /// <param name="requirement">The <see cref="Requirement" /></param>
         /// <param name="iteration">The <see cref="Iteration" /> whose relationships are scanned</param>
         /// <param name="rules">The <see cref="Rule" />s of the open reference data libraries</param>
+        /// <param name="include">Filters the relationships, evaluated only on those the requirement participates in</param>
         /// <returns>The relationship details</returns>
-        public static IReadOnlyList<RequirementRelationshipDetail> GetRelationshipDetails(Requirement requirement, Iteration iteration, IReadOnlyCollection<Rule> rules)
+        public static IReadOnlyList<RequirementRelationshipDetail> GetRelationshipDetails(Requirement requirement, Iteration iteration, IReadOnlyCollection<Rule> rules, Func<Relationship, bool> include)
         {
             var details = new List<RequirementRelationshipDetail>();
 
@@ -111,6 +113,11 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
 
                     default:
                         continue;
+                }
+
+                if (!include(relationship))
+                {
+                    continue;
                 }
 
                 var categories = relationship.Category.ToList();

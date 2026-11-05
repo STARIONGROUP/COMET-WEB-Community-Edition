@@ -105,6 +105,13 @@ namespace COMETwebapp.ViewModels.Components.RequirementsEditor
         public string Owner { get; init; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets a value indicating whether the changed element is V&amp;V bookkeeping (see
+        /// <see cref="COMETwebapp.Utilities.VandV.VandVQueries.IsVandVThing" />), so the changelog can hide it with the rest of
+        /// the V&amp;V data. Set by <see cref="RequirementsChangelogCalculator" /> once every change of a comparison is known.
+        /// </summary>
+        public bool IsVandV { get; set; }
+
+        /// <summary>
         /// Gets the display label combining <see cref="SpecificationShortName" /> and <see cref="SpecificationName" />,
         /// or a placeholder when the change has no owning specification, used to group the grid by specification.
         /// </summary>

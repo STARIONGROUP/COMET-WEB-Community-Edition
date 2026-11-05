@@ -62,6 +62,12 @@ namespace COMETwebapp.Model.RequirementsEditor.Export
         public bool IncludeDeprecated { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether V&amp;V bookkeeping (the V&amp;V plan, reports, items, steps, activities and
+        /// their relationships) is included in the export.
+        /// </summary>
+        public bool IncludeVandV { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the owner column is written.
         /// </summary>
         public bool IncludeOwner { get; set; } = true;

@@ -33,6 +33,8 @@ namespace COMETwebapp.Tests.Services.RequirementsEditor
 
     using COMETwebapp.Model.RequirementsEditor.Export;
     using COMETwebapp.Services.RequirementsEditor;
+    using COMETwebapp.Tests.Utilities.VandV;
+    using COMETwebapp.Utilities.VandV;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using NUnit.Framework;
@@ -203,6 +205,29 @@ namespace COMETwebapp.Tests.Services.RequirementsEditor
                 Assert.That(includedHeaders, Does.Contain("Deprecated"));
                 Assert.That(includedWorksheet.Cell(deprecatedRow, deprecatedColumn).GetString(), Is.EqualTo("Yes"));
                 Assert.That(includedWorksheet.Cell(nonDeprecatedRow, deprecatedColumn).GetString(), Is.Empty);
+            });
+        }
+
+        [Test]
+        public void VerifyIncludeVandVToggle()
+        {
+            var vandV = new VandVTestData();
+            var item = new Requirement { Iid = Guid.NewGuid(), ShortName = "VNV_R02_1", Name = "Verify R02", Owner = this.owner, Category = { vandV.Categories[VandVConstants.VnVItemCategory] } };
+            this.specification.Requirement.Add(item);
+
+            var excluded = new RequirementsExcelExporter(this.BuildPayload(new RequirementsExportConfiguration()));
+            var included = new RequirementsExcelExporter(this.BuildPayload(new RequirementsExportConfiguration { IncludeVandV = true }));
+
+            using var excludedStream = excluded.Export();
+            using var excludedWorkbook = new XLWorkbook(excludedStream);
+            using var includedStream = included.Export();
+            using var includedWorkbook = new XLWorkbook(includedStream);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(excludedWorkbook.Worksheet(1).CellsUsed().Any(cell => cell.GetString() == "VNV_R02_1"), Is.False, "a V&V item is excluded by default");
+                Assert.That(excludedWorkbook.Worksheet(1).CellsUsed().Any(cell => cell.GetString() == "R02"), Is.True);
+                Assert.That(includedWorkbook.Worksheet(1).CellsUsed().Any(cell => cell.GetString() == "VNV_R02_1"), Is.True);
             });
         }
 

@@ -117,6 +117,39 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
+        public async Task VerifyReadIterationThatFails()
+        {
+            var session = CreateSessionMock(true);
+            var credentials = new Credentials("user", "pass", new Uri("file:///archive.zip"));
+            session.Setup(x => x.Credentials).Returns(credentials);
+            session.Setup(x => x.Read(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>(), It.IsAny<bool>())).ThrowsAsync(new FileLoadException("Could not locate the engineeringModel setup information"));
+            InjectSession(this.sessionService, session.Object);
+
+            var modelSetup = new EngineeringModelSetup { Iid = Guid.NewGuid(), EngineeringModelIid = Guid.NewGuid() };
+            var iterationSetup = new IterationSetup { Iid = Guid.NewGuid(), IterationIid = Guid.NewGuid() };
+            modelSetup.IterationSetup.Add(iterationSetup);
+            var openBefore = this.sessionService.OpenIterations.Count;
+
+            var result = await this.sessionService.ReadIteration(iterationSetup, new DomainOfExpertise { Iid = Guid.NewGuid() });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.IsFailed, Is.True, "an exception here has nothing above it and ends the circuit");
+                Assert.That(result.Errors[0].Message, Is.EqualTo("The iteration could not be read. See the log for details."), "no paths of the server in the message");
+                Assert.That(this.sessionService.OpenIterations.Count, Is.EqualTo(openBefore));
+                Mock.Get(session.Object.Dal).Verify(x => x.InitializeDalCredentials(credentials), Times.Once, "the file DAL closed itself, the next read or the logout would throw");
+            });
+
+            var writableSession = CreateSessionMock(false);
+            writableSession.Setup(x => x.Read(It.IsAny<Iteration>(), It.IsAny<DomainOfExpertise>(), It.IsAny<bool>())).ThrowsAsync(new FileLoadException("broken"));
+            InjectSession(this.sessionService, writableSession.Object);
+
+            await this.sessionService.ReadIteration(iterationSetup, new DomainOfExpertise { Iid = Guid.NewGuid() });
+
+            Mock.Get(writableSession.Object.Dal).Verify(x => x.InitializeDalCredentials(It.IsAny<Credentials>()), Times.Never, "only the file DAL closes itself");
+        }
+
+        [Test]
         public async Task VerifyWriteTransaction()
         {
             var readOnlySession = CreateSessionMock(true);
@@ -128,13 +161,18 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
             InjectSession(this.sessionService, writeableSession.Object);
 
             var writeableResult = await this.sessionService.WriteTransaction(new OperationContainer($"/SiteDirectory/{Guid.NewGuid()}"), []);
+            await this.sessionService.WriteTransaction(new OperationContainer($"/SiteDirectory/{Guid.NewGuid()}"), ["drawing.pdf"]);
 
             Assert.Multiple(() =>
             {
                 Assert.That(readOnlyResult.IsFailed, Is.True);
                 readOnlySession.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>()), Times.Never);
                 Assert.That(writeableResult.IsSuccess, Is.True);
-                writeableSession.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.IsAny<IEnumerable<string>>()), Times.Once);
+
+                // the SDK sends a multipart request for any non-null file list, which the server's SiteDirectory route
+                // cannot parse (500), so no files must reach it as null
+                writeableSession.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.Is<IEnumerable<string>>(files => files == null)), Times.Once);
+                writeableSession.Verify(x => x.Write(It.IsAny<OperationContainer>(), It.Is<IEnumerable<string>>(files => files != null && files.Single() == "drawing.pdf")), Times.Once);
             });
         }
 

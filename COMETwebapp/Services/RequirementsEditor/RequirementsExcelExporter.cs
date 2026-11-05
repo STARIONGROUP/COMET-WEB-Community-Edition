@@ -32,6 +32,7 @@ namespace COMETwebapp.Services.RequirementsEditor
 
     using COMETwebapp.Model.RequirementsEditor.Export;
     using COMETwebapp.Services.Export;
+    using COMETwebapp.Utilities.VandV;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     /// <summary>
@@ -688,7 +689,8 @@ namespace COMETwebapp.Services.RequirementsEditor
         /// <returns>true when the thing should be written</returns>
         private bool IsIncluded(IDeprecatableThing thing)
         {
-            return this.Configuration.IncludeDeprecated || !thing.IsDeprecated;
+            return (this.Configuration.IncludeDeprecated || !thing.IsDeprecated)
+                   && (this.Configuration.IncludeVandV || !VandVQueries.IsVandVThing(thing as Thing));
         }
 
         /// <summary>
