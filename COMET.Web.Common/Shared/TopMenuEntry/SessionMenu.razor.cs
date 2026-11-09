@@ -54,6 +54,11 @@ namespace COMET.Web.Common.Shared.TopMenuEntry
         public string RefreshButtonText => this.IsRefreshing ? "Refreshing" : "Refresh";
 
         /// <summary>
+        /// Gets a value indicating whether the refresh button is enabled, which is not the case while refreshing or for a read-only session
+        /// </summary>
+        public bool IsRefreshButtonEnabled => !this.IsRefreshing && !this.ViewModel.SessionService.IsReadOnly;
+
+        /// <summary>
         /// Value indicating if the menu is expanded or not
         /// </summary>
         public bool Expanded { get; set; }
