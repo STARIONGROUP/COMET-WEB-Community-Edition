@@ -1,9 +1,11 @@
 name: Semgrep OWASP Top Ten
 
 on:
+    # Branches are scanned through pull_request; push only covers the long-lived branches, so a PR is not scanned twice
     push:
       branches:
-        - '**'
+        - development
+        - master
       tags-ignore:
         - '*'
     pull_request:

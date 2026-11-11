@@ -1,9 +1,11 @@
 name: "CodeQL"
 
 on:
+  # Branches are analysed through pull_request; push only covers the long-lived branches, so a PR is not analysed twice
   push:
     branches:
-      - '**'
+      - development
+      - master
     tags-ignore:
       - 'web-*'
   pull_request:

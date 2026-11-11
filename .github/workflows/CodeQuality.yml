@@ -1,9 +1,11 @@
 name: Build & Test & SonarQube
 
 on:
+  # Branches are built through pull_request; push only covers the long-lived branches, so a PR is not built twice
   push:
     branches:
-      - '**'
+      - development
+      - master
     tags-ignore:
       - 'web-*'
   pull_request:

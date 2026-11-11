@@ -1,7 +1,11 @@
 name: "nuget package reference check"
 
 on:
+  # Branches are checked through pull_request; push only covers the long-lived branches, so a PR is not checked twice
   push:
+    branches:
+      - development
+      - master
   pull_request:
   schedule:
     - cron: '0 8 * * *'
