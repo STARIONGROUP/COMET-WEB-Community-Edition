@@ -188,6 +188,19 @@ namespace COMET.Web.Common.Services.SessionManagement
         }
 
         /// <summary>
+        /// Refreshes the current <see cref="ISession" />
+        /// </summary>
+        /// <returns>A <see cref="Task" /></returns>
+        /// <remarks>
+        /// Hides the CDP4Web base implementation so that every caller skips the refresh of a read-only session. The file
+        /// DAL behind an Annex C3 archive does not support that read and would throw a <see cref="NotSupportedException" />
+        /// </remarks>
+        public new Task RefreshSession()
+        {
+            return this.IsReadOnly ? Task.CompletedTask : base.RefreshSession();
+        }
+
+        /// <summary>
         /// Open the iteration with the selected <see cref="EngineeringModelSetup" /> and <see cref="IterationSetup" />
         /// </summary>
         /// <param name="iterationSetup">The selected <see cref="IterationSetup" /></param>

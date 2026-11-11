@@ -199,6 +199,36 @@ namespace COMET.Web.Common.Tests.Services.SessionManagement
         }
 
         [Test]
+        public void VerifyRefreshSessionIsSkippedWhenReadOnly()
+        {
+            // The file DAL behind an Annex C3 archive session does not support the refresh read and throws
+            var session = CreateSessionMock(true);
+            session.Setup(x => x.Refresh()).ThrowsAsync(new NotSupportedException());
+            InjectSession(this.sessionService, session.Object);
+
+            CDP4Web.Services.SessionService.ISessionService baseInterfaceReference = this.sessionService;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(async () => await this.sessionService.RefreshSession(), Throws.Nothing);
+                Assert.That(async () => await baseInterfaceReference.RefreshSession(), Throws.Nothing);
+                session.Verify(x => x.Refresh(), Times.Never);
+            });
+        }
+
+        [Test]
+        public async Task VerifyRefreshSessionRefreshesAServerSession()
+        {
+            var session = CreateSessionMock(false);
+            session.Setup(x => x.Refresh()).Returns(Task.CompletedTask);
+            InjectSession(this.sessionService, session.Object);
+
+            await this.sessionService.RefreshSession();
+
+            session.Verify(x => x.Refresh(), Times.Once);
+        }
+
+        [Test]
         public void VerifyIsReadOnly()
         {
             Assert.Multiple(() =>

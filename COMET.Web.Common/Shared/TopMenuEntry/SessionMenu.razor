@@ -65,7 +65,7 @@
             </div>
 
             <div class="session__buttons session__buttons--secondary">
-                <DxButton Id="refresh-button" CssClass="btn btn-connect" RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="@this.RefreshButtonText" IconCssClass="@IconName.Refresh.GetCssClass()" Enabled="@(!this.IsRefreshing)" Click="@(this.OnRefreshClick)"/>
+                <DxButton Id="refresh-button" CssClass="btn btn-connect" RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="@this.RefreshButtonText" IconCssClass="@IconName.Refresh.GetCssClass()" Enabled="@this.IsRefreshButtonEnabled" Click="@(this.OnRefreshClick)"/>
                 <DxButton Id="logout-button" CssClass="btn btn-connect" RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Log out" IconCssClass="@IconName.LogOut.GetCssClass()" Click="@this.Logout"/>
             </div>
         </div>
