@@ -26,6 +26,10 @@ Copyright (c) 2023-2026 Starion Group S.A.
 @if (this.Inline)
 {
     <RequirementPills ViewModel="@this.ViewModel" Owner="@this.Requirement.Owner" Categories="@this.Requirement.Category" />
+    @if (this.ViewModel.ShowAnnotations)
+    {
+        <AnnotationBadges ViewModel="@this.ViewModel.AnnotationsViewModel" Thing="@this.Requirement" />
+    }
     <span class="req-actions">
         <EditThingButton ViewModel="@this.ViewModel" Thing="@this.Requirement" />
         <DeprecateThingButton ViewModel="@this.ViewModel" Thing="@this.Requirement" />
@@ -38,6 +42,10 @@ else
         {
             <StarionPill ColorSeed="@($"owner:{this.Requirement.Owner.ShortName}")" Title="@($"Owner: {this.Requirement.Owner.Name}")">@this.Requirement.Owner.ShortName</StarionPill>
         }
+        @if (this.ViewModel.ShowAnnotations)
+    {
+        <AnnotationBadges ViewModel="@this.ViewModel.AnnotationsViewModel" Thing="@this.Requirement" />
+    }
         <span class="req-actions"><EditThingButton ViewModel="@this.ViewModel" Thing="@this.Requirement" /></span>
     </div>
     <div class="req-pill-action-row">

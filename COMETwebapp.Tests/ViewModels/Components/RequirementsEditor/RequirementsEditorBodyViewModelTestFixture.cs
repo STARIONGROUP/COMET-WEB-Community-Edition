@@ -24,6 +24,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
 {
     using CDP4Common.CommonData;
     using CDP4Common.EngineeringModelData;
+    using CDP4Common.ReportingData;
     using CDP4Common.SiteDirectoryData;
     using CDP4Common.Types;
 
@@ -41,6 +42,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
     using COMETwebapp.Services.Export;
     using COMETwebapp.Services.RequirementsEditor;
     using COMETwebapp.Services.ShowHideDeprecatedThingsService;
+    using COMETwebapp.ViewModels.Components.Annotations;
     using COMETwebapp.ViewModels.Components.RequirementsEditor;
 
     using DynamicData;
@@ -268,9 +270,25 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             {
                 Assert.That(this.viewModel.ShowOwner, Is.True);
                 Assert.That(this.viewModel.ShowCategory, Is.True);
+                Assert.That(this.viewModel.ShowAnnotations, Is.True, "the annotation pills and bar are shown by default");
                 Assert.That(this.viewModel.IsTreeNodeCollapsed(this.operateGroup.Iid), Is.False);
                 Assert.That(this.viewModel.IsDocumentGroupCollapsed(this.operateGroup.Iid), Is.False);
             });
+
+            var changedProperties = new List<string>();
+            using (this.viewModel.Changed.Subscribe(x => changedProperties.Add(x.PropertyName)))
+            {
+                this.viewModel.ShowAnnotations = false;
+                this.viewModel.ShowAnnotations = false;
+            }
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.ShowAnnotations, Is.False);
+                Assert.That(changedProperties, Is.EqualTo([nameof(IRequirementsEditorBodyViewModel.ShowAnnotations)]), "only a real change is announced");
+            });
+
+            this.viewModel.ShowAnnotations = true;
 
             this.viewModel.ToggleTreeNode(this.operateGroup.Iid);
             this.viewModel.ToggleDocumentGroup(this.operateGroup.Iid);
@@ -797,7 +815,8 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
             this.sessionService.Verify(x => x.CreateOrUpdateThingsWithNotification(
                 It.IsAny<Thing>(),
                 It.Is<IReadOnlyCollection<Thing>>(things => things.OfType<Definition>().Any(d => d.LanguageCode == "fr" && d.Content == "Some new definition text.")),
-                It.IsAny<NotificationDescription>()), Times.Once);
+                It.Is<NotificationDescription>(notification => notification.OnSuccess == "Requirement 'No definition yet' updated"
+                                                               && notification.OnError == "Could not update the Requirement 'No definition yet'")), Times.Once);
         }
 
         [Test]
@@ -974,6 +993,39 @@ namespace COMETwebapp.Tests.ViewModels.Components.RequirementsEditor
                 Assert.That(this.viewModel.ExportViewModel, Is.Not.Null);
                 Assert.That(this.viewModel.ExportViewModel.AvailableSpecifications, Does.Contain(this.specification), "the export view model is fed the current iteration");
             });
+        }
+
+        [Test]
+        public async Task VerifyAnnotationFilter()
+        {
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
+
+            var (changeRequest, _) = AnnotationHelper.CreateAnnotation(AnnotationKind.ChangeRequest, this.topRequirement, new Participant(),
+                this.systemDomain, "en", "CR-001", "Change it", "Please change it", AnnotationClassificationKind.MINOR);
+
+            var model = new EngineeringModel { Iid = Guid.NewGuid(), EngineeringModelSetup = new EngineeringModelSetup() };
+            model.ModellingAnnotation.Add((ModellingAnnotationItem)changeRequest);
+            this.iteration.Container = model;
+            this.viewModel.AnnotationsViewModel.SetIteration(this.iteration, this.systemDomain);
+
+            var changeRequests = this.viewModel.AnnotationsViewModel.FilterOptions.Single(x => x.Kind == AnnotationKind.ChangeRequest);
+            var notes = this.viewModel.AnnotationsViewModel.FilterOptions.Single(x => x.Kind == AnnotationKind.Note);
+
+            this.viewModel.SelectedAnnotationFilters = [changeRequests];
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.viewModel.GetRequirements(this.specification), Is.EqualTo((Requirement[])[this.topRequirement]));
+                Assert.That(this.viewModel.ShouldDisplayGroup(this.operateGroup), Is.False, "a group with no annotated requirement is hidden");
+            });
+
+            this.viewModel.SelectedAnnotationFilters = [notes];
+
+            Assert.That(this.viewModel.GetRequirements(this.specification), Is.Empty);
+
+            this.viewModel.NavigateToRequirement(this.c4iRequirement);
+
+            Assert.That(this.viewModel.SelectedAnnotationFilters, Is.Empty, "navigating clears the annotation filter so the target renders");
         }
     }
 }

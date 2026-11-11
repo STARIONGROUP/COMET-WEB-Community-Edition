@@ -122,7 +122,8 @@ Copyright (c) 2023-2026 Starion Group S.A.
         </section>
 
         <div class="req-export-actions">
-            <DxButton Text="Cancel"
+            <DxButton Id="requirement-export-cancel"
+                      Text="Cancel"
                       RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
                       Click="@(() => this.ViewModel.IsVisible = false)" />
             <DxButton Id="requirement-export-confirm"

@@ -144,6 +144,7 @@ namespace COMET.Web.Common.Extensions
                     IconName.Share => "share-2",
                     IconName.Smile => "smile",
                     IconName.List => "list",
+                    IconName.MessageSquare => "message-square",
                     _ => "help-circle"
                 };
             }

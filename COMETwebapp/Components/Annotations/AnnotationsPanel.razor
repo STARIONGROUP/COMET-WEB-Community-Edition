@@ -1,0 +1,213 @@
+<!------------------------------------------------------------------------------
+Copyright (c) 2023-2026 Starion Group S.A.
+
+    This file is part of COMET WEB Community Edition
+    The COMET WEB Community Edition is the Starion Group Web Application implementation of ECSS-E-TM-10-25 Annex A and Annex C.
+
+    The COMET WEB Community Edition is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Affero General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    The COMET WEB Community Edition is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------------->
+
+@using CDP4Common.ReportingData
+@using COMETwebapp.ViewModels.Components.Annotations
+@inherits DisposableComponent
+
+@{
+    var annotations = this.ViewModel;
+    var thing = annotations.ActiveThing;
+}
+
+@if (thing != null)
+{
+    var all = annotations.GetAnnotations(thing);
+    var shortName = AnnotationHelper.GetThingShortName(thing);
+    var name = AnnotationHelper.GetThingName(thing);
+    var visible = annotations.VisibleAnnotations;
+    var draft = annotations.Draft;
+    var creatable = annotations.CreatableKinds;
+
+    <aside id="annotations-panel" class="ann-panel" aria-label="@($"Annotations of {shortName}")">
+        <div class="ann-panel-header">
+            <div class="ann-panel-heading">
+                <span class="ann-panel-title"><CometIcon Icon="IconName.MessageSquare" /> Annotations</span>
+                <span class="ann-panel-subject" title="@name"><strong>@shortName</strong>@(string.IsNullOrEmpty(name) || name == shortName ? string.Empty : $" {name}")</span>
+            </div>
+            <DxButton Id="annotations-close"
+                      RenderStyle="@(CometButtonStyle.Light.ToButtonRenderStyle())"
+                      IconCssClass="@IconName.Close.GetCssClass()"
+                      title="Close the annotations panel"
+                      Click="@annotations.ClosePanel" />
+        </div>
+
+        <div class="ann-panel-filters" role="group" aria-label="Filter annotations by kind">
+            <button type="button" class="ann-chip @(annotations.KindFilter == null ? "is-selected" : string.Empty)" @onclick="@(() => annotations.KindFilter = null)">
+                All <span class="ann-chip-count">@all.Count</span>
+            </button>
+            @foreach (var summary in annotations.GetSummary(thing))
+            {
+                <button type="button"
+                        class="ann-chip ann-kind-@AnnotationHelper.GetCssSuffix(summary.Kind) @(annotations.KindFilter == summary.Kind ? "is-selected" : string.Empty)"
+                        title="@AnnotationHelper.GetSummaryTooltip(summary)"
+                        @onclick="@(() => annotations.KindFilter = summary.Kind)">
+                    @AnnotationHelper.GetAcronym(summary.Kind) <span class="ann-chip-count">@summary.Count</span>
+                </button>
+            }
+            <DxCheckBox Checked="@annotations.ShowResolved"
+                        CheckedChanged="@((bool value) => annotations.ShowResolved = value)"
+                        CheckType="CheckType.Switch"
+                        CssClass="ann-show-resolved"
+                        title="Also list the annotations that are done, closed or rejected">Show resolved</DxCheckBox>
+        </div>
+
+        @if (draft == null && creatable.Count > 0)
+        {
+            @* the application's standard add button (primary, plus icon), opening the list of kinds the user may add *@
+            <div class="ann-add-menu">
+                <DxButton Id="annotation-add"
+                          RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                          IconCssClass="@IconName.Add.GetCssClass()"
+                          Text="Annotation"
+                          title="Add an annotation"
+                          aria-haspopup="menu"
+                          aria-expanded="@(this.IsAddMenuOpen ? "true" : "false")"
+                          Click="@(() => this.IsAddMenuOpen = !this.IsAddMenuOpen)" />
+                @if (this.IsAddMenuOpen)
+                {
+                    <div class="ann-add-backdrop" @onclick="@(() => this.IsAddMenuOpen = false)"></div>
+                    <div class="ann-add-list" role="menu" @onkeydown="@this.OnAddMenuKeyDown">
+                        @foreach (var kind in creatable)
+                        {
+                            <button type="button"
+                                    role="menuitem"
+                                    id="@($"annotation-new-{AnnotationHelper.GetCssSuffix(kind)}")"
+                                    class="ann-add-item ann-kind-@AnnotationHelper.GetCssSuffix(kind)"
+                                    title="@GetKindHint(kind)"
+                                    @onclick="@(() => this.StartNew(kind))">
+                                <span class="ann-add-swatch"></span>@AnnotationHelper.GetLabel(kind)
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        @if (draft != null)
+        {
+            var shortNameError = annotations.GetShortNameError(draft);
+
+            <div id="annotation-composer" class="ann-composer ann-kind-@AnnotationHelper.GetCssSuffix(draft.Kind)">
+                <div class="ann-composer-header">
+                    <span class="ann-kind-pill ann-kind-@AnnotationHelper.GetCssSuffix(draft.Kind)">@AnnotationHelper.GetAcronym(draft.Kind)</span>
+                    <strong>@GetComposerTitle(draft)</strong>
+                    @if (!string.IsNullOrEmpty(draft.ShortName))
+                    {
+                        <span class="ann-composer-shortname" title="The short name the annotation is known by">@draft.ShortName</span>
+                    }
+                </div>
+                <p class="ann-composer-hint">@GetKindHint(draft.Kind)</p>
+
+                @if (draft.HasTitle)
+                {
+                    <label class="ann-field-label" for="annotation-title">Title</label>
+                    <DxTextBox Id="annotation-title"
+                               @bind-Text="@draft.Title"
+                               BindValueMode="BindValueMode.OnInput"
+                               NullText="A short summary" />
+
+                    <span class="ann-field-label">Classification</span>
+                    <div class="ann-segmented" role="group" aria-label="Classification">
+                        @foreach (var classification in Classifications)
+                        {
+                            <button type="button"
+                                    class="@(draft.Classification == classification ? "is-selected" : string.Empty)"
+                                    aria-pressed="@(draft.Classification == classification)"
+                                    @onclick="@(() => draft.Classification = classification)">@AnnotationHelper.GetClassificationLabel(classification)</button>
+                        }
+                    </div>
+                }
+
+                <label class="ann-field-label" for="annotation-content">@(draft.Kind == AnnotationKind.Note ? "Comment" : "Description")</label>
+                <DxMemo Id="annotation-content"
+                        @bind-Text="@draft.Content"
+                        BindValueMode="BindValueMode.OnInput"
+                        Rows="4"
+                        NullText="@GetContentPlaceholder(draft.Kind)" />
+
+                @if (draft.ShowsDetails)
+                {
+                    <label class="ann-field-label" for="annotation-shortname">Short name</label>
+                    <DxTextBox Id="annotation-shortname"
+                               @bind-Text="@draft.ShortName"
+                               BindValueMode="BindValueMode.OnInput" />
+                    @if (shortNameError != null)
+                    {
+                        <span class="ann-field-error" role="alert">@shortNameError</span>
+                    }
+
+                    <label class="ann-field-label" for="annotation-owner">Owner</label>
+                    <DxComboBox TData="DomainOfExpertise"
+                                TValue="DomainOfExpertise"
+                                Id="annotation-owner"
+                                Data="@draft.AvailableOwners"
+                                @bind-Value="@draft.Owner"
+                                TextFieldName="@nameof(DomainOfExpertise.Name)"
+                                AllowUserInput="true"
+                                FilteringMode="DataGridFilteringMode.Contains" />
+
+                    <label class="ann-field-label" for="annotation-categories">Categories</label>
+                    <DxTagBox TData="Category"
+                              TValue="Category"
+                              Id="annotation-categories"
+                              Data="@draft.AvailableCategories"
+                              @bind-Values="@draft.Categories"
+                              TextFieldName="@nameof(Category.Name)"
+                              FilteringMode="DataGridFilteringMode.Contains"
+                              NullText="@(draft.AvailableCategories.Count == 0 ? "No category applies to this kind" : "Add categories...")" />
+                }
+
+                <div class="ann-composer-actions">
+                    <DxButton RenderStyle="@(CometButtonStyle.Secondary.ToButtonRenderStyle())" Text="Cancel" Click="@annotations.CancelDraft" />
+                    <DxButton Id="annotation-save"
+                              RenderStyle="@(CometButtonStyle.Primary.ToButtonRenderStyle())"
+                              Text="@(draft.EditedAnnotation == null ? "Add" : "Save")"
+                              Enabled="@(draft.IsValid && shortNameError == null && !annotations.IsBusy)"
+                              Click="@annotations.SaveDraftAsync" />
+                </div>
+            </div>
+        }
+
+        <div class="ann-list">
+            @if (all.Count == 0)
+            {
+                <div class="ann-empty">
+                    <CometIcon Icon="IconName.MessageSquare" Size="28" />
+                    <p><strong>No annotations yet.</strong></p>
+                    <p>@(creatable.Count > 0 ? "Leave a note, ask for a change, or raise a review item, deviation or waiver." : "You do not have permission to annotate this item.")</p>
+                </div>
+            }
+            else if (visible.Count == 0)
+            {
+                <div class="ann-empty"><p>No annotation matches the current filter.</p></div>
+            }
+
+            @foreach (var annotation in visible)
+            {
+                <AnnotationCard @key="annotation.Iid"
+                                ViewModel="@this.ViewModel"
+                                Annotation="@annotation"
+                                OnEditAnnotatedThing="@this.OnEditAnnotatedThing"
+                                EditAnnotatedThingText="@this.EditAnnotatedThingText" />
+            }
+        </div>
+    </aside>
+}
