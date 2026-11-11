@@ -27,6 +27,7 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
     using CDP4Common.SiteDirectoryData;
 
     using COMET.Web.Common.Extensions;
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     using DevExpress.Blazor;
@@ -41,6 +42,11 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
     public partial class QuantityKindParameterTypeEditor
 
     {
+    /// <summary>
+    /// The subscription that re-renders the component when the <see cref="ViewModel" /> changes
+    /// </summary>
+    private readonly ViewModelSubscription viewModelSubscription = new();
+
     /// <summary>
     /// Gets or sets the <see cref="IParameterEditorBaseViewModel{T}" />
     /// </summary>
@@ -60,6 +66,16 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
     public MeasurementScale Scale { get; set; }
 
     /// <summary>
+    /// Method invoked when the component is ready to start, having received its initial parameters from its parent in
+    /// the render tree.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        this.Disposables.Add(this.viewModelSubscription);
+    }
+
+    /// <summary>
     /// Method invoked when the component has received parameters from its parent in
     /// the render tree, and the incoming values have been assigned to properties.
     /// </summary>
@@ -67,9 +83,9 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
     {
         base.OnParametersSet();
 
-        this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.IsReadOnly,
-                x => x.ViewModel.ValueArray)
-            .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
+        this.viewModelSubscription.Update(this.ViewModel, viewModel => viewModel
+            .WhenAnyValue(x => x.IsReadOnly, x => x.ValueArray)
+            .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
     }
     }
 }

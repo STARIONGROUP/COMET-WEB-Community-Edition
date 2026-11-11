@@ -127,6 +127,30 @@ namespace COMET.Web.Common.Tests.Utilities
         }
 
         [Test]
+        public void VerifyAFailedSubscribeIsRetriedForTheSameViewModel()
+        {
+            var first = new object();
+            var viewModel = new object();
+            this.viewModelSubscription.Update(first, this.Subscribe);
+
+            Assert.That(() => this.viewModelSubscription.Update(viewModel, _ => throw new InvalidOperationException()), Throws.InvalidOperationException);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.disposedViewModels, Is.EqualTo(new[] { first }));
+                Assert.That(this.viewModelSubscription.IsSubscribed, Is.False);
+            });
+
+            this.viewModelSubscription.Update(viewModel, this.Subscribe);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.subscribedViewModels, Is.EqualTo(new[] { first, viewModel }));
+                Assert.That(this.viewModelSubscription.IsSubscribed, Is.True);
+            });
+        }
+
+        [Test]
         public void VerifyUpdateRequiresASubscribeFunction()
         {
             Assert.That(() => this.viewModelSubscription.Update<object>(new object(), null), Throws.ArgumentNullException);

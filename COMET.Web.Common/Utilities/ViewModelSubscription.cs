@@ -65,12 +65,17 @@ namespace COMET.Web.Common.Utilities
 
             this.subscription?.Dispose();
             this.subscription = null;
-            this.viewModel = newViewModel;
+            this.viewModel = null;
 
-            if (newViewModel != null)
+            if (newViewModel == null)
             {
-                this.subscription = subscribe(newViewModel);
+                return;
             }
+
+            // Only record the view model once the subscription exists, so that a subscribe that throws is retried on the
+            // next call with the same view model
+            this.subscription = subscribe(newViewModel);
+            this.viewModel = newViewModel;
         }
 
         /// <summary>
