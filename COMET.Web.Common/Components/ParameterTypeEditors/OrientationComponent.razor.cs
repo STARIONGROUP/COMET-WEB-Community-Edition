@@ -23,6 +23,7 @@
 
 namespace COMET.Web.Common.Components.ParameterTypeEditors
 {
+    using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
     using Microsoft.AspNetCore.Components;
@@ -35,10 +36,25 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
     public partial class OrientationComponent
     {
         /// <summary>
+        /// The subscription that re-renders the component when the angle format of the <see cref="ViewModel" /> changes
+        /// </summary>
+        private readonly ViewModelSubscription viewModelSubscription = new();
+
+        /// <summary>
         /// Gets or sets the <see cref="IOrientationViewModel" />
         /// </summary>
         [Parameter]
         public IOrientationViewModel ViewModel { get; set; }
+
+        /// <summary>
+        /// Method invoked when the component is ready to start, having received its initial parameters from its parent in
+        /// the render tree.
+        /// </summary>
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            this.Disposables.Add(this.viewModelSubscription);
+        }
 
         /// <summary>
         /// Method invoked when the component has received parameters from its parent in
@@ -47,7 +63,10 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
-            this.Disposables.Add(this.WhenAnyValue(x => x.ViewModel.AngleFormat).Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+
+            this.viewModelSubscription.Update(this.ViewModel, viewModel => viewModel
+                .WhenAnyValue(x => x.AngleFormat)
+                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }
 }
