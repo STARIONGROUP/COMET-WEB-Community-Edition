@@ -23,6 +23,7 @@
 
 namespace COMET.Web.Common.Components.ParameterTypeEditors
 {
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
@@ -66,7 +67,7 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
 
             this.viewModelSubscription.Update(this.ViewModel, viewModel => viewModel
                 .WhenAnyValue(x => x.AngleFormat)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
     }
 }

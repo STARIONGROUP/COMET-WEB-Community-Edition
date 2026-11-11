@@ -85,7 +85,7 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
 
         this.viewModelSubscription.Update(this.ViewModel, viewModel => viewModel
             .WhenAnyValue(x => x.IsReadOnly, x => x.ValueArray)
-            .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+            .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
     }
     }
 }

@@ -26,6 +26,7 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
     using CDP4Common.EngineeringModelData;
     using CDP4Common.SiteDirectoryData;
 
+    using COMET.Web.Common.Extensions;
     using COMET.Web.Common.Utilities;
     using COMET.Web.Common.ViewModels.Components.ParameterEditors;
 
@@ -95,7 +96,7 @@ namespace COMET.Web.Common.Components.ParameterTypeEditors
 
             this.viewModelSubscription.Update(this.ViewModel, viewModel => viewModel
                 .WhenAnyValue(x => x.IsReadOnly, x => x.ValueArray)
-                .Subscribe(_ => this.InvokeAsync(this.StateHasChanged)));
+                .SubscribeAsync(_ => this.InvokeAsync(this.StateHasChanged)));
         }
 
         /// <summary>
