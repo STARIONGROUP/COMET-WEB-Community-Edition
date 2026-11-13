@@ -160,5 +160,59 @@ namespace COMET.Web.Common.Tests.Components.ParameterTypeEditors
             this.editor.ViewModel.IsReadOnly = true;
             Assert.That(textbox.Instance.ReadOnly, Is.True);
         }
+
+        [Test]
+        public async Task VerifyAChangeOnAnotherThreadReRendersTheEditor()
+        {
+            var viewModel = this.CreateViewModel();
+            this.renderedComponent.Render(parameters => { parameters.Add(p => p.ViewModel, viewModel); });
+
+            Assert.That(this.renderedComponent.FindComponent<DxTextBox>().Instance.ReadOnly, Is.False);
+
+            await Task.Run(() => viewModel.IsReadOnly = true);
+
+            this.renderedComponent.WaitForAssertion(() => Assert.That(this.renderedComponent.FindComponent<DxTextBox>().Instance.ReadOnly, Is.True));
+        }
+
+        [Test]
+        public void VerifyAReplacedViewModelNoLongerReRendersTheEditor()
+        {
+            var first = this.CreateViewModel();
+            var second = this.CreateViewModel();
+
+            this.renderedComponent.Render(parameters => { parameters.Add(p => p.ViewModel, first); });
+            this.renderedComponent.Render(parameters => { parameters.Add(p => p.ViewModel, second); });
+
+            var renderCount = this.renderedComponent.RenderCount;
+            first.IsReadOnly = true;
+
+            Assert.That(this.renderedComponent.RenderCount, Is.EqualTo(renderCount));
+
+            second.IsReadOnly = true;
+
+            this.renderedComponent.WaitForAssertion(() =>
+            {
+                Assert.That(this.renderedComponent.RenderCount, Is.GreaterThan(renderCount));
+                Assert.That(this.renderedComponent.FindComponent<DxTextBox>().Instance.ReadOnly, Is.True);
+            });
+        }
+
+        private TextParameterTypeEditorViewModel CreateViewModel()
+        {
+            var valueSet = new ParameterValueSet
+            {
+                Iid = Guid.NewGuid(),
+                ValueSwitch = ParameterSwitchKind.MANUAL,
+                Manual = new ValueArray<string>(new List<string> { "test" })
+            };
+
+            var parameterType = new TextParameterType
+            {
+                Iid = Guid.NewGuid(),
+                Name = "TestParameterType"
+            };
+
+            return new TextParameterTypeEditorViewModel(parameterType, valueSet, false);
+        }
     }
 }
