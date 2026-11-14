@@ -37,6 +37,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
     using CDP4Web.Enumerations;
 
     using COMET.Web.Common.Services.SessionManagement;
+    using COMET.Web.Common.Test.Helpers;
 
     using COMETwebapp.Model;
     using COMETwebapp.Model.Viewer;
@@ -163,8 +164,10 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
             var deletedElementUsage = new ElementUsage { Iid = Guid.NewGuid(), ElementDefinition = childDefDeleted, Container = elementDefWithShape };
             elementDefWithShape.ContainedElement.Add(deletedElementUsage);
 
+            // Setting the current thing starts the initialization of the view model; wait for it instead of starting a
+            // second one, so that it cannot finish after the session refresh below and rebuild the elements.
             this.viewModel.CurrentThing = iteration;
-            await this.viewModel.InitializeViewModel();
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             this.viewModel.OptionSelector.SelectedOption = new Option(Guid.NewGuid(), cache, uri);
 
@@ -190,7 +193,7 @@ namespace COMETwebapp.Tests.ViewModels.Components.Viewer
 
             // Trigger OnSessionRefreshed
             this.messageBus.SendMessage(SessionServiceEvent.SessionRefreshed, this.sessionService.Object.Session);
-            await Task.Delay(200);
+            await TaskHelper.WaitWhileAsync(() => this.viewModel.IsLoading);
 
             Assert.Multiple(() =>
             {

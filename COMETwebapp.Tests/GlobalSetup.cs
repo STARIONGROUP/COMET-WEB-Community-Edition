@@ -23,6 +23,8 @@
 
 namespace COMETwebapp.Tests
 {
+    using System.Reactive.Concurrency;
+
     using NUnit.Framework;
 
     using ReactiveUI.Builder;
@@ -33,7 +35,12 @@ namespace COMETwebapp.Tests
         [OneTimeSetUp]
         public void RunBeforeAnyTests()
         {
-            RxAppBuilder.CreateReactiveUIBuilder().BuildApp();
+            // Run work scheduled on the main thread scheduler synchronously, on the calling thread. Without this, ReactiveUI
+            // uses the thread pool in a unit test runner, so property observations and command results arrive on a
+            // background thread after the test has moved on, and the tests depend on how fast the machine is.
+            RxAppBuilder.CreateReactiveUIBuilder()
+                .WithMainThreadScheduler(CurrentThreadScheduler.Instance, true)
+                .BuildApp();
         }
     }
 }
