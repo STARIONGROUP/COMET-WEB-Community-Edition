@@ -23,12 +23,10 @@ server {
             proxy_set_header Host $host;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
-            
-            # kill cache
-            add_header Last-Modified $date_gmt;
-            add_header Cache-Control 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
-            if_modified_since off;
-            expires off;
-            etag off;
+
+            # The application sets the caching and security headers of its responses itself (Cache-Control,
+            # X-Frame-Options, Content-Security-Policy frame-ancestors, X-Content-Type-Options): static files are sent
+            # with "Cache-Control: no-cache" and an ETag, so that a new version is picked up straight away. Do not
+            # override these headers here.
         }
 }

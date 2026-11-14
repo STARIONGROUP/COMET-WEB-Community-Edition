@@ -165,12 +165,21 @@ namespace COMETwebapp.Tests.ViewModels.Components.EngineeringModel.FileStore
             fileMock.Setup(x => x.OpenReadStream(It.IsAny<long>(), It.IsAny<CancellationToken>())).Returns(new MemoryStream());
             await this.viewModel.UploadFile(fileMock.Object);
 
+            var uploadsRoot = Path.Combine(Path.GetTempPath(), FileRevisionHandlerViewModel.UploadsDirectoryName);
+            var localPath = this.viewModel.FileRevision.LocalPath;
+
             Assert.Multiple(() =>
             {
                 Assert.That(this.viewModel.ErrorMessage, Is.Empty);
                 Assert.That(this.viewModel.FileRevision.Name, Is.EqualTo("file"));
                 Assert.That(this.viewModel.FileRevision.FileType.First().Extension, Is.EqualTo("txt"));
+                Assert.That(localPath, Does.StartWith(uploadsRoot), "uploaded files are stored outside the web root");
+                Assert.That(System.IO.File.Exists(localPath), Is.True);
             });
+
+            this.viewModel.Dispose();
+
+            Assert.That(Directory.Exists(Path.GetDirectoryName(localPath)), Is.False, "the uploads of the view model are removed when it is disposed");
         }
 
         [Test]

@@ -118,7 +118,8 @@ namespace COMETwebapp
                 var maximumArchiveAge = app.Configuration.GetValue("ArchiveStorage:MaximumAge", TimeSpan.FromDays(1));
                 ArchiveFileService.RemoveOrphanedArchives(maximumArchiveAge, logger);
 
-                app.UseStaticFiles();
+                app.UseSecurityHeaders();
+                app.UseRevalidatedStaticFiles();
                 app.UseRouting();
                 app.MapBlazorHub();
                 app.MapFallbackToPage("/_Host");
