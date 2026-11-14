@@ -43,6 +43,12 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
     public class FileRevisionHandlerViewModel : ApplicationBaseViewModel, IFileRevisionHandlerViewModel
     {
         /// <summary>
+        /// The name of the directory, in the temporary directory of the system, that uploaded files are stored in until
+        /// they are sent to the server
+        /// </summary>
+        public const string UploadsDirectoryName = "comet-web-uploads";
+
+        /// <summary>
         /// Gets the <see cref="ILogger{TCategoryName}"/>
         /// </summary>
         private readonly ILogger<FileRevisionHandlerViewModel> logger;
@@ -124,7 +130,8 @@ namespace COMETwebapp.ViewModels.Components.EngineeringModel.FileStore.FileRevis
             this.CurrentFileStore = fileStore;
             this.FileTypes = this.SessionService.GetSiteDirectory().AvailableReferenceDataLibraries().SelectMany(x => x.FileType);
             this.ErrorMessage = string.Empty;
-            this.UploadsDirectory = Path.Combine("wwwroot", "uploads", Guid.NewGuid().ToString());
+            // Outside the web root, so that the static file middleware never serves an uploaded file
+            this.UploadsDirectory = Path.Combine(Path.GetTempPath(), UploadsDirectoryName, Guid.NewGuid().ToString());
         }
 
         /// <summary>
