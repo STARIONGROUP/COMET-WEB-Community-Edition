@@ -215,5 +215,100 @@ namespace COMETwebapp.Tests.Services.SubscriptionService
 
             Assert.That(this.subscriptionService.TrackedSubscriptions, Is.Empty);
         }
+
+        [Test]
+        public void VerifyThatNotificationCountDecreasesAfterValidation()
+        {
+            var notificationService = new NotificationService();
+            this.subscriptionService = new SubscriptionService(this.sessionService.Object, notificationService, this.messageBus);
+
+            var thermalOwner = new DomainOfExpertise()
+            {
+                Iid = Guid.NewGuid(),
+                Name = "THERMAL"
+            };
+
+            var systemOwner = new DomainOfExpertise()
+            {
+                Iid = Guid.NewGuid(),
+                Name = "SYSTEM"
+            };
+
+            var iteration = new Iteration()
+            {
+                Iid = Guid.NewGuid()
+            };
+
+            var massParameterType = new SimpleQuantityKind()
+            {
+                Iid = Guid.NewGuid(),
+                Name = "mass"
+            };
+
+            var subscribed = new ParameterValueSet { Iid = Guid.NewGuid() };
+            var valueSet = new ParameterSubscriptionValueSet() { Iid = Guid.NewGuid(), SubscribedValueSet = subscribed };
+
+            var accelerometerBox = new ElementDefinition()
+            {
+                Iid = Guid.NewGuid(),
+                Owner = thermalOwner,
+                Name = "ACCELEROMETER BOX",
+                Parameter =
+                {
+                    new Parameter()
+                    {
+                        Iid = Guid.NewGuid(),
+                        ParameterType = massParameterType,
+                        Owner = thermalOwner,
+                        ValueSet = { subscribed },
+                        ParameterSubscription = { new ParameterSubscription() { Iid = Guid.NewGuid(), Owner = systemOwner, ValueSet = { valueSet } } }
+                    }
+                }
+            };
+
+            var topElement = new ElementDefinition()
+            {
+                Iid = Guid.NewGuid(),
+                Name = "TopElement",
+                Owner = systemOwner,
+                ContainedElement =
+                {
+                    new ElementUsage()
+                    {
+                        Iid = Guid.NewGuid(),
+                        Owner = thermalOwner,
+                        ElementDefinition = accelerometerBox
+                    }
+                }
+            };
+
+            iteration.Element.Add(topElement);
+            iteration.Element.Add(accelerometerBox);
+            iteration.TopElement = topElement;
+            this.sessionService.Setup(x => x.GetDomainOfExpertise(iteration)).Returns(systemOwner);
+            this.openIterations.Add(iteration);
+
+            var revisionNumberProperty = typeof(ParameterValueSet).GetProperty(nameof(ParameterValueSet.RevisionNumber))!;
+            revisionNumberProperty.SetValue(subscribed, 4);
+            subscribed.Revisions[0] = new ParameterValueSet() { Published = new ValueArray<string>(new List<string>() { "-" }) };
+            subscribed.Published = new ValueArray<string>(new List<string>() { "45" });
+
+            this.messageBus.SendMessage(new SessionEvent(this.sessionService.Object.Session, SessionStatus.EndUpdate));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.subscriptionService.SubscriptionUpdateCount, Is.EqualTo(1));
+                Assert.That(notificationService.NotificationCount, Is.EqualTo(1));
+            });
+
+            this.subscriptionService.UpdateTrackedSubscriptions(iteration);
+            this.subscriptionService.ComputeUpdateSinceLastTracking();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(this.subscriptionService.SubscriptionUpdateCount, Is.EqualTo(0));
+                Assert.That(notificationService.NotificationCount, Is.EqualTo(0));
+            });
+        }
     }
 }
