@@ -161,7 +161,7 @@ namespace COMETwebapp.Services.SubscriptionService
             }
             else
             {
-                this.notificationService.RemoveNotifications(difference);
+                this.notificationService.RemoveNotifications(-difference);
             }
 
             this.SubscriptionUpdateCount = newSubscriptionCount;
